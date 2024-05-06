@@ -18,9 +18,6 @@ include("nemo2hc-rewrite.jl")
 
 
 
-export HCPE, ODEPEtestwrapper, ParameterEstimationResult, symboltest
-
-
 function print_element_types(v)
 	for elem in v
 		println(typeof(elem))
@@ -570,13 +567,18 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 	model_ps = ModelingToolkit.parameters(model)
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	solved_res = Vector{ParameterEstimationResult}()
-	newres = ParameterEstimationResult()
-	newres.parameters = deepcopy(model_ps)
-	newres.states = deepcopy(model_states)
-
-
+	solved_res = []
+	newres = ParameterEstimationResult(deepcopy(model_ps), deepcopy(model_states), tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
 	results_vec = HCPE(model, measured_quantities, data, solver, [])
+
+
+
+
+
+
+
+
+
 	for each in results_vec
 		push!(solved_res, deepcopy(newres))
 
@@ -662,5 +664,10 @@ function LIANPEWrapper(model::ODESystem, measured_quantities, data_sample, solve
 
 
 end
+
+
+
+export HCPE, ODEPEtestwrapper, ParameterEstimationResult, symboltest
+
 
 end
