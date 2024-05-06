@@ -8,7 +8,7 @@ using OrderedCollections
 using BaryRational
 using Suppressor  #not thread safe?
 using HomotopyContinuation
-#using TaylorDiff
+using TaylorDiff
 #using ParameterEstimation
 
 
@@ -28,7 +28,7 @@ function symboltest()
 	println("test")
 end
 
-struct ParameterEstimationResult
+mutable struct ParameterEstimationResult
 	parameters::AbstractDict
 	states::AbstractDict
 	at_time::Float64
@@ -608,8 +608,9 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 		end
 		ic = deepcopy(solved_res[end].states)
 		ps = deepcopy(solved_res[end].parameters)
-		prob = ODEProblem(complete(model), in, tspan, ps)
-		ode_soln = ModelingToolkit.solve(prob, solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+		prob = ODEProblem(complete(model), ic, tspan, ps)
+
+		ode_solution = ModelingToolkit.solve(prob, solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 		err = 0
 		if ode_solution.retcode == ReturnCode.Success
 			err = 0

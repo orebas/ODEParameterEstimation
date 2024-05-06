@@ -560,6 +560,8 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 	#println(res)
 	besterror = 1e30
 
+	all_params = vcat(PEP.ic, PEP.p_true)
+
 	if (run_ode_pe)
 		res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
@@ -601,18 +603,18 @@ function varied_estimation_main()
 	time_interval = [-0.5, 0.5]
 	for PEP in [
 		simple(),
-		#lotka_volterra(),
+		lotka_volterra(),
 		vanderpol(),
-		#daisy_mamil3(),
-		#daisy_mamil4(),
-		#hiv(),
-		#slowfast(),
-		#substr_test(),
-		#global_unident_test(),
-		#sum_test(), 
-		#crauste(),
-		#fitzhugh_nagumo(), # rational expression
-		#seir(), #error due to rational expression
+		daisy_mamil3(),
+		daisy_mamil4(),
+		hiv(),
+		slowfast(),
+		substr_test(),
+		global_unident_test(),
+		sum_test(),
+		crauste(),
+		fitzhugh_nagumo(), # rational expression
+		seir(), #error due to rational expression
 
 
 		#biohydrogenation(),  #broken, debug
