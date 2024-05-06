@@ -574,7 +574,7 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 	solved_res = []
 	newres = ParameterEstimationResult(param_dict,
 		states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
-	results_vec = HCPE(model, measured_quantities, data, solver, [])
+	results_vec = HCPE(model, measured_quantities, data_sample, solver, [])
 
 
 
