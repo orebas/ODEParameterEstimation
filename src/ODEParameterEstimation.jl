@@ -567,8 +567,13 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 	model_ps = ModelingToolkit.parameters(model)
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
+	param_dict = Dict(model_ps .=> ones(length(model_ps)))
+
+	states_dict = Dict(model_states .=> ones(length(model_states)))
+
 	solved_res = []
-	newres = ParameterEstimationResult(deepcopy(model_ps), deepcopy(model_states), tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
+	newres = ParameterEstimationResult(param_dict,
+		states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
 	results_vec = HCPE(model, measured_quantities, data, solver, [])
 
 
