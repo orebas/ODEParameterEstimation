@@ -2,7 +2,46 @@ using ODEParameterEstimation
 using Test
 using ModelingToolkit
 using HomotopyContinuation
+using DifferentialEquations
+using OrderedCollections
 #using ParameterEstimation
+
+
+function sample_data(model::ModelingToolkit.ODESystem,
+	measured_data::Vector{ModelingToolkit.Equation},
+	time_interval::Vector{T},
+	p_true::Vector{T},
+	u0::Vector{T},
+	num_points::Int;
+	uneven_sampling = false,
+	uneven_sampling_times = Vector{T}(),
+	solver = Vern9(), inject_noise = false, mean_noise = 0,
+	stddev_noise = 1, abstol = 1e-14, reltol = 1e-14) where {T <: Number}
+	if uneven_sampling
+		if length(uneven_sampling_times) == 0
+			error("No uneven sampling times provided")
+		end
+		if length(uneven_sampling_times) != num_points
+			error("Uneven sampling times must be of length num_points")
+		end
+		sampling_times = uneven_sampling_times
+	else
+		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
+	end
+	problem = ODEProblem(ModelingToolkit.complete(model), u0, time_interval, Dict(ModelingToolkit.parameters(model) .=> p_true))
+	solution_true = ModelingToolkit.solve(problem, solver,
+		saveat = sampling_times;
+		abstol, reltol)
+	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
+											  for v in measured_data)
+	if inject_noise
+		for (key, sample) in data_sample
+			data_sample[key] = sample + randn(num_points) .* stddev_noise .+ mean_noise
+		end
+	end
+	data_sample["t"] = sampling_times
+	return data_sample
+end
 
 
 
@@ -22,7 +61,7 @@ function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = 
 		pe.Name,
 		complete(pe.model),
 		pe.measured_quantities,
-		ParameterEstimation.sample_data(pe.model, pe.measured_quantities, time_interval, pe.p_true, pe.ic, datasize, solver = solver),
+		sample_data(pe.model, pe.measured_quantities, time_interval, pe.p_true, pe.ic, datasize, solver = solver),
 		solver,
 		pe.p_true,
 		pe.ic,
@@ -524,7 +563,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 	if (run_ode_pe)
 		res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
-			PEP.solver, res[1])
+			PEP.solver)
 		display("res3")
 		display(res3)
 		LIAN_besterror = 1e30
@@ -554,7 +593,8 @@ end
 
 
 function varied_estimation_main()
-	print("testing")
+	println("testing")
+	ODEParameterEstimation.symboltest()
 	datasize = 21
 	solver = Vern9()
 	#solver = Rodas4P()
@@ -583,7 +623,7 @@ function varied_estimation_main()
 
 
 	]
-		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = true)
+		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = false, showplot = true)
 	end
 end
 
