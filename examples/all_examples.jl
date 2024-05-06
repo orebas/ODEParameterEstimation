@@ -8,6 +8,7 @@ using OrderedCollections
 
 
 
+
 struct ParameterEstimationProblem
 	Name::Any
 	model::Any
@@ -522,6 +523,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 
 	#println(res)
 	besterror = 1e30
+
 	all_params = vcat(PEP.ic, PEP.p_true)
 
 	if (run_ode_pe)
@@ -530,7 +532,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 			PEP.solver)
 		display("res3")
 		display(res3)
-		besterror = 1e30
+		LIAN_besterror = 1e30
 		for each in res3
 
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
@@ -545,18 +547,19 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 					pop!(errorvec)
 				end
 			end
-			besterror = min(besterror, maximum(errorvec))
+			LIAN_besterror = min(LIAN_besterror, maximum(errorvec))
 		end
 
 		if (test_mode)
 			@test besterror < 1e-2
 		end
-		println("For model ", PEP.Name, ": The ODEPE  max abs rel. err: ", besterror)
+		println("For model ", PEP.Name, ": The LIAN PE  max abs rel. err: ", LIAN_besterror)
 	end
 end
 
+
 function varied_estimation_main()
-	print("testing")
+	println("testing")
 	datasize = 21
 	solver = Vern9()
 	#solver = Rodas4P()
@@ -571,10 +574,10 @@ function varied_estimation_main()
 		slowfast(),
 		substr_test(),
 		global_unident_test(),
-		sum_test(), 
+		sum_test(),
 		crauste(),
-		fitzhugh_nagumo(), 
-		seir(), 
+		fitzhugh_nagumo(), # rational expression
+		seir(), #error due to rational expression
 
 
 		#biohydrogenation(),  #broken, debug
@@ -585,7 +588,7 @@ function varied_estimation_main()
 
 
 	]
-		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = true)
+		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = false, showplot = true)
 	end
 end
 

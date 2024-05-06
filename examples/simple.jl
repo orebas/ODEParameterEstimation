@@ -603,18 +603,18 @@ function varied_estimation_main()
 	time_interval = [-0.5, 0.5]
 	for PEP in [
 		simple(),
-		lotka_volterra(),
+		#lotka_volterra(),
 		vanderpol(),
-		daisy_mamil3(),
-		daisy_mamil4(),
-		hiv(),
-		slowfast(),
-		substr_test(),
-		global_unident_test(),
-		sum_test(),
-		crauste(),
-		fitzhugh_nagumo(), # rational expression
-		seir(), #error due to rational expression
+		#daisy_mamil3(),
+		#daisy_mamil4(),
+		#hiv(),
+		#slowfast(),
+		#substr_test(),
+		#global_unident_test(),
+		#sum_test(),
+		#crauste(),
+		#fitzhugh_nagumo(), # rational expression
+		#seir(), #error due to rational expression
 
 
 		#biohydrogenation(),  #broken, debug
