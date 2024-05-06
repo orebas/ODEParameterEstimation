@@ -259,7 +259,7 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	for j in measured_quantities
 		r = j.rhs
 		y_vector = data_sample[r]
-		interpolants[r] = ParameterEstimation.aaad(t_vector, y_vector)
+		interpolants[r] = aaad(t_vector, y_vector)
 	end
 	println("line 238")
 	display(model_eq)
