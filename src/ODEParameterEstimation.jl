@@ -61,10 +61,6 @@ function print_element_types(v)
 	end
 end
 
-function symboltest()
-	println("test")
-end
-
 mutable struct ParameterEstimationResult
 	parameters::AbstractDict
 	states::AbstractDict
@@ -112,8 +108,6 @@ function construct_substituted_jacobian(
 	for i in eachindex(measured_quantities)
 		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
 	end
-
-
 
 	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
 
@@ -193,10 +187,12 @@ function local_identifiability_analysis_2(model::ODESystem, measured_quantities,
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 	unident_dict = Dict()
 
-	jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-	evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+	jac = nothing
+	evaluated_jac = nothing
+	#jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
+	#evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
 
-	ns = nullspace(evaluated_jac)
+	#ns = nullspace(evaluated_jac)
 	all_identified = false
 	while (!all_identified)
 		jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
@@ -224,8 +220,8 @@ function local_identifiability_analysis_2(model::ODESystem, measured_quantities,
 		end
 	end
 
-	jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-	evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+	#jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
+	#evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
 	max_rank = rank(evaluated_jac, rtol = rtol)
 
 	while (n > 0)
