@@ -9,6 +9,7 @@ using BaryRational
 using Suppressor  #not thread safe?
 using HomotopyContinuation
 using TaylorDiff
+using PrecompileTools
 #using ParameterEstimation
 
 
@@ -703,13 +704,41 @@ function LIANPEWrapper(model::ODESystem, measured_quantities, data_sample, solve
 
 	println(newres)
 	return newres
-
-
 end
 
 
 
 export HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data
+
+#later, disable output of the compile_workload
+
+@recompile_invalidations begin
+	@compile_workload begin
+		@parameters a b
+		@variables t x1(t) x2(t) y1(t) y2(t)
+		D = Differential(t)
+		states = [x1, x2]
+		parameters = [a, b]
+	
+		@named model = ODESystem([
+				D(x1) ~ -a * x2,
+				D(x2) ~ b * x1,  #edited from 1/b
+			], t, states, parameters)
+		measured_quantities = [
+			y1 ~ x1,
+			y2 ~ x2]
+	
+		ic = [0.333, 0.667]
+		p_true = [0.4, 0.8]
+	
+		model = complete(model)
+		data_sample = sample_data(model,measured_quantities, [-1.0,1.0] ,p_true,ic,19, solver = Vern9())
+	
+		ret = ODEPEtestwrapper(model, measured_quantities, data_sample,  Vern9())
+	
+		display(ret)
+	end
+end
 
 
 end
