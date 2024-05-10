@@ -120,21 +120,21 @@ end
 
 
 function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-	@suppress begin
+	#@suppress begin
 		@assert length(xs) == length(ys)
-		internalApprox = BaryRational.aaa(xs, ys)
+		internalApprox = BaryRational.aaa(xs, ys,verbose=false)
 		return AAADapprox(internalApprox)
-	end
+	#end
 end
 
 
 
 function fhd(xs::AbstractArray{T}, ys::AbstractArray{T}, N::Int) where {T}
-	@suppress begin
+	#@suppress begin
 		@assert length(xs) == length(ys)
-		internalApprox = BaryRational.FHInterp(xs, ys, order = N)
+		internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
 		return FHDapprox(internalApprox)
-	end
+	#end
 end
 
 function fhdn(n)

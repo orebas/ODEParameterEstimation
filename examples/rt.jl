@@ -562,28 +562,27 @@ function varied_estimation_main()
 	#solver = Rodas4P()
 	time_interval = [-0.5, 0.5]
 	for PEP in [
-		simple(),
-		lotka_volterra(),
-		vanderpol(),
-		daisy_mamil3(),
-		daisy_mamil4(),
-		hiv(),
-		slowfast(),
-		substr_test(),
-		global_unident_test(),
-		sum_test(), 
-		crauste(),
-		fitzhugh_nagumo(), 
-		seir(), 
-		treatment(),  #no solutions found in old version
+		#simple(),
+		#lotka_volterra(),
+		#vanderpol(),
+		#daisy_mamil3(),
+		#daisy_mamil4(),
+		#hiv(),
+		#slowfast(),
+		#substr_test(),
+		#global_unident_test(),
+		#sum_test(), 
+		#crauste(),
+		#fitzhugh_nagumo(), 
+		#seir(), 
+		#treatment(),  
+		#hiv_local(), 
 
-		hiv_local(), #no solutions found in old version?  check?
-		
 
-		#biohydrogenation(),  #broken, debug
+		biohydrogenation(),  #broken, debug
 		#daisy_ex3(),
 		#sirsforced(),
-		
+
 
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = true)

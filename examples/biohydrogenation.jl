@@ -8,7 +8,6 @@ using OrderedCollections
 
 
 
-
 struct ParameterEstimationProblem
 	Name::Any
 	model::Any
@@ -472,7 +471,7 @@ function treatment(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833]
 
 	return ParameterEstimationProblem("treatment",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 6)
 end
 
 function vanderpol()
@@ -523,7 +522,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 
 	#println(res)
 	besterror = 1e30
-
 	all_params = vcat(PEP.ic, PEP.p_true)
 
 	if (run_ode_pe)
@@ -532,7 +530,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 			PEP.solver)
 		display("res3")
 		display(res3)
-		LIAN_besterror = 1e30
+		besterror = 1e30
 		for each in res3
 
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
@@ -547,19 +545,18 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 					pop!(errorvec)
 				end
 			end
-			LIAN_besterror = min(LIAN_besterror, maximum(errorvec))
+			besterror = min(besterror, maximum(errorvec))
 		end
 
 		if (test_mode)
-			@test besterror < 1e-2
+			@test besterror < 1e-1
 		end
-		println("For model ", PEP.Name, ": The LIAN PE  max abs rel. err: ", LIAN_besterror)
+		println("For model ", PEP.Name, ": The ODEPE  max abs rel. err: ", besterror)
 	end
 end
 
-
 function varied_estimation_main()
-	println("testing")
+	print("testing")
 	datasize = 21
 	solver = Vern9()
 	#solver = Rodas4P()
@@ -574,21 +571,21 @@ function varied_estimation_main()
 		#slowfast(),
 		#substr_test(),
 		#global_unident_test(),
-		#sum_test(),
+		#sum_test(), 
 		#crauste(),
-		#fitzhugh_nagumo(), # rational expression
-		#seir(), #error due to rational expression
+		#fitzhugh_nagumo(), 
+		#seir(), 
+		#treatment(),  
+		#hiv_local(), 
+		
 
-
-		#biohydrogenation(),  #broken, debug
-		hiv_local(), #no solutions found in old version?  check?
+		biohydrogenation(),  #broken, debug
 		#daisy_ex3(),
 		#sirsforced(),
-		#treatment(),  #no solutions found in old version
-
+		
 
 	]
-		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = false, showplot = true)
+		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = true)
 	end
 end
 

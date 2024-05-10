@@ -120,7 +120,7 @@ function daisy_ex3()
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7]
 	@named model = ODESystem([
-			D(x1) ~ -1 * p1 * x1 + x2 + u0,
+			D(x1) ~  -1 * p1 * x1 + x2 + u0,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
 			D(u0) ~ 1,
@@ -134,7 +134,7 @@ function daisy_ex3()
 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833] # True Parameters
 
 	return ParameterEstimationProblem("DAISY_ex3",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 5)
 end
 
 function daisy_mamil3(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
@@ -472,7 +472,7 @@ function treatment(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833]
 
 	return ParameterEstimationProblem("treatment",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 6)
 end
 
 function vanderpol()
@@ -577,11 +577,11 @@ function varied_estimation_main()
 		#sum_test(),
 		#crauste(),
 		#fitzhugh_nagumo(), # rational expression
-		#seir(), #error due to rational expression
+		#seir(), #rational expression
+		#hiv_local(), 
+		
 
-
-		#biohydrogenation(),  #broken, debug
-		hiv_local(), #no solutions found in old version?  check?
+		biohydrogenation(),  #broken, debug
 		#daisy_ex3(),
 		#sirsforced(),
 		#treatment(),  #no solutions found in old version

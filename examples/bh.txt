@@ -1,0 +1,78 @@
+testingwe decided to take this many derivatives: 6
+line 561
+9-element Vector{Num}:
+    k5
+    k6
+    k7
+    k8
+    k9
+   k10
+ x4(t)
+ x5(t)
+ x6(t)
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+Dict{Any, Any} with 1 entry:
+  x7(t) => 0.581488
+line 238
+4-element Vector{Equation}:
+ Differential(t)(x4(t)) ~ (-k5*x4(t)) / (k6 + x4(t))
+ Differential(t)(x5(t)) ~ (-k7*x5(t)) / (k8 + x6(t) + x5(t)) + (k5*x4(t)) / (k6 + x4(t))
+ Differential(t)(x6(t)) ~ (-(k10 - x6(t))*k9*x6(t)) / k10 + (k7*x5(t)) / (k8 + x6(t) + x5(t))
+ Differential(t)(x7(t)) ~ ((k10 - x6(t))*k9*x6(t)) / k10
+Dict{Any, Any} with 1 entry:
+  x7(t) => 0.581488
+4-element Vector{Equation}:
+ Differential(t)(x4(t)) ~ (-k5*x4(t)) / (k6 + x4(t))
+ Differential(t)(x5(t)) ~ (-k7*x5(t)) / (k8 + x6(t) + x5(t)) + (k5*x4(t)) / (k6 + x4(t))
+ Differential(t)(x6(t)) ~ ((-k10 + x6(t))*k9*x6(t)) / k10 + (k7*x5(t)) / (k8 + x6(t) + x5(t))
+ Differential(t)(0.5814878232799813) ~ ((k10 - x6(t))*k9*x6(t)) / k10
+starting SolveJSWithHC
+22-element Vector{Any}:
+ -0.37719047226234675 + x5(t)
+ 0.05101038504500708 + x5ˍt(t)
+ 0.0014953406156835113 + x5ˍtt(t)
+ 0.00032434157988098374 + x5ˍttt(t)
+ -0.0008071735336750971 + x5ˍtttt(t)
+ -0.00030513886497597864 + x5ˍttttt(t)
+ -0.17455998844623885 + x4(t)
+ 0.05419940718695695 + x4ˍt(t)
+ -0.01045019022315308 + x4ˍtt(t)
+ (k7*x5(t)) / (k8 + x6(t) + x5(t)) + (-k5*x4(t)) / (k6 + x4(t)) + x5ˍt(t)
+ (k7*x5ˍt(t)) / (k8 + x6(t) + x5(t)) + x5ˍtt(t) + (-k5*x4ˍt(t)) / (k6 + x4(t)) + (k5*x4(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (k7*x5(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2)
+ x5ˍttt(t) + (-2k5*x4(t)*(x4ˍt(t)^2)) / ((k6 + x4(t))^3) + (k5*(x4ˍt(t)^2)) / ((k6 + x4(t))^2) + (k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) + k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2) + (k5*x4ˍtt(t)*x4(t) + k5*(x4ˍt(t)^2)) / ((k6 + x4(t))^2) + (-k5*x4ˍtt(t)) / (k6 + x4(t)) + (k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2) + (-2k7*x5(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (k7*x5ˍtt(t)) / (k8 + x6(t) + x5(t))
+ (-2k7*(x6ˍtt(t) + x5ˍtt(t))*x5(t)*(-x6ˍt(t) - x5ˍt(t)) - 2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t)*(x6ˍt(t) + x5ˍt(t)) - 2k7*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^3) + (2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) + k7*(-x5ˍttt(t) - x6ˍttt(t))*x5(t) + k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (6k7*x5(t)*(-x6ˍt(t) - x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^2)) / ((k8 + x6(t) + x5(t))^4) + (k5*x4ˍtt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (-2k5*(x4ˍt(t)^3)) / ((k6 + x4(t))^3) + (k7*x5ˍttt(t)) / (k8 + x6(t) + x5(t)) + (6k5*x4(t)*(x4ˍt(t)^3)) / ((k6 + x4(t))^4) + (-4k5*x4ˍtt(t)*x4(t)*x4ˍt(t) - 2k5*(x4ˍt(t)^3)) / ((k6 + x4(t))^3) + (3k5*x4ˍtt(t)*x4ˍt(t) + k5*x4ˍttt(t)*x4(t)) / ((k6 + x4(t))^2) + (k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) + k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + x5ˍtttt(t) + (-2k7*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^3) + (2(-k5*x4ˍtt(t)*x4(t) - k5*(x4ˍt(t)^2))*x4ˍt(t)) / ((k6 + x4(t))^3) + (2(-k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) - k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (-k5*x4ˍttt(t)) / (k6 + x4(t)) + (k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (2k5*x4ˍtt(t)*x4ˍt(t)) / ((k6 + x4(t))^2)
+ (-2k7*(-x6ˍtt(t) - x5ˍtt(t))*(x6ˍt(t) + x5ˍt(t))*x5ˍt(t) - 2k7*(x6ˍtt(t) + x5ˍtt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t) - 2k7*x5ˍtt(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (-4k5*x4ˍtt(t)*(x4ˍt(t)^2)) / ((k6 + x4(t))^3) + (-2k5*x4ˍtt(t)*(x4ˍt(t)^2)) / ((k6 + x4(t))^3) + (-6(-k5*x4ˍtt(t)*x4(t) - k5*(x4ˍt(t)^2))*(x4ˍt(t)^2)) / ((k6 + x4(t))^4) + (-24k7*x5(t)*(-x6ˍt(t) - x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^3)) / ((k8 + x6(t) + x5(t))^5) + (k7*(-x6ˍtttt(t) - x5ˍtttt(t))*x5(t) + 3k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍtt(t) + k7*x5ˍttt(t)*(-x6ˍt(t) - x5ˍt(t)) + 3k7*(-x5ˍttt(t) - x6ˍttt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2) + (3k5*(x4ˍtt(t)^2) + k5*x4ˍtttt(t)*x4(t) + 4k5*x4ˍttt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (k7*x5ˍtttt(t)) / (k8 + x6(t) + x5(t)) + (2(-k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) - k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t)))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (2(-3k5*x4ˍtt(t)*x4ˍt(t) - k5*x4ˍttt(t)*x4(t))*x4ˍt(t)) / ((k6 + x4(t))^3) + (k7*x5ˍttt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (-2k7*x5ˍtt(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (6k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t)*((x6ˍt(t) + x5ˍt(t))^2) + 12k7*(x6ˍtt(t) + x5ˍtt(t))*x5(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t)) + 6k7*(-x6ˍt(t) - x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^2)*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^4) + (3(4k5*x4ˍtt(t)*x4(t)*x4ˍt(t) + 2k5*(x4ˍt(t)^3))*x4ˍt(t)) / ((k6 + x4(t))^4) + (6k7*(-x6ˍt(t) - x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^2)*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^4) + (2k5*(x4ˍtt(t)^2) + 2k5*x4ˍttt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (-24k5*x4(t)*(x4ˍt(t)^4)) / ((k6 + x4(t))^5) + (2(-k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) - k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t))*(x6ˍtt(t) + x5ˍtt(t)) + 2(-2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) - k7*(-x5ˍttt(t) - x6ˍttt(t))*x5(t) - k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t)))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (2(-2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) - k7*(-x5ˍttt(t) - x6ˍttt(t))*x5(t) - k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t)))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (3(2k7*(x6ˍtt(t) + x5ˍtt(t))*x5(t)*(-x6ˍt(t) - x5ˍt(t)) + 2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t)*(x6ˍt(t) + x5ˍt(t)) + 2k7*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^4) + (6k5*(x4ˍt(t)^4)) / ((k6 + x4(t))^4) + (2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍtt(t) + k7*x5ˍttt(t)*(-x6ˍt(t) - x5ˍt(t)) + k7*(-x5ˍttt(t) - x6ˍttt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2) + x5ˍttttt(t) + (k5*x4ˍttt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (-k5*x4ˍtttt(t)) / (k6 + x4(t)) + (18k5*x4ˍtt(t)*x4(t)*(x4ˍt(t)^2) + 6k5*(x4ˍt(t)^4)) / ((k6 + x4(t))^4) + (-4k5*(x4ˍtt(t)^2)*x4(t) - 10k5*x4ˍtt(t)*(x4ˍt(t)^2) - 4k5*x4ˍttt(t)*x4(t)*x4ˍt(t)) / ((k6 + x4(t))^3) + (-4k7*(-x6ˍtt(t) - x5ˍtt(t))*(x6ˍtt(t) + x5ˍtt(t))*x5(t) - 4k7*(-x6ˍtt(t) - x5ˍtt(t))*(x6ˍt(t) + x5ˍt(t))*x5ˍt(t) - 4k7*(x6ˍtt(t) + x5ˍtt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t) - 2k7*(x5ˍttt(t) + x6ˍttt(t))*x5(t)*(-x6ˍt(t) - x5ˍt(t)) - 2k7*(-x5ˍttt(t) - x6ˍttt(t))*x5(t)*(x6ˍt(t) + x5ˍt(t)) - 2k7*x5ˍtt(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (-6(-k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) - k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^2)) / ((k8 + x6(t) + x5(t))^4) + (k5*(x4ˍtt(t)^2) + k5*x4ˍttt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍtt(t) + k7*x5ˍttt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (2(-k5*x4ˍtt(t)*x4(t) - k5*(x4ˍt(t)^2))*x4ˍtt(t) + 2(-3k5*x4ˍtt(t)*x4ˍt(t) - k5*x4ˍttt(t)*x4(t))*x4ˍt(t)) / ((k6 + x4(t))^3) + (-6k5*x4ˍtt(t)*(x4ˍt(t)^2)) / ((k6 + x4(t))^3)
+ (k5*x4(t)) / (k6 + x4(t)) + x4ˍt(t)
+ x4ˍtt(t) + (k5*x4ˍt(t)) / (k6 + x4(t)) + (-k5*x4(t)*x4ˍt(t)) / ((k6 + x4(t))^2)
+ (-k7*x5(t)) / (k8 + x6(t) + x5(t)) + (-(-k10 + x6(t))*k9*x6(t)) / k10 + x6ˍt(t)
+ (-k7*x5ˍt(t)) / (k8 + x6(t) + x5(t)) + x6ˍtt(t) + (-k7*x5(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (-(-k10 + x6(t))*k9*x6ˍt(t) - k9*x6(t)*x6ˍt(t)) / k10
+ x6ˍttt(t) + (-(-k10 + x6(t))*k9*x6ˍtt(t) - k9*x6ˍtt(t)*x6(t) - 2k9*(x6ˍt(t)^2)) / k10 + (-k7*x5ˍtt(t)) / (k8 + x6(t) + x5(t)) + (-k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) - k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2) + (2k7*x5(t)*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (k7*(x6ˍt(t) + x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^2)
+ (-k5*x4ˍtt(t)*x4(t) - k5*(x4ˍt(t)^2)) / ((k6 + x4(t))^2) + (-k5*(x4ˍt(t)^2)) / ((k6 + x4(t))^2) + (2k5*x4(t)*(x4ˍt(t)^2)) / ((k6 + x4(t))^3) + (k5*x4ˍtt(t)) / (k6 + x4(t)) + x4ˍttt(t)
+ x6ˍtttt(t) + (-k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (2(k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t) + k7*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t))*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^3) + (-2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5ˍt(t) - k7*(-x5ˍttt(t) - x6ˍttt(t))*x5(t) - k7*x5ˍtt(t)*(-x6ˍt(t) - x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2) + (2k7*(x6ˍtt(t) + x5ˍtt(t))*x5(t)*(-x6ˍt(t) - x5ˍt(t)) + 2k7*(-x6ˍtt(t) - x5ˍtt(t))*x5(t)*(x6ˍt(t) + x5ˍt(t)) + 2k7*(x6ˍt(t) + x5ˍt(t))*(-x6ˍt(t) - x5ˍt(t))*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^3) + (-(-k10 + x6(t))*k9*x6ˍttt(t) - 6k9*x6ˍtt(t)*x6ˍt(t) - k9*x6ˍttt(t)*x6(t)) / k10 + (-2k7*((x6ˍt(t) + x5ˍt(t))^2)*x5ˍt(t)) / ((k8 + x6(t) + x5(t))^3) + (-6k7*x5(t)*(-x6ˍt(t) - x5ˍt(t))*((x6ˍt(t) + x5ˍt(t))^2)) / ((k8 + x6(t) + x5(t))^4) + (-k7*x5ˍttt(t)) / (k8 + x6(t) + x5(t)) + (k7*(x6ˍtt(t) + x5ˍtt(t))*x5ˍt(t) + k7*x5ˍtt(t)*(x6ˍt(t) + x5ˍt(t))) / ((k8 + x6(t) + x5(t))^2)
+ (-k5*x4ˍtt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (-6k5*x4(t)*(x4ˍt(t)^3)) / ((k6 + x4(t))^4) + (2(k5*x4ˍtt(t)*x4(t) + k5*(x4ˍt(t)^2))*x4ˍt(t)) / ((k6 + x4(t))^3) + x4ˍtttt(t) + (2k5*(x4ˍt(t)^3)) / ((k6 + x4(t))^3) + (-2k5*x4ˍtt(t)*x4ˍt(t)) / ((k6 + x4(t))^2) + (k5*x4ˍttt(t)) / (k6 + x4(t)) + (-3k5*x4ˍtt(t)*x4ˍt(t) - k5*x4ˍttt(t)*x4(t)) / ((k6 + x4(t))^2) + (4k5*x4ˍtt(t)*x4(t)*x4ˍt(t) + 2k5*(x4ˍt(t)^3)) / ((k6 + x4(t))^3)
+varlist
+22-element Vector{Any}:
+ k5
+ k6
+ k7
+ k8
+ k9
+ k10
+ x4(t)
+ x5(t)
+ x6(t)
+ x5ˍt(t)
+ x5ˍtt(t)
+ x5ˍttt(t)
+ x5ˍtttt(t)
+ x5ˍttttt(t)
+ x4ˍt(t)
+ x4ˍtt(t)
+ x6ˍt(t)
+ x6ˍtt(t)
+ x6ˍttt(t)
+ x4ˍttt(t)
+ x6ˍtttt(t)
+ x4ˍtttt(t)

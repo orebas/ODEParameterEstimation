@@ -1,0 +1,209 @@
+diff --git a/examples/hiv-local.jl b/examples/hiv-local.jl
+index 5705140..b715039 100644
+--- a/examples/hiv-local.jl
++++ b/examples/hiv-local.jl
+@@ -120,7 +120,7 @@ function daisy_ex3()
+ 	states = [x1, x2, x3, u0]
+ 	parameters = [p1, p3, p4, p6, p7]
+ 	@named model = ODESystem([
+-			D(x1) ~ -1 * p1 * x1 + x2 + u0,
++			D(x1) ~  -1 * p1 * x1 + x2 + u0,
+ 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
+ 			D(x3) ~ p6 * x1 - p7 * x3,
+ 			D(u0) ~ 1,
+@@ -134,7 +134,7 @@ function daisy_ex3()
+ 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833] # True Parameters
+ 
+ 	return ParameterEstimationProblem("DAISY_ex3",
+-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
++		model, measured_quantities, :nothing, :nothing, p_true, ic, 5)
+ end
+ 
+ function daisy_mamil3(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
+@@ -565,23 +565,23 @@ function varied_estimation_main()
+ 	#solver = Rodas4P()
+ 	time_interval = [-0.5, 0.5]
+ 	for PEP in [
+-		#simple(),
+-		#lotka_volterra(),
+-		#vanderpol(),
+-		#daisy_mamil3(),
+-		#daisy_mamil4(),
+-		#hiv(),
++		simple(),
++		lotka_volterra(),
++		vanderpol(),
++		daisy_mamil3(),
++		daisy_mamil4(),
++		hiv(),
+ 		#slowfast(),
+ 		#substr_test(),
+ 		#global_unident_test(),
+ 		#sum_test(),
+ 		#crauste(),
+ 		#fitzhugh_nagumo(), # rational expression
+-		#seir(), #error due to rational expression
+-
++		#seir(), #rational expression
++		#hiv_local(), 
++		
+ 
+ 		#biohydrogenation(),  #broken, debug
+-		hiv_local(), #no solutions found in old version?  check?
+ 		#daisy_ex3(),
+ 		#sirsforced(),
+ 		#treatment(),  #no solutions found in old version
+diff --git a/src/ODEParameterEstimation.jl b/src/ODEParameterEstimation.jl
+index 84e0b84..05ac912 100644
+--- a/src/ODEParameterEstimation.jl
++++ b/src/ODEParameterEstimation.jl
+@@ -6,7 +6,7 @@ using ModelingToolkit, DifferentialEquations
+ using LinearAlgebra
+ using OrderedCollections
+ using BaryRational
+-using Suppressor  #not thread safe?
++#using Suppressor  #not thread safe?
+ using HomotopyContinuation
+ using TaylorDiff
+ using PrecompileTools
+@@ -15,7 +15,7 @@ using PrecompileTools
+ 
+ 
+ include("bary_derivs.jl")
+-include("nemo2hc-rewrite.jl")
++#include("nemo2hc-rewrite.jl")
+ 
+ 
+ function sample_data(model::ModelingToolkit.ODESystem,
+@@ -123,8 +123,8 @@ function construct_substituted_jacobian(
+ 		subst_dict[states_lhs[i][j]] = states_rhs[i][j]   #this constructs a dict which substitutes the nth derivative of each state variable with the of each state equation
+ 	end
+ 
+-	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+-	obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
++	obs_lhs = [Vector{Num}([eq.lhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.lhs for eq in measured_quantities])))]
++	obs_rhs = [Vector{Num}([eq.rhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.rhs for eq in measured_quantities])))]
+ 
+ 	for i in 1:(max_deriv-2)
+ 		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
+@@ -138,13 +138,20 @@ function construct_substituted_jacobian(
+ 
+ 	for s in 1:max_deriv
+ 		for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
++			println("line 140")
++			display(obs_rhs[i][j])
+ 			result = substitute(obs_rhs[i][j], subst_dict)
++			display(result)
++			display(typeof(result))
++			display(typeof(result) <: Number)
++
+ 			if typeof(result) <: Number
+ 				templ = Symbolics.Term(Symbolics.sqrt, [0])
+-				if (result == 0)  #TODO: every other case will fail.
++				if (isequal(result,0) )  #TODO: every other case will fail.
+ 					templ = Symbolics.Term(Symbolics.sqrt, [0])
+ 				else
+-					templ = (Symbolics.Term(Symbolics.identity, [Real(Float64(result))]))
++					#templ = Symbolics.wrap(Symbolics.Term(Symbolics.identity, [Real(Float64(result))]))
++					templ = Symbolics.wrap(result)
+ 				end
+ 				obs_rhs[i][j] = templ  #type = SymbolicUtils.BasicSymbolic{Real}
+ 			else
+@@ -715,7 +722,7 @@ export HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data
+ 		D = Differential(t)
+ 		states = [x1, x2]
+ 		parameters = [a, b]
+-	
++
+ 		@named model = ODESystem([
+ 				D(x1) ~ -a * x2,
+ 				D(x2) ~ b * x1,  #edited from 1/b
+@@ -723,15 +730,15 @@ export HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data
+ 		measured_quantities = [
+ 			y1 ~ x1,
+ 			y2 ~ x2]
+-	
++
+ 		ic = [0.333, 0.667]
+ 		p_true = [0.4, 0.8]
+-	
++
+ 		model = complete(model)
+-		data_sample = sample_data(model,measured_quantities, [-1.0,1.0] ,p_true,ic,19, solver = Vern9())
+-	
+-		ret = ODEPEtestwrapper(model, measured_quantities, data_sample,  Vern9())
+-	
++		data_sample = sample_data(model, measured_quantities, [-1.0, 1.0], p_true, ic, 19, solver = Vern9())
++
++		ret = ODEPEtestwrapper(model, measured_quantities, data_sample, Vern9())
++
+ 		display(ret)
+ 	end
+ end
+diff --git a/src/bary_derivs.jl b/src/bary_derivs.jl
+index 0bf4a1e..8a601cc 100644
+--- a/src/bary_derivs.jl
++++ b/src/bary_derivs.jl
+@@ -120,21 +120,21 @@ end
+ 
+ 
+ function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+-	@suppress begin
++	#@suppress begin
+ 		@assert length(xs) == length(ys)
+-		internalApprox = BaryRational.aaa(xs, ys)
++		internalApprox = BaryRational.aaa(xs, ys,verbose=false)
+ 		return AAADapprox(internalApprox)
+-	end
++	#end
+ end
+ 
+ 
+ 
+ function fhd(xs::AbstractArray{T}, ys::AbstractArray{T}, N::Int) where {T}
+-	@suppress begin
++	#@suppress begin
+ 		@assert length(xs) == length(ys)
+-		internalApprox = BaryRational.FHInterp(xs, ys, order = N)
++		internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
+ 		return FHDapprox(internalApprox)
+-	end
++	#end
+ end
+ 
+ function fhdn(n)
+diff --git a/test/runtests.jl b/test/runtests.jl
+index 4a5748e..6cde3e8 100644
+--- a/test/runtests.jl
++++ b/test/runtests.jl
+@@ -228,7 +228,7 @@ function hiv_local()
+ 	datasize = 20
+ 
+ 	return ParameterEstimationProblem("hiv_local",
+-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
++		model, measured_quantities, :nothing, :nothing, p_true, ic, 7)
+ end
+ 
+ function hiv()
+@@ -549,7 +549,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
+ 		end
+ 
+ 		if (test_mode)
+-			@test besterror < 1e-2
++			@test besterror < 1e-1
+ 		end
+ 		println("For model ", PEP.Name, ": The ODEPE  max abs rel. err: ", besterror)
+ 	end
+@@ -575,10 +575,10 @@ function varied_estimation_main()
+ 		crauste(),
+ 		fitzhugh_nagumo(), 
+ 		seir(), 
+-
++		hiv_local(), #no solutions found in old version?  check?
++		
+ 
+ 		#biohydrogenation(),  #broken, debug
+-		#hiv_local(), #no solutions found in old version?  check?
+ 		#daisy_ex3(),
+ 		#sirsforced(),
+ 		#treatment(),  #no solutions found in old version

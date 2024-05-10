@@ -72,44 +72,19 @@ mutable struct ParameterEstimationResult
 end
 
 
-
-function unpack_ODE(model::ODESystem)
-	return ModelingToolkit.get_iv(model), deepcopy(ModelingToolkit.equations(model)), ModelingToolkit.unknowns(model), ModelingToolkit.parameters(model)
-end
-
 #below constructs fully substituted jacobian 
 #unident_dict is a dict of globally unidentifiable variables, and the substitution for them
 #deriv_level is a dict of 
 #(indices into measured_quantites =>   level of derivative to include)
 
-function calc_jacobian(model::ODESystem, measured_quantities_in, deriv_level, unident_dict, varlist)
-
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	measured_quantities = deepcopy(measured_quantities_in)
-
-	states_count = length(model_states)
-	ps_count = length(model_ps)
-	D = Differential(t)
-
-	#handle unident stuff
-	
-	for i in eachindex(model_eq)
-		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
-	end
-	for i in eachindex(measured_quantities)
-		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
-	end
-
-
-
-
-end
-
 function construct_substituted_jacobian(
 	model::ODESystem, measured_quantities_in, deriv_level, unident_dict, varlist)
 
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
+	t = ModelingToolkit.get_iv(model)
+	model_eq = deepcopy(ModelingToolkit.equations(model))
+	model_states = ModelingToolkit.unknowns(model)
+	model_ps = ModelingToolkit.parameters(model)
 
 	states_count = length(model_states)
 	ps_count = length(model_ps)
@@ -117,6 +92,16 @@ function construct_substituted_jacobian(
 	subst_dict = Dict()
 
 	#handle unident stuff
+	for i in eachindex(model_eq)
+		substitute(model_eq[i].lhs, unident_dict)
+		substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		substitute(measured_quantities[i].lhs, unident_dict)
+		substitute(measured_quantities[i].rhs, unident_dict)
+	end
+
+
 	for i in eachindex(model_eq)
 		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
 	end
@@ -166,7 +151,7 @@ function construct_substituted_jacobian(
 
 			if typeof(result) <: Number
 				templ = Symbolics.Term(Symbolics.sqrt, [0])
-				if (isequal(result, 0))  #TODO: every other case will fail.
+				if (isequal(result,0) )  #TODO: every other case will fail.
 					templ = Symbolics.Term(Symbolics.sqrt, [0])
 				else
 					#templ = Symbolics.wrap(Symbolics.Term(Symbolics.identity, [Real(Float64(result))]))
@@ -192,8 +177,11 @@ function construct_substituted_jacobian(
 end
 
 
-function local_identifiability_analysis(model::ODESystem, measured_quantities, rtol = 1e-12, atol = 1e-12)
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+function local_identifiability_analysis_2(model::ODESystem, measured_quantities, rtol = 1e-12, atol = 1e-12)
+	t = ModelingToolkit.get_iv(model)
+	model_eq = ModelingToolkit.equations(model)
+	model_states = ModelingToolkit.unknowns(model)
+	model_ps = ModelingToolkit.parameters(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
 
 	states_count = length(model_states)
@@ -298,7 +286,10 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	time_index_set = nothing)
 
 	measured_quantities = deepcopy(measured_quantities_in)
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	t = ModelingToolkit.get_iv(model)
+	model_eq = deepcopy(ModelingToolkit.equations(model))
+	model_states = ModelingToolkit.unknowns(model)
+	model_ps = ModelingToolkit.parameters(model)
 	D = Differential(t)
 
 	t_vector = pop!(data_sample, "t")
@@ -519,7 +510,7 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 		#display(time_index_set)
 	end
 
-	(deriv_level, unident_dict, varlist) = local_identifiability_analysis(model, measured_quantities)
+	(deriv_level, unident_dict, varlist) = local_identifiability_analysis_2(model, measured_quantities)
 	println("line 561")
 	display(varlist)
 	display(deriv_level)
@@ -689,7 +680,7 @@ function LIANPEWrapper(model::ODESystem, measured_quantities, data_sample, solve
 
 	newres = Vector{ParameterEstimation.EstimationResult}()
 	lianres_vec = HCPE(model, measured_quantities, data_sample, solver, [])
-	(deriv_level, unident_dict, varlist) = local_identifiability_analysis(model, measured_quantities)
+	(deriv_level, unident_dict, varlist) = local_identifiability_analysis_2(model, measured_quantities)
 
 	#display(lianres_vec)
 	for each in lianres_vec
