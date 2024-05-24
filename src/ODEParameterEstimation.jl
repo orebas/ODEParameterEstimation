@@ -92,7 +92,7 @@ function calc_jacobian(model::ODESystem, measured_quantities_in, deriv_level, un
 	D = Differential(t)
 
 	#handle unident stuff
-	
+
 	for i in eachindex(model_eq)
 		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
 	end
@@ -101,9 +101,77 @@ function calc_jacobian(model::ODESystem, measured_quantities_in, deriv_level, un
 	end
 
 
+	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
+
+
 
 
 end
+
+
+function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values)
+
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+	subst_dict = Dict()
+
+	#handle unident stuff
+	for i in eachindex(model_eq)
+		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+	end
+
+	states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
+	states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
+	for i in 1:(max_deriv_level-3)
+		push!(states_lhs, expand_derivatives.(D.(states_lhs[end])))  #this constructs the derivatives of the state equations
+		push!(states_rhs, expand_derivatives.(D.(states_rhs[end])))
+	end
+	for i in eachindex(states_rhs), j in eachindex(states_rhs[i])
+		states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_rhs[i][j]))
+		states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_lhs[i][j])) #applies differential operator everywhere.  
+		#subst_dict[states_lhs[i][j]] = states_rhs[i][j]   #this constructs a dict which substitutes the nth derivative of each state variable with the of each state equation
+	end
+
+	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+	obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+
+	#obs_lhs = [Vector{Num}([eq.lhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.lhs for eq in measured_quantities])))]
+	#obs_rhs = [Vector{Num}([eq.rhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.rhs for eq in measured_quantities])))]
+
+	for i in 1:(max_deriv-2)
+		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
+		push!(obs_rhs, expand_derivatives.(D.(obs_rhs[end])))
+	end
+
+	for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
+		obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_rhs[i][j]))
+		obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_lhs[i][j]))
+	end
+
+	function f(values_dict)
+		evaluated_subst_dict = deepcopy(values_dict)
+		for i in eachindex(states_rhs)
+			for j in eachindex(states_rhs[i])
+				evaluated_subst_dict[states_lhs[i][j]] = substitute(states_rhs[i][j], evaluated_subst_dict)
+			end
+		end
+
+		obs_deriv_vals = [substitute(obs_rhs[i][j], evaluated_subst_dict) for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])]
+		return obs_deriv_vals
+	end
+	
+
+
+end
+
+
 
 function construct_substituted_jacobian(
 	model::ODESystem, measured_quantities_in, deriv_level, unident_dict, varlist)
@@ -124,7 +192,7 @@ function construct_substituted_jacobian(
 		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
 	end
 
-	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
+	max_deriv = max(7, 1 + maximum(collect(values(deriv_level))))
 
 	states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
 	states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
@@ -164,14 +232,49 @@ function construct_substituted_jacobian(
 			#display(typeof(result))
 			#display(typeof(result) <: Number)
 
+
 			if typeof(result) <: Number
+				#display(typeof(result))
+				#display(result)
 				templ = Symbolics.Term(Symbolics.sqrt, [0])
 				if (isequal(result, 0))  #TODO: every other case will fail.
 					templ = Symbolics.Term(Symbolics.sqrt, [0])
 				else
-					#templ = Symbolics.wrap(Symbolics.Term(Symbolics.identity, [Real(Float64(result))]))
-					templ = Symbolics.wrap(result)
+					if typeof(result) <: Int64
+						#println("FAIL")
+						#						@variables dummy1
+						#						@variables dummy2
+						#						dumeq = [ dummy1 ~ dummy2 /dummy2]
+						#						dumeq[1].lhs = dumeq[2].rhs
+						#display(dumeq[1])
+						#display(typeof(dumeq[1]))
+						#symone = dumeq[1].rhs
+						symone = SymbolicUtils.Term{Real}(identity, [1.0])
+
+						templ = symone * result
+
+						#display(typeof(symone))
+						#display(typeof(templ))
+						#display(symone)
+						#display(templ)
+						obs_rhs[i][j] = templ
+					else
+						#println("line 180")
+						templ = SymbolicUtils.Term{Real}(identity, [result])
+						#display(templ)
+						#display(typeof(templ))
+						#templ = (Symbolics.wrap(Symbolics.BasicSymbolic{Real}(result)))
+						#display(templ)
+						#display(typeof(templ))
+					end
 				end
+				#println("line 184")
+				#display(templ)
+
+				#display(typeof(templ))
+				#display(typeof(obs_rhs[i][j]))
+				#display(obs_rhs[i][j])
+				templ = Symbolics.unwrap(templ)
 				obs_rhs[i][j] = templ  #type = SymbolicUtils.BasicSymbolic{Real}
 			else
 				obs_rhs[i][j] = result
@@ -204,7 +307,8 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
 	test_point = merge(parameter_values, initial_conditions)
 
-	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 1)  #check this is sufficient, for the number of derivatives to take
+	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
+	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular)
 	n = max(n, 3)
 	println("we decided to take this many derivatives: ", n)
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
