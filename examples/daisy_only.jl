@@ -649,29 +649,27 @@ function varied_estimation_main()
 
 	for PEP in [
 		simple(),
-		lotka_volterra(),
-		vanderpol(),
-		daisy_mamil3(),
-		daisy_mamil4(),
-		hiv(),
-		slowfast(),
-		substr_test(),
-		global_unident_test(),
-		sum_test(),
-		fitzhugh_nagumo(),
-		seir(),
-		treatment(),  #no solutions found in old version
-		hiv_local(), #no solutions found in old version?  check?
+		#lotka_volterra(),
+		#vanderpol(),
+		#daisy_mamil3(),
+		#daisy_mamil4(),
+		#hiv(),
+		#slowfast(),
+		#substr_test(),
+		#global_unident_test(),
+		#sum_test(),
+		#fitzhugh_nagumo(),
+		#seir(),
+		#treatment(),  #no solutions found in old version
+		#hiv_local(), #no solutions found in old version?  check?
 
 		#biohydrogenation(),  #broken, debug
-		daisy_ex3_v3(),
-		daisy_ex3_v4(),
-		
-		daisy_ex3(),
-		daisy_ex3_v2(),
-		sirsforced(),
+		#daisy_ex3_v3(),
+		#daisy_ex3_v4(), daisy_ex3(),
+		#daisy_ex3_v2(),
+		#sirsforced(),
 		#crauste(),  #dies OOM
-		]
+	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end
 end

@@ -6,11 +6,10 @@ using ModelingToolkit, DifferentialEquations
 using LinearAlgebra
 using OrderedCollections
 using BaryRational
-#using Suppressor  #not thread safe?
 using HomotopyContinuation
 using TaylorDiff
 using PrecompileTools
-#using ParameterEstimation
+using ForwardDiff
 
 
 
@@ -109,8 +108,7 @@ function calc_jacobian(model::ODESystem, measured_quantities_in, deriv_level, un
 end
 
 
-function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values)
-
+function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -119,7 +117,7 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 	D = Differential(t)
 	subst_dict = Dict()
 
-	#handle unident stuff
+	#First, we fully substitute values we have chosed for an unidentifiable variables.
 	for i in eachindex(model_eq)
 		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
 	end
@@ -127,16 +125,16 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
 	end
 
+
 	states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
 	states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
-	for i in 1:(max_deriv_level-3)
+	for i in 1:(max_deriv_level-2)
 		push!(states_lhs, expand_derivatives.(D.(states_lhs[end])))  #this constructs the derivatives of the state equations
 		push!(states_rhs, expand_derivatives.(D.(states_rhs[end])))
 	end
 	for i in eachindex(states_rhs), j in eachindex(states_rhs[i])
 		states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_rhs[i][j]))
 		states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_lhs[i][j])) #applies differential operator everywhere.  
-		#subst_dict[states_lhs[i][j]] = states_rhs[i][j]   #this constructs a dict which substitutes the nth derivative of each state variable with the of each state equation
 	end
 
 	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
@@ -145,7 +143,7 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 	#obs_lhs = [Vector{Num}([eq.lhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.lhs for eq in measured_quantities])))]
 	#obs_rhs = [Vector{Num}([eq.rhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.rhs for eq in measured_quantities])))]
 
-	for i in 1:(max_deriv-2)
+	for i in 1:(max_deriv_level-1)
 		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
 		push!(obs_rhs, expand_derivatives.(D.(obs_rhs[end])))
 	end
@@ -155,18 +153,33 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 		obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_lhs[i][j]))
 	end
 
-	function f(values_dict)
-		evaluated_subst_dict = deepcopy(values_dict)
+	#Below is a function which takes a vector of parameters and initial conditions 
+	#and returns the measured variables, and their derivatives
+	function f(values_vec)
+		evaluated_subst_dict = OrderedDict{Any, Any}(deepcopy(values_dict))
+		thekeys = collect(keys(evaluated_subst_dict))
+		for i in eachindex(values_vec)
+			evaluated_subst_dict[thekeys[i]] = values_vec[i]
+		end
+
 		for i in eachindex(states_rhs)
 			for j in eachindex(states_rhs[i])
 				evaluated_subst_dict[states_lhs[i][j]] = substitute(states_rhs[i][j], evaluated_subst_dict)
 			end
 		end
 
-		obs_deriv_vals = [substitute(obs_rhs[i][j], evaluated_subst_dict) for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])]
+		obs_deriv_vals = []
+		for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
+			push!(obs_deriv_vals, (substitute(obs_rhs[i][j], evaluated_subst_dict)))
+		end
 		return obs_deriv_vals
 	end
-	
+
+	init_values = collect(values(values_dict))
+	#display(values_dict)
+	#display(init_values)
+	#finally, we return the Jacobian
+	return ForwardDiff.jacobian(f, init_values)
 
 
 end
@@ -294,6 +307,20 @@ function construct_substituted_jacobian(
 
 end
 
+function deriv_level_view(evaluated_jac, deriv_level, num_obs)
+	function linear_index(which_obs, deriv_level)
+		return deriv_level * num_obs + which_obs
+	end
+	view_array = []
+	for (which_observable, max_deriv_level) in deriv_level
+		for j in 0:max_deriv_level
+			push!(view_array, linear_index(which_observable, j))
+		end
+	end
+
+	return view(evaluated_jac, view_array, :)
+
+end
 
 function local_identifiability_analysis(model::ODESystem, measured_quantities, rtol = 1e-12, atol = 1e-12)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
@@ -307,8 +334,17 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
 	test_point = merge(parameter_values, initial_conditions)
 
+	ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+	for i in model_ps
+		ordered_test_point[i] = parameter_values[i]
+	end
+	for i in model_states
+		ordered_test_point[i] = initial_conditions[i]
+	end
+
+
 	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
-	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular)
+	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular) - so we changed +1 to +2.  check with A.O.
 	n = max(n, 3)
 	println("we decided to take this many derivatives: ", n)
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
@@ -322,9 +358,11 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	#ns = nullspace(evaluated_jac)
 	all_identified = false
 	while (!all_identified)
-		jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-		evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+		#jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
+		#evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+		evaluated_jac = Matrix{Float64}(numerical_jacobian(model, measured_quantities, n, unident_dict, varlist, ordered_test_point))
 
+		# display(typeof(promote(evaluated_jac)))
 		ns = nullspace(evaluated_jac)
 
 
@@ -351,12 +389,19 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	#evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
 	max_rank = rank(evaluated_jac, rtol = rtol)
 
+
 	while (n > 0)
 		n = n - 1
 		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 		jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-		evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
-		r = rank(evaluated_jac, rtol = rtol)
+		old_evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+
+		reduced_evaluated_jac = deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities))
+
+		display(old_evaluated_jac)
+		display(reduced_evaluated_jac)
+
+		r = rank(reduced_evaluated_jac, rtol = rtol)
 		if (r < max_rank)
 			n = n + 1
 			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
@@ -366,25 +411,39 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	#at this point, we have a system that identifies what it can
 	#now we try to strip it further
 
+
+
 	keep_looking = true
 	while (keep_looking)
 		improvement_found = false
 		for i in keys(deriv_level)
 			if (deriv_level[i] > 0)
 				deriv_level[i] = deriv_level[i] - 1
-				jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-				evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
-				r = rank(evaluated_jac, rtol = rtol)
+				old_jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
+				old_evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+
+				reduced_evaluated_jac = deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities))
+
+				println("line 428")
+				display(old_evaluated_jac)
+				display(reduced_evaluated_jac)
+				r = rank(reduced_evaluated_jac, rtol = rtol)
 				if (r < max_rank)
 					deriv_level[i] = deriv_level[i] + 1
 				else
 					improvement_found = true
 				end
 			else
+				println("line 437")
 				temp = pop!(deriv_level, i)
-				jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
-				evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
-				r = rank(evaluated_jac, rtol = rtol)
+				old_jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
+				old_evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
+
+				reduced_evaluated_jac = deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities))
+				display(old_evaluated_jac)
+				display(reduced_evaluated_jac)
+
+				r = rank(reduced_evaluated_jac, rtol = rtol)
 				if (r < max_rank)
 					deriv_level[i] = temp
 				else
