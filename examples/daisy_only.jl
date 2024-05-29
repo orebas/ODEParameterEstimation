@@ -425,7 +425,7 @@ function sirsforced()
 	p_true = [0.143, 0.286, 0.429, 0.571, 0.714, 0.857]
 
 	return ParameterEstimationProblem("sirsforced",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 3)
 end
 
 function slowfast()  # TODO(orebas):in the old code it was CVODE_BDF.  should we go back to that?
@@ -612,13 +612,20 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		display("res3")
 		display(res3)
 		besterror = 1e30
+		res3 = sort(res3, by = x -> x.err)
+		display("How close are we?")
+		println("Actual values:")
+		display(all_params)
+
 		for each in res3
 
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
-			display("How close are we?")
+			if (each.err < 100)  #TODO: magic number
 
-			display(estimates)
-			display(all_params)
+				display(estimates)
+				println("Error: ", each.err)
+			end
+
 			errorvec = abs.((estimates .- all_params) ./ (all_params))
 			if (PEP.unident_count > 0)
 				sort!(errorvec)
@@ -648,27 +655,27 @@ function varied_estimation_main()
 	datasize = 21
 
 	for PEP in [
+		global_unident_test(),
+		vanderpol(),
 		simple(),
-		#lotka_volterra(),
-		#vanderpol(),
-		#daisy_mamil3(),
-		#daisy_mamil4(),
-		#hiv(),
-		#slowfast(),
-		#substr_test(),
-		#global_unident_test(),
-		#sum_test(),
-		#fitzhugh_nagumo(),
-		#seir(),
-		#treatment(),  #no solutions found in old version
-		#hiv_local(), #no solutions found in old version?  check?
-
-		#biohydrogenation(),  #broken, debug
-		#daisy_ex3_v3(),
-		#daisy_ex3_v4(), daisy_ex3(),
-		#daisy_ex3_v2(),
-		#sirsforced(),
+		substr_test(),
+		slowfast(),
+		daisy_ex3_v4(), 
+		fitzhugh_nagumo(),
+		lotka_volterra(),
+		daisy_mamil3(),
+		sum_test(),
+		hiv(),
+		seir(),
+		daisy_mamil4(),
 		#crauste(),  #dies OOM
+		daisy_ex3_v3(),
+		daisy_ex3_v2(),
+		treatment(),  #no solutions found in old version
+		daisy_ex3(),
+		hiv_local(), #no solutions found in old version?  check?
+		#biohydrogenation(),  #broken, debug
+		#sirsforced(),
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end

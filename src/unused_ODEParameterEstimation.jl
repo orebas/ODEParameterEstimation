@@ -54,6 +54,11 @@ function sample_data(model::ModelingToolkit.ODESystem,
 end
 
 
+function print_element_types(v)
+	for elem in v
+		println(typeof(elem))
+	end
+end
 
 mutable struct ParameterEstimationResult
 	parameters::AbstractDict
@@ -75,6 +80,32 @@ end
 #unident_dict is a dict of globally unidentifiable variables, and the substitution for them
 #deriv_level is a dict of 
 #(indices into measured_quantites =>   level of derivative to include)
+
+function calc_jacobian(model::ODESystem, measured_quantities_in, deriv_level, unident_dict, varlist)
+
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+
+	#handle unident stuff
+
+	for i in eachindex(model_eq)
+		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+	end
+
+
+	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
+
+
+
+
+end
 
 
 function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values_dict)
@@ -157,6 +188,126 @@ end
 
 
 
+function construct_substituted_jacobian(
+	model::ODESystem, measured_quantities_in, deriv_level, unident_dict, varlist)
+
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+	subst_dict = Dict()
+
+	#handle unident stuff
+	for i in eachindex(model_eq)
+		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+	end
+
+	max_deriv = max(7, 1 + maximum(collect(values(deriv_level))))
+
+	states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
+	states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
+	for i in 1:(max_deriv-3)
+		push!(states_lhs, expand_derivatives.(D.(states_lhs[end])))  #this constructs the derivatives of the state equations
+		push!(states_rhs, expand_derivatives.(D.(states_rhs[end])))
+	end
+	for i in eachindex(states_rhs), j in eachindex(states_rhs[i])
+		states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_rhs[i][j]))
+		states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_lhs[i][j])) #applies differential operator everywhere.  
+		subst_dict[states_lhs[i][j]] = states_rhs[i][j]   #this constructs a dict which substitutes the nth derivative of each state variable with the of each state equation
+	end
+
+
+	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+	obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+
+	#obs_lhs = [Vector{Num}([eq.lhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.lhs for eq in measured_quantities])))]
+	#obs_rhs = [Vector{Num}([eq.rhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.rhs for eq in measured_quantities])))]
+
+	for i in 1:(max_deriv-2)
+		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
+		push!(obs_rhs, expand_derivatives.(D.(obs_rhs[end])))
+	end
+
+	for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
+		obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_rhs[i][j]))
+		obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_lhs[i][j]))
+	end
+
+	for s in 1:max_deriv
+		for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
+			#println("line 140")
+			#display(obs_rhs[i][j])
+			result = substitute(obs_rhs[i][j], subst_dict)
+			#display(result)
+			#display(typeof(result))
+			#display(typeof(result) <: Number)
+
+
+			if typeof(result) <: Number
+				#display(typeof(result))
+				#display(result)
+				templ = Symbolics.Term(Symbolics.sqrt, [0])
+				if (isequal(result, 0))  #TODO: every other case will fail.
+					templ = Symbolics.Term(Symbolics.sqrt, [0])
+				else
+					if typeof(result) <: Int64
+						#println("FAIL")
+						#						@variables dummy1
+						#						@variables dummy2
+						#						dumeq = [ dummy1 ~ dummy2 /dummy2]
+						#						dumeq[1].lhs = dumeq[2].rhs
+						#display(dumeq[1])
+						#display(typeof(dumeq[1]))
+						#symone = dumeq[1].rhs
+						symone = SymbolicUtils.Term{Real}(identity, [1.0])
+
+						templ = symone * result
+
+						#display(typeof(symone))
+						#display(typeof(templ))
+						#display(symone)
+						#display(templ)
+						obs_rhs[i][j] = templ
+					else
+						#println("line 180")
+						templ = SymbolicUtils.Term{Real}(identity, [result])
+						#display(templ)
+						#display(typeof(templ))
+						#templ = (Symbolics.wrap(Symbolics.BasicSymbolic{Real}(result)))
+						#display(templ)
+						#display(typeof(templ))
+					end
+				end
+				#println("line 184")
+				#display(templ)
+
+				#display(typeof(templ))
+				#display(typeof(obs_rhs[i][j]))
+				#display(obs_rhs[i][j])
+				templ = Symbolics.unwrap(templ)
+				obs_rhs[i][j] = templ  #type = SymbolicUtils.BasicSymbolic{Real}
+			else
+				obs_rhs[i][j] = result
+			end
+		end
+	end
+	target = []  # TODO give this a type later
+	for (key, value) in deriv_level  # 0 means include the obs, 1 means first derivative
+		push!(target, obs_rhs[1][key])
+		for i in 1:value
+			push!(target, obs_rhs[i+1][key])
+		end
+	end
+
+	return ModelingToolkit.jacobian(target, varlist)
+
+
+end
 
 function deriv_level_view(evaluated_jac, deriv_level, num_obs)
 	function linear_index(which_obs, deriv_level)
@@ -641,6 +792,11 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 
 
 
+
+
+
+
+
 	for each in results_vec
 		push!(solved_res, deepcopy(newres))
 
@@ -686,6 +842,44 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 
 	end
 	return solved_res
+end
+
+#the below function exists for compatibility with testing against ParameterEstimation.jl
+function LIANPEWrapper(model::ODESystem, measured_quantities, data_sample, solver, oldres)
+
+	newres = Vector{ParameterEstimation.EstimationResult}()
+	lianres_vec = HCPE(model, measured_quantities, data_sample, solver, [])
+	(deriv_level, unident_dict, varlist) = local_identifiability_analysis(model, measured_quantities)
+
+	#display(lianres_vec)
+	for each in lianres_vec
+		push!(newres, Base.deepcopy(oldres))
+
+		for (key, value) in newres[end].parameters
+			newres[end].parameters[key] = 1e30
+		end
+		for (key, value) in newres[end].states
+			newres[end].states[key] = 1e30
+		end
+		#println(newres)
+		i = 1
+		for (key, value) in newres[end].states
+			newres[end].states[key] = each[i]
+			i += 1
+		end
+
+
+		for (key, value) in newres[end].parameters
+			newres[end].parameters[key] = each[i]
+			i += 1
+		end
+	end
+	fake_inputs = Vector{Equation}()
+
+	ParameterEstimation.solve_ode!(model, newres, fake_inputs, data_sample, solver = solver, abstol = 1e-12, reltol = 1e-12)
+
+	println(newres)
+	return newres
 end
 
 
