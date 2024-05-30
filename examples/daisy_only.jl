@@ -652,7 +652,7 @@ function varied_estimation_main()
 	#datasize = 21
 
 	time_interval = [-0.5, 0.5]
-	datasize = 21
+	datasize = 25
 
 	for PEP in [
 		global_unident_test(),
@@ -664,18 +664,18 @@ function varied_estimation_main()
 		fitzhugh_nagumo(),
 		lotka_volterra(),
 		daisy_mamil3(),
-		sum_test(),
+		sum_test(),   #------
 		hiv(),
 		seir(),
 		daisy_mamil4(),
-		#crauste(),  #dies OOM
+		crauste(),  #dies OOM
 		daisy_ex3_v3(),
 		daisy_ex3_v2(),
-		treatment(),  #no solutions found in old version
+		treatment(),  #no solutions found in old version #------
 		daisy_ex3(),
 		hiv_local(), #no solutions found in old version?  check?
 		#biohydrogenation(),  #broken, debug
-		#sirsforced(),
+		sirsforced(),
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end

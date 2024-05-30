@@ -147,10 +147,14 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 	end
 
 	init_values = collect(values(values_dict))
-	#display(values_dict)
-	#display(init_values)
+
 	#finally, we return the Jacobian
-	return ForwardDiff.jacobian(f, init_values)
+	matrix = ForwardDiff.jacobian(f, init_values) 
+	#display(states_rhs)
+	#display(obs_rhs)
+	#println("line 153")
+	#display(matrix)
+	return matrix
 
 
 end
@@ -194,7 +198,7 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	end
 
 
-	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 4)  #check this is sufficient, for the number of derivatives to take
+	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
 	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular) - so we changed +1 to +2.  check with A.O.
 	n = max(n, 3)
 	println("we decided to take this many derivatives: ", n)
@@ -212,18 +216,26 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 		#jac = construct_substituted_jacobian(model, measured_quantities, deriv_level, unident_dict, varlist)
 		#evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
 		evaluated_jac = Matrix{Float64}(numerical_jacobian(model, measured_quantities, n, unident_dict, varlist, ordered_test_point))
-
-		# display(typeof(promote(evaluated_jac)))
+		#println("line 219")
 		ns = nullspace(evaluated_jac)
-
+		#display(evaluated_jac)
+		#display(ns)
 
 		if (!isempty(ns))
 			candidate_plugins_for_unidentified = OrderedDict()
 			for i in eachindex(varlist)
-				if (!isapprox(ns[i], 0.0, atol = atol))
+				#println("line 227")
+				#display(i)
+				#display(varlist[i])
+				#display([ns[i,:]])
+				#display(!isapprox(norm(ns[i,:]), 0.0, atol = atol))
+				if (!isapprox(norm(ns[i,:]), 0.0, atol = atol))
 					candidate_plugins_for_unidentified[varlist[i]] = test_point[varlist[i]]
 				end
 			end
+
+			println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:", 
+					keys(candidate_plugins_for_unidentified))
 			if (!isempty(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
@@ -286,8 +298,7 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 				#old_evaluated_jac = Symbolics.value.(substitute.(jac, Ref(test_point)))
 
 				reduced_evaluated_jac = deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities))
-				#display(old_evaluated_jac)
-				#display(reduced_evaluated_jac)
+
 
 				r = rank(reduced_evaluated_jac, rtol = rtol)
 				if (r < max_rank)
@@ -323,9 +334,6 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		y_vector = data_sample[r]
 		interpolants[r] = aaad(t_vector, y_vector)
 	end
-	println("line 238")
-	display(model_eq)
-	display(unident_dict)
 
 	for i in eachindex(model_eq)
 		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
@@ -333,7 +341,6 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	for i in eachindex(measured_quantities)
 		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
 	end
-	display(model_eq)
 
 	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
 
@@ -415,7 +422,7 @@ end
 function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
 
 
-	println("starting SolveJSWithHC")
+	println("starting SolveJSWithHC.  Here is the polynomial system:")
 	display(poly_system)
 	#print_element_types(poly_system)
 	println("varlist")
@@ -428,14 +435,11 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 
 
 	for i in eachindex(poly_system)
-		#println("attempting to simplify")
-		#display(poly_system[i])
 		expr = poly_system[i]
 		expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
 		if (Symbolics.operation(expr2) == op)
 			poly_system[i], _ = Symbolics.arguments(expr2)
 		end
-		#display(poly_system[i])
 
 	end
 	mangled_varlist = deepcopy(varlist)
@@ -445,16 +449,12 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	for i in eachindex(mangled_varlist)
 		newvarname = Symbol("_qz_xy_" * replace(string(mangled_varlist[i]), "(t)" => "_t"))
 		newvar = (@variables $newvarname)[1]
-		#display(newvar)
 		mangled_varlist[i] = newvar
 		manglingDict[varlist[i]] = newvar
 	end
 	for i in eachindex(poly_system)
 		poly_system[i] = substitute(poly_system[i], manglingDict)
 	end
-	#println("line 390")
-	#display(manglingDict)
-	#display(poly_system)
 	string_target = string.(poly_system)
 	varlist = mangled_varlist
 	string_string_dict = Dict()
@@ -462,7 +462,6 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	var_dict = Dict()
 	hcvarlist = Vector{HomotopyContinuation.ModelKit.Variable}()
 	for v in varlist
-		#display(v)
 		#		vhcs = replace(string(v), "(t)" => "_t" * string(time_index)) * "_hc"
 		#vhcslong = "HomotopyContinuation.ModelKit.Variable(Symbol(\"" * vhcs * "\"))"
 		vhcs = string(v)
@@ -479,14 +478,11 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 		#end
 		push!(hcvarlist, vhc)
 	end
-	#display(string_string_dict)
 	for i in eachindex(string_target)
 		string_target[i] = replace(string_target[i], string_string_dict...)
 	end
-	#display(string_target)
 	parsed = eval.(Meta.parse.(string_target))
 	HomotopyContinuation.set_default_compile(:all)
-	#display(hcvarlist)
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
 	println("system we are solving (line 428)")
 	result = HomotopyContinuation.solve(F, show_progress = true) #only_nonsingular = false
@@ -519,31 +515,25 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 	model_ps = ModelingToolkit.parameters(model)
 
 	t_vector = data_sample["t"]
-	#display(t_vector)
 	time_interval = (minimum(t_vector), maximum(t_vector))
 
 	if (isempty(time_index_set))
 		time_index_set = [fld(length(t_vector), 2)]  #TODO add vector handling 
-		#println("line 548")
-		#display(time_index_set)
 	end
 
 	(deriv_level, unident_dict, varlist) = local_identifiability_analysis(model, measured_quantities)
-	println("line 561")
+	println("line 561.  Varlist:")
 	display(varlist)
+	println("Deriv level:")
 	display(deriv_level)
+	println("Unident plugins:")
 	display(unident_dict)
 	(target, fullvarlist) = construct_equation_system(model, measured_quantities, data_sample, deriv_level, unident_dict, varlist)
 
-	#println("line 554")
-	#display(target)
-	#display(fullvarlist)
 
 	solve_result, hcvarlist = solveJSwithHC(target, fullvarlist)
 	solns = solve_result
 
-	#println("hcvarlist")
-	#display(hcvarlist)
 
 	@named new_model = ODESystem(model_eq, t, model_states, model_ps)
 	new_model = complete(new_model)
@@ -558,12 +548,8 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 			if model_ps[i] in keys(unident_dict)
 				parameter_values[i] = unident_dict[model_ps[i]]
 			else
-				#display("line 578")
-				#display(model_ps[i])
-				#display(varlist)
 
 				index = findfirst(isequal(Symbolics.wrap(model_ps[i])), fullvarlist)
-				#display(index)
 				parameter_values[i] = real(solns[soln_index][index]) #TODOdo we ignore the imaginary part?
 			end                                                   #what about other vars
 		end
