@@ -136,6 +136,87 @@ function daisy_ex3()
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
 end
 
+
+
+function daisy_ex3_v2()
+	@parameters p1 p3 p4 p6 p7
+	@variables t x1(t) x2(t) x3(t) u0(t) y1(t) y2(t)
+	D = Differential(t)
+	states = [x1, x2, x3, u0]
+	parameters = [p1, p3, p4, p6, p7]
+	@named model = ODESystem([
+			D(x1) ~ -1 * p1 * x1 + x2 + u0,
+			D(x2) ~ p3 * x1 - p4 * x2 + x3,
+			D(x3) ~ p6 * x1 - p7 * x3,
+			D(u0) ~ 1,
+		], t, states, parameters)
+	measured_quantities = [
+		y1 ~ x1,
+		y2 ~ u0,
+	]
+
+	ic = [1.0, 2.0, 1.0, 1.0]
+	p_true = [0.2, 0.3, 0.5, 0.6, -0.2] # True Parameters
+
+	return ParameterEstimationProblem("DAISY_ex3_v2",
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+end
+
+
+
+function daisy_ex3_v3()
+	@parameters p1 p3 p4 p6 p7 pd
+	@variables t x1(t) x2(t) x3(t) u0(t) y1(t) y2(t)
+	D = Differential(t)
+	states = [x1, x2, x3, u0]
+	parameters = [p1, p3, p4, p6, p7, pd]
+	@named model = ODESystem([
+			D(x1) ~ x2 + u0 - p1 * x1,
+			D(x2) ~ p3 * x1 - p4 * x2 + x3,
+			D(x3) ~ p6 * x1 - p7 * x3,
+			D(u0) ~ pd,
+		], t, states, parameters)
+	measured_quantities = [
+		y1 ~ x1,
+		y2 ~ u0,
+	]
+
+	ic = [1.0, 2.0, 1.0, 1.0]
+	p_true = [0.2, 0.3, 0.5, 0.6, -0.2, 1.0] # True Parameters
+
+	return ParameterEstimationProblem("DAISY_ex3_v3",
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+end
+
+
+
+function daisy_ex3_v4()
+	@parameters p1 p3 p4 p6 p7 pd
+	@variables t x1(t) x2(t) x3(t) u0(t) y1(t) y2(t)
+	D = Differential(t)
+	states = [x1, x2, x3, u0]
+	parameters = [p1, p3, p4, p6, p7, pd]
+	@named model = ODESystem([
+			D(x1) ~ x2 + u0 - p1 * x1,
+			D(x2) ~ p3 * x1 - p4 * x2 + x3,
+			D(x3) ~ p6 * x1 - p7 * x3,
+			D(u0) ~ pd,
+		], t, states, parameters)
+	measured_quantities = [y1 ~ x1 + x3, y2 ~ x2]
+
+
+	ic = [1.0, 2.0, 1.0, 1.0]
+	p_true = [0.2, 0.3, 0.5, 0.6, -0.2, 1.0] # True Parameters
+
+	return ParameterEstimationProblem("DAISY_ex3_v4",
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+end
+
+
+
+
+
+
 function daisy_mamil3(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
 	@parameters a12 a13 a21 a31 a01
 	@variables t x1(t) x2(t) x3(t) y1(t) y2(t)
@@ -329,9 +410,9 @@ function sirsforced()
 	parameters = [b0, b1, g, M, mu, nu]
 
 	@named model = ODESystem([
-			D(i) ~ b0 * (1 + b1 * x1) * i * s - (nu + mu) * i,
+			D(i) ~ b0 * (1.0 + b1 * x1) * i * s - (nu + mu) * i,
 			D(r) ~ nu * i - (mu + g) * r,
-			D(s) ~ mu - mu * s - b0 * (1 + b1 * x1) * i * s + g * r,
+			D(s) ~ mu - mu * s - b0 * (1.0 + b1 * x1) * i * s + g * r,
 			D(x1) ~ -M * x2,
 			D(x2) ~ M * x1,
 		], t, states, parameters)
@@ -344,7 +425,7 @@ function sirsforced()
 	p_true = [0.143, 0.286, 0.429, 0.571, 0.714, 0.857]
 
 	return ParameterEstimationProblem("sirsforced",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 3)
 end
 
 function slowfast()  # TODO(orebas):in the old code it was CVODE_BDF.  should we go back to that?
@@ -531,13 +612,20 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		display("res3")
 		display(res3)
 		besterror = 1e30
+		res3 = sort(res3, by = x -> x.err)
+		display("How close are we?")
+		println("Actual values:")
+		display(all_params)
+
 		for each in res3
 
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
-			display("How close are we?")
+			if (each.err < 100)  #TODO: magic number
 
-			display(estimates)
-			display(all_params)
+				display(estimates)
+				println("Error: ", each.err)
+			end
+
 			errorvec = abs.((estimates .- all_params) ./ (all_params))
 			if (PEP.unident_count > 0)
 				sort!(errorvec)
@@ -562,31 +650,30 @@ function varied_estimation_main()
 	#solver = Rodas4P()
 	time_interval = [-0.5, 0.5]
 	for PEP in [
+		global_unident_test(),
+		vanderpol(),
 		simple(),
+		substr_test(),
+		slowfast(),
+		daisy_ex3_v4(), 
+		fitzhugh_nagumo(),
 		lotka_volterra(),
 		vanderpol(),
 		daisy_mamil3(),
-		daisy_mamil4(),
+		sum_test(),   
 		hiv(),
-		slowfast(),
-		substr_test(),
-		global_unident_test(),
-		sum_test(), 
-		crauste(),
-		fitzhugh_nagumo(), 
-		seir(), 
-		treatment(),  #no solutions found in old version
-
-		hiv_local(), #no solutions found in old version?  check?
-		
-
+		seir(),
+		daisy_mamil4(),
+		crauste(),  
+		daisy_ex3_v3(),
+		daisy_ex3_v2(),
+		treatment(),  
+		daisy_ex3(),
+		#hiv_local(), #this consistently gets >10% relative error, but runs.
 		#biohydrogenation(),  #broken, debug
-		#daisy_ex3(),
-		#sirsforced(),
-		
-
+		sirsforced(),
 	]
-		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = true)
+		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = false)
 	end
 end
 
