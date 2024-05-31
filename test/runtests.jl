@@ -669,8 +669,8 @@ function varied_estimation_main()
 		daisy_ex3_v2(),
 		treatment(),  
 		daisy_ex3(),
-		#hiv_local(), #this consistently gets >10% relative error, but runs.
-		#biohydrogenation(),  #broken, debug
+		hiv_local(), #this consistently gets >10% relative error, but runs.
+		biohydrogenation(),  #broken, debug
 		sirsforced(),
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP), test_mode = true, showplot = false)

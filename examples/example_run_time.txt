@@ -1,2900 +1,0 @@
-testing
-test
-we decided to take this many derivatives: 3
-line 561
-4-element Vector{Num}:
-     a
-     b
- x1(t)
- x2(t)
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-Dict{Any, Any}()
-line 238
-2-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x2(t)
- Differential(t)(x2(t)) ~ b*x1(t)
-Dict{Any, Any}()
-2-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x2(t)
- Differential(t)(x2(t)) ~ b*x1(t)
-starting SolveJSWithHC
-6-element Vector{Any}:
- -0.7640951309178401 + x2(t)
- -0.1628011114533747 + x2ˍt(t)
- -0.20350138931669545 + x1(t)
- 0.3056380523670883 + x1ˍt(t)
- x2ˍt(t) - b*x1(t)
- x1ˍt(t) + a*x2(t)
-varlist
-6-element Vector{Any}:
- a
- b
- x1(t)
- x2(t)
- x2ˍt(t)
- x1ˍt(t)
-system we are solving (line 428)
-results
-System of length 6
- 6 variables: _qz_xy_a, _qz_xy_b, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x2ˍt_t, _qz_xy_x1ˍt_t
-
- -0.76409513091784 + _qz_xy_x2_t
- -0.162801111453375 + _qz_xy_x2ˍt_t
- -0.203501389316695 + _qz_xy_x1_t
- 0.305638052367088 + _qz_xy_x1ˍt_t
- _qz_xy_x2ˍt_t - _qz_xy_x1_t*_qz_xy_b
- _qz_xy_x1ˍt_t + _qz_xy_x2_t*_qz_xy_a
-Result with 1 solution
-======================
-• 1 path tracked
-• 1 non-singular solution (1 real)
-• random_seed: 0x2ec9fdda
-• start_system: :polyhedral
-
-1-element Vector{Vector{Float64}}:
- [0.3999999999999375, 0.8000000000000901, 0.20350138931669545, 0.7640951309178401, 0.1628011114533747, -0.3056380523670883]
-1-element Vector{Vector{Float64}}:
- [0.3999999999999375, 0.8000000000000901, 0.20350138931669545, 0.7640951309178401, 0.1628011114533747, -0.3056380523670883]
-"res3"
-1-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.3999999999999375, b => 0.8000000000000901), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.3329999999999793, x2(t) => 0.6669999999999938), -0.5, 4.120199800690509e-14, nothing, 21, -0.5)
-"How close are we?"
-4-element Vector{Float64}:
- 0.3329999999999793
- 0.6669999999999938
- 0.3999999999999375
- 0.8000000000000901
-4-element Vector{Float64}:
- 0.333
- 0.667
- 0.4
- 0.8
-For model simple: The LIAN PE  max abs rel. err: 1.5626389071599078e-13
-we decided to take this many derivatives: 6
-line 561
-5-element Vector{Num}:
-   k1
-   k2
-   k3
- r(t)
- w(t)
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-Dict{Any, Any}()
-line 238
-2-element Vector{Equation}:
- Differential(t)(r(t)) ~ k1*r(t) - k2*r(t)*w(t)
- Differential(t)(w(t)) ~ -k3*w(t) + k2*r(t)*w(t)
-Dict{Any, Any}()
-2-element Vector{Equation}:
- Differential(t)(r(t)) ~ k1*r(t) - k2*r(t)*w(t)
- Differential(t)(w(t)) ~ -k3*w(t) + k2*r(t)*w(t)
-starting SolveJSWithHC
-12-element Vector{Any}:
- -0.3265871504935159 + r(t)
- 0.0020391725997820406 + rˍt(t)
- -0.04911182288369416 + rˍtt(t)
- 0.02964121352007837 + rˍttt(t)
- -0.037569420013941424 + rˍtttt(t)
- rˍt(t) - k1*r(t) + k2*r(t)*w(t)
- rˍtt(t) - k1*rˍt(t) + k2*r(t)*wˍt(t) + k2*w(t)*rˍt(t)
- rˍttt(t) - k1*rˍtt(t) + k2*wˍtt(t)*r(t) + k2*w(t)*rˍtt(t) + 2k2*rˍt(t)*wˍt(t)
- rˍtttt(t) - k1*rˍttt(t) + 3k2*wˍtt(t)*rˍt(t) + k2*r(t)*wˍttt(t) + k2*rˍttt(t)*w(t) + 3k2*rˍtt(t)*wˍt(t)
- wˍt(t) + k3*w(t) - k2*r(t)*w(t)
- wˍtt(t) + k3*wˍt(t) - k2*r(t)*wˍt(t) - k2*w(t)*rˍt(t)
- wˍttt(t) + k3*wˍtt(t) - k2*wˍtt(t)*r(t) - k2*w(t)*rˍtt(t) - 2k2*rˍt(t)*wˍt(t)
-varlist
-12-element Vector{Any}:
- k1
- k2
- k3
- r(t)
- w(t)
- rˍt(t)
- rˍtt(t)
- rˍttt(t)
- rˍtttt(t)
- wˍt(t)
- wˍtt(t)
- wˍttt(t)
-system we are solving (line 428)
-Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 3 paths... 100%|███████████████████████████████| Time: 0:00:06[K
-  # paths tracked:                  3[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K
-results
-System of length 12
- 12 variables: _qz_xy_k1, _qz_xy_k2, _qz_xy_k3, _qz_xy_r_t, _qz_xy_w_t, _qz_xy_rˍt_t, _qz_xy_rˍtt_t, _qz_xy_rˍttt_t, _qz_xy_rˍtttt_t, _qz_xy_wˍt_t, _qz_xy_wˍtt_t, _qz_xy_wˍttt_t
-
- -0.326587150493516 + _qz_xy_r_t
- 0.00203917259978204 + _qz_xy_rˍt_t
- -0.0491118228836942 + _qz_xy_rˍtt_t
- 0.0296412135200784 + _qz_xy_rˍttt_t
- -0.0375694200139414 + _qz_xy_rˍtttt_t
- _qz_xy_rˍt_t - _qz_xy_k1*_qz_xy_r_t + _qz_xy_k2*_qz_xy_w_t*_qz_xy_r_t
- _qz_xy_rˍtt_t - _qz_xy_k1*_qz_xy_rˍt_t + _qz_xy_k2*_qz_xy_r_t*_qz_xy_wˍt_t + _qz_xy_k2*_qz_xy_w_t*_qz_xy_rˍt_t
- _qz_xy_rˍttt_t - _qz_xy_k1*_qz_xy_rˍtt_t + _qz_xy_k2*_qz_xy_r_t*_qz_xy_wˍtt_t + 2*_qz_xy_k2*_qz_xy_rˍt_t*_qz_xy_wˍt_t + _qz_xy_k2*_qz_xy_w_t*_qz_xy_rˍtt_t
- _qz_xy_rˍtttt_t - _qz_xy_k1*_qz_xy_rˍttt_t + 3*_qz_xy_k2*_qz_xy_rˍt_t*_qz_xy_wˍtt_t + _qz_xy_k2*_qz_xy_rˍttt_t*_qz_xy_w_t + 3*_qz_xy_k2*_qz_xy_wˍt_t*_qz_xy_rˍtt_t + _qz_xy_k2*_qz_xy_wˍttt_t*_qz_xy_r_t
- _qz_xy_wˍt_t + _qz_xy_k3*_qz_xy_w_t - _qz_xy_k2*_qz_xy_w_t*_qz_xy_r_t
- _qz_xy_wˍtt_t + _qz_xy_k3*_qz_xy_wˍt_t - _qz_xy_k2*_qz_xy_r_t*_qz_xy_wˍt_t - _qz_xy_k2*_qz_xy_w_t*_qz_xy_rˍt_t
- _qz_xy_wˍttt_t + _qz_xy_k3*_qz_xy_wˍtt_t - _qz_xy_k2*_qz_xy_r_t*_qz_xy_wˍtt_t - 2*_qz_xy_k2*_qz_xy_rˍt_t*_qz_xy_wˍt_t - _qz_xy_k2*_qz_xy_w_t*_qz_xy_rˍtt_t
-Result with 2 solutions
-=======================
-• 3 paths tracked
-• 2 non-singular solutions (2 real)
-• random_seed: 0x81bfc0c2
-• start_system: :polyhedral
-
-2-element Vector{Vector{Float64}}:
- [0.2500000000698501, 0.49999995907619244, 0.7499999864746151, 0.3265871504935159, 0.5124878120220563, -0.0020391725997820406, 0.04911182288369416, -0.02964121352007837, 0.037569420013941424, -0.3006798918389741, 0.17588829877863718, -0.08999705246058858]
- [-0.019037303997957077, 71091.76380081868, 23205.905214135128, 0.3265871504935159, -1.7995641612684705e-7, -0.0020391725997820406, 0.04911182288369416, -0.02964121352007837, 0.037569420013941424, -2.114730674508736e-6, 1.2370510659673205e-6, -6.329639348004759e-7]
-2-element Vector{Vector{Float64}}:
- [0.2500000000698501, 0.49999995907619244, 0.7499999864746151, 0.3265871504935159, 0.5124878120220563, -0.0020391725997820406, 0.04911182288369416, -0.02964121352007837, 0.037569420013941424, -0.3006798918389741, 0.17588829877863718, -0.08999705246058858]
- [-0.019037303997957077, 71091.76380081868, 23205.905214135128, 0.3265871504935159, -1.7995641612684705e-7, -0.0020391725997820406, 0.04911182288369416, -0.02964121352007837, 0.037569420013941424, -2.114730674508736e-6, 1.2370510659673205e-6, -6.329639348004759e-7]
-"res3"
-2-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k2 => 0.2500000000698501, k1 => 0.49999995907619244, k3 => 0.7499999864746151), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(w(t) => 0.33300000000037255, r(t) => 0.6670000547536381), -0.5, 1.1861604489899746, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k2 => -0.019037303997957077, k1 => 71091.76380081868, k3 => 23205.905214135128), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(w(t) => 0.3291917092867511, r(t) => -5.463215997309667e-20), -0.5, 1.0e10, nothing, 21, -0.5)
-"How close are we?"
-5-element Vector{Float64}:
- 0.33300000000037255
- 0.6670000547536381
- 0.2500000000698501
- 0.49999995907619244
- 0.7499999864746151
-5-element Vector{Float64}:
- 0.333
- 0.667
- 0.25
- 0.5
- 0.75
-"How close are we?"
-5-element Vector{Float64}:
-     0.3291917092867511
-    -5.463215997309667e-20
-    -0.019037303997957077
- 71091.76380081868
- 23205.905214135128
-5-element Vector{Float64}:
- 0.333
- 0.667
- 0.25
- 0.5
- 0.75
-For model Lotka_Volterra: The LIAN PE  max abs rel. err: 8.208941239572759e-8
-we decided to take this many derivatives: 3
-line 561
-4-element Vector{Num}:
-     a
-     b
- x1(t)
- x2(t)
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-Dict{Any, Any}()
-line 238
-2-element Vector{Equation}:
- Differential(t)(x1(t)) ~ a*x2(t)
- Differential(t)(x2(t)) ~ -x1(t) - b*(-1 + x1(t)^2)*x2(t)
-Dict{Any, Any}()
-2-element Vector{Equation}:
- Differential(t)(x1(t)) ~ a*x2(t)
- Differential(t)(x2(t)) ~ -x1(t) - b*(-1 + x1(t)^2)*x2(t)
-starting SolveJSWithHC
-6-element Vector{Any}:
- -0.6983713282582298 + x2(t)
- 0.01489456913620101 + x2ˍt(t)
- -0.45693930215627326 + x1(t)
- -0.27934853130331766 + x1ˍt(t)
- x2ˍt(t) + x1(t) + b*(-1 + x1(t)^2)*x2(t)
- x1ˍt(t) - a*x2(t)
-varlist
-6-element Vector{Any}:
- a
- b
- x1(t)
- x2(t)
- x2ˍt(t)
- x1ˍt(t)
-system we are solving (line 428)
-results
-System of length 6
- 6 variables: _qz_xy_a, _qz_xy_b, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x2ˍt_t, _qz_xy_x1ˍt_t
-
- -0.69837132825823 + _qz_xy_x2_t
- 0.014894569136201 + _qz_xy_x2ˍt_t
- -0.456939302156273 + _qz_xy_x1_t
- -0.279348531303318 + _qz_xy_x1ˍt_t
- _qz_xy_x1_t + _qz_xy_x2ˍt_t + (-1 + _qz_xy_x1_t^2)*_qz_xy_x2_t*_qz_xy_b
- _qz_xy_x1ˍt_t - _qz_xy_x2_t*_qz_xy_a
-Result with 1 solution
-======================
-• 1 path tracked
-• 1 non-singular solution (1 real)
-• random_seed: 0x6d29a53e
-• start_system: :polyhedral
-
-1-element Vector{Vector{Float64}}:
- [0.4000000000000369, 0.79999999999997, 0.45693930215627326, 0.6983713282582298, -0.01489456913620101, 0.27934853130331766]
-1-element Vector{Vector{Float64}}:
- [0.4000000000000369, 0.79999999999997, 0.45693930215627326, 0.6983713282582298, -0.01489456913620101, 0.27934853130331766]
-"res3"
-1-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.4000000000000369, b => 0.79999999999997), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.3329999999999888, x2(t) => 0.6670000000000033), -0.5, 4.645562569231133e-14, nothing, 21, -0.5)
-"How close are we?"
-4-element Vector{Float64}:
- 0.3329999999999888
- 0.6670000000000033
- 0.4000000000000369
- 0.79999999999997
-4-element Vector{Float64}:
- 0.333
- 0.667
- 0.4
- 0.8
-For model vanderpol: The LIAN PE  max abs rel. err: 9.214851104388799e-14
-we decided to take this many derivatives: 5
-line 561
-8-element Vector{Num}:
-   a12
-   a13
-   a21
-   a31
-   a01
- x1(t)
- x2(t)
- x3(t)
-Dict{Int64, Int64} with 2 entries:
-  2 => 2
-  1 => 4
-Dict{Any, Any}()
-line 238
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ (-a01 - a21 - a31)*x1(t) + a12*x2(t) + a13*x3(t)
- Differential(t)(x2(t)) ~ -a12*x2(t) + a21*x1(t)
- Differential(t)(x3(t)) ~ -a13*x3(t) + a31*x1(t)
-Dict{Any, Any}()
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ (-a01 - a21 - a31)*x1(t) + a12*x2(t) + a13*x3(t)
- Differential(t)(x2(t)) ~ -a12*x2(t) + a21*x1(t)
- Differential(t)(x3(t)) ~ -a13*x3(t) + a31*x1(t)
-starting SolveJSWithHC
-18-element Vector{Any}:
- -0.5116191146494427 + x2(t)
- -0.01382739704084076 + x2ˍt(t)
- 0.04040368742490211 + x2ˍtt(t)
- -0.19853557837462643 + x1(t)
- 0.07618902423996372 + x1ˍt(t)
- -0.12038206009501828 + x1ˍtt(t)
- 0.25301033687286145 + x1ˍttt(t)
- -0.5457686739364824 + x1ˍtttt(t)
- x2ˍt(t) + a12*x2(t) - a21*x1(t)
- x2ˍtt(t) + a12*x2ˍt(t) - a21*x1ˍt(t)
- x1ˍt(t) - (-a01 - a21 - a31)*x1(t) - a12*x2(t) - a13*x3(t)
- x1ˍtt(t) - (-a01 - a21 - a31)*x1ˍt(t) - a12*x2ˍt(t) - a13*x3ˍt(t)
- x1ˍttt(t) - (-a01 - a21 - a31)*x1ˍtt(t) - a12*x2ˍtt(t) - a13*x3ˍtt(t)
- x1ˍtttt(t) - (-a01 - a21 - a31)*x1ˍttt(t) - a12*x2ˍttt(t) - a13*x3ˍttt(t)
- x3ˍt(t) + a13*x3(t) - a31*x1(t)
- x3ˍtt(t) + a13*x3ˍt(t) - a31*x1ˍt(t)
- x2ˍttt(t) + a12*x2ˍtt(t) - a21*x1ˍtt(t)
- x3ˍttt(t) + a13*x3ˍtt(t) - a31*x1ˍtt(t)
-varlist
-18-element Vector{Any}:
- a12
- a13
- a21
- a31
- a01
- x1(t)
- x2(t)
- x3(t)
- x2ˍt(t)
- x2ˍtt(t)
- x1ˍt(t)
- x1ˍtt(t)
- x1ˍttt(t)
- x1ˍtttt(t)
- x3ˍt(t)
- x3ˍtt(t)
- x2ˍttt(t)
- x3ˍttt(t)
-system we are solving (line 428)
-Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 3 paths... 100%|███████████████████████████████| Time: 0:00:05[K
-  # paths tracked:                  3[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K
-results
-System of length 18
- 18 variables: _qz_xy_a12, _qz_xy_a13, _qz_xy_a21, _qz_xy_a31, _qz_xy_a01, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x3_t, _qz_xy_x2ˍt_t, _qz_xy_x2ˍtt_t, _qz_xy_x1ˍt_t, _qz_xy_x1ˍtt_t, _qz_xy_x1ˍttt_t, _qz_xy_x1ˍtttt_t, _qz_xy_x3ˍt_t, _qz_xy_x3ˍtt_t, _qz_xy_x2ˍttt_t, _qz_xy_x3ˍttt_t
-
- -0.511619114649443 + _qz_xy_x2_t
- -0.0138273970408408 + _qz_xy_x2ˍt_t
- 0.0404036874249021 + _qz_xy_x2ˍtt_t
- -0.198535578374626 + _qz_xy_x1_t
- 0.0761890242399637 + _qz_xy_x1ˍt_t
- -0.120382060095018 + _qz_xy_x1ˍtt_t
- 0.253010336872861 + _qz_xy_x1ˍttt_t
- -0.545768673936482 + _qz_xy_x1ˍtttt_t
- _qz_xy_x2ˍt_t + _qz_xy_a12*_qz_xy_x2_t - _qz_xy_a21*_qz_xy_x1_t
- _qz_xy_x2ˍtt_t + _qz_xy_a12*_qz_xy_x2ˍt_t - _qz_xy_a21*_qz_xy_x1ˍt_t
- _qz_xy_x1ˍt_t - _qz_xy_a12*_qz_xy_x2_t - _qz_xy_a13*_qz_xy_x3_t + (_qz_xy_a01 + _qz_xy_a21 + _qz_xy_a31)*_qz_xy_x1_t
- _qz_xy_x1ˍtt_t - _qz_xy_a12*_qz_xy_x2ˍt_t - _qz_xy_a13*_qz_xy_x3ˍt_t + _qz_xy_x1ˍt_t*(_qz_xy_a01 + _qz_xy_a21 + _qz_xy_a31)
- _qz_xy_x1ˍttt_t + _qz_xy_x1ˍtt_t*(_qz_xy_a01 + _qz_xy_a21 + _qz_xy_a31) - _qz_xy_x2ˍtt_t*_qz_xy_a12 - _qz_xy_x3ˍtt_t*_qz_xy_a13
- _qz_xy_x1ˍtttt_t + _qz_xy_x1ˍttt_t*(_qz_xy_a01 + _qz_xy_a21 + _qz_xy_a31) - _qz_xy_x2ˍttt_t*_qz_xy_a12 - _qz_xy_x3ˍttt_t*_qz_xy_a13
- _qz_xy_x3ˍt_t + _qz_xy_a13*_qz_xy_x3_t - _qz_xy_a31*_qz_xy_x1_t
- _qz_xy_x3ˍtt_t + _qz_xy_a13*_qz_xy_x3ˍt_t - _qz_xy_a31*_qz_xy_x1ˍt_t
- _qz_xy_x2ˍttt_t - _qz_xy_x1ˍtt_t*_qz_xy_a21 + _qz_xy_x2ˍtt_t*_qz_xy_a12
- _qz_xy_x3ˍttt_t - _qz_xy_x1ˍtt_t*_qz_xy_a31 + _qz_xy_x3ˍtt_t*_qz_xy_a13
-Result with 1 solution
-======================
-• 3 paths tracked
-• 1 non-singular solution (1 real)
-• random_seed: 0x9d631501
-• start_system: :polyhedral
-
-1-element Vector{Vector{Float64}}:
- [0.16699999999574522, 0.3329999632740991, 0.49999999998895733, 0.6669999393212724, 0.8330000835817976, 0.19853557837462643, 0.5116191146494427, 0.707032344973846, 0.01382739704084076, -0.04040368742490211, -0.07618902423996372, 0.12038206009501828, -0.25301033687286145, 0.5457686739364824, -0.10301852618090133, -0.016512909110210795, 0.06693844584596655, 0.08579362490599571]
-1-element Vector{Vector{Float64}}:
- [0.16699999999574522, 0.3329999632740991, 0.49999999998895733, 0.6669999393212724, 0.8330000835817976, 0.19853557837462643, 0.5116191146494427, 0.707032344973846, 0.01382739704084076, -0.04040368742490211, -0.07618902423996372, 0.12038206009501828, -0.25301033687286145, 0.5457686739364824, -0.10301852618090133, -0.016512909110210795, 0.06693844584596655, 0.08579362490599571]
-"res3"
-1-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a13 => 0.16699999999574522, a31 => 0.3329999632740991, a21 => 0.49999999998895733, a12 => 0.6669999393212724, a01 => 0.8330000835817976), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.2499999999989057, x3(t) => 0.5000000000001639, x2(t) => 0.7500000999422731), -0.5, 0.31853013554987214, nothing, 21, -0.5)
-"How close are we?"
-8-element Vector{Float64}:
- 0.2499999999989057
- 0.5000000000001639
- 0.7500000999422731
- 0.16699999999574522
- 0.3329999632740991
- 0.49999999998895733
- 0.6669999393212724
- 0.8330000835817976
-8-element Vector{Float64}:
- 0.25
- 0.5
- 0.75
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
-For model DAISY_mamil3: The LIAN PE  max abs rel. err: 1.3325636416539055e-7
-we decided to take this many derivatives: 5
-line 561
-11-element Vector{Num}:
-   k01
-   k12
-   k13
-   k14
-   k21
-   k31
-   k41
- x1(t)
- x2(t)
- x3(t)
- x4(t)
-Dict{Int64, Int64} with 3 entries:
-  2 => 1
-  3 => 2
-  1 => 5
-Dict{Any, Any}()
-line 238
-4-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -k01*x1(t) + k12*x2(t) + k13*x3(t) + k14*x4(t) - k21*x1(t) - k31*x1(t) - k41*x1(t)
- Differential(t)(x2(t)) ~ -k12*x2(t) + k21*x1(t)
- Differential(t)(x3(t)) ~ -k13*x3(t) + k31*x1(t)
- Differential(t)(x4(t)) ~ -k14*x4(t) + k41*x1(t)
-Dict{Any, Any}()
-4-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -k01*x1(t) + k12*x2(t) + k13*x3(t) + k14*x4(t) - k21*x1(t) - k31*x1(t) - k41*x1(t)
- Differential(t)(x2(t)) ~ -k12*x2(t) + k21*x1(t)
- Differential(t)(x3(t)) ~ -k13*x3(t) + k31*x1(t)
- Differential(t)(x4(t)) ~ -k14*x4(t) + k41*x1(t)
-starting SolveJSWithHC
-28-element Vector{Any}:
- -0.4208335175877691 + x2(t)
- -0.05842950185840107 + x2ˍt(t)
- -1.303972019996804 + x3(t) + x4(t)
- 0.15391109168018946 + x3ˍt(t) + x4ˍt(t)
- -0.17624533994347288 + x4ˍtt(t) + x3ˍtt(t)
- -0.2618206100088209 + x1(t)
- -0.06275401357048603 + x1ˍt(t)
- 0.20870347464876518 + x1ˍtt(t)
- -0.5830566500098686 + x1ˍttt(t)
- 1.6069458240097558 + x1ˍtttt(t)
- -4.420920795363724 + x1ˍttttt(t)
- x2ˍt(t) + k12*x2(t) - k21*x1(t)
- x3ˍt(t) + k13*x3(t) - k31*x1(t)
- x4ˍt(t) + k14*x4(t) - k41*x1(t)
- x4ˍtt(t) + k14*x4ˍt(t) - k41*x1ˍt(t)
- x3ˍtt(t) + k13*x3ˍt(t) - k31*x1ˍt(t)
- x1ˍt(t) + k01*x1(t) - k12*x2(t) - k13*x3(t) - k14*x4(t) + k21*x1(t) + k31*x1(t) + k41*x1(t)
- x1ˍtt(t) + k01*x1ˍt(t) - k12*x2ˍt(t) - k13*x3ˍt(t) - k14*x4ˍt(t) + k21*x1ˍt(t) + k31*x1ˍt(t) + k41*x1ˍt(t)
- x1ˍttt(t) + k01*x1ˍtt(t) - k12*x2ˍtt(t) - k13*x3ˍtt(t) - k14*x4ˍtt(t) + k21*x1ˍtt(t) + k31*x1ˍtt(t) + k41*x1ˍtt(t)
- x1ˍtttt(t) + k01*x1ˍttt(t) - k12*x2ˍttt(t) - k13*x3ˍttt(t) - k14*x4ˍttt(t) + k21*x1ˍttt(t) + k31*x1ˍttt(t) + k41*x1ˍttt(t)
- x1ˍttttt(t) + k01*x1ˍtttt(t) - k12*x2ˍtttt(t) - k13*x3ˍtttt(t) - k14*x4ˍtttt(t) + k21*x1ˍtttt(t) + k31*x1ˍtttt(t) + k41*x1ˍtttt(t)
- x2ˍtt(t) + k12*x2ˍt(t) - k21*x1ˍt(t)
- x2ˍttt(t) + k12*x2ˍtt(t) - k21*x1ˍtt(t)
- x3ˍttt(t) + k13*x3ˍtt(t) - k31*x1ˍtt(t)
- x4ˍttt(t) + k14*x4ˍtt(t) - k41*x1ˍtt(t)
- x2ˍtttt(t) + k12*x2ˍttt(t) - k21*x1ˍttt(t)
- x3ˍtttt(t) + k13*x3ˍttt(t) - k31*x1ˍttt(t)
- x4ˍtttt(t) + k14*x4ˍttt(t) - k41*x1ˍttt(t)
-varlist
-28-element Vector{Any}:
- k01
- k12
- k13
- k14
- k21
- k31
- k41
- x1(t)
- x2(t)
- x3(t)
- x4(t)
- x2ˍt(t)
- x3ˍt(t)
- x4ˍt(t)
- x4ˍtt(t)
- x3ˍtt(t)
- x1ˍt(t)
- x1ˍtt(t)
- x1ˍttt(t)
- x1ˍtttt(t)
- x1ˍttttt(t)
- x2ˍtt(t)
- x2ˍttt(t)
- x3ˍttt(t)
- x4ˍttt(t)
- x2ˍtttt(t)
- x3ˍtttt(t)
- x4ˍtttt(t)
-system we are solving (line 428)
-Tracking 50 paths...   4%|█▎                            |  ETA: 0:03:09[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  0 (0)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         0 (0)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  18%|█████▍                        |  ETA: 0:00:37[K
-  # paths tracked:                  9[K
-  # non-singular solutions (real):  0 (0)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         0 (0)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  30%|█████████                     |  ETA: 0:00:19[K
-  # paths tracked:                  15[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  38%|███████████▍                  |  ETA: 0:00:14[K
-  # paths tracked:                  19[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  46%|█████████████▊                |  ETA: 0:00:11[K
-  # paths tracked:                  23[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  62%|██████████████████▋           |  ETA: 0:00:06[K
-  # paths tracked:                  31[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  74%|██████████████████████▎       |  ETA: 0:00:03[K
-  # paths tracked:                  37[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  88%|██████████████████████████▍   |  ETA: 0:00:01[K
-  # paths tracked:                  44[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths...  92%|███████████████████████████▋  |  ETA: 0:00:01[K
-  # paths tracked:                  46[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 50 paths... 100%|██████████████████████████████| Time: 0:00:10[K
-  # paths tracked:                  50[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K
-results
-System of length 28
- 28 variables: _qz_xy_k01, _qz_xy_k12, _qz_xy_k13, _qz_xy_k14, _qz_xy_k21, _qz_xy_k31, _qz_xy_k41, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x3_t, _qz_xy_x4_t, _qz_xy_x2ˍt_t, _qz_xy_x3ˍt_t, _qz_xy_x4ˍt_t, _qz_xy_x4ˍtt_t, _qz_xy_x3ˍtt_t, _qz_xy_x1ˍt_t, _qz_xy_x1ˍtt_t, _qz_xy_x1ˍttt_t, _qz_xy_x1ˍtttt_t, _qz_xy_x1ˍttttt_t, _qz_xy_x2ˍtt_t, _qz_xy_x2ˍttt_t, _qz_xy_x3ˍttt_t, _qz_xy_x4ˍttt_t, _qz_xy_x2ˍtttt_t, _qz_xy_x3ˍtttt_t, _qz_xy_x4ˍtttt_t
-
- -0.420833517587769 + _qz_xy_x2_t
- -0.0584295018584011 + _qz_xy_x2ˍt_t
- -1.3039720199968 + _qz_xy_x3_t + _qz_xy_x4_t
- 0.153911091680189 + _qz_xy_x3ˍt_t + _qz_xy_x4ˍt_t
- -0.176245339943473 + _qz_xy_x3ˍtt_t + _qz_xy_x4ˍtt_t
- -0.261820610008821 + _qz_xy_x1_t
- -0.062754013570486 + _qz_xy_x1ˍt_t
- 0.208703474648765 + _qz_xy_x1ˍtt_t
- -0.583056650009869 + _qz_xy_x1ˍttt_t
- 1.60694582400976 + _qz_xy_x1ˍtttt_t
- -4.42092079536372 + _qz_xy_x1ˍttttt_t
- _qz_xy_x2ˍt_t + _qz_xy_k12*_qz_xy_x2_t - _qz_xy_k21*_qz_xy_x1_t
- _qz_xy_x3ˍt_t + _qz_xy_k13*_qz_xy_x3_t - _qz_xy_k31*_qz_xy_x1_t
- _qz_xy_x4ˍt_t + _qz_xy_k14*_qz_xy_x4_t - _qz_xy_k41*_qz_xy_x1_t
- _qz_xy_x4ˍtt_t + _qz_xy_k14*_qz_xy_x4ˍt_t - _qz_xy_k41*_qz_xy_x1ˍt_t
- _qz_xy_x3ˍtt_t + _qz_xy_k13*_qz_xy_x3ˍt_t - _qz_xy_k31*_qz_xy_x1ˍt_t
- _qz_xy_x1ˍt_t + _qz_xy_k01*_qz_xy_x1_t - _qz_xy_k12*_qz_xy_x2_t - _qz_xy_k13*_qz_xy_x3_t - _qz_xy_k14*_qz_xy_x4_t + _qz_xy_k21*_qz_xy_x1_t + _qz_xy_k31*_qz_xy_x1_t + _qz_xy_k41*_qz_xy_x1_t
- _qz_xy_x1ˍtt_t + _qz_xy_k01*_qz_xy_x1ˍt_t - _qz_xy_k12*_qz_xy_x2ˍt_t - _qz_xy_k13*_qz_xy_x3ˍt_t - _qz_xy_k14*_qz_xy_x4ˍt_t + _qz_xy_k21*_qz_xy_x1ˍt_t + _qz_xy_k31*_qz_xy_x1ˍt_t + _qz_xy_k41*_qz_xy_x1ˍt_t
- _qz_xy_x1ˍttt_t + _qz_xy_x1ˍtt_t*_qz_xy_k01 + _qz_xy_x1ˍtt_t*_qz_xy_k21 + _qz_xy_x1ˍtt_t*_qz_xy_k31 + _qz_xy_x1ˍtt_t*_qz_xy_k41 - _qz_xy_x2ˍtt_t*_qz_xy_k12 - _qz_xy_x3ˍtt_t*_qz_xy_k13 - _qz_xy_x4ˍtt_t*_qz_xy_k14
- _qz_xy_x1ˍtttt_t + _qz_xy_x1ˍttt_t*_qz_xy_k01 + _qz_xy_x1ˍttt_t*_qz_xy_k21 + _qz_xy_x1ˍttt_t*_qz_xy_k31 + _qz_xy_x1ˍttt_t*_qz_xy_k41 - _qz_xy_x2ˍttt_t*_qz_xy_k12 - _qz_xy_x3ˍttt_t*_qz_xy_k13 - _qz_xy_x4ˍttt_t*_qz_xy_k14
- _qz_xy_x1ˍttttt_t + _qz_xy_k01*_qz_xy_x1ˍtttt_t - _qz_xy_k12*_qz_xy_x2ˍtttt_t - _qz_xy_k13*_qz_xy_x3ˍtttt_t - _qz_xy_k14*_qz_xy_x4ˍtttt_t + _qz_xy_k21*_qz_xy_x1ˍtttt_t + _qz_xy_k31*_qz_xy_x1ˍtttt_t + _qz_xy_k41*_qz_xy_x1ˍtttt_t
- _qz_xy_x2ˍtt_t + _qz_xy_k12*_qz_xy_x2ˍt_t - _qz_xy_k21*_qz_xy_x1ˍt_t
- _qz_xy_x2ˍttt_t - _qz_xy_x1ˍtt_t*_qz_xy_k21 + _qz_xy_x2ˍtt_t*_qz_xy_k12
- _qz_xy_x3ˍttt_t - _qz_xy_x1ˍtt_t*_qz_xy_k31 + _qz_xy_x3ˍtt_t*_qz_xy_k13
- _qz_xy_x4ˍttt_t - _qz_xy_x1ˍtt_t*_qz_xy_k41 + _qz_xy_x4ˍtt_t*_qz_xy_k14
- _qz_xy_x2ˍtttt_t - _qz_xy_x1ˍttt_t*_qz_xy_k21 + _qz_xy_x2ˍttt_t*_qz_xy_k12
- _qz_xy_x3ˍtttt_t - _qz_xy_x1ˍttt_t*_qz_xy_k31 + _qz_xy_x3ˍttt_t*_qz_xy_k13
- _qz_xy_x4ˍtttt_t - _qz_xy_x1ˍttt_t*_qz_xy_k41 + _qz_xy_x4ˍttt_t*_qz_xy_k14
-Result with 2 solutions
-=======================
-• 50 paths tracked
-• 2 non-singular solutions (2 real)
-• random_seed: 0x1cffba73
-• start_system: :polyhedral
-
-2-element Vector{Vector{Float64}}:
- [0.12500000000076292, 0.24999999981197746, 0.3750009677125235, 0.49999964090622945, 0.6249999996971365, 0.7500057013756433, 0.8749944471527678, 0.2618206100088209, 0.4208335175877691, 0.5809335256328659, 0.723038494363938, 0.05842950185840107, -0.021483684044708327, -0.13242740763548114, 0.12112306967460815, 0.05512227026886474, 0.06275401357048603, -0.20870347464876518, 0.5830566500098686, -1.6069458240097558, 4.420920795363724, 0.024613883008933666, -0.13659314233987502, -0.17719970057681644, -0.24317587276192226, 0.3985586916388675, 0.50374587092706, 0.6317591801921499]
- [0.12500000000076292, 0.24999999981197746, 0.49999964090622945, 0.3750009677125235, 0.6249999996971365, 0.8749944471527678, 0.7500057013756433, 0.2618206100088209, 0.4208335175877691, 0.723038494363938, 0.5809335256328659, 0.05842950185840107, -0.13242740763548114, -0.021483684044708327, 0.05512227026886474, 0.12112306967460815, 0.06275401357048603, -0.20870347464876518, 0.5830566500098686, -1.6069458240097558, 4.420920795363724, 0.024613883008933666, -0.13659314233987502, -0.24317587276192226, -0.17719970057681644, 0.3985586916388675, 0.6317591801921499, 0.50374587092706]
-2-element Vector{Vector{Float64}}:
- [0.12500000000076292, 0.24999999981197746, 0.3750009677125235, 0.49999964090622945, 0.6249999996971365, 0.7500057013756433, 0.8749944471527678, 0.2618206100088209, 0.4208335175877691, 0.5809335256328659, 0.723038494363938, 0.05842950185840107, -0.021483684044708327, -0.13242740763548114, 0.12112306967460815, 0.05512227026886474, 0.06275401357048603, -0.20870347464876518, 0.5830566500098686, -1.6069458240097558, 4.420920795363724, 0.024613883008933666, -0.13659314233987502, -0.17719970057681644, -0.24317587276192226, 0.3985586916388675, 0.50374587092706, 0.6317591801921499]
- [0.12500000000076292, 0.24999999981197746, 0.49999964090622945, 0.3750009677125235, 0.6249999996971365, 0.8749944471527678, 0.7500057013756433, 0.2618206100088209, 0.4208335175877691, 0.723038494363938, 0.5809335256328659, 0.05842950185840107, -0.13242740763548114, -0.021483684044708327, 0.05512227026886474, 0.12112306967460815, 0.06275401357048603, -0.20870347464876518, 0.5830566500098686, -1.6069458240097558, 4.420920795363724, 0.024613883008933666, -0.13659314233987502, -0.24317587276192226, -0.17719970057681644, 0.3985586916388675, 0.6317591801921499, 0.50374587092706]
-"res3"
-2-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k12 => 0.12500000000076292, k21 => 0.24999999981197746, k01 => 0.3750009677125235, k14 => 0.49999964090622945, k13 => 0.6249999996971365, k31 => 0.7500057013756433, k41 => 0.8749944471527678), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.20000000000072812, x3(t) => 0.3999999999976803, x4(t) => 0.6000021091373237, x2(t) => 0.799997890864348), -0.5, 0.8506162188607249, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k12 => 0.12500000000076292, k21 => 0.24999999981197746, k01 => 0.49999964090622945, k14 => 0.3750009677125235, k13 => 0.6249999996971365, k31 => 0.8749944471527678, k41 => 0.7500057013756433), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.20000000000072812, x3(t) => 0.3999999999976804, x4(t) => 0.799997890864348, x2(t) => 0.6000021091373235), -0.5, 0.43254661055148835, nothing, 21, -0.5)
-"How close are we?"
-11-element Vector{Float64}:
- 0.20000000000072812
- 0.3999999999976803
- 0.6000021091373237
- 0.799997890864348
- 0.12500000000076292
- 0.24999999981197746
- 0.3750009677125235
- 0.49999964090622945
- 0.6249999996971365
- 0.7500057013756433
- 0.8749944471527678
-11-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.125
- 0.25
- 0.375
- 0.5
- 0.625
- 0.75
- 0.875
-"How close are we?"
-11-element Vector{Float64}:
- 0.20000000000072812
- 0.3999999999976804
- 0.799997890864348
- 0.6000021091373235
- 0.12500000000076292
- 0.24999999981197746
- 0.49999964090622945
- 0.3750009677125235
- 0.6249999996971365
- 0.8749944471527678
- 0.7500057013756433
-11-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.125
- 0.25
- 0.375
- 0.5
- 0.625
- 0.75
- 0.875
-For model DAISY_mamil4: The LIAN PE  max abs rel. err: 7.601834191017787e-6
-we decided to take this many derivatives: 5
-line 561
-15-element Vector{Num}:
-   lm
-    d
-    beta
-    a
-    k
-    u
-    c
-    q
-    b
-    h
- x(t)
- y(t)
- v(t)
- w(t)
- z(t)
-Dict{Int64, Int64} with 4 entries:
-  4 => 2
-  2 => 3
-  3 => 3
-  1 => 3
-Dict{Any, Any}()
-line 238
-5-element Vector{Equation}:
- Differential(t)(x(t)) ~ lm - d*x(t) - beta*x(t)*v(t)
- Differential(t)(y(t)) ~ -a*y(t) + beta*x(t)*v(t)
- Differential(t)(v(t)) ~ k*y(t) - u*v(t)
- Differential(t)(w(t)) ~ -b*w(t) - c*q*y(t)*w(t) + c*x(t)*y(t)*w(t)
- Differential(t)(z(t)) ~ -h*z(t) + c*q*y(t)*w(t)
-Dict{Any, Any}()
-5-element Vector{Equation}:
- Differential(t)(x(t)) ~ lm - d*x(t) - beta*x(t)*v(t)
- Differential(t)(y(t)) ~ -a*y(t) + beta*x(t)*v(t)
- Differential(t)(v(t)) ~ k*y(t) - u*v(t)
- Differential(t)(w(t)) ~ -b*w(t) - c*q*y(t)*w(t) + c*x(t)*y(t)*w(t)
- Differential(t)(z(t)) ~ -h*z(t) + c*q*y(t)*w(t)
-starting SolveJSWithHC
-28-element Vector{Any}:
- -0.7398393556910005 + v(t) + y(t)
- 0.19501841482761725 + vˍt(t) + yˍt(t)
- -0.05168651645595404 + vˍtt(t) + yˍtt(t)
- -0.5819733455263171 + z(t)
- 0.46967168174694607 + zˍt(t)
- -0.35535414600228943 + zˍtt(t)
- 0.23351470431594032 + zˍttt(t)
- -0.18347819985931452 + x(t)
- -0.03536264600192832 + xˍt(t)
- 0.005156947861736238 + xˍtt(t)
- -0.0025877255780194586 + xˍttt(t)
- -0.43940161101926084 + w(t)
- 0.4037960188036286 + wˍt(t)
- -0.3867045622393414 + wˍtt(t)
- 0.3906224919110613 + wˍttt(t)
- vˍt(t) - k*y(t) + u*v(t)
- yˍt(t) + a*y(t) - beta*x(t)*v(t)
- vˍtt(t) - k*yˍt(t) + u*vˍt(t)
- yˍtt(t) + a*yˍt(t) - beta*xˍt(t)*v(t) - beta*x(t)*vˍt(t)
- zˍt(t) + h*z(t) - c*q*y(t)*w(t)
- zˍtt(t) + h*zˍt(t) - c*q*y(t)*wˍt(t) - c*q*w(t)*yˍt(t)
- zˍttt(t) + h*zˍtt(t) - c*q*wˍtt(t)*y(t) - c*q*w(t)*yˍtt(t) - 2c*q*wˍt(t)*yˍt(t)
- -lm + xˍt(t) + d*x(t) + beta*x(t)*v(t)
- xˍtt(t) + d*xˍt(t) + beta*xˍt(t)*v(t) + beta*x(t)*vˍt(t)
- xˍttt(t) + d*xˍtt(t) + beta*xˍtt(t)*v(t) + 2beta*xˍt(t)*vˍt(t) + beta*x(t)*vˍtt(t)
- wˍt(t) + b*w(t) + c*q*y(t)*w(t) - c*x(t)*y(t)*w(t)
- wˍtt(t) + b*wˍt(t) + c*q*y(t)*wˍt(t) + c*q*w(t)*yˍt(t) - c*xˍt(t)*y(t)*w(t) - c*x(t)*y(t)*wˍt(t) - c*x(t)*w(t)*yˍt(t)
- wˍttt(t) + b*wˍtt(t) + c*q*wˍtt(t)*y(t) + c*q*w(t)*yˍtt(t) + 2c*q*wˍt(t)*yˍt(t) - c*wˍtt(t)*x(t)*y(t) - c*xˍtt(t)*y(t)*w(t) - 2c*xˍt(t)*y(t)*wˍt(t) - 2c*xˍt(t)*w(t)*yˍt(t) - c*x(t)*w(t)*yˍtt(t) - 2c*x(t)*wˍt(t)*yˍt(t)
-varlist
-28-element Vector{Any}:
- lm
- d
- beta
- a
- k
- u
- c
- q
- b
- h
- x(t)
- y(t)
- v(t)
- w(t)
- z(t)
- vˍt(t)
- yˍt(t)
- vˍtt(t)
- yˍtt(t)
- zˍt(t)
- zˍtt(t)
- zˍttt(t)
- xˍt(t)
- xˍtt(t)
- xˍttt(t)
- wˍt(t)
- wˍtt(t)
- wˍttt(t)
-system we are solving (line 428)
-Tracking 4 paths...  50%|███████████████▌               |  ETA: 0:00:08[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 4 paths... 100%|███████████████████████████████| Time: 0:00:07[K
-  # paths tracked:                  4[K
-  # non-singular solutions (real):  4 (4)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         4 (4)[K
-results
-System of length 28
- 28 variables: _qz_xy_lm, _qz_xy_d, _qz_xy_beta, _qz_xy_a, _qz_xy_k, _qz_xy_u, _qz_xy_c, _qz_xy_q, _qz_xy_b, _qz_xy_h, _qz_xy_x_t, _qz_xy_y_t, _qz_xy_v_t, _qz_xy_w_t, _qz_xy_z_t, _qz_xy_vˍt_t, _qz_xy_yˍt_t, _qz_xy_vˍtt_t, _qz_xy_yˍtt_t, _qz_xy_zˍt_t, _qz_xy_zˍtt_t, _qz_xy_zˍttt_t, _qz_xy_xˍt_t, _qz_xy_xˍtt_t, _qz_xy_xˍttt_t, _qz_xy_wˍt_t, _qz_xy_wˍtt_t, _qz_xy_wˍttt_t
-
- -0.739839355691 + _qz_xy_v_t + _qz_xy_y_t
- 0.195018414827617 + _qz_xy_vˍt_t + _qz_xy_yˍt_t
- -0.051686516455954 + _qz_xy_vˍtt_t + _qz_xy_yˍtt_t
- -0.581973345526317 + _qz_xy_z_t
- 0.469671681746946 + _qz_xy_zˍt_t
- -0.355354146002289 + _qz_xy_zˍtt_t
- 0.23351470431594 + _qz_xy_zˍttt_t
- -0.183478199859315 + _qz_xy_x_t
- -0.0353626460019283 + _qz_xy_xˍt_t
- 0.00515694786173624 + _qz_xy_xˍtt_t
- -0.00258772557801946 + _qz_xy_xˍttt_t
- -0.439401611019261 + _qz_xy_w_t
- 0.403796018803629 + _qz_xy_wˍt_t
- -0.386704562239341 + _qz_xy_wˍtt_t
- 0.390622491911061 + _qz_xy_wˍttt_t
- _qz_xy_vˍt_t + _qz_xy_v_t*_qz_xy_u - _qz_xy_y_t*_qz_xy_k
- _qz_xy_yˍt_t + _qz_xy_y_t*_qz_xy_a - _qz_xy_x_t*_qz_xy_v_t*_qz_xy_beta
- _qz_xy_vˍtt_t + _qz_xy_vˍt_t*_qz_xy_u - _qz_xy_yˍt_t*_qz_xy_k
- _qz_xy_yˍtt_t + _qz_xy_yˍt_t*_qz_xy_a - _qz_xy_v_t*_qz_xy_xˍt_t*_qz_xy_beta - _qz_xy_x_t*_qz_xy_vˍt_t*_qz_xy_beta
- _qz_xy_zˍt_t + _qz_xy_z_t*_qz_xy_h - _qz_xy_w_t*_qz_xy_y_t*_qz_xy_c*_qz_xy_q
- _qz_xy_zˍtt_t + _qz_xy_zˍt_t*_qz_xy_h - _qz_xy_w_t*_qz_xy_yˍt_t*_qz_xy_c*_qz_xy_q - _qz_xy_y_t*_qz_xy_wˍt_t*_qz_xy_c*_qz_xy_q
- _qz_xy_zˍttt_t + _qz_xy_zˍtt_t*_qz_xy_h - _qz_xy_w_t*_qz_xy_yˍtt_t*_qz_xy_c*_qz_xy_q - _qz_xy_y_t*_qz_xy_wˍtt_t*_qz_xy_c*_qz_xy_q - 2*_qz_xy_yˍt_t*_qz_xy_wˍt_t*_qz_xy_c*_qz_xy_q
- -_qz_xy_lm + _qz_xy_xˍt_t + _qz_xy_x_t*_qz_xy_d + _qz_xy_x_t*_qz_xy_v_t*_qz_xy_beta
- _qz_xy_xˍtt_t + _qz_xy_xˍt_t*_qz_xy_d + _qz_xy_v_t*_qz_xy_xˍt_t*_qz_xy_beta + _qz_xy_x_t*_qz_xy_vˍt_t*_qz_xy_beta
- _qz_xy_xˍttt_t + _qz_xy_xˍtt_t*_qz_xy_d + _qz_xy_v_t*_qz_xy_xˍtt_t*_qz_xy_beta + _qz_xy_x_t*_qz_xy_vˍtt_t*_qz_xy_beta + 2*_qz_xy_xˍt_t*_qz_xy_vˍt_t*_qz_xy_beta
- _qz_xy_wˍt_t + _qz_xy_w_t*_qz_xy_b - _qz_xy_w_t*_qz_xy_x_t*_qz_xy_y_t*_qz_xy_c + _qz_xy_w_t*_qz_xy_y_t*_qz_xy_c*_qz_xy_q
- _qz_xy_wˍtt_t + _qz_xy_wˍt_t*_qz_xy_b - _qz_xy_w_t*_qz_xy_x_t*_qz_xy_yˍt_t*_qz_xy_c - _qz_xy_w_t*_qz_xy_y_t*_qz_xy_xˍt_t*_qz_xy_c + _qz_xy_w_t*_qz_xy_yˍt_t*_qz_xy_c*_qz_xy_q - _qz_xy_x_t*_qz_xy_y_t*_qz_xy_wˍt_t*_qz_xy_c + _qz_xy_y_t*_qz_xy_wˍt_t*_qz_xy_c*_qz_xy_q
- _qz_xy_wˍttt_t + _qz_xy_wˍtt_t*_qz_xy_b - _qz_xy_w_t*_qz_xy_x_t*_qz_xy_yˍtt_t*_qz_xy_c - 2*_qz_xy_w_t*_qz_xy_xˍt_t*_qz_xy_yˍt_t*_qz_xy_c - _qz_xy_w_t*_qz_xy_y_t*_qz_xy_xˍtt_t*_qz_xy_c + _qz_xy_w_t*_qz_xy_yˍtt_t*_qz_xy_c*_qz_xy_q - _qz_xy_x_t*_qz_xy_y_t*_qz_xy_wˍtt_t*_qz_xy_c - 2*_qz_xy_x_t*_qz_xy_yˍt_t*_qz_xy_wˍt_t*_qz_xy_c + _qz_xy_y_t*_qz_xy_wˍtt_t*_qz_xy_c*_qz_xy_q - 2*_qz_xy_y_t*_qz_xy_xˍt_t*_qz_xy_wˍt_t*_qz_xy_c + 2*_qz_xy_yˍt_t*_qz_xy_wˍt_t*_qz_xy_c*_qz_xy_q
-Result with 4 solutions
-=======================
-• 4 paths tracked
-• 4 non-singular solutions (4 real)
-• random_seed: 0x2a0ab91d
-• start_system: :polyhedral
-
-4-element Vector{Vector{Float64}}:
- [0.30086851975821627, 0.7061368829269029, -2.173865357907239, 0.4130112802466659, -0.318422939667317, 1.3480935618945462, 0.17189813908612137, 0.7269999517577195, 0.8180000074131661, 0.9089999947956123, 0.18347819985931452, 1.0806762541741273, -0.3408368984831269, 0.43940161101926084, 0.5819733455263171, 0.11536791881841812, -0.31038633364603535, -0.056692619816150897, 0.10837913627210494, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.09099999588406919, 0.18099998424901262, 0.2730000449208456, 0.36399999030920005, 0.4549994677354329, 0.5449997957849275, 0.635999796027586, 0.7269999517577195, 0.8180000074131661, 0.9089999947956123, 0.18347819985931452, 0.2920853720510239, 0.44775398363997654, 0.43940161101926084, 0.5819733455263171, -0.11112714082915322, -0.08389127399846404, 0.02239378404110288, 0.02929273241485116, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.12901902776856145, -0.2813906345221111, -0.8154678266234803, 0.24927808339696364, 0.19997864412926428, -0.26359666103162466, 0.3931154151063276, 0.2900882864334831, 0.84726552330061, 0.9543403867815009, 0.18347819985931452, 1.7108651306982439, -0.9710257750072435, 0.43940161101926084, 0.5819733455263171, 0.08617733705751632, -0.28119575188513357, -0.03351708689193982, 0.08520360334789386, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.09749147456846412, 0.20437370114668268, 0.2055676692477148, 0.4481143373979565, -0.27317998500744356, 0.2404748496574513, 7.748243428033349, 0.2900882864334831, 0.84726552330061, 0.9543403867815009, 0.18347819985931452, 0.0868025717431663, 0.6530367839478342, 0.43940161101926084, 0.5819733455263171, -0.18075164768804663, -0.014266767139570619, 0.04736362053641221, 0.004322895919541832, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
-4-element Vector{Vector{Float64}}:
- [0.30086851975821627, 0.7061368829269029, -2.173865357907239, 0.4130112802466659, -0.318422939667317, 1.3480935618945462, 0.17189813908612137, 0.7269999517577195, 0.8180000074131661, 0.9089999947956123, 0.18347819985931452, 1.0806762541741273, -0.3408368984831269, 0.43940161101926084, 0.5819733455263171, 0.11536791881841812, -0.31038633364603535, -0.056692619816150897, 0.10837913627210494, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.09099999588406919, 0.18099998424901262, 0.2730000449208456, 0.36399999030920005, 0.4549994677354329, 0.5449997957849275, 0.635999796027586, 0.7269999517577195, 0.8180000074131661, 0.9089999947956123, 0.18347819985931452, 0.2920853720510239, 0.44775398363997654, 0.43940161101926084, 0.5819733455263171, -0.11112714082915322, -0.08389127399846404, 0.02239378404110288, 0.02929273241485116, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.12901902776856145, -0.2813906345221111, -0.8154678266234803, 0.24927808339696364, 0.19997864412926428, -0.26359666103162466, 0.3931154151063276, 0.2900882864334831, 0.84726552330061, 0.9543403867815009, 0.18347819985931452, 1.7108651306982439, -0.9710257750072435, 0.43940161101926084, 0.5819733455263171, 0.08617733705751632, -0.28119575188513357, -0.03351708689193982, 0.08520360334789386, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
- [0.09749147456846412, 0.20437370114668268, 0.2055676692477148, 0.4481143373979565, -0.27317998500744356, 0.2404748496574513, 7.748243428033349, 0.2900882864334831, 0.84726552330061, 0.9543403867815009, 0.18347819985931452, 0.0868025717431663, 0.6530367839478342, 0.43940161101926084, 0.5819733455263171, -0.18075164768804663, -0.014266767139570619, 0.04736362053641221, 0.004322895919541832, -0.46967168174694607, 0.35535414600228943, -0.23351470431594032, 0.03536264600192832, -0.005156947861736238, 0.0025877255780194586, -0.4037960188036286, 0.3867045622393414, -0.3906224919110613]
-"res3"
-4-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.30086851975821627, lm => 0.7061368829269029, d => -2.173865357907239, u => 0.4130112802466659, k => -0.318422939667317, q => 1.3480935618945462, h => 0.17189813908612137, b => 0.7269999517577195, beta => 0.8180000074131661, c => 0.9089999947956123), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(v(t) => 0.16699523498491878, w(t) => 1.2320242054340167, x(t) => -0.3992106117256913, z(t) => 0.6669998365235514, y(t) => 0.8330002884978737), -0.5, 1.3565066686329952, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.09099999588406919, lm => 0.18099998424901262, d => 0.2730000449208456, u => 0.36399999030920005, k => 0.4549994677354329, q => 0.5449997957849275, h => 0.635999796027586, b => 0.7269999517577195, beta => 0.8180000074131661, c => 0.9089999947956123), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(v(t) => 0.1670000000005577, w(t) => 0.33300011480363856, x(t) => 0.49999988525354905, z(t) => 0.6670000000049485, y(t) => 0.8330000000013589), -0.5, 0.9439339703465034, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.12901902776856145, lm => -0.2813906345221111, d => -0.8154678266234803, u => 0.24927808339696364, k => 0.19997864412926428, q => -0.26359666103162466, h => 0.3931154151063276, b => 0.2900882864334831, beta => 0.84726552330061, c => 0.9543403867815009), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(v(t) => 0.1669958937357541, w(t) => 1.8464343228054916, x(t) => -1.013328960472646, z(t) => 0.6670008501721566, y(t) => 0.8330022264103193), -0.5, 2.637908308152529, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.09749147456846412, lm => 0.20437370114668268, d => 0.2055676692477148, u => 0.4481143373979565, k => -0.27317998500744356, q => 0.2404748496574513, h => 7.748243428033349, b => 0.2900882864334831, beta => 0.84726552330061, c => 0.9543403867815009), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(v(t) => 0.16699987286109258, w(t) => 0.0937186290628435, x(t) => 0.7393685823514328, z(t) => 0.6670032482074287, y(t) => 0.8329959566024617), -0.5, 1.3997800815667074, nothing, 21, -0.5)
-"How close are we?"
-15-element Vector{Float64}:
-  0.16699523498491878
-  1.2320242054340167
- -0.3992106117256913
-  0.6669998365235514
-  0.8330002884978737
-  0.30086851975821627
-  0.7061368829269029
- -2.173865357907239
-  0.4130112802466659
- -0.318422939667317
-  1.3480935618945462
-  0.17189813908612137
-  0.7269999517577195
-  0.8180000074131661
-  0.9089999947956123
-15-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.091
- 0.181
- 0.273
- 0.364
- 0.455
- 0.545
- 0.636
- 0.727
- 0.818
- 0.909
-"How close are we?"
-15-element Vector{Float64}:
- 0.1670000000005577
- 0.33300011480363856
- 0.49999988525354905
- 0.6670000000049485
- 0.8330000000013589
- 0.09099999588406919
- 0.18099998424901262
- 0.2730000449208456
- 0.36399999030920005
- 0.4549994677354329
- 0.5449997957849275
- 0.635999796027586
- 0.7269999517577195
- 0.8180000074131661
- 0.9089999947956123
-15-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.091
- 0.181
- 0.273
- 0.364
- 0.455
- 0.545
- 0.636
- 0.727
- 0.818
- 0.909
-"How close are we?"
-15-element Vector{Float64}:
-  0.1669958937357541
-  1.8464343228054916
- -1.013328960472646
-  0.6670008501721566
-  0.8330022264103193
-  0.12901902776856145
- -0.2813906345221111
- -0.8154678266234803
-  0.24927808339696364
-  0.19997864412926428
- -0.26359666103162466
-  0.3931154151063276
-  0.2900882864334831
-  0.84726552330061
-  0.9543403867815009
-15-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.091
- 0.181
- 0.273
- 0.364
- 0.455
- 0.545
- 0.636
- 0.727
- 0.818
- 0.909
-"How close are we?"
-15-element Vector{Float64}:
-  0.16699987286109258
-  0.0937186290628435
-  0.7393685823514328
-  0.6670032482074287
-  0.8329959566024617
-  0.09749147456846412
-  0.20437370114668268
-  0.2055676692477148
-  0.4481143373979565
- -0.27317998500744356
-  0.2404748496574513
-  7.748243428033349
-  0.2900882864334831
-  0.84726552330061
-  0.9543403867815009
-15-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.091
- 0.181
- 0.273
- 0.364
- 0.455
- 0.545
- 0.636
- 0.727
- 0.818
- 0.909
-For model hiv: The LIAN PE  max abs rel. err: 1.1698122353582247e-6
-we decided to take this many derivatives: 3
-line 561
-8-element Vector{Num}:
-    k1
-    k2
-      eB
- xA(t)
- xB(t)
- xC(t)
-      eA(t)
-      eC(t)
-Dict{Int64, Int64} with 4 entries:
-  4 => 0
-  2 => 2
-  3 => 0
-  1 => 2
-Dict{Any, Any}()
-line 238
-5-element Vector{Equation}:
- Differential(t)(xA(t)) ~ -k1*xA(t)
- Differential(t)(xB(t)) ~ k1*xA(t) - k2*xB(t)
- Differential(t)(xC(t)) ~ k2*xB(t)
- Differential(t)(eA(t)) ~ 0
- Differential(t)(eC(t)) ~ 0
-Dict{Any, Any}()
-5-element Vector{Equation}:
- Differential(t)(xA(t)) ~ -k1*xA(t)
- Differential(t)(xB(t)) ~ k1*xA(t) - k2*xB(t)
- Differential(t)(xC(t)) ~ k2*xB(t)
- Differential(t)(eA(t)) ~ 0
- Differential(t)(eC(t)) ~ 0
-starting SolveJSWithHC
-18-element Vector{Any}:
- -0.833 + eC(t)
- -0.784014476786775 + eB*xB(t) + xA(t)*eA(t) + xC(t)*eC(t)
- -0.014805189130243483 + eB*xBˍt(t) + xA(t)*eAˍt(t) + eA(t)*xAˍt(t) + xC(t)*eCˍt(t) + eC(t)*xCˍt(t)
- 0.0050848264451614856 + eB*xBˍtt(t) + eCˍtt(t)*xC(t) + xA(t)*eAˍtt(t) + eA(t)*xAˍtt(t) + 2eAˍt(t)*xAˍt(t) + xCˍtt(t)*eC(t) + 2xCˍt(t)*eCˍt(t)
- -0.666 + eA(t)
- -0.5689734722271538 + xC(t)
- -0.14084468407642645 + xCˍt(t)
- 0.05188019708535682 + xCˍtt(t)
- xBˍt(t) - k1*xA(t) + k2*xB(t)
- eAˍt(t)
- xAˍt(t) + k1*xA(t)
- eCˍt(t)
- xCˍt(t) - k2*xB(t)
- xBˍtt(t) - k1*xAˍt(t) + k2*xBˍt(t)
- eCˍtt(t)
- eAˍtt(t)
- xAˍtt(t) + k1*xAˍt(t)
- xCˍtt(t) - k2*xBˍt(t)
-varlist
-18-element Vector{Any}:
- k1
- k2
- eB
- xA(t)
- xB(t)
- xC(t)
- eA(t)
- eC(t)
- xBˍt(t)
- eAˍt(t)
- xAˍt(t)
- eCˍt(t)
- xCˍt(t)
- xBˍtt(t)
- eCˍtt(t)
- eAˍtt(t)
- xAˍtt(t)
- xCˍtt(t)
-system we are solving (line 428)
-Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 3 paths... 100%|███████████████████████████████| Time: 0:00:05[K
-  # paths tracked:                  3[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K
-results
-System of length 18
- 18 variables: _qz_xy_k1, _qz_xy_k2, _qz_xy_eB, _qz_xy_xA_t, _qz_xy_xB_t, _qz_xy_xC_t, _qz_xy_eA_t, _qz_xy_eC_t, _qz_xy_xBˍt_t, _qz_xy_eAˍt_t, _qz_xy_xAˍt_t, _qz_xy_eCˍt_t, _qz_xy_xCˍt_t, _qz_xy_xBˍtt_t, _qz_xy_eCˍtt_t, _qz_xy_eAˍtt_t, _qz_xy_xAˍtt_t, _qz_xy_xCˍtt_t
-
- -0.833 + _qz_xy_eC_t
- -0.784014476786775 + _qz_xy_eA_t*_qz_xy_xA_t + _qz_xy_eB*_qz_xy_xB_t + _qz_xy_eC_t*_qz_xy_xC_t
- -0.0148051891302435 + _qz_xy_eAˍt_t*_qz_xy_xA_t + _qz_xy_eB*_qz_xy_xBˍt_t + _qz_xy_eCˍt_t*_qz_xy_xC_t + _qz_xy_xAˍt_t*_qz_xy_eA_t + _qz_xy_xCˍt_t*_qz_xy_eC_t
- 0.00508482644516149 + _qz_xy_eAˍtt_t*_qz_xy_xA_t + _qz_xy_eB*_qz_xy_xBˍtt_t + _qz_xy_eCˍtt_t*_qz_xy_xC_t + 2*_qz_xy_xAˍt_t*_qz_xy_eAˍt_t + _qz_xy_xAˍtt_t*_qz_xy_eA_t + 2*_qz_xy_xCˍt_t*_qz_xy_eCˍt_t + _qz_xy_xCˍtt_t*_qz_xy_eC_t
- -0.666 + _qz_xy_eA_t
- -0.568973472227154 + _qz_xy_xC_t
- -0.140844684076426 + _qz_xy_xCˍt_t
- 0.0518801970853568 + _qz_xy_xCˍtt_t
- _qz_xy_xBˍt_t - _qz_xy_k1*_qz_xy_xA_t + _qz_xy_k2*_qz_xy_xB_t
- _qz_xy_eAˍt_t
- _qz_xy_xAˍt_t + _qz_xy_k1*_qz_xy_xA_t
- _qz_xy_eCˍt_t
- _qz_xy_xCˍt_t - _qz_xy_k2*_qz_xy_xB_t
- _qz_xy_xBˍtt_t - _qz_xy_k1*_qz_xy_xAˍt_t + _qz_xy_k2*_qz_xy_xBˍt_t
- _qz_xy_eCˍtt_t
- _qz_xy_eAˍtt_t
- _qz_xy_xAˍtt_t + _qz_xy_k1*_qz_xy_xAˍt_t
- _qz_xy_xCˍtt_t - _qz_xy_k2*_qz_xy_xBˍt_t
-Result with 2 solutions
-=======================
-• 3 paths tracked
-• 2 non-singular solutions (2 real)
-• random_seed: 0x8faccf39
-• start_system: :polyhedral
-
-2-element Vector{Vector{Float64}}:
- [0.2500000002911517, 0.5000000006342785, 0.7500000001082915, 0.14833715997660063, 0.2816893677955139, 0.5689734722271538, 0.666, 0.833, -0.10376039403908767, 0.0, -0.03708429003733878, 0.0, 0.14084468407642645, 0.042609124565224976, 0.0, 0.0, 0.009271072520131849, -0.05188019708535682]
- [0.5000000006342785, 0.2500000002911517, 0.7080000000497798, -0.13335220787747654, 0.5633787356495911, 0.5689734722271538, 0.666, 0.833, -0.20752078809974714, 0.0, 0.06667610402332069, 0.0, 0.14084468407642645, 0.0852182491393084, 0.0, 0.0, -0.033338052053951565, -0.05188019708535682]
-2-element Vector{Vector{Float64}}:
- [0.2500000002911517, 0.5000000006342785, 0.7500000001082915, 0.14833715997660063, 0.2816893677955139, 0.5689734722271538, 0.666, 0.833, -0.10376039403908767, 0.0, -0.03708429003733878, 0.0, 0.14084468407642645, 0.042609124565224976, 0.0, 0.0, 0.009271072520131849, -0.05188019708535682]
- [0.5000000006342785, 0.2500000002911517, 0.7080000000497798, -0.13335220787747654, 0.5633787356495911, 0.5689734722271538, 0.666, 0.833, -0.20752078809974714, 0.0, 0.06667610402332069, 0.0, 0.14084468407642645, 0.0852182491393084, 0.0, 0.0, -0.033338052053951565, -0.05188019708535682]
-"res3"
-2-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k2 => 0.2500000002911517, k1 => 0.5000000006342785, eB => 0.7500000001082915), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(xA(t) => 0.16600000042079568, eC(t) => 0.33299999957853454, xB(t) => 0.49999999999993805, eA(t) => 0.666, xC(t) => 0.833), -0.5, 0.7947541331178118, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(k2 => 0.5000000006342785, k1 => 0.2500000002911517, eB => 0.7080000000497798), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(xA(t) => -0.16699999922696962, eC(t) => 0.6659999992262998, xB(t) => 0.4999999999999381, eA(t) => 0.666, xC(t) => 0.833), -0.5, 0.49547564897184715, nothing, 21, -0.5)
-"How close are we?"
-8-element Vector{Float64}:
- 0.16600000042079568
- 0.33299999957853454
- 0.49999999999993805
- 0.666
- 0.833
- 0.2500000002911517
- 0.5000000006342785
- 0.7500000001082915
-8-element Vector{Float64}:
- 0.166
- 0.333
- 0.5
- 0.666
- 0.833
- 0.25
- 0.5
- 0.75
-"How close are we?"
-8-element Vector{Float64}:
- -0.16699999922696962
-  0.6659999992262998
-  0.4999999999999381
-  0.666
-  0.833
-  0.5000000006342785
-  0.2500000002911517
-  0.7080000000497798
-8-element Vector{Float64}:
- 0.166
- 0.333
- 0.5
- 0.666
- 0.833
- 0.25
- 0.5
- 0.75
-For model slowfast: The LIAN PE  max abs rel. err: 2.5349137113346593e-9
-we decided to take this many derivatives: 3
-line 561
-6-element Vector{Num}:
-     a
-     b
-     beta
- x1(t)
- x2(t)
- x3(t)
-Dict{Int64, Int64} with 3 entries:
-  2 => 1
-  3 => 1
-  1 => 1
-Dict{Any, Any}()
-line 238
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x2(t)
- Differential(t)(x2(t)) ~ b*x1(t)
- Differential(t)(x3(t)) ~ (a^2)*(b^2)*beta*x3(t)
-Dict{Any, Any}()
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x2(t)
- Differential(t)(x2(t)) ~ b*x1(t)
- Differential(t)(x3(t)) ~ (a^2)*(b^2)*beta*x3(t)
-starting SolveJSWithHC
-9-element Vector{Any}:
- -3.17380557463711 + x2(t)
- -0.3722084946479444 + x2ˍt(t)
- -4.000216005832112 + x3(t)
- -0.00048002592056096955 + x3ˍt(t)
- -1.8610424732394517 + x1(t)
- 0.3173805574637142 + x1ˍt(t)
- x2ˍt(t) - b*x1(t)
- x3ˍt(t) - (a^2)*(b^2)*beta*x3(t)
- x1ˍt(t) + a*x2(t)
-varlist
-9-element Vector{Any}:
- a
- b
- beta
- x1(t)
- x2(t)
- x3(t)
- x2ˍt(t)
- x3ˍt(t)
- x1ˍt(t)
-system we are solving (line 428)
-results
-System of length 9
- 9 variables: _qz_xy_a, _qz_xy_b, _qz_xy_beta, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x3_t, _qz_xy_x2ˍt_t, _qz_xy_x3ˍt_t, _qz_xy_x1ˍt_t
-
- -3.17380557463711 + _qz_xy_x2_t
- -0.372208494647944 + _qz_xy_x2ˍt_t
- -4.00021600583211 + _qz_xy_x3_t
- -0.00048002592056097 + _qz_xy_x3ˍt_t
- -1.86104247323945 + _qz_xy_x1_t
- 0.317380557463714 + _qz_xy_x1ˍt_t
- _qz_xy_x2ˍt_t - _qz_xy_x1_t*_qz_xy_b
- _qz_xy_x3ˍt_t - _qz_xy_x3_t*_qz_xy_beta*_qz_xy_b^2*_qz_xy_a^2
- _qz_xy_x1ˍt_t + _qz_xy_x2_t*_qz_xy_a
-Result with 1 solution
-======================
-• 1 path tracked
-• 1 non-singular solution (1 real)
-• random_seed: 0x0b2ac6be
-• start_system: :polyhedral
-
-1-element Vector{Vector{Float64}}:
- [0.100000000000001, 0.20000000000002907, 0.299999999913109, 1.8610424732394517, 3.17380557463711, 4.000216005832112, 0.3722084946479444, 0.00048002592056096955, -0.3173805574637142]
-1-element Vector{Vector{Float64}}:
- [0.100000000000001, 0.20000000000002907, 0.299999999913109, 1.8610424732394517, 3.17380557463711, 4.000216005832112, 0.3722084946479444, 0.00048002592056096955, -0.3173805574637142]
-"res3"
-1-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.100000000000001, b => 0.20000000000002907, beta => 0.299999999913109), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 2.000000000000001, x3(t) => 2.9999999999999787, x2(t) => 4.000000000000069), -0.5, 2.3542771402020977, nothing, 21, -0.5)
-"How close are we?"
-6-element Vector{Float64}:
- 2.000000000000001
- 2.9999999999999787
- 4.000000000000069
- 0.100000000000001
- 0.20000000000002907
- 0.299999999913109
-6-element Vector{Float64}:
- 2.0
- 3.0
- 4.0
- 0.1
- 0.2
- 0.3
-For model substr_test: The LIAN PE  max abs rel. err: 2.896366479987478e-10
-we decided to take this many derivatives: 5
-line 561
-4-element Vector{Num}:
-     a
-     c
- x1(t)
- x2(t)
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-Dict{Any, Any} with 3 entries:
-  d => 0.125405
-  x3(t) => 0.671606
-  b => 0.668829
-line 238
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x1(t)
- Differential(t)(x2(t)) ~ (b + c)*x1(t)
- Differential(t)(x3(t)) ~ d*x1(t)
-Dict{Any, Any} with 3 entries:
-  d => 0.125405
-  x3(t) => 0.671606
-  b => 0.668829
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x1(t)
- Differential(t)(x2(t)) ~ (0.6688288389213314 + c)*x1(t)
- Differential(t)(0.671605529078764) ~ 0.12540519740146272x1(t)
-starting SolveJSWithHC
-6-element Vector{Any}:
- -3.4400251816689886 + x2(t)
- -0.9559974818330195 + x2ˍt(t)
- -1.911994963666202 + x1(t)
- 0.19119949636660508 + x1ˍt(t)
- x2ˍt(t) - (0.6688288389213314 + c)*x1(t)
- x1ˍt(t) + a*x1(t)
-varlist
-6-element Vector{Any}:
- a
- c
- x1(t)
- x2(t)
- x2ˍt(t)
- x1ˍt(t)
-system we are solving (line 428)
-results
-System of length 6
- 6 variables: _qz_xy_a, _qz_xy_c, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x2ˍt_t, _qz_xy_x1ˍt_t
-
- -3.44002518166899 + _qz_xy_x2_t
- -0.955997481833019 + _qz_xy_x2ˍt_t
- -1.9119949636662 + _qz_xy_x1_t
- 0.191199496366605 + _qz_xy_x1ˍt_t
- _qz_xy_x2ˍt_t + (-0.668828838921331 - _qz_xy_c)*_qz_xy_x1_t
- _qz_xy_x1ˍt_t + _qz_xy_x1_t*_qz_xy_a
-Result with 1 solution
-======================
-• 1 path tracked
-• 1 non-singular solution (1 real)
-• random_seed: 0x709a92b1
-• start_system: :polyhedral
-
-1-element Vector{Vector{Float64}}:
- [0.0999999999999921, -0.16882883892137404, 1.911994963666202, 3.4400251816689886, 0.9559974818330195, -0.19119949636660508]
-1-element Vector{Vector{Float64}}:
- [0.0999999999999921, -0.16882883892137404, 1.911994963666202, 3.4400251816689886, 0.9559974818330195, -0.19119949636660508]
-"res3"
-1-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.0999999999999921, d => 0.6688288389213314, b => -0.16882883892137404, c => 0.12540519740146272), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 1.9999999999999951, x3(t) => 3.0000000000000253, x2(t) => 0.5612426395411328), -0.5, 4.552900964183891, nothing, 21, -0.5)
-"How close are we?"
-7-element Vector{Float64}:
-  1.9999999999999951
-  3.0000000000000253
-  0.5612426395411328
-  0.0999999999999921
-  0.6688288389213314
- -0.16882883892137404
-  0.12540519740146272
-7-element Vector{Float64}:
- 2.0
- 3.0
- 4.0
- 0.1
- 0.2
- 0.3
- 0.4
-For model global_unident_test: The LIAN PE  max abs rel. err: 7.91033905045424e-14
-we decided to take this many derivatives: 7
-line 561
-5-element Vector{Num}:
-     a
-     b
- x1(t)
- x2(t)
- x3(t)
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-Dict{Any, Any} with 1 entry:
-  c => 0.218636
-line 238
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x1(t)
- Differential(t)(x2(t)) ~ b*x2(t)
- Differential(t)(x3(t)) ~ c*(x1(t) + x2(t))
-Dict{Any, Any} with 1 entry:
-  c => 0.218636
-3-element Vector{Equation}:
- Differential(t)(x1(t)) ~ -a*x1(t)
- Differential(t)(x2(t)) ~ b*x2(t)
- Differential(t)(x3(t)) ~ 0.2186363852175407(x1(t) + x2(t))
-starting SolveJSWithHC
-15-element Vector{Any}:
- -4.687799385674831 + x3(t)
- -1.558355344434173 + x3ˍt(t)
- -0.13959152216919643 + x3ˍtt(t)
- -0.04512625911460128 + x3ˍttt(t)
- -0.0073044541997894135 + x3ˍtttt(t)
- x3ˍt(t) - 0.2186363852175407(x1(t) + x2(t))
- -0.2186363852175407(x1ˍt(t) + x2ˍt(t)) + x3ˍtt(t)
- -0.2186363852175407(x2ˍtt(t) + x1ˍtt(t)) + x3ˍttt(t)
- -0.2186363852175407(x2ˍttt(t) + x1ˍttt(t)) + x3ˍtttt(t)
- x1ˍt(t) + a*x1(t)
- x2ˍt(t) - b*x2(t)
- x2ˍtt(t) - b*x2ˍt(t)
- x1ˍtt(t) + a*x1ˍt(t)
- x2ˍttt(t) - b*x2ˍtt(t)
- x1ˍttt(t) + a*x1ˍtt(t)
-varlist
-15-element Vector{Any}:
- a
- b
- x1(t)
- x2(t)
- x3(t)
- x3ˍt(t)
- x3ˍtt(t)
- x3ˍttt(t)
- x3ˍtttt(t)
- x1ˍt(t)
- x2ˍt(t)
- x2ˍtt(t)
- x1ˍtt(t)
- x2ˍttt(t)
- x1ˍttt(t)
-system we are solving (line 428)
-Tracking 5 paths...  40%|████████████▍                  |  ETA: 0:00:07[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 5 paths... 100%|███████████████████████████████| Time: 0:00:04[K
-  # paths tracked:                  5[K
-  # non-singular solutions (real):  2 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         2 (2)[K
-results
-System of length 15
- 15 variables: _qz_xy_a, _qz_xy_b, _qz_xy_x1_t, _qz_xy_x2_t, _qz_xy_x3_t, _qz_xy_x3ˍt_t, _qz_xy_x3ˍtt_t, _qz_xy_x3ˍttt_t, _qz_xy_x3ˍtttt_t, _qz_xy_x1ˍt_t, _qz_xy_x2ˍt_t, _qz_xy_x2ˍtt_t, _qz_xy_x1ˍtt_t, _qz_xy_x2ˍttt_t, _qz_xy_x1ˍttt_t
-
- -4.68779938567483 + _qz_xy_x3_t
- -1.55835534443417 + _qz_xy_x3ˍt_t
- -0.139591522169196 + _qz_xy_x3ˍtt_t
- -0.0451262591146013 + _qz_xy_x3ˍttt_t
- -0.00730445419978941 + _qz_xy_x3ˍtttt_t
- _qz_xy_x3ˍt_t - 0.218636385217541*(_qz_xy_x1_t + _qz_xy_x2_t)
- _qz_xy_x3ˍtt_t - 0.218636385217541*(_qz_xy_x1ˍt_t + _qz_xy_x2ˍt_t)
- _qz_xy_x3ˍttt_t - 0.218636385217541*(_qz_xy_x1ˍtt_t + _qz_xy_x2ˍtt_t)
- _qz_xy_x3ˍtttt_t - 0.218636385217541*(_qz_xy_x1ˍttt_t + _qz_xy_x2ˍttt_t)
- _qz_xy_x1ˍt_t + _qz_xy_x1_t*_qz_xy_a
- _qz_xy_x2ˍt_t - _qz_xy_x2_t*_qz_xy_b
- _qz_xy_x2ˍtt_t - _qz_xy_x2ˍt_t*_qz_xy_b
- _qz_xy_x1ˍtt_t + _qz_xy_x1ˍt_t*_qz_xy_a
- _qz_xy_x2ˍttt_t - _qz_xy_x2ˍtt_t*_qz_xy_b
- _qz_xy_x1ˍttt_t + _qz_xy_x1ˍtt_t*_qz_xy_a
-Result with 2 solutions
-=======================
-• 5 paths tracked
-• 2 non-singular solutions (2 real)
-• random_seed: 0x92acaedf
-• start_system: :polyhedral
-
-2-element Vector{Vector{Float64}}:
- [-0.19999997569445682, -0.10000004178018233, 4.504085694897246, 2.6235264035356254, 4.687799385674831, 1.558355344434173, 0.13959152216919643, 0.04512625911460128, 0.0073044541997894135, 0.9008170295052, -0.26235274996497404, 0.026235285957643132, 0.1801633840061928, -0.002623529691879344, 0.03603267242226965]
- [0.10000004178018236, 0.19999997569445682, 2.623526403535625, 4.504085694897247, 4.687799385674831, 1.558355344434173, 0.13959152216919643, 0.04512625911460128, 0.0073044541997894135, -0.2623527499649741, 0.9008170295052, 0.1801633840061928, 0.026235285957643142, 0.03603267242226965, -0.002623529691879346]
-2-element Vector{Vector{Float64}}:
- [-0.19999997569445682, -0.10000004178018233, 4.504085694897246, 2.6235264035356254, 4.687799385674831, 1.558355344434173, 0.13959152216919643, 0.04512625911460128, 0.0073044541997894135, 0.9008170295052, -0.26235274996497404, 0.026235285957643132, 0.1801633840061928, -0.002623529691879344, 0.03603267242226965]
- [0.10000004178018236, 0.19999997569445682, 2.623526403535625, 4.504085694897247, 4.687799385674831, 1.558355344434173, 0.13959152216919643, 0.04512625911460128, 0.0073044541997894135, -0.2623527499649741, 0.9008170295052, 0.1801633840061928, 0.026235285957643142, 0.03603267242226965, -0.002623529691879346]
-"res3"
-2-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => -0.19999997569445682, b => -0.10000004178018233, c => 0.2186363852175407), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 4.116424422723993, x3(t) => 2.744281760899849, x2(t) => 3.999999999997623), -0.5, 2.5795317733426724, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.10000004178018236, b => 0.19999997569445682, c => 0.2186363852175407), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 2.7442817608998493, x3(t) => 4.116424422723994, x2(t) => 3.999999999997622), -0.5, 0.23631039946682061, nothing, 21, -0.5)
-"How close are we?"
-6-element Vector{Float64}:
-  4.116424422723993
-  2.744281760899849
-  3.999999999997623
- -0.19999997569445682
- -0.10000004178018233
-  0.2186363852175407
-6-element Vector{Float64}:
- 2.0
- 3.0
- 4.0
- 0.1
- 0.2
- 0.3
-"How close are we?"
-6-element Vector{Float64}:
- 2.7442817608998493
- 4.116424422723994
- 3.999999999997622
- 0.10000004178018236
- 0.19999997569445682
- 0.2186363852175407
-6-element Vector{Float64}:
- 2.0
- 3.0
- 4.0
- 0.1
- 0.2
- 0.3
-For model sum_test: The LIAN PE  max abs rel. err: 4.178018235545533e-7
-we decided to take this many derivatives: 6
-line 561
-18-element Vector{Num}:
-  mu_N
-   mu_EE
-  mu_LE
- mu_LL
-  mu_M
-  mu_P
-  mu_PE
- mu_PL
-     delta_NE
-     delta_EL
-     delta_LM
-  rho_E
- rho_P
-  N(t)
-      E(t)
-  S(t)
-  M(t)
-  P(t)
-Dict{Int64, Int64} with 4 entries:
-  4 => 4
-  2 => 3
-  3 => 5
-  1 => 2
-Dict{Any, Any}()
-line 238
-5-element Vector{Equation}:
- Differential(t)(N(t)) ~ -mu_N*N(t) - delta_NE*N(t)*P(t)
- Differential(t)(E(t)) ~ -delta_EL*E(t) + delta_NE*N(t)*P(t) - mu_EE*(E(t)^2) + rho_E*E(t)*P(t)
- Differential(t)(S(t)) ~ delta_EL*S(t) - delta_LM*S(t) - mu_LE*E(t)*S(t) - mu_LL*(S(t)^2)
- Differential(t)(M(t)) ~ delta_LM*S(t) - mu_M*M(t)
- Differential(t)(P(t)) ~ -mu_P*P(t) - mu_PE*E(t)*P(t) - mu_PL*S(t)*P(t) + rho_P*(P(t)^2)
-Dict{Any, Any}()
-5-element Vector{Equation}:
- Differential(t)(N(t)) ~ -mu_N*N(t) - delta_NE*N(t)*P(t)
- Differential(t)(E(t)) ~ -delta_EL*E(t) + delta_NE*N(t)*P(t) - mu_EE*(E(t)^2) + rho_E*E(t)*P(t)
- Differential(t)(S(t)) ~ delta_EL*S(t) - delta_LM*S(t) - mu_LE*E(t)*S(t) - mu_LL*(S(t)^2)
- Differential(t)(M(t)) ~ delta_LM*S(t) - mu_M*M(t)
- Differential(t)(P(t)) ~ -mu_P*P(t) - mu_PE*E(t)*P(t) - mu_PL*S(t)*P(t) + rho_P*(P(t)^2)
-starting SolveJSWithHC
-39-element Vector{Any}:
- -0.7907090862524733 + P(t)
- 0.09846787512593388 + Pˍt(t)
- 0.018835023459863102 + Pˍtt(t)
- -0.0076795927396859365 + Pˍttt(t)
- -0.00244523933986976 + Pˍtttt(t)
- -0.35689340833725874 + E(t)
- -0.033821899264935645 + Eˍt(t)
- 0.08056609630635864 + Eˍtt(t)
- -0.03313416217095071 + Eˍttt(t)
- -1.1618947309484773 + S(t) + M(t)
- 0.0319937027469082 + Mˍt(t) + Sˍt(t)
- 0.08157303200778222 + Sˍtt(t) + Mˍtt(t)
- -0.06369944027906155 + Mˍttt(t) + Sˍttt(t)
- 0.036438236768591745 + Sˍtttt(t) + Mˍtttt(t)
- -0.01834921962309844 + Sˍttttt(t) + Mˍttttt(t)
- -0.12787249644233262 + N(t)
- 0.07409264176585656 + Nˍt(t)
- -0.05102742591106048 + Nˍtt(t)
- Pˍt(t) + mu_P*P(t) + mu_PE*E(t)*P(t) + mu_PL*S(t)*P(t) - rho_P*(P(t)^2)
- Pˍtt(t) + mu_P*Pˍt(t) + mu_PE*E(t)*Pˍt(t) + mu_PE*Eˍt(t)*P(t) + mu_PL*Pˍt(t)*S(t) + mu_PL*Sˍt(t)*P(t) - 2rho_P*Pˍt(t)*P(t)
- Pˍttt(t) + mu_P*Pˍtt(t) + mu_PE*E(t)*Pˍtt(t) + 2mu_PE*Pˍt(t)*Eˍt(t) + mu_PE*Eˍtt(t)*P(t) + 2mu_PL*Pˍt(t)*Sˍt(t) + mu_PL*Sˍtt(t)*P(t) + mu_PL*S(t)*Pˍtt(t) - 2rho_P*(Pˍt(t)^2) - 2rho_P*Pˍtt(t)*P(t)
- Pˍtttt(t) + mu_P*Pˍttt(t) + mu_PE*E(t)*Pˍttt(t) + 3mu_PE*Pˍt(t)*Eˍtt(t) + 3mu_PE*Pˍtt(t)*Eˍt(t) + mu_PE*Eˍttt(t)*P(t) + 3mu_PL*Pˍt(t)*Sˍtt(t) + mu_PL*Pˍttt(t)*S(t) + 3mu_PL*Sˍt(t)*Pˍtt(t) + mu_PL*Sˍttt(t)*P(t) - 6rho_P*Pˍt(t)*Pˍtt(t) - 2rho_P*Pˍttt(t)*P(t)
- Eˍt(t) + delta_EL*E(t) - delta_NE*N(t)*P(t) + mu_EE*(E(t)^2) - rho_E*E(t)*P(t)
- Eˍtt(t) + delta_EL*Eˍt(t) - delta_NE*Pˍt(t)*N(t) - delta_NE*Nˍt(t)*P(t) + 2mu_EE*E(t)*Eˍt(t) - rho_E*E(t)*Pˍt(t) - rho_E*Eˍt(t)*P(t)
- Eˍttt(t) + delta_EL*Eˍtt(t) - 2delta_NE*Pˍt(t)*Nˍt(t) - delta_NE*N(t)*Pˍtt(t) - delta_NE*Nˍtt(t)*P(t) + 2mu_EE*E(t)*Eˍtt(t) + 2mu_EE*(Eˍt(t)^2) - rho_E*E(t)*Pˍtt(t) - 2rho_E*Pˍt(t)*Eˍt(t) - rho_E*Eˍtt(t)*P(t)
- Mˍt(t) - delta_LM*S(t) + mu_M*M(t)
- Sˍt(t) - delta_EL*S(t) + delta_LM*S(t) + mu_LE*E(t)*S(t) + mu_LL*(S(t)^2)
- Sˍtt(t) - delta_EL*Sˍt(t) + delta_LM*Sˍt(t) + mu_LE*E(t)*Sˍt(t) + mu_LE*S(t)*Eˍt(t) + 2mu_LL*S(t)*Sˍt(t)
- Mˍtt(t) - delta_LM*Sˍt(t) + mu_M*Mˍt(t)
- Mˍttt(t) - delta_LM*Sˍtt(t) + mu_M*Mˍtt(t)
- Sˍttt(t) - delta_EL*Sˍtt(t) + delta_LM*Sˍtt(t) + mu_LE*E(t)*Sˍtt(t) + mu_LE*Eˍtt(t)*S(t) + 2mu_LE*Sˍt(t)*Eˍt(t) + 2mu_LL*Sˍtt(t)*S(t) + 2mu_LL*(Sˍt(t)^2)
- Sˍtttt(t) - delta_EL*Sˍttt(t) + delta_LM*Sˍttt(t) + mu_LE*E(t)*Sˍttt(t) + 3mu_LE*Sˍtt(t)*Eˍt(t) + 3mu_LE*Eˍtt(t)*Sˍt(t) + mu_LE*S(t)*Eˍttt(t) + 6mu_LL*Sˍtt(t)*Sˍt(t) + 2mu_LL*S(t)*Sˍttt(t)
- Mˍtttt(t) - delta_LM*Sˍttt(t) + mu_M*Mˍttt(t)
- Sˍttttt(t) - delta_EL*Sˍtttt(t) + delta_LM*Sˍtttt(t) + mu_LE*E(t)*Sˍtttt(t) + 6mu_LE*Sˍtt(t)*Eˍtt(t) + mu_LE*S(t)*Eˍtttt(t) + 4mu_LE*Sˍt(t)*Eˍttt(t) + 4mu_LE*Eˍt(t)*Sˍttt(t) + 6mu_LL*(Sˍtt(t)^2) + 2mu_LL*Sˍtttt(t)*S(t) + 8mu_LL*Sˍt(t)*Sˍttt(t)
- Mˍttttt(t) - delta_LM*Sˍtttt(t) + mu_M*Mˍtttt(t)
- Nˍt(t) + mu_N*N(t) + delta_NE*N(t)*P(t)
- Nˍtt(t) + mu_N*Nˍt(t) + delta_NE*Pˍt(t)*N(t) + delta_NE*Nˍt(t)*P(t)
- Eˍtttt(t) + delta_EL*Eˍttt(t) - 3delta_NE*Pˍt(t)*Nˍtt(t) - 3delta_NE*Nˍt(t)*Pˍtt(t) - delta_NE*N(t)*Pˍttt(t) - delta_NE*Nˍttt(t)*P(t) + 2mu_EE*E(t)*Eˍttt(t) + 6mu_EE*Eˍtt(t)*Eˍt(t) - rho_E*E(t)*Pˍttt(t) - 3rho_E*Pˍt(t)*Eˍtt(t) - 3rho_E*Pˍtt(t)*Eˍt(t) - rho_E*Eˍttt(t)*P(t)
- Nˍttt(t) + mu_N*Nˍtt(t) + 2delta_NE*Pˍt(t)*Nˍt(t) + delta_NE*N(t)*Pˍtt(t) + delta_NE*Nˍtt(t)*P(t)
-varlist
-39-element Vector{Any}:
- mu_N
- mu_EE
- mu_LE
- mu_LL
- mu_M
- mu_P
- mu_PE
- mu_PL
- delta_NE
- delta_EL
- delta_LM
- rho_E
- rho_P
- N(t)
- E(t)
- S(t)
- M(t)
- P(t)
- Pˍt(t)
- Pˍtt(t)
- Pˍttt(t)
- Pˍtttt(t)
- Eˍt(t)
- Eˍtt(t)
- Eˍttt(t)
- Mˍt(t)
- Sˍt(t)
- Sˍtt(t)
- Mˍtt(t)
- Mˍttt(t)
- Sˍttt(t)
- Sˍtttt(t)
- Mˍtttt(t)
- Sˍttttt(t)
- Mˍttttt(t)
- Nˍt(t)
- Nˍtt(t)
- Eˍtttt(t)
- Nˍttt(t)
-system we are solving (line 428)
-Tracking 76 paths...   3%|▊                             |  ETA: 0:09:09[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...   5%|█▋                            |  ETA: 0:04:32[K
-  # paths tracked:                  4[K
-  # non-singular solutions (real):  3 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         3 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...   8%|██▍                           |  ETA: 0:03:04[K
-  # paths tracked:                  6[K
-  # non-singular solutions (real):  4 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         4 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  11%|███▏                          |  ETA: 0:02:17[K
-  # paths tracked:                  8[K
-  # non-singular solutions (real):  4 (2)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         4 (2)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  13%|████                          |  ETA: 0:01:48[K
-  # paths tracked:                  10[K
-  # non-singular solutions (real):  6 (4)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         6 (4)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  16%|████▊                         |  ETA: 0:01:29[K
-  # paths tracked:                  12[K
-  # non-singular solutions (real):  8 (5)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         8 (5)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  18%|█████▌                        |  ETA: 0:01:15[K
-  # paths tracked:                  14[K
-  # non-singular solutions (real):  9 (5)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         9 (5)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  20%|█████▉                        |  ETA: 0:01:11[K
-  # paths tracked:                  15[K
-  # non-singular solutions (real):  9 (5)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         9 (5)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  22%|██████▊                       |  ETA: 0:01:02[K
-  # paths tracked:                  17[K
-  # non-singular solutions (real):  10 (6)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         10 (6)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  24%|███████▏                      |  ETA: 0:00:58[K
-  # paths tracked:                  18[K
-  # non-singular solutions (real):  11 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         11 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  26%|███████▉                      |  ETA: 0:00:51[K
-  # paths tracked:                  20[K
-  # non-singular solutions (real):  13 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         13 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  29%|████████▋                     |  ETA: 0:00:46[K
-  # paths tracked:                  22[K
-  # non-singular solutions (real):  14 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         14 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  32%|█████████▌                    |  ETA: 0:00:41[K
-  # paths tracked:                  24[K
-  # non-singular solutions (real):  15 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         15 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  34%|██████████▎                   |  ETA: 0:00:37[K
-  # paths tracked:                  26[K
-  # non-singular solutions (real):  16 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         16 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  37%|███████████                   |  ETA: 0:00:34[K
-  # paths tracked:                  28[K
-  # non-singular solutions (real):  16 (7)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         16 (7)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  41%|████████████▎                 |  ETA: 0:00:29[K
-  # paths tracked:                  31[K
-  # non-singular solutions (real):  18 (8)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         18 (8)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  43%|█████████████                 |  ETA: 0:00:27[K
-  # paths tracked:                  33[K
-  # non-singular solutions (real):  19 (9)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         19 (9)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  46%|█████████████▉                |  ETA: 0:00:24[K
-  # paths tracked:                  35[K
-  # non-singular solutions (real):  21 (10)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         21 (10)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  49%|██████████████▋               |  ETA: 0:00:22[K
-  # paths tracked:                  37[K
-  # non-singular solutions (real):  22 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         22 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  51%|███████████████▍              |  ETA: 0:00:20[K
-  # paths tracked:                  39[K
-  # non-singular solutions (real):  23 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         23 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  54%|████████████████▏             |  ETA: 0:00:19[K
-  # paths tracked:                  41[K
-  # non-singular solutions (real):  24 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         24 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  58%|█████████████████▍            |  ETA: 0:00:16[K
-  # paths tracked:                  44[K
-  # non-singular solutions (real):  26 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         26 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  61%|██████████████████▏           |  ETA: 0:00:15[K
-  # paths tracked:                  46[K
-  # non-singular solutions (real):  26 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         26 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  62%|██████████████████▌           |  ETA: 0:00:14[K
-  # paths tracked:                  47[K
-  # non-singular solutions (real):  26 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         26 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  64%|███████████████████▍          |  ETA: 0:00:13[K
-  # paths tracked:                  49[K
-  # non-singular solutions (real):  27 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         27 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  67%|████████████████████▏         |  ETA: 0:00:11[K
-  # paths tracked:                  51[K
-  # non-singular solutions (real):  27 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         27 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  70%|████████████████████▉         |  ETA: 0:00:10[K
-  # paths tracked:                  53[K
-  # non-singular solutions (real):  27 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         27 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  72%|█████████████████████▊        |  ETA: 0:00:09[K
-  # paths tracked:                  55[K
-  # non-singular solutions (real):  27 (11)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         27 (11)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  75%|██████████████████████▌       |  ETA: 0:00:08[K
-  # paths tracked:                  57[K
-  # non-singular solutions (real):  29 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         29 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  76%|██████████████████████▉       |  ETA: 0:00:08[K
-  # paths tracked:                  58[K
-  # non-singular solutions (real):  29 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         29 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  78%|███████████████████████▎      |  ETA: 0:00:07[K
-  # paths tracked:                  59[K
-  # non-singular solutions (real):  29 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         29 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  80%|████████████████████████▏     |  ETA: 0:00:06[K
-  # paths tracked:                  61[K
-  # non-singular solutions (real):  30 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         30 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  82%|████████████████████████▌     |  ETA: 0:00:06[K
-  # paths tracked:                  62[K
-  # non-singular solutions (real):  30 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         30 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  84%|█████████████████████████▎    |  ETA: 0:00:05[K
-  # paths tracked:                  64[K
-  # non-singular solutions (real):  30 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         30 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  87%|██████████████████████████    |  ETA: 0:00:04[K
-  # paths tracked:                  66[K
-  # non-singular solutions (real):  32 (12)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         32 (12)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  89%|██████████████████████████▉   |  ETA: 0:00:03[K
-  # paths tracked:                  68[K
-  # non-singular solutions (real):  34 (13)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         34 (13)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  93%|████████████████████████████  |  ETA: 0:00:02[K
-  # paths tracked:                  71[K
-  # non-singular solutions (real):  37 (14)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         37 (14)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  95%|████████████████████████████▍ |  ETA: 0:00:02[K
-  # paths tracked:                  72[K
-  # non-singular solutions (real):  37 (14)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         37 (14)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths...  99%|█████████████████████████████▋|  ETA: 0:00:00[K
-  # paths tracked:                  75[K
-  # non-singular solutions (real):  40 (14)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         40 (14)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 76 paths... 100%|██████████████████████████████| Time: 0:00:28[K
-  # paths tracked:                  76[K
-  # non-singular solutions (real):  41 (15)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         41 (15)[K
-results
-System of length 39
- 39 variables: _qz_xy_mu_N, _qz_xy_mu_EE, _qz_xy_mu_LE, _qz_xy_mu_LL, _qz_xy_mu_M, _qz_xy_mu_P, _qz_xy_mu_PE, _qz_xy_mu_PL, _qz_xy_delta_NE, _qz_xy_delta_EL, _qz_xy_delta_LM, _qz_xy_rho_E, _qz_xy_rho_P, _qz_xy_N_t, _qz_xy_E_t, _qz_xy_S_t, _qz_xy_M_t, _qz_xy_P_t, _qz_xy_Pˍt_t, _qz_xy_Pˍtt_t, _qz_xy_Pˍttt_t, _qz_xy_Pˍtttt_t, _qz_xy_Eˍt_t, _qz_xy_Eˍtt_t, _qz_xy_Eˍttt_t, _qz_xy_Mˍt_t, _qz_xy_Sˍt_t, _qz_xy_Sˍtt_t, _qz_xy_Mˍtt_t, _qz_xy_Mˍttt_t, _qz_xy_Sˍttt_t, _qz_xy_Sˍtttt_t, _qz_xy_Mˍtttt_t, _qz_xy_Sˍttttt_t, _qz_xy_Mˍttttt_t, _qz_xy_Nˍt_t, _qz_xy_Nˍtt_t, _qz_xy_Eˍtttt_t, _qz_xy_Nˍttt_t
-
- -0.790709086252473 + _qz_xy_P_t
- 0.0984678751259339 + _qz_xy_Pˍt_t
- 0.0188350234598631 + _qz_xy_Pˍtt_t
- -0.00767959273968594 + _qz_xy_Pˍttt_t
- -0.00244523933986976 + _qz_xy_Pˍtttt_t
- -0.356893408337259 + _qz_xy_E_t
- -0.0338218992649356 + _qz_xy_Eˍt_t
- 0.0805660963063586 + _qz_xy_Eˍtt_t
- -0.0331341621709507 + _qz_xy_Eˍttt_t
- -1.16189473094848 + _qz_xy_M_t + _qz_xy_S_t
- 0.0319937027469082 + _qz_xy_Mˍt_t + _qz_xy_Sˍt_t
- 0.0815730320077822 + _qz_xy_Mˍtt_t + _qz_xy_Sˍtt_t
- -0.0636994402790615 + _qz_xy_Mˍttt_t + _qz_xy_Sˍttt_t
- 0.0364382367685917 + _qz_xy_Mˍtttt_t + _qz_xy_Sˍtttt_t
- -0.0183492196230984 + _qz_xy_Mˍttttt_t + _qz_xy_Sˍttttt_t
- -0.127872496442333 + _qz_xy_N_t
- 0.0740926417658566 + _qz_xy_Nˍt_t
- -0.0510274259110605 + _qz_xy_Nˍtt_t
- _qz_xy_Pˍt_t + _qz_xy_P_t*_qz_xy_mu_P - _qz_xy_P_t^2*_qz_xy_rho_P + _qz_xy_P_t*_qz_xy_E_t*_qz_xy_mu_PE + _qz_xy_P_t*_qz_xy_S_t*_qz_xy_mu_PL
- _qz_xy_Pˍtt_t + _qz_xy_Pˍt_t*_qz_xy_mu_P + _qz_xy_E_t*_qz_xy_mu_PE*_qz_xy_Pˍt_t + _qz_xy_P_t*_qz_xy_mu_PE*_qz_xy_Eˍt_t + _qz_xy_P_t*_qz_xy_mu_PL*_qz_xy_Sˍt_t - 2*_qz_xy_P_t*_qz_xy_rho_P*_qz_xy_Pˍt_t + _qz_xy_S_t*_qz_xy_mu_PL*_qz_xy_Pˍt_t
- _qz_xy_Pˍttt_t + _qz_xy_Pˍtt_t*_qz_xy_mu_P - 2*_qz_xy_rho_P*_qz_xy_Pˍt_t^2 + _qz_xy_E_t*_qz_xy_mu_PE*_qz_xy_Pˍtt_t + _qz_xy_P_t*_qz_xy_mu_PE*_qz_xy_Eˍtt_t + _qz_xy_P_t*_qz_xy_mu_PL*_qz_xy_Sˍtt_t - 2*_qz_xy_P_t*_qz_xy_rho_P*_qz_xy_Pˍtt_t + _qz_xy_S_t*_qz_xy_mu_PL*_qz_xy_Pˍtt_t + 2*_qz_xy_mu_PE*_qz_xy_Eˍt_t*_qz_xy_Pˍt_t + 2*_qz_xy_mu_PL*_qz_xy_Pˍt_t*_qz_xy_Sˍt_t
- _qz_xy_Pˍtttt_t + _qz_xy_Pˍttt_t*_qz_xy_mu_P + _qz_xy_Eˍttt_t*_qz_xy_P_t*_qz_xy_mu_PE + _qz_xy_Pˍttt_t*_qz_xy_E_t*_qz_xy_mu_PE - 2*_qz_xy_Pˍttt_t*_qz_xy_P_t*_qz_xy_rho_P + _qz_xy_Pˍttt_t*_qz_xy_S_t*_qz_xy_mu_PL + _qz_xy_Sˍttt_t*_qz_xy_P_t*_qz_xy_mu_PL + 3*_qz_xy_mu_PE*_qz_xy_Eˍt_t*_qz_xy_Pˍtt_t + 3*_qz_xy_mu_PE*_qz_xy_Pˍt_t*_qz_xy_Eˍtt_t + 3*_qz_xy_mu_PL*_qz_xy_Pˍt_t*_qz_xy_Sˍtt_t + 3*_qz_xy_mu_PL*_qz_xy_Sˍt_t*_qz_xy_Pˍtt_t - 6*_qz_xy_rho_P*_qz_xy_Pˍt_t*_qz_xy_Pˍtt_t
- _qz_xy_Eˍt_t + _qz_xy_E_t^2*_qz_xy_mu_EE + _qz_xy_delta_EL*_qz_xy_E_t - _qz_xy_P_t*_qz_xy_E_t*_qz_xy_rho_E - _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_N_t
- _qz_xy_Eˍtt_t + _qz_xy_delta_EL*_qz_xy_Eˍt_t + 2*_qz_xy_E_t*_qz_xy_mu_EE*_qz_xy_Eˍt_t - _qz_xy_E_t*_qz_xy_rho_E*_qz_xy_Pˍt_t - _qz_xy_P_t*_qz_xy_rho_E*_qz_xy_Eˍt_t - _qz_xy_delta_NE*_qz_xy_N_t*_qz_xy_Pˍt_t - _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_Nˍt_t
- _qz_xy_Eˍttt_t + _qz_xy_delta_EL*_qz_xy_Eˍtt_t + 2*_qz_xy_mu_EE*_qz_xy_Eˍt_t^2 + 2*_qz_xy_E_t*_qz_xy_mu_EE*_qz_xy_Eˍtt_t - _qz_xy_E_t*_qz_xy_rho_E*_qz_xy_Pˍtt_t - _qz_xy_P_t*_qz_xy_rho_E*_qz_xy_Eˍtt_t - _qz_xy_delta_NE*_qz_xy_N_t*_qz_xy_Pˍtt_t - _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_Nˍtt_t - 2*_qz_xy_delta_NE*_qz_xy_Pˍt_t*_qz_xy_Nˍt_t - 2*_qz_xy_rho_E*_qz_xy_Eˍt_t*_qz_xy_Pˍt_t
- _qz_xy_Mˍt_t + _qz_xy_M_t*_qz_xy_mu_M - _qz_xy_delta_LM*_qz_xy_S_t
- _qz_xy_Sˍt_t + _qz_xy_S_t^2*_qz_xy_mu_LL - _qz_xy_delta_EL*_qz_xy_S_t + _qz_xy_delta_LM*_qz_xy_S_t + _qz_xy_E_t*_qz_xy_S_t*_qz_xy_mu_LE
- _qz_xy_Sˍtt_t - _qz_xy_delta_EL*_qz_xy_Sˍt_t + _qz_xy_delta_LM*_qz_xy_Sˍt_t + _qz_xy_E_t*_qz_xy_mu_LE*_qz_xy_Sˍt_t + _qz_xy_S_t*_qz_xy_mu_LE*_qz_xy_Eˍt_t + 2*_qz_xy_S_t*_qz_xy_mu_LL*_qz_xy_Sˍt_t
- _qz_xy_Mˍtt_t + _qz_xy_Mˍt_t*_qz_xy_mu_M - _qz_xy_delta_LM*_qz_xy_Sˍt_t
- _qz_xy_Mˍttt_t + _qz_xy_Mˍtt_t*_qz_xy_mu_M - _qz_xy_delta_LM*_qz_xy_Sˍtt_t
- _qz_xy_Sˍttt_t - _qz_xy_delta_EL*_qz_xy_Sˍtt_t + _qz_xy_delta_LM*_qz_xy_Sˍtt_t + 2*_qz_xy_mu_LL*_qz_xy_Sˍt_t^2 + _qz_xy_E_t*_qz_xy_mu_LE*_qz_xy_Sˍtt_t + _qz_xy_S_t*_qz_xy_mu_LE*_qz_xy_Eˍtt_t + 2*_qz_xy_S_t*_qz_xy_mu_LL*_qz_xy_Sˍtt_t + 2*_qz_xy_mu_LE*_qz_xy_Eˍt_t*_qz_xy_Sˍt_t
- _qz_xy_Sˍtttt_t - _qz_xy_Sˍttt_t*_qz_xy_delta_EL + _qz_xy_Sˍttt_t*_qz_xy_delta_LM + _qz_xy_Eˍttt_t*_qz_xy_S_t*_qz_xy_mu_LE + _qz_xy_Sˍttt_t*_qz_xy_E_t*_qz_xy_mu_LE + 2*_qz_xy_Sˍttt_t*_qz_xy_S_t*_qz_xy_mu_LL + 3*_qz_xy_mu_LE*_qz_xy_Eˍt_t*_qz_xy_Sˍtt_t + 3*_qz_xy_mu_LE*_qz_xy_Sˍt_t*_qz_xy_Eˍtt_t + 6*_qz_xy_mu_LL*_qz_xy_Sˍt_t*_qz_xy_Sˍtt_t
- _qz_xy_Mˍtttt_t + _qz_xy_Mˍttt_t*_qz_xy_mu_M - _qz_xy_Sˍttt_t*_qz_xy_delta_LM
- _qz_xy_Sˍttttt_t - _qz_xy_Sˍtttt_t*_qz_xy_delta_EL + _qz_xy_Sˍtttt_t*_qz_xy_delta_LM + 6*_qz_xy_mu_LL*_qz_xy_Sˍtt_t^2 + 4*_qz_xy_Eˍttt_t*_qz_xy_mu_LE*_qz_xy_Sˍt_t + _qz_xy_Eˍtttt_t*_qz_xy_S_t*_qz_xy_mu_LE + 4*_qz_xy_Sˍttt_t*_qz_xy_mu_LE*_qz_xy_Eˍt_t + 8*_qz_xy_Sˍttt_t*_qz_xy_mu_LL*_qz_xy_Sˍt_t + _qz_xy_Sˍtttt_t*_qz_xy_E_t*_qz_xy_mu_LE + 2*_qz_xy_Sˍtttt_t*_qz_xy_S_t*_qz_xy_mu_LL + 6*_qz_xy_mu_LE*_qz_xy_Sˍtt_t*_qz_xy_Eˍtt_t
- _qz_xy_Mˍttttt_t + _qz_xy_Mˍtttt_t*_qz_xy_mu_M - _qz_xy_Sˍtttt_t*_qz_xy_delta_LM
- _qz_xy_Nˍt_t + _qz_xy_N_t*_qz_xy_mu_N + _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_N_t
- _qz_xy_Nˍtt_t + _qz_xy_Nˍt_t*_qz_xy_mu_N + _qz_xy_delta_NE*_qz_xy_N_t*_qz_xy_Pˍt_t + _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_Nˍt_t
- _qz_xy_Eˍtttt_t + _qz_xy_Eˍttt_t*_qz_xy_delta_EL + 2*_qz_xy_Eˍttt_t*_qz_xy_E_t*_qz_xy_mu_EE - _qz_xy_Eˍttt_t*_qz_xy_P_t*_qz_xy_rho_E - _qz_xy_Nˍttt_t*_qz_xy_delta_NE*_qz_xy_P_t - _qz_xy_Pˍttt_t*_qz_xy_E_t*_qz_xy_rho_E - _qz_xy_Pˍttt_t*_qz_xy_delta_NE*_qz_xy_N_t - 3*_qz_xy_delta_NE*_qz_xy_Nˍt_t*_qz_xy_Pˍtt_t - 3*_qz_xy_delta_NE*_qz_xy_Pˍt_t*_qz_xy_Nˍtt_t + 6*_qz_xy_mu_EE*_qz_xy_Eˍt_t*_qz_xy_Eˍtt_t - 3*_qz_xy_rho_E*_qz_xy_Eˍt_t*_qz_xy_Pˍtt_t - 3*_qz_xy_rho_E*_qz_xy_Pˍt_t*_qz_xy_Eˍtt_t
- _qz_xy_Nˍttt_t + _qz_xy_Nˍtt_t*_qz_xy_mu_N + _qz_xy_delta_NE*_qz_xy_N_t*_qz_xy_Pˍtt_t + _qz_xy_delta_NE*_qz_xy_P_t*_qz_xy_Nˍtt_t + 2*_qz_xy_delta_NE*_qz_xy_Pˍt_t*_qz_xy_Nˍt_t
-Result with 41 solutions
-========================
-• 76 paths tracked
-• 41 non-singular solutions (15 real)
-• random_seed: 0xcfeb9020
-• start_system: :polyhedral
-
-15-element Vector{Vector{Float64}}:
- [0.07100000000235912, 0.1430000000158087, -9.77094226996676, 23.54186054657219, -0.25477205485164284, 0.3971468362091989, -0.013430358575315597, 0.12779017873144882, 0.6429999999970311, 0.7139999999974176, -1.2757862861766687, 0.8570000000049383, 0.3756548692364211, 0.12787249644233262, 0.35689340833725874, 0.22858714584658069, 0.9333075851018967, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.05384765460229894, 0.02185395185539074, -0.03997318231994033, -0.041599849687841896, 0.0403987586321286, 0.023300681646932955, -0.017004021415029234, -0.019434215353562514, 0.001607017272006219, 0.01674220235109222, -0.07409264176585656, 0.05102742591106048, -0.006525933919837961, -0.037400288830698764]
- [0.07100000000235884, 0.1430000000158081, -0.6906208580766166, -1.135081046768566, 0.13196986935911967, 0.39446472455727566, -0.08015492655958263, -0.2210969111918509, 0.6429999999970313, 0.7139999999974177, 1.7382601407468046, 0.857000000004938, 0.2770832663971292, 0.12787249644233262, 0.35689340833725874, 0.10056494922762195, 1.0613297817208553, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.03474449015795712, -0.06673819290486532, 0.03902053441131118, -0.12059356641909341, 0.08374255684369938, -0.02004311656463784, 0.0094534081385219, -0.04589164490711364, -0.004139577321372521, 0.02248879694447096, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -236.26363587140048, 0.043192709946132626, -83.40597471667638, 0.4092088053427921, 0.049051773608352146, 6.940890369368015e-7, 0.6429999999970313, 0.7139999999974177, 88.2552607516416, 0.857000000004938, 0.38214010505342383, 0.12787249644233262, 0.35689340833725874, -32.13296446752716, 33.294859198475635, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -58.91297330148489, 58.88097959873798, -282.94381916283845, 282.86224613083067, -1378.8791891912808, 1378.94288863156, -6692.237844997776, 6692.201406761007, 32455.633040287717, -32455.614691068095, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -8.144765532851231, -0.001622009567175728, -3.8516514068670076, 0.40401371042527784, 0.05522628398087479, 4.571510725346043e-6, 0.6429999999970313, 0.7139999999974177, 1.8936471765603748, 0.857000000004938, 0.3785201124533756, 0.12787249644233262, 0.35689340833725874, 23.359605364753808, -22.19771063380533, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -41.2629926473924, 41.23099894464549, 80.77212591157242, -80.8536989435802, -158.46635510921396, 158.53005454949303, 310.1207311631125, -310.15716939988107, 607.3764001286969, -607.3580509090738, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.0710000000023592, 0.1430000000158092, 15.73746459187031, -22.331288675790272, -0.20287220550911692, 0.40415706710657506, 0.06047988212053787, -0.011063607967741687, 0.642999999997031, 0.7139999999974174, -1.6313182039730485, 0.8570000000049383, 0.3788785222049688, 0.12787249644233262, 0.35689340833725874, 0.1471621823994409, 1.0147325485490364, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.034207316958580085, 0.002213614211671886, -0.07102220901177186, -0.010550822996010355, 0.1137193537161452, -0.05001991343708365, -0.14110712821712817, 0.10466889144853642, -0.2330758162042207, 0.2514250358273191, -0.07409264176585656, 0.05102742591106048, -0.00652593391983795, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -0.07760455153604827, -0.025518115258010746, -0.39712251585697655, 0.5544971123709688, 0.036112094168280415, 0.012769385609835147, 0.6429999999970313, 0.7139999999974177, 0.4508150081632212, 0.857000000004938, 0.3683022029383949, 0.12787249644233262, 0.35689340833725874, -11.874829646354652, 13.036724377303129, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.17617464070963798, 0.14418093796272977, -0.07660904618362077, -0.004963985824161451, -0.03650781831981495, 0.1002072585988765, -0.06711509621224393, 0.03067685944365219, 0.03642324066904255, -0.018074021045944116, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.21400759077468873, 0.2860025505468106, 0.35699613281024906, 0.42900225721102553, 0.5000231741236048, 0.5710215179460929, 0.6429999999970313, 0.7139999999974177, 0.7859997695980929, 0.857000000004938, 0.9290242387466132, 0.12787249644233262, 0.35689340833725874, 0.44072205780372203, 0.7211726731447552, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.08895158048941555, -0.12094528323632375, 0.04524530299202529, -0.12681833499980752, 0.08083645289149373, -0.017137012612432174, 0.00588975226874069, -0.04232798903733243, -0.0013910526990838822, 0.019740272322182322, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.26105919022172497, 0.29011848860196404, 0.336191832015649, 0.4309524196306503, 0.4082292744529418, 0.4302293552072352, 0.6429999999970313, 0.7139999999974177, 0.7862790871114879, 0.857000000004938, 0.8063271586482809, 0.12787249644233262, 0.35689340833725874, 0.43105974848713857, 0.7308349824613387, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.09323251387617272, -0.12522621662308092, 0.04823373292449419, -0.12980676493227641, 0.08156514960245732, -0.017865709323395776, 0.0050307339222876975, -0.041468970690879445, 0.0004521295188112617, 0.01789709010428718, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 1.449518650882746, -0.0007956497721119524, -0.15806138672643325, 0.40436366677501956, 0.05503064174137324, -1.1863803727948714e-5, 0.6429999999970313, 0.7139999999974177, -1.9554762101659757, 0.857000000004938, 0.3788359447316521, 0.12787249644233262, 0.35689340833725874, -6.438678210648737, 7.600572941597214, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 13.7920391649019, -13.824032867648807, -29.294129269437228, 29.212556237429446, 61.901350032623306, -61.83765059234425, -130.74270608904848, 130.7062678522799, -276.30551614080144, 276.3238653604246, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235888, 0.14300000001580845, 11.74727770122256, -13.145985920600204, -0.17182801745256338, 0.4050386121960073, 0.05225078185492415, 0.006549148243468204, 0.6429999999970313, 0.7139999999974173, -2.5413982077537547, 0.8570000000049379, 0.37915114714779735, 0.12787249644233262, 0.35689340833725874, 0.09814846964893907, 1.0637462612995383, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.06665293370791142, 0.03465923096100323, 0.01796271689506238, -0.0995357489028446, -0.06275344692313156, 0.1264528872021931, 0.29571170450546586, -0.3321499412740576, 0.8269430813712039, -0.8085938617481054, -0.07409264176585656, 0.05102742591106048, -0.006525933919837973, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -0.058700670415010245, 0.12271393170804104, 0.24096267769676388, -0.4413813945965545, -0.09037132979833333, 0.10898970011943244, 0.6429999999970313, 0.7139999999974177, -0.2236324826500496, 0.857000000004938, 0.3034758866393984, 0.12787249644233262, 0.35689340833725874, 7.689961255012221, -6.528066524063744, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.1467047371200685, 0.11471103437316031, -0.09127028489080875, 0.009697252883026525, 0.018074324381312134, 0.04562511589774941, -0.02187974122870092, -0.014558495539890824, 0.009948144703854921, 0.00840107491924352, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.11576005020137435, -0.12598482540646624, 0.6557687920877684, 0.3982748831416219, 0.07235322732219458, 0.11673478833119477, 0.6429999999970313, 0.7139999999974177, 0.8701061320729122, 0.857000000004938, 0.45614030098186, 0.12787249644233262, 0.35689340833725874, 0.5234781508265332, 0.6384165801219441, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.03682787944498387, -0.06882158219189206, 0.002459622695134024, -0.08403265470291625, 0.057246125260081736, 0.006453315018979809, -0.004513083325295407, -0.031925153443296335, 0.0013405617882668826, 0.017008657834831558, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 2.182175260073573, -0.5555171422902886, 0.09838760475672562, 0.4095733709147047, 0.010485037423267006, 0.013859956821895272, 0.6429999999970313, 0.7139999999974177, 0.35021801976932976, 0.857000000004938, 0.3579236389925542, 0.12787249644233262, 0.35689340833725874, -0.4163674252485913, 1.5782621561970687, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.30110080839343084, 0.2691071056465226, -0.20544377698130664, 0.12387074497352442, -0.08413745864570131, 0.14783689892476284, -0.09649146578532936, 0.06005322901673761, 0.05805076305594043, -0.03970154343284199, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 2.2613939978133186, -2.7383017646785075, 0.20975747933990677, 0.2473966544247418, 0.6534300898150402, -0.7647490678296803, 0.6429999999970313, 0.7139999999974177, -0.672428266981354, 0.857000000004938, 0.740645547745227, 0.12787249644233262, 0.35689340833725874, -0.300183068208789, 1.4620777991572662, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.10483017341728505, 0.07283647067037685, -0.0545846431966375, -0.026988388811144723, 0.04236527343698158, 0.021334166842079973, -0.013206106963793677, -0.02323212980479807, 0.0045959470163123035, 0.013753272606786137, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -18.36508751399863, 30.269815888123638, -0.12750973697465148, 0.4023215607779323, -0.03285309829560837, 0.12142650072437475, 0.6429999999970313, 0.7139999999974177, -0.6761969166891236, 0.857000000004938, 0.37624721784362897, 0.12787249644233262, 0.35689340833725874, 0.25889481020326693, 0.9029999207452104, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.059922590023912044, 0.027928887277003843, -0.05504689085172523, -0.02652614115605699, 0.03384019658549802, 0.029859243693563523, -0.020562462814122284, -0.01587577395446946, 0.006469261429857617, 0.011879958193240824, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
-15-element Vector{Vector{Float64}}:
- [0.07100000000235912, 0.1430000000158087, -9.77094226996676, 23.54186054657219, -0.25477205485164284, 0.3971468362091989, -0.013430358575315597, 0.12779017873144882, 0.6429999999970311, 0.7139999999974176, -1.2757862861766687, 0.8570000000049383, 0.3756548692364211, 0.12787249644233262, 0.35689340833725874, 0.22858714584658069, 0.9333075851018967, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.05384765460229894, 0.02185395185539074, -0.03997318231994033, -0.041599849687841896, 0.0403987586321286, 0.023300681646932955, -0.017004021415029234, -0.019434215353562514, 0.001607017272006219, 0.01674220235109222, -0.07409264176585656, 0.05102742591106048, -0.006525933919837961, -0.037400288830698764]
- [0.07100000000235884, 0.1430000000158081, -0.6906208580766166, -1.135081046768566, 0.13196986935911967, 0.39446472455727566, -0.08015492655958263, -0.2210969111918509, 0.6429999999970313, 0.7139999999974177, 1.7382601407468046, 0.857000000004938, 0.2770832663971292, 0.12787249644233262, 0.35689340833725874, 0.10056494922762195, 1.0613297817208553, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.03474449015795712, -0.06673819290486532, 0.03902053441131118, -0.12059356641909341, 0.08374255684369938, -0.02004311656463784, 0.0094534081385219, -0.04589164490711364, -0.004139577321372521, 0.02248879694447096, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -236.26363587140048, 0.043192709946132626, -83.40597471667638, 0.4092088053427921, 0.049051773608352146, 6.940890369368015e-7, 0.6429999999970313, 0.7139999999974177, 88.2552607516416, 0.857000000004938, 0.38214010505342383, 0.12787249644233262, 0.35689340833725874, -32.13296446752716, 33.294859198475635, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -58.91297330148489, 58.88097959873798, -282.94381916283845, 282.86224613083067, -1378.8791891912808, 1378.94288863156, -6692.237844997776, 6692.201406761007, 32455.633040287717, -32455.614691068095, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -8.144765532851231, -0.001622009567175728, -3.8516514068670076, 0.40401371042527784, 0.05522628398087479, 4.571510725346043e-6, 0.6429999999970313, 0.7139999999974177, 1.8936471765603748, 0.857000000004938, 0.3785201124533756, 0.12787249644233262, 0.35689340833725874, 23.359605364753808, -22.19771063380533, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -41.2629926473924, 41.23099894464549, 80.77212591157242, -80.8536989435802, -158.46635510921396, 158.53005454949303, 310.1207311631125, -310.15716939988107, 607.3764001286969, -607.3580509090738, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.0710000000023592, 0.1430000000158092, 15.73746459187031, -22.331288675790272, -0.20287220550911692, 0.40415706710657506, 0.06047988212053787, -0.011063607967741687, 0.642999999997031, 0.7139999999974174, -1.6313182039730485, 0.8570000000049383, 0.3788785222049688, 0.12787249644233262, 0.35689340833725874, 0.1471621823994409, 1.0147325485490364, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.034207316958580085, 0.002213614211671886, -0.07102220901177186, -0.010550822996010355, 0.1137193537161452, -0.05001991343708365, -0.14110712821712817, 0.10466889144853642, -0.2330758162042207, 0.2514250358273191, -0.07409264176585656, 0.05102742591106048, -0.00652593391983795, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -0.07760455153604827, -0.025518115258010746, -0.39712251585697655, 0.5544971123709688, 0.036112094168280415, 0.012769385609835147, 0.6429999999970313, 0.7139999999974177, 0.4508150081632212, 0.857000000004938, 0.3683022029383949, 0.12787249644233262, 0.35689340833725874, -11.874829646354652, 13.036724377303129, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.17617464070963798, 0.14418093796272977, -0.07660904618362077, -0.004963985824161451, -0.03650781831981495, 0.1002072585988765, -0.06711509621224393, 0.03067685944365219, 0.03642324066904255, -0.018074021045944116, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.21400759077468873, 0.2860025505468106, 0.35699613281024906, 0.42900225721102553, 0.5000231741236048, 0.5710215179460929, 0.6429999999970313, 0.7139999999974177, 0.7859997695980929, 0.857000000004938, 0.9290242387466132, 0.12787249644233262, 0.35689340833725874, 0.44072205780372203, 0.7211726731447552, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.08895158048941555, -0.12094528323632375, 0.04524530299202529, -0.12681833499980752, 0.08083645289149373, -0.017137012612432174, 0.00588975226874069, -0.04232798903733243, -0.0013910526990838822, 0.019740272322182322, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.26105919022172497, 0.29011848860196404, 0.336191832015649, 0.4309524196306503, 0.4082292744529418, 0.4302293552072352, 0.6429999999970313, 0.7139999999974177, 0.7862790871114879, 0.857000000004938, 0.8063271586482809, 0.12787249644233262, 0.35689340833725874, 0.43105974848713857, 0.7308349824613387, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.09323251387617272, -0.12522621662308092, 0.04823373292449419, -0.12980676493227641, 0.08156514960245732, -0.017865709323395776, 0.0050307339222876975, -0.041468970690879445, 0.0004521295188112617, 0.01789709010428718, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 1.449518650882746, -0.0007956497721119524, -0.15806138672643325, 0.40436366677501956, 0.05503064174137324, -1.1863803727948714e-5, 0.6429999999970313, 0.7139999999974177, -1.9554762101659757, 0.857000000004938, 0.3788359447316521, 0.12787249644233262, 0.35689340833725874, -6.438678210648737, 7.600572941597214, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 13.7920391649019, -13.824032867648807, -29.294129269437228, 29.212556237429446, 61.901350032623306, -61.83765059234425, -130.74270608904848, 130.7062678522799, -276.30551614080144, 276.3238653604246, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235888, 0.14300000001580845, 11.74727770122256, -13.145985920600204, -0.17182801745256338, 0.4050386121960073, 0.05225078185492415, 0.006549148243468204, 0.6429999999970313, 0.7139999999974173, -2.5413982077537547, 0.8570000000049379, 0.37915114714779735, 0.12787249644233262, 0.35689340833725874, 0.09814846964893907, 1.0637462612995383, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.06665293370791142, 0.03465923096100323, 0.01796271689506238, -0.0995357489028446, -0.06275344692313156, 0.1264528872021931, 0.29571170450546586, -0.3321499412740576, 0.8269430813712039, -0.8085938617481054, -0.07409264176585656, 0.05102742591106048, -0.006525933919837973, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -0.058700670415010245, 0.12271393170804104, 0.24096267769676388, -0.4413813945965545, -0.09037132979833333, 0.10898970011943244, 0.6429999999970313, 0.7139999999974177, -0.2236324826500496, 0.857000000004938, 0.3034758866393984, 0.12787249644233262, 0.35689340833725874, 7.689961255012221, -6.528066524063744, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.1467047371200685, 0.11471103437316031, -0.09127028489080875, 0.009697252883026525, 0.018074324381312134, 0.04562511589774941, -0.02187974122870092, -0.014558495539890824, 0.009948144703854921, 0.00840107491924352, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 0.11576005020137435, -0.12598482540646624, 0.6557687920877684, 0.3982748831416219, 0.07235322732219458, 0.11673478833119477, 0.6429999999970313, 0.7139999999974177, 0.8701061320729122, 0.857000000004938, 0.45614030098186, 0.12787249644233262, 0.35689340833725874, 0.5234781508265332, 0.6384165801219441, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, 0.03682787944498387, -0.06882158219189206, 0.002459622695134024, -0.08403265470291625, 0.057246125260081736, 0.006453315018979809, -0.004513083325295407, -0.031925153443296335, 0.0013405617882668826, 0.017008657834831558, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 2.182175260073573, -0.5555171422902886, 0.09838760475672562, 0.4095733709147047, 0.010485037423267006, 0.013859956821895272, 0.6429999999970313, 0.7139999999974177, 0.35021801976932976, 0.857000000004938, 0.3579236389925542, 0.12787249644233262, 0.35689340833725874, -0.4163674252485913, 1.5782621561970687, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.30110080839343084, 0.2691071056465226, -0.20544377698130664, 0.12387074497352442, -0.08413745864570131, 0.14783689892476284, -0.09649146578532936, 0.06005322901673761, 0.05805076305594043, -0.03970154343284199, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, 2.2613939978133186, -2.7383017646785075, 0.20975747933990677, 0.2473966544247418, 0.6534300898150402, -0.7647490678296803, 0.6429999999970313, 0.7139999999974177, -0.672428266981354, 0.857000000004938, 0.740645547745227, 0.12787249644233262, 0.35689340833725874, -0.300183068208789, 1.4620777991572662, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.10483017341728505, 0.07283647067037685, -0.0545846431966375, -0.026988388811144723, 0.04236527343698158, 0.021334166842079973, -0.013206106963793677, -0.02323212980479807, 0.0045959470163123035, 0.013753272606786137, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
- [0.07100000000235884, 0.1430000000158081, -18.36508751399863, 30.269815888123638, -0.12750973697465148, 0.4023215607779323, -0.03285309829560837, 0.12142650072437475, 0.6429999999970313, 0.7139999999974177, -0.6761969166891236, 0.857000000004938, 0.37624721784362897, 0.12787249644233262, 0.35689340833725874, 0.25889481020326693, 0.9029999207452104, 0.7907090862524733, -0.09846787512593388, -0.018835023459863102, 0.0076795927396859365, 0.00244523933986976, 0.033821899264935645, -0.08056609630635864, 0.03313416217095071, -0.059922590023912044, 0.027928887277003843, -0.05504689085172523, -0.02652614115605699, 0.03384019658549802, 0.029859243693563523, -0.020562462814122284, -0.01587577395446946, 0.006469261429857617, 0.011879958193240824, -0.07409264176585656, 0.05102742591106048, -0.006525933919837979, -0.03740028883069876]
-"res3"
-15-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235912, mu_PE => 0.1430000000158087, delta_EL => -9.77094226996676, mu_M => 23.54186054657219, mu_LL => -0.25477205485164284, rho_E => 0.3971468362091989, mu_PL => -0.013430358575315597, mu_N => 0.12779017873144882, mu_P => 0.6429999999970311, delta_LM => 0.7139999999974176, delta_NE => -1.2757862861766687, mu_EE => 0.8570000000049383, rho_P => 0.3756548692364211), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16699999960189846, S(t) => 0.3330000014816799, P(t) => 0.21432600565712967, M(t) => 0.9526780090589787, E(t) => 0.8329999635989849), -0.5, 9.699539763782672, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -0.6906208580766166, mu_M => -1.135081046768566, mu_LL => 0.13196986935911967, rho_E => 0.39446472455727566, mu_PL => -0.08015492655958263, mu_N => -0.2210969111918509, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 1.7382601407468046, mu_EE => 0.857000000004938, rho_P => 0.2770832663971292), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.1670000002340633, S(t) => 0.3329999991332757, P(t) => 0.13486916760019485, M(t) => 1.0321308348721656, E(t) => 0.8330000359605415), -0.5, 2.289216943830702, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -236.26363587140048, mu_M => 0.043192709946132626, mu_LL => -83.40597471667638, rho_E => 0.4092088053427921, mu_PL => 0.049051773608352146, mu_N => 6.940890369368015e-7, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 88.2552607516416, mu_EE => 0.857000000004938, rho_P => 0.38214010505342383), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16699999536684193, S(t) => 0.333000017197409, P(t) => -122.2146274027631, M(t) => 123.96995878889604, E(t) => 0.8329994272253527), -0.5, 1.0e10, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -8.144765532851231, mu_M => -0.001622009567175728, mu_LL => -3.8516514068670076, rho_E => 0.40401371042527784, mu_PL => 0.05522628398087479, mu_N => 4.571510725346043e-6, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 1.8936471765603748, mu_EE => 0.857000000004938, rho_P => 0.3785201124533756), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000241948887, S(t) => 0.33299999101949723, P(t) => 11.02554254070674, M(t) => -9.8578718613362, E(t) => 0.8330003043648974), -0.5, 1.0e10, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.0710000000023592, mu_PE => 0.1430000000158092, delta_EL => 15.73746459187031, mu_M => -22.331288675790272, mu_LL => -0.20287220550911692, rho_E => 0.40415706710657506, mu_PL => 0.06047988212053787, mu_N => -0.011063607967741687, mu_P => 0.642999999997031, delta_LM => 0.7139999999974174, delta_NE => -1.6313182039730485, mu_EE => 0.8570000000049383, rho_P => 0.3788785222049688), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000249805944, S(t) => 0.33299999072748615, P(t) => 0.1395342285157982, M(t) => 1.0274760808526697, E(t) => 0.8330003129865771), -0.5, 1.0e10, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -0.07760455153604827, mu_M => -0.025518115258010746, mu_LL => -0.39712251585697655, rho_E => 0.5544971123709688, mu_PL => 0.036112094168280415, mu_N => 0.012769385609835147, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 0.4508150081632212, mu_EE => 0.857000000004938, rho_P => 0.3683022029383949), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000042855415, S(t) => 0.33299999841088523, P(t) => -11.949110376749005, M(t) => 13.116110135295576, E(t) => 0.8330000588559245), -0.5, 17.46167161692056, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 0.21400759077468873, mu_M => 0.2860025505468106, mu_LL => 0.35699613281024906, rho_E => 0.42900225721102553, mu_PL => 0.5000231741236048, mu_N => 0.5710215179460929, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 0.7859997695980929, mu_EE => 0.857000000004938, rho_P => 0.9290242387466132), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16699999999996634, S(t) => 0.3330000000000974, P(t) => 0.49999905019441676, M(t) => 0.6670009498046958, E(t) => 0.8329999999957848), -0.5, 0.8779935227572393, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 0.26105919022172497, mu_M => 0.29011848860196404, mu_LL => 0.336191832015649, rho_E => 0.4309524196306503, mu_PL => 0.4082292744529418, mu_N => 0.4302293552072352, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 0.7862790871114879, mu_EE => 0.857000000004938, rho_P => 0.8063271586482809), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16699999970275708, S(t) => 0.33300000110338157, P(t) => 0.4925750227061725, M(t) => 0.6744249756468644, E(t) => 0.8329999630047786), -0.5, 0.8626356958508747, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 1.449518650882746, mu_M => -0.0007956497721119524, mu_LL => -0.15806138672643325, rho_E => 0.40436366677501956, mu_PL => 0.05503064174137324, mu_N => -1.1863803727948714e-5, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => -1.9554762101659757, mu_EE => 0.857000000004938, rho_P => 0.3788359447316521), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000252490804, S(t) => 0.3329999906279954, P(t) => -2.431501088987516, M(t) => 3.59855758295039, E(t) => 0.8330003169709828), -0.5, 5.1354524399995745, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235888, mu_PE => 0.14300000001580845, delta_EL => 11.74727770122256, mu_M => -13.145985920600204, mu_LL => -0.17182801745256338, rho_E => 0.4050386121960073, mu_PL => 0.05225078185492415, mu_N => 0.006549148243468204, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974173, delta_NE => -2.5413982077537547, mu_EE => 0.8570000000049379, rho_P => 0.37915114714779735), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.1670000028447122, S(t) => 0.3329999894405024, P(t) => 0.08286199392718772, M(t) => 1.0841520785437306, E(t) => 0.8330003558826731), -0.5, 1.0e10, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -0.058700670415010245, mu_M => 0.12271393170804104, mu_LL => 0.24096267769676388, rho_E => -0.4413813945965545, mu_PL => -0.09037132979833333, mu_N => 0.10898970011943244, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => -0.2236324826500496, mu_EE => 0.857000000004938, rho_P => 0.3034758866393984), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.1669999999400301, S(t) => 0.33300000022477066, P(t) => 7.628368398651026, M(t) => -6.461368264505341, E(t) => 0.8329999993940432), -0.5, 1.0e10, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 0.11576005020137435, mu_M => -0.12598482540646624, mu_LL => 0.6557687920877684, rho_E => 0.3982748831416219, mu_PL => 0.07235322732219458, mu_N => 0.11673478833119477, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 0.8701061320729122, mu_EE => 0.857000000004938, rho_P => 0.45614030098186), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000030378567, S(t) => 0.33299999887402026, P(t) => 0.5545909726974241, M(t) => 0.6124090197339171, E(t) => 0.8330000432619702), -0.5, 0.8030986588049733, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 2.182175260073573, mu_M => -0.5555171422902886, mu_LL => 0.09838760475672562, rho_E => 0.4095733709147047, mu_PL => 0.010485037423267006, mu_N => 0.013859956821895272, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => 0.35021801976932976, mu_EE => 0.857000000004938, rho_P => 0.3579236389925542), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16700000013517668, S(t) => 0.33299999949989506, P(t) => -0.5606866747196614, M(t) => 1.7276862813143976, E(t) => 0.8330000221904984), -0.5, 3.457071854134064, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => 2.2613939978133186, mu_M => -2.7383017646785075, mu_LL => 0.20975747933990677, rho_E => 0.2473966544247418, mu_PL => 0.6534300898150402, mu_N => -0.7647490678296803, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => -0.672428266981354, mu_EE => 0.857000000004938, rho_P => 0.740645547745227), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.1670000061440703, S(t) => 0.3329999771919924, P(t) => -0.33883341639630526, M(t) => 1.505833502990796, E(t) => 0.8330007635131104), -0.5, 11.357910498516944, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(mu_LE => 0.07100000000235884, mu_PE => 0.1430000000158081, delta_EL => -18.36508751399863, mu_M => 30.269815888123638, mu_LL => -0.12750973697465148, rho_E => 0.4023215607779323, mu_PL => -0.03285309829560837, mu_N => 0.12142650072437475, mu_P => 0.6429999999970313, delta_LM => 0.7139999999974177, delta_NE => -0.6761969166891236, mu_EE => 0.857000000004938, rho_P => 0.37624721784362897), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(N(t) => 0.16699999948674182, S(t) => 0.33300000191061563, P(t) => 0.2402709291856694, M(t) => 0.9267366678973891, E(t) => 0.8329999550090906), -0.5, 18.515566024476716, nothing, 21, -0.5)
-"How close are we?"
-18-element Vector{Float64}:
-  0.16699999960189846
-  0.3330000014816799
-  0.21432600565712967
-  0.9526780090589787
-  0.8329999635989849
-  0.07100000000235912
-  0.1430000000158087
- -9.77094226996676
- 23.54186054657219
- -0.25477205485164284
-  0.3971468362091989
- -0.013430358575315597
-  0.12779017873144882
-  0.6429999999970311
-  0.7139999999974176
- -1.2757862861766687
-  0.8570000000049383
-  0.3756548692364211
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.1670000002340633
-  0.3329999991332757
-  0.13486916760019485
-  1.0321308348721656
-  0.8330000359605415
-  0.07100000000235884
-  0.1430000000158081
- -0.6906208580766166
- -1.135081046768566
-  0.13196986935911967
-  0.39446472455727566
- -0.08015492655958263
- -0.2210969111918509
-  0.6429999999970313
-  0.7139999999974177
-  1.7382601407468046
-  0.857000000004938
-  0.2770832663971292
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-    0.16699999536684193
-    0.333000017197409
- -122.2146274027631
-  123.96995878889604
-    0.8329994272253527
-    0.07100000000235884
-    0.1430000000158081
- -236.26363587140048
-    0.043192709946132626
-  -83.40597471667638
-    0.4092088053427921
-    0.049051773608352146
-    6.940890369368015e-7
-    0.6429999999970313
-    0.7139999999974177
-   88.2552607516416
-    0.857000000004938
-    0.38214010505342383
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.16700000241948887
-  0.33299999101949723
- 11.02554254070674
- -9.8578718613362
-  0.8330003043648974
-  0.07100000000235884
-  0.1430000000158081
- -8.144765532851231
- -0.001622009567175728
- -3.8516514068670076
-  0.40401371042527784
-  0.05522628398087479
-  4.571510725346043e-6
-  0.6429999999970313
-  0.7139999999974177
-  1.8936471765603748
-  0.857000000004938
-  0.3785201124533756
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-   0.16700000249805944
-   0.33299999072748615
-   0.1395342285157982
-   1.0274760808526697
-   0.8330003129865771
-   0.0710000000023592
-   0.1430000000158092
-  15.73746459187031
- -22.331288675790272
-  -0.20287220550911692
-   0.40415706710657506
-   0.06047988212053787
-  -0.011063607967741687
-   0.642999999997031
-   0.7139999999974174
-  -1.6313182039730485
-   0.8570000000049383
-   0.3788785222049688
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-   0.16700000042855415
-   0.33299999841088523
- -11.949110376749005
-  13.116110135295576
-   0.8330000588559245
-   0.07100000000235884
-   0.1430000000158081
-  -0.07760455153604827
-  -0.025518115258010746
-  -0.39712251585697655
-   0.5544971123709688
-   0.036112094168280415
-   0.012769385609835147
-   0.6429999999970313
-   0.7139999999974177
-   0.4508150081632212
-   0.857000000004938
-   0.3683022029383949
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
- 0.16699999999996634
- 0.3330000000000974
- 0.49999905019441676
- 0.6670009498046958
- 0.8329999999957848
- 0.07100000000235884
- 0.1430000000158081
- 0.21400759077468873
- 0.2860025505468106
- 0.35699613281024906
- 0.42900225721102553
- 0.5000231741236048
- 0.5710215179460929
- 0.6429999999970313
- 0.7139999999974177
- 0.7859997695980929
- 0.857000000004938
- 0.9290242387466132
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
- 0.16699999970275708
- 0.33300000110338157
- 0.4925750227061725
- 0.6744249756468644
- 0.8329999630047786
- 0.07100000000235884
- 0.1430000000158081
- 0.26105919022172497
- 0.29011848860196404
- 0.336191832015649
- 0.4309524196306503
- 0.4082292744529418
- 0.4302293552072352
- 0.6429999999970313
- 0.7139999999974177
- 0.7862790871114879
- 0.857000000004938
- 0.8063271586482809
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.16700000252490804
-  0.3329999906279954
- -2.431501088987516
-  3.59855758295039
-  0.8330003169709828
-  0.07100000000235884
-  0.1430000000158081
-  1.449518650882746
- -0.0007956497721119524
- -0.15806138672643325
-  0.40436366677501956
-  0.05503064174137324
- -1.1863803727948714e-5
-  0.6429999999970313
-  0.7139999999974177
- -1.9554762101659757
-  0.857000000004938
-  0.3788359447316521
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-   0.1670000028447122
-   0.3329999894405024
-   0.08286199392718772
-   1.0841520785437306
-   0.8330003558826731
-   0.07100000000235888
-   0.14300000001580845
-  11.74727770122256
- -13.145985920600204
-  -0.17182801745256338
-   0.4050386121960073
-   0.05225078185492415
-   0.006549148243468204
-   0.6429999999970313
-   0.7139999999974173
-  -2.5413982077537547
-   0.8570000000049379
-   0.37915114714779735
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.1669999999400301
-  0.33300000022477066
-  7.628368398651026
- -6.461368264505341
-  0.8329999993940432
-  0.07100000000235884
-  0.1430000000158081
- -0.058700670415010245
-  0.12271393170804104
-  0.24096267769676388
- -0.4413813945965545
- -0.09037132979833333
-  0.10898970011943244
-  0.6429999999970313
-  0.7139999999974177
- -0.2236324826500496
-  0.857000000004938
-  0.3034758866393984
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.16700000030378567
-  0.33299999887402026
-  0.5545909726974241
-  0.6124090197339171
-  0.8330000432619702
-  0.07100000000235884
-  0.1430000000158081
-  0.11576005020137435
- -0.12598482540646624
-  0.6557687920877684
-  0.3982748831416219
-  0.07235322732219458
-  0.11673478833119477
-  0.6429999999970313
-  0.7139999999974177
-  0.8701061320729122
-  0.857000000004938
-  0.45614030098186
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.16700000013517668
-  0.33299999949989506
- -0.5606866747196614
-  1.7276862813143976
-  0.8330000221904984
-  0.07100000000235884
-  0.1430000000158081
-  2.182175260073573
- -0.5555171422902886
-  0.09838760475672562
-  0.4095733709147047
-  0.010485037423267006
-  0.013859956821895272
-  0.6429999999970313
-  0.7139999999974177
-  0.35021801976932976
-  0.857000000004938
-  0.3579236389925542
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-  0.1670000061440703
-  0.3329999771919924
- -0.33883341639630526
-  1.505833502990796
-  0.8330007635131104
-  0.07100000000235884
-  0.1430000000158081
-  2.2613939978133186
- -2.7383017646785075
-  0.20975747933990677
-  0.2473966544247418
-  0.6534300898150402
- -0.7647490678296803
-  0.6429999999970313
-  0.7139999999974177
- -0.672428266981354
-  0.857000000004938
-  0.740645547745227
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-"How close are we?"
-18-element Vector{Float64}:
-   0.16699999948674182
-   0.33300000191061563
-   0.2402709291856694
-   0.9267366678973891
-   0.8329999550090906
-   0.07100000000235884
-   0.1430000000158081
- -18.36508751399863
-  30.269815888123638
-  -0.12750973697465148
-   0.4023215607779323
-  -0.03285309829560837
-   0.12142650072437475
-   0.6429999999970313
-   0.7139999999974177
-  -0.6761969166891236
-   0.857000000004938
-   0.37624721784362897
-18-element Vector{Float64}:
- 0.167
- 0.333
- 0.5
- 0.667
- 0.833
- 0.071
- 0.143
- 0.214
- 0.286
- 0.357
- 0.429
- 0.5
- 0.571
- 0.643
- 0.714
- 0.786
- 0.857
- 0.929
-For model Crauste: The LIAN PE  max abs rel. err: 4.634824720950448e-5
-we decided to take this many derivatives: 6
-line 561
-5-element Vector{Num}:
-    g
-    a
-    b
- V(t)
- R(t)
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-Dict{Any, Any}()
-line 238
-2-element Vector{Equation}:
- Differential(t)(V(t)) ~ g*(R(t) + V(t) - (1//3)*(V(t)^3))
- Differential(t)(R(t)) ~ (-a + V(t) + b*R(t)) / g
-Dict{Any, Any}()
-2-element Vector{Equation}:
- Differential(t)(V(t)) ~ g*(R(t) + V(t) - (1//3)*(V(t)^3))
- Differential(t)(R(t)) ~ (-a + V(t) + b*R(t)) / g
-starting SolveJSWithHC
-12-element Vector{Any}:
- -0.5145891647831872 + V(t)
- -0.6586283194201701 + Vˍt(t)
- -1.7596538649511806 + Vˍtt(t)
- -5.786234605982503 + Vˍttt(t)
- -18.508996284008372 + Vˍtttt(t)
- Vˍt(t) - g*(R(t) + V(t) - (1//3)*(V(t)^3))
- Vˍtt(t) - g*(Vˍt(t) + Rˍt(t) - (V(t)^2)*Vˍt(t))
- Vˍttt(t) - g*(Rˍtt(t) + Vˍtt(t) - (V(t)^2)*Vˍtt(t) - (2//1)*V(t)*(Vˍt(t)^2))
- Vˍtttt(t) - g*(Rˍttt(t) + Vˍttt(t) - (V(t)^2)*Vˍttt(t) - (6//1)*V(t)*Vˍt(t)*Vˍtt(t) - (2//1)*(Vˍt(t)^3))
- (a - V(t) - b*R(t)) / g + Rˍt(t)
- Rˍtt(t) + (-Vˍt(t) - b*Rˍt(t)) / g
- Rˍttt(t) + (-Vˍtt(t) - b*Rˍtt(t)) / g
-varlist
-12-element Vector{Any}:
- g
- a
- b
- V(t)
- R(t)
- Vˍt(t)
- Vˍtt(t)
- Vˍttt(t)
- Vˍtttt(t)
- Rˍt(t)
- Rˍtt(t)
- Rˍttt(t)
-system we are solving (line 428)
-results
-System of length 12
- 12 variables: _qz_xy_g, _qz_xy_a, _qz_xy_b, _qz_xy_V_t, _qz_xy_R_t, _qz_xy_Vˍt_t, _qz_xy_Vˍtt_t, _qz_xy_Vˍttt_t, _qz_xy_Vˍtttt_t, _qz_xy_Rˍt_t, _qz_xy_Rˍtt_t, _qz_xy_Rˍttt_t
-
- -0.514589164783187 + _qz_xy_V_t
- -0.65862831942017 + _qz_xy_Vˍt_t
- -1.75965386495118 + _qz_xy_Vˍtt_t
- -5.7862346059825 + _qz_xy_Vˍttt_t
- -18.5089962840084 + _qz_xy_Vˍtttt_t
- _qz_xy_Vˍt_t - (_qz_xy_R_t + _qz_xy_V_t + (-1/3)*_qz_xy_V_t^3)*_qz_xy_g
- _qz_xy_Vˍtt_t - (_qz_xy_Rˍt_t + _qz_xy_Vˍt_t - _qz_xy_V_t^2*_qz_xy_Vˍt_t)*_qz_xy_g
- _qz_xy_Vˍttt_t - (_qz_xy_Rˍtt_t + _qz_xy_Vˍtt_t - 2*_qz_xy_V_t*_qz_xy_Vˍt_t^2 - _qz_xy_V_t^2*_qz_xy_Vˍtt_t)*_qz_xy_g
- _qz_xy_Vˍtttt_t - (_qz_xy_Rˍttt_t + _qz_xy_Vˍttt_t - _qz_xy_Vˍttt_t*_qz_xy_V_t^2 - 6*_qz_xy_V_t*_qz_xy_Vˍt_t*_qz_xy_Vˍtt_t - 2*_qz_xy_Vˍt_t^3)*_qz_xy_g
- -_qz_xy_V_t + _qz_xy_a - _qz_xy_R_t*_qz_xy_b + _qz_xy_Rˍt_t*_qz_xy_g
- -_qz_xy_Vˍt_t - _qz_xy_Rˍt_t*_qz_xy_b + _qz_xy_Rˍtt_t*_qz_xy_g
- -_qz_xy_Vˍtt_t - _qz_xy_Rˍtt_t*_qz_xy_b + _qz_xy_Rˍttt_t*_qz_xy_g
-Result with 2 solutions
-=======================
-• 2 paths tracked
-• 2 non-singular solutions (2 real)
-• random_seed: 0xeacea547
-• start_system: :polyhedral
-
-2-element Vector{Vector{Float64}}:
- [1.1777639454465305, -0.30649890242411265, 4.089506088269252, 0.5145891647831872, 0.09005154176360258, 0.6586283194201701, 1.7596538649511806, 5.786234605982503, 18.508996284008372, 1.0098410637427524, 4.065652982750304, 15.611079420271922]
- [0.25000000550614443, 0.4999999960076121, 0.7500000170237715, 0.5145891647831872, 2.165345469671197, 0.6586283194201701, 1.7596538649511806, 5.786234605982503, 18.508996284008372, 6.554393087207537, 22.297692494527993, 73.9316928334377]
-2-element Vector{Vector{Float64}}:
- [1.1777639454465305, -0.30649890242411265, 4.089506088269252, 0.5145891647831872, 0.09005154176360258, 0.6586283194201701, 1.7596538649511806, 5.786234605982503, 18.508996284008372, 1.0098410637427524, 4.065652982750304, 15.611079420271922]
- [0.25000000550614443, 0.4999999960076121, 0.7500000170237715, 0.5145891647831872, 2.165345469671197, 0.6586283194201701, 1.7596538649511806, 5.786234605982503, 18.508996284008372, 6.554393087207537, 22.297692494527993, 73.9316928334377]
-"res3"
-2-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 1.1777639454465305, g => -0.30649890242411265, b => 4.089506088269252), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(R(t) => 0.3335718209598794, V(t) => -0.11524949143931837), -0.5, 1.98398600873258, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.25000000550614443, g => 0.4999999960076121, b => 0.7500000170237715), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(R(t) => 0.3330000000024453, V(t) => 0.6699999780832725), -0.5, 1.0699188087561418, nothing, 21, -0.5)
-"How close are we?"
-5-element Vector{Float64}:
-  0.3335718209598794
- -0.11524949143931837
-  1.1777639454465305
- -0.30649890242411265
-  4.089506088269252
-5-element Vector{Float64}:
- 0.333
- 0.67
- 0.25
- 0.5
- 0.75
-"How close are we?"
-5-element Vector{Float64}:
- 0.3330000000024453
- 0.6699999780832725
- 0.25000000550614443
- 0.4999999960076121
- 0.7500000170237715
-5-element Vector{Float64}:
- 0.333
- 0.67
- 0.25
- 0.5
- 0.75
-For model fitzhugh-nagumo: The LIAN PE  max abs rel. err: 3.271153364764882e-8
-we decided to take this many derivatives: 5
-line 561
-7-element Vector{Num}:
-     a
-     b
-    nu
-  S(t)
-      E(t)
- In(t)
-  N(t)
-Dict{Int64, Int64} with 2 entries:
-  2 => 0
-  1 => 5
-Dict{Any, Any}()
-line 238
-4-element Vector{Equation}:
- Differential(t)(S(t)) ~ (-b*S(t)*In(t)) / N(t)
- Differential(t)(E(t)) ~ (b*S(t)*In(t)) / N(t) - nu*E(t)
- Differential(t)(In(t)) ~ -a*In(t) + nu*E(t)
- Differential(t)(N(t)) ~ 0
-Dict{Any, Any}()
-4-element Vector{Equation}:
- Differential(t)(S(t)) ~ (-b*S(t)*In(t)) / N(t)
- Differential(t)(E(t)) ~ (b*S(t)*In(t)) / N(t) - nu*E(t)
- Differential(t)(In(t)) ~ -a*In(t) + nu*E(t)
- Differential(t)(N(t)) ~ 0
-starting SolveJSWithHC
-22-element Vector{Any}:
- -0.8 + N(t)
- -0.648967990779645 + In(t)
- -0.0723603870648702 + Inˍt(t)
- 0.1430428455727425 + Inˍtt(t)
- -0.1144762365457359 + Inˍttt(t)
- 0.0974259042393847 + Inˍtttt(t)
- -0.10463375867378753 + Inˍttttt(t)
- Inˍt(t) + a*In(t) - nu*E(t)
- Inˍtt(t) + a*Inˍt(t) - nu*Eˍt(t)
- Inˍttt(t) + a*Inˍtt(t) - nu*Eˍtt(t)
- Inˍtttt(t) + a*Inˍttt(t) - nu*Eˍttt(t)
- Inˍttttt(t) + a*Inˍtttt(t) - nu*Eˍtttt(t)
- (-b*S(t)*In(t)) / N(t) + Eˍt(t) + nu*E(t)
- Eˍtt(t) + (b*Nˍt(t)*S(t)*In(t)) / (N(t)^2) + (-b*S(t)*Inˍt(t) - b*Sˍt(t)*In(t)) / N(t) + nu*Eˍt(t)
- (b*Nˍt(t)*S(t)*Inˍt(t) + b*Nˍt(t)*Sˍt(t)*In(t) + b*S(t)*Nˍtt(t)*In(t)) / (N(t)^2) + (-(-b*S(t)*Inˍt(t) - b*Sˍt(t)*In(t))*Nˍt(t)) / (N(t)^2) + (-b*Sˍtt(t)*In(t) - b*Inˍtt(t)*S(t) - 2b*Sˍt(t)*Inˍt(t)) / N(t) + (-2b*(Nˍt(t)^2)*S(t)*In(t)) / (N(t)^3) + Eˍttt(t) + nu*Eˍtt(t)
- (2(-b*Nˍt(t)*S(t)*Inˍt(t) - b*Nˍt(t)*Sˍt(t)*In(t) - b*S(t)*Nˍtt(t)*In(t))*Nˍt(t)) / (N(t)^3) + (6b*(Nˍt(t)^3)*S(t)*In(t)) / (N(t)^4) + (-3b*Sˍtt(t)*Inˍt(t) - b*Inˍttt(t)*S(t) - 3b*Inˍtt(t)*Sˍt(t) - b*Sˍttt(t)*In(t)) / N(t) + (b*Sˍtt(t)*Nˍt(t)*In(t) + b*Nˍt(t)*Inˍtt(t)*S(t) + 2b*Nˍt(t)*Sˍt(t)*Inˍt(t) + b*Nˍttt(t)*S(t)*In(t) + 2b*S(t)*Inˍt(t)*Nˍtt(t) + 2b*Sˍt(t)*Nˍtt(t)*In(t)) / (N(t)^2) + (2(-b*S(t)*Inˍt(t) - b*Sˍt(t)*In(t))*(Nˍt(t)^2)) / (N(t)^3) + (-(-b*Sˍtt(t)*In(t) - b*Inˍtt(t)*S(t) - 2b*Sˍt(t)*Inˍt(t))*Nˍt(t)) / (N(t)^2) + (-2b*(Nˍt(t)^2)*S(t)*Inˍt(t) - 2b*(Nˍt(t)^2)*Sˍt(t)*In(t) - 4b*Nˍt(t)*S(t)*Nˍtt(t)*In(t)) / (N(t)^3) + (-(-b*Sˍtt(t)*In(t) - b*Inˍtt(t)*S(t) - 2b*Sˍt(t)*Inˍt(t))*Nˍt(t) - (-b*S(t)*Inˍt(t) - b*Sˍt(t)*In(t))*Nˍtt(t)) / (N(t)^2) + Eˍtttt(t) + nu*Eˍttt(t)
- Nˍt(t)
- (b*S(t)*In(t)) / N(t) + Sˍt(t)
- Nˍtt(t)
- (-b*Nˍt(t)*S(t)*In(t)) / (N(t)^2) + Sˍtt(t) + (b*S(t)*Inˍt(t) + b*Sˍt(t)*In(t)) / N(t)
- (-(b*S(t)*Inˍt(t) + b*Sˍt(t)*In(t))*Nˍt(t)) / (N(t)^2) + Sˍttt(t) + (b*Sˍtt(t)*In(t) + b*Inˍtt(t)*S(t) + 2b*Sˍt(t)*Inˍt(t)) / N(t) + (-b*Nˍt(t)*S(t)*Inˍt(t) - b*Nˍt(t)*Sˍt(t)*In(t) - b*S(t)*Nˍtt(t)*In(t)) / (N(t)^2) + (2b*(Nˍt(t)^2)*S(t)*In(t)) / (N(t)^3)
- Nˍttt(t)
-varlist
-22-element Vector{Any}:
- a
- b
- nu
- S(t)
- E(t)
- In(t)
- N(t)
- Inˍt(t)
- Inˍtt(t)
- Inˍttt(t)
- Inˍtttt(t)
- Inˍttttt(t)
- Eˍt(t)
- Eˍtt(t)
- Eˍttt(t)
- Eˍtttt(t)
- Nˍt(t)
- Sˍt(t)
- Nˍtt(t)
- Sˍtt(t)
- Sˍttt(t)
- Nˍttt(t)
-system we are solving (line 428)
-Tracking 6 paths...  33%|██████████▍                    |  ETA: 0:00:16[K
-  # paths tracked:                  2[K
-  # non-singular solutions (real):  1 (1)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         1 (1)[K[A[A[A[A
-
-
-
-[K[A[K[A[K[A[K[ATracking 6 paths... 100%|███████████████████████████████| Time: 0:00:08[K
-  # paths tracked:                  6[K
-  # non-singular solutions (real):  4 (4)[K
-  # singular endpoints (real):      0 (0)[K
-  # total solutions (real):         4 (4)[K
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/hSv8d/src/integrator_interface.jl:597
-results
-System of length 22
- 22 variables: _qz_xy_a, _qz_xy_b, _qz_xy_nu, _qz_xy_S_t, _qz_xy_E_t, _qz_xy_In_t, _qz_xy_N_t, _qz_xy_Inˍt_t, _qz_xy_Inˍtt_t, _qz_xy_Inˍttt_t, _qz_xy_Inˍtttt_t, _qz_xy_Inˍttttt_t, _qz_xy_Eˍt_t, _qz_xy_Eˍtt_t, _qz_xy_Eˍttt_t, _qz_xy_Eˍtttt_t, _qz_xy_Nˍt_t, _qz_xy_Sˍt_t, _qz_xy_Nˍtt_t, _qz_xy_Sˍtt_t, _qz_xy_Sˍttt_t, _qz_xy_Nˍttt_t
-
- -0.8 + _qz_xy_N_t
- -0.648967990779645 + _qz_xy_In_t
- -0.0723603870648702 + _qz_xy_Inˍt_t
- 0.143042845572742 + _qz_xy_Inˍtt_t
- -0.114476236545736 + _qz_xy_Inˍttt_t
- 0.0974259042393847 + _qz_xy_Inˍtttt_t
- -0.104633758673788 + _qz_xy_Inˍttttt_t
- _qz_xy_Inˍt_t + _qz_xy_In_t*_qz_xy_a - _qz_xy_nu*_qz_xy_E_t
- _qz_xy_Inˍtt_t + _qz_xy_Inˍt_t*_qz_xy_a - _qz_xy_nu*_qz_xy_Eˍt_t
- _qz_xy_Inˍttt_t + _qz_xy_Inˍtt_t*_qz_xy_a - _qz_xy_nu*_qz_xy_Eˍtt_t
- _qz_xy_Inˍtttt_t + _qz_xy_Inˍttt_t*_qz_xy_a - _qz_xy_nu*_qz_xy_Eˍttt_t
- _qz_xy_Inˍttttt_t + _qz_xy_Inˍtttt_t*_qz_xy_a - _qz_xy_nu*_qz_xy_Eˍtttt_t
- _qz_xy_N_t*_qz_xy_Eˍt_t - _qz_xy_S_t*_qz_xy_In_t*_qz_xy_b + _qz_xy_nu*_qz_xy_E_t*_qz_xy_N_t
- _qz_xy_N_t^2*_qz_xy_Eˍtt_t + _qz_xy_nu*_qz_xy_N_t^2*_qz_xy_Eˍt_t - _qz_xy_N_t*_qz_xy_S_t*_qz_xy_Inˍt_t*_qz_xy_b - _qz_xy_N_t*_qz_xy_Sˍt_t*_qz_xy_In_t*_qz_xy_b + _qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Eˍttt_t*_qz_xy_N_t^3 + _qz_xy_nu*_qz_xy_N_t^3*_qz_xy_Eˍtt_t - _qz_xy_Inˍtt_t*_qz_xy_N_t^2*_qz_xy_S_t*_qz_xy_b - 2.0*_qz_xy_N_t^2*_qz_xy_Sˍt_t*_qz_xy_Inˍt_t*_qz_xy_b - _qz_xy_N_t^2*_qz_xy_Sˍtt_t*_qz_xy_In_t*_qz_xy_b - 2.0*_qz_xy_S_t*_qz_xy_Nˍt_t^2*_qz_xy_In_t*_qz_xy_b + 2.0*_qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_Inˍt_t*_qz_xy_b + _qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍtt_t*_qz_xy_In_t*_qz_xy_b + 2.0*_qz_xy_N_t*_qz_xy_Sˍt_t*_qz_xy_Nˍt_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Eˍtttt_t*_qz_xy_N_t^4 + _qz_xy_nu*_qz_xy_Eˍttt_t*_qz_xy_N_t^4 - 3.0*_qz_xy_Inˍtt_t*_qz_xy_N_t^3*_qz_xy_Sˍt_t*_qz_xy_b - _qz_xy_Inˍttt_t*_qz_xy_N_t^3*_qz_xy_S_t*_qz_xy_b - 3.0*_qz_xy_N_t^3*_qz_xy_Inˍt_t*_qz_xy_Sˍtt_t*_qz_xy_b + 6.0*_qz_xy_S_t*_qz_xy_Nˍt_t^3*_qz_xy_In_t*_qz_xy_b - _qz_xy_Sˍttt_t*_qz_xy_N_t^3*_qz_xy_In_t*_qz_xy_b + 3.0*_qz_xy_Inˍtt_t*_qz_xy_N_t^2*_qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_b - 6.0*_qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍt_t^2*_qz_xy_Inˍt_t*_qz_xy_b - 6.0*_qz_xy_N_t*_qz_xy_Sˍt_t*_qz_xy_Nˍt_t^2*_qz_xy_In_t*_qz_xy_b + 3.0*_qz_xy_N_t^2*_qz_xy_Nˍt_t*_qz_xy_Sˍtt_t*_qz_xy_In_t*_qz_xy_b + 3.0*_qz_xy_N_t^2*_qz_xy_S_t*_qz_xy_Inˍt_t*_qz_xy_Nˍtt_t*_qz_xy_b + 6.0*_qz_xy_N_t^2*_qz_xy_Sˍt_t*_qz_xy_Nˍt_t*_qz_xy_Inˍt_t*_qz_xy_b + 3.0*_qz_xy_N_t^2*_qz_xy_Sˍt_t*_qz_xy_Nˍtt_t*_qz_xy_In_t*_qz_xy_b + _qz_xy_Nˍttt_t*_qz_xy_N_t^2*_qz_xy_S_t*_qz_xy_In_t*_qz_xy_b - 6.0*_qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_Nˍtt_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Nˍt_t
- _qz_xy_N_t*_qz_xy_Sˍt_t + _qz_xy_S_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Nˍtt_t
- _qz_xy_N_t^2*_qz_xy_Sˍtt_t + _qz_xy_N_t*_qz_xy_S_t*_qz_xy_Inˍt_t*_qz_xy_b + _qz_xy_N_t*_qz_xy_Sˍt_t*_qz_xy_In_t*_qz_xy_b - _qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Sˍttt_t*_qz_xy_N_t^3 + _qz_xy_Inˍtt_t*_qz_xy_N_t^2*_qz_xy_S_t*_qz_xy_b + 2.0*_qz_xy_N_t^2*_qz_xy_Sˍt_t*_qz_xy_Inˍt_t*_qz_xy_b + _qz_xy_N_t^2*_qz_xy_Sˍtt_t*_qz_xy_In_t*_qz_xy_b + 2.0*_qz_xy_S_t*_qz_xy_Nˍt_t^2*_qz_xy_In_t*_qz_xy_b - 2.0*_qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍt_t*_qz_xy_Inˍt_t*_qz_xy_b - _qz_xy_N_t*_qz_xy_S_t*_qz_xy_Nˍtt_t*_qz_xy_In_t*_qz_xy_b - 2.0*_qz_xy_N_t*_qz_xy_Sˍt_t*_qz_xy_Nˍt_t*_qz_xy_In_t*_qz_xy_b
- _qz_xy_Nˍttt_t
-Result with 4 solutions
-=======================
-• 6 paths tracked
-• 4 non-singular solutions (4 real)
-• random_seed: 0x8d8ef754
-• start_system: :polyhedral
-
-4-element Vector{Vector{Float64}}:
- [0.7499998973978015, 0.4999997439275932, 0.25000006412438297, 0.5029431620025879, 2.236344680639354, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.3550901597139489, 0.028776460789666686, -0.04627494243297682, 0.12625732957675045, 0.0, -0.20399615385011238, 0.0, 0.05999610190875793, 0.03908082539028735, 0.0]
- [0.25000006412438275, 0.4999997439275944, 0.7499998973978018, 0.16764778660346377, 0.31280327795834295, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.166603681680485, 0.10495403566470783, -0.09174246290028146, 0.10703638313164479, 0.0, -0.06799874469396824, 0.0, 0.01999870850175197, 0.013026946920265335, 0.0]
- [0.539130293000017, 2.940171725970553, 0.23268054975617275, -0.010423057403621242, 1.8146711898523482, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.44709868960632604, 0.16055276360526988, -0.15346489995129275, 0.22394868170124774, 0.0, 0.024859999524793543, 0.0, -0.0565215947124055, 0.11610739465074571, 0.0]
- [0.2326805497561724, 2.9401717259705538, 0.5391302930000177, -0.004498435273075354, 0.41430173528318004, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.2340918189323762, 0.15059986361994362, -0.1313031590044652, 0.15203123767870452, 0.0, 0.010729202998739586, 0.0, -0.024393872690024562, 0.0501102104052823, 0.0]
-4-element Vector{Vector{Float64}}:
- [0.7499998973978015, 0.4999997439275932, 0.25000006412438297, 0.5029431620025879, 2.236344680639354, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.3550901597139489, 0.028776460789666686, -0.04627494243297682, 0.12625732957675045, 0.0, -0.20399615385011238, 0.0, 0.05999610190875793, 0.03908082539028735, 0.0]
- [0.25000006412438275, 0.4999997439275944, 0.7499998973978018, 0.16764778660346377, 0.31280327795834295, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.166603681680485, 0.10495403566470783, -0.09174246290028146, 0.10703638313164479, 0.0, -0.06799874469396824, 0.0, 0.01999870850175197, 0.013026946920265335, 0.0]
- [0.539130293000017, 2.940171725970553, 0.23268054975617275, -0.010423057403621242, 1.8146711898523482, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.44709868960632604, 0.16055276360526988, -0.15346489995129275, 0.22394868170124774, 0.0, 0.024859999524793543, 0.0, -0.0565215947124055, 0.11610739465074571, 0.0]
- [0.2326805497561724, 2.9401717259705538, 0.5391302930000177, -0.004498435273075354, 0.41430173528318004, 0.648967990779645, 0.8, 0.0723603870648702, -0.1430428455727425, 0.1144762365457359, -0.0974259042393847, 0.10463375867378753, -0.2340918189323762, 0.15059986361994362, -0.1313031590044652, 0.15203123767870452, 0.0, 0.010729202998739586, 0.0, -0.024393872690024562, 0.0501102104052823, 0.0]
-"res3"
-4-element Vector{Any}:
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.7499998973978015, nu => 0.4999997439275932, b => 0.25000006412438297), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(E(t) => 0.6000002377572595, S(t) => 2.3999991380621646, In(t) => 0.6000000000023534, N(t) => 0.8), -0.5, 0.16735745500493346, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.25000006412438275, nu => 0.4999997439275944, b => 0.7499998973978018), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(E(t) => 0.20000015791255357, S(t) => 0.40000010598622315, In(t) => 0.6000000000023535, N(t) => 0.8), -0.5, 0.1057340390993927, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.539130293000017, nu => 2.940171725970553, b => 0.23268054975617275), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(E(t) => -0.02941852754775524, S(t) => 2.0348438189814515, In(t) => 0.6000006855962748, N(t) => 0.8), -0.5, 0.20818658882905364, nothing, 21, -0.5)
- ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.2326805497561724, nu => 2.9401717259705538, b => 0.5391302930000177), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(E(t) => -0.012696595334568891, S(t) => 0.5371586909167344, In(t) => 0.6000006855962748, N(t) => 0.8), -0.5, 0.115605398118427, nothing, 21, -0.5)
-"How close are we?"
-7-element Vector{Float64}:
- 0.6000002377572595
- 2.3999991380621646
- 0.6000000000023534
- 0.8
- 0.7499998973978015
- 0.4999997439275932
- 0.25000006412438297
-7-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.25
- 0.5
- 0.75
-"How close are we?"
-7-element Vector{Float64}:
- 0.20000015791255357
- 0.40000010598622315
- 0.6000000000023535
- 0.8
- 0.25000006412438275
- 0.4999997439275944
- 0.7499998973978018
-7-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.25
- 0.5
- 0.75
-"How close are we?"
-7-element Vector{Float64}:
- -0.02941852754775524
-  2.0348438189814515
-  0.6000006855962748
-  0.8
-  0.539130293000017
-  2.940171725970553
-  0.23268054975617275
-7-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.25
- 0.5
- 0.75
-"How close are we?"
-7-element Vector{Float64}:
- -0.012696595334568891
-  0.5371586909167344
-  0.6000006855962748
-  0.8
-  0.2326805497561724
-  2.9401717259705538
-  0.5391302930000177
-7-element Vector{Float64}:
- 0.2
- 0.4
- 0.6
- 0.8
- 0.25
- 0.5
- 0.75
-For model SEIR: The LIAN PE  max abs rel. err: 7.895627678056183e-7

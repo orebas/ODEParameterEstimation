@@ -14,7 +14,45 @@ using ForwardDiff
 
 
 include("bary_derivs.jl")
-include("sample_data.jl")
+#include("nemo2hc-rewrite.jl")
+
+
+function sample_data(model::ModelingToolkit.ODESystem,
+	measured_data::Vector{ModelingToolkit.Equation},
+	time_interval::Vector{T},
+	p_true::Vector{T},
+	u0::Vector{T},
+	num_points::Int;
+	uneven_sampling = false,
+	uneven_sampling_times = Vector{T}(),
+	solver = Vern9(), inject_noise = false, mean_noise = 0,
+	stddev_noise = 1, abstol = 1e-14, reltol = 1e-14) where {T <: Number}
+	if uneven_sampling
+		if length(uneven_sampling_times) == 0
+			error("No uneven sampling times provided")
+		end
+		if length(uneven_sampling_times) != num_points
+			error("Uneven sampling times must be of length num_points")
+		end
+		sampling_times = uneven_sampling_times
+	else
+		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
+	end
+	problem = ODEProblem(ModelingToolkit.complete(model), u0, time_interval, Dict(ModelingToolkit.parameters(model) .=> p_true))
+	solution_true = ModelingToolkit.solve(problem, solver,
+		saveat = sampling_times;
+		abstol, reltol)
+	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
+											  for v in measured_data)
+	if inject_noise
+		for (key, sample) in data_sample
+			data_sample[key] = sample + randn(num_points) .* stddev_noise .+ mean_noise
+		end
+	end
+	data_sample["t"] = sampling_times
+	return data_sample
+end
+
 
 
 mutable struct ParameterEstimationResult
@@ -27,20 +65,6 @@ mutable struct ParameterEstimationResult
 	report_time::Any
 end
 
-mutable struct DerivativeData
-	states_lhs_cleared
-	states_rhs_cleared
-	obs_lhs_cleared
-	obs_rhs_cleared
-	states_lhs
-	states_rhs
-	obs_lhs
-	obs_rhs
-end
-
-
-
-
 
 
 function unpack_ODE(model::ODESystem)
@@ -52,87 +76,6 @@ end
 #deriv_level is a dict of 
 #(indices into measured_quantites =>   level of derivative to include)
 
-
-
-function clear_denoms(eq)
-	ret = eq
-		if (!isequal(eq.rhs, 0))
-			expr = eq.rhs
-			lexpr = eq.lhs
-			expr2 = Symbolics.value(simplify_fractions(expr))
-			if (istree(expr2) && Symbolics.operation(expr2) == op)
-				numer, denom = Symbolics.arguments(expr2)
-				ret = lexpr * denom ~ numer
-			end
-		end
-		return ret
-	end
-
-
-
-function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	measured_quantities = deepcopy(measured_quantities_in)
-
-	
-	states_count = length(model_states)
-	ps_count = length(model_ps)
-	D = Differential(t)
-	DD= DerivativeData()
-
-	#First, we fully substitute values we have chosen for an unidentifiable variables.
-	for i in eachindex(model_eq)
-		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
-	end
-	for i in eachindex(measured_quantities)
-		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
-	end
-
-
-
-	@variables _qz_discard1 _qz_discard2
-	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
-	op = Symbolics.operation(expr_fake)
-
-	measured_quantities_saved = deepcopy(measured_quantities)
-	model_eq_saved = deepcopy(model_eq)
-
-	for i in eachindex(model_eq)
-		println("line 357")
-		display(model_eq[i])
-		if (!isequal(model_eq[i].rhs, 0))
-			expr = model_eq[i].rhs
-			lexpr = model_eq[i].lhs
-			expr2 = Symbolics.value(simplify_fractions(expr))
-			display(model_eq[i])
-			if (istree(expr2) && Symbolics.operation(expr2) == op)
-				numer, denom = Symbolics.arguments(expr2)
-				
-				model_eq[i] = lexpr * denom ~ numer
-			end
-		end
-		display(model_eq[i])
-	end
-
-
-
-	for i in eachindex(measured_quantities)
-		println("line 374")
-		display(measured_quantities[i])
-		expr = measured_quantities[i].rhs
-		lexpr = measured_quantities[i].lhs
-		expr2 = Symbolics.value(simplify_fractions(expr))
-		if (istree(expr2) && Symbolics.operation(expr2) == op)
-			numer, denom = Symbolics.arguments(expr2)
-			#measured_quantities[i].rhs = numer
-			#measured_quantities[i].lhs = measured_quantities[i].lhs * denom
-			measured_quantities[i] = lexpr * denom ~ numer
-		end
-		display(measured_quantities[i])
-	end
-
-
-end
 
 function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
@@ -165,6 +108,9 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 
 	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
 	obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+
+	#obs_lhs = [Vector{Num}([eq.lhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.lhs for eq in measured_quantities])))]
+	#obs_rhs = [Vector{Num}([eq.rhs for eq in measured_quantities]), Vector{Num}(expand_derivatives.(D.([eq.rhs for eq in measured_quantities])))]
 
 	for i in 1:(max_deriv_level-1)
 		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
@@ -202,8 +148,14 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 
 	init_values = collect(values(values_dict))
 
-	matrix = ForwardDiff.jacobian(f, init_values)
+	#finally, we return the Jacobian
+	matrix = ForwardDiff.jacobian(f, init_values) 
+	#display(states_rhs)
+	#display(obs_rhs)
+	#println("line 153")
+	#display(matrix)
 	return matrix
+
 
 end
 
@@ -277,13 +229,13 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 				#display(varlist[i])
 				#display([ns[i,:]])
 				#display(!isapprox(norm(ns[i,:]), 0.0, atol = atol))
-				if (!isapprox(norm(ns[i, :]), 0.0, atol = atol))
+				if (!isapprox(norm(ns[i,:]), 0.0, atol = atol))
 					candidate_plugins_for_unidentified[varlist[i]] = test_point[varlist[i]]
 				end
 			end
 
-			println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:",
-				keys(candidate_plugins_for_unidentified))
+			println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:", 
+					keys(candidate_plugins_for_unidentified))
 			if (!isempty(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
@@ -383,7 +335,6 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		interpolants[r] = aaad(t_vector, y_vector)
 	end
 
-	#handle unidentifiable variables, just substituting for them
 	for i in eachindex(model_eq)
 		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
 	end
@@ -393,119 +344,40 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 
 	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
 
-
-	@variables _qz_discard1 _qz_discard2
-	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
-	op = Symbolics.operation(expr_fake)
-
-	measured_quantities_saved = deepcopy(measured_quantities)
-	model_eq_saved = deepcopy(model_eq)
-
-	for i in eachindex(model_eq)
-		println("line 357")
-		display(model_eq[i])
-		if (!isequal(model_eq[i].rhs, 0))
-			expr = model_eq[i].rhs
-			lexpr = model_eq[i].lhs
-			expr2 = Symbolics.value(simplify_fractions(expr))
-			display(model_eq[i])
-			if (istree(expr2) && Symbolics.operation(expr2) == op)
-				numer, denom = Symbolics.arguments(expr2)
-				#model_eq[i].rhs = numer
-				#model_eq[i].lhs = model_eq[i].lhs * denom
-				model_eq[i] = lexpr * denom ~ numer
-			end
-		end
-		display(model_eq[i])
-	end
-
-
-
-	for i in eachindex(measured_quantities)
-		println("line 374")
-		display(measured_quantities[i])
-		expr = measured_quantities[i].rhs
-		lexpr = measured_quantities[i].lhs
-		expr2 = Symbolics.value(simplify_fractions(expr))
-		if (istree(expr2) && Symbolics.operation(expr2) == op)
-			numer, denom = Symbolics.arguments(expr2)
-			#measured_quantities[i].rhs = numer
-			#measured_quantities[i].lhs = measured_quantities[i].lhs * denom
-			measured_quantities[i] = lexpr * denom ~ numer
-		end
-		display(measured_quantities[i])
-	end
-
-	
 	states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
 	states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
-	states_saved_lhs = [[eq.lhs for eq in model_eq_saved], expand_derivatives.(D.([eq.lhs for eq in model_eq_saved]))]
 	for i in 1:(max_deriv-3)
 		push!(states_lhs, expand_derivatives.(D.(states_lhs[end])))  #this constructs the derivatives of the state equations
 		push!(states_rhs, expand_derivatives.(D.(states_rhs[end])))
-		push!(states_saved_lhs, expand_derivatives.(D.(states_saved_lhs[end])))
 	end
 	for i in eachindex(states_rhs), j in eachindex(states_rhs[i])
 		states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_rhs[i][j]))
 		states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_lhs[i][j])) #applies differential operator everywhere. 
-		states_saved_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(states_saved_lhs[i][j]))
 	end
 
 
 	obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
 	obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
-	obs_saved_lhs = [[eq.lhs for eq in measured_quantities_saved], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_saved]))]
+
 	for i in 1:(max_deriv-2)
 		push!(obs_lhs, expand_derivatives.(D.(obs_lhs[end])))
 		push!(obs_rhs, expand_derivatives.(D.(obs_rhs[end])))
-		push!(obs_saved_lhs, expand_derivatives.(D.(obs_saved_lhs[end])))
 	end
 
 	for i in eachindex(obs_rhs), j in eachindex(obs_rhs[i])
 		obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_rhs[i][j]))
 		obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_lhs[i][j]))
-		obs_saved_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(obs_saved_lhs[i][j]))
-
 	end  #this obs is completely unsubstituted
-
-
 
 	target = []  # TODO give this a type later
 	for (key, value) in deriv_level  # 0 means include the obs, 1 means first derivative
-		push!(target, obs_rhs[1][key] - obs_lhs[1][key])
+		push!(target, obs_rhs[1][key] -
+					  nth_deriv_at(interpolants[measured_quantities[key].rhs], 0, t_vector[time_index]))
 		for i in 1:value
-			push!(target, obs_rhs[i+1][key] - obs_lhs[i+1][key])
+			push!(target, obs_rhs[i+1][key] -
+						  nth_deriv_at(interpolants[measured_quantities[key].rhs], i, t_vector[time_index]))
 		end
 	end
-	println("line 432")
-	display(target)
-	interpolated_values_dict = Dict()
-	for (key, value) in deriv_level
-		interpolated_values_dict[obs_saved_lhs[1][key]] =
-			nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
-		for i in 1:value
-			interpolated_values_dict[obs_saved_lhs[i+1][key]] =
-				nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
-		end
-	end
-
-
-	for i in eachindex(target)
-		target[i] = substitute(target[i], interpolated_values_dict)
-	end
-	
-
-	println("line 450")
-	display(target)
-
-	#for (key, value) in deriv_level  # 0 means include the obs, 1 means first derivative
-	#	push!(target, obs_rhs[1][key] -
-	#				  nth_deriv_at(interpolants[measured_quantities[key].rhs], 0, t_vector[time_index]))
-	#	for i in 1:value
-	#		push!(target, obs_rhs[i+1][key] -
-	#					  nth_deriv_at(interpolants[measured_quantities[key].rhs], i, t_vector[time_index]))
-	#	end
-	#end
 
 	vars_needed = OrderedSet()
 	vars_added = OrderedSet()
@@ -524,8 +396,8 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		end
 
 		for i in setdiff(vars_needed, vars_added)
-			for j in eachindex(states_saved_lhs), k in eachindex(states_saved_lhs[j])
-				if (isequal(states_saved_lhs[j][k], i))
+			for j in eachindex(states_lhs), k in eachindex(states_lhs[j])
+				if (isequal(states_lhs[j][k], i))
 					push!(target, states_lhs[j][k] - states_rhs[j][k])
 					added = true
 					push!(vars_added, i)
@@ -537,8 +409,6 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	end
 
 	push!(data_sample, ("t" => t_vector)) #TODO(orebas) maybe don't pop this in the first place
-	println("line 492")
-	display(target)
 
 	return target, collect(vars_needed)
 
@@ -570,8 +440,8 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 		if (Symbolics.operation(expr2) == op)
 			poly_system[i], _ = Symbolics.arguments(expr2)
 		end
-	end
 
+	end
 	mangled_varlist = deepcopy(varlist)
 	manglingDict = OrderedDict()
 
@@ -649,7 +519,6 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 
 	if (isempty(time_index_set))
 		time_index_set = [fld(length(t_vector), 2)]  #TODO add vector handling 
-		
 	end
 
 	(deriv_level, unident_dict, varlist) = local_identifiability_analysis(model, measured_quantities)
