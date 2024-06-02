@@ -1,0 +1,93 @@
+Precompiling ODEParameterEstimation...
+Info Given ODEParameterEstimation was explicitly requested, output will be shown live [0K
+[0Kwe decided to take this many derivatives: 4
+[0Kline 561.  Varlist:
+[0K4-element Vector{Symbolics.Num}:
+[0K     a
+[0K     b
+[0K x1(t)
+[0K x2(t)
+[0KDeriv level:
+[0KDict{Int64, Int64} with 2 entries:
+[0K  2 => 1
+[0K  1 => 1
+[0KUnident plugins:
+[0KDict{Any, Any}()
+[0KERROR: LoadError: UndefVarError: `DD` not defined in `ODEParameterEstimation`
+[0KStacktrace:
+[0K  [1] HCPE(model::ModelingToolkit.ODESystem, measured_quantities::Vector{Symbolics.Equation}, data_sample::OrderedCollections.OrderedDict{Any, Vector{Float64}}, solver::OrdinaryDiffEq.Vern9{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, time_index_set::Vector{Any})
+[0K    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:557
+[0K  [2] ODEPEtestwrapper(model::ModelingToolkit.ODESystem, measured_quantities::Vector{Symbolics.Equation}, data_sample::OrderedCollections.OrderedDict{Any, Vector{Float64}}, solver::OrdinaryDiffEq.Vern9{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, abstol::Float64, reltol::Float64)
+[0K    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:651
+[0K  [3] ODEPEtestwrapper
+[0K    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:640 [inlined]
+[0K  [4] macro expansion
+[0K    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:731 [inlined]
+[0K  [5] macro expansion
+[0K    @ ~/.julia/packages/PrecompileTools/L8A3n/src/workloads.jl:78 [inlined]
+[0K  [6] top-level scope
+[0K    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:710
+[0K  [7] eval
+[0K    @ ./boot.jl:428 [inlined]
+[0K  [8] recompile_invalidations(__module__::Module, expr::Any)
+[0K    @ PrecompileTools ~/.julia/packages/PrecompileTools/L8A3n/src/invalidations.jl:18
+[0K  [9] top-level scope
+[0K    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:709
+[0K [10] include
+[0K    @ ./Base.jl:558 [inlined]
+[0K [11] include_package_for_output(pkg::Base.PkgId, input::String, depot_path::Vector{String}, dl_load_path::Vector{String}, load_path::Vector{String}, concrete_deps::Vector{Pair{Base.PkgId, UInt128}}, source::Nothing)
+[0K    @ Base ./loading.jl:2721
+[0K [12] top-level scope
+[0K    @ stdin:4
+[0Kin expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:1
+[0Kin expression starting at stdin:4
+           ✗ ODEParameterEstimation
+  0 dependencies successfully precompiled in 49 seconds. 355 already precompiled.
+
+ERROR: LoadError: The following 1 direct dependency failed to precompile:
+
+ODEParameterEstimation 
+
+Failed to precompile ODEParameterEstimation [482fc905-5656-4c69-b8fe-7a66cd0f77b3] to "/home/orebas/.julia/compiled/v1.11/ODEParameterEstimation/jl_TCZukn".
+we decided to take this many derivatives: 4
+line 561.  Varlist:
+4-element Vector{Symbolics.Num}:
+     a
+     b
+ x1(t)
+ x2(t)
+Deriv level:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+Unident plugins:
+Dict{Any, Any}()
+ERROR: LoadError: UndefVarError: `DD` not defined in `ODEParameterEstimation`
+Stacktrace:
+  [1] HCPE(model::ModelingToolkit.ODESystem, measured_quantities::Vector{Symbolics.Equation}, data_sample::OrderedCollections.OrderedDict{Any, Vector{Float64}}, solver::OrdinaryDiffEq.Vern9{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, time_index_set::Vector{Any})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:557
+  [2] ODEPEtestwrapper(model::ModelingToolkit.ODESystem, measured_quantities::Vector{Symbolics.Equation}, data_sample::OrderedCollections.OrderedDict{Any, Vector{Float64}}, solver::OrdinaryDiffEq.Vern9{typeof(OrdinaryDiffEq.trivial_limiter!), typeof(OrdinaryDiffEq.trivial_limiter!), Static.False}, abstol::Float64, reltol::Float64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:651
+  [3] ODEPEtestwrapper
+    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:640 [inlined]
+  [4] macro expansion
+    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:731 [inlined]
+  [5] macro expansion
+    @ ~/.julia/packages/PrecompileTools/L8A3n/src/workloads.jl:78 [inlined]
+  [6] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:710
+  [7] eval
+    @ ./boot.jl:428 [inlined]
+  [8] recompile_invalidations(__module__::Module, expr::Any)
+    @ PrecompileTools ~/.julia/packages/PrecompileTools/L8A3n/src/invalidations.jl:18
+  [9] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:709
+ [10] include
+    @ ./Base.jl:558 [inlined]
+ [11] include_package_for_output(pkg::Base.PkgId, input::String, depot_path::Vector{String}, dl_load_path::Vector{String}, load_path::Vector{String}, concrete_deps::Vector{Pair{Base.PkgId, UInt128}}, source::Nothing)
+    @ Base ./loading.jl:2721
+ [12] top-level scope
+    @ stdin:4
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl:1
+in expression starting at stdin:
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/examples/daisy_only.jl:1

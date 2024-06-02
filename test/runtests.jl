@@ -119,10 +119,10 @@ function daisy_ex3()
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7]
 	@named model = ODESystem([
-			D(x1) ~ -1 * p1 * x1 + x2 + u0,
+			D(x1) ~ -1.0 * p1 * x1 + x2 + u0,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
-			D(u0) ~ 1,
+			D(u0) ~ 1.0,
 		], t, states, parameters)
 	measured_quantities = [
 		y1 ~ x1,
@@ -131,6 +131,7 @@ function daisy_ex3()
 
 	ic = [0.2, 0.4, 0.6, 0.8]
 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833] # True Parameters
+
 
 	return ParameterEstimationProblem("DAISY_ex3",
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
@@ -145,10 +146,10 @@ function daisy_ex3_v2()
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7]
 	@named model = ODESystem([
-			D(x1) ~ -1 * p1 * x1 + x2 + u0,
+			D(x1) ~ -1.0 * p1 * x1 + x2 + u0,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
-			D(u0) ~ 1,
+			D(u0) ~ 1.0,
 		], t, states, parameters)
 	measured_quantities = [
 		y1 ~ x1,
@@ -157,6 +158,8 @@ function daisy_ex3_v2()
 
 	ic = [1.0, 2.0, 1.0, 1.0]
 	p_true = [0.2, 0.3, 0.5, 0.6, -0.2] # True Parameters
+
+
 
 	return ParameterEstimationProblem("DAISY_ex3_v2",
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
@@ -655,7 +658,7 @@ function varied_estimation_main()
 		simple(),
 		substr_test(),
 		slowfast(),
-		daisy_ex3_v4(), 
+		daisy_ex3_v4(),
 		fitzhugh_nagumo(),
 		lotka_volterra(),
 		vanderpol(),
@@ -669,7 +672,7 @@ function varied_estimation_main()
 		daisy_ex3_v2(),
 		treatment(),  
 		daisy_ex3(),
-		hiv_local(), #this consistently gets >10% relative error, but runs.
+		hiv_local(), #no solutions found in old version?  check?
 		biohydrogenation(),  #broken, debug
 		sirsforced(),
 	]
