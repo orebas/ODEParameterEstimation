@@ -555,7 +555,7 @@ function treatment(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
 	p_true = [0.167, 0.333, 0.5, 0.667, 0.833]
 
 	return ParameterEstimationProblem("treatment",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 6)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 7)
 end
 
 function vanderpol()
@@ -663,14 +663,14 @@ function varied_estimation_main()
 		lotka_volterra(),
 		vanderpol(),
 		daisy_mamil3(),
-		sum_test(),   
+		sum_test(),
 		hiv(),
 		seir(),
 		daisy_mamil4(),
-		crauste(),  
+		crauste(),
 		daisy_ex3_v3(),
 		daisy_ex3_v2(),
-		treatment(),  
+		treatment(),
 		daisy_ex3(),
 		hiv_local(), #no solutions found in old version?  check?
 		biohydrogenation(),  #broken, debug

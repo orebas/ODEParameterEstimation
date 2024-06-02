@@ -39,10 +39,6 @@ mutable struct DerivativeData
 end
 
 
-
-
-
-
 function unpack_ODE(model::ODESystem)
 	return ModelingToolkit.get_iv(model), deepcopy(ModelingToolkit.equations(model)), ModelingToolkit.unknowns(model), ModelingToolkit.parameters(model)
 end
@@ -179,7 +175,7 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 	init_values = collect(values(values_dict))
 
 	matrix = ForwardDiff.jacobian(f, init_values)
-	return Matrix{Float64}(matrix), DD
+	return Matrix{Float64}(matrix), DD #at some point, check if it makes sense to use sparse arrays here.
 
 end
 
