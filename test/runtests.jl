@@ -295,16 +295,8 @@ function hiv_local()
 	states = [x1, x2, x3, x4]
 	parameters = [b, c, d, k1, k2, mu1, mu2, q1, q2, s]
 
-	@named model = ODESystem([
-			D(x1) ~ -b * x1 * x4 - d * x1 + s,
-			D(x2) ~ b * q1 * x1 * x4 - k1 * x2 - mu1 * x2,
-			D(x3) ~ b * q2 * x1 * x4 + k1 * x2 - mu2 * x3,
-			D(x4) ~ -c * x4 + k2 * x3,
-		], t, states, parameters)
-	measured_quantities = [
-		y1 ~ x1,
-		y2 ~ x4,
-	]
+	@named model = ODESystem([	D(x1) ~ -b * x1 * x4 - d * x1 + s,	D(x2) ~ b * q1 * x1 * x4 - k1 * x2 - mu1 * x2,D(x3) ~ b * q2 * x1 * x4 + k1 * x2 - mu2 * x3,D(x4) ~ -c * x4 + k2 * x3,], t, states, parameters)
+	measured_quantities = [ y1 ~ x1,  y2 ~ x4]
 
 	ic = [0.2, 0.4, 0.6, 0.8]
 	p_true = [0.091, 0.182, 0.273, 0.364, 0.455, 0.545, 0.636, 0.727, 0.818, 0.909]
@@ -312,7 +304,7 @@ function hiv_local()
 	datasize = 20
 
 	return ParameterEstimationProblem("hiv_local",
-		model, measured_quantities, :nothing, :nothing, p_true, ic, 7)
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 8)  #todo:  should this be 7 or 8?
 end
 
 function hiv()

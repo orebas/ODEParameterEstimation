@@ -278,6 +278,8 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	keep_looking = true
 	while (keep_looking)
 		improvement_found = false
+		sorting = collect(deriv_level)
+		sorting = sort(sorting, by = (x -> x[2]), rev = true)
 		for i in keys(deriv_level)
 			if (deriv_level[i] > 0)
 				deriv_level[i] = deriv_level[i] - 1
@@ -288,6 +290,7 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 					deriv_level[i] = deriv_level[i] + 1
 				else
 					improvement_found = true
+					break
 				end
 			else
 				temp = pop!(deriv_level, i)
@@ -298,6 +301,7 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 					deriv_level[i] = temp
 				else
 					improvement_found = true
+					break
 				end
 			end
 		end
