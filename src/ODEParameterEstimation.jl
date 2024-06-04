@@ -206,7 +206,9 @@ function multipoint_numerical_jacobian(model, measured_quantities, max_deriv_lev
 	if (DD == :nothing)
 		DD = populate_derivatives(model, measured_quantities, max_deriv_level, unident_dict)
 	end
-#TODO HERE
+	function f()
+		#TODO here
+	end
 end
 
 
@@ -352,7 +354,7 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 end
 
 
-function multipoint_local_identifiability_analysis((model::ODESystem, measured_quantities, numpoints, rtol = 1e-12, atol = 1e-12))
+function multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, numpoints, rtol = 1e-12, atol = 1e-12)
 
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
