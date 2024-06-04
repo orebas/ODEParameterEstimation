@@ -27,6 +27,11 @@ mutable struct ParameterEstimationResult
 	report_time::Any
 end
 
+
+#the below struct contains derivatives of state variable equations and measured quantity equations.
+#no substitutions are made.
+#the "cleared" versions are produced from versions of the state equations and measured quantity equations
+#which have had their denominators cleared, i.e. they should be polynomial and never rational.
 mutable struct DerivativeData
 	states_lhs_cleared::Any
 	states_rhs_cleared::Any
@@ -47,9 +52,10 @@ end
 #deriv_level is a dict of 
 #(indices into measured_quantites =>   level of derivative to include)
 
+
 function clear_denoms(eq)
 	@variables _qz_discard1 _qz_discard2
-	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
+	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2)) #this is a gross way to get the operator for division.
 	op = Symbolics.operation(expr_fake)
 
 	ret = eq
@@ -66,7 +72,8 @@ function clear_denoms(eq)
 end
 
 
-
+#this populates a "DerivateData" object, by taking derivatives of state variable and measured quantity equations.
+#diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
 function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
@@ -136,7 +143,11 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 
 end
 
-function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict, varlist, values_dict, DD = :nothing)
+# numerical_jacobian internally constructs a function f which takes in parameter and initial condition values
+# and returns the values of all observed quantities, as well as whatever derivatives have been stored into DD.obs_rhs.
+# then, we return the jacobian of this function vs all (locally identifiable) parameters and initial conditions 
+function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_level,
+	unident_dict, varlist, values_dict, DD = :nothing)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -175,13 +186,34 @@ function numerical_jacobian(model::ODESystem, measured_quantities_in, max_deriv_
 	init_values = collect(values(values_dict))
 
 	matrix = ForwardDiff.jacobian(f, init_values)
-	return Matrix{Float64}(matrix), DD #at some point, check if it makes sense to use sparse arrays here.
+	return Matrix{Float64}(matrix), DD
+	#at some point, check if it makes sense to use sparse arrays here.
+	#ForwardDiff is an AD package, and the only one that worked reliably even for this simple function.
 
+end
+
+function multipoint_numerical_jacobian(model, measured_quantities, max_deriv_level::Int, unident_dict,
+	varlist, param_dict, ic_dict, DD = :nothing)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+	subst_dict = Dict()
+
+
+	if (DD == :nothing)
+		DD = populate_derivatives(model, measured_quantities, max_deriv_level, unident_dict)
+	end
+#TODO HERE
 end
 
 
 
-
+#deriv_level is a dict which says that for observable i, we need precisely j derivatives and no more
+#deriv_level_view takes an jacobian which includes "too many derivatives" and produces a view that 
+#only sees precisely the relevant derivatives.
 function deriv_level_view(evaluated_jac, deriv_level, num_obs)
 	function linear_index(which_obs, deriv_level)
 		return deriv_level * num_obs + which_obs
@@ -197,6 +229,14 @@ function deriv_level_view(evaluated_jac, deriv_level, num_obs)
 
 end
 
+
+#local_identifiability_analysis proceeds as follows:
+# pick a random test point.  At this point, produces a numerical jacobian of output data and N derivatives vs initial conditions and parameters
+# by calculating the null space, we find parameters which are globally unidentifiable.  
+# We iteratively plug in values for one unidentifiable parameter at a time, until everything is at least locally identifiable.
+
+#for the next step, we try to identify the minimal number of equations necessary to identify identifiable parameters.
+# we do this by removing one equations at a time and check that the jacobian rank does not drop.
 function local_identifiability_analysis(model::ODESystem, measured_quantities, rtol = 1e-12, atol = 1e-12)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
@@ -218,10 +258,11 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	end
 
 
+
+
 	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
 	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular) - so we changed +1 to +2.  check with A.O.
 	n = max(n, 3)
-	println("we decided to take this many derivatives: ", n)
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 	unident_dict = Dict()
 
@@ -308,6 +349,46 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 		keep_looking = improvement_found
 	end
 	return (deriv_level, unident_dict, varlist, DD)
+end
+
+
+function multipoint_local_identifiability_analysis((model::ODESystem, measured_quantities, numpoints, rtol = 1e-12, atol = 1e-12))
+
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	varlist = Vector{Num}(vcat(model_ps, model_states))
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+
+	#first, we construct a single (consistent) set of parameters, and n different sets of initial conditions
+	parameter_values = Dict([p => rand(Float64) for p in ModelingToolkit.parameters(model)])
+	points_ics = []
+	test_points = []
+	ordered_test_points = []
+
+	for i in 1:numpoints
+		initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
+		test_point = merge(parameter_values, initial_conditions)
+		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+		for i in model_ps
+			ordered_test_point[i] = parameter_values[i]
+		end
+		for i in model_states
+			ordered_test_point[i] = initial_conditions[i]
+		end
+		push!(points_ics, deepcopy(initial_conditions))
+		push!(test_points, deepcopy(test_point))
+		push!(ordered_test_points, deepcopy(ordered_test_point))
+	end
+
+	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
+	#see comment from non-multipoint version
+	n = max(n, 3)
+	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
+	unident_dict = Dict()
+	#TODO function not done
+
 end
 
 function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
