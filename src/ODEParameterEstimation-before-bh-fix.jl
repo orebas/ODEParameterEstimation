@@ -17,6 +17,13 @@ include("bary_derivs.jl")
 #include("nemo2hc-rewrite.jl")
 
 
+#take out this function
+function print_element_types(v)
+	for elem in v
+		println(typeof(elem))
+	end
+end 
+
 function sample_data(model::ModelingToolkit.ODESystem,
 	measured_data::Vector{ModelingToolkit.Equation},
 	time_interval::Vector{T},
@@ -424,10 +431,10 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 
 	println("starting SolveJSWithHC.  Here is the polynomial system:")
 	display(poly_system)
-	#print_element_types(poly_system)
+	print_element_types(poly_system)
 	println("varlist")
 	display(varlist)
-	#print_element_types(varlist)
+	print_element_types(varlist)
 
 	@variables _qz_discard1 _qz_discard2
 	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
@@ -622,7 +629,7 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 	solved_res = []
 	newres = ParameterEstimationResult(param_dict,
 		states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
-	results_vec = HCPE(model, measured_quantities, data_sample, solver, [])
+	results_vec = MCHCPE(model, measured_quantities, data_sample, solver, [])
 
 
 
