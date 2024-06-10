@@ -1,0 +1,2202 @@
+Precompiling ODEParameterEstimation...
+Info Given ODEParameterEstimation was explicitly requested, output will be shown live [0K
+[0KOptimal number of points is 1
+[0KDict{Int64, Int64} with 2 entries:
+[0K  2 => 1
+[0K  1 => 1
+[0KWe picked these points:[15]
+[0K1-element Vector{Int64}:
+[0K 15
+[0Kfull target
+[0Kstarting SolveJSWithHC.  Here is the polynomial system:
+[0K6-element Vector{Symbolics.Num}:
+[0K                               -0.7879558831086733 + _t15q_x2_t
+[0K                                0.12105208964643922 + _t15q_x2ˍt_t
+[0K                                0.151315112058299 + _t15q_x1_t
+[0K                                0.3151823532459478 + _t15q_x1ˍt_t
+[0K _t15q_x2ˍt_t - _t15q_x1_t*_tpq_b
+[0K _t15q_x1ˍt_t + _t15q_x2_t*_tpq_a
+[0Kvarlist
+[0K6-element Vector{Symbolics.Num}:
+[0K       _tpq_a
+[0K       _tpq_b
+[0K   _t15q_x1_t
+[0K   _t15q_x2_t
+[0K _t15q_x2ˍt_t
+[0K _t15q_x1ˍt_t
+[0K1-element Vector{Vector{Float64}}:
+[0K [0.40000000000314545, 0.7999999999986784, -0.151315112058299, 0.7879558831086733, -0.12105208964643922, -0.3151823532459478]
+[0K1-element Vector{Any}:
+[0K ODEParameterEstimation.ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.40000000000314545, b => 0.7999999999986784), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.3330000000033325, x2(t) => 0.6669999999979284), -1.0, 2.1469204997667462e-13, nothing, 19, -1.0)
+ 127088.0 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 129 seconds. 364 already precompiled.
+  1 dependency had output during precompilation:
+┌ ODEParameterEstimation
+│  [Output was shown above]
+└  
+testingOptimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[4]
+1-element Vector{Int64}:
+ 4
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                                                            -0.6850628735253277 + _t4q_x2_t
+                                                            -0.09796288003170743 + _t4q_x2ˍt_t
+                                                            -0.3735944832587008 + _t4q_x1_t
+                                                            -0.27402514940983524 + _t4q_x1ˍt_t
+ _t4q_x1_t + _t4q_x2ˍt_t + (-1 + _t4q_x1_t^2)*_t4q_x2_t*_tpq_b
+                                _t4q_x1ˍt_t - _t4q_x2_t*_tpq_a
+varlist
+6-element Vector{Num}:
+      _tpq_a
+      _tpq_b
+   _t4q_x1_t
+   _t4q_x2_t
+ _t4q_x2ˍt_t
+ _t4q_x1ˍt_t
+1-element Vector{Vector{Float64}}:
+ [0.3999999999995682, 0.8000000000002139, 0.3735944832587008, 0.6850628735253277, 0.09796288003170743, 0.27402514940983524]
+"How close are we?"
+Actual values:
+4-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.4
+ 0.8
+4-element Vector{Float64}:
+ 0.33300000000002145
+ 0.666999999999993
+ 0.3999999999995682
+ 0.8000000000002139
+Error: 2.2645564005197382e-14
+For model vanderpol: The ODEPE  max abs rel. err: 1.0795531135698866e-12
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[11]
+1-element Vector{Int64}:
+ 11
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                               -0.7719284835161381 + _t11q_x2_t
+                               -0.15051210325972433 + _t11q_x2ˍt_t
+                               -0.18814012907468655 + _t11q_x1_t
+                                0.3087713934064092 + _t11q_x1ˍt_t
+ _t11q_x2ˍt_t - _t11q_x1_t*_tpq_b
+ _t11q_x1ˍt_t + _t11q_x2_t*_tpq_a
+varlist
+6-element Vector{Num}:
+       _tpq_a
+       _tpq_b
+   _t11q_x1_t
+   _t11q_x2_t
+ _t11q_x2ˍt_t
+ _t11q_x1ˍt_t
+1-element Vector{Vector{Float64}}:
+ [0.39999999999994035, 0.7999999999998676, 0.18814012907468655, 0.7719284835161381, 0.15051210325972433, -0.3087713934064092]
+"How close are we?"
+Actual values:
+4-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.4
+ 0.8
+4-element Vector{Float64}:
+ 0.3329999999999824
+ 0.6670000000000226
+ 0.39999999999994035
+ 0.7999999999998676
+Error: 3.8090111209481e-15
+For model simple: The ODEPE  max abs rel. err: 1.6556200854722647e-13
+Optimal number of points is 1
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+We picked these points:[17]
+1-element Vector{Int64}:
+ 17
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+9-element Vector{Num}:
+                                                     -3.3001382413707527 + _t17q_x2_t
+                                                     -0.3495450639859476 + _t17q_x2ˍt_t
+                                                     -4.000384018432563 + _t17q_x3_t
+                                                     -0.00048004608222485505 + _t17q_x3ˍt_t
+                                                     -1.7477253199290899 + _t17q_x1_t
+                                                      0.33001382413707786 + _t17q_x1ˍt_t
+                       _t17q_x2ˍt_t - _t17q_x1_t*_tpq_b
+ _t17q_x3ˍt_t - _t17q_x3_t*(_tpq_a^2)*(_tpq_b^2)*_tpq_beta
+                       _t17q_x1ˍt_t + _t17q_x2_t*_tpq_a
+varlist
+9-element Vector{Num}:
+       _tpq_a
+       _tpq_b
+       _tpq_beta
+   _t17q_x1_t
+   _t17q_x2_t
+   _t17q_x3_t
+ _t17q_x2ˍt_t
+ _t17q_x3ˍt_t
+ _t17q_x1ˍt_t
+1-element Vector{Vector{Float64}}:
+ [0.10000000000000078, 0.20000000000007417, 0.3000000000078642, 1.7477253199290899, 3.3001382413707527, 4.000384018432563, 0.3495450639859476, 0.00048004608222485505, -0.33001382413707786]
+"How close are we?"
+Actual values:
+6-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+6-element Vector{Float64}:
+ 1.9999999999999998
+ 2.9999999999999063
+ 3.9999999999999636
+ 0.10000000000000078
+ 0.20000000000007417
+ 0.3000000000078642
+Error: 0.11210843524771683
+For model substr_test: The ODEPE  max abs rel. err: 2.6214030945936884e-11
+Optimal number of points is 3
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+We picked these points:[2, 9, 11]
+3-element Vector{Int64}:
+  2
+  9
+ 11
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+39-element Vector{Num}:
+                                                                         -2.016890084941912 + _t2q_x2_t
+                                                                         -0.3761580980241086 + _t2q_x2ˍt_t
+                                                                         -1.5565661560853654 + _t2q_x2ˍtt_t
+                                                                         -2.183270403125013 + _t2q_x1_t + _t2q_x3_t
+                                                                         -3.7317348120315335 + _t2q_x1ˍt_t + _t2q_x3ˍt_t
+                                                                         -2.690244948151825 + _t2q_x1ˍtt_t + _t2q_x3ˍtt_t
+            _t2q_x2ˍt_t - _t2q_x3_t - _t2q_x1_t*_tpq_p3 + _t2q_x2_t*_tpq_p4
+     _t2q_x2ˍtt_t - _t2q_x3ˍt_t - _t2q_x1ˍt_t*_tpq_p3 + _t2q_x2ˍt_t*_tpq_p4
+                        _t2q_x3ˍt_t - _t2q_x1_t*_tpq_p6 + _t2q_x3_t*_tpq_p7
+                   -_t2q_u0_t + _t2q_x1ˍt_t - _t2q_x2_t + _t2q_x1_t*_tpq_p1
+                   _t2q_x3ˍtt_t - _t2q_x1ˍt_t*_tpq_p6 + _t2q_x3ˍt_t*_tpq_p7
+            -_t2q_u0ˍt_t + _t2q_x1ˍtt_t - _t2q_x2ˍt_t + _t2q_x1ˍt_t*_tpq_p1
+                                                      _t2q_u0ˍt_t - _tpq_pd
+                                                                         -2.2539294254269873 + _t9q_x2_t
+                                                                         -1.0084016987869682 + _t9q_x2ˍt_t
+                                                                         -2.0724919645111366 + _t9q_x2ˍtt_t
+                                                                         -3.6716341047995678 + _t9q_x1_t + _t9q_x3_t
+                                                                         -4.8271898730438885 + _t9q_x1ˍt_t + _t9q_x3ˍt_t
+                                                                         -3.6168388331388757 + _t9q_x1ˍtt_t + _t9q_x3ˍtt_t
+            _t9q_x2ˍt_t - _t9q_x3_t - _t9q_x1_t*_tpq_p3 + _t9q_x2_t*_tpq_p4
+     _t9q_x2ˍtt_t - _t9q_x3ˍt_t - _t9q_x1ˍt_t*_tpq_p3 + _t9q_x2ˍt_t*_tpq_p4
+                        _t9q_x3ˍt_t - _t9q_x1_t*_tpq_p6 + _t9q_x3_t*_tpq_p7
+                   -_t9q_u0_t + _t9q_x1ˍt_t - _t9q_x2_t + _t9q_x1_t*_tpq_p1
+                   _t9q_x3ˍtt_t - _t9q_x1ˍt_t*_tpq_p6 + _t9q_x3ˍt_t*_tpq_p7
+            -_t9q_u0ˍt_t + _t9q_x1ˍtt_t - _t9q_x2ˍt_t + _t9q_x1ˍt_t*_tpq_p1
+                                                      _t9q_u0ˍt_t - _tpq_pd
+                                                                         -2.36540711303563 + _t11q_x2_t
+                                                                         -1.2239462234238652 + _t11q_x2ˍt_t
+                                                                         -2.240162959843383 + _t11q_x2ˍtt_t
+                                                                         -4.172959753193552 + _t11q_x1_t + _t11q_x3_t
+                                                                         -5.204659056031379 + _t11q_x1ˍt_t + _t11q_x3ˍt_t
+                                                                         -3.9370274587677834 + _t11q_x1ˍtt_t + _t11q_x3ˍtt_t
+        _t11q_x2ˍt_t - _t11q_x3_t - _t11q_x1_t*_tpq_p3 + _t11q_x2_t*_tpq_p4
+ _t11q_x2ˍtt_t - _t11q_x3ˍt_t - _t11q_x1ˍt_t*_tpq_p3 + _t11q_x2ˍt_t*_tpq_p4
+                     _t11q_x3ˍt_t - _t11q_x1_t*_tpq_p6 + _t11q_x3_t*_tpq_p7
+               -_t11q_u0_t + _t11q_x1ˍt_t - _t11q_x2_t + _t11q_x1_t*_tpq_p1
+                _t11q_x3ˍtt_t - _t11q_x1ˍt_t*_tpq_p6 + _t11q_x3ˍt_t*_tpq_p7
+        -_t11q_u0ˍt_t + _t11q_x1ˍtt_t - _t11q_x2ˍt_t + _t11q_x1ˍt_t*_tpq_p1
+                                                     _t11q_u0ˍt_t - _tpq_pd
+varlist
+39-element Vector{Num}:
+       _tpq_p1
+       _tpq_p3
+       _tpq_p4
+       _tpq_p6
+       _tpq_p7
+       _tpq_pd
+     _t2q_x1_t
+     _t2q_x2_t
+     _t2q_x3_t
+     _t2q_u0_t
+   _t2q_x2ˍt_t
+  _t2q_x2ˍtt_t
+   _t2q_x3ˍt_t
+   _t2q_x1ˍt_t
+  _t2q_x3ˍtt_t
+  _t2q_x1ˍtt_t
+   _t2q_u0ˍt_t
+     _t9q_x1_t
+     _t9q_x2_t
+     _t9q_x3_t
+     _t9q_u0_t
+   _t9q_x2ˍt_t
+  _t9q_x2ˍtt_t
+   _t9q_x3ˍt_t
+   _t9q_x1ˍt_t
+  _t9q_x3ˍtt_t
+  _t9q_x1ˍtt_t
+   _t9q_u0ˍt_t
+    _t11q_x1_t
+    _t11q_x2_t
+    _t11q_x3_t
+    _t11q_u0_t
+  _t11q_x2ˍt_t
+ _t11q_x2ˍtt_t
+  _t11q_x3ˍt_t
+  _t11q_x1ˍt_t
+ _t11q_x3ˍtt_t
+ _t11q_x1ˍtt_t
+  _t11q_u0ˍt_t
+Tracking 19 paths...  11%|███▏                          |  ETA: 0:01:57[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 19 paths... 100%|██████████████████████████████| Time: 0:00:15[K
+  # paths tracked:                  19[K
+  # non-singular solutions (real):  3 (3)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         3 (3)[K
+3-element Vector{Vector{Float64}}:
+ [0.1999999988981389, 0.3000000000396536, 0.4999999995985484, 0.5999999998295109, -0.19999999935459437, 0.9999999978831265, 1.140953233549822, 2.016890084941912, 1.0423171695751912, 1.04999999936472, 0.3761580980241086, 1.5565661560853654, 0.893035373177694, 2.8386994388538396, 1.8818267368875052, 0.8084182112643197, 0.9999999978831265, 2.194668134701394, 2.2539294254269873, 1.4769659700981734, 1.3999999986258984, 1.0084016987869682, 2.0724919645111366, 1.6121940735130622, 3.2149957995308265, 2.2514362928324676, 1.3654025403064083, 0.9999999978831265, 2.523299963287894, 2.36540711303563, 1.6496597899056575, 1.4999999984140286, 1.2239462234238652, 2.240162959843383, 1.8439119344589732, 3.360747121572406, 2.3852306580721963, 1.551796800695587, 0.9999999978831265]
+ [-1.313994582237847, 1.4879454639013534, -0.5071171693999365, -1.517036214238313, 0.027282317742555434, 1.5636844957331377, -5.799647922415279, 2.016890084941912, 7.982918325540292, 0.7550672621645699, 0.3761580980241086, 1.5565661560853654, 8.580483413865712, -4.848748601834179, 7.121631747838025, -4.431386799686201, 1.5636844957331377, -7.800541244567968, 2.2539294254269873, 11.472175349367536, 1.3024133559126314, 1.0084016987869682, 2.0724919645111366, 11.52071602558945, -6.693526152545562, 9.840009739130979, -6.223170905992103, 1.5636844957331377, -8.502081474927884, 2.36540711303563, 12.675041228121437, 1.4587799471110607, 1.2239462234238652, 2.240162959843383, 12.552160991684692, -7.347501935653312, 10.803974476041327, -6.866947017273543, 1.5636844957331377]
+ [-1.1763448814076676, 4.93790872674722, -10.177051889236301, 1.5701723577878606, -1.8029187763313559, -2.9754103087105426, -5.671311577830419, 2.016890084941912, 7.854581980955433, 3.1300264107515736, 0.3761580980241086, 1.5565661560853654, 5.256236661786905, -1.5245018497553715, 7.0828371064945115, -4.392592158342686, -2.9754103087105426, -6.501316028319164, 2.2539294254269873, 10.172950133118732, 2.0882341911713596, 1.0084016987869682, 2.0724919645111366, 8.132816088772417, -3.305626215728529, 9.472403921781703, -5.8555650886428285, -2.9754103087105426, -6.861988515569905, 2.36540711303563, 11.034948268763458, 1.7907062665713995, 1.2239462234238652, 2.240162959843383, 9.120610742993208, -3.915951686961828, 10.29500126685173, -6.357973808083945, -2.9754103087105426]
+"How close are we?"
+Actual values:
+10-element Vector{Float64}:
+  1.0
+  2.0
+  1.0
+  1.0
+  0.2
+  0.3
+  0.5
+  0.6
+ -0.2
+  1.0
+10-element Vector{Float64}:
+  1.0000000012034886
+  1.9999999999999931
+  0.9999999987966031
+  0.9999999994705635
+  0.1999999988981389
+  0.3000000000396536
+  0.4999999995985484
+  0.5999999998295109
+ -0.19999999935459437
+  0.9999999978831265
+Error: 0.12494112463537556
+10-element Vector{Float64}:
+ -5.562661950030788
+  2.000000663357335
+  7.562661811413609
+  0.6768830373779131
+ -1.313994582237847
+  1.4879454639013534
+ -0.5071171693999365
+ -1.517036214238313
+  0.027282317742555434
+  1.5636844957331377
+Error: 1.0172888876061503
+10-element Vector{Float64}:
+  -5.600502781177702
+   2.0000023475485746
+   7.600502617482157
+   3.2787969261871006
+  -1.1763448814076676
+   4.93790872674722
+ -10.177051889236301
+   1.5701723577878606
+  -1.8029187763313559
+  -2.9754103087105426
+Error: 1.7134087342836164
+For model DAISY_ex3_v4: The ODEPE  max abs rel. err: 5.50930551179718e-9
+Optimal number of points is 3
+Dict{Int64, Int64} with 1 entry:
+  1 => 2
+We picked these points:[7, 12, 15]
+3-element Vector{Int64}:
+  7
+ 12
+ 15
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+18-element Vector{Num}:
+                                                                            -0.4326934361045834 + _t7q_V_t
+                                                                            -0.4504582558458906 + _t7q_Vˍt_t
+                                                                            -1.071331192104532 + _t7q_Vˍtt_t
+               _t7q_Vˍt_t - (_t7q_R_t + _t7q_V_t - (1//3)*(_t7q_V_t^3))*_tpq_g
+      _t7q_Vˍtt_t - (_t7q_Rˍt_t + _t7q_Vˍt_t - (_t7q_V_t^2)*_t7q_Vˍt_t)*_tpq_g
+                      -_t7q_V_t + _tpq_a - _t7q_R_t*_tpq_b + _t7q_Rˍt_t*_tpq_g
+                                                                            -0.5902966287693445 + _t12q_V_t
+                                                                            -0.8668551912790041 + _t12q_Vˍt_t
+                                                                            -2.440761813469305 + _t12q_Vˍtt_t
+           _t12q_Vˍt_t - (_t12q_R_t + _t12q_V_t - (1//3)*(_t12q_V_t^3))*_tpq_g
+ _t12q_Vˍtt_t - (_t12q_Rˍt_t + _t12q_Vˍt_t - (_t12q_V_t^2)*_t12q_Vˍt_t)*_tpq_g
+                   -_t12q_V_t + _tpq_a - _t12q_R_t*_tpq_b + _t12q_Rˍt_t*_tpq_g
+                                                                            -0.7528206829171825 + _t15q_V_t
+                                                                            -1.3378354767095868 + _t15q_Vˍt_t
+                                                                            -3.953282798062892 + _t15q_Vˍtt_t
+           _t15q_Vˍt_t - (_t15q_R_t + _t15q_V_t - (1//3)*(_t15q_V_t^3))*_tpq_g
+ _t15q_Vˍtt_t - (_t15q_Rˍt_t + _t15q_Vˍt_t - (_t15q_V_t^2)*_t15q_Vˍt_t)*_tpq_g
+                   -_t15q_V_t + _tpq_a - _t15q_R_t*_tpq_b + _t15q_Rˍt_t*_tpq_g
+varlist
+18-element Vector{Num}:
+       _tpq_g
+       _tpq_a
+       _tpq_b
+     _t7q_V_t
+     _t7q_R_t
+   _t7q_Vˍt_t
+  _t7q_Vˍtt_t
+   _t7q_Rˍt_t
+    _t12q_V_t
+    _t12q_R_t
+  _t12q_Vˍt_t
+ _t12q_Vˍtt_t
+  _t12q_Rˍt_t
+    _t15q_V_t
+    _t15q_R_t
+  _t15q_Vˍt_t
+ _t15q_Vˍtt_t
+  _t15q_Rˍt_t
+2-element Vector{Vector{Float64}}:
+ [0.2499999999757834, 0.5000000000183625, 0.7499999999246111, 0.4326934361045834, 1.3961430631130136, 0.4504582558458906, 1.071331192104532, 3.9192029336425476, 0.5902966287693445, 2.945687111745814, 0.8668551912790041, 2.440761813469305, 9.198247850244082, 0.7528206829171825, 4.740738833250223, 1.3378354767095868, 3.953282798062892, 15.233499231391965]
+ [2.1618249811098353, -1.8631865822390818, 10.217082988803705, 0.4326934361045834, -0.1973205226866995, 0.4504582558458906, 1.071331192104532, 0.12944612311578904, 0.5902966287693445, -0.12075059594070038, 0.8668551912790041, 2.440761813469305, 0.56422900188182, 0.7528206829171825, 0.008242340485199505, 1.3378354767095868, 3.953282798062892, 1.2490465072381984]
+"How close are we?"
+Actual values:
+5-element Vector{Float64}:
+ 0.333
+ 0.67
+ 0.25
+ 0.5
+ 0.75
+5-element Vector{Float64}:
+ 0.3329999999999378
+ 0.6700000000974814
+ 0.2499999999757834
+ 0.5000000000183625
+ 0.7499999999246111
+Error: 0.05094851771608535
+5-element Vector{Float64}:
+  0.33431292677330293
+ -0.2132182411523419
+  2.1618249811098353
+ -1.8631865822390818
+ 10.217082988803705
+Error: 0.10392043368387557
+For model fitzhugh-nagumo: The ODEPE  max abs rel. err: 1.454945616721977e-10
+Optimal number of points is 3
+Dict{Int64, Int64} with 1 entry:
+  1 => 2
+We picked these points:[5, 6, 10]
+3-element Vector{Int64}:
+  5
+  6
+ 10
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+18-element Vector{Num}:
+                                                                                                 -0.3287154095609884 + _t5q_r_t
+                                                                                                  0.015349679532717096 + _t5q_rˍt_t
+                                                                                                 -0.05783360120895096 + _t5q_rˍtt_t
+                                          _t5q_rˍt_t - _t5q_r_t*_tpq_k1 + _t5q_r_t*_t5q_w_t*_tpq_k2
+       _t5q_rˍtt_t - _t5q_rˍt_t*_tpq_k1 + _t5q_r_t*_t5q_wˍt_t*_tpq_k2 + _t5q_rˍt_t*_t5q_w_t*_tpq_k2
+                                          _t5q_wˍt_t + _t5q_w_t*_tpq_k3 - _t5q_r_t*_t5q_w_t*_tpq_k2
+                                                                                                 -0.32801938229662675 + _t6q_r_t
+                                                                                                  0.012507852658292427 + _t6q_rˍt_t
+                                                                                                 -0.0558604677090086 + _t6q_rˍtt_t
+                                          _t6q_rˍt_t - _t6q_r_t*_tpq_k1 + _t6q_r_t*_t6q_w_t*_tpq_k2
+       _t6q_rˍtt_t - _t6q_rˍt_t*_tpq_k1 + _t6q_r_t*_t6q_wˍt_t*_tpq_k2 + _t6q_rˍt_t*_t6q_w_t*_tpq_k2
+                                          _t6q_wˍt_t + _t6q_w_t*_tpq_k3 - _t6q_r_t*_t6q_w_t*_tpq_k2
+                                                                                                 -0.32658715049351594 + _t10q_r_t
+                                                                                                  0.0020391725997840142 + _t10q_rˍt_t
+                                                                                                 -0.049111822883692896 + _t10q_rˍtt_t
+                                      _t10q_rˍt_t - _t10q_r_t*_tpq_k1 + _t10q_r_t*_t10q_w_t*_tpq_k2
+ _t10q_rˍtt_t - _t10q_rˍt_t*_tpq_k1 + _t10q_r_t*_t10q_wˍt_t*_tpq_k2 + _t10q_rˍt_t*_t10q_w_t*_tpq_k2
+                                      _t10q_wˍt_t + _t10q_w_t*_tpq_k3 - _t10q_r_t*_t10q_w_t*_tpq_k2
+varlist
+18-element Vector{Num}:
+      _tpq_k1
+      _tpq_k2
+      _tpq_k3
+     _t5q_r_t
+     _t5q_w_t
+   _t5q_rˍt_t
+  _t5q_rˍtt_t
+   _t5q_wˍt_t
+     _t6q_r_t
+     _t6q_w_t
+   _t6q_rˍt_t
+  _t6q_rˍtt_t
+   _t6q_wˍt_t
+    _t10q_r_t
+    _t10q_w_t
+  _t10q_rˍt_t
+ _t10q_rˍtt_t
+  _t10q_wˍt_t
+Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:04[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 3 paths... 100%|███████████████████████████████| Time: 0:00:07[K
+  # paths tracked:                  3[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [-0.09647235160220002, 857.2973400280956, 278.3160814130887, 0.3287154095609884, -5.806199974790385e-5, -0.015349679532717096, 0.05783360120895096, -0.00020268078666741562, 0.32801938229662675, -6.805212733851617e-5, -0.012507852658292427, 0.0558604677090086, -0.00019694711028386808, 0.32658715049351594, -0.0001052475756322906, -0.0020391725997840142, 0.049111822883692896, -0.00017536498318026982]
+ [0.24999999999434253, 0.5000000006196212, 0.750000000215021, 0.3287154095609884, 0.5933919065765487, -0.015349679532717096, 0.05783360120895096, -0.34751539813889876, 0.32801938229662675, 0.5762628869778292, -0.012507852658292427, 0.0558604677090086, -0.3376844671266872, 0.32658715049351594, 0.5124877692900514, -0.0020391725997840142, 0.049111822883692896, -0.3006798668564188]
+┌ Warning: dt(5.551115123125783e-17) <= eps(t)(-0.47329435716819745) , and step error estimate = 3.652098222511755. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/roUH9/src/integrator_interface.jl:633
+"How close are we?"
+Actual values:
+5-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.25
+ 0.5
+ 0.75
+5-element Vector{Float64}:
+ 0.33300000000000024
+ 0.666999999162075
+ 0.24999999999434253
+ 0.5000000006196212
+ 0.750000000215021
+Error: 0.056483825607583305
+For model Lotka_Volterra: The ODEPE  max abs rel. err: 1.2562594642711951e-9
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.02281630672068624) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.569548837860124, b => 0.02281630672068624) the following are globally unidentifiable:Any[x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.9798369067229447) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.4673650009374485, b => 0.9798369067229447) the following are globally unidentifiable:Any[x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.7334854993529936) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.6272082404550934, b => 0.7334854993529936) the following are globally unidentifiable:Any[x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.38450161454044773) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.0850632032004841, b => 0.38450161454044773) the following are globally unidentifiable:Any[x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.2237592054602061) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.11222416132500246, b => 0.2237592054602061) the following are globally unidentifiable:Any[x3(t)]
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[8]
+1-element Vector{Int64}:
+ 8
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                             -3.3439458374243287 + _t8q_x2_t
+                             -0.965605416257513 + _t8q_x2ˍt_t
+                             -1.9312108325151338 + _t8q_x1_t
+                              0.19312108325150376 + _t8q_x1ˍt_t
+    _t8q_x2ˍt_t + _t8q_x1_t*(-0.2237592054602061 - _tpq_c)
+ _t8q_x1ˍt_t + _t8q_x1_t*_tpq_a
+varlist
+6-element Vector{Num}:
+      _tpq_a
+      _tpq_c
+   _t8q_x1_t
+   _t8q_x2_t
+ _t8q_x2ˍt_t
+ _t8q_x1ˍt_t
+1-element Vector{Vector{Float64}}:
+ [0.09999999999999502, 0.27624079453976597, 1.9312108325151338, 3.3439458374243287, 0.965605416257513, -0.19312108325150376]
+"How close are we?"
+Actual values:
+7-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+ 0.4
+7-element Vector{Float64}:
+ 1.9999999999999973
+ 3.000000000000013
+ 0.797685026942756
+ 0.09999999999999502
+ 0.2237592054602061
+ 0.27624079453976597
+ 0.11222416132500246
+Error: 0.16810259832409824
+For model global_unident_test: The ODEPE  max abs rel. err: 4.98212582300539e-14
+Optimal number of points is 3
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 2
+We picked these points:[2, 8, 15]
+3-element Vector{Int64}:
+  2
+  8
+ 15
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+27-element Vector{Num}:
+                                                                                                            -0.5019655980586435 + _t2q_x2_t
+                                                                                                            -0.03719171037328788 + _t2q_x2ˍt_t
+                                                                                                            -0.2420399304970766 + _t2q_x1_t
+                                                                                                             0.1519167516945433 + _t2q_x1ˍt_t
+                                                                                                            -0.2811087434853241 + _t2q_x1ˍtt_t
+                                                         _t2q_x2ˍt_t - _t2q_x1_t*_tpq_a21 + _t2q_x2_t*_tpq_a12
+            _t2q_x1ˍt_t + _t2q_x1_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t2q_x2_t*_tpq_a12 - _t2q_x3_t*_tpq_a13
+     _t2q_x1ˍtt_t + _t2q_x1ˍt_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t2q_x2ˍt_t*_tpq_a12 - _t2q_x3ˍt_t*_tpq_a13
+                                                         _t2q_x3ˍt_t - _t2q_x1_t*_tpq_a31 + _t2q_x3_t*_tpq_a13
+                                                                                                            -0.5100226008448138 + _t8q_x2_t
+                                                                                                            -0.01822669342713165 + _t8q_x2ˍt_t
+                                                                                                            -0.20680093553653026 + _t8q_x1_t
+                                                                                                             0.08958838171167026 + _t8q_x1ˍt_t
+                                                                                                            -0.1486197587161001 + _t8q_x1ˍtt_t
+                                                         _t8q_x2ˍt_t - _t8q_x1_t*_tpq_a21 + _t8q_x2_t*_tpq_a12
+            _t8q_x1ˍt_t + _t8q_x1_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t8q_x2_t*_tpq_a12 - _t8q_x3_t*_tpq_a13
+     _t8q_x1ˍtt_t + _t8q_x1ˍt_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t8q_x2ˍt_t*_tpq_a12 - _t8q_x3ˍt_t*_tpq_a13
+                                                         _t8q_x3ˍt_t - _t8q_x1_t*_tpq_a31 + _t8q_x3_t*_tpq_a13
+                                                                                                            -0.5139674647464663 + _t15q_x2_t
+                                                                                                            -0.005503137580518396 + _t15q_x2ˍt_t
+                                                                                                            -0.18267140838636958 + _t15q_x1_t
+                                                                                                             0.05275186693422451 + _t15q_x1ˍt_t
+                                                                                                            -0.07148554541974 + _t15q_x1ˍtt_t
+                                                      _t15q_x2ˍt_t - _t15q_x1_t*_tpq_a21 + _t15q_x2_t*_tpq_a12
+        _t15q_x1ˍt_t + _t15q_x1_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t15q_x2_t*_tpq_a12 - _t15q_x3_t*_tpq_a13
+ _t15q_x1ˍtt_t + _t15q_x1ˍt_t*(_tpq_a01 + _tpq_a21 + _tpq_a31) - _t15q_x2ˍt_t*_tpq_a12 - _t15q_x3ˍt_t*_tpq_a13
+                                                      _t15q_x3ˍt_t - _t15q_x1_t*_tpq_a31 + _t15q_x3_t*_tpq_a13
+varlist
+26-element Vector{Num}:
+      _tpq_a12
+      _tpq_a13
+      _tpq_a21
+      _tpq_a31
+      _tpq_a01
+     _t2q_x1_t
+     _t2q_x2_t
+     _t2q_x3_t
+   _t2q_x2ˍt_t
+   _t2q_x1ˍt_t
+  _t2q_x1ˍtt_t
+   _t2q_x3ˍt_t
+     _t8q_x1_t
+     _t8q_x2_t
+     _t8q_x3_t
+   _t8q_x2ˍt_t
+   _t8q_x1ˍt_t
+  _t8q_x1ˍtt_t
+   _t8q_x3ˍt_t
+    _t15q_x1_t
+    _t15q_x2_t
+    _t15q_x3_t
+  _t15q_x2ˍt_t
+  _t15q_x1ˍt_t
+ _t15q_x1ˍtt_t
+  _t15q_x3ˍt_t
+Computing mixed cells... 22    Time: 0:00:00[K
+  mixed_volume:  25[K[A
+[K[AComputing mixed cells... 54    Time: 0:00:00[K
+  mixed_volume:  61[K
+Tracking 61 paths...   3%|█                             |  ETA: 0:08:02[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 61 paths...  77%|███████████████████████▏      |  ETA: 0:00:05[K
+  # paths tracked:                  47[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 61 paths... 100%|██████████████████████████████| Time: 0:00:16[K
+  # paths tracked:                  61[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K
+1-element Vector{Vector{Float64}}:
+ [0.16700000001299375, 0.3329999880060517, 0.5000000000307298, 0.6669999801979093, 0.8330000273708406, 0.24203993049817998, 0.5019655980586266, 0.7457503459645645, 0.037191710373313834, -0.15191675169300628, 0.28110874348599785, -0.08689422741121158, 0.20680093553747747, 0.5100226008451088, 0.7172364119903016, 0.0182266934276001, -0.08958838170991847, 0.1486197587168908, -0.10090349668244557, 0.18267140838594007, 0.5139674647460404, 0.6809561344486658, 0.005503137580665442, -0.052751866936109386, 0.07148554541825904, -0.10491655882953431]
+"How close are we?"
+Actual values:
+8-element Vector{Float64}:
+ 0.25
+ 0.5
+ 0.75
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+8-element Vector{Float64}:
+ 0.2500000000009078
+ 0.4999999999998987
+ 0.7500000327180021
+ 0.16700000001299375
+ 0.3329999880060517
+ 0.5000000000307298
+ 0.6669999801979093
+ 0.8330000273708406
+Error: 0.015168098075325912
+For model DAISY_mamil3: The ODEPE  max abs rel. err: 4.362400278049942e-8
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+Optimal number of points is 2
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+We picked these points:[13, 14]
+2-element Vector{Int64}:
+ 13
+ 14
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+22-element Vector{Num}:
+                                  -4.923148630601722 + _t13q_x3_t
+                                  -1.5798058865725915 + _t13q_x3ˍt_t
+                                  -0.14644356126687555 + _t13q_x3ˍtt_t
+                                  -0.04624047371344377 + _t13q_x3ˍttt_t
+                                  -0.8216172756357627(_t13q_x1_t + _t13q_x2_t) + _t13q_x3ˍt_t
+                                  -0.8216172756357627(_t13q_x1ˍt_t + _t13q_x2ˍt_t) + _t13q_x3ˍtt_t
+                                  -0.8216172756357627(_t13q_x1ˍtt_t + _t13q_x2ˍtt_t) + _t13q_x3ˍttt_t
+    _t13q_x1ˍt_t + _t13q_x1_t*_tpq_a
+    _t13q_x2ˍt_t - _t13q_x2_t*_tpq_b
+ _t13q_x2ˍtt_t - _t13q_x2ˍt_t*_tpq_b
+ _t13q_x1ˍtt_t + _t13q_x1ˍt_t*_tpq_a
+                                  -5.002322944696426 + _t14q_x3_t
+                                  -1.5871860230189194 + _t14q_x3ˍt_t
+                                  -0.14876506118713115 + _t14q_x3ˍtt_t
+                                  -0.0466202264846698 + _t14q_x3ˍttt_t
+                                  -0.8216172756357627(_t14q_x1_t + _t14q_x2_t) + _t14q_x3ˍt_t
+                                  -0.8216172756357627(_t14q_x1ˍt_t + _t14q_x2ˍt_t) + _t14q_x3ˍtt_t
+                                  -0.8216172756357627(_t14q_x1ˍtt_t + _t14q_x2ˍtt_t) + _t14q_x3ˍttt_t
+    _t14q_x1ˍt_t + _t14q_x1_t*_tpq_a
+    _t14q_x2ˍt_t - _t14q_x2_t*_tpq_b
+ _t14q_x2ˍtt_t - _t14q_x2ˍt_t*_tpq_b
+ _t14q_x1ˍtt_t + _t14q_x1ˍt_t*_tpq_a
+varlist
+22-element Vector{Num}:
+         _tpq_a
+         _tpq_b
+     _t13q_x1_t
+     _t13q_x2_t
+     _t13q_x3_t
+   _t13q_x3ˍt_t
+  _t13q_x3ˍtt_t
+ _t13q_x3ˍttt_t
+   _t13q_x1ˍt_t
+   _t13q_x2ˍt_t
+  _t13q_x2ˍtt_t
+  _t13q_x1ˍtt_t
+     _t14q_x1_t
+     _t14q_x2_t
+     _t14q_x3_t
+   _t14q_x3ˍt_t
+  _t14q_x3ˍtt_t
+ _t14q_x3ˍttt_t
+   _t14q_x1ˍt_t
+   _t14q_x2ˍt_t
+  _t14q_x2ˍtt_t
+  _t14q_x1ˍtt_t
+Tracking 6 paths...  33%|██████████▍                    |  ETA: 0:00:16[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 6 paths... 100%|███████████████████████████████| Time: 0:00:08[K
+  # paths tracked:                  6[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [-0.20000001082438312, -0.09999997970772019, 1.2350605588156627, 0.6877396711942854, 4.923148630601722, 1.5798058865725915, 0.14644356126687555, 0.04624047371344377, 0.24701212513190118, -0.0687739531636227, 0.006877393920781969, 0.049402427700134116, 1.2474731244647899, 0.6843095559696788, 5.002322944696426, 1.5871860230189194, 0.14876506118713115, 0.0466202264846698, 0.24949463839608502, -0.0684309417107669, 0.006843092782456873, 0.049898930379842554]
+ [0.09999997970772019, 0.20000001082438312, 0.6877396711942854, 1.2350605588156627, 4.923148630601722, 1.5798058865725915, 0.14644356126687555, 0.04624047371344377, -0.0687739531636227, 0.24701212513190118, 0.049402427700134116, 0.006877393920781969, 0.6843095559696788, 1.2474731244647899, 5.002322944696426, 1.5871860230189194, 0.14876506118713115, 0.0466202264846698, -0.0684309417107669, 0.24949463839608502, 0.049898930379842554, 0.006843092782456873]
+"How close are we?"
+Actual values:
+6-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+6-element Vector{Float64}:
+ 0.7302671084919103
+ 1.0954004430827038
+ 4.000000000009672
+ 0.09999997970772019
+ 0.20000001082438312
+ 0.8216172756357627
+Error: 0.1976552989077408
+6-element Vector{Float64}:
+  1.0954004430827038
+  0.7302671084919103
+  4.000000000009672
+ -0.20000001082438312
+ -0.09999997970772019
+  0.8216172756357627
+Error: 0.23106479814474706
+For model sum_test: The ODEPE  max abs rel. err: 2.0292279814815295e-7
+Optimal number of points is 3
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 3
+We picked these points:[5, 11, 20]
+3-element Vector{Int64}:
+  5
+ 11
+ 20
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+36-element Vector{Num}:
+                                                  -0.8 + _t5q_N_t
+                                                  -0.626092936626787 + _t5q_In_t
+                                                  -0.11197030371032114 + _t5q_Inˍt_t
+                                                   0.17500073860716286 + _t5q_Inˍtt_t
+                                                  -0.14245610494590413 + _t5q_Inˍttt_t
+                                 _t5q_Inˍt_t - _t5q_E_t*_tpq_nu + _t5q_In_t*_tpq_a
+                                _t5q_Inˍtt_t - _t5q_Eˍt_t*_tpq_nu + _t5q_Inˍt_t*_tpq_a
+                               _t5q_Inˍttt_t - _t5q_Eˍtt_t*_tpq_nu + _t5q_Inˍtt_t*_tpq_a
+                                               _t5q_Eˍt_t*_t5q_N_t + _t5q_E_t*_t5q_N_t*_tpq_nu - _t5q_In_t*_t5q_S_t*_tpq_b
+                                               _t5q_Eˍt_t*_t5q_Nˍt_t + _t5q_Eˍtt_t*_t5q_N_t + _t5q_E_t*_t5q_Nˍt_t*_tpq_nu + _t5q_Eˍt_t*_t5q_N_t*_tpq_nu - _t5q_In_t*_t5q_Sˍt_t*_tpq_b - _t5q_Inˍt_t*_t5q_S_t*_tpq_b
+                                          _t5q_Nˍt_t
+     _t5q_N_t*_t5q_Sˍt_t + _t5q_In_t*_t5q_S_t*_tpq_b
+                                                  -0.8 + _t11q_N_t
+                                                  -0.6524095663959477 + _t11q_In_t
+                                                  -0.06534933729753396 + _t11q_Inˍt_t
+                                                   0.13743866883670053 + _t11q_Inˍtt_t
+                                                  -0.10973313437968935 + _t11q_Inˍttt_t
+                               _t11q_Inˍt_t - _t11q_E_t*_tpq_nu + _t11q_In_t*_tpq_a
+                              _t11q_Inˍtt_t - _t11q_Eˍt_t*_tpq_nu + _t11q_Inˍt_t*_tpq_a
+                             _t11q_Inˍttt_t - _t11q_Eˍtt_t*_tpq_nu + _t11q_Inˍtt_t*_tpq_a
+                                              _t11q_Eˍt_t*_t11q_N_t + _t11q_E_t*_t11q_N_t*_tpq_nu - _t11q_In_t*_t11q_S_t*_tpq_b
+                                              _t11q_Eˍt_t*_t11q_Nˍt_t + _t11q_Eˍtt_t*_t11q_N_t + _t11q_E_t*_t11q_Nˍt_t*_tpq_nu + _t11q_Eˍt_t*_t11q_N_t*_tpq_nu - _t11q_In_t*_t11q_Sˍt_t*_tpq_b - _t11q_Inˍt_t*_t11q_S_t*_tpq_b
+                                         _t11q_Nˍt_t
+ _t11q_N_t*_t11q_Sˍt_t + _t11q_In_t*_t11q_S_t*_tpq_b
+                                                  -0.8 + _t20q_N_t
+                                                  -0.6694237492549079 + _t20q_In_t
+                                                  -0.01336123614932776 + _t20q_Inˍt_t
+                                                   0.09609797148793708 + _t20q_Inˍtt_t
+                                                  -0.07654779472326625 + _t20q_Inˍttt_t
+                               _t20q_Inˍt_t - _t20q_E_t*_tpq_nu + _t20q_In_t*_tpq_a
+                              _t20q_Inˍtt_t - _t20q_Eˍt_t*_tpq_nu + _t20q_Inˍt_t*_tpq_a
+                             _t20q_Inˍttt_t - _t20q_Eˍtt_t*_tpq_nu + _t20q_Inˍtt_t*_tpq_a
+                                              _t20q_Eˍt_t*_t20q_N_t + _t20q_E_t*_t20q_N_t*_tpq_nu - _t20q_In_t*_t20q_S_t*_tpq_b
+                                              _t20q_Eˍt_t*_t20q_Nˍt_t + _t20q_Eˍtt_t*_t20q_N_t + _t20q_E_t*_t20q_Nˍt_t*_tpq_nu + _t20q_Eˍt_t*_t20q_N_t*_tpq_nu - _t20q_In_t*_t20q_Sˍt_t*_tpq_b - _t20q_Inˍt_t*_t20q_S_t*_tpq_b
+                                         _t20q_Nˍt_t
+ _t20q_N_t*_t20q_Sˍt_t + _t20q_In_t*_t20q_S_t*_tpq_b
+varlist
+36-element Vector{Num}:
+         _tpq_a
+         _tpq_b
+        _tpq_nu
+       _t5q_S_t
+          _t5q_E_t
+      _t5q_In_t
+       _t5q_N_t
+    _t5q_Inˍt_t
+   _t5q_Inˍtt_t
+  _t5q_Inˍttt_t
+          _t5q_Eˍt_t
+          _t5q_Eˍtt_t
+     _t5q_Nˍt_t
+     _t5q_Sˍt_t
+      _t11q_S_t
+         _t11q_E_t
+     _t11q_In_t
+      _t11q_N_t
+   _t11q_Inˍt_t
+  _t11q_Inˍtt_t
+ _t11q_Inˍttt_t
+         _t11q_Eˍt_t
+         _t11q_Eˍtt_t
+    _t11q_Nˍt_t
+    _t11q_Sˍt_t
+      _t20q_S_t
+         _t20q_E_t
+     _t20q_In_t
+      _t20q_N_t
+   _t20q_Inˍt_t
+  _t20q_Inˍtt_t
+ _t20q_Inˍttt_t
+         _t20q_Eˍt_t
+         _t20q_Eˍtt_t
+    _t20q_Nˍt_t
+    _t20q_Sˍt_t
+Tracking 6 paths...  33%|██████████▍                    |  ETA: 0:00:26[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 6 paths... 100%|███████████████████████████████| Time: 0:00:12[K
+  # paths tracked:                  6[K
+  # non-singular solutions (real):  4 (4)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         4 (4)[K
+4-element Vector{Vector{Float64}}:
+ [0.7499999941028351, 0.4999999840746928, 0.2500000042288369, 0.5556950590893787, 2.326159970605148, 0.626092936626787, 0.8, 0.11197030371032114, -0.17500073860716286, 0.14245610494590413, -0.36409203978017396, 0.04482220733197752, 0.0, -0.21744796270806419, 0.4928189063688019, 2.218625995459682, 0.6524095663959477, 0.8, 0.06534933729753396, -0.13743866883670053, 0.10973313437968935, -0.3537066590126324, 0.026616533800421806, 0.0, -0.20094984923449563, 0.40899864168542893, 2.061716141696581, 0.6694237492549079, 0.8, 0.01336123614932776, -0.09609797148793708, 0.07654779472326625, -0.34430817199484626, 0.01789726639333759, 0.0, -0.1711208721479602]
+ [0.2378069803286443, 2.8873089908354475, 0.527088349379703, -0.009132688745867869, 0.49490673561959736, 0.626092936626787, 0.8, 0.11197030371032114, -0.17500073860716286, 0.14245610494590413, -0.2814962974801881, 0.19131462090012846, 0.0, 0.020636723105557503, -0.004574004799205763, 0.4183300322975519, 0.6524095663959477, 0.8, 0.06534933729753396, -0.13743866883670053, 0.10973313437968935, -0.23126699804871453, 0.1461790222719198, 0.0, 0.01077011182904007, -0.0015461026543876829, 0.32737372534032655, 0.6694237492549079, 0.8, 0.01336123614932776, -0.09609797148793708, 0.07654779472326625, -0.17629032471531556, 0.10187101720461487, 0.0, 0.0037354481953985924]
+ [0.25000000422883834, 0.49999998407468677, 0.7499999941028327, 0.18523169095284361, 0.3579913901677318, 0.626092936626787, 0.8, 0.11197030371032114, -0.17500073860716286, 0.14245610494590413, -0.19601088448264964, 0.1316078937735698, 0.0, -0.07248265603201401, 0.16427297285999803, 0.304602311268995, 0.6524095663959477, 0.8, 0.06534933729753396, -0.13743866883670053, 0.10973313437968935, -0.16146844691756226, 0.10049795624261541, 0.0, -0.06698328473789322, 0.13633288393990067, 0.24095623695319837, 0.6694237492549079, 0.8, 0.01336123614932776, -0.09609797148793708, 0.07654779472326625, -0.12367688416459455, 0.07003106914384549, 0.0, -0.05704029212934498]
+ [0.527088349379703, 2.8873089908354475, 0.2378069803286443, -0.020242188979506002, 1.8585518205749167, 0.626092936626787, 0.8, 0.11197030371032114, -0.17500073860716286, 0.14245610494590413, -0.48771695382810154, 0.21115971627001598, 0.0, 0.045740357592876264, -0.010138073475960989, 1.7208360250954737, 0.6524095663959477, 0.8, 0.06534933729753396, -0.13743866883670053, 0.10973313437968935, -0.4330982814934642, 0.15681126445520696, 0.0, 0.023871462724762427, -0.0034268661708187083, 1.539932489254854, 0.6694237492549079, 0.8, 0.01336123614932776, -0.09609797148793708, 0.07654779472326625, -0.37448614610573144, 0.10889366458951061, 0.0, 0.008279450926062136]
+"How close are we?"
+Actual values:
+7-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.25
+ 0.5
+ 0.75
+7-element Vector{Float64}:
+ 0.20000001067695664
+ 0.40000000652822315
+ 0.5999999999999989
+ 0.8
+ 0.25000000422883834
+ 0.49999998407468677
+ 0.7499999941028327
+Error: 0.0050349536331416676
+7-element Vector{Float64}:
+ -0.014222583687803617
+  0.5552768575527836
+  0.6000001877971157
+  0.8
+  0.2378069803286443
+  2.8873089908354475
+  0.527088349379703
+Error: 0.005677125715077831
+7-element Vector{Float64}:
+ 0.6000000171639188
+ 2.399999945249958
+ 0.5999999999999989
+ 0.8
+ 0.7499999941028351
+ 0.4999999840746928
+ 0.2500000042288369
+Error: 0.007969402979576962
+7-element Vector{Float64}:
+ -0.031523709478834504
+  1.9606188069363686
+  0.6000001877971157
+  0.8
+  0.527088349379703
+  2.8873089908354475
+  0.2378069803286443
+Error: 0.009926586803166253
+For model SEIR: The ODEPE  max abs rel. err: 5.338478312189032e-8
+Optimal number of points is 5
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 3
+We picked these points:[5, 7, 9, 19, 20]
+5-element Vector{Int64}:
+  5
+  7
+  9
+ 19
+ 20
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+65-element Vector{Num}:
+                                                                         -1.199999999999997 + _t5q_u0_t
+                                                                         -1.5766602474069877 + _t5q_x1_t
+                                                                         -2.9762637404178576 + _t5q_x1ˍt_t
+                                                                         -1.0298968330649196 + _t5q_x1ˍtt_t
+                                                                         -1.5599109937021238 + _t5q_x1ˍttt_t
+                   -_t5q_u0_t + _t5q_x1ˍt_t - _t5q_x2_t + _t5q_x1_t*_tpq_p1
+            -_t5q_u0ˍt_t + _t5q_x1ˍtt_t - _t5q_x2ˍt_t + _t5q_x1ˍt_t*_tpq_p1
+        -_t5q_u0ˍtt_t + _t5q_x1ˍttt_t - _t5q_x2ˍtt_t + _t5q_x1ˍtt_t*_tpq_p1
+            _t5q_x2ˍt_t - _t5q_x3_t - _t5q_x1_t*_tpq_p3 + _t5q_x2_t*_tpq_p4
+                                                                         -1.0 + _t5q_u0ˍt_t
+                                                               _t5q_u0ˍtt_t
+     _t5q_x2ˍtt_t - _t5q_x3ˍt_t - _t5q_x1ˍt_t*_tpq_p3 + _t5q_x2ˍt_t*_tpq_p4
+                        _t5q_x3ˍt_t - _t5q_x1_t*_tpq_p6 + _t5q_x3_t*_tpq_p7
+                                                                         -1.299999999999996 + _t7q_u0_t
+                                                                         -1.87970087420481 + _t7q_x1_t
+                                                                         -3.0872447922939084 + _t7q_x1ˍt_t
+                                                                         -1.1916664495507716 + _t7q_x1ˍtt_t
+                                                                         -1.676462494203318 + _t7q_x1ˍttt_t
+                   -_t7q_u0_t + _t7q_x1ˍt_t - _t7q_x2_t + _t7q_x1_t*_tpq_p1
+            -_t7q_u0ˍt_t + _t7q_x1ˍtt_t - _t7q_x2ˍt_t + _t7q_x1ˍt_t*_tpq_p1
+        -_t7q_u0ˍtt_t + _t7q_x1ˍttt_t - _t7q_x2ˍtt_t + _t7q_x1ˍtt_t*_tpq_p1
+            _t7q_x2ˍt_t - _t7q_x3_t - _t7q_x1_t*_tpq_p3 + _t7q_x2_t*_tpq_p4
+                                                                         -1.0 + _t7q_u0ˍt_t
+                                                               _t7q_u0ˍtt_t
+     _t7q_x2ˍtt_t - _t7q_x3ˍt_t - _t7q_x1ˍt_t*_tpq_p3 + _t7q_x2ˍt_t*_tpq_p4
+                        _t7q_x3ˍt_t - _t7q_x1_t*_tpq_p6 + _t7q_x3_t*_tpq_p7
+                                                                         -1.399999999999996 + _t9q_u0_t
+                                                                         -2.194668133284392 + _t9q_x1_t
+                                                                         -3.214995798770148 + _t9q_x1ˍt_t
+                                                                         -1.3654025390324456 + _t9q_x1ˍtt_t
+                                                                         -1.7994114566034658 + _t9q_x1ˍttt_t
+                   -_t9q_u0_t + _t9q_x1ˍt_t - _t9q_x2_t + _t9q_x1_t*_tpq_p1
+            -_t9q_u0ˍt_t + _t9q_x1ˍtt_t - _t9q_x2ˍt_t + _t9q_x1ˍt_t*_tpq_p1
+        -_t9q_u0ˍtt_t + _t9q_x1ˍttt_t - _t9q_x2ˍtt_t + _t9q_x1ˍtt_t*_tpq_p1
+            _t9q_x2ˍt_t - _t9q_x3_t - _t9q_x1_t*_tpq_p3 + _t9q_x2_t*_tpq_p4
+                                                                         -1.0 + _t9q_u0ˍt_t
+                                                               _t9q_u0ˍtt_t
+     _t9q_x2ˍtt_t - _t9q_x3ˍt_t - _t9q_x1ˍt_t*_tpq_p3 + _t9q_x2ˍt_t*_tpq_p4
+                        _t9q_x3ˍt_t - _t9q_x1_t*_tpq_p6 + _t9q_x3_t*_tpq_p7
+                                                                         -1.8999999999999984 + _t19q_u0_t
+                                                                         -4.013840763871834 + _t19q_x1_t
+                                                                         -4.151201343347283 + _t19q_x1ˍt_t
+                                                                         -2.441623542514015 + _t19q_x1ˍtt_t
+                                                                         -2.548347513323292 + _t19q_x1ˍttt_t
+               -_t19q_u0_t + _t19q_x1ˍt_t - _t19q_x2_t + _t19q_x1_t*_tpq_p1
+        -_t19q_u0ˍt_t + _t19q_x1ˍtt_t - _t19q_x2ˍt_t + _t19q_x1ˍt_t*_tpq_p1
+    -_t19q_u0ˍtt_t + _t19q_x1ˍttt_t - _t19q_x2ˍtt_t + _t19q_x1ˍtt_t*_tpq_p1
+        _t19q_x2ˍt_t - _t19q_x3_t - _t19q_x1_t*_tpq_p3 + _t19q_x2_t*_tpq_p4
+                                                                         -1.0 + _t19q_u0ˍt_t
+                                                              _t19q_u0ˍtt_t
+ _t19q_x2ˍtt_t - _t19q_x3ˍt_t - _t19q_x1ˍt_t*_tpq_p3 + _t19q_x2ˍt_t*_tpq_p4
+                     _t19q_x3ˍt_t - _t19q_x1_t*_tpq_p6 + _t19q_x3_t*_tpq_p7
+                                                                         -1.9499999999999993 + _t20q_u0_t
+                                                                         -4.224506418279877 + _t20q_x1_t
+                                                                         -4.276505405170381 + _t20q_x1ˍt_t
+                                                                         -2.5712950762778495 + _t20q_x1ˍtt_t
+                                                                         -2.639087893439328 + _t20q_x1ˍttt_t
+               -_t20q_u0_t + _t20q_x1ˍt_t - _t20q_x2_t + _t20q_x1_t*_tpq_p1
+        -_t20q_u0ˍt_t + _t20q_x1ˍtt_t - _t20q_x2ˍt_t + _t20q_x1ˍt_t*_tpq_p1
+    -_t20q_u0ˍtt_t + _t20q_x1ˍttt_t - _t20q_x2ˍtt_t + _t20q_x1ˍtt_t*_tpq_p1
+        _t20q_x2ˍt_t - _t20q_x3_t - _t20q_x1_t*_tpq_p3 + _t20q_x2_t*_tpq_p4
+                                                                         -1.0 + _t20q_u0ˍt_t
+                                                              _t20q_u0ˍtt_t
+ _t20q_x2ˍtt_t - _t20q_x3ˍt_t - _t20q_x1ˍt_t*_tpq_p3 + _t20q_x2ˍt_t*_tpq_p4
+                     _t20q_x3ˍt_t - _t20q_x1_t*_tpq_p6 + _t20q_x3_t*_tpq_p7
+varlist
+65-element Vector{Num}:
+        _tpq_p1
+        _tpq_p3
+        _tpq_p4
+        _tpq_p6
+        _tpq_p7
+      _t5q_x1_t
+      _t5q_x2_t
+      _t5q_x3_t
+      _t5q_u0_t
+    _t5q_x1ˍt_t
+   _t5q_x1ˍtt_t
+  _t5q_x1ˍttt_t
+    _t5q_x2ˍt_t
+    _t5q_u0ˍt_t
+   _t5q_u0ˍtt_t
+   _t5q_x2ˍtt_t
+    _t5q_x3ˍt_t
+      _t7q_x1_t
+      _t7q_x2_t
+      _t7q_x3_t
+      _t7q_u0_t
+    _t7q_x1ˍt_t
+   _t7q_x1ˍtt_t
+  _t7q_x1ˍttt_t
+    _t7q_x2ˍt_t
+    _t7q_u0ˍt_t
+   _t7q_u0ˍtt_t
+   _t7q_x2ˍtt_t
+    _t7q_x3ˍt_t
+      _t9q_x1_t
+      _t9q_x2_t
+      _t9q_x3_t
+      _t9q_u0_t
+    _t9q_x1ˍt_t
+   _t9q_x1ˍtt_t
+  _t9q_x1ˍttt_t
+    _t9q_x2ˍt_t
+    _t9q_u0ˍt_t
+   _t9q_u0ˍtt_t
+   _t9q_x2ˍtt_t
+    _t9q_x3ˍt_t
+     _t19q_x1_t
+     _t19q_x2_t
+     _t19q_x3_t
+     _t19q_u0_t
+   _t19q_x1ˍt_t
+  _t19q_x1ˍtt_t
+ _t19q_x1ˍttt_t
+   _t19q_x2ˍt_t
+   _t19q_u0ˍt_t
+  _t19q_u0ˍtt_t
+  _t19q_x2ˍtt_t
+   _t19q_x3ˍt_t
+     _t20q_x1_t
+     _t20q_x2_t
+     _t20q_x3_t
+     _t20q_u0_t
+   _t20q_x1ˍt_t
+  _t20q_x1ˍtt_t
+ _t20q_x1ˍttt_t
+   _t20q_x2ˍt_t
+   _t20q_u0ˍt_t
+  _t20q_u0ˍtt_t
+  _t20q_x2ˍtt_t
+   _t20q_x3ˍt_t
+Computing mixed cells... 2    Time: 0:00:00[K
+  mixed_volume:  2[K[A
+[K[AComputing mixed cells... 8    Time: 0:00:00[K
+  mixed_volume:  8[K
+Tracking 8 paths...  25%|███████▊                       |  ETA: 0:00:56[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 8 paths...  50%|███████████████▌               |  ETA: 0:00:20[K
+  # paths tracked:                  4[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 8 paths... 100%|███████████████████████████████| Time: 0:00:20[K
+  # paths tracked:                  8[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.20001051193760552, 0.3000073186774107, -0.1999974953791469, 0.38999861952168985, 0.4999900977511002, 1.5766602474069877, 2.091612363653404, -0.2661459798773435, 1.199999999999997, 2.9762637404178576, 1.0298968330649196, 1.5599109937021238, 0.625180867447228, 1.0, 0.0, 1.765901186526357, 0.7479656744383865, 1.87970087420481, 2.163204726433181, -0.1874116855305559, 1.299999999999996, 3.0872447922939084, 1.1916664495507716, 1.676462494203318, 0.8091478609341829, 1.0, 0.0, 1.9148083108368366, 0.8267847330217106, 2.194668133284392, 2.2539524956415122, -0.10076586126357479, 1.399999999999996, 3.214995798770148, 1.3654025390324456, 1.7994114566034658, 1.0084354946217138, 1.0, 0.0, 2.0725063174362517, 0.9062994751123055, 4.013840763871834, 3.0540116893653204, 0.4569311544540006, 1.8999999999999984, 4.151201343347283, 2.441623542514015, 2.548347513323292, 2.2719074483529806, 1.0, 0.0, 3.0366978880204303, 1.3369313043089215, 4.224506418279877, 3.1714510965742404, 0.5249759923539595, 1.9499999999999993, 4.276505405170381, 2.5712950762778495, 2.639087893439328, 2.4266411116699147, 1.0, 0.0, 3.153373937988305, 1.3850688735556336]
+ [0.20001051193760552, 0.3000073186774107, 0.4999900977511002, 0.6000000204441496, -0.1999974953791469, 1.5766602474069877, 2.091612363653404, 1.19795672431787, 1.199999999999997, 2.9762637404178576, 1.0298968330649196, 1.5599109937021238, 0.625180867447228, 1.0, 0.0, 1.765901186526357, 1.1855845251138517, 1.87970087420481, 2.163204726433181, 1.326804784373381, 1.299999999999996, 3.0872447922939084, 1.1916664495507716, 1.676462494203318, 0.8091478609341829, 1.0, 0.0, 1.9148083108368366, 1.393178196683517, 2.194668133284392, 2.2539524956415122, 1.4769729211904412, 1.399999999999996, 3.214995798770148, 1.3654025390324456, 1.7994114566034658, 1.0084354946217138, 1.0, 0.0, 2.0725063174362517, 1.6121918098196693, 4.013840763871834, 3.0540116893653204, 2.594701446284471, 1.8999999999999984, 4.151201343347283, 2.441623542514015, 2.548347513323292, 2.2719074483529806, 1.0, 0.0, 3.0366978880204303, 2.927238330896206, 4.224506418279877, 3.1714510965742404, 2.744952412175245, 1.9499999999999993, 4.276505405170381, 2.5712950762778495, 2.639087893439328, 2.4266411116699147, 1.0, 0.0, 3.153373937988305, 3.083687544704364]
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+  1.0
+  2.0
+  1.0
+  1.0
+  0.2
+  0.3
+  0.5
+  0.6
+ -0.2
+9-element Vector{Float64}:
+  1.0000000000005658
+  2.000010511924755
+  1.000007566343358
+  0.9999999999999971
+  0.20001051193760552
+  0.3000073186774107
+  0.4999900977511002
+  0.6000000204441496
+ -0.1999974953791469
+Error: 0.03476103925243217
+9-element Vector{Float64}:
+  1.000000000000565
+  2.000010511924755
+ -0.3999749781340448
+  0.9999999999999976
+  0.20001051193760552
+  0.3000073186774107
+ -0.1999974953791469
+  0.38999861952168985
+  0.4999900977511002
+Error: 0.046000828211424975
+For model DAISY_ex3_v2: The ODEPE  max abs rel. err: 5.255968802755917e-5
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+Optimal number of points is 4
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 3
+We picked these points:[3, 4, 5, 17]
+4-element Vector{Int64}:
+  3
+  4
+  5
+ 17
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+48-element Vector{Num}:
+                                                                                       -0.4 + _t3q_N_t
+                                                                                       -0.7492562161067465 + _t3q_Tr_t
+                                                                                        0.4829121692368761 + _t3q_Trˍt_t
+                                                                                       -0.470428613909794 + _t3q_Trˍtt_t
+                                                                                        0.5836402733486603 + _t3q_Trˍttt_t
+                                       _t3q_Trˍt_t - _t3q_In_t*_tpq_g + _t3q_Tr_t*_tpq_nu
+                                  _t3q_Trˍtt_t - _t3q_Inˍt_t*_tpq_g + _t3q_Trˍt_t*_tpq_nu
+                               _t3q_Trˍttt_t - _t3q_Inˍtt_t*_tpq_g + _t3q_Trˍtt_t*_tpq_nu
+                                                                                        0.4199166006608852_t3q_In_t*_t3q_N_t + _t3q_Inˍt_t*_t3q_N_t + _t3q_In_t*_t3q_N_t*_tpq_g - _t3q_In_t*_t3q_S_t*_tpq_b - _t3q_S_t*_t3q_Tr_t*_tpq_b*_tpq_d
+                                                                                        0.4199166006608852_t3q_In_t*_t3q_Nˍt_t + 0.4199166006608852_t3q_Inˍt_t*_t3q_N_t + _t3q_Inˍt_t*_t3q_Nˍt_t + _t3q_Inˍtt_t*_t3q_N_t + _t3q_In_t*_t3q_Nˍt_t*_tpq_g - _t3q_In_t*_t3q_Sˍt_t*_tpq_b + _t3q_Inˍt_t*_t3q_N_t*_tpq_g - _t3q_Inˍt_t*_t3q_S_t*_tpq_b - _t3q_S_t*_t3q_Trˍt_t*_tpq_b*_tpq_d - _t3q_Sˍt_t*_t3q_Tr_t*_tpq_b*_tpq_d
+                                                                               _t3q_Nˍt_t
+       _t3q_N_t*_t3q_Sˍt_t + _t3q_In_t*_t3q_S_t*_tpq_b + _t3q_S_t*_t3q_Tr_t*_tpq_b*_tpq_d
+                                                                                       -0.4 + _t4q_N_t
+                                                                                       -0.7256866743225427 + _t4q_Tr_t
+                                                                                        0.4601051265989393 + _t4q_Trˍt_t
+                                                                                       -0.4421519201482092 + _t4q_Trˍtt_t
+                                                                                        0.5477790113418646 + _t4q_Trˍttt_t
+                                       _t4q_Trˍt_t - _t4q_In_t*_tpq_g + _t4q_Tr_t*_tpq_nu
+                                  _t4q_Trˍtt_t - _t4q_Inˍt_t*_tpq_g + _t4q_Trˍt_t*_tpq_nu
+                               _t4q_Trˍttt_t - _t4q_Inˍtt_t*_tpq_g + _t4q_Trˍtt_t*_tpq_nu
+                                                                                        0.4199166006608852_t4q_In_t*_t4q_N_t + _t4q_Inˍt_t*_t4q_N_t + _t4q_In_t*_t4q_N_t*_tpq_g - _t4q_In_t*_t4q_S_t*_tpq_b - _t4q_S_t*_t4q_Tr_t*_tpq_b*_tpq_d
+                                                                                        0.4199166006608852_t4q_In_t*_t4q_Nˍt_t + 0.4199166006608852_t4q_Inˍt_t*_t4q_N_t + _t4q_Inˍt_t*_t4q_Nˍt_t + _t4q_Inˍtt_t*_t4q_N_t + _t4q_In_t*_t4q_Nˍt_t*_tpq_g - _t4q_In_t*_t4q_Sˍt_t*_tpq_b + _t4q_Inˍt_t*_t4q_N_t*_tpq_g - _t4q_Inˍt_t*_t4q_S_t*_tpq_b - _t4q_S_t*_t4q_Trˍt_t*_tpq_b*_tpq_d - _t4q_Sˍt_t*_t4q_Tr_t*_tpq_b*_tpq_d
+                                                                               _t4q_Nˍt_t
+       _t4q_N_t*_t4q_Sˍt_t + _t4q_In_t*_t4q_S_t*_tpq_b + _t4q_S_t*_t4q_Tr_t*_tpq_b*_tpq_d
+                                                                                       -0.4 + _t5q_N_t
+                                                                                       -0.7032228750407404 + _t5q_Tr_t
+                                                                                        0.4386679595630015 + _t5q_Trˍt_t
+                                                                                       -0.4156164655235567 + _t5q_Trˍtt_t
+                                                                                        0.5139727477763778 + _t5q_Trˍttt_t
+                                       _t5q_Trˍt_t - _t5q_In_t*_tpq_g + _t5q_Tr_t*_tpq_nu
+                                  _t5q_Trˍtt_t - _t5q_Inˍt_t*_tpq_g + _t5q_Trˍt_t*_tpq_nu
+                               _t5q_Trˍttt_t - _t5q_Inˍtt_t*_tpq_g + _t5q_Trˍtt_t*_tpq_nu
+                                                                                        0.4199166006608852_t5q_In_t*_t5q_N_t + _t5q_Inˍt_t*_t5q_N_t + _t5q_In_t*_t5q_N_t*_tpq_g - _t5q_In_t*_t5q_S_t*_tpq_b - _t5q_S_t*_t5q_Tr_t*_tpq_b*_tpq_d
+                                                                                        0.4199166006608852_t5q_In_t*_t5q_Nˍt_t + 0.4199166006608852_t5q_Inˍt_t*_t5q_N_t + _t5q_Inˍt_t*_t5q_Nˍt_t + _t5q_Inˍtt_t*_t5q_N_t + _t5q_In_t*_t5q_Nˍt_t*_tpq_g - _t5q_In_t*_t5q_Sˍt_t*_tpq_b + _t5q_Inˍt_t*_t5q_N_t*_tpq_g - _t5q_Inˍt_t*_t5q_S_t*_tpq_b - _t5q_S_t*_t5q_Trˍt_t*_tpq_b*_tpq_d - _t5q_Sˍt_t*_t5q_Tr_t*_tpq_b*_tpq_d
+                                                                               _t5q_Nˍt_t
+       _t5q_N_t*_t5q_Sˍt_t + _t5q_In_t*_t5q_S_t*_tpq_b + _t5q_S_t*_t5q_Tr_t*_tpq_b*_tpq_d
+                                                                                       -0.4 + _t17q_N_t
+                                                                                       -0.49941819303547225 + _t17q_Tr_t
+                                                                                        0.26190889994004996 + _t17q_Trˍt_t
+                                                                                       -0.20129421783690918 + _t17q_Trˍtt_t
+                                                                                        0.23457689997954034 + _t17q_Trˍttt_t
+                                    _t17q_Trˍt_t - _t17q_In_t*_tpq_g + _t17q_Tr_t*_tpq_nu
+                               _t17q_Trˍtt_t - _t17q_Inˍt_t*_tpq_g + _t17q_Trˍt_t*_tpq_nu
+                            _t17q_Trˍttt_t - _t17q_Inˍtt_t*_tpq_g + _t17q_Trˍtt_t*_tpq_nu
+                                                                                        0.4199166006608852_t17q_In_t*_t17q_N_t + _t17q_Inˍt_t*_t17q_N_t + _t17q_In_t*_t17q_N_t*_tpq_g - _t17q_In_t*_t17q_S_t*_tpq_b - _t17q_S_t*_t17q_Tr_t*_tpq_b*_tpq_d
+                                                                                        0.4199166006608852_t17q_In_t*_t17q_Nˍt_t + 0.4199166006608852_t17q_Inˍt_t*_t17q_N_t + _t17q_Inˍt_t*_t17q_Nˍt_t + _t17q_Inˍtt_t*_t17q_N_t + _t17q_In_t*_t17q_Nˍt_t*_tpq_g - _t17q_In_t*_t17q_Sˍt_t*_tpq_b + _t17q_Inˍt_t*_t17q_N_t*_tpq_g - _t17q_Inˍt_t*_t17q_S_t*_tpq_b - _t17q_S_t*_t17q_Trˍt_t*_tpq_b*_tpq_d - _t17q_Sˍt_t*_t17q_Tr_t*_tpq_b*_tpq_d
+                                                                              _t17q_Nˍt_t
+ _t17q_N_t*_t17q_Sˍt_t + _t17q_In_t*_t17q_S_t*_tpq_b + _t17q_S_t*_t17q_Tr_t*_tpq_b*_tpq_d
+varlist
+48-element Vector{Num}:
+         _tpq_b
+         _tpq_d
+         _tpq_g
+        _tpq_nu
+      _t3q_In_t
+       _t3q_N_t
+       _t3q_S_t
+      _t3q_Tr_t
+    _t3q_Trˍt_t
+   _t3q_Trˍtt_t
+  _t3q_Trˍttt_t
+    _t3q_Inˍt_t
+   _t3q_Inˍtt_t
+     _t3q_Nˍt_t
+     _t3q_Sˍt_t
+      _t4q_In_t
+       _t4q_N_t
+       _t4q_S_t
+      _t4q_Tr_t
+    _t4q_Trˍt_t
+   _t4q_Trˍtt_t
+  _t4q_Trˍttt_t
+    _t4q_Inˍt_t
+   _t4q_Inˍtt_t
+     _t4q_Nˍt_t
+     _t4q_Sˍt_t
+      _t5q_In_t
+       _t5q_N_t
+       _t5q_S_t
+      _t5q_Tr_t
+    _t5q_Trˍt_t
+   _t5q_Trˍtt_t
+  _t5q_Trˍttt_t
+    _t5q_Inˍt_t
+   _t5q_Inˍtt_t
+     _t5q_Nˍt_t
+     _t5q_Sˍt_t
+     _t17q_In_t
+      _t17q_N_t
+      _t17q_S_t
+     _t17q_Tr_t
+   _t17q_Trˍt_t
+  _t17q_Trˍtt_t
+ _t17q_Trˍttt_t
+   _t17q_Inˍt_t
+  _t17q_Inˍtt_t
+    _t17q_Nˍt_t
+    _t17q_Sˍt_t
+Computing mixed cells... 5    Time: 0:00:00[K
+  mixed_volume:  7[K[A
+[K[AComputing mixed cells... 54    Time: 0:00:00[K
+  mixed_volume:  64[K
+Tracking 64 paths...   3%|█                             |  ETA: 0:11:38[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...   8%|██▍                           |  ETA: 0:04:30[K
+  # paths tracked:                  5[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...  33%|█████████▉                    |  ETA: 0:00:48[K
+  # paths tracked:                  21[K
+  # non-singular solutions (real):  4 (4)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         4 (4)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...  42%|████████████▋                 |  ETA: 0:00:33[K
+  # paths tracked:                  27[K
+  # non-singular solutions (real):  10 (9)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         10 (9)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...  61%|██████████████████▎           |  ETA: 0:00:16[K
+  # paths tracked:                  39[K
+  # non-singular solutions (real):  16 (13)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         16 (13)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...  75%|██████████████████████▌       |  ETA: 0:00:08[K
+  # paths tracked:                  48[K
+  # non-singular solutions (real):  20 (13)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         20 (13)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths...  97%|█████████████████████████████ |  ETA: 0:00:01[K
+  # paths tracked:                  62[K
+  # non-singular solutions (real):  24 (16)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         24 (16)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 64 paths... 100%|██████████████████████████████| Time: 0:00:26[K
+  # paths tracked:                  64[K
+  # non-singular solutions (real):  24 (16)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         24 (16)[K
+16-element Vector{Vector{Float64}}:
+ [-0.6163663716511957, 16.350416645803662, -0.05142473042812286, 1.3902167803071923, -10.864741350956065, 0.4, 0.045150339819191344, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 3.907147115893828, -1.368164287097791, 0.0, 0.09642174411520099, -10.671065472216442, 0.4, 0.04986130973480331, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 3.840446919426086, -1.3010862076708398, 0.0, 0.09175395380720634, -10.48064379001116, 0.4, 0.0542930851124892, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 3.7769199999116974, -1.2411195204152699, 0.0, 0.08511203151290099, -8.408223996680338, 0.4, 0.18125952598096526, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 3.166101764969211, -0.8802321190465102, 0.0, -0.06773957909648166]
+ [0.20626716001723494, 0.8049563596271887, 0.4131533703209724, 0.8339295532747124, 0.3434916487285899, 0.4, 0.9219713213090597, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.16389527282461172, -0.4631111912619222, 0.0, -0.45004785066344855, 0.35112006329167944, 0.4, 0.8998725142472525, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.1414890006070546, -0.4333873833680862, 0.0, -0.43399658154460197, 0.3576647053792194, 0.4, 0.8785625525180887, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.12053221284523404, -0.40512290682433494, 0.0, -0.418491938576735, 0.37412424000124206, 0.4, 0.6752056754117217, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, -0.04143583307929519, -0.1614695839711939, 0.0, -0.27023583668214907]
+ [1.7286789024767524, 26.120973467186378, -0.032481183996822934, 1.476672388593492, -19.19553785757873, 0.4, 0.02106024235411382, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 7.471231730401979, -3.418245825863395, 0.0, -0.03420052246018258, -18.8261717369419, 0.4, 0.019658194272835005, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 7.304925096756505, -3.236782277236999, 0.0, -0.010999405665226565, -18.464900882173993, 0.4, 0.01606594571837374, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 7.147288662460134, -3.0712122783712217, 0.0, 0.006667904485557086, -14.641343004097484, 0.4, -0.005389456269540681, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 5.709749467556311, -1.929385132323897, 0.0, -0.03717464024234942]
+ [-0.9789127427010916, 37.46737201620632, -0.02307499793537522, 1.5047511152370316, -27.932048330107396, 0.4, -0.05754204862602894, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 11.104400183633766, -5.384083171728048, 0.0, -0.019801356907542245, -27.383434991856024, 0.4, -0.05129842941095523, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 10.842548412290984, -5.094240265353969, 0.0, 0.02433781800697385, -26.84756235514136, 0.4, -0.04879168557558628, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 10.594568048599374, -4.828888502748008, 0.0, 0.059661625687990195, -21.21738794390834, 0.4, -0.010436618767544103, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 8.355948372276627, -2.9608149475313814, 0.0, 0.06399386503287118]
+ [-0.44643766742610214, 8.193798985279598, -0.13519392443166428, 1.2818780898378552, -3.532281201782558, 0.4, -0.03212954167003988, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 1.0992055728520758, -0.14343736034453428, 0.0, -0.09348501588637723, -3.4774988837613403, 0.4, -0.037016252605284516, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 1.0921109160913063, -0.14058211236754606, 0.0, -0.10198812732264903, -3.4230682937118635, 0.4, -0.04232850796433519, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 1.0851255422227648, -0.13903652278117756, 0.0, -0.11050037672173016, -2.798086829484292, 0.4, -0.13692147073373329, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.9944312445618161, -0.1735118465955842, 0.0, -0.1977524741493127]
+ [11.629820830602426, 0.1864465713511758, 0.9703001796463071, 0.36849187023276236, -0.21314779613414805, 0.4, -0.0023929131444522795, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.3014318781391462, -0.4228497141447435, 0.0, -0.005110235267957084, -0.19859368349810386, 0.4, -0.0026425888252850404, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.2809511193159364, -0.39662944667260497, 0.0, -0.004862848053856878, -0.18503144791153517, 0.4, -0.0028774675348804198, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.261744658014568, -0.3718658067522963, 0.0, -0.00451083424341556, -0.080261096095571, 0.4, -0.009606534613338146, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.10799020722184151, -0.16531133410718943, 0.0, 0.003590115376069367]
+ [46.02203358867925, 0.2243199099253439, 1.0848345145761464, 0.39684160272551, -0.17106400016921458, 0.4, 0.0012239494922058724, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.2569875598059345, -0.36591260962216976, 0.0, 0.0004211852255988427, -0.15866241474764092, 0.4, 0.0010911444435451696, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.2392651236653139, -0.3431995661085266, 0.0, -0.0005176781276007606, -0.14711909015998625, 0.4, 0.0010378246901187654, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.22264664899661268, -0.3217438593528435, 0.0, -0.0012690340057159664, -0.058736132497103063, 0.4, 0.0002219923437884632, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.08974444388383332, -0.14259776756292084, 0.0, -0.0013611830041074288]
+ [89.55871503871766, 0.20199152712146431, 0.9609369620916369, 0.35548261417102267, -0.22536817647223467, 0.4, 1.772399620923176e-5, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.3109066935297879, -0.4333386021376147, 0.0, 0.000293755882936488, -0.2103531641677138, 0.4, 3.8472150542618085e-5, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.2899176095224046, -0.4064800359605621, 0.0, 0.0005493066548491762, -0.19635466325278403, 0.4, 7.428208465991504e-5, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.27023378509637247, -0.381115863544667, 0.0, 0.0009032512193060654, -0.08780431853883225, 0.4, -0.0029573253601426178, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.11258819431408881, -0.169647241844589, 0.0, 0.008656711765315022]
+ [5186.359975119804, 0.22420603698299602, 1.0603053717071824, 0.39050486969278314, -0.17949920209605782, 0.4, -8.046439730486985e-7, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.2658187610000385, -0.3771890810381626, 0.0, -0.00012009803491734599, -0.16666985862788733, 0.4, -1.6364984830511888e-5, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.24755003100483763, -0.35378160234726014, 0.0, -0.0008416441323592616, -0.1547252393110945, 0.4, 3.647833165726545e-5, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.23041898839259908, -0.33167095390519746, 0.0, -0.0013912894844094932, -0.06307962340965907, 0.4, 2.209053488962178e-8, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.09338584867773811, -0.14709962981900349, 0.0, -1.4004098057608176e-5]
+ [-125.47040480114198, 32.23384817438852, -0.026679514536549, 1.5001755437038549, -24.029810634533465, 0.4, -0.001885408134777936, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 9.521328125680453, -4.575991370835021, 0.0, -0.07191541163692697, -23.55935951347437, 0.4, 0.0006530783462587701, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 9.298765086914342, -4.330156971481458, 0.0, -0.03435120088002213, -23.099738134363612, 0.4, 3.1652317934549796e-5, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 9.087964433804581, -4.105206232769231, 0.0, -0.004290719612224769, -18.265177151741735, 0.4, -6.455052625181946e-7, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 7.1821062661779305, -2.526273955099681, 0.0, 0.0004387745177925619]
+ [-143.86404932227606, 28.967701296365178, -0.02941173096810209, 1.4802219723680676, -21.289238142997082, 0.4, 2.9007756390150287e-5, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 8.309221581810457, -3.8317533066481575, 0.0, 0.004329585079247578, -20.87847989817323, 0.4, 0.0005899646417450558, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 8.1228064441985, -3.62793934508546, 0.0, 0.03034162782102796, -20.476795201115962, 0.4, -0.0013150593227261045, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 7.946131665930514, -3.441887751500764, 0.0, 0.050156575807081605, -16.22960863164102, 0.4, -7.963731489572492e-7, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 6.337236350191257, -2.1550320938960668, 0.0, 0.0005048536725873035]
+ [2.8463710795954054, -0.1283078520376871, 0.8619614891769701, 0.28472267622922093, -0.3127540355230831, 0.4, 0.005039342108788305, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.3862499344592616, -0.521715395720113, 0.0, 0.014662611186148915, -0.29408004622570616, 0.4, 0.005805795874059959, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.36097849041175933, -0.48945148783875586, 0.0, 0.01599627750347708, -0.27663006246772076, 0.4, 0.006638993944496896, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.3372746390077756, -0.45899651016352117, 0.0, 0.01733137706007291, -0.13888464503876485, 0.4, 0.02147538051279246, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.14701679426389005, -0.2056517301449341, 0.0, 0.031016389226210382]
+ [-6.00520664986543, 12.90110808636578, -0.06443398648986255, 1.3808535627525222, -8.562266223825809, 0.4, -0.00026432701127536873, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 3.048117712046195, -1.023570910047384, 0.0, -0.004380931572345703, -8.411118613103977, 0.4, -0.0005737548378039896, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 2.9981985234924196, -0.9741449550468856, 0.0, -0.008192090803671347, -8.262407494061172, 0.4, -0.0011078066818380526, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 2.950612862271139, -0.9301415703941508, 0.0, -0.013470646936024911, -6.638026211271305, 0.4, 0.04410410409635459, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 2.4888048760902413, -0.6732617403528672, 0.0, -0.1291019655717486]
+ [-56.24152850610303, 0.22786421358212208, 1.0567557879326068, 0.3874354166640623, -0.1822784196320904, 0.4, -0.0006473223186786836, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.2681142981612208, -0.3798224451583694, 0.0, 0.0010512111459450174, -0.1693375230196889, 0.4, -0.0006042279895816056, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.24971795918084652, -0.35625420956240555, 0.0, 0.00033808541514295946, -0.15728753403761106, 0.4, -0.0004938141289790094, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.2324671079528148, -0.333992217799258, 0.0, -0.0002049493695154787, -0.06474211451028443, 0.4, 0.00016565409220634973, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.09446026716910275, -0.1481784084913071, 0.0, 0.0011426257073923448]
+ [5080.322083371288, 0.22860725961347897, 1.0802589430429697, 0.3932370861243362, -0.174288617805059, 0.4, 4.656455201142901e-5, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.25968740312844035, -0.36903216451262033, 0.0, 0.0017761188486573622, -0.16175585906918233, 0.4, -1.6129293207640836e-5, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.24181380078904177, -0.3461285657911277, 0.0, 0.0008483830373529345, -0.15008868598605368, 0.4, -7.817278272851117e-7, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.22505340677306793, -0.3244934394536694, 0.0, 0.00010596932985728882, -0.06065133306718057, 0.4, 1.5942258238808228e-8, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, 0.09099848312067474, -0.14387341970608858, 0.0, -1.0836560253543107e-5]
+ [0.20669630718408616, 0.8053613132851357, 0.41401295261382726, 0.8330699709818576, 0.34122286291105164, 0.4, 0.920057105298875, 0.7492562161067465, -0.4829121692368761, 0.470428613909794, -0.5836402733486603, 0.1645576223321482, -0.46312638384683463, 0.0, -0.44911345196667996, 0.34888437477363604, 0.4, 0.8980041802393665, 0.7256866743225427, -0.4601051265989393, 0.4421519201482092, -0.5477790113418646, 0.14215051802671874, -0.43340558048142214, 0.0, -0.4330955088262244, 0.35546206854604473, 0.4, 0.8767384626954344, 0.7032228750407404, -0.4386679595630015, 0.4156164655235567, -0.5139727477763778, 0.12119273289146994, -0.4051446937688977, 0.0, -0.41762305692017826, 0.37231057305494225, 0.4, 0.6738037993618186, 0.49941819303547225, -0.26190889994004996, 0.20129421783690918, -0.23457689997954034, -0.04080602244296607, -0.1615522687033364, 0.0, -0.2696747674241941]
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/roUH9/src/integrator_interface.jl:599
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/roUH9/src/integrator_interface.jl:599
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/roUH9/src/integrator_interface.jl:599
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+9-element Vector{Float64}:
+ 0.3246824357687594
+ 0.4
+ 0.9686466523061141
+ 0.7999999999999395
+ 0.4199166006608852
+ 0.20626716001723494
+ 0.8049563596271887
+ 0.4131533703209724
+ 0.8339295532747124
+Error: 0.030468341601347083
+9-element Vector{Float64}:
+ 0.3223473467316457
+ 0.4
+ 0.9666355280040877
+ 0.7999999999999396
+ 0.4199166006608852
+ 0.20669630718408616
+ 0.8053613132851357
+ 0.41401295261382726
+ 0.8330699709818576
+Error: 0.03063290261398803
+9-element Vector{Float64}:
+ -0.3541015546544396
+  0.4
+  0.0037048870453529666
+  0.800000000908269
+  0.4199166006608852
+  2.8463710795954054
+ -0.1283078520376871
+  0.8619614891769701
+  0.28472267622922093
+Error: 0.08023938941678199
+9-element Vector{Float64}:
+ -0.19868979144771828
+  0.4
+  0.001079983816141441
+  0.8000004402706928
+  0.4199166006608852
+ 46.02203358867925
+  0.2243199099253439
+  1.0848345145761464
+  0.39684160272551
+Error: 0.0857342848646037
+9-element Vector{Float64}:
+ -0.24549820118818724
+  0.4
+ -0.0018711361476381329
+  0.8000000092153902
+  0.4199166006608852
+ 11.629820830602426
+  0.1864465713511758
+  0.9703001796463071
+  0.36849187023276236
+Error: 0.08577615430773311
+9-element Vector{Float64}:
+   -0.2024452135942725
+    0.4
+    3.944627771600176e-11
+    0.8000099216454999
+    0.4199166006608852
+ 5080.322083371288
+    0.22860725961347897
+    1.0802589430429697
+    0.3932370861243362
+Error: 0.08639500346755986
+9-element Vector{Float64}:
+   -0.20813718423972827
+    0.4
+   -5.3474442820558175e-18
+    0.8000027935338614
+    0.4199166006608852
+ 5186.359975119804
+    0.22420603698299602
+    1.0603053717071824
+    0.39050486969278314
+Error: 0.08680903339294464
+9-element Vector{Float64}:
+ -0.2587227629126135
+  0.4
+  2.6264196390359626e-6
+  0.8000000514892546
+  0.4199166006608852
+ 89.55871503871766
+  0.20199152712146431
+  0.9609369620916369
+  0.35548261417102267
+Error: 0.09044709023414332
+9-element Vector{Float64}:
+ -3.642933145799123
+  0.4
+ -0.023621401392627618
+  0.800000000908269
+  0.4199166006608852
+ -0.44643766742610214
+  8.193798985279598
+ -0.13519392443166428
+  1.2818780898378552
+Error: 0.3340090221154141
+9-element Vector{Float64}:
+ -11.262538158929456
+   0.4
+   0.03530526509484809
+   0.80000000921539
+   0.4199166006608852
+  -0.6163663716511957
+  16.350416645803662
+  -0.05142473042812286
+   1.3902167803071923
+Error: 0.892707182472936
+9-element Vector{Float64}:
+ -19.960751682806496
+   0.4
+   0.0278680092841094
+   0.7999997629473853
+   0.4199166006608852
+   1.7286789024767524
+  26.120973467186378
+  -0.032481183996822934
+   1.476672388593492
+Error: 1.498028419963843
+9-element Vector{Float64}:
+ -29.06966909429442
+   0.4
+  -0.05077373017389366
+   0.8000004402706927
+   0.4199166006608852
+  -0.9789127427010916
+  37.46737201620632
+  -0.02307499793537522
+   1.5047511152370316
+Error: 2.21084002629607
+9-element Vector{Float64}:
+ -8.872344813455346
+  0.4
+ -3.9169138006254154e-5
+  0.8000000514892546
+  0.4199166006608852
+ -6.00520664986543
+ 12.90110808636578
+ -0.06443398648986255
+  1.3808535627525222
+Error: 11.325901294970961
+For model treatment: The ODEPE  max abs rel. err: 8.399877774031336e-5
+Optimal number of points is 5
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 3
+We picked these points:[3, 5, 8, 11, 15]
+5-element Vector{Int64}:
+  3
+  5
+  8
+ 11
+ 15
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+65-element Vector{Num}:
+                                                                         -0.8999999999999965 + _t3q_u0_t
+                                                                         -0.32295519534371336 + _t3q_x1_t
+                                                                         -1.2919350091334119 + _t3q_x1ˍt_t
+                                                                         -1.2376234316475507 + _t3q_x1ˍtt_t
+                                                                          0.2615286400966185 + _t3q_x1ˍttt_t
+                   -_t3q_u0_t + _t3q_x1ˍt_t - _t3q_x2_t + _t3q_x1_t*_tpq_p1
+            -_t3q_u0ˍt_t + _t3q_x1ˍtt_t - _t3q_x2ˍt_t + _t3q_x1ˍt_t*_tpq_p1
+        -_t3q_u0ˍtt_t + _t3q_x1ˍttt_t - _t3q_x2ˍtt_t + _t3q_x1ˍtt_t*_tpq_p1
+            _t3q_x2ˍt_t - _t3q_x3_t - _t3q_x1_t*_tpq_p3 + _t3q_x2_t*_tpq_p4
+                                                                         -1.0 + _t3q_u0ˍt_t
+                                                               _t3q_u0ˍtt_t
+     _t3q_x2ˍtt_t - _t3q_x3ˍt_t - _t3q_x1ˍt_t*_tpq_p3 + _t3q_x2ˍt_t*_tpq_p4
+                        _t3q_x3ˍt_t - _t3q_x1_t*_tpq_p6 + _t3q_x3_t*_tpq_p7
+                                                                         -0.9999999999999938 + _t5q_u0_t
+                                                                         -0.45829962937093804 + _t5q_x1_t
+                                                                         -1.4146449198591957 + _t5q_x1ˍt_t
+                                                                         -1.2190795994759402 + _t5q_x1ˍtt_t
+                                                                          0.11122190186274891 + _t5q_x1ˍttt_t
+                   -_t5q_u0_t + _t5q_x1ˍt_t - _t5q_x2_t + _t5q_x1_t*_tpq_p1
+            -_t5q_u0ˍt_t + _t5q_x1ˍtt_t - _t5q_x2ˍt_t + _t5q_x1ˍt_t*_tpq_p1
+        -_t5q_u0ˍtt_t + _t5q_x1ˍttt_t - _t5q_x2ˍtt_t + _t5q_x1ˍtt_t*_tpq_p1
+            _t5q_x2ˍt_t - _t5q_x3_t - _t5q_x1_t*_tpq_p3 + _t5q_x2_t*_tpq_p4
+                                                                         -1.0 + _t5q_u0ˍt_t
+                                                               _t5q_u0ˍtt_t
+     _t5q_x2ˍtt_t - _t5q_x3ˍt_t - _t5q_x1ˍt_t*_tpq_p3 + _t5q_x2ˍt_t*_tpq_p4
+                        _t5q_x3ˍt_t - _t5q_x1_t*_tpq_p6 + _t5q_x3_t*_tpq_p7
+                                                                         -1.1499999999999913 + _t8q_u0_t
+                                                                         -0.684178327817909 + _t8q_x1_t
+                                                                         -1.5970480472985271 + _t8q_x1ˍt_t
+                                                                         -1.2181033566054915 + _t8q_x1ˍtt_t
+                                                                         -0.0944881116328036 + _t8q_x1ˍttt_t
+                   -_t8q_u0_t + _t8q_x1ˍt_t - _t8q_x2_t + _t8q_x1_t*_tpq_p1
+            -_t8q_u0ˍt_t + _t8q_x1ˍtt_t - _t8q_x2ˍt_t + _t8q_x1ˍt_t*_tpq_p1
+        -_t8q_u0ˍtt_t + _t8q_x1ˍttt_t - _t8q_x2ˍtt_t + _t8q_x1ˍtt_t*_tpq_p1
+            _t8q_x2ˍt_t - _t8q_x3_t - _t8q_x1_t*_tpq_p3 + _t8q_x2_t*_tpq_p4
+                                                                         -1.0 + _t8q_u0ˍt_t
+                                                               _t8q_u0ˍtt_t
+     _t8q_x2ˍtt_t - _t8q_x3ˍt_t - _t8q_x1ˍt_t*_tpq_p3 + _t8q_x2ˍt_t*_tpq_p4
+                        _t8q_x3ˍt_t - _t8q_x1_t*_tpq_p6 + _t8q_x3_t*_tpq_p7
+                                                                         -1.2999999999999905 + _t11q_u0_t
+                                                                         -0.9375191885123092 + _t11q_x1_t
+                                                                         -1.7815386833246523 + _t11q_x1ˍt_t
+                                                                         -1.2463999934010566 + _t11q_x1ˍtt_t
+                                                                         -0.27967461483447104 + _t11q_x1ˍttt_t
+               -_t11q_u0_t + _t11q_x1ˍt_t - _t11q_x2_t + _t11q_x1_t*_tpq_p1
+        -_t11q_u0ˍt_t + _t11q_x1ˍtt_t - _t11q_x2ˍt_t + _t11q_x1ˍt_t*_tpq_p1
+    -_t11q_u0ˍtt_t + _t11q_x1ˍttt_t - _t11q_x2ˍtt_t + _t11q_x1ˍtt_t*_tpq_p1
+        _t11q_x2ˍt_t - _t11q_x3_t - _t11q_x1_t*_tpq_p3 + _t11q_x2_t*_tpq_p4
+                                                                         -1.0 + _t11q_u0ˍt_t
+                                                              _t11q_u0ˍtt_t
+ _t11q_x2ˍtt_t - _t11q_x3ˍt_t - _t11q_x1ˍt_t*_tpq_p3 + _t11q_x2ˍt_t*_tpq_p4
+                     _t11q_x3ˍt_t - _t11q_x1_t*_tpq_p6 + _t11q_x3_t*_tpq_p7
+                                                                         -1.499999999999992 + _t15q_u0_t
+                                                                         -1.319204164592472 + _t15q_x1_t
+                                                                         -2.037929787929477 + _t15q_x1ˍt_t
+                                                                         -1.3248738499862782 + _t15q_x1ˍtt_t
+                                                                         -0.5006904957775613 + _t15q_x1ˍttt_t
+               -_t15q_u0_t + _t15q_x1ˍt_t - _t15q_x2_t + _t15q_x1_t*_tpq_p1
+        -_t15q_u0ˍt_t + _t15q_x1ˍtt_t - _t15q_x2ˍt_t + _t15q_x1ˍt_t*_tpq_p1
+    -_t15q_u0ˍtt_t + _t15q_x1ˍttt_t - _t15q_x2ˍtt_t + _t15q_x1ˍtt_t*_tpq_p1
+        _t15q_x2ˍt_t - _t15q_x3_t - _t15q_x1_t*_tpq_p3 + _t15q_x2_t*_tpq_p4
+                                                                         -1.0 + _t15q_u0ˍt_t
+                                                              _t15q_u0ˍtt_t
+ _t15q_x2ˍtt_t - _t15q_x3ˍt_t - _t15q_x1ˍt_t*_tpq_p3 + _t15q_x2ˍt_t*_tpq_p4
+                     _t15q_x3ˍt_t - _t15q_x1_t*_tpq_p6 + _t15q_x3_t*_tpq_p7
+varlist
+65-element Vector{Num}:
+        _tpq_p1
+        _tpq_p3
+        _tpq_p4
+        _tpq_p6
+        _tpq_p7
+      _t3q_x1_t
+      _t3q_x2_t
+      _t3q_x3_t
+      _t3q_u0_t
+    _t3q_x1ˍt_t
+   _t3q_x1ˍtt_t
+  _t3q_x1ˍttt_t
+    _t3q_x2ˍt_t
+    _t3q_u0ˍt_t
+   _t3q_u0ˍtt_t
+   _t3q_x2ˍtt_t
+    _t3q_x3ˍt_t
+      _t5q_x1_t
+      _t5q_x2_t
+      _t5q_x3_t
+      _t5q_u0_t
+    _t5q_x1ˍt_t
+   _t5q_x1ˍtt_t
+  _t5q_x1ˍttt_t
+    _t5q_x2ˍt_t
+    _t5q_u0ˍt_t
+   _t5q_u0ˍtt_t
+   _t5q_x2ˍtt_t
+    _t5q_x3ˍt_t
+      _t8q_x1_t
+      _t8q_x2_t
+      _t8q_x3_t
+      _t8q_u0_t
+    _t8q_x1ˍt_t
+   _t8q_x1ˍtt_t
+  _t8q_x1ˍttt_t
+    _t8q_x2ˍt_t
+    _t8q_u0ˍt_t
+   _t8q_u0ˍtt_t
+   _t8q_x2ˍtt_t
+    _t8q_x3ˍt_t
+     _t11q_x1_t
+     _t11q_x2_t
+     _t11q_x3_t
+     _t11q_u0_t
+   _t11q_x1ˍt_t
+  _t11q_x1ˍtt_t
+ _t11q_x1ˍttt_t
+   _t11q_x2ˍt_t
+   _t11q_u0ˍt_t
+  _t11q_u0ˍtt_t
+  _t11q_x2ˍtt_t
+   _t11q_x3ˍt_t
+     _t15q_x1_t
+     _t15q_x2_t
+     _t15q_x3_t
+     _t15q_u0_t
+   _t15q_x1ˍt_t
+  _t15q_x1ˍtt_t
+ _t15q_x1ˍttt_t
+   _t15q_x2ˍt_t
+   _t15q_u0ˍt_t
+  _t15q_u0ˍtt_t
+  _t15q_x2ˍtt_t
+   _t15q_x3ˍt_t
+Computing mixed cells... 2    Time: 0:00:00[K
+  mixed_volume:  2[K[A
+[K[AComputing mixed cells... 7    Time: 0:00:00[K
+  mixed_volume:  8[K
+Tracking 8 paths...  25%|███████▊                       |  ETA: 0:00:02Tracking 8 paths...  38%|███████████▋                   |  ETA: 0:00:01[K[K
+  # paths tracked:                  2
+  # paths tracked:                  3[K[K
+  # non-singular solutions (real):  2 (2)
+  # non-singular solutions (real):  2 (2)[K[K
+  # singular endpoints (real):      0 (0)
+  # singular endpoints (real):      0 (0)[K[K
+  # total solutions (real):         2 (2)
+  # total solutions (real):         2 (2)[K[K[A[A[A[A[A[A[A[A[A[A[A
+
+
+
+
+
+[K[A[K[A[K[A[K[A[K[A[K[ATracking 8 paths... 100%|███████████████████████████████| Time: 0:00:01[K
+  # paths tracked:                  8[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.16698405952184459, 0.3329676534469056, 0.49993976168319854, 0.6670018201304548, 0.8330863361373213, 0.32295519534371336, 0.44586337869557896, 0.5687271818372894, 0.8999999999999965, 1.2919350091334119, 1.2376234316475507, -0.2615286400966185, 0.4533559841110392, 1.0, 0.0, -0.05486525532075437, -0.25838714106368815, 0.45829962937093804, 0.491173652448918, 0.5482610375591337, 0.9999999999999938, 1.4146449198591957, 1.2190795994759402, -0.11122190186274891, 0.4553027509759832, 1.0, 0.0, 0.09234495853800795, -0.1510620920714565, 0.684178327817909, 0.5612949219144376, 0.5375893199379711, 1.1499999999999913, 1.5970480472985271, 1.2181033566054915, 0.0944881116328036, 0.4847849227948344, 1.0, 0.0, 0.29789195503597365, 0.008489873054677763, 0.9375191885123092, 0.6380894433020726, 0.5507312748944212, 1.2999999999999905, 1.7815386833246523, 1.2463999934010566, 0.27967461483447104, 0.543888554937809, 1.0, 0.0, 0.48780354552057975, 0.1665203051469079, 1.319204164592472, 0.7582158546712594, 0.6049855775822655, 1.499999999999992, 2.037929787929477, 1.3248738499862782, 0.5006904957775613, 0.6651756389952341, 1.0, 0.0, 0.7219233096026054, 0.3759063606629242]
+ [0.16698405952184459, 0.3329676534469056, 0.8330863361373213, 0.7779288532803189, 0.49993976168319854, 0.32295519534371336, 0.44586337869557896, 0.7172650391242629, 0.8999999999999965, 1.2919350091334119, 1.2376234316475507, -0.2615286400966185, 0.4533559841110392, 1.0, 0.0, -0.05486525532075437, -0.10735314794881771, 0.45829962937093804, 0.491173652448918, 0.7118938573346106, 0.9999999999999938, 1.4146449198591957, 1.2190795994759402, -0.11122190186274891, 0.4553027509759832, 1.0, 0.0, 0.09234495853800795, 0.0006204597557308406, 0.684178327817909, 0.5612949219144376, 0.7245828004322603, 1.1499999999999913, 1.5970480472985271, 1.2181033566054915, 0.0944881116328036, 0.4847849227948344, 1.0, 0.0, 0.29789195503597365, 0.16999430943078322, 0.9375191885123092, 0.6380894433020726, 0.7633085871258449, 1.2999999999999905, 1.7815386833246523, 1.2463999934010566, 0.27967461483447104, 0.543888554937809, 1.0, 0.0, 0.48780354552057975, 0.34771491410924193, 1.319204164592472, 0.7582158546712594, 0.8575825922628005, 1.499999999999992, 2.037929787929477, 1.3248738499862782, 0.5006904957775613, 0.6651756389952341, 1.0, 0.0, 0.7219233096026054, 0.5975073462045186]
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+9-element Vector{Float64}:
+ 0.1999999999996078
+ 0.39999681191934966
+ 0.7332197512425044
+ 0.7999999999999965
+ 0.16698405952184459
+ 0.3329676534469056
+ 0.8330863361373213
+ 0.7779288532803189
+ 0.49993976168319854
+Error: 0.060489540775371525
+9-element Vector{Float64}:
+ 0.19999999999960774
+ 0.39999681191934966
+ 0.599962183559003
+ 0.7999999999999966
+ 0.16698405952184459
+ 0.3329676534469056
+ 0.49993976168319854
+ 0.6670018201304548
+ 0.8330863361373213
+Error: 0.06323471390348272
+For model DAISY_ex3: The ODEPE  max abs rel. err: 0.00012047663360292837
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.25563697987916345) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, k1, k2, mu1, mu2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(c => 0.07946915717878722) the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.8558935561710977, c => 0.07946915717878722) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(c => 0.02925714893887954) the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.41585320135498016, c => 0.02925714893887954) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.8089449408637779) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.6122016228537299) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(c => 0.5499356198672232) the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.02670673656841438, c => 0.5499356198672232) the following are globally unidentifiable:Any[k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.11580436875596456) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[k1, k2, mu1, q1, q2, x2(t), x3(t)]
+After making the following substitutions:Dict{Any, Any}(k1 => 0.2315242612099725) the following are globally unidentifiable:Any[k2, q1, q2, x2(t), x3(t)]
+Optimal number of points is 5
+Dict{Int64, Int64} with 2 entries:
+  2 => 3
+  1 => 1
+We picked these points:[5, 11, 12, 17, 18]
+5-element Vector{Int64}:
+  5
+ 11
+ 12
+ 17
+ 18
+full target
+starting SolveJSWithHC.  Here is the polynomial system:
+65-element Vector{Num}:
+                                                                       -0.8230492012329451 + _t5q_x4_t
+                                                                       -0.10346052640403307 + _t5q_x4ˍt_t
+                                                                        0.11410370062139179 + _t5q_x4ˍtt_t
+                                                                       -0.05709289226356899 + _t5q_x4ˍttt_t
+                                                                       -0.3622258127204165 + _t5q_x1_t
+                                                                       -0.7829825535372179 + _t5q_x1ˍt_t
+                                                                       -0.9972911073830387_t5q_x3_t + _t5q_x4ˍt_t + _t5q_x4_t*_tpq_c
+                                                                       -0.9972911073830387_t5q_x3ˍt_t + _t5q_x4ˍtt_t + _t5q_x4ˍt_t*_tpq_c
+                                                                       -0.9972911073830387_t5q_x3ˍtt_t + _t5q_x4ˍttt_t + _t5q_x4ˍtt_t*_tpq_c
+     _t5q_x1ˍt_t - _tpq_s + _t5q_x1_t*_tpq_d + _t5q_x1_t*_t5q_x4_t*_tpq_b
+                                                                       -0.2315242612099725_t5q_x2_t + _t5q_x3ˍt_t + _t5q_x3_t*_tpq_mu2 - _t5q_x1_t*_t5q_x4_t*_tpq_b*_tpq_q2
+                                                                       -0.2315242612099725_t5q_x2ˍt_t + _t5q_x3ˍtt_t + _t5q_x3ˍt_t*_tpq_mu2 - _t5q_x1_t*_t5q_x4ˍt_t*_tpq_b*_tpq_q2 - _t5q_x1ˍt_t*_t5q_x4_t*_tpq_b*_tpq_q2
+                                                                        0.2315242612099725_t5q_x2_t + _t5q_x2ˍt_t + _t5q_x2_t*_tpq_mu1 - _t5q_x1_t*_t5q_x4_t*_tpq_b*_tpq_q1
+                                                                       -0.8492127616388636 + _t11q_x4_t
+                                                                       -0.07183634911649259 + _t11q_x4ˍt_t
+                                                                        0.09666712222221455 + _t11q_x4ˍtt_t
+                                                                       -0.05827620626455949 + _t11q_x4ˍttt_t
+                                                                       -0.5850911146699287 + _t11q_x1_t
+                                                                       -0.7040552431369174 + _t11q_x1ˍt_t
+                                                                       -0.9972911073830387_t11q_x3_t + _t11q_x4ˍt_t + _t11q_x4_t*_tpq_c
+                                                                       -0.9972911073830387_t11q_x3ˍt_t + _t11q_x4ˍtt_t + _t11q_x4ˍt_t*_tpq_c
+                                                                       -0.9972911073830387_t11q_x3ˍtt_t + _t11q_x4ˍttt_t + _t11q_x4ˍtt_t*_tpq_c
+ _t11q_x1ˍt_t - _tpq_s + _t11q_x1_t*_tpq_d + _t11q_x1_t*_t11q_x4_t*_tpq_b
+                                                                       -0.2315242612099725_t11q_x2_t + _t11q_x3ˍt_t + _t11q_x3_t*_tpq_mu2 - _t11q_x1_t*_t11q_x4_t*_tpq_b*_tpq_q2
+                                                                       -0.2315242612099725_t11q_x2ˍt_t + _t11q_x3ˍtt_t + _t11q_x3ˍt_t*_tpq_mu2 - _t11q_x1_t*_t11q_x4ˍt_t*_tpq_b*_tpq_q2 - _t11q_x1ˍt_t*_t11q_x4_t*_tpq_b*_tpq_q2
+                                                                        0.2315242612099725_t11q_x2_t + _t11q_x2ˍt_t + _t11q_x2_t*_tpq_mu1 - _t11q_x1_t*_t11q_x4_t*_tpq_b*_tpq_q1
+                                                                       -0.8526849580927359 + _t12q_x4_t
+                                                                       -0.06707574104334098 + _t12q_x4ˍt_t
+                                                                        0.09375937129926525 + _t12q_x4ˍtt_t
+                                                                       -0.058015895951054185 + _t12q_x4ˍttt_t
+                                                                       -0.6199825673188957 + _t12q_x1_t
+                                                                       -0.691637626463513 + _t12q_x1ˍt_t
+                                                                       -0.9972911073830387_t12q_x3_t + _t12q_x4ˍt_t + _t12q_x4_t*_tpq_c
+                                                                       -0.9972911073830387_t12q_x3ˍt_t + _t12q_x4ˍtt_t + _t12q_x4ˍt_t*_tpq_c
+                                                                       -0.9972911073830387_t12q_x3ˍtt_t + _t12q_x4ˍttt_t + _t12q_x4ˍtt_t*_tpq_c
+ _t12q_x1ˍt_t - _tpq_s + _t12q_x1_t*_tpq_d + _t12q_x1_t*_t12q_x4_t*_tpq_b
+                                                                       -0.2315242612099725_t12q_x2_t + _t12q_x3ˍt_t + _t12q_x3_t*_tpq_mu2 - _t12q_x1_t*_t12q_x4_t*_tpq_b*_tpq_q2
+                                                                       -0.2315242612099725_t12q_x2ˍt_t + _t12q_x3ˍtt_t + _t12q_x3ˍt_t*_tpq_mu2 - _t12q_x1_t*_t12q_x4ˍt_t*_tpq_b*_tpq_q2 - _t12q_x1ˍt_t*_t12q_x4_t*_tpq_b*_tpq_q2
+                                                                        0.2315242612099725_t12q_x2_t + _t12q_x2ˍt_t + _t12q_x2_t*_tpq_mu1 - _t12q_x1_t*_t12q_x4_t*_tpq_b*_tpq_q1
+                                                                       -0.8666736658038526 + _t17q_x4_t
+                                                                       -0.045426462775624184 + _t17q_x4ˍt_t
+                                                                        0.07954682962926005 + _t17q_x4ˍtt_t
+                                                                       -0.05534528505568944 + _t17q_x4ˍttt_t
+                                                                       -0.7854108553340617 + _t17q_x1_t
+                                                                       -0.6326396001248118 + _t17q_x1ˍt_t
+                                                                       -0.9972911073830387_t17q_x3_t + _t17q_x4ˍt_t + _t17q_x4_t*_tpq_c
+                                                                       -0.9972911073830387_t17q_x3ˍt_t + _t17q_x4ˍtt_t + _t17q_x4ˍt_t*_tpq_c
+                                                                       -0.9972911073830387_t17q_x3ˍtt_t + _t17q_x4ˍttt_t + _t17q_x4ˍtt_t*_tpq_c
+ _t17q_x1ˍt_t - _tpq_s + _t17q_x1_t*_tpq_d + _t17q_x1_t*_t17q_x4_t*_tpq_b
+                                                                       -0.2315242612099725_t17q_x2_t + _t17q_x3ˍt_t + _t17q_x3_t*_tpq_mu2 - _t17q_x1_t*_t17q_x4_t*_tpq_b*_tpq_q2
+                                                                       -0.2315242612099725_t17q_x2ˍt_t + _t17q_x3ˍtt_t + _t17q_x3ˍt_t*_tpq_mu2 - _t17q_x1_t*_t17q_x4ˍt_t*_tpq_b*_tpq_q2 - _t17q_x1ˍt_t*_t17q_x4_t*_tpq_b*_tpq_q2
+                                                                        0.2315242612099725_t17q_x2_t + _t17q_x2ˍt_t + _t17q_x2_t*_tpq_mu1 - _t17q_x1_t*_t17q_x4_t*_tpq_b*_tpq_q1
+                                                                       -0.8688467046114651 + _t18q_x4_t
+                                                                       -0.04151799597352982 + _t18q_x4ˍt_t
+                                                                        0.07679810552859426 + _t18q_x4ˍtt_t
+                                                                       -0.054593826879846534 + _t18q_x4ˍttt_t
+                                                                       -0.8167621814408893 + _t18q_x1_t
+                                                                       -0.6214465816551983 + _t18q_x1ˍt_t
+                                                                       -0.9972911073830387_t18q_x3_t + _t18q_x4ˍt_t + _t18q_x4_t*_tpq_c
+                                                                       -0.9972911073830387_t18q_x3ˍt_t + _t18q_x4ˍtt_t + _t18q_x4ˍt_t*_tpq_c
+                                                                       -0.9972911073830387_t18q_x3ˍtt_t + _t18q_x4ˍttt_t + _t18q_x4ˍtt_t*_tpq_c
+ _t18q_x1ˍt_t - _tpq_s + _t18q_x1_t*_tpq_d + _t18q_x1_t*_t18q_x4_t*_tpq_b
+                                                                       -0.2315242612099725_t18q_x2_t + _t18q_x3ˍt_t + _t18q_x3_t*_tpq_mu2 - _t18q_x1_t*_t18q_x4_t*_tpq_b*_tpq_q2
+                                                                       -0.2315242612099725_t18q_x2ˍt_t + _t18q_x3ˍtt_t + _t18q_x3ˍt_t*_tpq_mu2 - _t18q_x1_t*_t18q_x4ˍt_t*_tpq_b*_tpq_q2 - _t18q_x1ˍt_t*_t18q_x4_t*_tpq_b*_tpq_q2
+                                                                        0.2315242612099725_t18q_x2_t + _t18q_x2ˍt_t + _t18q_x2_t*_tpq_mu1 - _t18q_x1_t*_t18q_x4_t*_tpq_b*_tpq_q1
+varlist
+63-element Vector{Num}:
+         _tpq_b
+         _tpq_c
+         _tpq_d
+       _tpq_mu1
+       _tpq_mu2
+        _tpq_q1
+        _tpq_q2
+         _tpq_s
+      _t5q_x1_t
+      _t5q_x2_t
+      _t5q_x3_t
+      _t5q_x4_t
+    _t5q_x4ˍt_t
+   _t5q_x4ˍtt_t
+  _t5q_x4ˍttt_t
+    _t5q_x1ˍt_t
+    _t5q_x3ˍt_t
+   _t5q_x3ˍtt_t
+    _t5q_x2ˍt_t
+     _t11q_x1_t
+     _t11q_x2_t
+     _t11q_x3_t
+     _t11q_x4_t
+   _t11q_x4ˍt_t
+  _t11q_x4ˍtt_t
+ _t11q_x4ˍttt_t
+   _t11q_x1ˍt_t
+   _t11q_x3ˍt_t
+  _t11q_x3ˍtt_t
+   _t11q_x2ˍt_t
+     _t12q_x1_t
+     _t12q_x2_t
+     _t12q_x3_t
+     _t12q_x4_t
+   _t12q_x4ˍt_t
+  _t12q_x4ˍtt_t
+ _t12q_x4ˍttt_t
+   _t12q_x1ˍt_t
+   _t12q_x3ˍt_t
+  _t12q_x3ˍtt_t
+   _t12q_x2ˍt_t
+     _t17q_x1_t
+     _t17q_x2_t
+     _t17q_x3_t
+     _t17q_x4_t
+   _t17q_x4ˍt_t
+  _t17q_x4ˍtt_t
+ _t17q_x4ˍttt_t
+   _t17q_x1ˍt_t
+   _t17q_x3ˍt_t
+  _t17q_x3ˍtt_t
+   _t17q_x2ˍt_t
+     _t18q_x1_t
+     _t18q_x2_t
+     _t18q_x3_t
+     _t18q_x4_t
+   _t18q_x4ˍt_t
+  _t18q_x4ˍtt_t
+ _t18q_x4ˍttt_t
+   _t18q_x1ˍt_t
+   _t18q_x3ˍt_t
+  _t18q_x3ˍtt_t
+   _t18q_x2ˍt_t
+Computing mixed cells... 2    Time: 0:00:49[K
+  mixed_volume:  2[K[A
+[K[AComputing mixed cells... 102    Time: 0:03:12[K
+  mixed_volume:  139[K[A
+[K[AComputing mixed cells... 150    Time: 0:03:15[K
+  mixed_volume:  229[K[A
+[K[AComputing mixed cells... 181    Time: 0:03:20[K
+  mixed_volume:  268[K[A
+[K[AComputing mixed cells... 259    Time: 0:03:32[K
+  mixed_volume:  367[K[A
+[K[AComputing mixed cells... 282    Time: 0:03:32[K
+  mixed_volume:  399[K[A
+[K[AComputing mixed cells... 332    Time: 0:03:47[K
+  mixed_volume:  475[K[A
+[K[AComputing mixed cells... 432    Time: 0:04:04[K
+  mixed_volume:  615[K[A
+[K[AComputing mixed cells... 453    Time: 0:04:07[K
+  mixed_volume:  642[K[A
+[K[AComputing mixed cells... 550    Time: 0:04:08[K
+  mixed_volume:  781[K[A
+[K[AComputing mixed cells... 591    Time: 0:04:08[K
+  mixed_volume:  833[K[A
+[K[AComputing mixed cells... 618    Time: 0:04:08[K
+  mixed_volume:  877[K[A
+[K[AComputing mixed cells... 644    Time: 0:04:21[K
+  mixed_volume:  915[K[A
+[K[AComputing mixed cells... 645    Time: 0:04:22[K
+  mixed_volume:  916[K[A
+[K[AComputing mixed cells... 693    Time: 0:04:23[K
+  mixed_volume:  986[K[A
+[K[AComputing mixed cells... 748    Time: 0:04:27[K
+  mixed_volume:  1073[K[A
+[K[AComputing mixed cells... 768    Time: 0:04:27[K
+  mixed_volume:  1102[K[A
+[K[AComputing mixed cells... 836    Time: 0:04:30[K
+  mixed_volume:  1200[K[A
+[K[AComputing mixed cells... 886    Time: 0:08:20[K
+  mixed_volume:  1231[K[A
+[K[AComputing mixed cells... 949    Time: 0:08:22[K
+  mixed_volume:  1310[K[A
+[K[AComputing mixed cells... 1029    Time: 0:08:24[K
+  mixed_volume:  1412[K[A
+[K[AComputing mixed cells... 1071    Time: 0:08:28[K
+  mixed_volume:  1467[K[A
+[K[AComputing mixed cells... 1092    Time: 0:08:28[K
+  mixed_volume:  1504[K[A
+[K[AComputing mixed cells... 1104    Time: 0:08:29[K
+  mixed_volume:  1520[K[A
+[K[AComputing mixed cells... 1126    Time: 0:08:29[K
+  mixed_volume:  1549[K[A
+[K[AComputing mixed cells... 1193    Time: 0:08:30[K
+  mixed_volume:  1628[K[A
+[K[AComputing mixed cells... 1219    Time: 0:08:30[K
+  mixed_volume:  1659[K[A
+[K[AComputing mixed cells... 1295    Time: 0:08:31[K
+  mixed_volume:  1749[K[A
+[K[AComputing mixed cells... 1320    Time: 0:08:33[K
+  mixed_volume:  1783[K[A
+[K[AComputing mixed cells... 1342    Time: 0:08:34[K
+  mixed_volume:  1822[K[A
+[K[AComputing mixed cells... 1349    Time: 0:08:34[K
+  mixed_volume:  1829[K[A
+[K[AComputing mixed cells... 1351    Time: 0:08:35[K
+  mixed_volume:  1831[K[A
+[K[AComputing mixed cells... 1371    Time: 0:08:35[K
+  mixed_volume:  1857[K[A
+[K[AComputing mixed cells... 1396    Time: 0:08:35[K
+  mixed_volume:  1883[K[A
+[K[AComputing mixed cells... 1426    Time: 0:08:35[K
+  mixed_volume:  1938[K[A
+[K[AComputing mixed cells... 1456    Time: 0:08:37[K
+  mixed_volume:  1975[K[A
+[K[AComputing mixed cells... 1496    Time: 0:08:50[K
+  mixed_volume:  2054[K[A
+[K[AComputing mixed cells... 1497    Time: 0:09:01[K
+  mixed_volume:  2056[K[A
+[K[AComputing mixed cells... 1565    Time: 0:09:02[K
+  mixed_volume:  2140[K[A
+[K[AComputing mixed cells... 1630    Time: 0:09:03[K
+  mixed_volume:  2228[K[A
+[K[AComputing mixed cells... 1640    Time: 0:09:06[K
+  mixed_volume:  2240[K[A
+[K[AComputing mixed cells... 1740    Time: 0:10:15[K
+  mixed_volume:  2368[K[A
+[K[AComputing mixed cells... 1750    Time: 0:10:15[K
+  mixed_volume:  2381[K[A
+[K[AComputing mixed cells... 1755    Time: 0:10:26[K
+  mixed_volume:  2389[K[A
+[K[AComputing mixed cells... 1765    Time: 0:10:28[K
+  mixed_volume:  2400[K[A
+[K[AComputing mixed cells... 1782    Time: 0:10:30[K
+  mixed_volume:  2421[K[A
+[K[AComputing mixed cells... 1801    Time: 0:10:30[K
+  mixed_volume:  2450[K[A
+[K[AComputing mixed cells... 1820    Time: 0:10:30[K
+  mixed_volume:  2494[K[A
+[K[AComputing mixed cells... 1837    Time: 0:10:38[K
+  mixed_volume:  2526[K[A
+[K[AComputing mixed cells... 1847    Time: 0:10:39[K
+  mixed_volume:  2542[K[A
+[K[AComputing mixed cells... 1883    Time: 0:10:47[K
+  mixed_volume:  2605[K[A
+[K[AComputing mixed cells... 1893    Time: 0:10:48[K
+  mixed_volume:  2616[K[A
+[K[AComputing mixed cells... 1963    Time: 0:10:52[K
+  mixed_volume:  2707[K[A
+[K[AComputing mixed cells... 2031    Time: 0:10:52[K
+  mixed_volume:  2811[K[A
+[K[AComputing mixed cells... 2082    Time: 0:10:52[K
+  mixed_volume:  2875[K[A
+[K[AComputing mixed cells... 2130    Time: 0:11:13[K
+  mixed_volume:  2936[K[A
+[K[AComputing mixed cells... 2131    Time: 0:11:14[K
+  mixed_volume:  2937[K[A
+[K[AComputing mixed cells... 2137    Time: 0:11:17[K
+  mixed_volume:  2945[K[A
+[K[AComputing mixed cells... 2146    Time: 0:11:18[K
+  mixed_volume:  2962[K[A
+[K[AComputing mixed cells... 2149    Time: 0:11:18[K
+  mixed_volume:  2965[K[A
+[K[AComputing mixed cells... 2151    Time: 0:11:20[K
+  mixed_volume:  2970[K[A
+[K[AComputing mixed cells... 2180    Time: 0:11:24[K
+  mixed_volume:  3006[K[A
+[K[AComputing mixed cells... 2200    Time: 0:11:27[K
+  mixed_volume:  3035[K[A
+[K[AComputing mixed cells... 2264    Time: 0:11:29[K
+  mixed_volume:  3122[K[A
+[K[AComputing mixed cells... 2271    Time: 0:11:30[K
+  mixed_volume:  3138[K[A
+[K[AComputing mixed cells... 2293    Time: 0:11:33[K
+  mixed_volume:  3162[K[A
+[K[AComputing mixed cells... 2372    Time: 0:11:34[K
+  mixed_volume:  3257[K[A
+[K[AComputing mixed cells... 2524    Time: 0:11:43[K
+  mixed_volume:  3449[K[A
+[K[AComputing mixed cells... 2551    Time: 0:11:55[K
+  mixed_volume:  3490[K[A
+[K[AComputing mixed cells... 2561    Time: 0:11:58[K
+  mixed_volume:  3504[K[A
+[K[AComputing mixed cells... 2602    Time: 0:12:12[K
+  mixed_volume:  3559[K[A
+[K[AComputing mixed cells... 2604    Time: 0:12:13[K
+  mixed_volume:  3561[K[A
+[K[AComputing mixed cells... 2605    Time: 0:12:14[K
+  mixed_volume:  3563[K[A
+[K[AComputing mixed cells... 2606    Time: 0:12:15[K
+  mixed_volume:  3565[K[A
+[K[AComputing mixed cells... 2664    Time: 0:12:31[K
+  mixed_volume:  3647[K[A
+[K[AComputing mixed cells... 2665    Time: 0:12:36[K
+  mixed_volume:  3648[K[A
+[K[AComputing mixed cells... 2702    Time: 0:12:36[K
+  mixed_volume:  3698[K[A
+[K[AComputing mixed cells... 2750    Time: 0:12:36[K
+  mixed_volume:  3785[K[A
+[K[AComputing mixed cells... 2796    Time: 0:12:37[K
+  mixed_volume:  3851[K[A
+[K[AComputing mixed cells... 2817    Time: 0:12:37[K
+  mixed_volume:  3877[K[A
+[K[AComputing mixed cells... 2823    Time: 0:12:38[K
+  mixed_volume:  3885[K[A
+[K[AComputing mixed cells... 2835    Time: 0:12:39[K
+  mixed_volume:  3898[K[A
+[K[AComputing mixed cells... 2855    Time: 0:12:40[K
+  mixed_volume:  3924[K[A
+[K[AComputing mixed cells... 2869    Time: 0:12:45[K
+  mixed_volume:  3944[K[A
+[K[AComputing mixed cells... 2879    Time: 0:12:50[K
+  mixed_volume:  3956[K[A
+[K[AComputing mixed cells... 2889    Time: 0:14:33[K
+  mixed_volume:  3968[K[A
+[K[AComputing mixed cells... 2899    Time: 0:14:40[K
+  mixed_volume:  3986[K[A
+[K[AComputing mixed cells... 2999    Time: 0:17:33[K
+  mixed_volume:  4112[K[A
+[K[AComputing mixed cells... 3009    Time: 0:17:33[K
+  mixed_volume:  4125[K[A
+[K[AComputing mixed cells... 3018    Time: 0:17:34[K
+  mixed_volume:  4135[K[A
+[K[AComputing mixed cells... 3033    Time: 0:17:35[K
+  mixed_volume:  4153[K[A
+[K[AComputing mixed cells... 3133    Time: 0:17:44[K
+  mixed_volume:  4301[K[A
+[K[AComputing mixed cells... 3136    Time: 0:17:47[K
+  mixed_volume:  4305[K[A
+[K[AComputing mixed cells... 3146    Time: 0:17:56[K
+  mixed_volume:  4315[K[A
+[K[AComputing mixed cells... 3156    Time: 0:17:58[K
+  mixed_volume:  4330[K[A
+[K[AComputing mixed cells... 3176    Time: 0:17:58[K
+  mixed_volume:  4355[K[A
+[K[AComputing mixed cells... 3182    Time: 0:18:00[K
+  mixed_volume:  4361[K[A
+[K[AComputing mixed cells... 3192    Time: 0:18:21[K
+  mixed_volume:  4373[K[A
+[K[AComputing mixed cells... 3194    Time: 0:18:22[K
+  mixed_volume:  4375[K[A
+[K[AComputing mixed cells... 3204    Time: 0:18:26[K
+  mixed_volume:  4388[K[A
+[K[AComputing mixed cells... 3214    Time: 0:18:29[K
+  mixed_volume:  4399[K[A
+[K[AComputing mixed cells... 3215    Time: 0:18:29[K
+  mixed_volume:  4401[K[A
+[K[AComputing mixed cells... 3216    Time: 0:18:32[K
+  mixed_volume:  4402[K[A
+[K[AComputing mixed cells... 3267    Time: 0:18:59[K
+  mixed_volume:  4477[K[A
+[K[AComputing mixed cells... 3275    Time: 0:19:00[K
+  mixed_volume:  4487[K[A
+[K[AComputing mixed cells... 3325    Time: 0:19:04[K
+  mixed_volume:  4548[K[A
+[K[AComputing mixed cells... 3328    Time: 0:19:05[K
+  mixed_volume:  4551[K[A
+[K[AComputing mixed cells... 3338    Time: 0:19:18[K
+  mixed_volume:  4564[K[A
+[K[AComputing mixed cells... 3438    Time: 0:21:42[K
+  mixed_volume:  4717[K[A
+[K[AComputing mixed cells... 3506    Time: 0:21:46[K
+  mixed_volume:  4812[K[A
+[K[AComputing mixed cells... 3510    Time: 0:22:00[K
+  mixed_volume:  4816[K[A
+[K[AComputing mixed cells... 3522    Time: 0:22:00[K
+  mixed_volume:  4839[K[A
+[K[AComputing mixed cells... 3526    Time: 0:22:01[K
+  mixed_volume:  4844[K[A
+[K[AComputing mixed cells... 3562    Time: 0:22:01[K
+  mixed_volume:  4894[K[A
+[K[AComputing mixed cells... 3584    Time: 0:22:06[K
+  mixed_volume:  4932[K[A
+[K[AComputing mixed cells... 3594    Time: 0:22:07[K
+  mixed_volume:  4944[K[A
+[K[AComputing mixed cells... 3642    Time: 0:25:20[K
+  mixed_volume:  5005[K[A
+[K[AComputing mixed cells... 3652    Time: 0:25:20[K
+  mixed_volume:  5021[K[A
+[K[AComputing mixed cells... 3682    Time: 0:26:03[K
+  mixed_volume:  5064[K[A
+[K[AComputing mixed cells... 3692    Time: 0:26:10[K
+  mixed_volume:  5078[K[A
+[K[AComputing mixed cells... 3717    Time: 0:26:12[K
+  mixed_volume:  5118[K[A
+[K[AComputing mixed cells... 3720    Time: 0:26:54[K
+  mixed_volume:  5122[K[A
+[K[AComputing mixed cells... 3752    Time: 0:27:01[K
+  mixed_volume:  5169[K[A
+[K[AComputing mixed cells... 3848    Time: 0:27:59[K
+  mixed_volume:  5299[K[A
+[K[AComputing mixed cells... 3859    Time: 0:27:59[K
+  mixed_volume:  5315[K[A
+[K[AComputing mixed cells... 3868    Time: 0:28:08[K
+  mixed_volume:  5330[K[A
+[K[AComputing mixed cells... 3878    Time: 0:28:13[K
+  mixed_volume:  5344[K[A
+[K[AComputing mixed cells... 3888    Time: 0:28:15[K
+  mixed_volume:  5356[K[A
+[K[AComputing mixed cells... 3908    Time: 0:29:26[K
+  mixed_volume:  5379[K[A
+[K[AComputing mixed cells... 3918    Time: 0:29:49[K
+  mixed_volume:  5389[K[A
+[K[AComputing mixed cells... 3928    Time: 0:30:07[K
+  mixed_volume:  5400[K[A
+[K[AComputing mixed cells... 3980    Time: 0:30:55[K
+  mixed_volume:  5457[K[A
+[K[AComputing mixed cells... 3981    Time: 0:30:56[K
+  mixed_volume:  5458[K[A
+[K[AComputing mixed cells... 3991    Time: 0:31:01[K
+  mixed_volume:  5471[K[A
+[K[AComputing mixed cells... 4003    Time: 0:31:41[K
+  mixed_volume:  5490[K[A
+[K[AComputing mixed cells... 4011    Time: 0:32:11[K
+  mixed_volume:  5506[K[A
+[K[AComputing mixed cells... 4021    Time: 0:33:48[K
+  mixed_volume:  5518[K[A
+[K[AComputing mixed cells... 4121    Time: 0:39:17[K
+  mixed_volume:  5669[K[A
+[K[AComputing mixed cells... 4127    Time: 0:39:18[K
+  mixed_volume:  5677[K[A
+[K[AComputing mixed cells... 4147    Time: 0:39:51[K
+  mixed_volume:  5710[K[A
+[K[AComputing mixed cells... 4198    Time: 0:39:52[K
+  mixed_volume:  5799[K[A
+[K[AComputing mixed cells... 4248    Time: 0:40:02[K
+  mixed_volume:  5879[K[A
+[K[AComputing mixed cells... 4249    Time: 0:40:07[K
+  mixed_volume:  5881[K[A
+[K[AComputing mixed cells... 4259    Time: 0:40:08[K
+  mixed_volume:  5904[K[A
+[K[AComputing mixed cells... 4268    Time: 0:40:09[K
+  mixed_volume:  5915[K[A
+[K[AComputing mixed cells... 4318    Time: 0:41:48[K
+  mixed_volume:  5978[K[A
+[K[AComputing mixed cells... 4328    Time: 0:43:48[K
+  mixed_volume:  5997[K[A
+[K[AComputing mixed cells... 4329    Time: 0:44:05[K
+  mixed_volume:  5999[K[A
+[K[AComputing mixed cells... 4356    Time: 0:44:14[K
+  mixed_volume:  6049[K[A
+[K[AComputing mixed cells... 4366    Time: 0:44:16[K
+  mixed_volume:  6063[K[A
+[K[AComputing mixed cells... 4367    Time: 0:44:19[K
+  mixed_volume:  6064[K[A
+[K[AComputing mixed cells... 4377    Time: 0:45:01[K
+  mixed_volume:  6081[K[A
+[K[AComputing mixed cells... 4387    Time: 0:45:08[K
+  mixed_volume:  6096[K[A
+[K[AComputing mixed cells... 4388    Time: 0:45:44[K
+  mixed_volume:  6097[K[A
+[K[AComputing mixed cells... 4398    Time: 0:45:52[K
+  mixed_volume:  6109[K[A
+[K[AComputing mixed cells... 4408    Time: 0:45:53[K
+  mixed_volume:  6124[K[A
+[K[AComputing mixed cells... 4438    Time: 0:47:40[K
+  mixed_volume:  6162[K[A
+[K[AComputing mixed cells... 4448    Time: 0:47:53[K
+  mixed_volume:  6178[K[A
+[K[AComputing mixed cells... 4496    Time: 0:55:02[K
+  mixed_volume:  6242[K[A
+[K[AComputing mixed cells... 4506    Time: 0:56:00[K
+  mixed_volume:  6256[K[A
+[K[AComputing mixed cells... 4507    Time: 0:56:00[K
+  mixed_volume:  6257[K[A
+[K[AComputing mixed cells... 4517    Time: 0:56:27[K
+  mixed_volume:  6272[K[A
+[K[AComputing mixed cells... 4617    Time: 1:01:28[K
+  mixed_volume:  6400[K[A
+[K[AComputing mixed cells... 4717    Time: 1:04:29[K
+  mixed_volume:  6525[K[A
+[K[AComputing mixed cells... 4743    Time: 1:04:29[K
+  mixed_volume:  6567[K[A
+[K[AComputing mixed cells... 4768    Time: 1:05:08[K
+  mixed_volume:  6601[K[A
+[K[AComputing mixed cells... 4785    Time: 1:05:39[K
+  mixed_volume:  6620[K[A
+[K[AComputing mixed cells... 4791    Time: 1:05:40[K
+  mixed_volume:  6629[K[A
+[K[AComputing mixed cells... 4792    Time: 1:05:44[K
+  mixed_volume:  6630[K[A
+[K[AComputing mixed cells... 4802    Time: 1:05:45[K
+  mixed_volume:  6642[K[A
+[K[AComputing mixed cells... 4842    Time: 1:07:31[K
+  mixed_volume:  6704[K[A
+[K[AComputing mixed cells... 4852    Time: 1:07:31[K
+  mixed_volume:  6715[K[A
+[K[AComputing mixed cells... 4882    Time: 1:08:07[K
+  mixed_volume:  6761[K[A
+[K[AComputing mixed cells... 4918    Time: 1:08:16[K
+  mixed_volume:  6811[K[A
+[K[AComputing mixed cells... 4970    Time: 1:10:01[K
+  mixed_volume:  6890[K[A

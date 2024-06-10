@@ -611,8 +611,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
 			PEP.solver)
-		display("res3")
-		display(res3)
 		besterror = 1e30
 		res3 = sort(res3, by = x -> x.err)
 		display("How close are we?")
@@ -658,29 +656,27 @@ function varied_estimation_main()
 	datasize = 21
 
 	for PEP in [
-		#vanderpol(),
+		vanderpol(),
 		simple(),
-		#substr_test(),
-		#slowfast(),  #try slowfast next
-		#daisy_ex3_v4(),
-		#fitzhugh_nagumo(),
-		#lotka_volterra(),
-		#global_unident_test(),
-		
-		#daisy_mamil3(),
-		#sum_test(),   #------
-		#hiv(),
-		#seir(),
-		#daisy_mamil4(),
-		#crauste(),  #dies OOM
-		#daisy_ex3_v3(),
-		#daisy_ex3_v2(),
-		#treatment(),  #no solutions found in old version #------
-		#daisy_ex3(),
-		#hiv_local(), #no solutions found in old version?  check?
-		#biohydrogenation(),  #broken, debug
+		substr_test(),
+		daisy_ex3_v4(),
+		fitzhugh_nagumo(),
+		lotka_volterra(),
+		global_unident_test(),
+		daisy_mamil3(),
+		sum_test(),   #------
+		seir(), daisy_ex3_v2(),
+		treatment(),  #no solutions found in old version #------
+		daisy_ex3(),
+		biohydrogenation(),  #broken, debug
+		slowfast(),  #try slowfast next
+		hiv(),  #suspected eta vs b vs beta problem
+		daisy_mamil4(),
+		daisy_ex3_v3()]
 		#sirsforced(),
-	]
+		#hiv_local(), #unclear if it finishes
+		#crauste(),  #dies OOM
+
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end
 end

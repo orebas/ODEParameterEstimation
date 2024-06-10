@@ -135,10 +135,7 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 		DD.obs_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs_cleared[i][j]))
 
 	end
-
 	return DD
-
-
 end
 
 # numerical_jacobian internally constructs a function f which takes in parameter and initial condition values
@@ -254,7 +251,7 @@ end
 
 
 #deriv_level is a dict which says that for observable i, we need precisely j derivatives and no more
-#deriv_level_view takes an jacobian which includes "too many derivatives" and produces a view that 
+#deriv_level_view takes a jacobian which includes "too many derivatives" and produces a view that 
 #only sees precisely the relevant derivatives.
 function deriv_level_view(evaluated_jac, deriv_level, num_obs)
 	function linear_index(which_obs, this_deriv_level)
@@ -359,16 +356,11 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	end
 
 	max_rank = rank(evaluated_jac, rtol = rtol)
-	#display("non-MP")
-	#display(evaluated_jac)
 	while (n > 0)
 		n = n - 1
 		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 		reduced_evaluated_jac = deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities))
-		#println("reduced:")
 		r = rank(reduced_evaluated_jac, rtol = rtol)
-		#display(r)
-		#display(reduced_evaluated_jac)
 		if (r < max_rank)
 			n = n + 1
 			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
@@ -643,11 +635,11 @@ end
 
 
 #take out this function
-function print_element_types(v)
-	for elem in v
-		println(typeof(elem))
-	end
-end
+#function print_element_types(v)
+#	for elem in v
+#		println(typeof(elem))
+#	end
+#end
 
 function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
 	println("starting SolveJSWithHC.  Here is the polynomial system:")
@@ -664,8 +656,7 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	for i in eachindex(poly_system)
 		expr = poly_system[i]
 		expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
-		#display(typeof(expr2))
-		if (Symbolics.operation(expr2) == op)
+		if (istree(expr2) && Symbolics.operation(expr2) == op)
 			poly_system[i], _ = Symbolics.arguments(expr2)
 		end
 	end
@@ -674,14 +665,15 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	manglingDict = OrderedDict()
 
 
-	for i in eachindex(mangled_varlist)
-		newvarname = Symbol("_qz_xy_" * replace(string(mangled_varlist[i]), "(t)" => "_t"))
+	for i in eachindex(varlist)
+		newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
 		newvar = (@variables $newvarname)[1]
 		mangled_varlist[i] = newvar
-		manglingDict[varlist[i]] = newvar
+		manglingDict[Symbolics.unwrap(varlist[i])] = newvar
 	end
 	for i in eachindex(poly_system)
-		poly_system[i] = substitute(poly_system[i], manglingDict)
+		poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), manglingDict)
+
 	end
 	string_target = string.(poly_system)
 	varlist = mangled_varlist
@@ -689,6 +681,9 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	var_string_dict = Dict()
 	var_dict = Dict()
 	hcvarlist = Vector{HomotopyContinuation.ModelKit.Variable}()
+
+	#println("after mangling:")
+
 	for v in varlist
 		vhcs = string(v)
 		vhcslong = "hmcs(\"" * vhcs * "\")"
@@ -702,10 +697,11 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	for i in eachindex(string_target)
 		string_target[i] = replace(string_target[i], string_string_dict...)
 	end
+	#display(string_target)
 	parsed = eval.(Meta.parse.(string_target))
-	HomotopyContinuation.set_default_compile(:all)
+	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
-	println("system we are solving (line 428)")
+	#println("system we are solving (line 428)")
 	result = HomotopyContinuation.solve(F, show_progress = true) #only_nonsingular = false
 
 
@@ -721,7 +717,7 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 	end
 	if (isempty(solns))
 		display("No solutions, failed.")
-		return
+		return ([], [])
 	end
 	display(solns)
 	return solns, hcvarlist
@@ -757,8 +753,6 @@ function tag_symbol(thesymb, pre_tag, post_tag)
 end
 
 function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
-
-
 	t = ModelingToolkit.get_iv(model)
 	model_eq = ModelingToolkit.equations(model)
 	model_states = ModelingToolkit.unknowns(model)
@@ -767,7 +761,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 
-	large_num_points = min(length(model_ps), 20, length(t_vector))
+	large_num_points = min(length(model_ps), 3, length(t_vector))
 	good_num_points = large_num_points
 	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 	while (good_num_points > 1)
@@ -783,7 +777,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	display(good_deriv_level)
 
 	time_index_set = pick_points(t_vector, good_num_points)
-	println("We picked these points")
+	println("We picked these points:", time_index_set)
 	display(time_index_set)
 	full_target = []
 	full_varlist = []
@@ -791,7 +785,6 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	reverse_subst_dict = []
 	@variables testing
 	for k in time_index_set
-		println("for time index", k)
 		(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
 		local_subst_dict = OrderedDict{Num, Any}()
 		local_subst_dict_reverse = OrderedDict()
@@ -807,51 +800,32 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 			push!(subst_var_list, good_DD.obs_lhs[i][j])
 		end
 		for i in subst_var_list
-			newname = tag_symbol(i, "t" * string(k) * "q_", "")
-			println("line 811")
-			display(typeof(i))
-			display(i)
+			newname = tag_symbol(i, "_t" * string(k) * "_", "_")
 			j = Symbolics.wrap(i)
-			display(typeof(j))
-			display(j)
 
 			#newname = testing
 			local_subst_dict[j] = newname
 			local_subst_dict_reverse[newname] = j
 		end
-		println("line 814")
-		#TODO THIS SUBSTITUTION IS NOT WORKING AT ALL
-		#wrong_varlist = []
-		#wrong_dict = Dict()
-		#for i in target_k
-		#	for j in Symbolics.get_variables(i)
-		#		push!(wrong_varlist, j)
-		#	end
-		#end
-		#for i in wrong_varlist
-		#	wrong_dict[i] = testing
-		#end
+		for i in model_ps
+			newname = tag_symbol(i, "_t" * string("p"), "_")
+			j = Symbolics.wrap(i)
+			local_subst_dict[j] = newname
+			local_subst_dict_reverse[newname] = j
+
+		end
 
 		target_k_subst = substitute.(target_k, Ref(local_subst_dict))
-		varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict))
-		#wrong_subst = substitute.(target_k, Ref(wrong_dict))
-
-		display(target_k)
-		display(target_k_subst)
-		display(local_subst_dict)
-		#println("The wrong way")
-		#display(wrong_dict)
-		#display(wrong_subst)
-
+		varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict)) #TODO maybe ask why this didn't work but didn't fail without broadcasting
 		push!(full_target, target_k_subst)
 		push!(full_varlist, varlist_k_subst)
 		push!(forward_subst_dict, local_subst_dict)
 		push!(reverse_subst_dict, local_subst_dict_reverse)
 	end
-	println("full target")
-	display(full_target)
+	# println("full target")
+	#display(full_target)
 
-	final_target = (collect(full_target))[1]
+	final_target = reduce(vcat, full_target)
 	final_varlist = collect(reduce(union!, OrderedSet.(full_varlist))) #does this even work
 
 
@@ -873,7 +847,8 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 				parameter_values[i] = good_udict[model_ps[i]]
 			else
 
-				index = findfirst(isequal(Symbolics.wrap(model_ps[i])), final_varlist)
+				param_search = forward_subst_dict[1][(model_ps[i])]
+				index = findfirst(isequal(param_search), final_varlist)
 				parameter_values[i] = real(solns[soln_index][index]) #TODOdo we ignore the imaginary part?
 			end                                                   #what about other vars
 		end
@@ -883,7 +858,6 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 				initial_conditions[i] = good_udict[model_states[i]]
 			else
 				#println("line 596")
-				#display(model_states[i])
 				#display(Symbolics.wrap(model_states[i]))
 				#display(fullvarlist)
 				#display(typeof(Symbolics.wrap(model_states[i])))
@@ -894,14 +868,13 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 				#display(forward_subst_dict[lowest_time_index])
 				#display(Symbolics.wrap(model_states[i]))
 
-				model_state_search = Symbolics.wrap(model_states[i])
-				#display(model_state_search)
+				#display(reverse_subst_dict[1])
+				model_state_search = forward_subst_dict[1][(model_states[i])]
+
 				index = findfirst(
 					isequal(model_state_search),
 					final_varlist)
 
-				#display(index)
-				#display(final_varlist)
 				#display(real(solns[soln_index][index]))
 				initial_conditions[i] = real(solns[soln_index][index]) #see above
 			end
@@ -956,17 +929,17 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 	#testing code
 
 	(deriv_level, unident_dict, varlist, DD) = local_identifiability_analysis(model, measured_quantities)
-	(deriv_level_mp, unident_dict_mp, varlist_mp, DD_mp) = multipoint_local_identifiability_analysis(model, measured_quantities, 1)
-	(deriv_level_mp3, unident_dict_mp3, varlist_mp3, DD_mp3) = multipoint_local_identifiability_analysis(model, measured_quantities, 3)
-	(deriv_level_mp5, unident_dict_mp5, varlist_mp5, DD_mp5) = multipoint_local_identifiability_analysis(model, measured_quantities, 5)
-	(deriv_level_mp10, unident_dict_mp10, varlist_mp10, DD_mp10) = multipoint_local_identifiability_analysis(model, measured_quantities, 10)
+	#(deriv_level_mp, unident_dict_mp, varlist_mp, DD_mp) = multipoint_local_identifiability_analysis(model, measured_quantities, 1)
+	#(deriv_level_mp3, unident_dict_mp3, varlist_mp3, DD_mp3) = multipoint_local_identifiability_analysis(model, measured_quantities, 3)
+	#(deriv_level_mp5, unident_dict_mp5, varlist_mp5, DD_mp5) = multipoint_local_identifiability_analysis(model, measured_quantities, 5)
+	#(deriv_level_mp10, unident_dict_mp10, varlist_mp10, DD_mp10) = multipoint_local_identifiability_analysis(model, measured_quantities, 10)
 
-	display("testing MP vs single point (SP, 1, 3, 5, 10)")
-	display(deriv_level)
-	display(deriv_level_mp)
-	display(deriv_level_mp3)
-	display(deriv_level_mp5)
-	display(deriv_level_mp10)
+	#display("testing MP vs single point (SP, 1, 3, 5, 10)")
+	#display(deriv_level)
+	#display(deriv_level_mp)
+	#display(deriv_level_mp3)
+	#display(deriv_level_mp5)
+	#display(deriv_level_mp10)
 
 	large_num_points = min(length(model_ps), 20, length(t_vector))
 	good_num_points = large_num_points
@@ -980,8 +953,8 @@ function HCPE(model::ODESystem, measured_quantities, data_sample, solver, time_i
 		end
 	end
 	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-	println("Optimal number of points is ", good_num_points)
-	display(good_deriv_level)
+	#println("Optimal number of points is ", good_num_points)
+	#display(good_deriv_level)
 
 
 	#end testing code
