@@ -691,6 +691,7 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 
 	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
 
+	jsvarlist = deepcopy(varlist)
 	println("after trivial subst")
 	display(poly_system)
 	display(varlist)
@@ -768,7 +769,7 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 		return ([], [])
 	end
 	display(solns)
-	return solns, hcvarlist, trivial_dict
+	return solns, hcvarlist, trivial_dict, jsvarlist
 end
 
 #this takes a vector of times and select points from it, sort of far apart from each other.
@@ -809,7 +810,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 
-	large_num_points = min(length(model_ps), 1, length(t_vector))
+	large_num_points = min(length(model_ps), 2, length(t_vector))
 	good_num_points = large_num_points
 	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 	while (good_num_points > 1)
@@ -880,7 +881,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 
 
 
-	solve_result, hcvarlist, trivial_dict = solveJSwithHC(final_target, final_varlist)
+	solve_result, hcvarlist, trivial_dict, trimmed_varlist = solveJSwithHC(final_target, final_varlist)
 
 	solns = solve_result
 
@@ -926,12 +927,19 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 
 				#display(reverse_subst_dict[1])
 				model_state_search = forward_subst_dict[1][(model_states[i])]
+				#				println("line 929")
+				#				display(model_states[i])
+				#				display(model_state_search)
+
 				if (model_state_search in keys(trivial_dict))
 					initial_conditions[i] = trivial_dict[model_state_search]
+					#					display(trivial_dict[model_state_search])
+
 				else
 					index = findfirst(
 						isequal(model_state_search),
-						final_varlist)
+						trimmed_varlist)
+					#						display(solns[soln_index][index])
 
 					#display(real(solns[soln_index][index]))
 					initial_conditions[i] = real(solns[soln_index][index]) #see above
