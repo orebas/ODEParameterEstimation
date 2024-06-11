@@ -69,6 +69,40 @@ function clear_denoms(eq)
 	return ret
 end
 
+#this is meant to look for equations like a-5.5 and replace a with 5.5
+function handle_simple_substitutions(eqns, varlist)
+	println("these are trivial")
+	trivial_dict = Dict()
+	filtered_eqns = typeof(eqns)()
+	trivial_vars = []
+	for i in eqns
+
+		g = Symbolics.get_variables(i)
+		if (length(g) == 1 && Symbolics.degree(i) == 1)
+			display(i)
+			thisvar = g[1]
+			td = (polynomial_coeffs(i, (thisvar,)))[1]
+			if (1 in Set(keys(td)))
+				thisvarvalue = (-td[1] / td[thisvar])
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			else
+				thisvarvalue = 0
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			end
+		else
+			push!(filtered_eqns, i)
+		end
+	end
+	println("end trivial")
+	reduced_varlist = filter(x -> !(x in Set(trivial_vars)), varlist)
+	filtered_eqns = Symbolics.substitute.(filtered_eqns, Ref(trivial_dict))
+	return filtered_eqns, reduced_varlist, trivial_vars, trivial_dict
+end
+
+
+
 
 #this populates a "DerivateData" object, by taking derivatives of state variable and measured quantity equations.
 #diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
@@ -625,7 +659,10 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 
 	push!(data_sample, ("t" => t_vector)) #TODO(orebas) maybe don't pop this in the first place
 
-	return target, collect(vars_needed)
+
+	return_var = collect(vars_needed)
+
+	return target, return_var
 
 end
 
@@ -641,13 +678,24 @@ end
 #	end
 #end
 
-function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
+function solveJSwithHC(input_poly_system, input_varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
 	println("starting SolveJSWithHC.  Here is the polynomial system:")
-	display(poly_system)
+	display(input_poly_system)
 	#print_element_types(poly_system)
 	println("varlist")
-	display(varlist)
+	display(input_varlist)
 	#print_element_types(varlist)
+
+
+
+
+	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+
+	println("after trivial subst")
+	display(poly_system)
+	display(varlist)
+	display(trivial_dict)
+
 
 	@variables _qz_discard1 _qz_discard2
 	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
@@ -720,7 +768,7 @@ function solveJSwithHC(poly_system, varlist)  #the input here is meant to be a p
 		return ([], [])
 	end
 	display(solns)
-	return solns, hcvarlist
+	return solns, hcvarlist, trivial_dict
 end
 
 #this takes a vector of times and select points from it, sort of far apart from each other.
@@ -761,7 +809,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 
-	large_num_points = min(length(model_ps), 3, length(t_vector))
+	large_num_points = min(length(model_ps), 1, length(t_vector))
 	good_num_points = large_num_points
 	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 	while (good_num_points > 1)
@@ -830,7 +878,10 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 
 
 
-	solve_result, hcvarlist = solveJSwithHC(final_target, final_varlist)
+
+
+	solve_result, hcvarlist, trivial_dict = solveJSwithHC(final_target, final_varlist)
+
 	solns = solve_result
 
 	@named new_model = ODESystem(model_eq, t, model_states, model_ps)
@@ -848,14 +899,19 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 			else
 
 				param_search = forward_subst_dict[1][(model_ps[i])]
-				index = findfirst(isequal(param_search), final_varlist)
-				parameter_values[i] = real(solns[soln_index][index]) #TODOdo we ignore the imaginary part?
+				if (param_search in keys(trivial_dict))
+					parameter_values[i] = trivial_dict[param_search]
+				else
+					index = findfirst(isequal(param_search), final_varlist)
+					parameter_values[i] = real(solns[soln_index][index]) #TODOdo we ignore the imaginary part?
+				end
 			end                                                   #what about other vars
 		end
 
 		for i in eachindex(model_states)
 			if model_states[i] in keys(good_udict)
 				initial_conditions[i] = good_udict[model_states[i]]
+
 			else
 				#println("line 596")
 				#display(Symbolics.wrap(model_states[i]))
@@ -870,13 +926,16 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 
 				#display(reverse_subst_dict[1])
 				model_state_search = forward_subst_dict[1][(model_states[i])]
+				if (model_state_search in keys(trivial_dict))
+					initial_conditions[i] = trivial_dict[model_state_search]
+				else
+					index = findfirst(
+						isequal(model_state_search),
+						final_varlist)
 
-				index = findfirst(
-					isequal(model_state_search),
-					final_varlist)
-
-				#display(real(solns[soln_index][index]))
-				initial_conditions[i] = real(solns[soln_index][index]) #see above
+					#display(real(solns[soln_index][index]))
+					initial_conditions[i] = real(solns[soln_index][index]) #see above
+				end
 			end
 		end
 

@@ -672,11 +672,12 @@ function varied_estimation_main()
 		slowfast(),  #try slowfast next
 		hiv(),  #suspected eta vs b vs beta problem
 		daisy_mamil4(),
-		daisy_ex3_v3()]
+		daisy_ex3_v3(),
 		#sirsforced(),
 		#hiv_local(), #unclear if it finishes
-		#crauste(),  #dies OOM
+		#crauste(),  #dies OOM =#
 
+	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end
 end

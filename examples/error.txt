@@ -1,0 +1,2596 @@
+Precompiling ODEParameterEstimation...
+Info Given ODEParameterEstimation was explicitly requested, output will be shown live [0K
+[0KOptimal number of points is 1
+[0KDict{Int64, Int64} with 2 entries:
+[0K  2 => 1
+[0K  1 => 1
+[0KWe picked these points:[11]
+[0K1-element Vector{Int64}:
+[0K 11
+[0Kstarting SolveJSWithHC.  Here is the polynomial system:
+[0K6-element Vector{Symbolics.Num}:
+[0K                              -0.81641941354647 + _t11_x2_t_
+[0K                               0.006358394374387951 + _t11_x2ˍt_t_
+[0K                               0.00794799296807862 + _t11_x1_t_
+[0K                               0.3265677654185806 + _t11_x1ˍt_t_
+[0K _t11_x2ˍt_t_ - _t11_x1_t_*_tpb_
+[0K _t11_x1ˍt_t_ + _t11_x2_t_*_tpa_
+[0Kvarlist
+[0K6-element Vector{Symbolics.Num}:
+[0K        _tpa_
+[0K        _tpb_
+[0K   _t11_x1_t_
+[0K   _t11_x2_t_
+[0K _t11_x2ˍt_t_
+[0K _t11_x1ˍt_t_
+[0Kthese are trivial
+[0K-0.81641941354647 + _t11_x2_t_
+[0K0.006358394374387951 + _t11_x2ˍt_t_
+[0K0.00794799296807862 + _t11_x1_t_
+[0K0.3265677654185806 + _t11_x1ˍt_t_
+[0Kend trivial
+[0Kafter trivial subst
+[0K2-element Vector{Symbolics.Num}:
+[0K -0.006358394374387951 + 0.00794799296807862_tpb_
+[0K -0.3265677654185806 + 0.81641941354647_tpa_
+[0K2-element Vector{Symbolics.Num}:
+[0K _tpa_
+[0K _tpb_
+[0KDict{Any, Any} with 4 entries:
+[0K  _t11_x2ˍt_t_ => -0.00635839
+[0K  _t11_x1_t_ => -0.00794799
+[0K  _t11_x2_t_ => 0.816419
+[0K  _t11_x1ˍt_t_ => -0.326568
+[0K1-element Vector{Vector{Float64}}:
+[0K [0.399999999999991, 0.7999999999905706]
+[0K1-element Vector{Any}:
+[0K ODEParameterEstimation.ParameterEstimationResult(Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(a => 0.399999999999991, b => 0.7999999999905706), Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}(x1(t) => 0.33300000000026175, x2(t) => 0.6670000000016956), -1.0, 6.507210412886314e-14, nothing, 19, -1.0)
+ 126723.8 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 129 seconds. 364 already precompiled.
+  1 dependency had output during precompilation:
+┌ ODEParameterEstimation
+│  [Output was shown above]
+└  
+testingOptimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[15]
+1-element Vector{Int64}:
+ 15
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                                                               -0.6803288599951535 + _t15_x2_t_
+                                                                0.13250952714324873 + _t15_x2ˍt_t_
+                                                               -0.5261195964859254 + _t15_x1_t_
+                                                               -0.27213154399800554 + _t15_x1ˍt_t_
+ _t15_x1_t_ + _t15_x2ˍt_t_ + (-1 + _t15_x1_t_^2)*_t15_x2_t_*_tpb_
+                                  _t15_x1ˍt_t_ - _t15_x2_t_*_tpa_
+varlist
+6-element Vector{Num}:
+        _tpa_
+        _tpb_
+   _t15_x1_t_
+   _t15_x2_t_
+ _t15_x2ˍt_t_
+ _t15_x1ˍt_t_
+these are trivial
+-0.6803288599951535 + _t15_x2_t_
+0.13250952714324873 + _t15_x2ˍt_t_
+-0.5261195964859254 + _t15_x1_t_
+-0.27213154399800554 + _t15_x1ˍt_t_
+end trivial
+after trivial subst
+2-element Vector{Num}:
+ 0.3936100693426767 - 0.492012586678316_tpb_
+ 0.27213154399800554 - 0.6803288599951535_tpa_
+2-element Vector{Num}:
+ _tpa_
+ _tpb_
+Dict{Any, Any} with 4 entries:
+  _t15_x1ˍt_t_ => 0.272132
+  _t15_x2_t_ => 0.680329
+  _t15_x1_t_ => 0.52612
+  _t15_x2ˍt_t_ => -0.13251
+1-element Vector{Vector{Float64}}:
+ [0.3999999999999179, 0.8000000000000487]
+"How close are we?"
+Actual values:
+4-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.4
+ 0.8
+4-element Vector{Float64}:
+ 0.3330000000000288
+ 0.6669999999999919
+ 0.3999999999999179
+ 0.8000000000000487
+Error: 2.3802923042068673e-15
+For model vanderpol: The ODEPE  max abs rel. err: 2.0525248167757582e-13
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[20]
+1-element Vector{Int64}:
+ 20
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                              -0.814054089888246 + _t20_x2_t_
+                              -0.035700705813631974 + _t20_x2ˍt_t_
+                              -0.044625882267017684 + _t20_x1_t_
+                               0.32562163595516586 + _t20_x1ˍt_t_
+ _t20_x2ˍt_t_ - _t20_x1_t_*_tpb_
+ _t20_x1ˍt_t_ + _t20_x2_t_*_tpa_
+varlist
+6-element Vector{Num}:
+        _tpa_
+        _tpb_
+   _t20_x1_t_
+   _t20_x2_t_
+ _t20_x2ˍt_t_
+ _t20_x1ˍt_t_
+these are trivial
+-0.814054089888246 + _t20_x2_t_
+-0.035700705813631974 + _t20_x2ˍt_t_
+-0.044625882267017684 + _t20_x1_t_
+0.32562163595516586 + _t20_x1ˍt_t_
+end trivial
+after trivial subst
+2-element Vector{Num}:
+  0.035700705813631974 - 0.044625882267017684_tpb_
+ -0.32562163595516586 + 0.814054089888246_tpa_
+2-element Vector{Num}:
+ _tpa_
+ _tpb_
+Dict{Any, Any} with 4 entries:
+  _t20_x1ˍt_t_ => -0.325622
+  _t20_x2_t_ => 0.814054
+  _t20_x1_t_ => 0.0446259
+  _t20_x2ˍt_t_ => 0.0357007
+1-element Vector{Vector{Float64}}:
+ [0.39999999999983715, 0.8000000000003994]
+"How close are we?"
+Actual values:
+4-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.4
+ 0.8
+4-element Vector{Float64}:
+ 0.33299999999988206
+ 0.6669999999999702
+ 0.39999999999983715
+ 0.8000000000003994
+Error: 6.497376018089325e-15
+For model simple: The ODEPE  max abs rel. err: 4.99184027447086e-13
+Optimal number of points is 1
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+We picked these points:[6]
+1-element Vector{Int64}:
+ 6
+starting SolveJSWithHC.  Here is the polynomial system:
+9-element Vector{Num}:
+                                               -3.0981043632730665 + _t6_x2_t_
+                                               -0.3847531508451614 + _t6_x2ˍt_t_
+                                               -4.0001200018000445 + _t6_x3_t_
+                                               -0.0004800144001803244 + _t6_x3ˍt_t_
+                                               -1.9237657542263797 + _t6_x1_t_
+                                                0.3098104363272531 + _t6_x1ˍt_t_
+                    _t6_x2ˍt_t_ - _t6_x1_t_*_tpb_
+ _t6_x3ˍt_t_ - _t6_x3_t_*(_tpa_^2)*(_tpb_^2)*_tpbeta_
+                    _t6_x1ˍt_t_ + _t6_x2_t_*_tpa_
+varlist
+9-element Vector{Num}:
+       _tpa_
+       _tpb_
+        _tpbeta_
+   _t6_x1_t_
+   _t6_x2_t_
+   _t6_x3_t_
+ _t6_x2ˍt_t_
+ _t6_x3ˍt_t_
+ _t6_x1ˍt_t_
+these are trivial
+-3.0981043632730665 + _t6_x2_t_
+-0.3847531508451614 + _t6_x2ˍt_t_
+-4.0001200018000445 + _t6_x3_t_
+-0.0004800144001803244 + _t6_x3ˍt_t_
+-1.9237657542263797 + _t6_x1_t_
+0.3098104363272531 + _t6_x1ˍt_t_
+end trivial
+after trivial subst
+3-element Vector{Num}:
+  0.3847531508451614 - 1.9237657542263797_tpb_
+  0.0004800144001803244 - 4.0001200018000445(_tpa_^2)*(_tpb_^2)*_tpbeta_
+ -0.3098104363272531 + 3.0981043632730665_tpa_
+3-element Vector{Num}:
+ _tpa_
+ _tpb_
+  _tpbeta_
+Dict{Any, Any} with 6 entries:
+  _t6_x2_t_ => 3.0981
+  _t6_x3_t_ => 4.00012
+  _t6_x1ˍt_t_ => -0.30981
+  _t6_x3ˍt_t_ => 0.000480014
+  _t6_x1_t_ => 1.92377
+  _t6_x2ˍt_t_ => 0.384753
+1-element Vector{Vector{Float64}}:
+ [0.09999999999998271, 0.19999999999994045, 0.2999999999779825]
+"How close are we?"
+Actual values:
+6-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+6-element Vector{Float64}:
+ 1.999999999999992
+ 3.000000000000022
+ 4.000000000000035
+ 0.09999999999998271
+ 0.19999999999994045
+ 0.2999999999779825
+Error: 0.11210843524770643
+For model substr_test: The ODEPE  max abs rel. err: 7.339166311718752e-11
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 4
+  1 => 4
+We picked these points:[19]
+1-element Vector{Int64}:
+ 19
+starting SolveJSWithHC.  Here is the polynomial system:
+25-element Vector{Num}:
+                                                                               -3.0539694961216663 + _t19_x2_t_
+                                                                               -2.271863811176692 + _t19_x2ˍt_t_
+                                                                               -3.03667222176625 + _t19_x2ˍtt_t_
+                                                                               -2.2903205029155154 + _t19_x2ˍttt_t_
+                                                                               -1.6995520286833485 + _t19_x2ˍtttt_t_
+                                                                               -6.608537093947634 + _t19_x1_t_ + _t19_x3_t_
+                                                                               -7.078445067685975 + _t19_x1ˍt_t_ + _t19_x3ˍt_t_
+                                                                               -5.517793093314287 + _t19_x1ˍtt_t_ + _t19_x3ˍtt_t_
+                                                                               -4.628555547265177 + _t19_x1ˍttt_t_ + _t19_x3ˍttt_t_
+                                                                               -3.7257011518342713 + _t19_x1ˍtttt_t_ + _t19_x3ˍtttt_t_
+                _t19_x2ˍt_t_ - _t19_x3_t_ - _t19_x1_t_*_tpp3_ + _t19_x2_t_*_tpp4_
+         _t19_x2ˍtt_t_ - _t19_x3ˍt_t_ - _t19_x1ˍt_t_*_tpp3_ + _t19_x2ˍt_t_*_tpp4_
+     _t19_x2ˍttt_t_ - _t19_x3ˍtt_t_ - _t19_x1ˍtt_t_*_tpp3_ + _t19_x2ˍtt_t_*_tpp4_
+ _t19_x2ˍtttt_t_ - _t19_x3ˍttt_t_ - _t19_x1ˍttt_t_*_tpp3_ + _t19_x2ˍttt_t_*_tpp4_
+                             _t19_x3ˍt_t_ - _t19_x1_t_*_tpp6_ + _t19_x3_t_*_tpp7_
+                      -_t19_u0_t_ + _t19_x1ˍt_t_ - _t19_x2_t_ + _t19_x1_t_*_tpp1_
+                        _t19_x3ˍtt_t_ - _t19_x1ˍt_t_*_tpp6_ + _t19_x3ˍt_t_*_tpp7_
+               -_t19_u0ˍt_t_ + _t19_x1ˍtt_t_ - _t19_x2ˍt_t_ + _t19_x1ˍt_t_*_tpp1_
+           -_t19_u0ˍtt_t_ + _t19_x1ˍttt_t_ - _t19_x2ˍtt_t_ + _t19_x1ˍtt_t_*_tpp1_
+                     _t19_x3ˍttt_t_ - _t19_x1ˍtt_t_*_tpp6_ + _t19_x3ˍtt_t_*_tpp7_
+       -_t19_u0ˍttt_t_ + _t19_x1ˍtttt_t_ - _t19_x2ˍttt_t_ + _t19_x1ˍttt_t_*_tpp1_
+                  _t19_x3ˍtttt_t_ - _t19_x1ˍttt_t_*_tpp6_ + _t19_x3ˍttt_t_*_tpp7_
+                                                            _t19_u0ˍt_t_ - _tppd_
+                                                                    _t19_u0ˍtt_t_
+                                                                   _t19_u0ˍttt_t_
+varlist
+25-element Vector{Num}:
+          _tpp1_
+          _tpp3_
+          _tpp4_
+          _tpp6_
+          _tpp7_
+          _tppd_
+      _t19_x1_t_
+      _t19_x2_t_
+      _t19_x3_t_
+      _t19_u0_t_
+    _t19_x2ˍt_t_
+   _t19_x2ˍtt_t_
+  _t19_x2ˍttt_t_
+ _t19_x2ˍtttt_t_
+    _t19_x3ˍt_t_
+    _t19_x1ˍt_t_
+   _t19_x3ˍtt_t_
+   _t19_x1ˍtt_t_
+  _t19_x1ˍttt_t_
+  _t19_x3ˍttt_t_
+ _t19_x1ˍtttt_t_
+ _t19_x3ˍtttt_t_
+    _t19_u0ˍt_t_
+   _t19_u0ˍtt_t_
+  _t19_u0ˍttt_t_
+these are trivial
+-3.0539694961216663 + _t19_x2_t_
+-2.271863811176692 + _t19_x2ˍt_t_
+-3.03667222176625 + _t19_x2ˍtt_t_
+-2.2903205029155154 + _t19_x2ˍttt_t_
+-1.6995520286833485 + _t19_x2ˍtttt_t_
+_t19_u0ˍtt_t_
+_t19_u0ˍttt_t_
+end trivial
+after trivial subst
+18-element Vector{Num}:
+                                                              -6.608537093947634 + _t19_x1_t_ + _t19_x3_t_
+                                                              -7.078445067685975 + _t19_x1ˍt_t_ + _t19_x3ˍt_t_
+                                                              -5.517793093314287 + _t19_x1ˍtt_t_ + _t19_x3ˍtt_t_
+                                                              -4.628555547265177 + _t19_x1ˍttt_t_ + _t19_x3ˍttt_t_
+                                                              -3.7257011518342713 + _t19_x1ˍtttt_t_ + _t19_x3ˍtttt_t_
+                                                               2.271863811176692 - _t19_x3_t_ + 3.0539694961216663_tpp4_ - _t19_x1_t_*_tpp3_
+                                                               3.03667222176625 - _t19_x3ˍt_t_ + 2.271863811176692_tpp4_ - _t19_x1ˍt_t_*_tpp3_
+                                                               2.2903205029155154 - _t19_x3ˍtt_t_ + 3.03667222176625_tpp4_ - _t19_x1ˍtt_t_*_tpp3_
+                                                               1.6995520286833485 - _t19_x3ˍttt_t_ + 2.2903205029155154_tpp4_ - _t19_x1ˍttt_t_*_tpp3_
+            _t19_x3ˍt_t_ - _t19_x1_t_*_tpp6_ + _t19_x3_t_*_tpp7_
+                                                              -3.0539694961216663 - _t19_u0_t_ + _t19_x1ˍt_t_ + _t19_x1_t_*_tpp1_
+       _t19_x3ˍtt_t_ - _t19_x1ˍt_t_*_tpp6_ + _t19_x3ˍt_t_*_tpp7_
+                                                              -2.271863811176692 - _t19_u0ˍt_t_ + _t19_x1ˍtt_t_ + _t19_x1ˍt_t_*_tpp1_
+                                                              -3.03667222176625 + _t19_x1ˍttt_t_ + _t19_x1ˍtt_t_*_tpp1_
+    _t19_x3ˍttt_t_ - _t19_x1ˍtt_t_*_tpp6_ + _t19_x3ˍtt_t_*_tpp7_
+                                                              -2.2903205029155154 + _t19_x1ˍtttt_t_ + _t19_x1ˍttt_t_*_tpp1_
+ _t19_x3ˍtttt_t_ - _t19_x1ˍttt_t_*_tpp6_ + _t19_x3ˍttt_t_*_tpp7_
+                                           _t19_u0ˍt_t_ - _tppd_
+18-element Vector{Num}:
+          _tpp1_
+          _tpp3_
+          _tpp4_
+          _tpp6_
+          _tpp7_
+          _tppd_
+      _t19_x1_t_
+      _t19_x3_t_
+      _t19_u0_t_
+    _t19_x3ˍt_t_
+    _t19_x1ˍt_t_
+   _t19_x3ˍtt_t_
+   _t19_x1ˍtt_t_
+  _t19_x1ˍttt_t_
+  _t19_x3ˍttt_t_
+ _t19_x1ˍtttt_t_
+ _t19_x3ˍtttt_t_
+    _t19_u0ˍt_t_
+Dict{Any, Any} with 7 entries:
+  _t19_x2ˍttt_t_ => 2.29032
+  _t19_x2ˍt_t_ => 2.27186
+  _t19_x2ˍtttt_t_ => 1.69955
+  _t19_x2_t_ => 3.05397
+  _t19_u0ˍtt_t_ => 0
+  _t19_u0ˍttt_t_ => 0
+  _t19_x2ˍtt_t_ => 3.03667
+Tracking 14 paths...  14%|████▎                         |  ETA: 0:00:50[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 14 paths... 100%|██████████████████████████████| Time: 0:00:09[K
+  # paths tracked:                  14[K
+  # non-singular solutions (real):  3 (3)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         3 (3)[K
+3-element Vector{Vector{Float64}}:
+ [-0.7852061079011969, 0.8803493945142435, -0.33405920771234915, -0.974824826622429, 0.27774950165027057, 1.6759155771682184, 44.77102218810522, -38.16248509415758, 1.9142882180745253, -33.044292725590445, 40.12273779327642, -29.93460507602946, 35.452398169343745, 30.874111804080172, -26.245556256814993, 26.532861667503706, -22.807160515669437, 1.6759155771682184]
+ [0.19999995829090209, 0.3000000003703423, 0.49999997847531485, 0.5999999962981909, -0.19999996315869986, 0.9999999355908369, 4.013840859903337, 2.5946962340442963, 1.899999923830889, 2.9272436523004064, 4.151201415385569, 3.076169456481006, 2.441623636833281, 2.5483475962375133, 2.0802079510276634, 1.7806510899572923, 1.945050061876979, 0.9999999355908369]
+ [-0.7854382273933703, 0.8945315545745334, -0.7779711934053564, -4.6712934753802475, 4.37093846246179, 7.466922467465054, 63.645325852801825, -57.036788758854186, 2.0367052851250698, -48.00170163325887, 55.080146700944844, -47.48304597468437, 53.00083906799866, 44.6655573096964, -40.03700176243123, 37.37235666178046, -33.646655509946186, 7.466922467465054]
+"How close are we?"
+Actual values:
+10-element Vector{Float64}:
+  1.0
+  2.0
+  1.0
+  1.0
+  0.2
+  0.3
+  0.5
+  0.6
+ -0.2
+  1.0
+10-element Vector{Float64}:
+ -0.3743696897388972
+  2.8181370387417046
+  0.7289313600020677
+  2.027243710268654
+  0.19999995829090209
+  0.3000000003703423
+  0.49999997847531485
+  0.5999999962981909
+ -0.19999996315869986
+  0.9999999355908369
+Error: 0.11376237222810866
+10-element Vector{Float64}:
+  59.450361327614516
+ -51.24221169640238
+  50.83475392771019
+ -34.552616745041846
+  -0.7852061079011969
+   0.8803493945142435
+  -0.33405920771234915
+  -0.974824826622429
+   0.27774950165027057
+   1.6759155771682184
+Error: 8.60009955410157
+For model DAISY_ex3_v4: The ODEPE  max abs rel. err: 1.3743696897388973
+Optimal number of points is 1
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+We picked these points:[16]
+1-element Vector{Int64}:
+ 16
+starting SolveJSWithHC.  Here is the polynomial system:
+12-element Vector{Num}:
+                                                                                                                                                        -0.8249245308861587 + _t16_V_t_
+                                                                                                                                                        -1.551925673925132 + _t16_Vˍt_t_
+                                                                                                                                                        -4.626308415982148 + _t16_Vˍtt_t_
+                                                                                                                                                       -14.435092768149882 + _t16_Vˍttt_t_
+                                                                                                                                                       -40.203288157633615 + _t16_Vˍtttt_t_
+                                                                                        _t16_Vˍt_t_ - (_t16_R_t_ + _t16_V_t_ - (1//3)*(_t16_V_t_^3))*_tpg_
+                                                                              _t16_Vˍtt_t_ - (_t16_Rˍt_t_ + _t16_Vˍt_t_ - (_t16_V_t_^2)*_t16_Vˍt_t_)*_tpg_
+                                       _t16_Vˍttt_t_ - (_t16_Rˍtt_t_ + _t16_Vˍtt_t_ - (_t16_V_t_^2)*_t16_Vˍtt_t_ - (2//1)*_t16_V_t_*(_t16_Vˍt_t_^2))*_tpg_
+ _t16_Vˍtttt_t_ - (_t16_Rˍttt_t_ + _t16_Vˍttt_t_ - (_t16_V_t_^2)*_t16_Vˍttt_t_ - (6//1)*_t16_V_t_*_t16_Vˍt_t_*_t16_Vˍtt_t_ - (2//1)*(_t16_Vˍt_t_^3))*_tpg_
+                                                                                                  -_t16_V_t_ + _tpa_ - _t16_R_t_*_tpb_ + _t16_Rˍt_t_*_tpg_
+                                                                                                     -_t16_Vˍt_t_ - _t16_Rˍt_t_*_tpb_ + _t16_Rˍtt_t_*_tpg_
+                                                                                                  -_t16_Vˍtt_t_ - _t16_Rˍtt_t_*_tpb_ + _t16_Rˍttt_t_*_tpg_
+varlist
+12-element Vector{Num}:
+          _tpg_
+          _tpa_
+          _tpb_
+      _t16_V_t_
+      _t16_R_t_
+    _t16_Vˍt_t_
+   _t16_Vˍtt_t_
+  _t16_Vˍttt_t_
+ _t16_Vˍtttt_t_
+    _t16_Rˍt_t_
+   _t16_Rˍtt_t_
+  _t16_Rˍttt_t_
+these are trivial
+-0.8249245308861587 + _t16_V_t_
+-1.551925673925132 + _t16_Vˍt_t_
+-4.626308415982148 + _t16_Vˍtt_t_
+-14.435092768149882 + _t16_Vˍttt_t_
+-40.203288157633615 + _t16_Vˍtttt_t_
+end trivial
+after trivial subst
+7-element Vector{Num}:
+  1.551925673925132 + (-0.6378040173530508 - _t16_R_t_)*_tpg_
+  4.626308415982148 + (-0.495839505322053 - _t16_Rˍt_t_)*_tpg_
+ 14.435092768149882 + (2.4955140993902316 - _t16_Rˍtt_t_)*_tpg_
+ 40.203288157633615 + (38.399736527083974 - _t16_Rˍttt_t_)*_tpg_
+ -0.8249245308861587 + _tpa_ - _t16_R_t_*_tpb_ + _t16_Rˍt_t_*_tpg_
+ -1.551925673925132 - _t16_Rˍt_t_*_tpb_ + _t16_Rˍtt_t_*_tpg_
+ -4.626308415982148 - _t16_Rˍtt_t_*_tpb_ + _t16_Rˍttt_t_*_tpg_
+7-element Vector{Num}:
+         _tpg_
+         _tpa_
+         _tpb_
+     _t16_R_t_
+   _t16_Rˍt_t_
+  _t16_Rˍtt_t_
+ _t16_Rˍttt_t_
+Dict{Any, Any} with 5 entries:
+  _t16_Vˍtt_t_ => 4.62631
+  _t16_Vˍttt_t_ => 14.4351
+  _t16_Vˍt_t_ => 1.55193
+  _t16_V_t_ => 0.824925
+  _t16_Vˍtttt_t_ => 40.2033
+2-element Vector{Vector{Float64}}:
+ [0.2500000003389506, 0.4999999999684958, 0.7500000010983345, 5.569898669931059, 18.0093941335171, 60.235885093705235, 199.2128889395876]
+ [3.384500192944977, -6.512735626228261, 24.486222503807543, -0.17926491690916976, 0.8710708661489643, 6.760573028398411, 50.27838503224221]
+"How close are we?"
+Actual values:
+5-element Vector{Float64}:
+ 0.333
+ 0.67
+ 0.25
+ 0.5
+ 0.75
+5-element Vector{Float64}:
+  0.2526758635986265
+ -0.27100032720437073
+  3.384500192944977
+ -6.512735626228261
+ 24.486222503807543
+Error: 0.09806373465821136
+5-element Vector{Float64}:
+ -0.568982836267005
+  2.8657295923721273
+  0.2500000003389506
+  0.4999999999684958
+  0.7500000010983345
+Error: 0.20581066969146167
+For model fitzhugh-nagumo: The ODEPE  max abs rel. err: 3.2772083468240707
+Optimal number of points is 1
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+We picked these points:[11]
+1-element Vector{Int64}:
+ 11
+starting SolveJSWithHC.  Here is the polynomial system:
+12-element Vector{Num}:
+                                                                                                                                                                            -0.32654597377701194 + _t11_r_t_
+                                                                                                                                                                            -0.00038013739946027926 + _t11_rˍt_t_
+                                                                                                                                                                            -0.04767574160251725 + _t11_rˍtt_t_
+                                                                                                                                                                             0.027821330863376743 + _t11_rˍttt_t_
+                                                                                                                                                                            -0.03525402400252058 + _t11_rˍtttt_t_
+                                                                                                                   _t11_rˍt_t_ - _t11_r_t_*_tpk1_ + _t11_r_t_*_t11_w_t_*_tpk2_
+                                                                               _t11_rˍtt_t_ - _t11_rˍt_t_*_tpk1_ + _t11_r_t_*_t11_wˍt_t_*_tpk2_ + _t11_rˍt_t_*_t11_w_t_*_tpk2_
+                                         _t11_rˍttt_t_ - _t11_rˍtt_t_*_tpk1_ + _t11_r_t_*_t11_wˍtt_t_*_tpk2_ + 2_t11_rˍt_t_*_t11_wˍt_t_*_tpk2_ + _t11_rˍtt_t_*_t11_w_t_*_tpk2_
+ _t11_rˍtttt_t_ - _t11_rˍttt_t_*_tpk1_ + _t11_r_t_*_t11_wˍttt_t_*_tpk2_ + 3_t11_rˍt_t_*_t11_wˍtt_t_*_tpk2_ + 3_t11_rˍtt_t_*_t11_wˍt_t_*_tpk2_ + _t11_rˍttt_t_*_t11_w_t_*_tpk2_
+                                                                                                                   _t11_wˍt_t_ + _t11_w_t_*_tpk3_ - _t11_r_t_*_t11_w_t_*_tpk2_
+                                                                               _t11_wˍtt_t_ + _t11_wˍt_t_*_tpk3_ - _t11_r_t_*_t11_wˍt_t_*_tpk2_ - _t11_rˍt_t_*_t11_w_t_*_tpk2_
+                                         _t11_wˍttt_t_ + _t11_wˍtt_t_*_tpk3_ - _t11_r_t_*_t11_wˍtt_t_*_tpk2_ - 2_t11_rˍt_t_*_t11_wˍt_t_*_tpk2_ - _t11_rˍtt_t_*_t11_w_t_*_tpk2_
+varlist
+12-element Vector{Num}:
+         _tpk1_
+         _tpk2_
+         _tpk3_
+      _t11_r_t_
+      _t11_w_t_
+    _t11_rˍt_t_
+   _t11_rˍtt_t_
+  _t11_rˍttt_t_
+ _t11_rˍtttt_t_
+    _t11_wˍt_t_
+   _t11_wˍtt_t_
+  _t11_wˍttt_t_
+these are trivial
+-0.32654597377701194 + _t11_r_t_
+-0.00038013739946027926 + _t11_rˍt_t_
+-0.04767574160251725 + _t11_rˍtt_t_
+0.027821330863376743 + _t11_rˍttt_t_
+-0.03525402400252058 + _t11_rˍtttt_t_
+end trivial
+after trivial subst
+7-element Vector{Num}:
+                 0.00038013739946027926 - 0.32654597377701194_tpk1_ + 0.32654597377701194_t11_w_t_*_tpk2_
+                 0.04767574160251725 - 0.00038013739946027926_tpk1_ + 0.00038013739946027926_t11_w_t_*_tpk2_ + 0.32654597377701194_t11_wˍt_t_*_tpk2_
+                -0.027821330863376743 - 0.04767574160251725_tpk1_ + 0.04767574160251725_t11_w_t_*_tpk2_ + 0.0007602747989205585_t11_wˍt_t_*_tpk2_ + 0.32654597377701194_t11_wˍtt_t_*_tpk2_
+                 0.03525402400252058 + 0.027821330863376743_tpk1_ - 0.027821330863376743_t11_w_t_*_tpk2_ + 0.14302722480755176_t11_wˍt_t_*_tpk2_ + 0.0011404121983808377_t11_wˍtt_t_*_tpk2_ + 0.32654597377701194_t11_wˍttt_t_*_tpk2_
+   _t11_wˍt_t_ - 0.32654597377701194_t11_w_t_*_tpk2_ + _t11_w_t_*_tpk3_
+  _t11_wˍtt_t_ - 0.00038013739946027926_t11_w_t_*_tpk2_ - 0.32654597377701194_t11_wˍt_t_*_tpk2_ + _t11_wˍt_t_*_tpk3_
+ _t11_wˍttt_t_ - 0.04767574160251725_t11_w_t_*_tpk2_ - 0.0007602747989205585_t11_wˍt_t_*_tpk2_ - 0.32654597377701194_t11_wˍtt_t_*_tpk2_ + _t11_wˍtt_t_*_tpk3_
+7-element Vector{Num}:
+        _tpk1_
+        _tpk2_
+        _tpk3_
+     _t11_w_t_
+   _t11_wˍt_t_
+  _t11_wˍtt_t_
+ _t11_wˍttt_t_
+Dict{Any, Any} with 5 entries:
+  _t11_rˍtt_t_ => 0.0476757
+  _t11_r_t_ => 0.326546
+  _t11_rˍttt_t_ => -0.0278213
+  _t11_rˍtttt_t_ => 0.035254
+  _t11_rˍt_t_ => 0.000380137
+Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 3 paths... 100%|███████████████████████████████| Time: 0:00:06[K
+  # paths tracked:                  3[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.003481467449214152, -1.0344466485608723e7, -3.3778808793323943e6, -2.2401845779777083e-10, 1.411370370481918e-8, -8.285463316327357e-9, 4.293250901834765e-9]
+ [0.25000000000540584, 0.4999999994510197, 0.7499999998079283, 0.49767176851650097, -0.2919974702452291, 0.17141739537518727, -0.08882278023420224]
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/roUH9/src/integrator_interface.jl:599
+"How close are we?"
+Actual values:
+5-element Vector{Float64}:
+ 0.333
+ 0.667
+ 0.25
+ 0.5
+ 0.75
+5-element Vector{Float64}:
+  0.2646728430867944
+ -0.3946330688746241
+  0.25000000000540584
+  0.4999999994510197
+  0.7499999998079283
+Error: 0.09061215065481087
+For model Lotka_Volterra: The ODEPE  max abs rel. err: 1.5916537764237244
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.5398672836142632) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.6112500558834174, b => 0.5398672836142632) the following are globally unidentifiable:Any[x3(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[b, c, d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(b => 0.4060884755613383) the following are globally unidentifiable:Any[d, x3(t)]
+After making the following substitutions:Dict{Any, Any}(d => 0.5977894513507541, b => 0.4060884755613383) the following are globally unidentifiable:Any[x3(t)]
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+We picked these points:[19]
+1-element Vector{Int64}:
+ 19
+starting SolveJSWithHC.  Here is the polynomial system:
+6-element Vector{Num}:
+                              -3.860688147287681 + _t19_x2_t_
+                              -0.9139311852713098 + _t19_x2ˍt_t_
+                              -1.8278623705424635 + _t19_x1_t_
+                               0.18278623705426084 + _t19_x1ˍt_t_
+   _t19_x2ˍt_t_ + _t19_x1_t_*(-0.4060884755613383 - _tpc_)
+ _t19_x1ˍt_t_ + _t19_x1_t_*_tpa_
+varlist
+6-element Vector{Num}:
+        _tpa_
+        _tpc_
+   _t19_x1_t_
+   _t19_x2_t_
+ _t19_x2ˍt_t_
+ _t19_x1ˍt_t_
+these are trivial
+-3.860688147287681 + _t19_x2_t_
+-0.9139311852713098 + _t19_x2ˍt_t_
+-1.8278623705424635 + _t19_x1_t_
+0.18278623705426084 + _t19_x1ˍt_t_
+end trivial
+after trivial subst
+2-element Vector{Num}:
+  0.9139311852713098 + 1.8278623705424635(-0.4060884755613383 - _tpc_)
+ -0.18278623705426084 + 1.8278623705424635_tpa_
+2-element Vector{Num}:
+ _tpa_
+ _tpc_
+Dict{Any, Any} with 4 entries:
+  _t19_x2ˍt_t_ => 0.913931
+  _t19_x2_t_ => 3.86069
+  _t19_x1ˍt_t_ => -0.182786
+  _t19_x1_t_ => 1.82786
+1-element Vector{Vector{Float64}}:
+ [0.10000000000000793, 0.09391152443870439]
+"How close are we?"
+Actual values:
+7-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+ 0.4
+7-element Vector{Float64}:
+  2.0000000000000218
+  2.9999999999998836
+ -1.0187427733328687
+  0.10000000000000793
+  0.4060884755613383
+  0.09391152443870439
+  0.5977894513507541
+Error: 0.27895653645077595
+For model global_unident_test: The ODEPE  max abs rel. err: 7.924216838262055e-14
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+We picked these points:[4]
+1-element Vector{Int64}:
+ 4
+starting SolveJSWithHC.  Here is the polynomial system:
+18-element Vector{Num}:
+                                                                                                           -0.5052983339681514 + _t4_x2_t_
+                                                                                                           -0.029694661802715915 + _t4_x2ˍt_t_
+                                                                                                            0.06825963406301329 + _t4_x2ˍtt_t_
+                                                                                                           -0.22815896715106165 + _t4_x1_t_
+                                                                                                            0.1266012510891128 + _t4_x1ˍt_t_
+                                                                                                           -0.22714261720115858 + _t4_x1ˍtt_t_
+                                                                                                            0.4834748321951901 + _t4_x1ˍttt_t_
+                                                                                                           -1.0441947802293752 + _t4_x1ˍtttt_t_
+                                                          _t4_x2ˍt_t_ - _t4_x1_t_*_tpa21_ + _t4_x2_t_*_tpa12_
+                                                     _t4_x2ˍtt_t_ - _t4_x1ˍt_t_*_tpa21_ + _t4_x2ˍt_t_*_tpa12_
+                _t4_x1ˍt_t_ + _t4_x1_t_*(_tpa01_ + _tpa21_ + _tpa31_) - _t4_x2_t_*_tpa12_ - _t4_x3_t_*_tpa13_
+         _t4_x1ˍtt_t_ + _t4_x1ˍt_t_*(_tpa01_ + _tpa21_ + _tpa31_) - _t4_x2ˍt_t_*_tpa12_ - _t4_x3ˍt_t_*_tpa13_
+     _t4_x1ˍttt_t_ + _t4_x1ˍtt_t_*(_tpa01_ + _tpa21_ + _tpa31_) - _t4_x2ˍtt_t_*_tpa12_ - _t4_x3ˍtt_t_*_tpa13_
+ _t4_x1ˍtttt_t_ + _t4_x1ˍttt_t_*(_tpa01_ + _tpa21_ + _tpa31_) - _t4_x2ˍttt_t_*_tpa12_ - _t4_x3ˍttt_t_*_tpa13_
+                                                          _t4_x3ˍt_t_ - _t4_x1_t_*_tpa31_ + _t4_x3_t_*_tpa13_
+                                                     _t4_x3ˍtt_t_ - _t4_x1ˍt_t_*_tpa31_ + _t4_x3ˍt_t_*_tpa13_
+                                                  _t4_x2ˍttt_t_ - _t4_x1ˍtt_t_*_tpa21_ + _t4_x2ˍtt_t_*_tpa12_
+                                                  _t4_x3ˍttt_t_ - _t4_x1ˍtt_t_*_tpa31_ + _t4_x3ˍtt_t_*_tpa13_
+varlist
+18-element Vector{Num}:
+        _tpa12_
+        _tpa13_
+        _tpa21_
+        _tpa31_
+        _tpa01_
+      _t4_x1_t_
+      _t4_x2_t_
+      _t4_x3_t_
+    _t4_x2ˍt_t_
+   _t4_x2ˍtt_t_
+    _t4_x1ˍt_t_
+   _t4_x1ˍtt_t_
+  _t4_x1ˍttt_t_
+ _t4_x1ˍtttt_t_
+    _t4_x3ˍt_t_
+   _t4_x3ˍtt_t_
+  _t4_x2ˍttt_t_
+  _t4_x3ˍttt_t_
+these are trivial
+-0.5052983339681514 + _t4_x2_t_
+-0.029694661802715915 + _t4_x2ˍt_t_
+0.06825963406301329 + _t4_x2ˍtt_t_
+-0.22815896715106165 + _t4_x1_t_
+0.1266012510891128 + _t4_x1ˍt_t_
+-0.22714261720115858 + _t4_x1ˍtt_t_
+0.4834748321951901 + _t4_x1ˍttt_t_
+-1.0441947802293752 + _t4_x1ˍtttt_t_
+end trivial
+after trivial subst
+10-element Vector{Num}:
+                 0.029694661802715915 + 0.5052983339681514_tpa12_ - 0.22815896715106165_tpa21_
+                -0.06825963406301329 + 0.029694661802715915_tpa12_ + 0.1266012510891128_tpa21_
+                -0.1266012510891128 + 0.22815896715106165(_tpa01_ + _tpa21_ + _tpa31_) - 0.5052983339681514_tpa12_ - _t4_x3_t_*_tpa13_
+                 0.22714261720115858 - 0.1266012510891128(_tpa01_ + _tpa21_ + _tpa31_) - 0.029694661802715915_tpa12_ - _t4_x3ˍt_t_*_tpa13_
+                -0.4834748321951901 + 0.22714261720115858(_tpa01_ + _tpa21_ + _tpa31_) + 0.06825963406301329_tpa12_ - _t4_x3ˍtt_t_*_tpa13_
+                 1.0441947802293752 - 0.4834748321951901(_tpa01_ + _tpa21_ + _tpa31_) - _t4_x2ˍttt_t_*_tpa12_ - _t4_x3ˍttt_t_*_tpa13_
+   _t4_x3ˍt_t_ - 0.22815896715106165_tpa31_ + _t4_x3_t_*_tpa13_
+  _t4_x3ˍtt_t_ + 0.1266012510891128_tpa31_ + _t4_x3ˍt_t_*_tpa13_
+ _t4_x2ˍttt_t_ - 0.06825963406301329_tpa12_ - 0.22714261720115858_tpa21_
+ _t4_x3ˍttt_t_ - 0.22714261720115858_tpa31_ + _t4_x3ˍtt_t_*_tpa13_
+10-element Vector{Num}:
+       _tpa12_
+       _tpa13_
+       _tpa21_
+       _tpa31_
+       _tpa01_
+     _t4_x3_t_
+   _t4_x3ˍt_t_
+  _t4_x3ˍtt_t_
+ _t4_x2ˍttt_t_
+ _t4_x3ˍttt_t_
+Dict{Any, Any} with 8 entries:
+  _t4_x1_t_ => 0.228159
+  _t4_x2ˍt_t_ => 0.0296947
+  _t4_x1ˍtttt_t_ => 1.04419
+  _t4_x2_t_ => 0.505298
+  _t4_x1ˍttt_t_ => -0.483475
+  _t4_x2ˍtt_t_ => -0.0682596
+  _t4_x1ˍt_t_ => -0.126601
+  _t4_x1ˍtt_t_ => 0.227143
+Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A1-element Vector{Vector{Float64}}:
+ [0.16699999999186477, 0.3329996038589405, 0.49999999998139744, 0.6669993378157141, 0.8330009273009319, 0.7367333747125386, -0.09315004192246033, -0.053424023583456194, 0.12497066748432176, 0.16929415395274264]
+"How close are we?"
+Actual values:
+8-element Vector{Float64}:
+ 0.25
+ 0.5
+ 0.75
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+8-element Vector{Float64}:
+  0.29719178081966413
+  0.4983186185593325
+ -0.0828881760084948
+  0.16699999999186477
+  0.3329996038589405
+  0.49999999998139744
+  0.6669993378157141
+  0.8330009273009319
+Error: 0.04251895952165061
+For model DAISY_mamil3: The ODEPE  max abs rel. err: 1.1105175680113264
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[c, x1(t), x2(t)]
+Optimal number of points is 1
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+We picked these points:[9]
+1-element Vector{Int64}:
+ 9
+starting SolveJSWithHC.  Here is the polynomial system:
+15-element Vector{Num}:
+                                 -4.6100551696233945 + _t9_x3_t_
+                                 -1.5514320243978814 + _t9_x3ˍt_t_
+                                 -0.13734430584126472 + _t9_x3ˍtt_t_
+                                 -0.04476307112607466 + _t9_x3ˍttt_t_
+                                 -0.007223193226516368 + _t9_x3ˍtttt_t_
+                                 -0.585994382875664(_t9_x1_t_ + _t9_x2_t_) + _t9_x3ˍt_t_
+                                 -0.585994382875664(_t9_x1ˍt_t_ + _t9_x2ˍt_t_) + _t9_x3ˍtt_t_
+                                 -0.585994382875664(_t9_x1ˍtt_t_ + _t9_x2ˍtt_t_) + _t9_x3ˍttt_t_
+                                 -0.585994382875664(_t9_x1ˍttt_t_ + _t9_x2ˍttt_t_) + _t9_x3ˍtttt_t_
+      _t9_x1ˍt_t_ + _t9_x1_t_*_tpa_
+      _t9_x2ˍt_t_ - _t9_x2_t_*_tpb_
+   _t9_x2ˍtt_t_ - _t9_x2ˍt_t_*_tpb_
+   _t9_x1ˍtt_t_ + _t9_x1ˍt_t_*_tpa_
+ _t9_x2ˍttt_t_ - _t9_x2ˍtt_t_*_tpb_
+ _t9_x1ˍttt_t_ + _t9_x1ˍtt_t_*_tpa_
+varlist
+15-element Vector{Num}:
+          _tpa_
+          _tpb_
+      _t9_x1_t_
+      _t9_x2_t_
+      _t9_x3_t_
+    _t9_x3ˍt_t_
+   _t9_x3ˍtt_t_
+  _t9_x3ˍttt_t_
+ _t9_x3ˍtttt_t_
+    _t9_x1ˍt_t_
+    _t9_x2ˍt_t_
+   _t9_x2ˍtt_t_
+   _t9_x1ˍtt_t_
+  _t9_x2ˍttt_t_
+  _t9_x1ˍttt_t_
+these are trivial
+-4.6100551696233945 + _t9_x3_t_
+-1.5514320243978814 + _t9_x3ˍt_t_
+-0.13734430584126472 + _t9_x3ˍtt_t_
+-0.04476307112607466 + _t9_x3ˍttt_t_
+-0.007223193226516368 + _t9_x3ˍtttt_t_
+end trivial
+after trivial subst
+10-element Vector{Num}:
+                                  1.5514320243978814 - 0.585994382875664(_t9_x1_t_ + _t9_x2_t_)
+                                  0.13734430584126472 - 0.585994382875664(_t9_x1ˍt_t_ + _t9_x2ˍt_t_)
+                                  0.04476307112607466 - 0.585994382875664(_t9_x1ˍtt_t_ + _t9_x2ˍtt_t_)
+                                  0.007223193226516368 - 0.585994382875664(_t9_x1ˍttt_t_ + _t9_x2ˍttt_t_)
+      _t9_x1ˍt_t_ + _t9_x1_t_*_tpa_
+      _t9_x2ˍt_t_ - _t9_x2_t_*_tpb_
+   _t9_x2ˍtt_t_ - _t9_x2ˍt_t_*_tpb_
+   _t9_x1ˍtt_t_ + _t9_x1ˍt_t_*_tpa_
+ _t9_x2ˍttt_t_ - _t9_x2ˍtt_t_*_tpb_
+ _t9_x1ˍttt_t_ + _t9_x1ˍtt_t_*_tpa_
+10-element Vector{Num}:
+         _tpa_
+         _tpb_
+     _t9_x1_t_
+     _t9_x2_t_
+   _t9_x1ˍt_t_
+   _t9_x2ˍt_t_
+  _t9_x2ˍtt_t_
+  _t9_x1ˍtt_t_
+ _t9_x2ˍttt_t_
+ _t9_x1ˍttt_t_
+Dict{Any, Any} with 5 entries:
+  _t9_x3ˍtttt_t_ => 0.00722319
+  _t9_x3ˍttt_t_ => 0.0447631
+  _t9_x3ˍtt_t_ => 0.137344
+  _t9_x3_t_ => 4.61006
+  _t9_x3ˍt_t_ => 1.55143
+Tracking 5 paths...  40%|████████████▍                  |  ETA: 0:00:10[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 5 paths... 100%|███████████████████████████████| Time: 0:00:06[K
+  # paths tracked:                  5[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.10000000026433711, 0.20000000002829366, 0.9837528820943668, 1.6637674179885495, -0.09837528846947909, 0.332753483644784, 0.06655069673837162, 0.009837528872952146, 0.013310139349557286, -0.0009837528898956386]
+ [-0.20000000002829366, -0.10000000026433707, 1.6637674179885495, 0.9837528820943673, 0.332753483644784, -0.09837528846947909, 0.009837528872952144, 0.06655069673837162, -0.0009837528898956381, 0.013310139349557286]
+"How close are we?"
+Actual values:
+6-element Vector{Float64}:
+ 2.0
+ 3.0
+ 4.0
+ 0.1
+ 0.2
+ 0.3
+6-element Vector{Float64}:
+ 1.0239005989348935
+ 1.5358509001133347
+ 4.000000000000542
+ 0.10000000026433711
+ 0.20000000002829366
+ 0.585994382875664
+Error: 0.19182316732860188
+6-element Vector{Float64}:
+  1.5358509001133345
+  1.0239005989348937
+  4.000000000000541
+ -0.20000000002829366
+ -0.10000000026433707
+  0.585994382875664
+Error: 0.23911562244500192
+For model sum_test: The ODEPE  max abs rel. err: 2.6433710775819463e-9
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+We picked these points:[3]
+1-element Vector{Int64}:
+ 3
+starting SolveJSWithHC.  Here is the polynomial system:
+22-element Vector{Num}:
+                                                                                                                                                                   -0.8 + _t3_N_t_
+                                                                                                                                                                   -0.6139966148646937 + _t3_In_t_
+                                                                                                                                                                   -0.1302045808516604 + _t3_Inˍt_t_
+                                                                                                                                                                    0.18991018984395505 + _t3_Inˍtt_t_
+                                                                                                                                                                   -0.15598214331056798 + _t3_Inˍttt_t_
+                                                                                                                                                                    0.14288357666591264 + _t3_Inˍtttt_t_
+                                                                                                                                                                   -0.15841013160536002 + _t3_Inˍttttt_t_
+                                                                                                                                                   _t3_Inˍt_t_ - _t3_E_t_*_tpnu_ + _t3_In_t_*_tpa_
+                                                                                                                                                  _t3_Inˍtt_t_ - _t3_Eˍt_t_*_tpnu_ + _t3_Inˍt_t_*_tpa_
+                                                                                                                                                 _t3_Inˍttt_t_ - _t3_Eˍtt_t_*_tpnu_ + _t3_Inˍtt_t_*_tpa_
+                                                                                                                                                _t3_Inˍtttt_t_ - _t3_Eˍttt_t_*_tpnu_ + _t3_Inˍttt_t_*_tpa_
+                                                                                                                                               _t3_Inˍttttt_t_ - _t3_Eˍtttt_t_*_tpnu_ + _t3_Inˍtttt_t_*_tpa_
+                                                                                                                                                                 _t3_Eˍt_t_*_t3_N_t_ + _t3_E_t_*_t3_N_t_*_tpnu_ - _t3_In_t_*_t3_S_t_*_tpb_
+                                                                                                                                                                 _t3_Eˍt_t_*_t3_Nˍt_t_ + _t3_Eˍtt_t_*_t3_N_t_ + _t3_E_t_*_t3_Nˍt_t_*_tpnu_ + _t3_Eˍt_t_*_t3_N_t_*_tpnu_ - _t3_In_t_*_t3_Sˍt_t_*_tpb_ - _t3_Inˍt_t_*_t3_S_t_*_tpb_
+                                                                                                                                                                 _t3_Eˍt_t_*_t3_Nˍtt_t_ + 2_t3_Eˍtt_t_*_t3_Nˍt_t_ + _t3_Eˍttt_t_*_t3_N_t_ + _t3_E_t_*_t3_Nˍtt_t_*_tpnu_ + 2_t3_Eˍt_t_*_t3_Nˍt_t_*_tpnu_ + _t3_Eˍtt_t_*_t3_N_t_*_tpnu_ - _t3_In_t_*_t3_Sˍtt_t_*_tpb_ - 2_t3_Inˍt_t_*_t3_Sˍt_t_*_tpb_ - _t3_Inˍtt_t_*_t3_S_t_*_tpb_
+                                                                                                                                                                 _t3_Eˍt_t_*_t3_Nˍttt_t_ + 3_t3_Eˍtt_t_*_t3_Nˍtt_t_ + 3_t3_Eˍttt_t_*_t3_Nˍt_t_ + _t3_Eˍtttt_t_*_t3_N_t_ + _t3_E_t_*_t3_Nˍttt_t_*_tpnu_ + 3_t3_Eˍt_t_*_t3_Nˍtt_t_*_tpnu_ + 3_t3_Eˍtt_t_*_t3_Nˍt_t_*_tpnu_ + _t3_Eˍttt_t_*_t3_N_t_*_tpnu_ - _t3_In_t_*_t3_Sˍttt_t_*_tpb_ - 3_t3_Inˍt_t_*_t3_Sˍtt_t_*_tpb_ - 3_t3_Inˍtt_t_*_t3_Sˍt_t_*_tpb_ - _t3_Inˍttt_t_*_t3_S_t_*_tpb_
+                                                                                                                                                           _t3_Nˍt_t_
+                                                                                                                       _t3_N_t_*_t3_Sˍt_t_ + _t3_In_t_*_t3_S_t_*_tpb_
+                                                                                                                                                          _t3_Nˍtt_t_
+                                                               _t3_N_t_*_t3_Sˍtt_t_ + _t3_Nˍt_t_*_t3_Sˍt_t_ + _t3_In_t_*_t3_Sˍt_t_*_tpb_ + _t3_Inˍt_t_*_t3_S_t_*_tpb_
+                                                                                                                                                         _t3_Nˍttt_t_
+ _t3_N_t_*_t3_Sˍttt_t_ + 2_t3_Nˍt_t_*_t3_Sˍtt_t_ + _t3_Nˍtt_t_*_t3_Sˍt_t_ + _t3_In_t_*_t3_Sˍtt_t_*_tpb_ + 2_t3_Inˍt_t_*_t3_Sˍt_t_*_tpb_ + _t3_Inˍtt_t_*_t3_S_t_*_tpb_
+varlist
+22-element Vector{Num}:
+           _tpa_
+           _tpb_
+          _tpnu_
+        _t3_S_t_
+            _t3_E_t_
+       _t3_In_t_
+        _t3_N_t_
+     _t3_Inˍt_t_
+    _t3_Inˍtt_t_
+   _t3_Inˍttt_t_
+  _t3_Inˍtttt_t_
+ _t3_Inˍttttt_t_
+            _t3_Eˍt_t_
+            _t3_Eˍtt_t_
+            _t3_Eˍttt_t_
+            _t3_Eˍtttt_t_
+      _t3_Nˍt_t_
+      _t3_Sˍt_t_
+     _t3_Nˍtt_t_
+     _t3_Sˍtt_t_
+    _t3_Nˍttt_t_
+    _t3_Sˍttt_t_
+these are trivial
+-0.8 + _t3_N_t_
+-0.6139966148646937 + _t3_In_t_
+-0.1302045808516604 + _t3_Inˍt_t_
+0.18991018984395505 + _t3_Inˍtt_t_
+-0.15598214331056798 + _t3_Inˍttt_t_
+0.14288357666591264 + _t3_Inˍtttt_t_
+-0.15841013160536002 + _t3_Inˍttttt_t_
+_t3_Nˍt_t_
+_t3_Nˍtt_t_
+_t3_Nˍttt_t_
+end trivial
+after trivial subst
+12-element Vector{Num}:
+  0.1302045808516604 + 0.6139966148646937_tpa_ - _t3_E_t_*_tpnu_
+ -0.18991018984395505 + 0.1302045808516604_tpa_ - _t3_Eˍt_t_*_tpnu_
+  0.15598214331056798 - 0.18991018984395505_tpa_ - _t3_Eˍtt_t_*_tpnu_
+ -0.14288357666591264 + 0.15598214331056798_tpa_ - _t3_Eˍttt_t_*_tpnu_
+  0.15841013160536002 - 0.14288357666591264_tpa_ - _t3_Eˍtttt_t_*_tpnu_
+  0.8_t3_Eˍt_t_ + 0.8_t3_E_t_*_tpnu_ - 0.6139966148646937_t3_S_t_*_tpb_
+  0.8_t3_Eˍtt_t_ + 0.8_t3_Eˍt_t_*_tpnu_ - 0.1302045808516604_t3_S_t_*_tpb_ - 0.6139966148646937_t3_Sˍt_t_*_tpb_
+  0.8_t3_Eˍttt_t_ + 0.8_t3_Eˍtt_t_*_tpnu_ + 0.18991018984395505_t3_S_t_*_tpb_ - 0.2604091617033208_t3_Sˍt_t_*_tpb_ - 0.6139966148646937_t3_Sˍtt_t_*_tpb_
+  0.8_t3_Eˍtttt_t_ + 0.8_t3_Eˍttt_t_*_tpnu_ - 0.15598214331056798_t3_S_t_*_tpb_ + 0.5697305695318652_t3_Sˍt_t_*_tpb_ - 0.39061374255498116_t3_Sˍtt_t_*_tpb_ - 0.6139966148646937_t3_Sˍttt_t_*_tpb_
+  0.8_t3_Sˍt_t_ + 0.6139966148646937_t3_S_t_*_tpb_
+  0.8_t3_Sˍtt_t_ + 0.1302045808516604_t3_S_t_*_tpb_ + 0.6139966148646937_t3_Sˍt_t_*_tpb_
+  0.8_t3_Sˍttt_t_ - 0.18991018984395505_t3_S_t_*_tpb_ + 0.2604091617033208_t3_Sˍt_t_*_tpb_ + 0.6139966148646937_t3_Sˍtt_t_*_tpb_
+12-element Vector{Num}:
+        _tpa_
+        _tpb_
+       _tpnu_
+     _t3_S_t_
+         _t3_E_t_
+         _t3_Eˍt_t_
+         _t3_Eˍtt_t_
+         _t3_Eˍttt_t_
+         _t3_Eˍtttt_t_
+   _t3_Sˍt_t_
+  _t3_Sˍtt_t_
+ _t3_Sˍttt_t_
+Dict{Any, Any} with 10 entries:
+  _t3_Inˍttt_t_ => 0.155982
+  _t3_Inˍttttt_t_ => 0.15841
+  _t3_Nˍttt_t_ => 0
+  _t3_Inˍt_t_ => 0.130205
+  _t3_Nˍtt_t_ => 0
+  _t3_Inˍtttt_t_ => -0.142884
+  _t3_N_t_ => 0.8
+  _t3_In_t_ => 0.613997
+  _t3_Inˍtt_t_ => -0.18991
+  _t3_Nˍt_t_ => 0
+Tracking 6 paths...  33%|██████████▍                    |  ETA: 0:00:15[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 6 paths... 100%|███████████████████████████████| Time: 0:00:07[K
+  # paths tracked:                  6[K
+  # non-singular solutions (real):  4 (4)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         4 (4)[K
+4-element Vector{Vector{Float64}}:
+ [0.20600885108085965, 3.6992664291672397, 0.6094341391786591, -0.0038428415761451768, 0.421199439849926, -0.26760380368095815, 0.19174994602330442, -0.18172574756417706, 0.2116304976152341, 0.010910485633485102, -0.028663052286064843, 0.06486678427191019]
+ [0.7499994631149929, 0.4999985333275958, 0.25000044302348673, 0.577659784431921, 2.3628026623101195, -0.36902664249050887, 0.054198315505634434, -0.10358802814212544, 0.20498974001082504, -0.22167506986409485, 0.03805850860446263, 0.09003842525459012]
+ [0.6094341391786585, 3.6992664291672384, 0.2060088510808599, -0.011368243818993817, 2.4484146027898426, -0.5366714712277588, 0.19535272407283802, -0.2321392172194764, 0.3462569772266892, 0.03227639193742345, -0.08479365087733268, 0.1918948269777148]
+ [0.25000044302348723, 0.49999853332759453, 0.7499994631149923, 0.19255374053873228, 0.3782722795619613, -0.20981213278978803, 0.1446727858500725, -0.13851739480324018, 0.16358568261973588, -0.07389187379296724, 0.012686201097279966, 0.030012883088335524]
+"How close are we?"
+Actual values:
+7-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.25
+ 0.5
+ 0.75
+7-element Vector{Float64}:
+ -0.00508843040383829
+  0.44894974369747537
+  0.6000000001649135
+  0.8
+  0.20600885108085965
+  3.6992664291672397
+  0.6094341391786591
+Error: 0.004379506093094626
+7-element Vector{Float64}:
+ 0.2000011023134418
+ 0.40000064075761343
+ 0.6000000000000044
+ 0.8
+ 0.25000044302348723
+ 0.49999853332759453
+ 0.7499994631149923
+Error: 0.005034955616120812
+7-element Vector{Float64}:
+ 0.6000018141703664
+ 2.399994458459422
+ 0.6000000000000045
+ 0.8
+ 0.7499994631149929
+ 0.4999985333275958
+ 0.25000044302348673
+Error: 0.007969395287880267
+7-element Vector{Float64}:
+ -0.015053058092715274
+  2.503098632920194
+  0.6000000001649135
+  0.8
+  0.6094341391786585
+  3.6992664291672384
+  0.2060088510808599
+Error: 0.009297110515393605
+For model SEIR: The ODEPE  max abs rel. err: 5.5115672088768e-6
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+We picked these points:[16]
+1-element Vector{Int64}:
+ 16
+starting SolveJSWithHC.  Here is the polynomial system:
+33-element Vector{Num}:
+                                                                                       -1.7499999999999967 + _t16_u0_t_
+                                                                                       -3.4172321134906354 + _t16_x1_t_
+                                                                                       -3.8126525939516527 + _t16_x1ˍt_t_
+                                                                                       -2.0786762919362336 + _t16_x1ˍtt_t_
+                                                                                       -2.2956137193490633 + _t16_x1ˍttt_t_
+                                                                                       -1.5940285315250418 + _t16_x1ˍtttt_t_
+                                                                                       -1.1475536417487917 + _t16_x1ˍttttt_t_
+                                                                                       -1.2537490373459586 + _t16_x1ˍtttttt_t_
+                                                                                       -0.6558572507823055 + _t16_x1ˍttttttt_t_
+                              -_t16_u0_t_ + _t16_x1ˍt_t_ - _t16_x2_t_ + _t16_x1_t_*_tpp1_
+                       -_t16_u0ˍt_t_ + _t16_x1ˍtt_t_ - _t16_x2ˍt_t_ + _t16_x1ˍt_t_*_tpp1_
+                   -_t16_u0ˍtt_t_ + _t16_x1ˍttt_t_ - _t16_x2ˍtt_t_ + _t16_x1ˍtt_t_*_tpp1_
+               -_t16_u0ˍttt_t_ + _t16_x1ˍtttt_t_ - _t16_x2ˍttt_t_ + _t16_x1ˍttt_t_*_tpp1_
+           -_t16_u0ˍtttt_t_ + _t16_x1ˍttttt_t_ - _t16_x2ˍtttt_t_ + _t16_x1ˍtttt_t_*_tpp1_
+       -_t16_u0ˍttttt_t_ + _t16_x1ˍtttttt_t_ - _t16_x2ˍttttt_t_ + _t16_x1ˍttttt_t_*_tpp1_
+   -_t16_u0ˍtttttt_t_ + _t16_x1ˍttttttt_t_ - _t16_x2ˍtttttt_t_ + _t16_x1ˍtttttt_t_*_tpp1_
+                        _t16_x2ˍt_t_ - _t16_x3_t_ - _t16_x1_t_*_tpp3_ + _t16_x2_t_*_tpp4_
+                                                                                       -1.0 + _t16_u0ˍt_t_
+                                                                            _t16_u0ˍtt_t_
+                 _t16_x2ˍtt_t_ - _t16_x3ˍt_t_ - _t16_x1ˍt_t_*_tpp3_ + _t16_x2ˍt_t_*_tpp4_
+                                                                           _t16_u0ˍttt_t_
+             _t16_x2ˍttt_t_ - _t16_x3ˍtt_t_ - _t16_x1ˍtt_t_*_tpp3_ + _t16_x2ˍtt_t_*_tpp4_
+         _t16_x2ˍtttt_t_ - _t16_x3ˍttt_t_ - _t16_x1ˍttt_t_*_tpp3_ + _t16_x2ˍttt_t_*_tpp4_
+                                                                          _t16_u0ˍtttt_t_
+     _t16_x2ˍttttt_t_ - _t16_x3ˍtttt_t_ - _t16_x1ˍtttt_t_*_tpp3_ + _t16_x2ˍtttt_t_*_tpp4_
+                                                                         _t16_u0ˍttttt_t_
+ _t16_x2ˍtttttt_t_ - _t16_x3ˍttttt_t_ - _t16_x1ˍttttt_t_*_tpp3_ + _t16_x2ˍttttt_t_*_tpp4_
+                                                                        _t16_u0ˍtttttt_t_
+                                     _t16_x3ˍt_t_ - _t16_x1_t_*_tpp6_ + _t16_x3_t_*_tpp7_
+                                _t16_x3ˍtt_t_ - _t16_x1ˍt_t_*_tpp6_ + _t16_x3ˍt_t_*_tpp7_
+                             _t16_x3ˍttt_t_ - _t16_x1ˍtt_t_*_tpp6_ + _t16_x3ˍtt_t_*_tpp7_
+                          _t16_x3ˍtttt_t_ - _t16_x1ˍttt_t_*_tpp6_ + _t16_x3ˍttt_t_*_tpp7_
+                       _t16_x3ˍttttt_t_ - _t16_x1ˍtttt_t_*_tpp6_ + _t16_x3ˍtttt_t_*_tpp7_
+varlist
+33-element Vector{Num}:
+             _tpp1_
+             _tpp3_
+             _tpp4_
+             _tpp6_
+             _tpp7_
+         _t16_x1_t_
+         _t16_x2_t_
+         _t16_x3_t_
+         _t16_u0_t_
+       _t16_x1ˍt_t_
+      _t16_x1ˍtt_t_
+     _t16_x1ˍttt_t_
+    _t16_x1ˍtttt_t_
+   _t16_x1ˍttttt_t_
+  _t16_x1ˍtttttt_t_
+ _t16_x1ˍttttttt_t_
+       _t16_x2ˍt_t_
+       _t16_u0ˍt_t_
+      _t16_u0ˍtt_t_
+      _t16_x2ˍtt_t_
+     _t16_u0ˍttt_t_
+     _t16_x2ˍttt_t_
+    _t16_x2ˍtttt_t_
+    _t16_u0ˍtttt_t_
+   _t16_x2ˍttttt_t_
+   _t16_u0ˍttttt_t_
+  _t16_x2ˍtttttt_t_
+  _t16_u0ˍtttttt_t_
+       _t16_x3ˍt_t_
+      _t16_x3ˍtt_t_
+     _t16_x3ˍttt_t_
+    _t16_x3ˍtttt_t_
+   _t16_x3ˍttttt_t_
+these are trivial
+-1.7499999999999967 + _t16_u0_t_
+-3.4172321134906354 + _t16_x1_t_
+-3.8126525939516527 + _t16_x1ˍt_t_
+-2.0786762919362336 + _t16_x1ˍtt_t_
+-2.2956137193490633 + _t16_x1ˍttt_t_
+-1.5940285315250418 + _t16_x1ˍtttt_t_
+-1.1475536417487917 + _t16_x1ˍttttt_t_
+-1.2537490373459586 + _t16_x1ˍtttttt_t_
+-0.6558572507823055 + _t16_x1ˍttttttt_t_
+-1.0 + _t16_u0ˍt_t_
+_t16_u0ˍtt_t_
+_t16_u0ˍttt_t_
+_t16_u0ˍtttt_t_
+_t16_u0ˍttttt_t_
+_t16_u0ˍtttttt_t_
+end trivial
+after trivial subst
+18-element Vector{Num}:
+                                        2.062652593951656 - _t16_x2_t_ + 3.4172321134906354_tpp1_
+                                        1.0786762919362336 - _t16_x2ˍt_t_ + 3.8126525939516527_tpp1_
+                                        2.2956137193490633 - _t16_x2ˍtt_t_ + 2.0786762919362336_tpp1_
+                                        1.5940285315250418 - _t16_x2ˍttt_t_ + 2.2956137193490633_tpp1_
+                                        1.1475536417487917 - _t16_x2ˍtttt_t_ + 1.5940285315250418_tpp1_
+                                        1.2537490373459586 - _t16_x2ˍttttt_t_ + 1.1475536417487917_tpp1_
+                                        0.6558572507823055 - _t16_x2ˍtttttt_t_ + 1.2537490373459586_tpp1_
+            _t16_x2ˍt_t_ - _t16_x3_t_ - 3.4172321134906354_tpp3_ + _t16_x2_t_*_tpp4_
+         _t16_x2ˍtt_t_ - _t16_x3ˍt_t_ - 3.8126525939516527_tpp3_ + _t16_x2ˍt_t_*_tpp4_
+       _t16_x2ˍttt_t_ - _t16_x3ˍtt_t_ - 2.0786762919362336_tpp3_ + _t16_x2ˍtt_t_*_tpp4_
+     _t16_x2ˍtttt_t_ - _t16_x3ˍttt_t_ - 2.2956137193490633_tpp3_ + _t16_x2ˍttt_t_*_tpp4_
+   _t16_x2ˍttttt_t_ - _t16_x3ˍtttt_t_ - 1.5940285315250418_tpp3_ + _t16_x2ˍtttt_t_*_tpp4_
+ _t16_x2ˍtttttt_t_ - _t16_x3ˍttttt_t_ - 1.1475536417487917_tpp3_ + _t16_x2ˍttttt_t_*_tpp4_
+                         _t16_x3ˍt_t_ - 3.4172321134906354_tpp6_ + _t16_x3_t_*_tpp7_
+                        _t16_x3ˍtt_t_ - 3.8126525939516527_tpp6_ + _t16_x3ˍt_t_*_tpp7_
+                       _t16_x3ˍttt_t_ - 2.0786762919362336_tpp6_ + _t16_x3ˍtt_t_*_tpp7_
+                      _t16_x3ˍtttt_t_ - 2.2956137193490633_tpp6_ + _t16_x3ˍttt_t_*_tpp7_
+                     _t16_x3ˍttttt_t_ - 1.5940285315250418_tpp6_ + _t16_x3ˍtttt_t_*_tpp7_
+18-element Vector{Num}:
+            _tpp1_
+            _tpp3_
+            _tpp4_
+            _tpp6_
+            _tpp7_
+        _t16_x2_t_
+        _t16_x3_t_
+      _t16_x2ˍt_t_
+     _t16_x2ˍtt_t_
+    _t16_x2ˍttt_t_
+   _t16_x2ˍtttt_t_
+  _t16_x2ˍttttt_t_
+ _t16_x2ˍtttttt_t_
+      _t16_x3ˍt_t_
+     _t16_x3ˍtt_t_
+    _t16_x3ˍttt_t_
+   _t16_x3ˍtttt_t_
+  _t16_x3ˍttttt_t_
+Dict{Any, Any} with 15 entries:
+  _t16_u0ˍt_t_ => 1.0
+  _t16_u0_t_ => 1.75
+  _t16_x1ˍtttt_t_ => 1.59403
+  _t16_x1ˍtttttt_t_ => 1.25375
+  _t16_u0ˍtttt_t_ => 0
+  _t16_u0ˍtttttt_t_ => 0
+  _t16_x1ˍtt_t_ => 2.07868
+  _t16_u0ˍttttt_t_ => 0
+  _t16_x1_t_ => 3.41723
+  _t16_x1ˍttt_t_ => 2.29561
+  _t16_u0ˍttt_t_ => 0
+  _t16_x1ˍttttt_t_ => 1.14755
+  _t16_x1ˍttttttt_t_ => 0.655857
+  _t16_x1ˍt_t_ => 3.81265
+  _t16_u0ˍtt_t_ => 0
+Tracking 8 paths...  25%|███████▊                       |  ETA: 0:00:25[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 8 paths... 100%|███████████████████████████████| Time: 0:00:08[K
+  # paths tracked:                  8[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.20062862785434418, 0.3003986175074917, 0.4995039568245184, 0.6000418942460491, -0.1998988703093232, 2.7482471839410825, 2.1898320904616795, 1.8436035503460597, 2.7126556915535858, 2.054594362121652, 1.4673613987893361, 1.4839811498792743, 0.9073951998187301, 2.488227391507744, 2.7851451292119744, 1.8040402247147587, 1.738090007528488, 1.303926128539402]
+ [0.20062862785434557, 0.30039861750749297, -0.19989887030932257, 0.3899422518942115, 0.49950395682451654, 2.7482471839410874, 0.2677002403506693, 1.843603550346065, 2.712655691553589, 2.054594362121655, 1.4673613987893384, 1.4839811498792759, 0.9073951998187318, 1.1988058562817208, 0.887906069498692, 0.36705111923362355, 0.7118132967881579, 0.2660255169005092]
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+  1.0
+  2.0
+  1.0
+  1.0
+  0.2
+  0.3
+  0.5
+  0.6
+ -0.2
+9-element Vector{Float64}:
+  1.4436519595308819
+  1.4524634211056573
+  0.609741148295668
+  0.9999999999999967
+  0.20062862785434418
+  0.3003986175074917
+  0.4995039568245184
+  0.6000418942460491
+ -0.1998988703093232
+Error: 0.05697178618613078
+9-element Vector{Float64}:
+  3.41751488410789
+ -1.6280334903574074
+  1.5274385404442756
+  0.9999999999999963
+  0.20062862785434557
+  0.30039861750749297
+ -0.19989887030932257
+  0.3899422518942115
+  0.49950395682451654
+Error: 0.306153794374934
+For model DAISY_ex3_v2: The ODEPE  max abs rel. err: 0.4436519595308819
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[a, b, d, g, In(t), S(t)]
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 6
+We picked these points:[13]
+1-element Vector{Int64}:
+ 13
+starting SolveJSWithHC.  Here is the polynomial system:
+27-element Vector{Num}:
+                                                                                                                                                                                                                                                                                                                                                                                                                                             -0.4 + _t13_N_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                             -0.556160587561105 + _t13_Tr_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.3073042814078279 + _t13_Trˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                             -0.25503136073007315 + _t13_Trˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.3057985004674094 + _t13_Trˍttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                             -0.4029187911293397 + _t13_Trˍtttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.5041709253433334 + _t13_Trˍttttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                             -0.567448105103985 + _t13_Trˍtttttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                            _t13_Trˍt_t_ - _t13_In_t_*_tpg_ + _t13_Tr_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                                       _t13_Trˍtt_t_ - _t13_Inˍt_t_*_tpg_ + _t13_Trˍt_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                                    _t13_Trˍttt_t_ - _t13_Inˍtt_t_*_tpg_ + _t13_Trˍtt_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                                 _t13_Trˍtttt_t_ - _t13_Inˍttt_t_*_tpg_ + _t13_Trˍttt_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                              _t13_Trˍttttt_t_ - _t13_Inˍtttt_t_*_tpg_ + _t13_Trˍtttt_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                           _t13_Trˍtttttt_t_ - _t13_Inˍttttt_t_*_tpg_ + _t13_Trˍttttt_t_*_tpnu_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.9502762700994974_t13_In_t_*_t13_N_t_ + _t13_Inˍt_t_*_t13_N_t_ + _t13_In_t_*_t13_N_t_*_tpg_ - _t13_In_t_*_t13_S_t_*_tpb_ - _t13_S_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.9502762700994974_t13_In_t_*_t13_Nˍt_t_ + 0.9502762700994974_t13_Inˍt_t_*_t13_N_t_ + _t13_Inˍt_t_*_t13_Nˍt_t_ + _t13_Inˍtt_t_*_t13_N_t_ + _t13_In_t_*_t13_Nˍt_t_*_tpg_ - _t13_In_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍt_t_*_t13_N_t_*_tpg_ - _t13_Inˍt_t_*_t13_S_t_*_tpb_ - _t13_S_t_*_t13_Trˍt_t_*_tpb_*_tpd_ - _t13_Sˍt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.9502762700994974_t13_In_t_*_t13_Nˍtt_t_ + 1.9005525401989949_t13_Inˍt_t_*_t13_Nˍt_t_ + _t13_Inˍt_t_*_t13_Nˍtt_t_ + 0.9502762700994974_t13_Inˍtt_t_*_t13_N_t_ + 2_t13_Inˍtt_t_*_t13_Nˍt_t_ + _t13_Inˍttt_t_*_t13_N_t_ + _t13_In_t_*_t13_Nˍtt_t_*_tpg_ - _t13_In_t_*_t13_Sˍtt_t_*_tpb_ + 2.0_t13_Inˍt_t_*_t13_Nˍt_t_*_tpg_ - 2_t13_Inˍt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍtt_t_*_t13_N_t_*_tpg_ - _t13_Inˍtt_t_*_t13_S_t_*_tpb_ - _t13_S_t_*_t13_Trˍtt_t_*_tpb_*_tpd_ - 2_t13_Sˍt_t_*_t13_Trˍt_t_*_tpb_*_tpd_ - _t13_Sˍtt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.9502762700994974_t13_In_t_*_t13_Nˍttt_t_ + 2.850828810298492_t13_Inˍt_t_*_t13_Nˍtt_t_ + _t13_Inˍt_t_*_t13_Nˍttt_t_ + 2.850828810298492_t13_Inˍtt_t_*_t13_Nˍt_t_ + 3_t13_Inˍtt_t_*_t13_Nˍtt_t_ + 0.9502762700994974_t13_Inˍttt_t_*_t13_N_t_ + 3_t13_Inˍttt_t_*_t13_Nˍt_t_ + _t13_Inˍtttt_t_*_t13_N_t_ + _t13_In_t_*_t13_Nˍttt_t_*_tpg_ - _t13_In_t_*_t13_Sˍttt_t_*_tpb_ + 3.0_t13_Inˍt_t_*_t13_Nˍtt_t_*_tpg_ - 3_t13_Inˍt_t_*_t13_Sˍtt_t_*_tpb_ + 3.0_t13_Inˍtt_t_*_t13_Nˍt_t_*_tpg_ - 3_t13_Inˍtt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍttt_t_*_t13_N_t_*_tpg_ - _t13_Inˍttt_t_*_t13_S_t_*_tpb_ - _t13_S_t_*_t13_Trˍttt_t_*_tpb_*_tpd_ - 3_t13_Sˍt_t_*_t13_Trˍtt_t_*_tpb_*_tpd_ - 3_t13_Sˍtt_t_*_t13_Trˍt_t_*_tpb_*_tpd_ - _t13_Sˍttt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                              0.9502762700994974_t13_In_t_*_t13_Nˍtttt_t_ + 3.8011050803979898_t13_Inˍt_t_*_t13_Nˍttt_t_ + _t13_Inˍt_t_*_t13_Nˍtttt_t_ + 5.701657620596984_t13_Inˍtt_t_*_t13_Nˍtt_t_ + 4_t13_Inˍtt_t_*_t13_Nˍttt_t_ + 3.8011050803979898_t13_Inˍttt_t_*_t13_Nˍt_t_ + 6_t13_Inˍttt_t_*_t13_Nˍtt_t_ + 0.9502762700994974_t13_Inˍtttt_t_*_t13_N_t_ + 4_t13_Inˍtttt_t_*_t13_Nˍt_t_ + _t13_Inˍttttt_t_*_t13_N_t_ + _t13_In_t_*_t13_Nˍtttt_t_*_tpg_ - _t13_In_t_*_t13_Sˍtttt_t_*_tpb_ + 4.0_t13_Inˍt_t_*_t13_Nˍttt_t_*_tpg_ - 4_t13_Inˍt_t_*_t13_Sˍttt_t_*_tpb_ + 6.0_t13_Inˍtt_t_*_t13_Nˍtt_t_*_tpg_ - 6_t13_Inˍtt_t_*_t13_Sˍtt_t_*_tpb_ + 4.0_t13_Inˍttt_t_*_t13_Nˍt_t_*_tpg_ - 4_t13_Inˍttt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍtttt_t_*_t13_N_t_*_tpg_ - _t13_Inˍtttt_t_*_t13_S_t_*_tpb_ - _t13_S_t_*_t13_Trˍtttt_t_*_tpb_*_tpd_ - 4_t13_Sˍt_t_*_t13_Trˍttt_t_*_tpb_*_tpd_ - 6_t13_Sˍtt_t_*_t13_Trˍtt_t_*_tpb_*_tpd_ - 4_t13_Sˍttt_t_*_t13_Trˍt_t_*_tpb_*_tpd_ - _t13_Sˍtttt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                    _t13_Nˍt_t_
+                                                                                                                                                                                                                                                                                                                                                          _t13_N_t_*_t13_Sˍt_t_ + _t13_In_t_*_t13_S_t_*_tpb_ + _t13_S_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                   _t13_Nˍtt_t_
+                                                                                                                                                                                                                                                       _t13_N_t_*_t13_Sˍtt_t_ + _t13_Nˍt_t_*_t13_Sˍt_t_ + _t13_In_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍt_t_*_t13_S_t_*_tpb_ + _t13_S_t_*_t13_Trˍt_t_*_tpb_*_tpd_ + _t13_Sˍt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                  _t13_Nˍttt_t_
+                                                                                                                               _t13_N_t_*_t13_Sˍttt_t_ + 2_t13_Nˍt_t_*_t13_Sˍtt_t_ + _t13_Nˍtt_t_*_t13_Sˍt_t_ + _t13_In_t_*_t13_Sˍtt_t_*_tpb_ + (2//1)*_t13_Inˍt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍtt_t_*_t13_S_t_*_tpb_ + _t13_S_t_*_t13_Trˍtt_t_*_tpb_*_tpd_ + (2//1)*_t13_Sˍt_t_*_t13_Trˍt_t_*_tpb_*_tpd_ + _t13_Sˍtt_t_*_t13_Tr_t_*_tpb_*_tpd_
+                                                                                                                                                                                                                                                                                                                                                                                                                                 _t13_Nˍtttt_t_
+ _t13_N_t_*_t13_Sˍtttt_t_ + 3_t13_Nˍt_t_*_t13_Sˍttt_t_ + 3_t13_Nˍtt_t_*_t13_Sˍtt_t_ + _t13_Nˍttt_t_*_t13_Sˍt_t_ + _t13_In_t_*_t13_Sˍttt_t_*_tpb_ + (3//1)*_t13_Inˍt_t_*_t13_Sˍtt_t_*_tpb_ + (3//1)*_t13_Inˍtt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍttt_t_*_t13_S_t_*_tpb_ + _t13_S_t_*_t13_Trˍttt_t_*_tpb_*_tpd_ + (3//1)*_t13_Sˍt_t_*_t13_Trˍtt_t_*_tpb_*_tpd_ + (3//1)*_t13_Sˍtt_t_*_t13_Trˍt_t_*_tpb_*_tpd_ + _t13_Sˍttt_t_*_t13_Tr_t_*_tpb_*_tpd_
+varlist
+27-element Vector{Num}:
+             _tpb_
+             _tpd_
+             _tpg_
+            _tpnu_
+        _t13_In_t_
+         _t13_N_t_
+         _t13_S_t_
+        _t13_Tr_t_
+      _t13_Trˍt_t_
+     _t13_Trˍtt_t_
+    _t13_Trˍttt_t_
+   _t13_Trˍtttt_t_
+  _t13_Trˍttttt_t_
+ _t13_Trˍtttttt_t_
+      _t13_Inˍt_t_
+     _t13_Inˍtt_t_
+    _t13_Inˍttt_t_
+   _t13_Inˍtttt_t_
+  _t13_Inˍttttt_t_
+       _t13_Nˍt_t_
+       _t13_Sˍt_t_
+      _t13_Nˍtt_t_
+      _t13_Sˍtt_t_
+     _t13_Nˍttt_t_
+     _t13_Sˍttt_t_
+    _t13_Nˍtttt_t_
+    _t13_Sˍtttt_t_
+these are trivial
+-0.4 + _t13_N_t_
+-0.556160587561105 + _t13_Tr_t_
+0.3073042814078279 + _t13_Trˍt_t_
+-0.25503136073007315 + _t13_Trˍtt_t_
+0.3057985004674094 + _t13_Trˍttt_t_
+-0.4029187911293397 + _t13_Trˍtttt_t_
+0.5041709253433334 + _t13_Trˍttttt_t_
+-0.567448105103985 + _t13_Trˍtttttt_t_
+_t13_Nˍt_t_
+_t13_Nˍtt_t_
+_t13_Nˍttt_t_
+_t13_Nˍtttt_t_
+end trivial
+after trivial subst
+15-element Vector{Num}:
+ -0.3073042814078279 + 0.556160587561105_tpnu_ - _t13_In_t_*_tpg_
+  0.25503136073007315 - 0.3073042814078279_tpnu_ - _t13_Inˍt_t_*_tpg_
+ -0.3057985004674094 + 0.25503136073007315_tpnu_ - _t13_Inˍtt_t_*_tpg_
+  0.4029187911293397 - 0.3057985004674094_tpnu_ - _t13_Inˍttt_t_*_tpg_
+ -0.5041709253433334 + 0.4029187911293397_tpnu_ - _t13_Inˍtttt_t_*_tpg_
+  0.567448105103985 - 0.5041709253433334_tpnu_ - _t13_Inˍttttt_t_*_tpg_
+  0.380110508039799_t13_In_t_ + 0.4_t13_Inˍt_t_ + 0.4_t13_In_t_*_tpg_ - _t13_In_t_*_t13_S_t_*_tpb_ - 0.556160587561105_t13_S_t_*_tpb_*_tpd_
+  0.380110508039799_t13_Inˍt_t_ + 0.4_t13_Inˍtt_t_ + 0.4_t13_Inˍt_t_*_tpg_ - _t13_In_t_*_t13_Sˍt_t_*_tpb_ - _t13_Inˍt_t_*_t13_S_t_*_tpb_ + 0.3073042814078279_t13_S_t_*_tpb_*_tpd_ - 0.556160587561105_t13_Sˍt_t_*_tpb_*_tpd_
+  0.380110508039799_t13_Inˍtt_t_ + 0.4_t13_Inˍttt_t_ + 0.4_t13_Inˍtt_t_*_tpg_ - _t13_In_t_*_t13_Sˍtt_t_*_tpb_ - 2_t13_Inˍt_t_*_t13_Sˍt_t_*_tpb_ - _t13_Inˍtt_t_*_t13_S_t_*_tpb_ - 0.25503136073007315_t13_S_t_*_tpb_*_tpd_ + 0.6146085628156558_t13_Sˍt_t_*_tpb_*_tpd_ - 0.556160587561105_t13_Sˍtt_t_*_tpb_*_tpd_
+  0.380110508039799_t13_Inˍttt_t_ + 0.4_t13_Inˍtttt_t_ + 0.4_t13_Inˍttt_t_*_tpg_ - _t13_In_t_*_t13_Sˍttt_t_*_tpb_ - 3_t13_Inˍt_t_*_t13_Sˍtt_t_*_tpb_ - 3_t13_Inˍtt_t_*_t13_Sˍt_t_*_tpb_ - _t13_Inˍttt_t_*_t13_S_t_*_tpb_ + 0.3057985004674094_t13_S_t_*_tpb_*_tpd_ - 0.7650940821902195_t13_Sˍt_t_*_tpb_*_tpd_ + 0.9219128442234836_t13_Sˍtt_t_*_tpb_*_tpd_ - 0.556160587561105_t13_Sˍttt_t_*_tpb_*_tpd_
+  0.380110508039799_t13_Inˍtttt_t_ + 0.4_t13_Inˍttttt_t_ + 0.4_t13_Inˍtttt_t_*_tpg_ - _t13_In_t_*_t13_Sˍtttt_t_*_tpb_ - 4_t13_Inˍt_t_*_t13_Sˍttt_t_*_tpb_ - 6_t13_Inˍtt_t_*_t13_Sˍtt_t_*_tpb_ - 4_t13_Inˍttt_t_*_t13_Sˍt_t_*_tpb_ - _t13_Inˍtttt_t_*_t13_S_t_*_tpb_ - 0.4029187911293397_t13_S_t_*_tpb_*_tpd_ + 1.2231940018696377_t13_Sˍt_t_*_tpb_*_tpd_ - 1.530188164380439_t13_Sˍtt_t_*_tpb_*_tpd_ + 1.2292171256313116_t13_Sˍttt_t_*_tpb_*_tpd_ - 0.556160587561105_t13_Sˍtttt_t_*_tpb_*_tpd_
+  0.4_t13_Sˍt_t_ + _t13_In_t_*_t13_S_t_*_tpb_ + 0.556160587561105_t13_S_t_*_tpb_*_tpd_
+  0.4_t13_Sˍtt_t_ + _t13_In_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍt_t_*_t13_S_t_*_tpb_ - 0.3073042814078279_t13_S_t_*_tpb_*_tpd_ + 0.556160587561105_t13_Sˍt_t_*_tpb_*_tpd_
+  0.4_t13_Sˍttt_t_ + _t13_In_t_*_t13_Sˍtt_t_*_tpb_ + (2//1)*_t13_Inˍt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍtt_t_*_t13_S_t_*_tpb_ + 0.25503136073007315_t13_S_t_*_tpb_*_tpd_ - 0.6146085628156558_t13_Sˍt_t_*_tpb_*_tpd_ + 0.556160587561105_t13_Sˍtt_t_*_tpb_*_tpd_
+  0.4_t13_Sˍtttt_t_ + _t13_In_t_*_t13_Sˍttt_t_*_tpb_ + (3//1)*_t13_Inˍt_t_*_t13_Sˍtt_t_*_tpb_ + (3//1)*_t13_Inˍtt_t_*_t13_Sˍt_t_*_tpb_ + _t13_Inˍttt_t_*_t13_S_t_*_tpb_ - 0.3057985004674094_t13_S_t_*_tpb_*_tpd_ + 0.7650940821902195_t13_Sˍt_t_*_tpb_*_tpd_ - 0.9219128442234836_t13_Sˍtt_t_*_tpb_*_tpd_ + 0.556160587561105_t13_Sˍttt_t_*_tpb_*_tpd_
+15-element Vector{Num}:
+            _tpb_
+            _tpd_
+            _tpg_
+           _tpnu_
+       _t13_In_t_
+        _t13_S_t_
+     _t13_Inˍt_t_
+    _t13_Inˍtt_t_
+   _t13_Inˍttt_t_
+  _t13_Inˍtttt_t_
+ _t13_Inˍttttt_t_
+      _t13_Sˍt_t_
+     _t13_Sˍtt_t_
+    _t13_Sˍttt_t_
+   _t13_Sˍtttt_t_
+Dict{Any, Any} with 12 entries:
+  _t13_Trˍttttt_t_ => -0.504171
+  _t13_Trˍtttt_t_ => 0.402919
+  _t13_Nˍt_t_ => 0
+  _t13_Tr_t_ => 0.556161
+  _t13_Trˍt_t_ => -0.307304
+  _t13_Trˍtttttt_t_ => 0.567448
+  _t13_Nˍttt_t_ => 0
+  _t13_Trˍtt_t_ => 0.255031
+  _t13_N_t_ => 0.4
+  _t13_Trˍttt_t_ => -0.305799
+  _t13_Nˍtt_t_ => 0
+  _t13_Nˍtttt_t_ => 0
+Tracking 49 paths...   4%|█▎                            |  ETA: 0:04:16[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 49 paths... 100%|██████████████████████████████| Time: 0:00:10[K
+  # paths tracked:                  49[K
+  # non-singular solutions (real):  12 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         12 (2)[K
+2-element Vector{Vector{Float64}}:
+ [2.4578663363467386, -0.19335558143892836, 0.3985126303202928, 0.3359968354053279, -0.3022139697638489, 0.01062896414700604, 0.3808614410753994, -0.5523257071076625, 0.7532294834905019, -0.9254198199493192, 0.9988347655765129, 0.02676140689388219, 0.03862402278727772, -0.008258700327174618, -0.09052774685160132]
+ [-3.7886295910657406, 1.7741871936562545, -0.6142794346941698, 1.3487889004197902, -0.7209079792261234, -0.006895520540928285, 0.25958421213250205, -0.06216221150766654, 0.015528490011825363, -0.06394722936156377, 0.18325868742378432, -0.017361412494074868, -0.025057262290039437, 0.005357816336547241, 0.05872970585896722]
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+9-element Vector{Float64}:
+ -0.20980367535887193
+  0.4
+  0.10327194700381037
+  0.7413720296725967
+  0.9502762700994974
+  2.4578663363467386
+ -0.19335558143892836
+  0.3985126303202928
+  0.3359968354053279
+Error: 0.0681900679407547
+9-element Vector{Float64}:
+ -0.5951531341190641
+  0.4
+  0.008026584579541996
+  0.8898311302304985
+  0.9502762700994974
+ -3.7886295910657406
+  1.7741871936562545
+ -0.6142794346941698
+  1.3487889004197902
+Error: 2.0178307909835898
+For model treatment: The ODEPE  max abs rel. err: 0.40252978962474845
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+We picked these points:[14]
+1-element Vector{Int64}:
+ 14
+starting SolveJSWithHC.  Here is the polynomial system:
+33-element Vector{Num}:
+                                                                                       -1.4499999999999915 + _t14_u0_t_
+                                                                                       -1.2189536094821338 + _t14_x1_t_
+                                                                                       -1.9722900865835988 + _t14_x1ˍt_t_
+                                                                                       -1.3011546513505154 + _t14_x1ˍtt_t_
+                                                                                       -0.4478347850611104 + _t14_x1ˍttt_t_
+                                                                                       -1.0718754995524218 + _t14_x1ˍtttt_t_
+                                                                                        0.6066069375577143 + _t14_x1ˍttttt_t_
+                                                                                       -0.9735812570335652 + _t14_x1ˍtttttt_t_
+                                                                                        0.33685097467388164 + _t14_x1ˍttttttt_t_
+                              -_t14_u0_t_ + _t14_x1ˍt_t_ - _t14_x2_t_ + _t14_x1_t_*_tpp1_
+                       -_t14_u0ˍt_t_ + _t14_x1ˍtt_t_ - _t14_x2ˍt_t_ + _t14_x1ˍt_t_*_tpp1_
+                   -_t14_u0ˍtt_t_ + _t14_x1ˍttt_t_ - _t14_x2ˍtt_t_ + _t14_x1ˍtt_t_*_tpp1_
+               -_t14_u0ˍttt_t_ + _t14_x1ˍtttt_t_ - _t14_x2ˍttt_t_ + _t14_x1ˍttt_t_*_tpp1_
+           -_t14_u0ˍtttt_t_ + _t14_x1ˍttttt_t_ - _t14_x2ˍtttt_t_ + _t14_x1ˍtttt_t_*_tpp1_
+       -_t14_u0ˍttttt_t_ + _t14_x1ˍtttttt_t_ - _t14_x2ˍttttt_t_ + _t14_x1ˍttttt_t_*_tpp1_
+   -_t14_u0ˍtttttt_t_ + _t14_x1ˍttttttt_t_ - _t14_x2ˍtttttt_t_ + _t14_x1ˍtttttt_t_*_tpp1_
+                        _t14_x2ˍt_t_ - _t14_x3_t_ - _t14_x1_t_*_tpp3_ + _t14_x2_t_*_tpp4_
+                                                                                       -1.0 + _t14_u0ˍt_t_
+                                                                            _t14_u0ˍtt_t_
+                 _t14_x2ˍtt_t_ - _t14_x3ˍt_t_ - _t14_x1ˍt_t_*_tpp3_ + _t14_x2ˍt_t_*_tpp4_
+                                                                           _t14_u0ˍttt_t_
+             _t14_x2ˍttt_t_ - _t14_x3ˍtt_t_ - _t14_x1ˍtt_t_*_tpp3_ + _t14_x2ˍtt_t_*_tpp4_
+         _t14_x2ˍtttt_t_ - _t14_x3ˍttt_t_ - _t14_x1ˍttt_t_*_tpp3_ + _t14_x2ˍttt_t_*_tpp4_
+                                                                          _t14_u0ˍtttt_t_
+     _t14_x2ˍttttt_t_ - _t14_x3ˍtttt_t_ - _t14_x1ˍtttt_t_*_tpp3_ + _t14_x2ˍtttt_t_*_tpp4_
+                                                                         _t14_u0ˍttttt_t_
+ _t14_x2ˍtttttt_t_ - _t14_x3ˍttttt_t_ - _t14_x1ˍttttt_t_*_tpp3_ + _t14_x2ˍttttt_t_*_tpp4_
+                                                                        _t14_u0ˍtttttt_t_
+                                     _t14_x3ˍt_t_ - _t14_x1_t_*_tpp6_ + _t14_x3_t_*_tpp7_
+                                _t14_x3ˍtt_t_ - _t14_x1ˍt_t_*_tpp6_ + _t14_x3ˍt_t_*_tpp7_
+                             _t14_x3ˍttt_t_ - _t14_x1ˍtt_t_*_tpp6_ + _t14_x3ˍtt_t_*_tpp7_
+                          _t14_x3ˍtttt_t_ - _t14_x1ˍttt_t_*_tpp6_ + _t14_x3ˍttt_t_*_tpp7_
+                       _t14_x3ˍttttt_t_ - _t14_x1ˍtttt_t_*_tpp6_ + _t14_x3ˍtttt_t_*_tpp7_
+varlist
+33-element Vector{Num}:
+             _tpp1_
+             _tpp3_
+             _tpp4_
+             _tpp6_
+             _tpp7_
+         _t14_x1_t_
+         _t14_x2_t_
+         _t14_x3_t_
+         _t14_u0_t_
+       _t14_x1ˍt_t_
+      _t14_x1ˍtt_t_
+     _t14_x1ˍttt_t_
+    _t14_x1ˍtttt_t_
+   _t14_x1ˍttttt_t_
+  _t14_x1ˍtttttt_t_
+ _t14_x1ˍttttttt_t_
+       _t14_x2ˍt_t_
+       _t14_u0ˍt_t_
+      _t14_u0ˍtt_t_
+      _t14_x2ˍtt_t_
+     _t14_u0ˍttt_t_
+     _t14_x2ˍttt_t_
+    _t14_x2ˍtttt_t_
+    _t14_u0ˍtttt_t_
+   _t14_x2ˍttttt_t_
+   _t14_u0ˍttttt_t_
+  _t14_x2ˍtttttt_t_
+  _t14_u0ˍtttttt_t_
+       _t14_x3ˍt_t_
+      _t14_x3ˍtt_t_
+     _t14_x3ˍttt_t_
+    _t14_x3ˍtttt_t_
+   _t14_x3ˍttttt_t_
+these are trivial
+-1.4499999999999915 + _t14_u0_t_
+-1.2189536094821338 + _t14_x1_t_
+-1.9722900865835988 + _t14_x1ˍt_t_
+-1.3011546513505154 + _t14_x1ˍtt_t_
+-0.4478347850611104 + _t14_x1ˍttt_t_
+-1.0718754995524218 + _t14_x1ˍtttt_t_
+0.6066069375577143 + _t14_x1ˍttttt_t_
+-0.9735812570335652 + _t14_x1ˍtttttt_t_
+0.33685097467388164 + _t14_x1ˍttttttt_t_
+-1.0 + _t14_u0ˍt_t_
+_t14_u0ˍtt_t_
+_t14_u0ˍttt_t_
+_t14_u0ˍtttt_t_
+_t14_u0ˍttttt_t_
+_t14_u0ˍtttttt_t_
+end trivial
+after trivial subst
+18-element Vector{Num}:
+                                        0.5222900865836073 - _t14_x2_t_ + 1.2189536094821338_tpp1_
+                                        0.30115465135051545 - _t14_x2ˍt_t_ + 1.9722900865835988_tpp1_
+                                        0.4478347850611104 - _t14_x2ˍtt_t_ + 1.3011546513505154_tpp1_
+                                        1.0718754995524218 - _t14_x2ˍttt_t_ + 0.4478347850611104_tpp1_
+                                       -0.6066069375577143 - _t14_x2ˍtttt_t_ + 1.0718754995524218_tpp1_
+                                        0.9735812570335652 - _t14_x2ˍttttt_t_ - 0.6066069375577143_tpp1_
+                                       -0.33685097467388164 - _t14_x2ˍtttttt_t_ + 0.9735812570335652_tpp1_
+            _t14_x2ˍt_t_ - _t14_x3_t_ - 1.2189536094821338_tpp3_ + _t14_x2_t_*_tpp4_
+         _t14_x2ˍtt_t_ - _t14_x3ˍt_t_ - 1.9722900865835988_tpp3_ + _t14_x2ˍt_t_*_tpp4_
+       _t14_x2ˍttt_t_ - _t14_x3ˍtt_t_ - 1.3011546513505154_tpp3_ + _t14_x2ˍtt_t_*_tpp4_
+     _t14_x2ˍtttt_t_ - _t14_x3ˍttt_t_ - 0.4478347850611104_tpp3_ + _t14_x2ˍttt_t_*_tpp4_
+   _t14_x2ˍttttt_t_ - _t14_x3ˍtttt_t_ - 1.0718754995524218_tpp3_ + _t14_x2ˍtttt_t_*_tpp4_
+ _t14_x2ˍtttttt_t_ - _t14_x3ˍttttt_t_ + 0.6066069375577143_tpp3_ + _t14_x2ˍttttt_t_*_tpp4_
+                         _t14_x3ˍt_t_ - 1.2189536094821338_tpp6_ + _t14_x3_t_*_tpp7_
+                        _t14_x3ˍtt_t_ - 1.9722900865835988_tpp6_ + _t14_x3ˍt_t_*_tpp7_
+                       _t14_x3ˍttt_t_ - 1.3011546513505154_tpp6_ + _t14_x3ˍtt_t_*_tpp7_
+                      _t14_x3ˍtttt_t_ - 0.4478347850611104_tpp6_ + _t14_x3ˍttt_t_*_tpp7_
+                     _t14_x3ˍttttt_t_ - 1.0718754995524218_tpp6_ + _t14_x3ˍtttt_t_*_tpp7_
+18-element Vector{Num}:
+            _tpp1_
+            _tpp3_
+            _tpp4_
+            _tpp6_
+            _tpp7_
+        _t14_x2_t_
+        _t14_x3_t_
+      _t14_x2ˍt_t_
+     _t14_x2ˍtt_t_
+    _t14_x2ˍttt_t_
+   _t14_x2ˍtttt_t_
+  _t14_x2ˍttttt_t_
+ _t14_x2ˍtttttt_t_
+      _t14_x3ˍt_t_
+     _t14_x3ˍtt_t_
+    _t14_x3ˍttt_t_
+   _t14_x3ˍtttt_t_
+  _t14_x3ˍttttt_t_
+Dict{Any, Any} with 15 entries:
+  _t14_x1ˍttttttt_t_ => -0.336851
+  _t14_u0ˍtt_t_ => 0
+  _t14_x1_t_ => 1.21895
+  _t14_x1ˍtt_t_ => 1.30115
+  _t14_u0ˍt_t_ => 1.0
+  _t14_x1ˍtttttt_t_ => 0.973581
+  _t14_u0ˍttttt_t_ => 0
+  _t14_u0ˍtttttt_t_ => 0
+  _t14_x1ˍt_t_ => 1.97229
+  _t14_u0_t_ => 1.45
+  _t14_x1ˍtttt_t_ => 1.07188
+  _t14_u0ˍtttt_t_ => 0
+  _t14_x1ˍttt_t_ => 0.447835
+  _t14_u0ˍttt_t_ => 0
+  _t14_x1ˍttttt_t_ => -0.606607
+2-element Vector{Vector{Float64}}:
+ [0.16678285365816797, 0.332565482917753, 0.8340702656779015, 0.7783978492349947, 0.4992763765103079, 0.7255906480499617, 0.8299105090333115, 0.6300988202326432, 0.6648450708639481, 1.146566662972306, -0.42783648297608706, 0.8724096209388476, -0.17447431435771732, 0.5344761561601497, 1.2683750428853777, 0.3795462866654329, 0.15909513877992457, 0.7549131390888452]
+ [0.166782853658168, 0.332565482917753, 0.4992763765103073, 0.667056957806061, 0.834070265677902, 0.7255906480499618, 0.5869871940290299, 0.6300988202326433, 0.6648450708639481, 1.1465666629723061, -0.42783648297608706, 0.8724096209388476, -0.1744743143577173, 0.32352292157455026, 1.0457889759169319, -0.0043172256209756425, 0.3023321788432741, 0.4628357291475017]
+"How close are we?"
+Actual values:
+9-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+9-element Vector{Float64}:
+ 0.3265624530843329
+ 0.15754905723878074
+ 0.6443606041013195
+ 0.7999999999999923
+ 0.166782853658168
+ 0.332565482917753
+ 0.4992763765103073
+ 0.667056957806061
+ 0.834070265677902
+Error: 0.05750253712354129
+9-element Vector{Float64}:
+ 0.044878704055711864
+ 0.7884465571245104
+ 0.49096727828867687
+ 0.7999999999999913
+ 0.16678285365816797
+ 0.332565482917753
+ 0.8340702656779015
+ 0.7783978492349947
+ 0.4992763765103079
+Error: 0.07837500673223709
+For model DAISY_ex3: The ODEPE  max abs rel. err: 0.6328122654216645
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[x7(t)]
+After making the following substitutions:Dict{Any, Any}() the following are globally unidentifiable:Any[x7(t)]
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+We picked these points:[11]
+1-element Vector{Int64}:
+ 11
+starting SolveJSWithHC.  Here is the polynomial system:
+22-element Vector{Num}:
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -0.37463807728820553 + _t11_x5_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0.051085540607320463 + _t11_x5ˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0.0015105423839937447 + _t11_x5ˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0.00028360255642962453 + _t11_x5ˍttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -0.0008223650471310437 + _t11_x5ˍtttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -0.00030249900518608563 + _t11_x5ˍttttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -0.17186308992157182 + _t11_x4_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        0.053676355224428124 + _t11_x4ˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -0.010471618683792526 + _t11_x4ˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 (_t11_x4_t_ + _tpk6_)*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍt_t_ - _t11_x4_t_*_t11_x5_t_*_tpk5_ + _t11_x4_t_*_t11_x5_t_*_tpk7_ - _t11_x4_t_*_t11_x6_t_*_tpk5_ - _t11_x4_t_*_tpk5_*_tpk8_ + _t11_x5_t_*_tpk6_*_tpk7_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 (_t11_x4_t_ + _tpk6_)*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtt_t_ + (_t11_x4_t_ + _tpk6_)*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍt_t_ - _t11_x4_t_*_t11_x5ˍt_t_*_tpk5_ + _t11_x4_t_*_t11_x5ˍt_t_*_tpk7_ - _t11_x4_t_*_t11_x6ˍt_t_*_tpk5_ + _t11_x4ˍt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍt_t_ - _t11_x4ˍt_t_*_t11_x5_t_*_tpk5_ + _t11_x4ˍt_t_*_t11_x5_t_*_tpk7_ - _t11_x4ˍt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍt_t_*_tpk5_*_tpk8_ + _t11_x5ˍt_t_*_tpk6_*_tpk7_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        (_t11_x4_t_ + _tpk6_)*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍttt_t_ + (_t11_x4_t_ + _tpk6_)*_t11_x5ˍt_t_*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_) + 2(_t11_x4_t_ + _tpk6_)*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍtt_t_ - _t11_x4_t_*_t11_x5ˍtt_t_*_tpk5_ + _t11_x4_t_*_t11_x5ˍtt_t_*_tpk7_ - _t11_x4_t_*_t11_x6ˍtt_t_*_tpk5_ + 2_t11_x4ˍt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtt_t_ + 2_t11_x4ˍt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍt_t_ - 2_t11_x4ˍt_t_*_t11_x5ˍt_t_*_tpk5_ + 2_t11_x4ˍt_t_*_t11_x5ˍt_t_*_tpk7_ - 2_t11_x4ˍt_t_*_t11_x6ˍt_t_*_tpk5_ + _t11_x4ˍtt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍt_t_ - _t11_x4ˍtt_t_*_t11_x5_t_*_tpk5_ + _t11_x4ˍtt_t_*_t11_x5_t_*_tpk7_ - _t11_x4ˍtt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍtt_t_*_tpk5_*_tpk8_ + _t11_x5ˍtt_t_*_tpk6_*_tpk7_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     (_t11_x4_t_ + _tpk6_)*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtttt_t_ + 3(_t11_x4_t_ + _tpk6_)*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍttt_t_ + (_t11_x4_t_ + _tpk6_)*_t11_x5ˍt_t_*(_t11_x5ˍttt_t_ + _t11_x6ˍttt_t_) + 3(_t11_x4_t_ + _tpk6_)*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_)*_t11_x5ˍtt_t_ - _t11_x4_t_*_t11_x5ˍttt_t_*_tpk5_ + _t11_x4_t_*_t11_x5ˍttt_t_*_tpk7_ - _t11_x4_t_*_t11_x6ˍttt_t_*_tpk5_ + 3_t11_x4ˍt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍttt_t_ + 6_t11_x4ˍt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍtt_t_ + 3_t11_x4ˍt_t_*_t11_x5ˍt_t_*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_) - 3_t11_x4ˍt_t_*_t11_x5ˍtt_t_*_tpk5_ + 3_t11_x4ˍt_t_*_t11_x5ˍtt_t_*_tpk7_ - 3_t11_x4ˍt_t_*_t11_x6ˍtt_t_*_tpk5_ + 3_t11_x4ˍtt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtt_t_ + 3_t11_x4ˍtt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍt_t_ - 3_t11_x4ˍtt_t_*_t11_x5ˍt_t_*_tpk5_ + 3_t11_x4ˍtt_t_*_t11_x5ˍt_t_*_tpk7_ - 3_t11_x4ˍtt_t_*_t11_x6ˍt_t_*_tpk5_ + _t11_x4ˍttt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍt_t_ - _t11_x4ˍttt_t_*_t11_x5_t_*_tpk5_ + _t11_x4ˍttt_t_*_t11_x5_t_*_tpk7_ - _t11_x4ˍttt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍttt_t_*_tpk5_*_tpk8_ + _t11_x5ˍttt_t_*_tpk6_*_tpk7_
+ (_t11_x4_t_ + _tpk6_)*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍttttt_t_ + (_t11_x4_t_ + _tpk6_)*_t11_x5ˍt_t_*(_t11_x5ˍtttt_t_ + _t11_x6ˍtttt_t_) + 4(_t11_x4_t_ + _tpk6_)*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍtttt_t_ + 6(_t11_x4_t_ + _tpk6_)*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_)*_t11_x5ˍttt_t_ + 4(_t11_x4_t_ + _tpk6_)*_t11_x5ˍtt_t_*(_t11_x5ˍttt_t_ + _t11_x6ˍttt_t_) - _t11_x4_t_*_t11_x5ˍtttt_t_*_tpk5_ + _t11_x4_t_*_t11_x5ˍtttt_t_*_tpk7_ - _t11_x4_t_*_t11_x6ˍtttt_t_*_tpk5_ + 4_t11_x4ˍt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtttt_t_ + 12_t11_x4ˍt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍttt_t_ + 4_t11_x4ˍt_t_*_t11_x5ˍt_t_*(_t11_x5ˍttt_t_ + _t11_x6ˍttt_t_) + 12_t11_x4ˍt_t_*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_)*_t11_x5ˍtt_t_ - 4_t11_x4ˍt_t_*_t11_x5ˍttt_t_*_tpk5_ + 4_t11_x4ˍt_t_*_t11_x5ˍttt_t_*_tpk7_ - 4_t11_x4ˍt_t_*_t11_x6ˍttt_t_*_tpk5_ + 6_t11_x4ˍtt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍttt_t_ + 6_t11_x4ˍtt_t_*_t11_x5ˍt_t_*(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_) + 12_t11_x4ˍtt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍtt_t_ - 6_t11_x4ˍtt_t_*_t11_x5ˍtt_t_*_tpk5_ + 6_t11_x4ˍtt_t_*_t11_x5ˍtt_t_*_tpk7_ - 6_t11_x4ˍtt_t_*_t11_x6ˍtt_t_*_tpk5_ + 4_t11_x4ˍttt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍtt_t_ + 4_t11_x4ˍttt_t_*(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x5ˍt_t_ - 4_t11_x4ˍttt_t_*_t11_x5ˍt_t_*_tpk5_ + 4_t11_x4ˍttt_t_*_t11_x5ˍt_t_*_tpk7_ - 4_t11_x4ˍttt_t_*_t11_x6ˍt_t_*_tpk5_ + _t11_x4ˍtttt_t_*(_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x5ˍt_t_ - _t11_x4ˍtttt_t_*_t11_x5_t_*_tpk5_ + _t11_x4ˍtttt_t_*_t11_x5_t_*_tpk7_ - _t11_x4ˍtttt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍtttt_t_*_tpk5_*_tpk8_ + _t11_x5ˍtttt_t_*_tpk6_*_tpk7_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   (_t11_x4_t_ + _tpk6_)*_t11_x4ˍt_t_ + _t11_x4_t_*_tpk5_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               (_t11_x4_t_ + _tpk6_)*_t11_x4ˍtt_t_ + _t11_x4ˍt_t_^2 + _t11_x4ˍt_t_*_tpk5_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  (_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x6ˍt_t_*_tpk10_ - _t11_x5_t_*_tpk10_*_tpk7_ - _t11_x5_t_*(_t11_x6_t_^2)*_tpk9_ + _t11_x5_t_*_t11_x6_t_*_tpk10_*_tpk9_ - (_t11_x6_t_^3)*_tpk9_ + (_t11_x6_t_^2)*_tpk10_*_tpk9_ - (_t11_x6_t_^2)*_tpk8_*_tpk9_ + _t11_x6_t_*_tpk10_*_tpk8_*_tpk9_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            (_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x6ˍtt_t_*_tpk10_ + (_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x6ˍt_t_*_tpk10_ - _t11_x5ˍt_t_*_tpk10_*_tpk7_ - 2_t11_x5_t_*_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ + _t11_x5_t_*_t11_x6ˍt_t_*_tpk10_*_tpk9_ - _t11_x5ˍt_t_*(_t11_x6_t_^2)*_tpk9_ + _t11_x5ˍt_t_*_t11_x6_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍt_t_*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍt_t_*_tpk8_*_tpk9_ + _t11_x6ˍt_t_*_tpk10_*_tpk8_*_tpk9_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                (_t11_x4_t_ + _tpk6_)*_t11_x4ˍttt_t_ + 3_t11_x4ˍt_t_*_t11_x4ˍtt_t_ + _t11_x4ˍtt_t_*_tpk5_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x6ˍttt_t_*_tpk10_ + 2(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x6ˍtt_t_*_tpk10_ + (_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_)*_t11_x6ˍt_t_*_tpk10_ - _t11_x5ˍtt_t_*_tpk10_*_tpk7_ - 2_t11_x5_t_*_t11_x6_t_*_t11_x6ˍtt_t_*_tpk9_ - 2_t11_x5_t_*(_t11_x6ˍt_t_^2)*_tpk9_ + _t11_x5_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 4_t11_x5ˍt_t_*_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ + 2_t11_x5ˍt_t_*_t11_x6ˍt_t_*_tpk10_*_tpk9_ - _t11_x5ˍtt_t_*(_t11_x6_t_^2)*_tpk9_ + _t11_x5ˍtt_t_*_t11_x6_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍtt_t_*_tpk9_ - 6_t11_x6_t_*(_t11_x6ˍt_t_^2)*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍtt_t_*_tpk8_*_tpk9_ + 2(_t11_x6ˍt_t_^2)*_tpk10_*_tpk9_ - 2(_t11_x6ˍt_t_^2)*_tpk8_*_tpk9_ + _t11_x6ˍtt_t_*_tpk10_*_tpk8_*_tpk9_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        (_t11_x4_t_ + _tpk6_)*_t11_x4ˍtttt_t_ + 4_t11_x4ˍt_t_*_t11_x4ˍttt_t_ + 3(_t11_x4ˍtt_t_^2) + _t11_x4ˍttt_t_*_tpk5_
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            (_t11_x5_t_ + _t11_x6_t_ + _tpk8_)*_t11_x6ˍtttt_t_*_tpk10_ + 3(_t11_x5ˍt_t_ + _t11_x6ˍt_t_)*_t11_x6ˍttt_t_*_tpk10_ + 3(_t11_x5ˍtt_t_ + _t11_x6ˍtt_t_)*_t11_x6ˍtt_t_*_tpk10_ + (_t11_x5ˍttt_t_ + _t11_x6ˍttt_t_)*_t11_x6ˍt_t_*_tpk10_ - _t11_x5ˍttt_t_*_tpk10_*_tpk7_ - 2_t11_x5_t_*_t11_x6_t_*_t11_x6ˍttt_t_*_tpk9_ - 6_t11_x5_t_*_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk9_ + _t11_x5_t_*_t11_x6ˍttt_t_*_tpk10_*_tpk9_ - 6_t11_x5ˍt_t_*_t11_x6_t_*_t11_x6ˍtt_t_*_tpk9_ - 6_t11_x5ˍt_t_*(_t11_x6ˍt_t_^2)*_tpk9_ + 3_t11_x5ˍt_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 6_t11_x5ˍtt_t_*_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ + 3_t11_x5ˍtt_t_*_t11_x6ˍt_t_*_tpk10_*_tpk9_ - _t11_x5ˍttt_t_*(_t11_x6_t_^2)*_tpk9_ + _t11_x5ˍttt_t_*_t11_x6_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍttt_t_*_tpk9_ - 18_t11_x6_t_*_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍttt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍttt_t_*_tpk8_*_tpk9_ - 6(_t11_x6ˍt_t_^3)*_tpk9_ + 6_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 6_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk8_*_tpk9_ + _t11_x6ˍttt_t_*_tpk10_*_tpk8_*_tpk9_
+varlist
+22-element Vector{Num}:
+           _tpk5_
+           _tpk6_
+           _tpk7_
+           _tpk8_
+           _tpk9_
+          _tpk10_
+       _t11_x4_t_
+       _t11_x5_t_
+       _t11_x6_t_
+     _t11_x5ˍt_t_
+    _t11_x5ˍtt_t_
+   _t11_x5ˍttt_t_
+  _t11_x5ˍtttt_t_
+ _t11_x5ˍttttt_t_
+     _t11_x4ˍt_t_
+    _t11_x4ˍtt_t_
+     _t11_x6ˍt_t_
+    _t11_x6ˍtt_t_
+   _t11_x4ˍttt_t_
+   _t11_x6ˍttt_t_
+  _t11_x4ˍtttt_t_
+  _t11_x6ˍtttt_t_
+these are trivial
+-0.37463807728820553 + _t11_x5_t_
+0.051085540607320463 + _t11_x5ˍt_t_
+0.0015105423839937447 + _t11_x5ˍtt_t_
+0.00028360255642962453 + _t11_x5ˍttt_t_
+-0.0008223650471310437 + _t11_x5ˍtttt_t_
+-0.00030249900518608563 + _t11_x5ˍttttt_t_
+-0.17186308992157182 + _t11_x4_t_
+0.053676355224428124 + _t11_x4ˍt_t_
+-0.010471618683792526 + _t11_x4ˍtt_t_
+end trivial
+after trivial subst
+13-element Vector{Num}:
+ -0.06438645756502764_tpk5_ + 0.06438645756502764_tpk7_ - 0.17186308992157182_t11_x6_t_*_tpk5_ - 0.051085540607320463(0.37463807728820553 + _t11_x6_t_ + _tpk8_)*(0.17186308992157182 + _tpk6_) - 0.17186308992157182_tpk5_*_tpk8_ + 0.37463807728820553_tpk6_*_tpk7_
+  0.002742085624470481(0.37463807728820553 + _t11_x6_t_ + _tpk8_) + 0.028888925376206503_tpk5_ - 0.028888925376206503_tpk7_ + 0.053676355224428124_t11_x6_t_*_tpk5_ - 0.0015105423839937447(0.37463807728820553 + _t11_x6_t_ + _tpk8_)*(0.17186308992157182 + _tpk6_) - 0.17186308992157182_t11_x6ˍt_t_*_tpk5_ - 0.051085540607320463(-0.051085540607320463 + _t11_x6ˍt_t_)*(0.17186308992157182 + _tpk6_) + 0.053676355224428124_tpk5_*_tpk8_ - 0.051085540607320463_tpk6_*_tpk7_
+ -0.00037278748232565334(0.37463807728820553 + _t11_x6_t_ + _tpk8_) + 0.005484171248940962(-0.051085540607320463 + _t11_x6ˍt_t_) - 0.009147631857161581_tpk5_ + 0.009147631857161581_tpk7_ - 0.010471618683792526_t11_x6_t_*_tpk5_ - 0.00028360255642962453(0.37463807728820553 + _t11_x6_t_ + _tpk8_)*(0.17186308992157182 + _tpk6_) + 0.10735271044885625_t11_x6ˍt_t_*_tpk5_ - 0.0030210847679874894(-0.051085540607320463 + _t11_x6ˍt_t_)*(0.17186308992157182 + _tpk6_) - 0.17186308992157182_t11_x6ˍtt_t_*_tpk5_ - 0.051085540607320463(-0.0015105423839937447 + _t11_x6ˍtt_t_)*(0.17186308992157182 + _tpk6_) - 0.010471618683792526_tpk5_*_tpk8_ - 0.0015105423839937447_tpk6_*_tpk7_
+ -1.7852168682508599e-6(0.37463807728820553 + _t11_x6_t_ + _tpk8_) - 0.00111836244697696(-0.051085540607320463 + _t11_x6ˍt_t_) + 0.008226256873411443(-0.0015105423839937447 + _t11_x6ˍtt_t_) + 0.0014103444873890204_tpk5_ - 0.0014103444873890204_tpk7_ - 0.051085540607320463_t11_x4ˍttt_t_*(0.37463807728820553 + _t11_x6_t_ + _tpk8_) - 0.37463807728820553_t11_x4ˍttt_t_*_tpk5_ + 0.37463807728820553_t11_x4ˍttt_t_*_tpk7_ + 0.0008223650471310437(0.37463807728820553 + _t11_x6_t_ + _tpk8_)*(0.17186308992157182 + _tpk6_) - 0.03141485605137758_t11_x6ˍt_t_*_tpk5_ - 0.0008508076692888735(-0.051085540607320463 + _t11_x6ˍt_t_)*(0.17186308992157182 + _tpk6_) + 0.16102906567328437_t11_x6ˍtt_t_*_tpk5_ - 0.004531627151981234(-0.0015105423839937447 + _t11_x6ˍtt_t_)*(0.17186308992157182 + _tpk6_) - 0.17186308992157182_t11_x6ˍttt_t_*_tpk5_ - 0.051085540607320463(-0.00028360255642962453 + _t11_x6ˍttt_t_)*(0.17186308992157182 + _tpk6_) - 0.00028360255642962453_tpk6_*_tpk7_ - _t11_x4ˍttt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍttt_t_*_tpk5_*_tpk8_
+ -0.0001943849005479166(0.37463807728820553 + _t11_x6_t_ + _tpk8_) - 7.1408674730034395e-6(-0.051085540607320463 + _t11_x6ˍt_t_) - 0.00223672489395392(-0.0015105423839937447 + _t11_x6ˍtt_t_) + 0.010968342497881924(-0.00028360255642962453 + _t11_x6ˍttt_t_) - 0.00010731826118399359_tpk5_ + 0.00010731826118399359_tpk7_ - 0.006042169535974979_t11_x4ˍttt_t_*(0.37463807728820553 + _t11_x6_t_ + _tpk8_) - 0.20434216242928185_t11_x4ˍttt_t_*(-0.051085540607320463 + _t11_x6ˍt_t_) + 0.20434216242928185_t11_x4ˍttt_t_*_tpk5_ - 0.20434216242928185_t11_x4ˍttt_t_*_tpk7_ - 0.051085540607320463_t11_x4ˍtttt_t_*(0.37463807728820553 + _t11_x6_t_ + _tpk8_) - 0.37463807728820553_t11_x4ˍtttt_t_*_tpk5_ + 0.37463807728820553_t11_x4ˍtttt_t_*_tpk7_ + 0.00030249900518608563(0.37463807728820553 + _t11_x6_t_ + _tpk8_)*(0.17186308992157182 + _tpk6_) + 0.0032894601885241747(-0.051085540607320463 + _t11_x6ˍt_t_)*(0.17186308992157182 + _tpk6_) - 0.06282971210275516_t11_x6ˍtt_t_*_tpk5_ - 0.001701615338577747(-0.0015105423839937447 + _t11_x6ˍtt_t_)*(0.17186308992157182 + _tpk6_) + 0.2147054208977125_t11_x6ˍttt_t_*_tpk5_ - 0.006042169535974979(-0.00028360255642962453 + _t11_x6ˍttt_t_)*(0.17186308992157182 + _tpk6_) - 0.17186308992157182_t11_x6ˍtttt_t_*_tpk5_ - 0.051085540607320463(0.0008223650471310437 + _t11_x6ˍtttt_t_)*(0.17186308992157182 + _tpk6_) + 0.0008223650471310437_tpk6_*_tpk7_ - 4_t11_x4ˍttt_t_*_t11_x6ˍt_t_*_tpk5_ - _t11_x4ˍtttt_t_*_t11_x6_t_*_tpk5_ - _t11_x4ˍtttt_t_*_tpk5_*_tpk8_
+  0.17186308992157182_tpk5_ - 0.053676355224428124(0.17186308992157182 + _tpk6_)
+  0.0028811511101789924 - 0.053676355224428124_tpk5_ + 0.010471618683792526(0.17186308992157182 + _tpk6_)
+ -0.37463807728820553_tpk10_*_tpk7_ - 0.37463807728820553(_t11_x6_t_^2)*_tpk9_ + (0.37463807728820553 + _t11_x6_t_ + _tpk8_)*_t11_x6ˍt_t_*_tpk10_ + 0.37463807728820553_t11_x6_t_*_tpk10_*_tpk9_ - (_t11_x6_t_^3)*_tpk9_ + (_t11_x6_t_^2)*_tpk10_*_tpk9_ - (_t11_x6_t_^2)*_tpk8_*_tpk9_ + _t11_x6_t_*_tpk10_*_tpk8_*_tpk9_
+  0.051085540607320463_tpk10_*_tpk7_ + 0.051085540607320463(_t11_x6_t_^2)*_tpk9_ - 0.7492761545764111_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ + (0.37463807728820553 + _t11_x6_t_ + _tpk8_)*_t11_x6ˍtt_t_*_tpk10_ - 0.051085540607320463_t11_x6_t_*_tpk10_*_tpk9_ + _t11_x6ˍt_t_*(-0.051085540607320463 + _t11_x6ˍt_t_)*_tpk10_ + 0.37463807728820553_t11_x6ˍt_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍt_t_*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍt_t_*_tpk8_*_tpk9_ + _t11_x6ˍt_t_*_tpk10_*_tpk8_*_tpk9_
+ -0.0016862349727380184 + 0.010471618683792526_tpk5_ + _t11_x4ˍttt_t_*(0.17186308992157182 + _tpk6_)
+  0.0015105423839937447_tpk10_*_tpk7_ + 0.0015105423839937447(_t11_x6_t_^2)*_tpk9_ + 0.20434216242928185_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ - 0.7492761545764111_t11_x6_t_*_t11_x6ˍtt_t_*_tpk9_ + (0.37463807728820553 + _t11_x6_t_ + _tpk8_)*_t11_x6ˍttt_t_*_tpk10_ - 0.0015105423839937447_t11_x6_t_*_tpk10_*_tpk9_ - 0.7492761545764111(_t11_x6ˍt_t_^2)*_tpk9_ + 2(-0.051085540607320463 + _t11_x6ˍt_t_)*_t11_x6ˍtt_t_*_tpk10_ + _t11_x6ˍt_t_*(-0.0015105423839937447 + _t11_x6ˍtt_t_)*_tpk10_ - 0.10217108121464093_t11_x6ˍt_t_*_tpk10_*_tpk9_ + 0.37463807728820553_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍtt_t_*_tpk9_ - 6_t11_x6_t_*(_t11_x6ˍt_t_^2)*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍtt_t_*_tpk8_*_tpk9_ + 2(_t11_x6ˍt_t_^2)*_tpk10_*_tpk9_ - 2(_t11_x6ˍt_t_^2)*_tpk8_*_tpk9_ + _t11_x6ˍtt_t_*_tpk10_*_tpk8_*_tpk9_
+  0.0003289643935762581 - 0.2147054208977125_t11_x4ˍttt_t_ + _t11_x4ˍttt_t_*_tpk5_ + _t11_x4ˍtttt_t_*(0.17186308992157182 + _tpk6_)
+  0.00028360255642962453_tpk10_*_tpk7_ + 0.00028360255642962453(_t11_x6_t_^2)*_tpk9_ + 0.009063254303962468_t11_x6_t_*_t11_x6ˍt_t_*_tpk9_ + 0.3065132436439228_t11_x6_t_*_t11_x6ˍtt_t_*_tpk9_ - 0.7492761545764111_t11_x6_t_*_t11_x6ˍttt_t_*_tpk9_ + (0.37463807728820553 + _t11_x6_t_ + _tpk8_)*_t11_x6ˍtttt_t_*_tpk10_ - 0.00028360255642962453_t11_x6_t_*_tpk10_*_tpk9_ + 0.3065132436439228(_t11_x6ˍt_t_^2)*_tpk9_ - 2.247828463729233_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk9_ + _t11_x6ˍt_t_*(-0.00028360255642962453 + _t11_x6ˍttt_t_)*_tpk10_ + 3(-0.051085540607320463 + _t11_x6ˍt_t_)*_t11_x6ˍttt_t_*_tpk10_ - 0.004531627151981234_t11_x6ˍt_t_*_tpk10_*_tpk9_ + 3_t11_x6ˍtt_t_*(-0.0015105423839937447 + _t11_x6ˍtt_t_)*_tpk10_ - 0.1532566218219614_t11_x6ˍtt_t_*_tpk10_*_tpk9_ + 0.37463807728820553_t11_x6ˍttt_t_*_tpk10_*_tpk9_ - 3(_t11_x6_t_^2)*_t11_x6ˍttt_t_*_tpk9_ - 18_t11_x6_t_*_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk9_ + 2_t11_x6_t_*_t11_x6ˍttt_t_*_tpk10_*_tpk9_ - 2_t11_x6_t_*_t11_x6ˍttt_t_*_tpk8_*_tpk9_ - 6(_t11_x6ˍt_t_^3)*_tpk9_ + 6_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk10_*_tpk9_ - 6_t11_x6ˍt_t_*_t11_x6ˍtt_t_*_tpk8_*_tpk9_ + _t11_x6ˍttt_t_*_tpk10_*_tpk8_*_tpk9_
+13-element Vector{Num}:
+          _tpk5_
+          _tpk6_
+          _tpk7_
+          _tpk8_
+          _tpk9_
+         _tpk10_
+      _t11_x6_t_
+    _t11_x6ˍt_t_
+   _t11_x6ˍtt_t_
+  _t11_x4ˍttt_t_
+  _t11_x6ˍttt_t_
+ _t11_x4ˍtttt_t_
+ _t11_x6ˍtttt_t_
+Dict{Any, Any} with 9 entries:
+  _t11_x5ˍttt_t_ => -0.000283603
+  _t11_x5ˍtttt_t_ => 0.000822365
+  _t11_x5ˍttttt_t_ => 0.000302499
+  _t11_x4ˍtt_t_ => 0.0104716
+  _t11_x4_t_ => 0.171863
+  _t11_x4ˍt_t_ => -0.0536764
+  _t11_x5_t_ => 0.374638
+  _t11_x5ˍt_t_ => -0.0510855
+  _t11_x5ˍtt_t_ => -0.00151054
+Tracking 50 paths...   4%|█▎                            |  ETA: 0:07:29[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 50 paths...  14%|████▎                         |  ETA: 0:01:57[K
+  # paths tracked:                  7[K
+  # non-singular solutions (real):  2 (1)[K
+  # singular endpoints (real):      2 (0)[K
+  # total solutions (real):         4 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 50 paths... 100%|██████████████████████████████| Time: 0:00:19[K
+  # paths tracked:                  50[K
+  # non-singular solutions (real):  6 (4)[K
+  # singular endpoints (real):      31 (0)[K
+  # total solutions (real):         37 (4)[K
+4-element Vector{Vector{Float64}}:
+ [0.14300000000632915, 0.28600000002026876, 0.42896060445996004, 0.571096449876326, 0.7141669107978091, 0.8566994301436166, 0.5882676480668514, -0.02687576180067907, -0.01612678572101236, 0.00041233614378785545, -0.0032242464235791354, -0.000653902145454115, 0.001139736580416814]
+ [0.14300000000632918, 0.2860000000202688, 0.4289606044599604, 1.4277958800199442, -0.7141669107978086, -0.8566994301436184, -0.2684317820767654, -0.02687576180067915, -0.01612678572101239, 0.00041233614378785523, -0.003224246423579149, -0.000653902145454115, 0.0011397365804168135]
+ [0.14300000000632915, 0.28600000002026876, 0.11112445697075413, 0.37874098469426737, -0.22394057678488688, -4.853253800253917, -0.3559878867971662, 0.030889263129279112, -0.0030584984269946868, 0.00041233614378785545, -0.0006251238137451749, -0.000653902145454115, -0.0003140725008791874]
+ [0.14300000000632915, 0.28600000002026876, 0.11112445697075413, -4.47451281555965, 0.22394057678488688, 4.853253800253917, 4.497265913456751, 0.030889263129279112, -0.0030584984269946868, 0.00041233614378785545, -0.0006251238137451749, -0.000653902145454115, -0.0003140725008791874]
+"How close are we?"
+Actual values:
+10-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.143
+ 0.286
+ 0.429
+ 0.571
+ 0.714
+ 0.857
+10-element Vector{Float64}:
+  0.20000000000003726
+  0.3416648270629571
+  0.0017012909954176177
+  0.6875169141641585
+  0.14300000000632915
+  0.28600000002026876
+  0.11112445697075413
+ -4.47451281555965
+  0.22394057678488688
+  4.853253800253917
+Error: 0.02553756612907546
+10-element Vector{Float64}:
+  0.20000000000003726
+  0.374757075207343
+ -0.029482250936378223
+  0.6856082079515681
+  0.14300000000632915
+  0.28600000002026876
+  0.11112445697075413
+  0.37874098469426737
+ -0.22394057678488688
+ -4.853253800253917
+Error: 0.02697199099386285
+10-element Vector{Float64}:
+  0.20000000000003723
+  0.4430383797858926
+ -0.14128904963802577
+  0.7160654147806484
+  0.14300000000632915
+  0.28600000002026876
+  0.42896060445996004
+  0.571096449876326
+  0.7141669107978091
+  0.8566994301436166
+Error: 0.03675149331719543
+10-element Vector{Float64}:
+  0.2000000000000373
+  0.3928085091403975
+ -0.050760002157432746
+  0.6757662379455505
+  0.14300000000632918
+  0.2860000000202688
+  0.4289606044599604
+  1.4277958800199442
+ -0.7141669107978086
+ -0.8566994301436184
+Error: 0.0423237345264992
+For model BioHydrogenation: The ODEPE  max abs rel. err: 0.10759594946473147
+Optimal number of points is 1
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+We picked these points:[19]
+1-element Vector{Int64}:
+ 19
+starting SolveJSWithHC.  Here is the polynomial system:
+18-element Vector{Num}:
+                                                        -0.833 + _t19_eC_t_
+                                                        -0.7901904131118289 + _t19_eA_t_*_t19_xA_t_ + _t19_eC_t_*_t19_xC_t_ + _t19_xB_t_*_tpeB_
+                                                        -0.01270368767383667 + _t19_eA_t_*_t19_xAˍt_t_ + _t19_eAˍt_t_*_t19_xA_t_ + _t19_eC_t_*_t19_xCˍt_t_ + _t19_eCˍt_t_*_t19_xC_t_ + _t19_xBˍt_t_*_tpeB_
+                                                         0.004280692389304861 + _t19_eA_t_*_t19_xAˍtt_t_ + 2_t19_eAˍt_t_*_t19_xAˍt_t_ + _t19_eAˍtt_t_*_t19_xA_t_ + _t19_eC_t_*_t19_xCˍtt_t_ + 2_t19_eCˍt_t_*_t19_xCˍt_t_ + _t19_eCˍtt_t_*_t19_xC_t_ + _t19_xBˍtt_t_*_tpeB_
+                                                        -0.666 + _t19_eA_t_
+                                                        -0.6274087140510467 + _t19_xC_t_
+                                                        -0.11951879681750921 + _t19_xCˍt_t_
+                                                         0.04319018686845373 + _t19_xCˍtt_t_
+      _t19_xBˍt_t_ - _t19_xA_t_*_tpk1_ + _t19_xB_t_*_tpk2_
+                                                     _t19_eAˍt_t_
+                          _t19_xAˍt_t_ + _t19_xA_t_*_tpk1_
+                                                     _t19_eCˍt_t_
+                          _t19_xCˍt_t_ - _t19_xB_t_*_tpk2_
+ _t19_xBˍtt_t_ - _t19_xAˍt_t_*_tpk1_ + _t19_xBˍt_t_*_tpk2_
+                                                     _t19_eCˍtt_t_
+                                                     _t19_eAˍtt_t_
+                       _t19_xAˍtt_t_ + _t19_xAˍt_t_*_tpk1_
+                       _t19_xCˍtt_t_ - _t19_xBˍt_t_*_tpk2_
+varlist
+18-element Vector{Num}:
+        _tpk1_
+        _tpk2_
+           _tpeB_
+    _t19_xA_t_
+    _t19_xB_t_
+    _t19_xC_t_
+         _t19_eA_t_
+         _t19_eC_t_
+  _t19_xBˍt_t_
+         _t19_eAˍt_t_
+  _t19_xAˍt_t_
+         _t19_eCˍt_t_
+  _t19_xCˍt_t_
+ _t19_xBˍtt_t_
+         _t19_eCˍtt_t_
+         _t19_eAˍtt_t_
+ _t19_xAˍtt_t_
+ _t19_xCˍtt_t_
+these are trivial
+-0.833 + _t19_eC_t_
+-0.666 + _t19_eA_t_
+-0.6274087140510467 + _t19_xC_t_
+-0.11951879681750921 + _t19_xCˍt_t_
+0.04319018686845373 + _t19_xCˍtt_t_
+_t19_eAˍt_t_
+_t19_eCˍt_t_
+_t19_eCˍtt_t_
+_t19_eAˍtt_t_
+end trivial
+after trivial subst
+9-element Vector{Num}:
+                                                        -0.26755895430730703 + 0.666_t19_xA_t_ + _t19_xB_t_*_tpeB_
+                                                         0.08685547007514849 + 0.666_t19_xAˍt_t_ + _t19_xBˍt_t_*_tpeB_
+                                                        -0.0316967332721171 + 0.666_t19_xAˍtt_t_ + _t19_xBˍtt_t_*_tpeB_
+      _t19_xBˍt_t_ - _t19_xA_t_*_tpk1_ + _t19_xB_t_*_tpk2_
+                          _t19_xAˍt_t_ + _t19_xA_t_*_tpk1_
+                                                         0.11951879681750921 - _t19_xB_t_*_tpk2_
+ _t19_xBˍtt_t_ - _t19_xAˍt_t_*_tpk1_ + _t19_xBˍt_t_*_tpk2_
+                       _t19_xAˍtt_t_ + _t19_xAˍt_t_*_tpk1_
+                                                        -0.04319018686845373 - _t19_xBˍt_t_*_tpk2_
+9-element Vector{Num}:
+        _tpk1_
+        _tpk2_
+           _tpeB_
+    _t19_xA_t_
+    _t19_xB_t_
+  _t19_xBˍt_t_
+  _t19_xAˍt_t_
+ _t19_xBˍtt_t_
+ _t19_xAˍtt_t_
+Dict{Any, Any} with 9 entries:
+  _t19_eC_t_ => 0.833
+  _t19_eAˍt_t_ => 0
+  _t19_xC_t_ => 0.627409
+  _t19_eCˍt_t_ => 0
+  _t19_xCˍt_t_ => 0.119519
+  _t19_eCˍtt_t_ => 0
+  _t19_eA_t_ => 0.666
+  _t19_eAˍtt_t_ => 0
+  _t19_xCˍtt_t_ => -0.0431902
+Tracking 3 paths...  67%|████████████████████▋          |  ETA: 0:00:03[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A2-element Vector{Vector{Float64}}:
+ [0.5000000046627288, 0.25000000189509985, 0.708000000322933, -0.10648389770040949, 0.478075183646036, -0.1727607461642195, 0.05324194934671027, 0.06981116179006164, -0.026620974921607903]
+ [0.25000000189509985, 0.5000000046627288, 0.7500000007924508, 0.13255369453974303, 0.23903759140588354, -0.08638037293137096, -0.03313842388613824, 0.03490558083411855, 0.008284606034335182]
+"How close are we?"
+Actual values:
+8-element Vector{Float64}:
+ 0.166
+ 0.333
+ 0.5
+ 0.666
+ 0.833
+ 0.25
+ 0.5
+ 0.75
+8-element Vector{Float64}:
+ -0.16699999502284887
+  0.6659999950243003
+  0.4999999999952217
+  0.666
+  0.833
+  0.5000000046627288
+  0.25000000189509985
+  0.708000000322933
+Error: 0.023594078713715466
+8-element Vector{Float64}:
+ 0.1660000030704056
+ 0.3329999969310458
+ 0.4999999999952219
+ 0.666
+ 0.833
+ 0.25000000189509985
+ 0.5000000046627288
+ 0.7500000007924508
+Error: 0.03784543506282343
+For model slowfast: The ODEPE  max abs rel. err: 1.849641925565801e-8
+Optimal number of points is 1
+Dict{Int64, Int64} with 4 entries:
+  4 => 2
+  2 => 3
+  3 => 3
+  1 => 3
+We picked these points:[8]
+1-element Vector{Int64}:
+ 8
+starting SolveJSWithHC.  Here is the polynomial system:
+28-element Vector{Num}:
+                                                                                                                                                                                                                                                                                                                                                                                    -0.7596014940471897 + _t8_v_t_ + _t8_y_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.20024298010096467 + _t8_vˍt_t_ + _t8_yˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.05280413349711097 + _t8_vˍtt_t_ + _t8_yˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.6307565954251939 + _t8_z_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.5063902759668688 + _t8_zˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.3791702610199131 + _t8_zˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.2426605997470306 + _t8_zˍttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.1799157109551982 + _t8_x_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.03589161165850836 + _t8_xˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.005425746027915141 + _t8_xˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.0027905857310474144 + _t8_xˍttt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.48178163775285854 + _t8_w_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.4444919468313231 + _t8_wˍt_t_
+                                                                                                                                                                                                                                                                                                                                                                                    -0.42795915653207994 + _t8_wˍtt_t_
+                                                                                                                                                                                                                                                                                                                                                                                     0.4353431566395817 + _t8_wˍttt_t_
+                                                                                                                                                                                                                                                                                                                                          _t8_vˍt_t_ + _t8_v_t_*_tpu_ - _t8_y_t_*_tpk_
+                                                                                                                                                                                                                                                                                                                                  _t8_yˍt_t_ + _t8_y_t_*_tpa_ - _t8_v_t_*_t8_x_t_*_tpbeta_
+                                                                                                                                                                                                                                                                                                                                     _t8_vˍtt_t_ + _t8_vˍt_t_*_tpu_ - _t8_yˍt_t_*_tpk_
+                                                                                                                                                                                                                                                                                                                             _t8_yˍtt_t_ + _t8_yˍt_t_*_tpa_ - _t8_v_t_*_t8_xˍt_t_*_tpbeta_ - _t8_vˍt_t_*_t8_x_t_*_tpbeta_
+                                                                                                                                                                                                                                                                                                                           _t8_zˍt_t_ + _t8_z_t_*_tph_ - _t8_w_t_*_t8_y_t_*_tpc_*_tpq_
+                                                                                                                                                                                                                                                                                    _t8_zˍtt_t_ + _t8_zˍt_t_*_tph_ - _t8_w_t_*_t8_yˍt_t_*_tpc_*_tpq_ - _t8_wˍt_t_*_t8_y_t_*_tpc_*_tpq_
+                                                                                                                                                                                                                                           _t8_zˍttt_t_ + _t8_zˍtt_t_*_tph_ - _t8_w_t_*_t8_yˍtt_t_*_tpc_*_tpq_ - 2_t8_wˍt_t_*_t8_yˍt_t_*_tpc_*_tpq_ - _t8_wˍtt_t_*_t8_y_t_*_tpc_*_tpq_
+                                                                                                                                                                                                                                                                                                                         _t8_xˍt_t_ - _tplm_ + _t8_x_t_*_tpd_ + _t8_v_t_*_t8_x_t_*_tpbeta_
+                                                                                                                                                                                                                                                                                                                             _t8_xˍtt_t_ + _t8_xˍt_t_*_tpd_ + _t8_v_t_*_t8_xˍt_t_*_tpbeta_ + _t8_vˍt_t_*_t8_x_t_*_tpbeta_
+                                                                                                                                                                                                                                                                                                                          _t8_xˍttt_t_ + _t8_xˍtt_t_*_tpd_ + _t8_v_t_*_t8_xˍtt_t_*_tpbeta_ + 2_t8_vˍt_t_*_t8_xˍt_t_*_tpbeta_ + _t8_vˍtt_t_*_t8_x_t_*_tpbeta_
+                                                                                                                                                                                                                                                                                        _t8_wˍt_t_ + _t8_w_t_*_tpb_ - _t8_w_t_*_t8_x_t_*_t8_y_t_*_tpc_ + _t8_w_t_*_t8_y_t_*_tpc_*_tpq_
+                                                                                                                                                                     _t8_wˍtt_t_ + _t8_wˍt_t_*_tpb_ - _t8_w_t_*_t8_x_t_*_t8_yˍt_t_*_tpc_ - _t8_w_t_*_t8_xˍt_t_*_t8_y_t_*_tpc_ + _t8_w_t_*_t8_yˍt_t_*_tpc_*_tpq_ - _t8_wˍt_t_*_t8_x_t_*_t8_y_t_*_tpc_ + _t8_wˍt_t_*_t8_y_t_*_tpc_*_tpq_
+ _t8_wˍttt_t_ + _t8_wˍtt_t_*_tpb_ - _t8_w_t_*_t8_x_t_*_t8_yˍtt_t_*_tpc_ - 2_t8_w_t_*_t8_xˍt_t_*_t8_yˍt_t_*_tpc_ - _t8_w_t_*_t8_xˍtt_t_*_t8_y_t_*_tpc_ + _t8_w_t_*_t8_yˍtt_t_*_tpc_*_tpq_ - 2_t8_wˍt_t_*_t8_x_t_*_t8_yˍt_t_*_tpc_ - 2_t8_wˍt_t_*_t8_xˍt_t_*_t8_y_t_*_tpc_ + 2_t8_wˍt_t_*_t8_yˍt_t_*_tpc_*_tpq_ - _t8_wˍtt_t_*_t8_x_t_*_t8_y_t_*_tpc_ + _t8_wˍtt_t_*_t8_y_t_*_tpc_*_tpq_
+varlist
+28-element Vector{Num}:
+       _tplm_
+        _tpd_
+         _tpbeta_
+        _tpa_
+        _tpk_
+        _tpu_
+        _tpc_
+        _tpq_
+        _tpb_
+        _tph_
+     _t8_x_t_
+     _t8_y_t_
+     _t8_v_t_
+     _t8_w_t_
+     _t8_z_t_
+   _t8_vˍt_t_
+   _t8_yˍt_t_
+  _t8_vˍtt_t_
+  _t8_yˍtt_t_
+   _t8_zˍt_t_
+  _t8_zˍtt_t_
+ _t8_zˍttt_t_
+   _t8_xˍt_t_
+  _t8_xˍtt_t_
+ _t8_xˍttt_t_
+   _t8_wˍt_t_
+  _t8_wˍtt_t_
+ _t8_wˍttt_t_
+these are trivial
+-0.6307565954251939 + _t8_z_t_
+0.5063902759668688 + _t8_zˍt_t_
+-0.3791702610199131 + _t8_zˍtt_t_
+0.2426605997470306 + _t8_zˍttt_t_
+-0.1799157109551982 + _t8_x_t_
+-0.03589161165850836 + _t8_xˍt_t_
+0.005425746027915141 + _t8_xˍtt_t_
+-0.0027905857310474144 + _t8_xˍttt_t_
+-0.48178163775285854 + _t8_w_t_
+0.4444919468313231 + _t8_wˍt_t_
+-0.42795915653207994 + _t8_wˍtt_t_
+0.4353431566395817 + _t8_wˍttt_t_
+end trivial
+after trivial subst
+16-element Vector{Num}:
+                                                -0.7596014940471897 + _t8_v_t_ + _t8_y_t_
+                                                 0.20024298010096467 + _t8_vˍt_t_ + _t8_yˍt_t_
+                                                -0.05280413349711097 + _t8_vˍtt_t_ + _t8_yˍtt_t_
+      _t8_vˍt_t_ + _t8_v_t_*_tpu_ - _t8_y_t_*_tpk_
+                                    _t8_yˍt_t_ - 0.1799157109551982_t8_v_t_*_tpbeta_ + _t8_y_t_*_tpa_
+ _t8_vˍtt_t_ + _t8_vˍt_t_*_tpu_ - _t8_yˍt_t_*_tpk_
+                                   _t8_yˍtt_t_ - 0.03589161165850836_t8_v_t_*_tpbeta_ - 0.1799157109551982_t8_vˍt_t_*_tpbeta_ + _t8_yˍt_t_*_tpa_
+                                                -0.5063902759668688 + 0.6307565954251939_tph_ - 0.48178163775285854_t8_y_t_*_tpc_*_tpq_
+                                                 0.3791702610199131 - 0.5063902759668688_tph_ + 0.4444919468313231_t8_y_t_*_tpc_*_tpq_ - 0.48178163775285854_t8_yˍt_t_*_tpc_*_tpq_
+                                                -0.2426605997470306 + 0.3791702610199131_tph_ - 0.42795915653207994_t8_y_t_*_tpc_*_tpq_ + 0.8889838936626462_t8_yˍt_t_*_tpc_*_tpq_ - 0.48178163775285854_t8_yˍtt_t_*_tpc_*_tpq_
+                                                 0.03589161165850836 + 0.1799157109551982_tpd_ - _tplm_ + 0.1799157109551982_t8_v_t_*_tpbeta_
+                                                -0.005425746027915141 + 0.03589161165850836_tpd_ + 0.03589161165850836_t8_v_t_*_tpbeta_ + 0.1799157109551982_t8_vˍt_t_*_tpbeta_
+                                                 0.0027905857310474144 - 0.005425746027915141_tpd_ - 0.005425746027915141_t8_v_t_*_tpbeta_ + 0.07178322331701673_t8_vˍt_t_*_tpbeta_ + 0.1799157109551982_t8_vˍtt_t_*_tpbeta_
+                                                -0.4444919468313231 + 0.48178163775285854_tpb_ - 0.08668008588146531_t8_y_t_*_tpc_ + 0.48178163775285854_t8_y_t_*_tpc_*_tpq_
+                                                 0.42795915653207994 - 0.4444919468313231_tpb_ + 0.0626791651815919_t8_y_t_*_tpc_ - 0.08668008588146531_t8_yˍt_t_*_tpc_ - 0.4444919468313231_t8_y_t_*_tpc_*_tpq_ + 0.48178163775285854_t8_yˍt_t_*_tpc_*_tpq_
+                                                -0.4353431566395817 + 0.42795915653207994_tpb_ - 0.042475486417887696_t8_y_t_*_tpc_ + 0.1253583303631838_t8_yˍt_t_*_tpc_ - 0.08668008588146531_t8_yˍtt_t_*_tpc_ + 0.42795915653207994_t8_y_t_*_tpc_*_tpq_ - 0.8889838936626462_t8_yˍt_t_*_tpc_*_tpq_ + 0.48178163775285854_t8_yˍtt_t_*_tpc_*_tpq_
+16-element Vector{Num}:
+      _tplm_
+       _tpd_
+        _tpbeta_
+       _tpa_
+       _tpk_
+       _tpu_
+       _tpc_
+       _tpq_
+       _tpb_
+       _tph_
+    _t8_y_t_
+    _t8_v_t_
+  _t8_vˍt_t_
+  _t8_yˍt_t_
+ _t8_vˍtt_t_
+ _t8_yˍtt_t_
+Dict{Any, Any} with 12 entries:
+  _t8_wˍttt_t_ => -0.435343
+  _t8_zˍtt_t_ => 0.37917
+  _t8_xˍt_t_ => 0.0358916
+  _t8_xˍttt_t_ => 0.00279059
+  _t8_xˍtt_t_ => -0.00542575
+  _t8_x_t_ => 0.179916
+  _t8_wˍtt_t_ => 0.427959
+  _t8_wˍt_t_ => -0.444492
+  _t8_w_t_ => 0.481782
+  _t8_z_t_ => 0.630757
+  _t8_zˍt_t_ => -0.50639
+  _t8_zˍttt_t_ => -0.242661
+Tracking 4 paths...  50%|███████████████▌               |  ETA: 0:00:08[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 4 paths... 100%|███████████████████████████████| Time: 0:00:08[K
+  # paths tracked:                  4[K
+  # non-singular solutions (real):  4 (4)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         4 (4)[K
+4-element Vector{Vector{Float64}}:
+ [0.0971416498635303, 0.20415985930773536, 0.20397218622047636, 0.43343731951216385, -0.30746108479656825, 0.23496092581849995, 7.3744040950668515, 0.29531841655836105, 0.8447458289585672, 0.95500632326679, 0.09148320443426546, 0.6681182896129242, -0.18510921715975084, -0.015133762941213833, 0.048146476212352525, 0.004657657284758444]
+ [0.1314437620246869, -0.3061540759036486, -0.8408129150862279, 0.251240378949859, 0.21604838930959633, -0.29033333726485006, 0.38432769293234953, 0.29531841655836105, 0.8447458289585672, 0.95500632326679, 1.7553617129761092, -0.9957602189289194, 0.09014068326701138, -0.29038366336797605, -0.03656607735622601, 0.08937021085333698]
+ [0.30947116686392157, 0.7392747923781595, -2.4561632877716515, 0.419446554210529, -0.27302461808695133, 1.274622862364, 0.17740985875339532, 0.7270000728268091, 0.8179999912978473, 0.9090000053363643, 1.0777088787328029, -0.31810738468561317, 0.11122589018216231, -0.311468870283127, -0.056732393157946724, 0.10953652665505768]
+ [0.09100000423885116, 0.18100001657927553, 0.27299994852956294, 0.3640000115733748, 0.4550005376231027, 0.5450001919465138, 0.636000205427827, 0.7270000728268091, 0.8179999912978473, 0.9090000053363643, 0.3006228273537302, 0.4589786666934595, -0.11335991337956598, -0.08688306672139869, 0.022249332482323345, 0.030554801014787622]
+"How close are we?"
+Actual values:
+15-element Vector{Float64}:
+ 0.167
+ 0.333
+ 0.5
+ 0.667
+ 0.833
+ 0.091
+ 0.181
+ 0.273
+ 0.364
+ 0.455
+ 0.545
+ 0.636
+ 0.727
+ 0.818
+ 0.909
+15-element Vector{Float64}:
+  0.1560820304540167
+  0.5241423715069865
+ -0.22310566944169305
+  0.6818841471646521
+  0.8136863927801102
+  0.09100000423885116
+  0.18100001657927553
+  0.27299994852956294
+  0.3640000115733748
+  0.4550005376231027
+  0.5450001919465138
+  0.636000205427827
+  0.7270000728268091
+  0.8179999912978473
+  0.9090000053363643
+Error: 0.03625531422708418
+15-element Vector{Float64}:
+  0.1560671920902273
+  0.7795851573166821
+ -0.12002204407614377
+  0.8214491622282436
+  0.47265336808070246
+  0.0971416498635303
+  0.20415985930773536
+  0.20397218622047636
+  0.43343731951216385
+ -0.30746108479656825
+  0.23496092581849995
+  7.3744040950668515
+  0.29531841655836105
+  0.8447458289585672
+  0.95500632326679
+Error: 0.04734084409272634
+15-element Vector{Float64}:
+  0.11309118689942255
+ -1.081874256475555
+  0.15613334727921122
+  0.6341123176683598
+  0.9080613964844182
+  0.1314437620246869
+ -0.3061540759036486
+ -0.8408129150862279
+  0.251240378949859
+  0.21604838930959633
+ -0.29033333726485006
+  0.38432769293234953
+  0.29531841655836105
+  0.8447458289585672
+  0.95500632326679
+Error: 0.09546934860903222
+15-element Vector{Float64}:
+  0.09295389757552085
+ -0.3529275604093826
+  0.13362516762195306
+  0.6336742079929804
+  0.8768098550890258
+  0.30947116686392157
+  0.7392747923781595
+ -2.4561632877716515
+  0.419446554210529
+ -0.27302461808695133
+  1.274622862364
+  0.17740985875339532
+  0.7270000728268091
+  0.8179999912978473
+  0.9090000053363643
+Error: 0.12578716804161488
+For model hiv: The ODEPE  max abs rel. err: 1.4462113388833862
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+We picked these points:[19]
+1-element Vector{Int64}:
+ 19
+starting SolveJSWithHC.  Here is the polynomial system:
+28-element Vector{Num}:
+                                                                                                                                                                                                     -1.2477170776926305 + _t19_x3_t_ + _t19_x4_t_
+                                                                                                                                                                                                      0.10415506960822121 + _t19_x3ˍt_t_ + _t19_x4ˍt_t_
+                                                                                                                                                                                                     -0.0663695268417585 + _t19_x3ˍtt_t_ + _t19_x4ˍtt_t_
+                                                                                                                                                                                                      0.12681359466424186 + _t19_x3ˍttt_t_ + _t19_x4ˍttt_t_
+                                                                                                                                                                                                     -0.3310019372949094 + _t19_x3ˍtttt_t_ + _t19_x4ˍtttt_t_
+                                                                                                                                                                                                     -0.2755992572654504 + _t19_x1_t_
+                                                                                                                                                                                                     -0.009476963213831307 + _t19_x1ˍt_t_
+                                                                                                                                                                                                      0.05842019942856024 + _t19_x1ˍtt_t_
+                                                                                                                                                                                                     -0.16834525734717665 + _t19_x1ˍttt_t_
+                                                                                                                                                                                                      0.46581817716882 + _t19_x1ˍtttt_t_
+                                                                                                                                                                                                     -1.2822428506283154 + _t19_x1ˍttttt_t_
+                                                                                                                                                 _t19_x3ˍt_t_ - _t19_x1_t_*_tpk31_ + _t19_x3_t_*_tpk13_
+                                                                                                                                                 _t19_x4ˍt_t_ - _t19_x1_t_*_tpk41_ + _t19_x4_t_*_tpk14_
+                                                                                                                                            _t19_x4ˍtt_t_ - _t19_x1ˍt_t_*_tpk41_ + _t19_x4ˍt_t_*_tpk14_
+                                                                                                                                            _t19_x3ˍtt_t_ - _t19_x1ˍt_t_*_tpk31_ + _t19_x3ˍt_t_*_tpk13_
+                                                                                                                                         _t19_x4ˍttt_t_ - _t19_x1ˍtt_t_*_tpk41_ + _t19_x4ˍtt_t_*_tpk14_
+                                                                                                                                         _t19_x3ˍttt_t_ - _t19_x1ˍtt_t_*_tpk31_ + _t19_x3ˍtt_t_*_tpk13_
+                                                                                                                                      _t19_x4ˍtttt_t_ - _t19_x1ˍttt_t_*_tpk41_ + _t19_x4ˍttt_t_*_tpk14_
+                                                                                                                                      _t19_x3ˍtttt_t_ - _t19_x1ˍttt_t_*_tpk31_ + _t19_x3ˍttt_t_*_tpk13_
+                                        _t19_x1ˍt_t_ + _t19_x1_t_*_tpk01_ + _t19_x1_t_*_tpk21_ + _t19_x1_t_*_tpk31_ + _t19_x1_t_*_tpk41_ - _t19_x2_t_*_tpk12_ - _t19_x3_t_*_tpk13_ - _t19_x4_t_*_tpk14_
+                         _t19_x1ˍtt_t_ + _t19_x1ˍt_t_*_tpk01_ + _t19_x1ˍt_t_*_tpk21_ + _t19_x1ˍt_t_*_tpk31_ + _t19_x1ˍt_t_*_tpk41_ - _t19_x2ˍt_t_*_tpk12_ - _t19_x3ˍt_t_*_tpk13_ - _t19_x4ˍt_t_*_tpk14_
+                 _t19_x1ˍttt_t_ + _t19_x1ˍtt_t_*_tpk01_ + _t19_x1ˍtt_t_*_tpk21_ + _t19_x1ˍtt_t_*_tpk31_ + _t19_x1ˍtt_t_*_tpk41_ - _t19_x2ˍtt_t_*_tpk12_ - _t19_x3ˍtt_t_*_tpk13_ - _t19_x4ˍtt_t_*_tpk14_
+         _t19_x1ˍtttt_t_ + _t19_x1ˍttt_t_*_tpk01_ + _t19_x1ˍttt_t_*_tpk21_ + _t19_x1ˍttt_t_*_tpk31_ + _t19_x1ˍttt_t_*_tpk41_ - _t19_x2ˍttt_t_*_tpk12_ - _t19_x3ˍttt_t_*_tpk13_ - _t19_x4ˍttt_t_*_tpk14_
+ _t19_x1ˍttttt_t_ + _t19_x1ˍtttt_t_*_tpk01_ + _t19_x1ˍtttt_t_*_tpk21_ + _t19_x1ˍtttt_t_*_tpk31_ + _t19_x1ˍtttt_t_*_tpk41_ - _t19_x2ˍtttt_t_*_tpk12_ - _t19_x3ˍtttt_t_*_tpk13_ - _t19_x4ˍtttt_t_*_tpk14_
+                                                                                                                                                 _t19_x2ˍt_t_ - _t19_x1_t_*_tpk21_ + _t19_x2_t_*_tpk12_
+                                                                                                                                            _t19_x2ˍtt_t_ - _t19_x1ˍt_t_*_tpk21_ + _t19_x2ˍt_t_*_tpk12_
+                                                                                                                                         _t19_x2ˍttt_t_ - _t19_x1ˍtt_t_*_tpk21_ + _t19_x2ˍtt_t_*_tpk12_
+                                                                                                                                      _t19_x2ˍtttt_t_ - _t19_x1ˍttt_t_*_tpk21_ + _t19_x2ˍttt_t_*_tpk12_
+varlist
+28-element Vector{Num}:
+          _tpk01_
+          _tpk12_
+          _tpk13_
+          _tpk14_
+          _tpk21_
+          _tpk31_
+          _tpk41_
+       _t19_x1_t_
+       _t19_x2_t_
+       _t19_x3_t_
+       _t19_x4_t_
+     _t19_x3ˍt_t_
+     _t19_x4ˍt_t_
+    _t19_x4ˍtt_t_
+    _t19_x3ˍtt_t_
+   _t19_x4ˍttt_t_
+   _t19_x3ˍttt_t_
+  _t19_x4ˍtttt_t_
+  _t19_x3ˍtttt_t_
+     _t19_x1ˍt_t_
+    _t19_x1ˍtt_t_
+   _t19_x1ˍttt_t_
+  _t19_x1ˍtttt_t_
+ _t19_x1ˍttttt_t_
+     _t19_x2ˍt_t_
+    _t19_x2ˍtt_t_
+   _t19_x2ˍttt_t_
+  _t19_x2ˍtttt_t_
+these are trivial
+-0.2755992572654504 + _t19_x1_t_
+-0.009476963213831307 + _t19_x1ˍt_t_
+0.05842019942856024 + _t19_x1ˍtt_t_
+-0.16834525734717665 + _t19_x1ˍttt_t_
+0.46581817716882 + _t19_x1ˍtttt_t_
+-1.2822428506283154 + _t19_x1ˍttttt_t_
+end trivial
+after trivial subst
+22-element Vector{Num}:
+                  -1.2477170776926305 + _t19_x3_t_ + _t19_x4_t_
+                   0.10415506960822121 + _t19_x3ˍt_t_ + _t19_x4ˍt_t_
+                  -0.0663695268417585 + _t19_x3ˍtt_t_ + _t19_x4ˍtt_t_
+                   0.12681359466424186 + _t19_x3ˍttt_t_ + _t19_x4ˍttt_t_
+                  -0.3310019372949094 + _t19_x3ˍtttt_t_ + _t19_x4ˍtttt_t_
+    _t19_x3ˍt_t_ - 0.2755992572654504_tpk31_ + _t19_x3_t_*_tpk13_
+    _t19_x4ˍt_t_ - 0.2755992572654504_tpk41_ + _t19_x4_t_*_tpk14_
+   _t19_x4ˍtt_t_ - 0.009476963213831307_tpk41_ + _t19_x4ˍt_t_*_tpk14_
+   _t19_x3ˍtt_t_ - 0.009476963213831307_tpk31_ + _t19_x3ˍt_t_*_tpk13_
+  _t19_x4ˍttt_t_ + 0.05842019942856024_tpk41_ + _t19_x4ˍtt_t_*_tpk14_
+  _t19_x3ˍttt_t_ + 0.05842019942856024_tpk31_ + _t19_x3ˍtt_t_*_tpk13_
+ _t19_x4ˍtttt_t_ - 0.16834525734717665_tpk41_ + _t19_x4ˍttt_t_*_tpk14_
+ _t19_x3ˍtttt_t_ - 0.16834525734717665_tpk31_ + _t19_x3ˍttt_t_*_tpk13_
+                   0.009476963213831307 + 0.2755992572654504_tpk01_ + 0.2755992572654504_tpk21_ + 0.2755992572654504_tpk31_ + 0.2755992572654504_tpk41_ - _t19_x2_t_*_tpk12_ - _t19_x3_t_*_tpk13_ - _t19_x4_t_*_tpk14_
+                  -0.05842019942856024 + 0.009476963213831307_tpk01_ + 0.009476963213831307_tpk21_ + 0.009476963213831307_tpk31_ + 0.009476963213831307_tpk41_ - _t19_x2ˍt_t_*_tpk12_ - _t19_x3ˍt_t_*_tpk13_ - _t19_x4ˍt_t_*_tpk14_
+                   0.16834525734717665 - 0.05842019942856024_tpk01_ - 0.05842019942856024_tpk21_ - 0.05842019942856024_tpk31_ - 0.05842019942856024_tpk41_ - _t19_x2ˍtt_t_*_tpk12_ - _t19_x3ˍtt_t_*_tpk13_ - _t19_x4ˍtt_t_*_tpk14_
+                  -0.46581817716882 + 0.16834525734717665_tpk01_ + 0.16834525734717665_tpk21_ + 0.16834525734717665_tpk31_ + 0.16834525734717665_tpk41_ - _t19_x2ˍttt_t_*_tpk12_ - _t19_x3ˍttt_t_*_tpk13_ - _t19_x4ˍttt_t_*_tpk14_
+                   1.2822428506283154 - 0.46581817716882_tpk01_ - 0.46581817716882_tpk21_ - 0.46581817716882_tpk31_ - 0.46581817716882_tpk41_ - _t19_x2ˍtttt_t_*_tpk12_ - _t19_x3ˍtttt_t_*_tpk13_ - _t19_x4ˍtttt_t_*_tpk14_
+    _t19_x2ˍt_t_ - 0.2755992572654504_tpk21_ + _t19_x2_t_*_tpk12_
+   _t19_x2ˍtt_t_ - 0.009476963213831307_tpk21_ + _t19_x2ˍt_t_*_tpk12_
+  _t19_x2ˍttt_t_ + 0.05842019942856024_tpk21_ + _t19_x2ˍtt_t_*_tpk12_
+ _t19_x2ˍtttt_t_ - 0.16834525734717665_tpk21_ + _t19_x2ˍttt_t_*_tpk12_
+22-element Vector{Num}:
+         _tpk01_
+         _tpk12_
+         _tpk13_
+         _tpk14_
+         _tpk21_
+         _tpk31_
+         _tpk41_
+      _t19_x2_t_
+      _t19_x3_t_
+      _t19_x4_t_
+    _t19_x3ˍt_t_
+    _t19_x4ˍt_t_
+   _t19_x4ˍtt_t_
+   _t19_x3ˍtt_t_
+  _t19_x4ˍttt_t_
+  _t19_x3ˍttt_t_
+ _t19_x4ˍtttt_t_
+ _t19_x3ˍtttt_t_
+    _t19_x2ˍt_t_
+   _t19_x2ˍtt_t_
+  _t19_x2ˍttt_t_
+ _t19_x2ˍtttt_t_
+Dict{Any, Any} with 6 entries:
+  _t19_x1ˍtttt_t_ => -0.465818
+  _t19_x1ˍt_t_ => 0.00947696
+  _t19_x1ˍttttt_t_ => 1.28224
+  _t19_x1_t_ => 0.275599
+  _t19_x1ˍttt_t_ => 0.168345
+  _t19_x1ˍtt_t_ => -0.0584202
+Tracking 49 paths...   4%|█▎                            |  ETA: 0:03:46[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  0 (0)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         0 (0)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 49 paths... 100%|██████████████████████████████| Time: 0:00:09[K
+  # paths tracked:                  49[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.125000191897456, 0.25000022674665645, 0.3749854562939669, 0.5000056066980848, 0.6249998524534748, 0.7499155060480991, 0.8750821934765087, 0.44808498870403407, 0.5748057855610242, 0.6729112921316063, -0.008867653300312257, -0.09528741630790895, 0.05593736415838468, 0.010432162683373818, -0.0790914719623844, -0.047722122701857446, 0.18686211648393125, 0.14413982081097815, 0.06022814634941226, -0.009133949633532297, -0.03422912654367711, 0.11377305040048692]
+ [0.125000191897456, 0.25000022674665645, 0.5000056066980848, 0.3749854562939669, 0.6249998524534748, 0.8750821934765087, 0.7499155060480991, 0.44808498870403407, 0.6729112921316063, 0.5748057855610242, -0.09528741630790895, -0.008867653300312257, 0.010432162683373818, 0.05593736415838468, -0.047722122701857446, -0.0790914719623844, 0.14413982081097815, 0.18686211648393125, 0.06022814634941226, -0.009133949633532297, -0.03422912654367711, 0.11377305040048692]
+"How close are we?"
+Actual values:
+11-element Vector{Float64}:
+ 0.2
+ 0.4
+ 0.6
+ 0.8
+ 0.125
+ 0.25
+ 0.375
+ 0.5
+ 0.625
+ 0.75
+ 0.875
+11-element Vector{Float64}:
+  1.1808747571345493
+  0.49940506547511276
+  0.3750756991793315
+ -0.5643777374508164
+  0.125000191897456
+  0.25000022674665645
+  0.5000056066980848
+  0.3749854562939669
+  0.6249998524534748
+  0.8750821934765087
+  0.7499155060480991
+Error: 0.08269967361560487
+11-element Vector{Float64}:
+  1.3348355388889754
+  0.3494612142687975
+  0.4787391850079887
+ -0.5805184908777216
+  0.125000191897456
+  0.25000022674665645
+  0.3749854562939669
+  0.5000056066980848
+  0.6249998524534748
+  0.7499155060480991
+  0.8750821934765087
+Error: 0.0885881992293899
+For model DAISY_mamil4: The ODEPE  max abs rel. err: 4.904373785672746
+Optimal number of points is 1
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 7
+We picked these points:[9]
+1-element Vector{Int64}:
+ 9
+starting SolveJSWithHC.  Here is the polynomial system:
+34-element Vector{Num}:
+                                                                                   -1.399999999999996 + _t9_u0_t_
+                                                                                   -0.9999999999999966 + _t9_u0ˍt_t_
+                                                                                   -2.194668133284392 + _t9_x1_t_
+                                                                                   -3.214995798770148 + _t9_x1ˍt_t_
+                                                                                   -1.3654025390324456 + _t9_x1ˍtt_t_
+                                                                                   -1.7994114566034658 + _t9_x1ˍttt_t_
+                                                                                   -1.2649287793248336 + _t9_x1ˍtttt_t_
+                                                                                   -0.7439613614176045 + _t9_x1ˍttttt_t_
+                                                                                   -1.0657186987315446 + _t9_x1ˍtttttt_t_
+                                                                                   -0.4280930868374075 + _t9_x1ˍttttttt_t_
+                                                                 _t9_u0ˍt_t_ - _tppd_
+                              -_t9_u0_t_ + _t9_x1ˍt_t_ - _t9_x2_t_ + _t9_x1_t_*_tpp1_
+                       -_t9_u0ˍt_t_ + _t9_x1ˍtt_t_ - _t9_x2ˍt_t_ + _t9_x1ˍt_t_*_tpp1_
+                   -_t9_u0ˍtt_t_ + _t9_x1ˍttt_t_ - _t9_x2ˍtt_t_ + _t9_x1ˍtt_t_*_tpp1_
+               -_t9_u0ˍttt_t_ + _t9_x1ˍtttt_t_ - _t9_x2ˍttt_t_ + _t9_x1ˍttt_t_*_tpp1_
+           -_t9_u0ˍtttt_t_ + _t9_x1ˍttttt_t_ - _t9_x2ˍtttt_t_ + _t9_x1ˍtttt_t_*_tpp1_
+       -_t9_u0ˍttttt_t_ + _t9_x1ˍtttttt_t_ - _t9_x2ˍttttt_t_ + _t9_x1ˍttttt_t_*_tpp1_
+   -_t9_u0ˍtttttt_t_ + _t9_x1ˍttttttt_t_ - _t9_x2ˍtttttt_t_ + _t9_x1ˍtttttt_t_*_tpp1_
+                        _t9_x2ˍt_t_ - _t9_x3_t_ - _t9_x1_t_*_tpp3_ + _t9_x2_t_*_tpp4_
+                                                                         _t9_u0ˍtt_t_
+                 _t9_x2ˍtt_t_ - _t9_x3ˍt_t_ - _t9_x1ˍt_t_*_tpp3_ + _t9_x2ˍt_t_*_tpp4_
+                                                                        _t9_u0ˍttt_t_
+             _t9_x2ˍttt_t_ - _t9_x3ˍtt_t_ - _t9_x1ˍtt_t_*_tpp3_ + _t9_x2ˍtt_t_*_tpp4_
+         _t9_x2ˍtttt_t_ - _t9_x3ˍttt_t_ - _t9_x1ˍttt_t_*_tpp3_ + _t9_x2ˍttt_t_*_tpp4_
+                                                                       _t9_u0ˍtttt_t_
+     _t9_x2ˍttttt_t_ - _t9_x3ˍtttt_t_ - _t9_x1ˍtttt_t_*_tpp3_ + _t9_x2ˍtttt_t_*_tpp4_
+                                                                      _t9_u0ˍttttt_t_
+ _t9_x2ˍtttttt_t_ - _t9_x3ˍttttt_t_ - _t9_x1ˍttttt_t_*_tpp3_ + _t9_x2ˍttttt_t_*_tpp4_
+                                                                     _t9_u0ˍtttttt_t_
+                                    _t9_x3ˍt_t_ - _t9_x1_t_*_tpp6_ + _t9_x3_t_*_tpp7_
+                               _t9_x3ˍtt_t_ - _t9_x1ˍt_t_*_tpp6_ + _t9_x3ˍt_t_*_tpp7_
+                            _t9_x3ˍttt_t_ - _t9_x1ˍtt_t_*_tpp6_ + _t9_x3ˍtt_t_*_tpp7_
+                         _t9_x3ˍtttt_t_ - _t9_x1ˍttt_t_*_tpp6_ + _t9_x3ˍttt_t_*_tpp7_
+                      _t9_x3ˍttttt_t_ - _t9_x1ˍtttt_t_*_tpp6_ + _t9_x3ˍtttt_t_*_tpp7_
+varlist
+34-element Vector{Num}:
+            _tpp1_
+            _tpp3_
+            _tpp4_
+            _tpp6_
+            _tpp7_
+            _tppd_
+         _t9_x1_t_
+         _t9_x2_t_
+         _t9_x3_t_
+         _t9_u0_t_
+       _t9_u0ˍt_t_
+       _t9_x1ˍt_t_
+      _t9_x1ˍtt_t_
+     _t9_x1ˍttt_t_
+    _t9_x1ˍtttt_t_
+   _t9_x1ˍttttt_t_
+  _t9_x1ˍtttttt_t_
+ _t9_x1ˍttttttt_t_
+       _t9_x2ˍt_t_
+      _t9_u0ˍtt_t_
+      _t9_x2ˍtt_t_
+     _t9_u0ˍttt_t_
+     _t9_x2ˍttt_t_
+    _t9_x2ˍtttt_t_
+    _t9_u0ˍtttt_t_
+   _t9_x2ˍttttt_t_
+   _t9_u0ˍttttt_t_
+  _t9_x2ˍtttttt_t_
+  _t9_u0ˍtttttt_t_
+       _t9_x3ˍt_t_
+      _t9_x3ˍtt_t_
+     _t9_x3ˍttt_t_
+    _t9_x3ˍtttt_t_
+   _t9_x3ˍttttt_t_
+these are trivial
+-1.399999999999996 + _t9_u0_t_
+-0.9999999999999966 + _t9_u0ˍt_t_
+-2.194668133284392 + _t9_x1_t_
+-3.214995798770148 + _t9_x1ˍt_t_
+-1.3654025390324456 + _t9_x1ˍtt_t_
+-1.7994114566034658 + _t9_x1ˍttt_t_
+-1.2649287793248336 + _t9_x1ˍtttt_t_
+-0.7439613614176045 + _t9_x1ˍttttt_t_
+-1.0657186987315446 + _t9_x1ˍtttttt_t_
+-0.4280930868374075 + _t9_x1ˍttttttt_t_
+_t9_u0ˍtt_t_
+_t9_u0ˍttt_t_
+_t9_u0ˍtttt_t_
+_t9_u0ˍttttt_t_
+_t9_u0ˍtttttt_t_
+end trivial
+after trivial subst
+19-element Vector{Num}:
+                                      0.9999999999999966 - _tppd_
+                                      1.814995798770152 - _t9_x2_t_ + 2.194668133284392_tpp1_
+                                      0.365402539032449 - _t9_x2ˍt_t_ + 3.214995798770148_tpp1_
+                                      1.7994114566034658 - _t9_x2ˍtt_t_ + 1.3654025390324456_tpp1_
+                                      1.2649287793248336 - _t9_x2ˍttt_t_ + 1.7994114566034658_tpp1_
+                                      0.7439613614176045 - _t9_x2ˍtttt_t_ + 1.2649287793248336_tpp1_
+                                      1.0657186987315446 - _t9_x2ˍttttt_t_ + 0.7439613614176045_tpp1_
+                                      0.4280930868374075 - _t9_x2ˍtttttt_t_ + 1.0657186987315446_tpp1_
+            _t9_x2ˍt_t_ - _t9_x3_t_ - 2.194668133284392_tpp3_ + _t9_x2_t_*_tpp4_
+         _t9_x2ˍtt_t_ - _t9_x3ˍt_t_ - 3.214995798770148_tpp3_ + _t9_x2ˍt_t_*_tpp4_
+       _t9_x2ˍttt_t_ - _t9_x3ˍtt_t_ - 1.3654025390324456_tpp3_ + _t9_x2ˍtt_t_*_tpp4_
+     _t9_x2ˍtttt_t_ - _t9_x3ˍttt_t_ - 1.7994114566034658_tpp3_ + _t9_x2ˍttt_t_*_tpp4_
+   _t9_x2ˍttttt_t_ - _t9_x3ˍtttt_t_ - 1.2649287793248336_tpp3_ + _t9_x2ˍtttt_t_*_tpp4_
+ _t9_x2ˍtttttt_t_ - _t9_x3ˍttttt_t_ - 0.7439613614176045_tpp3_ + _t9_x2ˍttttt_t_*_tpp4_
+                        _t9_x3ˍt_t_ - 2.194668133284392_tpp6_ + _t9_x3_t_*_tpp7_
+                       _t9_x3ˍtt_t_ - 3.214995798770148_tpp6_ + _t9_x3ˍt_t_*_tpp7_
+                      _t9_x3ˍttt_t_ - 1.3654025390324456_tpp6_ + _t9_x3ˍtt_t_*_tpp7_
+                     _t9_x3ˍtttt_t_ - 1.7994114566034658_tpp6_ + _t9_x3ˍttt_t_*_tpp7_
+                    _t9_x3ˍttttt_t_ - 1.2649287793248336_tpp6_ + _t9_x3ˍtttt_t_*_tpp7_
+19-element Vector{Num}:
+           _tpp1_
+           _tpp3_
+           _tpp4_
+           _tpp6_
+           _tpp7_
+           _tppd_
+        _t9_x2_t_
+        _t9_x3_t_
+      _t9_x2ˍt_t_
+     _t9_x2ˍtt_t_
+    _t9_x2ˍttt_t_
+   _t9_x2ˍtttt_t_
+  _t9_x2ˍttttt_t_
+ _t9_x2ˍtttttt_t_
+      _t9_x3ˍt_t_
+     _t9_x3ˍtt_t_
+    _t9_x3ˍttt_t_
+   _t9_x3ˍtttt_t_
+  _t9_x3ˍttttt_t_
+Dict{Any, Any} with 15 entries:
+  _t9_x1ˍttttttt_t_ => 0.428093
+  _t9_x1_t_ => 2.19467
+  _t9_u0_t_ => 1.4
+  _t9_x1ˍtttttt_t_ => 1.06572
+  _t9_x1ˍtt_t_ => 1.3654
+  _t9_x1ˍttttt_t_ => 0.743961
+  _t9_u0ˍttt_t_ => 0
+  _t9_x1ˍt_t_ => 3.215
+  _t9_u0ˍttttt_t_ => 0
+  _t9_x1ˍtttt_t_ => 1.26493
+  _t9_x1ˍttt_t_ => 1.79941
+  _t9_u0ˍtttt_t_ => 0
+  _t9_u0ˍt_t_ => 1.0
+  _t9_u0ˍtttttt_t_ => 0
+  _t9_u0ˍtt_t_ => 0
+Tracking 8 paths...  25%|███████▊                       |  ETA: 0:00:25[K
+  # paths tracked:                  2[K
+  # non-singular solutions (real):  1 (1)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         1 (1)[K[A[A[A[A
+
+
+
+[K[A[K[A[K[A[K[ATracking 8 paths... 100%|███████████████████████████████| Time: 0:00:08[K
+  # paths tracked:                  8[K
+  # non-singular solutions (real):  2 (2)[K
+  # singular endpoints (real):      0 (0)[K
+  # total solutions (real):         2 (2)[K
+2-element Vector{Vector{Float64}}:
+ [0.20191463629036452, 0.3014228043890445, 0.4979701515767136, 0.5999181755786668, -0.1994097078822179, 0.9999999999999966, 2.2581314166803232, 1.4775162668227622, 1.0145572464161734, 2.075106213662142, 1.6282562891216374, 0.999368995828193, 1.2159353864362645, 0.6432772902796279, 1.611252389678963, 2.2500337824416734, 1.26780837942864, 1.332312936753396, 1.0245298990551988]
+ [0.20191463629036482, 0.30142280438904495, -0.19940970788221754, 0.3897119826161179, 0.4979701515767131, 0.9999999999999966, 2.2581314166803237, -0.09725910318155893, 1.0145572464161743, 2.0751062136621425, 1.628256289121638, 0.9993689958281934, 1.2159353864362648, 0.6432772902796282, 0.9037205997602109, 0.8028965027956134, 0.1322952373578712, 0.6353731268951169, 0.17656105015113518]
+"How close are we?"
+Actual values:
+10-element Vector{Float64}:
+  1.0
+  2.0
+  1.0
+  1.0
+  0.2
+  0.3
+  0.5
+  0.6
+ -0.2
+  1.0
+10-element Vector{Float64}:
+  1.321917044880615
+  1.2311648511223072
+  0.5361744647795909
+  0.9999999999999967
+  0.20191463629036452
+  0.3014228043890445
+  0.4979701515767136
+  0.5999181755786668
+ -0.1994097078822179
+  0.9999999999999966
+Error: 0.028435163806604005
+10-element Vector{Float64}:
+  2.0457889203623614
+ -0.6951646356209209
+  0.8775812030056809
+  0.9999999999999971
+  0.20191463629036482
+  0.30142280438904495
+ -0.19940970788221754
+  0.3897119826161179
+  0.4979701515767131
+  0.9999999999999966
+Error: 0.18707771734481296
+For model DAISY_ex3_v3: The ODEPE  max abs rel. err: 0.46382553522040915
