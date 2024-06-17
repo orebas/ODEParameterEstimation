@@ -657,33 +657,32 @@ function varied_estimation_main()
 	datasize = 21
 
 	for PEP in [
-		#crauste(),
-		#sirsforced(),
-		#slowfast(),
-
-
-
-		simple(),
-		substr_test(),
-		vanderpol(),
-		daisy_mamil3(),
-		fitzhugh_nagumo(),
 		slowfast(),
-		daisy_ex3_v3(),
-		daisy_ex3_v2(),
-		daisy_ex3_v4(),
-		sum_test(),
-		daisy_mamil4(),
-		lotka_volterra(),
-		global_unident_test(),
-		daisy_ex3(),
-		hiv(),
-		seir(),
-		hiv_local(),
-		biohydrogenation(),
-		treatment(),
-		crauste(),  #these seem to be the slowest
-		sirsforced(), #these seem to be the slowest
+
+
+		#=
+				simple(),
+				substr_test(),
+				vanderpol(),
+				daisy_mamil3(),
+				fitzhugh_nagumo(),
+				slowfast(),
+				daisy_ex3_v3(),
+				daisy_ex3_v2(),
+				daisy_ex3_v4(),
+				sum_test(),
+				daisy_mamil4(),
+				lotka_volterra(),
+				global_unident_test(),
+				daisy_ex3(),
+				hiv(),
+				seir(),
+				hiv_local(),
+				biohydrogenation(),
+				treatment(),
+				crauste(),  #these seem to be the slowest
+				sirsforced(), #these seem to be the slowest
+		=#
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end

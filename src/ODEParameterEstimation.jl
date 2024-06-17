@@ -12,6 +12,13 @@ using PrecompileTools
 using ForwardDiff
 using Random
 
+using Optimization
+using OptimizationOptimJL
+using NonlinearSolve
+
+
+Optimization, OptimizationOptimJL, NonlinearSolve
+
 include("bary_derivs.jl")
 include("sample_data.jl")
 
@@ -69,6 +76,15 @@ function clear_denoms(eq)
 	return ret
 end
 
+function unident_subst!(model_eq, measured_quantities, unident_dict)
+	for i in eachindex(model_eq)
+		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+	end
+end
+
 #this is meant to look for equations like a-5.5 and replace a with 5.5
 function handle_simple_substitutions(eqns, varlist)
 	println("these are trivial")
@@ -118,13 +134,7 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 	DD = DerivativeData([], [], [], [], [], [], [], [])
 
 	#First, we fully substitute values we have chosen for an unidentifiable variables.
-	for i in eachindex(model_eq)
-		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
-	end
-	for i in eachindex(measured_quantities)
-		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
-	end
-
+	unident_subst!(model_eq, measured_quantities, unident_dict)
 
 	model_eq_cleared = clear_denoms.(model_eq)
 	measured_quantities_cleared = clear_denoms.(measured_quantities)
@@ -349,8 +359,6 @@ function local_identifiability_analysis(model::ODESystem, measured_quantities, r
 	end
 
 
-
-
 	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
 	#6 didn't work, 7 worked for daisy_ex3 (v3 in particular) - so we changed +1 to +2.  check with A.O.
 	n = max(n, 3)
@@ -570,8 +578,11 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 
 end
 
+#handle unidentifiable variables, just substituting for them
+
+
 function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
-	deriv_level, unident_dict, varlist, DD, time_index_set = nothing)
+	deriv_level, unident_dict, varlist, DD, time_index_set = nothing, return_parameterized_system = false)  #return_parameterized_system not supported yet
 
 	measured_quantities = deepcopy(measured_quantities_in)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
@@ -592,17 +603,12 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	end
 
 	#handle unidentifiable variables, just substituting for them
-	for i in eachindex(model_eq)
-		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
-	end
-	for i in eachindex(measured_quantities)
-		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
-	end
+	unident_subst!(model_eq, measured_quantities, unident_dict)
 
 	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
 
 	#We begin building a system of equations which will be solved, e.g. by homotopoy continuation.
-	#the first set of equations, built below, constraints the observables values and their derivatives 
+	#the first set of equations, built below, constrains the observables values and their derivatives 
 	#to values determined by interpolation.
 	target = []  # TODO give this a type later
 	for (key, value) in deriv_level  # 0 means include the observation itself, 1 means first derivative
@@ -621,9 +627,11 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		end
 	end
 
+	#if (!return_parameterized_system)
 	for i in eachindex(target)
 		target[i] = substitute(target[i], interpolated_values_dict)
 	end
+	#end
 
 	#Now, we scan for state variables and their derivatives we need values for.
 	#We add precisely the state variables we need and no more.
@@ -678,8 +686,62 @@ end
 #	end
 #end
 
-function solveJSwithHC(input_poly_system, input_varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
-	println("starting SolveJSWithHC.  Here is the polynomial system:")
+function squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
+	mat = ModelingToolkit.jacobian(poly_system, varlist)
+	vsubst = Dict([p => rand(Float64) for p in varlist])
+	numerical_mat = Matrix{Float64}(Symbolics.value.((substitute.(mat, Ref(vsubst)))))
+	target_rank = rank(numerical_mat, rtol = rtol)
+	currentlist = 1:length(poly_system)
+	trashlist = []
+	keep_looking = true
+	while (keep_looking)
+		improvement_found = false
+		for j in currentlist
+			newlist = filter(x -> x != j, currentlist)
+			jac_view = view(numerical_mat, newlist, :)
+			rank2 = rank(jac_view, rtol = rtol)
+			if (rank2 == target_rank)
+				improvement_found = true
+				currentlist = newlist
+				push!(trashlist, j)
+				break
+			end
+		end
+		keep_looking = improvement_found
+	end
+	new_system = [poly_system[i] for i in currentlist]
+	trash_system = [poly_system[i] for i in trashlist]
+
+	println("we trash these: (line 708)")
+	display(trash_system)
+
+	return new_system, varlist, trash_system
+end
+
+
+
+
+function solveJSwithNLLS(input_poly_system, input_varlist)
+
+	nl_expr = build_function(input_poly_system, input_varlist, expression = Val{false})
+	nl_expr_p(out, u, p) = nl_expr[2](out, u)
+	resid_vec = zeros(Float64, length(input_poly_system))
+	u0map = ones(Float64, (length(input_varlist)))
+	prob5 = NonlinearLeastSquaresProblem(NonlinearFunction(nl_expr_p, resid_prototype = resid_vec), u0map)
+	solnlls = NonlinearSolve.solve(prob5, maxiters = 64000)
+	println("Here is the solution in NLLS line 732")
+	display(solnlls.retcode)
+	display(solnlls.stats)
+
+	display(solnlls.original)
+	display(solnlls.resid)
+	display(solnlls)
+
+
+end
+
+function diag_solveJSwithHC(input_poly_system, input_varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
+	println("starting diag_SolveJSWithHC.  Here is the polynomial system:")
 	display(input_poly_system)
 	#print_element_types(poly_system)
 	println("varlist")
@@ -687,9 +749,9 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 	#print_element_types(varlist)
 
 
-
-
 	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+
+	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
 
 	jsvarlist = deepcopy(varlist)
 	println("after trivial subst")
@@ -697,18 +759,20 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 	display(varlist)
 	display(trivial_dict)
 
+	solveJSwithNLLS(poly_system, varlist)
 
-	@variables _qz_discard1 _qz_discard2
-	expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
-	op = Symbolics.operation(expr_fake)
 
-	for i in eachindex(poly_system)
-		expr = poly_system[i]
-		expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
-		if (istree(expr2) && Symbolics.operation(expr2) == op)
-			poly_system[i], _ = Symbolics.arguments(expr2)
-		end
-	end
+	#@variables _qz_discard1 _qz_discard2
+	#expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
+	#op = Symbolics.operation(expr_fake)
+
+	#for i in eachindex(poly_system)
+	#	expr = poly_system[i]
+	#	expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
+	#	if (istree(expr2) && Symbolics.operation(expr2) == op)
+	#		poly_system[i], _ = Symbolics.arguments(expr2)
+	#	end
+	#end
 
 	mangled_varlist = deepcopy(varlist)
 	manglingDict = OrderedDict()
@@ -751,7 +815,7 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
 	#println("system we are solving (line 428)")
-	result = HomotopyContinuation.solve(F, show_progress = true) #only_nonsingular = false
+	result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
 
 
 	#println("results")
@@ -766,7 +830,103 @@ function solveJSwithHC(input_poly_system, input_varlist)  #the input here is mea
 	end
 	if (isempty(solns))
 		display("No solutions, failed.")
-		return ([], [])
+		return ([], [], [], [])
+	end
+	display(solns)
+	return solns, hcvarlist, trivial_dict, jsvarlist
+end
+
+
+
+function solveJSwithHC(input_poly_system, input_varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
+	println("starting SolveJSWithHC.  Here is the polynomial system:")
+	display(input_poly_system)
+	#print_element_types(poly_system)
+	println("varlist")
+	display(input_varlist)
+	#print_element_types(varlist)
+
+
+	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+
+	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
+
+	jsvarlist = deepcopy(varlist)
+	println("after trivial subst")
+	display(poly_system)
+	display(varlist)
+	display(trivial_dict)
+
+
+	#@variables _qz_discard1 _qz_discard2
+	#expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
+	#op = Symbolics.operation(expr_fake)
+
+	#for i in eachindex(poly_system)
+	#	expr = poly_system[i]
+	#	expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
+	#	if (istree(expr2) && Symbolics.operation(expr2) == op)
+	#		poly_system[i], _ = Symbolics.arguments(expr2)
+	#	end
+	#end
+
+	mangled_varlist = deepcopy(varlist)
+	manglingDict = OrderedDict()
+
+
+	for i in eachindex(varlist)
+		newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
+		newvar = (@variables $newvarname)[1]
+		mangled_varlist[i] = newvar
+		manglingDict[Symbolics.unwrap(varlist[i])] = newvar
+	end
+	for i in eachindex(poly_system)
+		poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), manglingDict)
+
+	end
+	string_target = string.(poly_system)
+	varlist = mangled_varlist
+	string_string_dict = Dict()
+	var_string_dict = Dict()
+	var_dict = Dict()
+	hcvarlist = Vector{HomotopyContinuation.ModelKit.Variable}()
+
+	#println("after mangling:")
+
+	for v in varlist
+		vhcs = string(v)
+		vhcslong = "hmcs(\"" * vhcs * "\")"
+
+		var_string_dict[v] = vhcs
+		vhc = HomotopyContinuation.ModelKit.Variable(Symbol(vhcs))
+		var_dict[v] = vhc
+		string_string_dict[string(v)] = vhcslong
+		push!(hcvarlist, vhc)
+	end
+	for i in eachindex(string_target)
+		string_target[i] = replace(string_target[i], string_string_dict...)
+	end
+	#display(string_target)
+	parsed = eval.(Meta.parse.(string_target))
+	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
+	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
+	#println("system we are solving (line 428)")
+	result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
+
+
+	#println("results")
+	#display(F)
+	#display(result)
+	#display(HomotopyContinuation.real_solutions(result))
+	solns = HomotopyContinuation.real_solutions(result)
+	complex_flag = false
+	if isempty(solns)
+		solns = solutions(result, only_nonsingular = false)
+		complexflag = true
+	end
+	if (isempty(solns))
+		display("No solutions, failed.")
+		return ([], [], [], [])
 	end
 	display(solns)
 	return solns, hcvarlist, trivial_dict, jsvarlist
@@ -801,7 +961,7 @@ function tag_symbol(thesymb, pre_tag, post_tag)
 	return (@variables $newvarname)[1]
 end
 
-function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
+function MCHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC)
 	t = ModelingToolkit.get_iv(model)
 	model_eq = ModelingToolkit.equations(model)
 	model_states = ModelingToolkit.unknowns(model)
@@ -810,7 +970,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 
-	large_num_points = min(length(model_ps), 2, length(t_vector))
+	large_num_points = min(length(model_ps), 6, length(t_vector))
 	good_num_points = large_num_points
 	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 	while (good_num_points > 1)
@@ -822,7 +982,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 		end
 	end
 	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-	println("Optimal number of points is ", good_num_points)
+	println("optimal number of points is ", good_num_points)
 	display(good_deriv_level)
 
 	time_index_set = pick_points(t_vector, good_num_points)
@@ -881,7 +1041,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 
 
 
-	solve_result, hcvarlist, trivial_dict, trimmed_varlist = solveJSwithHC(final_target, final_varlist)
+	solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
 
 	solns = solve_result
 
@@ -962,7 +1122,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, solver)
 		new_model = complete(new_model)
 		prob = ODEProblem(new_model, initial_conditions, tspan, Dict(ModelingToolkit.parameters(new_model) .=> parameter_values))
 
-		ode_solution = ModelingToolkit.solve(prob, solver, abstol = 1e-14, reltol = 1e-14)
+		ode_solution = ModelingToolkit.solve(prob, ode_solver, abstol = 1e-14, reltol = 1e-14)
 
 		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
 								for x in ModelingToolkit.unknowns(model)))
@@ -1106,7 +1266,7 @@ end
 
 
 
-function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, solver, abstol = 1e-12, reltol = 1e-12)
+function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12)
 
 	model_states = ModelingToolkit.unknowns(model)
 	model_ps = ModelingToolkit.parameters(model)
@@ -1119,7 +1279,7 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 	solved_res = []
 	newres = ParameterEstimationResult(param_dict,
 		states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
-	results_vec = MCHCPE(model, measured_quantities, data_sample, solver)
+	results_vec = MCHCPE(model, measured_quantities, data_sample, ode_solver, system_solver = system_solver)
 
 
 
@@ -1150,7 +1310,7 @@ function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, so
 		ps = deepcopy(solved_res[end].parameters)
 		prob = ODEProblem(complete(model), ic, tspan, ps)
 
-		ode_solution = ModelingToolkit.solve(prob, solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+		ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 		err = 0
 		if ode_solution.retcode == ReturnCode.Success
 			err = 0
@@ -1173,7 +1333,7 @@ end
 
 
 
-export MCHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data
+export MCHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, diag_solveJSwithHC
 
 #later, disable output of the compile_workload
 
