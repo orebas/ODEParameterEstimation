@@ -465,6 +465,29 @@ function slowfast()  # TODO(orebas):in the old code it was CVODE_BDF.  should we
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
 end
 
+function slowfast2()  # TODO(orebas):in the old code it was CVODE_BDF.  should we go back to that?
+	#solver = CVODE_BDF()
+	@parameters k1 k2 eB eA eC
+	@variables t xA(t) xB(t) xC(t) y1(t) y2(t) y3(t) y4(t)
+	D = Differential(t)
+	states = [xA, xB, xC]
+	parameters = [k1, k2, eB, eA, eC]
+	@named model = ODESystem([
+			D(xA) ~ -k1 * xA,
+			D(xB) ~ k1 * xA - k2 * xB,
+			D(xC) ~ k2 * xB,
+		], t, states, parameters)
+
+	measured_quantities = [y1 ~ xC, y2 ~ eA * xA + eB * xB + eC * xC, y3 ~ eA * xC, y4 ~ eC * xC]
+	ic = [0.166, 0.333, 0.5]
+	p_true = [0.25, 0.5, 0.75, 0.666, 0.833] # True Parameters
+
+	return ParameterEstimationProblem("slowfast2",
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+end
+
+
+
 
 function substr_test()
 	@parameters a b beta
@@ -623,7 +646,8 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		println("Starting model: ", PEP.Name)
 		@time PEP.Name res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
-			PEP.solver, system_solver = diag_solveJSwithHC)
+			PEP.solver, system_solver = diag_solveJSwithHC
+		)
 		besterror = 1e30
 		res3 = sort(res3, by = x -> x.err)
 		display("How close are we?")
@@ -670,31 +694,33 @@ function varied_estimation_main()
 
 	for PEP in [
 		#simple(),
-		slowfast(),
-		#biohydrogenation(),
+		#lotka_volterra()
+		#slowfast2(),
+		biohydrogenation(),
 
-		#=
-				simple(),
-				substr_test(),
-				vanderpol(),
-				daisy_mamil3(),
-				fitzhugh_nagumo(),
-				slowfast(),
-				daisy_ex3_v3(),
-				daisy_ex3_v2(),
-				daisy_ex3_v4(),
-				sum_test(),
-				daisy_mamil4(),
-				lotka_volterra(),
-				global_unident_test(),
-				daisy_ex3(),
-				hiv(),
-				seir(),
-				hiv_local(),
-				biohydrogenation(),
-				treatment(),
-				crauste(),  #these seem to be the slowest
-				sirsforced(), #these seem to be the slowest
+#=
+		simple(),
+		substr_test(),
+		vanderpol(),
+		daisy_mamil3(),
+		fitzhugh_nagumo(),
+		slowfast(),
+		slowfast2(),
+		daisy_ex3_v3(),
+		daisy_ex3_v2(),
+		daisy_ex3_v4(),
+		sum_test(),
+		daisy_mamil4(),
+		lotka_volterra(),
+		global_unident_test(),
+		daisy_ex3(),
+		hiv(),
+		seir(),
+		hiv_local(),
+		biohydrogenation(),
+		treatment(),
+		crauste(),  #these seem to be the slowest
+		sirsforced(), #these seem to be the slowest
 		=#
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)

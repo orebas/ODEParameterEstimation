@@ -718,65 +718,59 @@ function squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
 	return new_system, varlist, trash_system
 end
 
+function solveJSwithOptim(input_poly_system, input_varlist)
+	resid_counter = 0
+	loss = 0
+
+	for i in input_poly_system
+		loss = loss + (i)^2
+		resid_counter += 1
+	end
+
+	lossvars = sort(get_variables(loss), by = string)
+	#for i in lossvars
+	#	loss += 0.0001 * i^2
+	#	resid_counter += 1
+	#end
+	display(lossvars)
+	f_expr = build_function(loss, input_varlist, expression = Val{false})
+	f_expr2(u, p) = f_expr(u)
+	function f_expr3!(du, u, p)
+		du[1] = f_expr(u)
+	end
+
+	u0map = ones(Float64, (length(lossvars)))
+	for ti in eachindex(u0map)
+		u0map[ti] = rand() * 1
+	end
 
 
+	resid_vec = zeros(Float64, resid_counter)
 
-function solveJSwithNLLS(input_poly_system, input_varlist)
+	g = OptimizationFunction(f_expr2, AutoForwardDiff())  #or AutoZygote
+	prob = OptimizationProblem(g, u0map)
+	sol = Optimization.solve(prob, LBFGS())  #newton was slower
+	println("Optimizer solution:")
+	display(sol)
+	display(sol.original)
+	display(sol.retcode)
+	#########################################3
+	#println(f_expr2(u0map,zeros(Float64, 0)))
+	#println("test1")
+	#prob4 = NonlinearProblem(NonlinearFunction(f_expr3!),
+	#	u0map, zeros(Float64, 0))
 
-	nl_expr = build_function(input_poly_system, input_varlist, expression = Val{false})
-	nl_expr_p(out, u, p) = nl_expr[2](out, u)
-	resid_vec = zeros(Float64, length(input_poly_system))
-	u0map = ones(Float64, (length(input_varlist)))
-	prob5 = NonlinearLeastSquaresProblem(NonlinearFunction(nl_expr_p, resid_prototype = resid_vec), u0map)
-	solnlls = NonlinearSolve.solve(prob5, maxiters = 64000)
-	println("Here is the solution in NLLS line 732")
-	display(solnlls.retcode)
-	display(solnlls.stats)
-
-	display(solnlls.original)
-	display(solnlls.resid)
-	display(solnlls)
-
+	#solnl = NonlinearSolve.solve(prob4,maxiters = 100000)
+	#println(solnl.retcode)
+	#println(solnl)
+	return (sol.u)
 
 end
 
-function diag_solveJSwithHC(input_poly_system, input_varlist)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
-	println("starting diag_SolveJSWithHC.  Here is the polynomial system:")
-	display(input_poly_system)
-	#print_element_types(poly_system)
-	println("varlist")
-	display(input_varlist)
-	#print_element_types(varlist)
-
-
-	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
-
-	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
-
-	jsvarlist = deepcopy(varlist)
-	println("after trivial subst")
-	display(poly_system)
-	display(varlist)
-	display(trivial_dict)
-
-	solveJSwithNLLS(poly_system, varlist)
-
-
-	#@variables _qz_discard1 _qz_discard2
-	#expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
-	#op = Symbolics.operation(expr_fake)
-
-	#for i in eachindex(poly_system)
-	#	expr = poly_system[i]
-	#	expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
-	#	if (istree(expr2) && Symbolics.operation(expr2) == op)
-	#		poly_system[i], _ = Symbolics.arguments(expr2)
-	#	end
-	#end
-
+function solveJSwithMonodromy(poly_system, varlist)
 	mangled_varlist = deepcopy(varlist)
 	manglingDict = OrderedDict()
-
+	len = length(poly_system)
 
 	for i in eachindex(varlist)
 		newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
@@ -812,22 +806,175 @@ function diag_solveJSwithHC(input_poly_system, input_varlist)  #the input here i
 	end
 	#display(string_target)
 	parsed = eval.(Meta.parse.(string_target))
-	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
-	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
-	#println("system we are solving (line 428)")
-	result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
-
-
-	#println("results")
-	#display(F)
-	#display(result)
-	#display(HomotopyContinuation.real_solutions(result))
-	solns = HomotopyContinuation.real_solutions(result)
-	complex_flag = false
-	if isempty(solns)
-		solns = solutions(result, only_nonsingular = false)
-		complexflag = true
+	@var _mpm[1:len] _mpc[1:len]
+	paramlist = Vector{HomotopyContinuation.ModelKit.Variable}()
+	for i in 1:len
+		push!(paramlist, _mpm[i])
+		push!(paramlist, _mpc[i])
 	end
+	for i in eachindex(parsed)
+		parsed[i] = parsed[i] * _mpm[i] - _mpc[i]
+	end
+	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
+	F = HomotopyContinuation.System(parsed, variables = hcvarlist, parameters = paramlist)
+	#println("system we are solving (line 428)")
+
+	param_final = repeat([1, 0], outer = len)
+	#singlesoln = solveJSwithOptim(poly_system, varlist)
+	println("is this a start pair? line 824")
+	testx, testp = HomotopyContinuation.find_start_pair(F)
+	display(testx)
+	display(testp)
+
+	newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final)
+	display(newx)
+	display(solutions(newx))
+	display(param_final)
+
+	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final, show_progress = true;) #only_nonsingular = false
+
+
+	println("results")
+	display(F)
+	display(result)
+	#display(HomotopyContinuation.real_solutions(result))
+	solns = HomotopyContinuation.solutions(result)
+	complex_flag = false
+	#if isempty(solns)
+	#	solns = solutions(result, only_nonsingular = false)
+	#	complexflag = true
+	#end
+	if (isempty(solns))
+		display("No solutions, failed.")
+		return ([], [], [], [])
+	end
+	display(solns)
+	return solns, hcvarlist
+
+
+end
+
+
+
+
+
+function solveJSwithNLLS(input_poly_system, input_varlist)
+
+	nl_expr = build_function(input_poly_system, input_varlist, expression = Val{false})
+	nl_expr_p(out, u, p) = nl_expr[2](out, u)
+	resid_vec = zeros(Float64, length(input_poly_system))
+	u0map = ones(Float64, (length(input_varlist)))
+	prob5 = NonlinearLeastSquaresProblem(NonlinearFunction(nl_expr_p, resid_prototype = resid_vec), u0map)
+	solnlls = NonlinearSolve.solve(prob5, maxiters = 64000)
+	println("Here is the solution in NLLS line 732")
+	display(solnlls.retcode)
+	display(solnlls.stats)
+
+	display(solnlls.original)
+	display(solnlls.resid)
+	display(solnlls)
+
+
+end
+
+function diag_solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true)  #the input here is meant to be a polynomial, or eventually rational, system of julia symbolics
+	println("starting diag_SolveJSWithHC.  Here is the polynomial system:")
+	display(input_poly_system)
+	#print_element_types(poly_system)
+	println("varlist")
+	display(input_varlist)
+	#print_element_types(varlist)
+
+
+	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+
+	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
+
+	jsvarlist = deepcopy(varlist)
+	println("after trivial subst")
+	display(poly_system)
+	display(varlist)
+	display(trivial_dict)
+
+
+
+
+	#@variables _qz_discard1 _qz_discard2
+	#expr_fake = Symbolics.value(simplify_fractions(_qz_discard1 / _qz_discard2))
+	#op = Symbolics.operation(expr_fake)
+
+	#for i in eachindex(poly_system)
+	#	expr = poly_system[i]
+	#	expr2 = Symbolics.value(simplify_fractions(poly_system[i]))
+	#	if (istree(expr2) && Symbolics.operation(expr2) == op)
+	#		poly_system[i], _ = Symbolics.arguments(expr2)
+	#	end
+	#end
+
+	solns = []
+	hcvarlist = []
+	if (use_monodromy)
+		println("using monodromy, line 917")
+		solns, hcvarlist = solveJSwithMonodromy(poly_system, varlist)
+
+	else
+
+		mangled_varlist = deepcopy(varlist)
+		manglingDict = OrderedDict()
+
+
+		for i in eachindex(varlist)
+			newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
+			newvar = (@variables $newvarname)[1]
+			mangled_varlist[i] = newvar
+			manglingDict[Symbolics.unwrap(varlist[i])] = newvar
+		end
+		for i in eachindex(poly_system)
+			poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), manglingDict)
+
+		end
+		string_target = string.(poly_system)
+		varlist = mangled_varlist
+		string_string_dict = Dict()
+		var_string_dict = Dict()
+		var_dict = Dict()
+		hcvarlist = Vector{HomotopyContinuation.ModelKit.Variable}()
+
+		#println("after mangling:")
+
+		for v in varlist
+			vhcs = string(v)
+			vhcslong = "hmcs(\"" * vhcs * "\")"
+
+			var_string_dict[v] = vhcs
+			vhc = HomotopyContinuation.ModelKit.Variable(Symbol(vhcs))
+			var_dict[v] = vhc
+			string_string_dict[string(v)] = vhcslong
+			push!(hcvarlist, vhc)
+		end
+		for i in eachindex(string_target)
+			string_target[i] = replace(string_target[i], string_string_dict...)
+		end
+		#display(string_target)
+		parsed = eval.(Meta.parse.(string_target))
+		HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
+		F = HomotopyContinuation.System(parsed, variables = hcvarlist)
+		#println("system we are solving (line 428)")
+		result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
+
+
+		#println("results")
+		#display(F)
+		#display(result)
+		#display(HomotopyContinuation.real_solutions(result))
+		solns = HomotopyContinuation.real_solutions(result)
+		complex_flag = false
+		if isempty(solns)
+			solns = solutions(result, only_nonsingular = false)
+			complexflag = true
+		end
+	end
+
 	if (isempty(solns))
 		display("No solutions, failed.")
 		return ([], [], [], [])
@@ -969,81 +1116,94 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
-
-	large_num_points = min(length(model_ps), 6, length(t_vector))
+	found_any_solutions = false
+	large_num_points = min(length(model_ps), 1, length(t_vector)) + 1
 	good_num_points = large_num_points
-	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
-	while (good_num_points > 1)
-		good_num_points = good_num_points - 1
-		(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-		if !(test_deriv_level == target_deriv_level)
-			good_num_points = good_num_points + 1
-			break
-		end
-	end
-	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-	println("optimal number of points is ", good_num_points)
-	display(good_deriv_level)
-
-	time_index_set = pick_points(t_vector, good_num_points)
-	println("We picked these points:", time_index_set)
-	display(time_index_set)
-	full_target = []
-	full_varlist = []
+	time_index_set = []
+	solns = []
+	good_udict = []
 	forward_subst_dict = []
-	reverse_subst_dict = []
-	@variables testing
-	for k in time_index_set
-		(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
-		local_subst_dict = OrderedDict{Num, Any}()
-		local_subst_dict_reverse = OrderedDict()
-		subst_var_list = []
+	trivial_dict = []
+	final_varlist = []
+	trimmed_varlist = []
+	while (!found_any_solutions)
+		good_num_points = good_num_points - 1
+		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
+		while (good_num_points > 1)
+			good_num_points = good_num_points - 1
+			(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+			if !(test_deriv_level == target_deriv_level)
+				good_num_points = good_num_points + 1
+				break
+			end
+		end
+		(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+		println("optimal number of points is ", good_num_points)
+		display(good_deriv_level)
 
-		for i in eachindex(good_DD.states_lhs), j in eachindex(good_DD.states_lhs[i])
-			push!(subst_var_list, good_DD.states_lhs[i][j])
-		end
-		for i in eachindex(model_states)
-			push!(subst_var_list, model_states[i])
-		end
-		for i in eachindex(good_DD.obs_lhs), j in eachindex(good_DD.obs_lhs[i])
-			push!(subst_var_list, good_DD.obs_lhs[i][j])
-		end
-		for i in subst_var_list
-			newname = tag_symbol(i, "_t" * string(k) * "_", "_")
-			j = Symbolics.wrap(i)
+		time_index_set = pick_points(t_vector, good_num_points)
+		println("We picked these points:", time_index_set)
+		display(time_index_set)
+		full_target = []
+		full_varlist = []
+		forward_subst_dict = []
+		reverse_subst_dict = []
+		@variables testing
+		for k in time_index_set
+			(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
+			local_subst_dict = OrderedDict{Num, Any}()
+			local_subst_dict_reverse = OrderedDict()
+			subst_var_list = []
 
-			#newname = testing
-			local_subst_dict[j] = newname
-			local_subst_dict_reverse[newname] = j
-		end
-		for i in model_ps
-			newname = tag_symbol(i, "_t" * string("p"), "_")
-			j = Symbolics.wrap(i)
-			local_subst_dict[j] = newname
-			local_subst_dict_reverse[newname] = j
+			for i in eachindex(good_DD.states_lhs), j in eachindex(good_DD.states_lhs[i])
+				push!(subst_var_list, good_DD.states_lhs[i][j])
+			end
+			for i in eachindex(model_states)
+				push!(subst_var_list, model_states[i])
+			end
+			for i in eachindex(good_DD.obs_lhs), j in eachindex(good_DD.obs_lhs[i])
+				push!(subst_var_list, good_DD.obs_lhs[i][j])
+			end
+			for i in subst_var_list
+				newname = tag_symbol(i, "_t" * string(k) * "_", "_")
+				j = Symbolics.wrap(i)
 
-		end
+				#newname = testing
+				local_subst_dict[j] = newname
+				local_subst_dict_reverse[newname] = j
+			end
+			for i in model_ps
+				newname = tag_symbol(i, "_t" * string("p"), "_")
+				j = Symbolics.wrap(i)
+				local_subst_dict[j] = newname
+				local_subst_dict_reverse[newname] = j
 
-		target_k_subst = substitute.(target_k, Ref(local_subst_dict))
-		varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict)) #TODO maybe ask why this didn't work but didn't fail without broadcasting
-		push!(full_target, target_k_subst)
-		push!(full_varlist, varlist_k_subst)
-		push!(forward_subst_dict, local_subst_dict)
-		push!(reverse_subst_dict, local_subst_dict_reverse)
+			end
+
+			target_k_subst = substitute.(target_k, Ref(local_subst_dict))
+			varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict)) #TODO maybe ask why this didn't work but didn't fail without broadcasting
+			push!(full_target, target_k_subst)
+			push!(full_varlist, varlist_k_subst)
+			push!(forward_subst_dict, local_subst_dict)
+			push!(reverse_subst_dict, local_subst_dict_reverse)
+		end
+		# println("full target")
+		#display(full_target)
+
+		final_target = reduce(vcat, full_target)
+		final_varlist = collect(reduce(union!, OrderedSet.(full_varlist))) #does this even work
+
+
+
+
+
+		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
+
+		solns = solve_result
+		if (!isempty(solns))
+			found_any_solutions = true
+		end
 	end
-	# println("full target")
-	#display(full_target)
-
-	final_target = reduce(vcat, full_target)
-	final_varlist = collect(reduce(union!, OrderedSet.(full_varlist))) #does this even work
-
-
-
-
-
-	solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
-
-	solns = solve_result
 
 	@named new_model = ODESystem(model_eq, t, model_states, model_ps)
 	new_model = complete(new_model)
