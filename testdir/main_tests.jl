@@ -31,7 +31,9 @@ struct ParameterEstimationProblem
 	unident_count::Any
 end
 
-function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
+function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9(), addnoise=false)
+	if(!addnoise)
+	
 	return ParameterEstimationProblem(
 		pe.Name,
 		complete(pe.model),
@@ -170,11 +172,33 @@ function daisy_ex3_v2()
 	ic = [1.0, 2.0, 1.0, 1.0]
 	p_true = [0.2, 0.3, 0.5, 0.6, -0.2] # True Parameters
 
-
-
 	return ParameterEstimationProblem("DAISY_ex3_v2",
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
 end
+
+
+function add_noise()
+	@parameters a b c d
+	@variables t x1(t) x2(t) x3(t) y1(t) y2(t) y3(t)
+	D = Differential(t)
+	states = [x1, x2]
+	parameters = [a, b, c, d]
+	@named model = ODESystem([
+			D(x1) ~ a * x1 + b * x2,
+			D(x2) ~ c * x1 - d * x2], t, states, parameters)
+	measured_quantities = [
+		y1 ~ x1,
+		y2 ~ x2,
+	]
+	ic = [1.0, 2.0]
+	p_true = [0.2, 0.3, 0.4, 0.5] # True Parameters
+
+	return ParameterEstimationProblem("Noisy 2d linear",
+		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
+end
+
+
+
 
 
 
@@ -646,7 +670,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		println("Starting model: ", PEP.Name)
 		@time PEP.Name res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
-			PEP.solver, system_solver = diag_solveJSwithHC
+			PEP.solver, system_solver = diag_solveJSwithHC,
 		)
 		besterror = 1e30
 		res3 = sort(res3, by = x -> x.err)
@@ -657,7 +681,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		for each in res3
 
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
-			if (each.err < 100)  #TODO: magic number
+			if (each.err < 1)  #TODO: magic number
 
 				display(estimates)
 				println("Error: ", each.err)
@@ -696,32 +720,32 @@ function varied_estimation_main()
 		#simple(),
 		#lotka_volterra()
 		#slowfast2(),
-		biohydrogenation(),
+		#biohydrogenation(),
+		add_noise(),
 
-#=
-		simple(),
-		substr_test(),
-		vanderpol(),
-		daisy_mamil3(),
-		fitzhugh_nagumo(),
-		slowfast(),
-		slowfast2(),
-		daisy_ex3_v3(),
-		daisy_ex3_v2(),
-		daisy_ex3_v4(),
-		sum_test(),
-		daisy_mamil4(),
-		lotka_volterra(),
-		global_unident_test(),
-		daisy_ex3(),
-		hiv(),
-		seir(),
-		hiv_local(),
-		biohydrogenation(),
-		treatment(),
-		crauste(),  #these seem to be the slowest
-		sirsforced(), #these seem to be the slowest
-		=#
+		#=		simple(),
+				substr_test(),
+				vanderpol(),
+				daisy_mamil3(),
+				fitzhugh_nagumo(),
+				slowfast(),
+				slowfast2(),
+				daisy_ex3_v3(),
+				daisy_ex3_v2(),
+				daisy_ex3_v4(),
+				sum_test(),
+				daisy_mamil4(),
+				lotka_volterra(),
+				global_unident_test(),
+				daisy_ex3(),
+				hiv(),
+				seir(),
+				hiv_local(),
+				biohydrogenation(),
+				treatment(),
+				crauste(),  #these seem to be the slowest
+				sirsforced(), #these seem to be the slowest 
+				=#
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end

@@ -809,29 +809,40 @@ function solveJSwithMonodromy(poly_system, varlist)
 	@var _mpm[1:len] _mpc[1:len]
 	paramlist = Vector{HomotopyContinuation.ModelKit.Variable}()
 	for i in 1:len
-		push!(paramlist, _mpm[i])
+		#push!(paramlist, _mpm[i])
 		push!(paramlist, _mpc[i])
 	end
 	for i in eachindex(parsed)
-		parsed[i] = parsed[i] * _mpm[i] - _mpc[i]
+		parsed[i] = parsed[i] - _mpc[i]
 	end
 	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist, parameters = paramlist)
 	#println("system we are solving (line 428)")
 
-	param_final = repeat([1, 0], outer = len)
+	#param_final = repeat([1, 0], outer = len)
+	param_final = repeat([0.0], outer = len)
 	#singlesoln = solveJSwithOptim(poly_system, varlist)
-	println("is this a start pair? line 824")
-	testx, testp = HomotopyContinuation.find_start_pair(F)
-	display(testx)
-	display(testp)
+	found_start_pair = false
+	pair_attempts = 0
+	newx = nothing
+	while (!found_start_pair && pair_attempts < 20)  #lots of magic numbers in this section:  20, 5000, 3
+		println("is this a start pair? line 824")
+		testx, testp = HomotopyContinuation.find_start_pair(F)
+		display(testx)
+		display(testp)
 
-	newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final)
-	display(newx)
-	display(solutions(newx))
-	display(param_final)
-
-	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final, show_progress = true;) #only_nonsingular = false
+		println("hopefully, this is a good start pair:")
+		newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final, tracker_options = TrackerOptions(automatic_differentiation = 3))
+		display(newx)
+		startpsoln = solutions(newx)
+		display(startpsoln)
+		display(param_final)
+		pair_attempts += 1
+		if (!isempty(startpsoln))
+			found_start_pair = true
+		end
+	end
+	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final, show_progress = true, target_solutions_count = 5000, timeout = 600.0, tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
 
 
 	println("results")
@@ -1117,7 +1128,7 @@ function MCHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 	found_any_solutions = false
-	large_num_points = min(length(model_ps), 1, length(t_vector)) + 1
+	large_num_points = min(length(model_ps), 4, length(t_vector)) + 1
 	good_num_points = large_num_points
 	time_index_set = []
 	solns = []
