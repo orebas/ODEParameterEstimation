@@ -6,46 +6,10 @@ using DifferentialEquations
 using OrderedCollections
 #using ParameterEstimation
 
-using Optimization
-using OptimizationOptimJL
-using NonlinearSolve
+#using Optimization
+#using OptimizationOptimJL
+#using NonlinearSolve\
 
-
-
-
-
-
-
-
-
-
-
-struct ParameterEstimationProblem
-	Name::Any
-	model::Any
-	measured_quantities::Any
-	data_sample::Any
-	solver::Any
-	p_true::Any
-	ic::Any
-	unident_count::Any
-end
-
-function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9(), addnoise=false)
-	if(!addnoise)
-	
-	return ParameterEstimationProblem(
-		pe.Name,
-		complete(pe.model),
-		pe.measured_quantities,
-		sample_data(pe.model, pe.measured_quantities, time_interval, pe.p_true, pe.ic, datasize, solver = solver),
-		solver,
-		pe.p_true,
-		pe.ic,
-		pe.unident_count)
-
-	return pe
-end
 
 
 function biohydrogenation()
@@ -639,113 +603,46 @@ function vanderpol()
 		model, measured_quantities, :nothing, :nothing, p_true, ic, 0)
 end
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, showplot = true, run_ode_pe = true)
-
-	#interpolators = Dict(
-	#	"AAA" => ParameterEstimation.aaad,
-	#"FHD3" => ParameterEstimation.fhdn(3),
-	#"FHD6" => ParameterEstimation.fhdn(6),
-	#"FHD8" => ParameterEstimation.fhdn(8),
-	#"Fourier" => ParameterEstimation.FourierInterp,
-	#)
-	datasize = 21 #TODO(Orebas) magic number
-
-	#stepsize = max(1, datasize ÷ 8)
-	#for i in range(1, (datasize - 2), step = stepsize)
-	#	interpolators["RatOld($i)"] = ParameterEstimation.SimpleRationalInterpOld(i)
-	#end
-
-	#@time res = ParameterEstimation.estimate(PEP.model, PEP.measured_quantities,
-	#	PEP.data_sample,
-	#	solver = PEP.solver, disable_output = false, interpolators = interpolators)
-	#all_params = vcat(PEP.ic, PEP.p_true)
-	#println("TYPERES: ", typeof(res))
-	#println(res)
-
-	#println(res)
-	besterror = 1e30
-	all_params = vcat(PEP.ic, PEP.p_true)
-
-	if (run_ode_pe)
-		println("Starting model: ", PEP.Name)
-		@time PEP.Name res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
-			PEP.data_sample,
-			PEP.solver, system_solver = diag_solveJSwithHC,
-		)
-		besterror = 1e30
-		res3 = sort(res3, by = x -> x.err)
-		display("How close are we?")
-		println("Actual values:")
-		display(all_params)
-
-		for each in res3
-
-			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
-			if (each.err < 1)  #TODO: magic number
-
-				display(estimates)
-				println("Error: ", each.err)
-			end
-
-			errorvec = abs.((estimates .- all_params) ./ (all_params))
-			if (PEP.unident_count > 0)
-				sort!(errorvec)
-				for i in 1:PEP.unident_count
-					pop!(errorvec)
-				end
-			end
-			besterror = min(besterror, maximum(errorvec))
-		end
-
-		if (test_mode)
-			#@test besterror < 1e-1
-		end
-		println("For model ", PEP.Name, ": The ODEPE  max abs rel. err: ", besterror)
-	end
-end
 
 function varied_estimation_main()
-	print("testing")
-	#datasize = 21
 	#solver = AutoVern9(Rodas5())
 	solver = Vern9()
 	#solver = Rodas4P()
-	#time_interval = [-0.5, 0.5]
-	#datasize = 21
 
 	time_interval = [-0.5, 0.5]
 	datasize = 21
 
 	for PEP in [
 		#simple(),
-		#lotka_volterra()
+		#lotka_volterra(),
 		#slowfast2(),
 		#biohydrogenation(),
-		add_noise(),
+		#add_noise(),
 
-		#=		simple(),
-				substr_test(),
-				vanderpol(),
-				daisy_mamil3(),
-				fitzhugh_nagumo(),
-				slowfast(),
-				slowfast2(),
-				daisy_ex3_v3(),
-				daisy_ex3_v2(),
-				daisy_ex3_v4(),
-				sum_test(),
-				daisy_mamil4(),
-				lotka_volterra(),
-				global_unident_test(),
-				daisy_ex3(),
-				hiv(),
-				seir(),
-				hiv_local(),
-				biohydrogenation(),
-				treatment(),
-				crauste(),  #these seem to be the slowest
-				sirsforced(), #these seem to be the slowest 
-				=#
+		simple(),
+		substr_test(),
+		#add_noise()
+
+		vanderpol(),
+		daisy_mamil3(),
+		fitzhugh_nagumo(),
+		slowfast(),
+		slowfast2(),
+		daisy_ex3_v3(),
+		daisy_ex3_v2(),
+		daisy_ex3_v4(),
+		sum_test(),
+		daisy_mamil4(),
+		lotka_volterra(),
+		global_unident_test(),
+		daisy_ex3(),
+		hiv(),
+		seir(),
+		hiv_local(),
+		biohydrogenation(),
+		treatment(),
+		crauste(),  #these seem to be the slowest
+		sirsforced(), #these seem to be the slowest 
 	]
 		analyze_parameter_estimation_problem(fillPEP(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end
