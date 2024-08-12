@@ -1,6 +1,8 @@
 module ODEParameterEstimation
 
-using ModelingToolkit, OrdinaryDiffEq
+using ModelingToolkit: t_nounits as t, D_nounits as D
+using ModelingToolkit
+using OrdinaryDiffEq
 using LinearAlgebra
 using OrderedCollections
 using BaryRational
@@ -36,8 +38,6 @@ mutable struct ParameterEstimationResult
 	report_time::Any
 end
 
-
-
 """
 	DerivativeData
 
@@ -66,16 +66,14 @@ mutable struct DerivativeData
 	obs_lhs::Any
 	obs_rhs::Any
 end
+
 include("utils.jl")
+include("SharedUtils.jl")
 include("bary_derivs.jl")
 include("sample_data.jl")
 include("equation_solvers.jl")
-include("single-point.jl")
+#include("single-point.jl")
 include("test_utils.jl")
-
-
-
-
 
 """
 	handle_simple_substitutions(eqns, varlist)
@@ -167,7 +165,24 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 
 	for i in 1:(max_deriv_level-2)
 		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))  #this constructs the derivatives of the state equations
-		push!(DD.states_rhs, expand_derivatives.(D.(DD.states_rhs[end])))
+		println("")
+		println("line 168")
+		println("i is ", i)
+		display(DD.states_rhs)
+		display(DD.states_rhs[end])
+		temp = DD.states_rhs[end]
+		temp2 = D.(temp)
+		println("error here")
+		display(temp2)
+		temp3 = deepcopy(temp2)
+		temp4 = []
+		for j in 1:length(temp3)
+			println("j is ", j)
+			display(temp3[j])
+			temptemp = expand_derivatives(temp3[j])
+			push!(temp4, deepcopy(temptemp))
+		end
+		push!(DD.states_rhs, temp4)
 		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))  #this constructs the derivatives of the state equations
 		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
 	end
@@ -400,8 +415,6 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 		end
 	end
 	println("Finally, the following substitutions will be made:", unident_dict)
-
-
 
 	max_rank = rank(evaluated_jac, rtol = rtol)
 	maxn = n
@@ -667,22 +680,19 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 """
 function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 4)
 	t = ModelingToolkit.get_iv(model)
-	model_eq = ModelingToolkit.equations(model)
-	model_states = ModelingToolkit.unknowns(model)
-	model_ps = ModelingToolkit.parameters(model)
+	eqns = ModelingToolkit.equations(model)
+	states = ModelingToolkit.unknowns(model)
+	params = ModelingToolkit.parameters(model)
 
 	t_vector = data_sample["t"]
-	time_interval = (minimum(t_vector), maximum(t_vector))
+	time_interval = extrema(t_vector)
 	found_any_solutions = false
-	large_num_points = min(length(model_ps), max_num_points, length(t_vector)) + 1
+	large_num_points = min(length(params), max_num_points, length(t_vector)) + 1
 	good_num_points = large_num_points
-	time_index_set = []
-	solns = []
-	good_udict = []
-	forward_subst_dict = []
-	trivial_dict = []
-	final_varlist = []
-	trimmed_varlist = []
+
+	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
+		[[] for _ in 1:7]
+
 	while (!found_any_solutions)
 		good_num_points = good_num_points - 1
 		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
@@ -702,10 +712,8 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 			println("Using these observations and their derivatives:")
 			display(good_deriv_level)
 		end
-		full_target = []
-		full_varlist = []
-		forward_subst_dict = []
-		reverse_subst_dict = []
+		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
+
 		@variables testing
 		for k in time_index_set
 			(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
@@ -716,8 +724,8 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 			for i in eachindex(good_DD.states_lhs), j in eachindex(good_DD.states_lhs[i])
 				push!(subst_var_list, good_DD.states_lhs[i][j])
 			end
-			for i in eachindex(model_states)
-				push!(subst_var_list, model_states[i])
+			for i in eachindex(states)
+				push!(subst_var_list, states[i])
 			end
 			for i in eachindex(good_DD.obs_lhs), j in eachindex(good_DD.obs_lhs[i])
 				push!(subst_var_list, good_DD.obs_lhs[i][j])
@@ -730,7 +738,7 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 				local_subst_dict[j] = newname
 				local_subst_dict_reverse[newname] = j
 			end
-			for i in model_ps
+			for i in params
 				newname = tag_symbol(i, "_t" * string("p"), "_")
 				j = Symbolics.wrap(i)
 				local_subst_dict[j] = newname
@@ -763,21 +771,21 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		end
 	end
 
-	@named new_model = ODESystem(model_eq, t, model_states, model_ps)
+	@named new_model = ODESystem(eqns, t, states, params)
 	new_model = complete(new_model)
 	lowest_time_index = min(time_index_set...)
 
 	results_vec = []
 	local_states_dict_all = []
 	for soln_index in eachindex(solns)
-		initial_conditions = [1e10 for s in model_states]
-		parameter_values = [1e10 for p in model_ps]
-		for i in eachindex(model_ps)
-			if model_ps[i] in keys(good_udict)
-				parameter_values[i] = good_udict[model_ps[i]]
+		initial_conditions = [1e10 for s in states]
+		parameter_values = [1e10 for p in params]
+		for i in eachindex(params)
+			if params[i] in keys(good_udict)
+				parameter_values[i] = good_udict[params[i]]
 			else
 
-				param_search = forward_subst_dict[1][(model_ps[i])]
+				param_search = forward_subst_dict[1][(params[i])]
 				if (param_search in keys(trivial_dict))
 					parameter_values[i] = trivial_dict[param_search]
 				else
@@ -787,9 +795,9 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 			end                                                   #what about other vars
 		end
 
-		for i in eachindex(model_states)
-			if model_states[i] in keys(good_udict)
-				initial_conditions[i] = good_udict[model_states[i]]
+		for i in eachindex(states)
+			if states[i] in keys(good_udict)
+				initial_conditions[i] = good_udict[states[i]]
 
 			else
 				#println("line 596")
@@ -804,7 +812,7 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 				#display(Symbolics.wrap(model_states[i]))
 
 				#display(reverse_subst_dict[1])
-				model_state_search = forward_subst_dict[1][(model_states[i])]
+				model_state_search = forward_subst_dict[1][(states[i])]
 				#				println("line 929")
 				#				display(model_states[i])
 				#				display(model_state_search)
@@ -845,7 +853,7 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
 								for x in ModelingToolkit.unknowns(model)))
 		newstates = OrderedDict()
-		for s in model_states
+		for s in states
 			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
 		end
 		push!(results_vec, [collect(values(newstates)); parameter_values])
@@ -862,6 +870,7 @@ end
 
 export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, diag_solveJSwithHC
 export ParameterEstimationProblem, analyze_parameter_estimation_problem, fillPEP
+export create_ode_system, sample_problem_data, analyze_estimation_result
 
 #later, disable output of the compile_workload
 

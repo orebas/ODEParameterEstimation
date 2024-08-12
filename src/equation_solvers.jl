@@ -1,3 +1,45 @@
+using DelimitedFiles
+
+
+### from claude
+#=function create_debug_callback(filename="monodromy_debug.csv")
+	# Initialize the debug file with headers
+	open(filename, "w") do io
+		writedlm(io, ["Iteration" "NumSolutions" "NewSolutions" "UniquenessTolerance"], ',')
+	end
+
+	last_num_solutions = 0
+	iteration = 0
+
+	function debug_callback(results)
+		global last_num_solutions, iteration
+		iteration += 1
+		current_num_solutions = length(results)
+		new_solutions = current_num_solutions - last_num_solutions
+
+		# Estimate the uniqueness tolerance used
+		if !isempty(results)
+			last_result = results[end]
+			tol_estimate = uniqueness_rtol(last_result)
+		else
+			tol_estimate = NaN
+		end
+
+		# Append debug information to the file
+		open(filename, "a") do io
+			writedlm(io, [iteration current_num_solutions new_solutions tol_estimate], ',')
+		end
+
+		last_num_solutions = current_num_solutions
+
+		# Return false to continue the monodromy process
+		return false
+	end
+
+	return debug_callback
+end
+=#
+###end claude
 
 function solveJSwithMonodromy(poly_system, varlist)
 	mangled_varlist = deepcopy(varlist)
@@ -71,7 +113,23 @@ function solveJSwithMonodromy(poly_system, varlist)
 			found_start_pair = true
 		end
 	end
-	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final, show_progress = true, target_solutions_count = 5000, timeout = 120.0, tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
+	println("starting monodromy solve (line 74)")
+	#debug_cb = create_debug_callback("my_debug_output.csv")
+	function simpleprinter(x)
+		println("BLAH")
+		display(x)
+		return false
+	end
+	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final,
+		show_progress = true,
+		#target_solutions_count = 5000,
+		timeout = 120.0,
+		max_loops_no_progress = 20,
+		#loop_finished_callback = debug_cb,
+		#loop_finished_callback = simpleprinter,
+		unique_points_rtol = 1e-6,
+		unique_points_atol = 1e-6,
+		tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
 
 
 	#println("results")

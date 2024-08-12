@@ -1,14 +1,4 @@
 
-struct ParameterEstimationProblem
-	Name::Any
-	model::Any
-	measured_quantities::Any
-	data_sample::Any
-	solver::Any
-	p_true::Any
-	ic::Any
-	unident_count::Any
-end
 
 function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9(), add_noise = false)  #TODO add noise handling 
 
