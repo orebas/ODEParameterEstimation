@@ -3,8 +3,8 @@
 function sample_data(model::ModelingToolkit.ODESystem,
 	measured_data::Vector{ModelingToolkit.Equation},
 	time_interval::Vector{T},
-	p_true::Vector{T},
-	u0::Vector{T},
+	p_true,
+	u0,
 	num_points::Int;
 	uneven_sampling = false,
 	uneven_sampling_times = Vector{T}(),
@@ -21,7 +21,7 @@ function sample_data(model::ModelingToolkit.ODESystem,
 	else
 		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
 	end
-	problem = ODEProblem(ModelingToolkit.complete(model), u0, time_interval, Dict(ModelingToolkit.parameters(model) .=> p_true))
+	problem = ODEProblem(ModelingToolkit.complete(model), u0, time_interval, p_true)
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)

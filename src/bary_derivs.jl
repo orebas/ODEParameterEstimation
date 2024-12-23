@@ -98,7 +98,7 @@ end
 (y::FHDapprox)(z) = baryEval(z, y.internalFHD.f, y.internalFHD.x, y.internalFHD.w)
 (y::AAADapprox)(z) = baryEval(z, y.internalAAA.f, y.internalAAA.x, y.internalAAA.w)
 
-function nth_deriv_at_deprecated(f, n::Int, t)  #todo(orebas) make this more efficient.
+function nth_deriv_at(f, n::Int, t)  #todo(orebas) make this more efficient.
 	if (n == 0)
 		return f(t)
 	elseif (n == 1)
@@ -110,7 +110,7 @@ function nth_deriv_at_deprecated(f, n::Int, t)  #todo(orebas) make this more eff
 end
 
 
-function nth_deriv_at(f, n::Int, t)  #todo(orebas) make this more efficient.
+function nth_deriv(f, n::Int, t)
 	if (n == 0)
 		return f(t)
 	else
@@ -121,9 +121,9 @@ end
 
 function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	#@suppress begin
-		@assert length(xs) == length(ys)
-		internalApprox = BaryRational.aaa(xs, ys,verbose=false)
-		return AAADapprox(internalApprox)
+	@assert length(xs) == length(ys)
+	internalApprox = BaryRational.aaa(xs, ys, verbose = false)
+	return AAADapprox(internalApprox)
 	#end
 end
 
@@ -131,9 +131,9 @@ end
 
 function fhd(xs::AbstractArray{T}, ys::AbstractArray{T}, N::Int) where {T}
 	#@suppress begin
-		@assert length(xs) == length(ys)
-		internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
-		return FHDapprox(internalApprox)
+	@assert length(xs) == length(ys)
+	internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
+	return FHDapprox(internalApprox)
 	#end
 end
 
@@ -284,18 +284,18 @@ end
 
 function default_interpolator(datasize)
 	interpolators = Dict(
-			"AAA" => aaad,
-			"FHD3" => fhdn(3),
-			#			"Fourier" => FourierInterp,
-			#			"BaryLagrange" => BarycentricLagrange,
-		)
-		if (datasize > 10)
-			interpolators["FHD8"] = fhdn(8)
-			#			interpolators["FHD6"] = fhdn(6)
-			#stepsize = max(1, datasize ÷ 4)
-			#for i in range(1, (datasize - 2), step = stepsize)
-			#	interpolators["RatOld($i)"] = SimpleRationalInterpOld(i)
-			#end
-		end
-return interpolators
+		"AAA" => aaad,
+		"FHD3" => fhdn(3),
+		#			"Fourier" => FourierInterp,
+		#			"BaryLagrange" => BarycentricLagrange,
+	)
+	if (datasize > 10)
+		interpolators["FHD8"] = fhdn(8)
+		#			interpolators["FHD6"] = fhdn(6)
+		#stepsize = max(1, datasize ÷ 4)
+		#for i in range(1, (datasize - 2), step = stepsize)
+		#	interpolators["RatOld($i)"] = SimpleRationalInterpOld(i)
+		#end
+	end
+	return interpolators
 end

@@ -1,57 +1,25 @@
 using DelimitedFiles
 
 
-### from claude
-#=function create_debug_callback(filename="monodromy_debug.csv")
-	# Initialize the debug file with headers
-	open(filename, "w") do io
-		writedlm(io, ["Iteration" "NumSolutions" "NewSolutions" "UniquenessTolerance"], ',')
-	end
-
-	last_num_solutions = 0
-	iteration = 0
-
-	function debug_callback(results)
-		global last_num_solutions, iteration
-		iteration += 1
-		current_num_solutions = length(results)
-		new_solutions = current_num_solutions - last_num_solutions
-
-		# Estimate the uniqueness tolerance used
-		if !isempty(results)
-			last_result = results[end]
-			tol_estimate = uniqueness_rtol(last_result)
-		else
-			tol_estimate = NaN
-		end
-
-		# Append debug information to the file
-		open(filename, "a") do io
-			writedlm(io, [iteration current_num_solutions new_solutions tol_estimate], ',')
-		end
-
-		last_num_solutions = current_num_solutions
-
-		# Return false to continue the monodromy process
-		return false
-	end
-
-	return debug_callback
-end
-=#
-###end claude
 
 function solveJSwithMonodromy(poly_system, varlist)
+	# println("\n=== Starting solveJSwithMonodromy ===")
+	# println("Input varlist: ", varlist)
+	
 	mangled_varlist = deepcopy(varlist)
 	manglingDict = OrderedDict()
 	len = length(poly_system)
 
+	# Track variable mangling
+	# println("\nMangling variables:")
 	for i in eachindex(varlist)
 		newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
 		newvar = (@variables $newvarname)[1]
 		mangled_varlist[i] = newvar
 		manglingDict[Symbolics.unwrap(varlist[i])] = newvar
+		# println("$i: $(varlist[i]) -> $newvar")
 	end
+
 	for i in eachindex(poly_system)
 		poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), manglingDict)
 
@@ -77,7 +45,6 @@ function solveJSwithMonodromy(poly_system, varlist)
 	for i in eachindex(string_target)
 		string_target[i] = replace(string_target[i], string_string_dict...)
 	end
-	#display(string_target)
 	parsed = eval.(Meta.parse.(string_target))
 	@var _mpm[1:len] _mpc[1:len]
 	paramlist = Vector{HomotopyContinuation.ModelKit.Variable}()
@@ -113,7 +80,7 @@ function solveJSwithMonodromy(poly_system, varlist)
 			found_start_pair = true
 		end
 	end
-	println("starting monodromy solve (line 74)")
+	#println("starting monodromy solve (line 74)")
 	#debug_cb = create_debug_callback("my_debug_output.csv")
 	function simpleprinter(x)
 		println("BLAH")
@@ -162,23 +129,29 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 	if (display_system)
 		println("starting solveJSWithHC.  Here is the polynomial system:")
 		display(input_poly_system)
-		#print_element_types(poly_system)
 		println("varlist")
 		display(input_varlist)
-		#print_element_types(varlist)
 	end
 
+	# println("\n=== Starting solveJSwithHC ===")
+	# println("Original varlist ordering: ", input_varlist)
+	
+	# Store original ordering
+	original_order = Dict(v => i for (i, v) in enumerate(input_varlist))
+	
 	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+	# println("After substitutions:")
+	# println("Varlist: ", varlist)
+	# println("Trivial dict: ", trivial_dict)
 
 	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
-
+	# println("After squarifying:")
+	# println("Varlist: ", varlist)
+	
+	# Preserve original ordering after squarifying
+	varlist = sort(varlist, by=v -> get(original_order, v, length(input_varlist) + 1))
+	
 	jsvarlist = deepcopy(varlist)
-	if (display_system)
-		println("after trivial subst")
-		display(poly_system)
-		display(varlist)
-		display(trivial_dict)
-	end
 	solns = []
 	hcvarlist = []
 	if (use_monodromy)
@@ -247,7 +220,7 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 		display("No solutions, failed.")
 		return ([], [], [], [])
 	end
-	display(solns)
+    display(solns)
 	return solns, hcvarlist, trivial_dict, jsvarlist
 end
 

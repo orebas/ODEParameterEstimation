@@ -1,5 +1,3 @@
-
-
 function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9(), add_noise = false)  #TODO add noise handling 
 
 	return ParameterEstimationProblem(
@@ -14,78 +12,30 @@ function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = 
 end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, showplot = true, run_ode_pe = true)
-
-	#interpolators = Dict(
-	#	"AAA" => ParameterEstimation.aaad,
-	#"FHD3" => ParameterEstimation.fhdn(3),
-	#"FHD6" => ParameterEstimation.fhdn(6),
-	#"FHD8" => ParameterEstimation.fhdn(8),
-	#"Fourier" => ParameterEstimation.FourierInterp,
-	#)
-	datasize = 21 #TODO(Orebas) magic number
-
-	#stepsize = max(1, datasize ÷ 8)
-	#for i in range(1, (datasize - 2), step = stepsize)
-	#	interpolators["RatOld($i)"] = ParameterEstimation.SimpleRationalInterpOld(i)
-	#end
-
-	#@time res = ParameterEstimation.estimate(PEP.model, PEP.measured_quantities,
-	#	PEP.data_sample,
-	#	solver = PEP.solver, disable_output = false, interpolators = interpolators)
-	#all_params = vcat(PEP.ic, PEP.p_true)
-	#println("TYPERES: ", typeof(res))
-	#println(res)
-
-	#println(res)
-	besterror = 1e30
-	all_params = vcat(PEP.ic, PEP.p_true)
-
-	if (run_ode_pe)
-		println("Starting model: ", PEP.Name)
-		@time PEP.Name res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
+	if run_ode_pe
+		println("Starting model: ", PEP.name)
+		res = ODEPEtestwrapper(
+			PEP.model,  # This is now an OrderedODESystem
+			PEP.measured_quantities,
 			PEP.data_sample,
 			PEP.solver,
 		)
-		besterror = 1e30
-		res3 = sort(res3, by = x -> x.err)
-		display("How close are we?")
-		println("Actual values:")
-		display(all_params)
+		besterror = analyze_estimation_result(PEP, res)
 
-		for each in res3
-
-			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
-			if (each.err < 1)  #TODO: magic number
-
-				display(estimates)
-				println("Error: ", each.err)
-			end
-
-			errorvec = abs.((estimates .- all_params) ./ (all_params))
-			if (PEP.unident_count > 0)
-				sort!(errorvec)
-				for i in 1:PEP.unident_count
-					pop!(errorvec)
-				end
-			end
-			besterror = min(besterror, maximum(errorvec))
+		if test_mode
+			# @test besterror < 1e-1
 		end
-
-		if (test_mode)
-			#@test besterror < 1e-1
-		end
-		println("For model ", PEP.Name, ": The ODEPE  max abs rel. err: ", besterror)
 	end
 end
 
 
 """
-	ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 4)
+	ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 4)
 
 Wrapper function for testing ODE Parameter Estimation.
 
 # Arguments
-- `model::ODESystem`: The ODE system
+- `model::OrderedODESystem`: The ODE system
 - `measured_quantities`: Measured quantities
 - `data_sample`: Sample data
 - `ode_solver`: ODE solver to use
@@ -97,63 +47,120 @@ Wrapper function for testing ODE Parameter Estimation.
 # Returns
 - Vector of ParameterEstimationResult objects
 """
-function ODEPEtestwrapper(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 4)
+function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 2)
+    # println("\nStarting ODEPEtestwrapper")
+    
+    # Get original ordering from OrderedODESystem
+    original_states = model.original_states
+    original_parameters = model.original_parameters
+    
+    # Get current ordering from ModelingToolkit
+    current_states = ModelingToolkit.unknowns(model.system)
+    current_params = ModelingToolkit.parameters(model.system)
+    
+    # println("Original states ordering: ", original_states)
+    # println("Original parameters ordering: ", original_parameters)
+    # println("Current states ordering: ", current_states)
+    # println("Current parameters ordering: ", current_params)
+    
+    tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	model_states = ModelingToolkit.unknowns(model)
-	model_ps = ModelingToolkit.parameters(model)
-	tspan = (data_sample["t"][begin], data_sample["t"][end])
+    # Create ordered dictionaries to preserve parameter order
+    param_dict = OrderedDict(current_params .=> ones(length(current_params)))
+    states_dict = OrderedDict(current_states .=> ones(length(current_states)))
 
-	param_dict  = Dict(model_ps .=> ones(length(model_ps)))
-	states_dict = Dict(model_states .=> ones(length(model_states)))
+    solved_res = []
+    newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
 
-	solved_res = []
-	newres = ParameterEstimationResult(param_dict,
-		states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1])
-	results_vec = MPHCPE(model, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points)
+    results_vec = MPHCPE(model.system, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points)
 
-	for each in results_vec
-		push!(solved_res, deepcopy(newres))
+    for raw_sol in results_vec
+        # println("\nProcessing solution:")
+        # println("Raw solution vector: ", raw_sol)
+        
+        push!(solved_res, deepcopy(newres))
+        
+        # Create ordered collections for states and parameters
+        ordered_states = OrderedDict()
+        ordered_params = OrderedDict()
+        
+        # Reorder states according to original ordering
+        for (i, state) in enumerate(original_states)
+            idx = findfirst(s -> isequal(s, state), current_states)
+            if isnothing(idx)
+                @warn "State $state not found in current states, using original index $i"
+                idx = i
+            end
+            ordered_states[state] = raw_sol[idx]
+        end
+        
+        # Reorder parameters according to original ordering
+        for (i, param) in enumerate(original_parameters)
+            idx = findfirst(p -> isequal(p, param), current_params)
+            if isnothing(idx)
+                @warn "Parameter $param not found in current parameters, using original index $i"
+                idx = i
+            end
+            ordered_params[param] = raw_sol[length(current_states) + idx]
+        end
+        
+        # Update result with ordered collections
+        solved_res[end].states = ordered_states
+        solved_res[end].parameters = ordered_params
+        
+        ic = collect(values(ordered_states))
+        ps = collect(values(ordered_params))
+        
+        # println("\nFinal ordering check:")
+        # println("States: ", collect(keys(ordered_states)), " => ", ic)
+        # println("Parameters: ", collect(keys(ordered_params)), " => ", ps)
+        
+        prob = ODEProblem(complete(model.system), ic, tspan, ps)
+        
+        # Rest of the error calculation remains the same
+        ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+        err = 0
+        if ode_solution.retcode == ReturnCode.Success
+            err = 0
+            for (key, sample) in data_sample
+                if isequal(key, "t")
+                    continue
+                end
+                err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
+            end
+            err /= length(data_sample)
+        else
+            err = 1e+15
+        end
+        solved_res[end].err = err
+    end
+    return solved_res
+end
 
-
-		for (key, value) in solved_res[end].parameters
-			solved_res[end].parameters[key] = 1e30
-		end
-		for (key, value) in solved_res[end].states
-			solved_res[end].states[key] = 1e30
-		end
-		#println(newres)
-		i = 1
-		for (key, value) in solved_res[end].states
-			solved_res[end].states[key] = each[i]
-			i += 1
-		end
-
-
-		for (key, value) in solved_res[end].parameters
-			solved_res[end].parameters[key] = each[i]
-			i += 1
-		end
-		ic = deepcopy(solved_res[end].states)
-		ps = deepcopy(solved_res[end].parameters)
-		prob = ODEProblem(complete(model), ic, tspan, ps)
-
-		ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
-		err = 0
-		if ode_solution.retcode == ReturnCode.Success
-			err = 0
-			for (key, sample) in data_sample
-				if isequal(key, "t")
-					continue
-				end
-				err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
-			end
-			err /= length(data_sample)
-		else
-			err = 1e+15
-		end
-		solved_res[end].err = err
-
-
-	end
-	return solved_res
+# Add this helper function in the same file
+function reorder_solution(raw_sol::AbstractVector, model_states::AbstractVector, model_ps::AbstractVector)
+    num_states = length(model_states)
+    num_params = length(model_ps)
+    total_vars = num_states + num_params
+    
+    # Ensure raw_sol has the right length
+    if length(raw_sol) != total_vars
+        error("Solution vector length ($(length(raw_sol))) doesn't match total variables ($total_vars)")
+    end
+    
+    # The solver appears to be returning parameters first, then states
+    # So we need to reorder from [params..., states...] to [states..., params...]
+    ordered_sol = Vector{eltype(raw_sol)}(undef, total_vars)
+    
+    # Copy states (they come after parameters in raw_sol)
+    for i in 1:num_states
+        ordered_sol[i] = raw_sol[num_params + i]
+    end
+    
+    # Copy parameters (they come first in raw_sol)
+    for i in 1:num_params
+        ordered_sol[num_states + i] = raw_sol[i]
+    end
+    
+    return ordered_sol
 end

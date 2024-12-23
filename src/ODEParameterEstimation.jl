@@ -95,7 +95,6 @@ function handle_simple_substitutions(eqns, varlist)
 
 		g = Symbolics.get_variables(i)
 		if (length(g) == 1 && Symbolics.degree(i) == 1)
-			#display(i)
 			thisvar = g[1]
 			td = (polynomial_coeffs(i, (thisvar,)))[1]
 			if (1 in Set(keys(td)))
@@ -165,20 +164,11 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 
 	for i in 1:(max_deriv_level-2)
 		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))  #this constructs the derivatives of the state equations
-		println("")
-		println("line 168")
-		println("i is ", i)
-		display(DD.states_rhs)
-		display(DD.states_rhs[end])
 		temp = DD.states_rhs[end]
 		temp2 = D.(temp)
-		println("error here")
-		display(temp2)
 		temp3 = deepcopy(temp2)
 		temp4 = []
 		for j in 1:length(temp3)
-			println("j is ", j)
-			display(temp3[j])
 			temptemp = expand_derivatives(temp3[j])
 			push!(temp4, deepcopy(temptemp))
 		end
@@ -678,7 +668,7 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 # Returns
 - Vector of result vectors
 """
-function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 4)
+function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 2)
 	t = ModelingToolkit.get_iv(model)
 	eqns = ModelingToolkit.equations(model)
 	states = ModelingToolkit.unknowns(model)
@@ -757,11 +747,8 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		#display(full_target)
 
 		final_target = reduce(vcat, full_target)
-		final_varlist = collect(reduce(union!, OrderedSet.(full_varlist))) #does this even work
-
-
-
-
+		# Maintain order by keeping first occurrence of each variable
+		final_varlist = collect(OrderedDict{eltype(first(full_varlist)),Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
 
 		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
 
@@ -800,23 +787,8 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 				initial_conditions[i] = good_udict[states[i]]
 
 			else
-				#println("line 596")
-				#display(Symbolics.wrap(model_states[i]))
-				#display(fullvarlist)
-				#display(typeof(Symbolics.wrap(model_states[i])))
-				#display(varlist[3])
-				#display(typeof(varlist[3]))
-				#println("line 856")
-				#display(lowest_time_index)
-				#display(forward_subst_dict[lowest_time_index])
-				#display(Symbolics.wrap(model_states[i]))
-
-				#display(reverse_subst_dict[1])
 				model_state_search = forward_subst_dict[1][(states[i])]
-				#				println("line 929")
-				#				display(model_states[i])
-				#				display(model_state_search)
-
+				
 				if (model_state_search in keys(trivial_dict))
 					initial_conditions[i] = trivial_dict[model_state_search]
 					#					display(trivial_dict[model_state_search])
@@ -825,9 +797,6 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 					index = findfirst(
 						isequal(model_state_search),
 						trimmed_varlist)
-					#						display(solns[soln_index][index])
-
-					#display(real(solns[soln_index][index]))
 					initial_conditions[i] = real(solns[soln_index][index]) #see above
 				end
 			end
@@ -874,7 +843,7 @@ export create_ode_system, sample_problem_data, analyze_estimation_result
 
 #later, disable output of the compile_workload
 
-@recompile_invalidations begin
+#=@recompile_invalidations begin
 	@compile_workload begin
 		@parameters a b
 		@variables t x1(t) x2(t) y1(t) y2(t)
@@ -894,13 +863,17 @@ export create_ode_system, sample_problem_data, analyze_estimation_result
 		p_true = [0.4, 0.8]
 
 		model = complete(model)
+		
+		# Create OrderedODESystem wrapper
+		ordered_model = OrderedODESystem(model, states, parameters)
+		
 		data_sample = sample_data(model, measured_quantities, [-1.0, 1.0], p_true, ic, 19, solver = Vern9())
 
-		ret = ODEPEtestwrapper(model, measured_quantities, data_sample, Vern9())
+		ret = ODEPEtestwrapper(ordered_model, measured_quantities, data_sample, Vern9())
 
 		display(ret)
 	end
-end
+end =#
 
 
 end
