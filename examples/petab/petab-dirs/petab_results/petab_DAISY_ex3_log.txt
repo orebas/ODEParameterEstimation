@@ -1,0 +1,66 @@
+Variable specs: ["x1(t)", "x2(t)", "x3(t)", "u0(t)", "p7", "p3", "p6", "p1", "p4", "y1(t)", "y2(t)"]
+temp: Num[x1(t), x2(t), x3(t), u0(t), p7, p3, p6, p1, p4, y1(t), y2(t)]
+Processing formula: x1
+expr: x1(t)
+Processing formula: u0
+expr: u0(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("p4" => 0.5, "p7" => 0.833, "p3" => 0.333, "p1" => 0.167, "p6" => 0.667), "initial_conditions" => Dict{String, Any}("x1" => 0.2, "x2" => 0.4, "u0" => 0.8, "x3" => 0.6))
+
+Looking for parameter: p4
+
+Looking for parameter: p7
+
+Looking for parameter: p3
+
+Looking for parameter: p1
+
+Looking for parameter: p6
+
+Looking for state: x1
+
+Looking for state: x2
+
+Looking for state: u0
+
+Looking for state: x3
+Starting model: petab_DAISY_ex3
+total degree: 16384
+using monodromy, line 917
+
+=== Model: petab_DAISY_ex3 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 3.517223660420032e135):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.200000 |   0.200680 |   0.003402
+x2(t)        |   0.400000 | 133.582559 | 332.956398
+x3(t)        |   0.600000 | 135795.872706 | 226325.454509
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p7           |   0.833000 | -1014.439548 | 1218.814583
+p3           |   0.333000 | -672918.598121 | 2020777.570934
+p6           |   0.667000 | -682548944.863778 | 1023311762.414960
+p1           |   0.167000 | 663.845780 | 3974.124433
+p4           |   0.500000 |  -0.128814 |   1.257628
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 2.9015783300141137e135):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.200000 |   0.200680 |   0.003402
+x2(t)        |   0.400000 | 133.582559 | 332.956398
+x3(t)        |   0.600000 | 301.649110 | 501.748517
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p7           |   0.833000 |  -0.128814 |   1.154638
+p3           |   0.333000 | -672918.598121 | 2020777.570934
+p6           |   0.667000 | -387.741663 | 582.321833
+p1           |   0.167000 | 663.845780 | 3974.124433
+p4           |   0.500000 | -1014.439548 | 2029.879096
+
+Best maximum relative error for petab_DAISY_ex3 (excluding ALL unidentifiable parameters): 2.020777570934e6
+Analysis complete for petab_DAISY_ex3

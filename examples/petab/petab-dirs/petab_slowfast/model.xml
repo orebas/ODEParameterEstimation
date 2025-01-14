@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by libAntimony version v2.15.0 with libSBML version 5.20.2. -->
+<sbml xmlns="http://www.sbml.org/sbml/level3/version2/core" level="3" version="2">
+  <model metaid="feedback" id="feedback">
+    <listOfCompartments>
+      <compartment sboTerm="SBO:0000410" id="default_compartment" spatialDimensions="3" size="1" constant="true"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="xA" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="xB" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="xC" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="eA" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="eC" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter id="init_xA" value="1" constant="true"/>
+      <parameter id="init_xB" value="1" constant="true"/>
+      <parameter id="init_xC" value="1" constant="true"/>
+      <parameter id="init_eA" value="1" constant="true"/>
+      <parameter id="init_eC" value="1" constant="true"/>
+      <parameter id="k1" value="1" constant="true"/>
+      <parameter id="k2" value="1" constant="true"/>
+      <parameter id="eB" value="1" constant="true"/>
+      <parameter id="obs_y1" constant="false"/>
+      <parameter id="obs_y2" constant="false"/>
+      <parameter id="obs_y3" constant="false"/>
+      <parameter id="obs_y4" constant="false"/>
+    </listOfParameters>
+    <listOfInitialAssignments>
+      <initialAssignment symbol="xA">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_xA </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="xB">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_xB </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="xC">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_xC </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="eA">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_eA </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="eC">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_eC </ci>
+        </math>
+      </initialAssignment>
+    </listOfInitialAssignments>
+    <listOfRules>
+      <rateRule variable="xA">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <times/>
+            <apply>
+              <minus/>
+              <ci> k1 </ci>
+            </apply>
+            <ci> xA </ci>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="xB">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <minus/>
+            <apply>
+              <times/>
+              <ci> k1 </ci>
+              <ci> xA </ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci> k2 </ci>
+              <ci> xB </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="xC">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <times/>
+            <ci> k2 </ci>
+            <ci> xB </ci>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="eA">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <cn type="integer"> 0 </cn>
+        </math>
+      </rateRule>
+      <rateRule variable="eC">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <cn type="integer"> 0 </cn>
+        </math>
+      </rateRule>
+      <assignmentRule variable="obs_y1">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> xC </ci>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y2">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <plus/>
+            <apply>
+              <times/>
+              <ci> eB </ci>
+              <ci> xB </ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci> xA </ci>
+              <ci> eA </ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci> xC </ci>
+              <ci> eC </ci>
+            </apply>
+          </apply>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y3">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> eA </ci>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y4">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> eC </ci>
+        </math>
+      </assignmentRule>
+    </listOfRules>
+  </model>
+</sbml>

@@ -1,0 +1,98 @@
+Variable specs: ["x4(t)", "x5(t)", "x6(t)", "x7(t)", "k7", "k5", "k10", "k9", "k6", "k8", "y1(t)", "y2(t)"]
+temp: Num[x4(t), x5(t), x6(t), x7(t), k7, k5, k10, k9, k6, k8, y1(t), y2(t)]
+Processing formula: x4
+expr: x4(t)
+Processing formula: x5
+expr: x5(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("k10" => 0.857, "k9" => 0.714, "k7" => 0.429, "k6" => 0.286, "k5" => 0.143, "k8" => 0.571), "initial_conditions" => Dict{String, Any}("x5" => 0.4, "x7" => 0.8, "x4" => 0.2, "x6" => 0.6))
+
+Looking for parameter: k10
+
+Looking for parameter: k9
+
+Looking for parameter: k7
+
+Looking for parameter: k6
+
+Looking for parameter: k5
+
+Looking for parameter: k8
+
+Looking for state: x5
+
+Looking for state: x7
+
+Looking for state: x4
+
+Looking for state: x6
+Starting model: petab_BioHydrogenation
+total degree: 147456
+using monodromy, line 917
+
+=== Model: petab_BioHydrogenation ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x7(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • x7(t) = 0.527647
+
+
+Found 3 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.006391):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x4(t)        |   0.200000 |   0.200000 |   0.000000
+x5(t)        |   0.400000 |   0.400000 |   0.000000
+x6(t)        |   0.600000 |  -0.133292 |   1.222154
+x7(t)        |   0.800000 |   0.673521 |   0.158098
+k7           |   0.429000 |   0.357064 |   0.167682
+k5           |   0.143000 |   0.143000 |   0.000002
+k10          |   0.857000 |  -0.354813 |   1.414017
+k9           |   0.714000 |  -1.403887 |   2.966228
+k6           |   0.286000 |   0.286001 |   0.000003
+k8           |   0.571000 |   1.040867 |   0.822884
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.005486):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x4(t)        |   0.200000 |   0.200000 |   0.000000
+x5(t)        |   0.400000 |   0.400000 |   0.000000
+x6(t)        |   0.600000 |   6.800402 |  10.334004
+x7(t)        |   0.800000 |   0.694512 |   0.131861
+k7           |   0.429000 |   0.048173 |   0.887709
+k5           |   0.143000 |   0.143000 |   0.000002
+k10          |   0.857000 |   7.119436 |   7.307393
+k9           |   0.714000 |   0.218788 |   0.693574
+k6           |   0.286000 |   0.286001 |   0.000003
+k8           |   0.571000 |  -7.023993 |  13.301213
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.002658):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x4(t)        |   0.200000 |   0.200000 |   0.000000
+x5(t)        |   0.400000 |   0.400000 |   0.000000
+x6(t)        |   0.600000 |   0.221521 |   0.630799
+x7(t)        |   0.800000 |   0.673521 |   0.158098
+k7           |   0.429000 |   0.357064 |   0.167682
+k5           |   0.143000 |   0.143000 |   0.000002
+k10          |   0.857000 |   0.354813 |   0.585983
+k9           |   0.714000 |   1.403887 |   0.966228
+k6           |   0.286000 |   0.286001 |   0.000003
+k8           |   0.571000 |   0.686054 |   0.201495
+
+Best maximum relative error for petab_BioHydrogenation (excluding ALL unidentifiable parameters): 0.966228
+Analysis complete for petab_BioHydrogenation

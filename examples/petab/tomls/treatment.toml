@@ -1,0 +1,31 @@
+[model]
+name = "treatment"
+states = [
+    { name = "In", initial_value = 0.2, estimate = true },
+    { name = "N", initial_value = 0.4, estimate = true },
+    { name = "S", initial_value = 0.6, estimate = true },
+    { name = "Tr", initial_value = 0.8, estimate = true },
+]
+parameters = [
+    { name = "a", value = 0.167, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.333, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "d", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "g", value = 0.667, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "nu", value = 0.833, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+    "In' = (b*S*In) / N + (b*d*S*Tr) / N - (a + g)*In",
+    "N' = 0",
+    "S' = (-b*S*In) / N + (-b*d*S*Tr) / N",
+    "Tr' = g*In - nu*Tr",
+]
+observables = [
+    { name = "obs_y1", formula = "Tr", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "N", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 1.0e-9
+output_dir = "petab_treatment"
+blind = true

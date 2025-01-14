@@ -1,0 +1,24 @@
+[model]
+name = "fitzhugh-nagumo"
+states = [
+    { name = "V", initial_value = 0.333, estimate = true },
+    { name = "R", initial_value = 0.67, estimate = true },
+]
+parameters = [
+    { name = "g", value = 0.25, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "a", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.75, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+    "V' = g*(R + V - (0.3333333333333333)*(V*V*V))",
+    "R' = (-a + V + b*R) / g",
+]
+observables = [
+    { name = "obs_y1", formula = "V", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 1.0e-9
+output_dir = "petab_fitzhugh-nagumo"
+blind = true

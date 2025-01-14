@@ -1,0 +1,22 @@
+[model]
+name = "Lotka_Volterra"
+states = [
+    { name = "r", initial_value = 0.333, estimate = true },
+    { name = "w", initial_value = 0.667, estimate = true },
+]
+parameters = [
+    { name = "k1", value = 0.25, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k2", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k3", value = 0.75, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "r", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_Lotka_Volterra"
+blind = true

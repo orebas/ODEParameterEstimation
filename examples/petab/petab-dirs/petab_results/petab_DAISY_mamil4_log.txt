@@ -1,0 +1,76 @@
+Variable specs: ["x1(t)", "x2(t)", "x3(t)", "x4(t)", "k21", "k01", "k14", "k13", "k12", "k41", "k31", "y1(t)", "y2(t)", "y3(t)"]
+temp: Num[x1(t), x2(t), x3(t), x4(t), k21, k01, k14, k13, k12, k41, k31, y1(t), y2(t), y3(t)]
+Processing formula: x1
+expr: x1(t)
+Processing formula: x2
+expr: x2(t)
+Processing formula: x3 + x4
+expr: x3(t) + x4(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("k01" => 0.125, "k14" => 0.5, "k21" => 0.625, "k12" => 0.25, "k13" => 0.375, "k31" => 0.75, "k41" => 0.875), "initial_conditions" => Dict{String, Any}("x1" => 0.2, "x4" => 0.8, "x2" => 0.4, "x3" => 0.6))
+
+Looking for parameter: k01
+
+Looking for parameter: k14
+
+Looking for parameter: k21
+
+Looking for parameter: k12
+
+Looking for parameter: k13
+
+Looking for parameter: k31
+
+Looking for parameter: k41
+
+Looking for state: x1
+
+Looking for state: x4
+
+Looking for state: x2
+
+Looking for state: x3
+Starting model: petab_DAISY_mamil4
+total degree: 4194304
+using monodromy, line 917
+
+=== Model: petab_DAISY_mamil4 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.03556):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.200000 |   0.199999 |   0.000003
+x2(t)        |   0.400000 |   0.438659 |   0.096648
+x3(t)        |   0.600000 |   0.191736 |   0.680441
+x4(t)        |   0.800000 |   1.208350 |   0.510438
+k21          |   0.625000 |   0.648373 |   0.037396
+k01          |   0.125000 |   0.102906 |   0.176751
+k14          |   0.500000 |   0.541609 |   0.083217
+k13          |   0.375000 |  -0.281125 |   1.749667
+k12          |   0.250000 |   0.228077 |   0.087693
+k41          |   0.875000 |   1.715896 |   0.961025
+k31          |   0.750000 |  -0.214209 |   1.285613
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.010253):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.200000 |   0.199999 |   0.000003
+x2(t)        |   0.400000 |   0.438659 |   0.096648
+x3(t)        |   0.600000 |   1.208350 |   1.013917
+x4(t)        |   0.800000 |   0.191736 |   0.760330
+k21          |   0.625000 |   0.648373 |   0.037396
+k01          |   0.125000 |   0.102906 |   0.176751
+k14          |   0.500000 |  -0.281125 |   1.562250
+k13          |   0.375000 |   0.541609 |   0.444290
+k12          |   0.250000 |   0.228077 |   0.087693
+k41          |   0.875000 |  -0.214209 |   1.244811
+k31          |   0.750000 |   1.715896 |   1.287862
+
+Best maximum relative error for petab_DAISY_mamil4 (excluding ALL unidentifiable parameters): 1.56225
+Analysis complete for petab_DAISY_mamil4

@@ -1,0 +1,28 @@
+[model]
+name = "BioHydrogenation"
+states = [
+    { name = "x4", initial_value = 0.2, estimate = true },
+    { name = "x5", initial_value = 0.4, estimate = true },
+    { name = "x6", initial_value = 0.6, estimate = true },
+    { name = "x7", initial_value = 0.8, estimate = true },
+]
+parameters = [
+    { name = "k5", value = 0.143, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k6", value = 0.286, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k7", value = 0.429, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k8", value = 0.571, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k9", value = 0.714, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k10", value = 0.857, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "x4", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "x5", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_BioHydrogenation"
+blind = true

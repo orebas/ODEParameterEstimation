@@ -1,6 +1,5 @@
 module ODEParameterEstimation
 
-using ModelingToolkit: t_nounits as t, D_nounits as D
 using ModelingToolkit
 using OrdinaryDiffEq
 using LinearAlgebra
@@ -11,7 +10,16 @@ using TaylorDiff
 using PrecompileTools
 using ForwardDiff
 using Random
+using DelimitedFiles
+#using PEtab
+using DataFrames
+using CSV
+using Printf
 
+const t = ModelingToolkit.t_nounits
+const D = ModelingToolkit.D_nounits
+const package_wide_default_ode_solver = AutoVern9(Rodas4P())
+#package_wide_default_ode_solver = Vern9()
 
 
 """
@@ -27,6 +35,8 @@ Struct to store the results of parameter estimation.
 - `return_code::Any`: Return code of the estimation process
 - `datasize::Int64`: Size of the data used
 - `report_time::Any`: Time at which the result is reported
+- `unident_dict::Union{Nothing, AbstractDict}`: Dictionary of unidentifiable parameters and their values
+- `all_unidentifiable::Set{Any}`: Set of all parameters detected as unidentifiable during analysis
 """
 mutable struct ParameterEstimationResult
 	parameters::AbstractDict
@@ -36,6 +46,8 @@ mutable struct ParameterEstimationResult
 	return_code::Any
 	datasize::Int64
 	report_time::Any
+	unident_dict::Union{Nothing, AbstractDict}
+	all_unidentifiable::Set{Any}
 end
 
 """
@@ -55,6 +67,7 @@ which have had their denominators cleared, i.e. they should be polynomial and ne
 - `states_rhs::Any`: Right-hand side of state equations
 - `obs_lhs::Any`: Left-hand side of observation equations
 - `obs_rhs::Any`: Right-hand side of observation equations
+- `all_unidentifiable::Set{Any}`: Set of all unidentifiable parameters
 """
 mutable struct DerivativeData
 	states_lhs_cleared::Any
@@ -65,6 +78,7 @@ mutable struct DerivativeData
 	states_rhs::Any
 	obs_lhs::Any
 	obs_rhs::Any
+	all_unidentifiable::Set{Any}
 end
 
 include("utils.jl")
@@ -142,7 +156,7 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 	ps_count = length(model_ps)
 	D = Differential(t)
 
-	DD = DerivativeData([], [], [], [], [], [], [], [])
+	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
 
 	#First, we fully substitute values we have chosen for an unidentifiable variables.
 	unident_subst!(model_eq, measured_quantities, unident_dict)
@@ -371,6 +385,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 	jac = nothing
 	evaluated_jac = nothing
 	DD = nothing
+	unident_set = Set{Any}()
 
 	all_identified = false
 	while (!all_identified)
@@ -383,11 +398,10 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 			for i in eachindex(varlist)
 				if (!isapprox(norm(ns[i, :]), 0.0, atol = atol))
 					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
+					push!(unident_set, varlist[i])
 				end
 			end
-
-			println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:",
-				keys(candidate_plugins_for_unidentified))
+			#println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:",	keys(candidate_plugins_for_unidentified))
 			if (!isempty(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
@@ -404,7 +418,8 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 			all_identified = true
 		end
 	end
-	println("Finally, the following substitutions will be made:", unident_dict)
+
+	#println("Finally, the following substitutions will be made:", unident_dict)
 
 	max_rank = rank(evaluated_jac, rtol = rtol)
 	maxn = n
@@ -452,6 +467,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 		end
 		keep_looking = improvement_found
 	end
+	DD.all_unidentifiable = unident_set
 	return (deriv_level, unident_dict, varlist, DD)
 end
 
@@ -493,7 +509,16 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	interpolants = Dict()
 	for j in measured_quantities
 		r = j.rhs
-		y_vector = data_sample[r]
+		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
+		#		display(key)
+		#		display(typeof(key))
+		#		temp = collect(keys(data_sample))
+
+		#		display(temp)
+		#		display(typeof(temp))
+		#		display(temp[1])
+		#		display(typeof(temp[1]))
+		y_vector = data_sample[key]
 		interpolants[r] = aaad(t_vector, y_vector)
 	end
 
@@ -668,7 +693,7 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 # Returns
 - Vector of result vectors
 """
-function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 2)
+function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = false, max_num_points = 2)
 	t = ModelingToolkit.get_iv(model)
 	eqns = ModelingToolkit.equations(model)
 	states = ModelingToolkit.unknowns(model)
@@ -707,6 +732,8 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		@variables testing
 		for k in time_index_set
 			(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
+
+
 			local_subst_dict = OrderedDict{Num, Any}()
 			local_subst_dict_reverse = OrderedDict()
 			subst_var_list = []
@@ -748,7 +775,7 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 
 		final_target = reduce(vcat, full_target)
 		# Maintain order by keeping first occurrence of each variable
-		final_varlist = collect(OrderedDict{eltype(first(full_varlist)),Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
 
 		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
 
@@ -788,7 +815,7 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 
 			else
 				model_state_search = forward_subst_dict[1][(states[i])]
-				
+
 				if (model_state_search in keys(trivial_dict))
 					initial_conditions[i] = trivial_dict[model_state_search]
 					#					display(trivial_dict[model_state_search])
@@ -839,37 +866,42 @@ end
 
 export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, diag_solveJSwithHC
 export ParameterEstimationProblem, analyze_parameter_estimation_problem, fillPEP
-export create_ode_system, sample_problem_data, analyze_estimation_result
+export OrderedODESystem, create_ordered_ode_system, sample_problem_data, analyze_estimation_result, save_to_toml
 
 #later, disable output of the compile_workload
-
-#=@recompile_invalidations begin
+#=
+@recompile_invalidations begin
 	@compile_workload begin
-		@parameters a b
-		@variables t x1(t) x2(t) y1(t) y2(t)
+		parameters = @parameters a b
+		states = @variables x1(t) x2(t)
+		observables = @variables y1(t) y2(t)
 		D = Differential(t)
-		states = [x1, x2]
-		parameters = [a, b]
 
-		@named model = ODESystem([
-				D(x1) ~ -a * x2,
-				D(x2) ~ b * x1,  #edited from 1/b
-			], t, states, parameters)
-		measured_quantities = [
-			y1 ~ x1,
-			y2 ~ x2]
+		equations = [
+			D(x1) ~ -a * x2,
+			D(x2) ~ b * x1,  #edited from 1/b
+		]
+		measured_quantities = [y1 ~ x1, y2 ~ x2]
 
-		ic = [0.333, 0.667]
 		p_true = [0.4, 0.8]
+		ic_true = [0.333, 0.667]
 
-		model = complete(model)
-		
-		# Create OrderedODESystem wrapper
-		ordered_model = OrderedODESystem(model, states, parameters)
-		
-		data_sample = sample_data(model, measured_quantities, [-1.0, 1.0], p_true, ic, 19, solver = Vern9())
+		model, mq = create_ordered_ode_system("simple", states, parameters, equations, measured_quantities)
 
-		ret = ODEPEtestwrapper(ordered_model, measured_quantities, data_sample, Vern9())
+		pep = ParameterEstimationProblem(
+			"simple",
+			model,
+			mq,
+			nothing,
+			nothing,
+			OrderedDict(parameters .=> p_true),
+			OrderedDict(states .=> ic_true),
+			0
+		)
+
+		data_sample = sample_problem_data(pep, datasize = 19, time_interval = [-1.0, 1.0])
+
+		ret = ODEPEtestwrapper(pep.model, pep.measured_quantities, data_sample, package_wide_default_ode_solver)
 
 		display(ret)
 	end

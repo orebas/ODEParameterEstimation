@@ -20,7 +20,7 @@ function biohydrogenation()
 	]
 	measured_quantities = [y1 ~ x4, y2 ~ x5]
 
-	model, mq = create_ode_system("BioHydrogenation", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("BioHydrogenation", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"BioHydrogenation",
@@ -50,7 +50,7 @@ function crauste()
 	]
 	measured_quantities = [y1 ~ N, y2 ~ E, y3 ~ S + M, y4 ~ P]
 
-	model, mq = create_ode_system("Crauste", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("Crauste", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"Crauste",
@@ -79,7 +79,7 @@ function daisy_ex3()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ u0]
 
-	model, mq = create_ode_system("DAISY_ex3", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("DAISY_ex3", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"DAISY_ex3",
@@ -107,7 +107,7 @@ function daisy_mamil3()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2]
 
-	model, mq = create_ode_system("DAISY_mamil3", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("DAISY_mamil3", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"DAISY_mamil3",
@@ -136,7 +136,7 @@ function daisy_mamil4()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2, y3 ~ x3 + x4]
 
-	model, mq = create_ode_system("DAISY_mamil4", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("DAISY_mamil4", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"DAISY_mamil4",
@@ -165,7 +165,7 @@ function fitzhugh_nagumo()
 	]
 	measured_quantities = [y1 ~ V]
 
-	model, mq = create_ode_system("fitzhugh-nagumo", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("fitzhugh-nagumo", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"fitzhugh-nagumo",
@@ -195,7 +195,7 @@ function hiv()
 	]
 	measured_quantities = [y1 ~ w, y2 ~ z, y3 ~ x, y4 ~ y + v]
 
-	model, mq = create_ode_system("hiv", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("hiv", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"hiv",
@@ -222,7 +222,7 @@ function lotka_volterra()
 	]
 	measured_quantities = [y1 ~ r]
 
-	model, mq = create_ode_system("Lotka_Volterra", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("Lotka_Volterra", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"Lotka_Volterra",
@@ -251,7 +251,7 @@ function seir()
 	]
 	measured_quantities = [y1 ~ In, y2 ~ N]
 
-	model, mq = create_ode_system("SEIR", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("SEIR", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"SEIR",
@@ -278,7 +278,7 @@ function simple()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2]
 
-	model, mq = create_ode_system("simple", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("simple", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"simple",
@@ -291,6 +291,92 @@ function simple()
 		0,
 	)
 end
+
+
+function simple_linear_combination()
+	parameters = @parameters a b
+	states = @variables x1(t) x2(t)
+	observables = @variables y1(t) y2(t)
+	p_true = [0.4, 0.8]
+	ic_true = [1.0, 2.0]
+
+	equations = [
+		D(x1) ~ -a * x2,
+		D(x2) ~ b * x1,
+	]
+	measured_quantities = [y1 ~ 2.0 * x1 + 0.5 * x2, y2 ~ 3.0 * x1 - 0.25 * x2]
+
+	model, mq = create_ordered_ode_system("simple_linear_combination", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"simple_linear_combination",
+		model,
+		mq,
+		nothing,
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+function threesp_cubed()
+	parameters = @parameters a b c
+	states = @variables x1(t) x2(t) x3(t)
+	observables = @variables y1(t) y2(t) y3(t)
+	p_true = [0.1, 0.2, 0.3]
+	ic_true = [2.0, 3.0, 4.0]
+
+	equations = [
+		D(x1) ~ -a * x2,
+		D(x2) ~ -b * x1,
+		D(x3) ~ -c * x1,
+	]
+	measured_quantities = [y1 ~ x1 * x1 * x1, y2 ~ x2 * x2 * x2, y3 ~ x3 * x3 * x3]
+
+	model, mq = create_ordered_ode_system("threesp_cubed", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"threesp_cubed",
+		model,
+		mq,
+		nothing,
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+
+function onesp_cubed()
+	parameters = @parameters a
+	states = @variables x1(t)
+	observables = @variables y1(t)
+	p_true = [0.1]
+	ic_true = [2.0]
+
+	equations = [
+		D(x1) ~ -a * x1,
+	]
+	measured_quantities = [y1 ~ x1 * x1 * x1]
+
+	model, mq = create_ordered_ode_system("onesp_cubed", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"onesp_cubed",
+		model,
+		mq,
+		nothing,
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+
+
 
 
 function sirsforced()
@@ -309,7 +395,7 @@ function sirsforced()
 	]
 	measured_quantities = [y1 ~ i, y2 ~ r]
 
-	model, mq = create_ode_system("sirsforced", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("sirsforced", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"sirsforced",
@@ -339,7 +425,7 @@ function slowfast()
 	]
 	measured_quantities = [y1 ~ xC, y2 ~ eA * xA + eB * xB + eC * xC, y3 ~ eA, y4 ~ eC]
 
-	model, mq = create_ode_system("slowfast", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("slowfast", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"slowfast",
@@ -367,7 +453,7 @@ function substr_test()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2, y3 ~ x3]
 
-	model, mq = create_ode_system("substr_test", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("substr_test", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"substr_test",
@@ -395,7 +481,7 @@ function global_unident_test()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2]
 
-	model, mq = create_ode_system("global_unident_test", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("global_unident_test", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"global_unident_test",
@@ -423,7 +509,7 @@ function sum_test()
 	]
 	measured_quantities = [y1 ~ x3]
 
-	model, mq = create_ode_system("sum_test", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("sum_test", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"sum_test",
@@ -452,7 +538,7 @@ function treatment()
 	]
 	measured_quantities = [y1 ~ Tr, y2 ~ N]
 
-	model, mq = create_ode_system("treatment", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("treatment", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"treatment",
@@ -479,7 +565,7 @@ function vanderpol()
 	]
 	measured_quantities = [y1 ~ x1, y2 ~ x2]
 
-	model, mq = create_ode_system("vanderpol", states, parameters, equations, measured_quantities)
+	model, mq = create_ordered_ode_system("vanderpol", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
 		"vanderpol",
@@ -493,29 +579,15 @@ function vanderpol()
 	)
 end
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, showplot = true, run_ode_pe = true)
-	if run_ode_pe
-		println("Starting model: ", PEP.name)
-		res = ODEPEtestwrapper(PEP.model, PEP.measured_quantities, PEP.data_sample, PEP.solver)
-		besterror = analyze_estimation_result(PEP, res)
-
-		if test_mode
-			# @test besterror < 1e-1
-		end
-	end
-end
-
 function varied_estimation_main()
-	println("testing")
 	time_interval = [-0.5, 0.5]
 	datasize = 21
 
-
-
-
 	models = [
-		treatment(),
 		simple(),
+		simple_linear_combination(),
+		threesp_cubed(),
+		onesp_cubed(),
 		substr_test(),
 		vanderpol(),
 		daisy_mamil3(),
@@ -526,6 +598,7 @@ function varied_estimation_main()
 		daisy_mamil4(),
 		lotka_volterra(),
 		global_unident_test(),
+		treatment(),
 		hiv(),
 		seir(),
 		biohydrogenation(),
@@ -533,14 +606,20 @@ function varied_estimation_main()
 		sirsforced(),
 	]
 
+	#=models = [
+		#		simple_linear_combination(),
+		onesp_cubed(),
+		threesp_cubed(),
+	]=#
+
 	#models = [
-	#	fitzhugh_nagumo(),
+	#	sirsforced(),
 	#]
 
-
 	for PEP in models
-		analyze_parameter_estimation_problem(sample_problem_data(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
+		analyze_parameter_estimation_problem(
+			sample_problem_data(PEP, datasize = datasize, time_interval = time_interval), test_mode = false, showplot = true)
 	end
 end
 
-varied_estimation_main()
+#varied_estimation_main()

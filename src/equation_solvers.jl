@@ -5,7 +5,9 @@ using DelimitedFiles
 function solveJSwithMonodromy(poly_system, varlist)
 	# println("\n=== Starting solveJSwithMonodromy ===")
 	# println("Input varlist: ", varlist)
-	
+
+
+	#println("Input poly_system: ", poly_system)
 	mangled_varlist = deepcopy(varlist)
 	manglingDict = OrderedDict()
 	len = length(poly_system)
@@ -49,60 +51,64 @@ function solveJSwithMonodromy(poly_system, varlist)
 	@var _mpm[1:len] _mpc[1:len]
 	paramlist = Vector{HomotopyContinuation.ModelKit.Variable}()
 	for i in 1:len
-		#push!(paramlist, _mpm[i])
+		push!(paramlist, _mpm[i])
+	end
+	for i in 1:len
 		push!(paramlist, _mpc[i])
 	end
+
 	for i in eachindex(parsed)
-		parsed[i] = parsed[i] - _mpc[i]
+		parsed[i] = _mpm[i] * parsed[i] - _mpc[i]
 	end
 	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist, parameters = paramlist)
-
-	#param_final = repeat([1, 0], outer = len)
-	param_final = repeat([0.0], outer = len)
-	found_start_pair = false
+	param_final = vcat(repeat([1.0], outer = len), repeat([0.0], outer = len))
 	pair_attempts = 0
-	newx = nothing
-	while (!found_start_pair && pair_attempts < 50)  #lots of magic numbers in this section:  20, 5000, 3
-		#println("is this a start pair? line 824")
-		testx, testp = HomotopyContinuation.find_start_pair(F)
-		#display(testx)
-		#display(testp)
+	max_attempts = 500
+	min_attempts = 50
+	start_pairs = []
 
-		#println("hopefully, this is a good start pair:")
-		newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final, tracker_options = TrackerOptions(automatic_differentiation = 3))
-		#display(newx)
-		startpsoln = solutions(newx)
-		#display(startpsoln)
-		#display(param_final)
-		pair_attempts += 1
-		if (!isempty(startpsoln))
-			found_start_pair = true
+	while (pair_attempts < max_attempts && (pair_attempts < min_attempts || isempty(start_pairs)))
+		testx, testp = HomotopyContinuation.find_start_pair(F)
+
+		newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final,
+			tracker_options = TrackerOptions(automatic_differentiation = 3))
+
+		if !isempty(solutions(newx))
+			push!(start_pairs, solutions(newx))
 		end
+
+		pair_attempts += 1
 	end
-	#println("starting monodromy solve (line 74)")
-	#debug_cb = create_debug_callback("my_debug_output.csv")
+
+	if isempty(start_pairs)
+		newx = nothing
+	else
+		# Use the first successful result for compatibility with rest of code
+		newx = start_pairs[1]
+	end
 	function simpleprinter(x)
 		println("BLAH")
 		display(x)
 		return false
 	end
-	result = HomotopyContinuation.monodromy_solve(F, solutions(newx), param_final,
-		show_progress = true,
-		#target_solutions_count = 5000,
-		timeout = 120.0,
-		max_loops_no_progress = 20,
-		#loop_finished_callback = debug_cb,
-		#loop_finished_callback = simpleprinter,
+	#display(F)
+	# Flatten the start_pairs array since each element is already a solution set
+	flattened_start_pairs = length(start_pairs) > 0 ? vcat(start_pairs...) : Vector{eltype(start_pairs)}()
+	result = HomotopyContinuation.monodromy_solve(F, flattened_start_pairs, param_final,
+		show_progress = false,
+		target_solutions_count = 10000,
+		timeout = 300.0,
+		max_loops_no_progress = 100,
 		unique_points_rtol = 1e-6,
 		unique_points_atol = 1e-6,
+		trace_test = true,
+		trace_test_tol = 1e-10,
+		min_solutions = 100000,
 		tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
 
 
-	#println("results")
-	#display(F)
-	#display(result)
-	#display(HomotopyContinuation.real_solutions(result))
+	#display(HomotopyContinuation.solutions(result))
 	solns = HomotopyContinuation.solutions(result)
 	complex_flag = false
 	#if isempty(solns)
@@ -114,7 +120,6 @@ function solveJSwithMonodromy(poly_system, varlist)
 		return ([], [], [], [])
 	end
 
-	#display(solns)
 	return solns, hcvarlist
 
 
@@ -135,10 +140,10 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 
 	# println("\n=== Starting solveJSwithHC ===")
 	# println("Original varlist ordering: ", input_varlist)
-	
+
 	# Store original ordering
 	original_order = Dict(v => i for (i, v) in enumerate(input_varlist))
-	
+
 	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
 	# println("After substitutions:")
 	# println("Varlist: ", varlist)
@@ -147,19 +152,27 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
 	# println("After squarifying:")
 	# println("Varlist: ", varlist)
-	
+
 	# Preserve original ordering after squarifying
-	varlist = sort(varlist, by=v -> get(original_order, v, length(input_varlist) + 1))
-	
+	varlist = sort(varlist, by = v -> get(original_order, v, length(input_varlist) + 1))
+
 	jsvarlist = deepcopy(varlist)
 	solns = []
 	hcvarlist = []
-	if (use_monodromy)
-		#println("using monodromy, line 917")
+
+
+	# Calculate total degree of the system
+	total_degree = 1
+	for poly in poly_system
+		total_degree *= Symbolics.degree(poly)
+	end
+	println("total degree: ", total_degree)
+
+	if (total_degree > 200 && use_monodromy)
+		println("using monodromy, line 917")
 		solns, hcvarlist = solveJSwithMonodromy(poly_system, varlist)
-
+		return solns, hcvarlist, trivial_dict, jsvarlist
 	else
-
 		mangled_varlist = deepcopy(varlist)
 		manglingDict = OrderedDict()
 
@@ -201,27 +214,25 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 		HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 		F = HomotopyContinuation.System(parsed, variables = hcvarlist)
 		#println("system we are solving (line 428)")
-		result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
+		result = HomotopyContinuation.solve(F, show_progress = false;) #only_nonsingular = false
 
-
-		#println("results")
-		#display(F)
-		#display(result)
-		#display(HomotopyContinuation.real_solutions(result))
-		solns = HomotopyContinuation.real_solutions(result)
+		# Get unique real solutions with appropriate tolerance
+		solns = solutions(result, only_real = true, real_tol = 1e-4)
 		complex_flag = false
+
+		# If no real solutions found, try complex ones
 		if isempty(solns)
-			solns = solutions(result, only_nonsingular = false)
+			solns = solutions(result, only_nonsingular = false, tol = 1e-4)
 			complexflag = true
 		end
-	end
 
-	if (isempty(solns))
-		display("No solutions, failed.")
-		return ([], [], [], [])
+		if (isempty(solns))
+			display("No solutions, failed.")
+			return ([], [], [], [])
+		end
+		display(solns)
+		return solns, hcvarlist, trivial_dict, jsvarlist
 	end
-    display(solns)
-	return solns, hcvarlist, trivial_dict, jsvarlist
 end
 
 
@@ -286,7 +297,7 @@ function discarded_solveJSwithHC(input_poly_system, input_varlist)  #the input h
 	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist)
 	#println("system we are solving (line 428)")
-	result = HomotopyContinuation.solve(F, show_progress = true;) #only_nonsingular = false
+	result = HomotopyContinuation.solve(F, show_progress = false;) #only_nonsingular = false
 
 
 	#println("results")

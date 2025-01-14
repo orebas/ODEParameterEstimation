@@ -1,0 +1,26 @@
+[model]
+name = "sum_test"
+states = [
+    { name = "x1", initial_value = 2.0, estimate = true },
+    { name = "x2", initial_value = 3.0, estimate = true },
+    { name = "x3", initial_value = 4.0, estimate = true },
+]
+parameters = [
+    { name = "a", value = 0.1, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.2, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "c", value = 0.3, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+    "x1' = -a*x1",
+    "x2' = b*x2",
+    "x3' = c*(x1 + x2)",
+]
+observables = [
+    { name = "obs_y1", formula = "x3", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 1.0e-9
+output_dir = "petab_sum_test"
+blind = true

@@ -1,0 +1,62 @@
+Variable specs: ["x1(t)", "x2(t)", "x3(t)", "a13", "a31", "a21", "a12", "a01", "y1(t)", "y2(t)"]
+temp: Num[x1(t), x2(t), x3(t), a13, a31, a21, a12, a01, y1(t), y2(t)]
+Processing formula: x1
+expr: x1(t)
+Processing formula: x2
+expr: x2(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("a12" => 0.167, "a21" => 0.5, "a13" => 0.333, "a01" => 0.833, "a31" => 0.667), "initial_conditions" => Dict{String, Any}("x1" => 0.25, "x2" => 0.5, "x3" => 0.75))
+
+Looking for parameter: a12
+
+Looking for parameter: a21
+
+Looking for parameter: a13
+
+Looking for parameter: a01
+
+Looking for parameter: a31
+
+Looking for state: x1
+
+Looking for state: x2
+
+Looking for state: x3
+Starting model: petab_DAISY_mamil3
+total degree: 1024
+using monodromy, line 917
+
+=== Model: petab_DAISY_mamil3 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.000168):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.250000 |   0.250008 |   0.000032
+x2(t)        |   0.500000 |   0.506398 |   0.012796
+x3(t)        |   0.750000 |  -0.258128 |   1.344171
+a13          |   0.333000 | -51.596086 | 155.943201
+a31          |   0.667000 |  53.945148 |  79.877284
+a21          |   0.500000 |   0.051121 |   0.897757
+a12          |   0.167000 |  -0.000607 |   1.003635
+a01          |   0.833000 |  -0.058351 |   1.070049
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   0.250000 |   0.250003 |   0.000012
+x2(t)        |   0.500000 |   0.499976 |   0.000048
+x3(t)        |   0.750000 |   0.694793 |   0.073609
+a13          |   0.333000 |   0.354459 |   0.064442
+a31          |   0.667000 |   0.697784 |   0.046152
+a21          |   0.500000 |   0.501623 |   0.003245
+a12          |   0.167000 |   0.167606 |   0.003628
+a01          |   0.833000 |   0.787967 |   0.054061
+
+Best maximum relative error for petab_DAISY_mamil3 (excluding ALL unidentifiable parameters): 0.073609
+Analysis complete for petab_DAISY_mamil3

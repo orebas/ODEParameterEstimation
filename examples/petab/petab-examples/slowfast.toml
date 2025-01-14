@@ -1,0 +1,28 @@
+[model]
+name = "slowfast"
+states = [
+    { name = "xA", initial_value = 0.166, estimate = true },
+    { name = "xB", initial_value = 0.333, estimate = true },
+    { name = "xC", initial_value = 0.5, estimate = true },
+    { name = "eA", initial_value = 0.666, estimate = true },
+    { name = "eC", initial_value = 0.833, estimate = true },
+]
+parameters = [
+    { name = "k1", value = 0.25, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k2", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "eB", value = 0.75, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "xC", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "eB*xB + xA*eA + xC*eC", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y3", formula = "eA", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y4", formula = "eC", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_slowfast"
+blind = true

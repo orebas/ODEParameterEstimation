@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created by libAntimony version v2.15.0 with libSBML version 5.20.2. -->
+<sbml xmlns="http://www.sbml.org/sbml/level3/version2/core" level="3" version="2">
+  <model metaid="feedback" id="feedback">
+    <listOfCompartments>
+      <compartment sboTerm="SBO:0000410" id="default_compartment" spatialDimensions="3" size="1" constant="true"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species id="N" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="E" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="S" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="M" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+      <species id="P" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter id="init_N" value="1" constant="true"/>
+      <parameter id="init_E" value="1" constant="true"/>
+      <parameter id="init_S" value="1" constant="true"/>
+      <parameter id="init_M" value="1" constant="true"/>
+      <parameter id="init_P" value="1" constant="true"/>
+      <parameter id="mu_N" value="1" constant="true"/>
+      <parameter id="mu_EE" value="1" constant="true"/>
+      <parameter id="mu_LE" value="1" constant="true"/>
+      <parameter id="mu_LL" value="1" constant="true"/>
+      <parameter id="mu_M" value="1" constant="true"/>
+      <parameter id="mu_P" value="1" constant="true"/>
+      <parameter id="mu_PE" value="1" constant="true"/>
+      <parameter id="mu_PL" value="1" constant="true"/>
+      <parameter id="delta_NE" value="1" constant="true"/>
+      <parameter id="delta_EL" value="1" constant="true"/>
+      <parameter id="delta_LM" value="1" constant="true"/>
+      <parameter id="rho_E" value="1" constant="true"/>
+      <parameter id="rho_P" value="1" constant="true"/>
+      <parameter id="obs_y1" constant="false"/>
+      <parameter id="obs_y2" constant="false"/>
+      <parameter id="obs_y3" constant="false"/>
+      <parameter id="obs_y4" constant="false"/>
+    </listOfParameters>
+    <listOfInitialAssignments>
+      <initialAssignment symbol="N">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_N </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="E">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_E </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="S">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_S </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="M">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_M </ci>
+        </math>
+      </initialAssignment>
+      <initialAssignment symbol="P">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> init_P </ci>
+        </math>
+      </initialAssignment>
+    </listOfInitialAssignments>
+    <listOfRules>
+      <rateRule variable="N">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <minus/>
+            <apply>
+              <times/>
+              <apply>
+                <minus/>
+                <ci> mu_N </ci>
+              </apply>
+              <ci> N </ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci> delta_NE </ci>
+              <ci> N </ci>
+              <ci> P </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="E">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <plus/>
+            <apply>
+              <minus/>
+              <apply>
+                <plus/>
+                <apply>
+                  <times/>
+                  <apply>
+                    <minus/>
+                    <ci> delta_EL </ci>
+                  </apply>
+                  <ci> E </ci>
+                </apply>
+                <apply>
+                  <times/>
+                  <ci> delta_NE </ci>
+                  <ci> N </ci>
+                  <ci> P </ci>
+                </apply>
+              </apply>
+              <apply>
+                <times/>
+                <ci> mu_EE </ci>
+                <ci> E </ci>
+                <ci> E </ci>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci> rho_E </ci>
+              <ci> E </ci>
+              <ci> P </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="S">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <minus/>
+            <apply>
+              <minus/>
+              <apply>
+                <minus/>
+                <apply>
+                  <times/>
+                  <ci> delta_EL </ci>
+                  <ci> S </ci>
+                </apply>
+                <apply>
+                  <times/>
+                  <ci> delta_LM </ci>
+                  <ci> S </ci>
+                </apply>
+              </apply>
+              <apply>
+                <times/>
+                <ci> mu_LE </ci>
+                <ci> E </ci>
+                <ci> S </ci>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci> mu_LL </ci>
+              <ci> S </ci>
+              <ci> S </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="M">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <minus/>
+            <apply>
+              <times/>
+              <ci> delta_LM </ci>
+              <ci> S </ci>
+            </apply>
+            <apply>
+              <times/>
+              <ci> mu_M </ci>
+              <ci> M </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <rateRule variable="P">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <plus/>
+            <apply>
+              <minus/>
+              <apply>
+                <minus/>
+                <apply>
+                  <times/>
+                  <apply>
+                    <minus/>
+                    <ci> mu_P </ci>
+                  </apply>
+                  <ci> P </ci>
+                </apply>
+                <apply>
+                  <times/>
+                  <ci> mu_PE </ci>
+                  <ci> E </ci>
+                  <ci> P </ci>
+                </apply>
+              </apply>
+              <apply>
+                <times/>
+                <ci> mu_PL </ci>
+                <ci> S </ci>
+                <ci> P </ci>
+              </apply>
+            </apply>
+            <apply>
+              <times/>
+              <ci> rho_P </ci>
+              <ci> P </ci>
+              <ci> P </ci>
+            </apply>
+          </apply>
+        </math>
+      </rateRule>
+      <assignmentRule variable="obs_y1">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> N </ci>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y2">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> E </ci>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y3">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <apply>
+            <plus/>
+            <ci> S </ci>
+            <ci> M </ci>
+          </apply>
+        </math>
+      </assignmentRule>
+      <assignmentRule variable="obs_y4">
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+          <ci> P </ci>
+        </math>
+      </assignmentRule>
+    </listOfRules>
+  </model>
+</sbml>

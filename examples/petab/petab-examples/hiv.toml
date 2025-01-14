@@ -1,0 +1,35 @@
+[model]
+name = "hiv"
+states = [
+    { name = "x", initial_value = 0.167, estimate = true },
+    { name = "y", initial_value = 0.333, estimate = true },
+    { name = "v", initial_value = 0.5, estimate = true },
+    { name = "w", initial_value = 0.667, estimate = true },
+    { name = "z", initial_value = 0.833, estimate = true },
+]
+parameters = [
+    { name = "lm", value = 0.091, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "d", value = 0.181, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "beta", value = 0.273, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "a", value = 0.364, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "k", value = 0.455, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "u", value = 0.545, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "c", value = 0.636, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "q", value = 0.727, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.818, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "h", value = 0.909, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "w", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "z", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y3", formula = "x", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y4", formula = "v + y", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_hiv"
+blind = true

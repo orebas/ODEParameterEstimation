@@ -1,0 +1,27 @@
+Variable specs: ["x1(t)", "a", "y1(t)"]
+temp: Num[x1(t), a, y1(t)]
+Processing formula: x1*x1*x1
+expr: x1(t)^3
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("a" => 0.1), "initial_conditions" => Dict{String, Any}("x1" => 2.0))
+
+Looking for parameter: a
+
+Looking for state: x1
+Starting model: petab_onesp_cubed
+total degree: 18
+
+=== Model: petab_onesp_cubed ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+
+Best maximum relative error for petab_onesp_cubed (excluding ALL unidentifiable parameters): 0.0
+Analysis complete for petab_onesp_cubed

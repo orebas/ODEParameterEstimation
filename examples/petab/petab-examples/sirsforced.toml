@@ -1,0 +1,29 @@
+[model]
+name = "sirsforced"
+states = [
+    { name = "i", initial_value = 0.167, estimate = true },
+    { name = "r", initial_value = 0.333, estimate = true },
+    { name = "s", initial_value = 0.5, estimate = true },
+    { name = "x1", initial_value = 0.667, estimate = true },
+    { name = "x2", initial_value = 0.833, estimate = true },
+]
+parameters = [
+    { name = "b0", value = 0.143, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b1", value = 0.286, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "g", value = 0.429, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "M", value = 0.571, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu", value = 0.714, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "nu", value = 0.857, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "i", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "r", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_sirsforced"
+blind = true

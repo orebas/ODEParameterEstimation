@@ -1,0 +1,38 @@
+[model]
+name = "Crauste"
+states = [
+    { name = "N", initial_value = 0.167, estimate = true },
+    { name = "E", initial_value = 0.333, estimate = true },
+    { name = "S", initial_value = 0.5, estimate = true },
+    { name = "M", initial_value = 0.667, estimate = true },
+    { name = "P", initial_value = 0.833, estimate = true },
+]
+parameters = [
+    { name = "mu_N", value = 0.071, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_EE", value = 0.143, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_LE", value = 0.214, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_LL", value = 0.286, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_M", value = 0.357, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_P", value = 0.429, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_PE", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "mu_PL", value = 0.571, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "delta_NE", value = 0.643, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "delta_EL", value = 0.714, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "delta_LM", value = 0.786, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "rho_E", value = 0.857, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "rho_P", value = 0.929, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "N", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "E", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y3", formula = "S + M", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y4", formula = "P", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_Crauste"
+blind = true

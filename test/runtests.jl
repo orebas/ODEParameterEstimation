@@ -604,8 +604,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		res3 = ODEPEtestwrapper(PEP.model, PEP.measured_quantities,
 			PEP.data_sample,
 			PEP.solver)
-		display("res3")
-		display(res3)
 		besterror = 1e30
 		res3 = sort(res3, by = x -> x.err)
 		display("How close are we?")
@@ -613,10 +611,8 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		display(all_params)
 
 		for each in res3
-
 			estimates = vcat(collect(values(each.states)), collect(values(each.parameters)))
 			if (each.err < 100)  #TODO: magic number
-
 				display(estimates)
 				println("Error: ", each.err)
 			end

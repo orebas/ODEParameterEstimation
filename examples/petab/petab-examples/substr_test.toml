@@ -1,0 +1,25 @@
+[model]
+name = "substr_test"
+states = [
+    { name = "x1", initial_value = 2.0, estimate = true },
+    { name = "x2", initial_value = 3.0, estimate = true },
+    { name = "x3", initial_value = 4.0, estimate = true },
+]
+parameters = [
+    { name = "a", value = 0.1, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.2, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "beta", value = 0.3, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "x2", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y3", formula = "x3", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_substr_test"
+blind = true

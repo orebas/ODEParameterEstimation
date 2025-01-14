@@ -1,0 +1,35 @@
+Variable specs: ["x1(t)", "x2(t)", "a", "b", "y1(t)", "y2(t)"]
+temp: Num[x1(t), x2(t), a, b, y1(t), y2(t)]
+Processing formula: 2.0*x1 + 0.5*x2
+expr: 2x1(t) + 0.5x2(t)
+Processing formula: 3.0*x1 - 0.25*x2
+expr: 3x1(t) - 0.25x2(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("b" => 0.8, "a" => 0.4), "initial_conditions" => Dict{String, Any}("x1" => 1.0, "x2" => 2.0))
+
+Looking for parameter: b
+
+Looking for parameter: a
+
+Looking for state: x1
+
+Looking for state: x2
+Starting model: petab_simple_linear_combination
+total degree: 16
+
+=== Model: petab_simple_linear_combination ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   1.000000 |   1.000000 |   0.000000
+x2(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+Best maximum relative error for petab_simple_linear_combination (excluding ALL unidentifiable parameters): 0.0
+Analysis complete for petab_simple_linear_combination

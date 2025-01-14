@@ -1,0 +1,54 @@
+Variable specs: ["x1(t)", "x2(t)", "x3(t)", "c", "a", "b", "y1(t)"]
+temp: Num[x1(t), x2(t), x3(t), c, a, b, y1(t)]
+Processing formula: x3
+expr: x3(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("c" => 0.3, "b" => 0.2, "a" => 0.1), "initial_conditions" => Dict{String, Any}("x1" => 2.0, "x2" => 3.0, "x3" => 4.0))
+
+Looking for parameter: c
+
+Looking for parameter: b
+
+Looking for parameter: a
+
+Looking for state: x1
+
+Looking for state: x2
+
+Looking for state: x3
+Starting model: petab_sum_test
+total degree: 256
+using monodromy, line 917
+
+=== Model: petab_sum_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x1(t)
+  • x2(t)
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • c = 0.044459
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.088561):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x1(t)        |   2.000000 |  -0.001592 |   1.000796
+x2(t)        |   3.000000 |   9.947426 |   2.315809
+x3(t)        |   4.000000 |   4.000098 |   0.000024
+c            |   0.300000 |   0.150677 |   0.497745
+a            |   0.100000 |  -7.699889 |  77.998886
+b            |   0.200000 |   0.089671 |   0.551647
+
+Best maximum relative error for petab_sum_test (excluding ALL unidentifiable parameters): 37.499443
+Analysis complete for petab_sum_test

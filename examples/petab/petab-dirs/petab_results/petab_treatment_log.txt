@@ -1,0 +1,143 @@
+Variable specs: ["In(t)", "N(t)", "S(t)", "Tr(t)", "a", "nu", "d", "g", "b", "y1(t)", "y2(t)"]
+temp: Num[In(t), N(t), S(t), Tr(t), a, nu, d, g, b, y1(t), y2(t)]
+Processing formula: Tr
+expr: Tr(t)
+Processing formula: N
+expr: N(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("nu" => 0.833, "g" => 0.667, "b" => 0.333, "a" => 0.167, "d" => 0.5), "initial_conditions" => Dict{String, Any}("S" => 0.6, "N" => 0.4, "Tr" => 0.8, "In" => 0.2))
+
+Looking for parameter: nu
+
+Looking for parameter: g
+
+Looking for parameter: b
+
+Looking for parameter: a
+
+Looking for parameter: d
+
+Looking for state: S
+
+Looking for state: N
+
+Looking for state: Tr
+
+Looking for state: In
+Starting model: petab_treatment
+total degree: 15116544
+using monodromy, line 917
+
+=== Model: petab_treatment ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • S(t)
+  • d
+  • g
+  • b
+  • In(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.794353
+
+
+Found 6 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.123743):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 | -649228345128114.125000 | 3246141725640571.500000
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 | 649228345127603.625000 | 1082047241879338.375000
+Tr(t)        |   0.800000 |  -6.992443 |   9.740554
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 | 328.856510 | 393.785727
+d            |   0.500000 | 883.569419 | 1766.138839
+g            |   0.667000 |  -0.370963 |   1.556166
+b            |   0.333000 |  -0.561510 |   2.686218
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.12369):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 | 724961645795.710327 | 3624808228977.551758
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 | -724961645788.135498 | 1208269409647.892578
+Tr(t)        |   0.800000 |  -6.989167 |   9.736459
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 |   0.368489 |   0.557636
+d            |   0.500000 |   0.002185 |   0.995631
+g            |   0.667000 | 328.117059 | 490.929623
+b            |   0.333000 | 496.656982 | 1490.462409
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.114801):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 | 484175481688.701660 | 2420877408442.508301
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 | -484175481681.647339 | 806959136137.078857
+Tr(t)        |   0.800000 |  -6.428503 |   9.035628
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 |   0.837232 |   0.005081
+d            |   0.500000 |  -0.001496 |   1.002991
+g            |   0.667000 | 461.235749 | 690.507870
+b            |   0.333000 | 752.741422 | 2259.484752
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.11473):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 | 2242049551518084.000000 | 11210247757590418.000000
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 | -2242049551515126.500000 | 3736749252525212.000000
+Tr(t)        |   0.800000 |  -6.423973 |   9.029967
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 | 461.975200 | 553.592077
+d            |   0.500000 | -4723.084133 | 9447.168266
+g            |   0.667000 |   0.097781 |   0.853402
+b            |   0.333000 |   0.159580 |   0.520782
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 2.0e-5):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 |  -1.171264 |   6.856319
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 |   0.000002 |   0.999997
+Tr(t)        |   0.800000 |   0.799874 |   0.000157
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 |   1.265503 |   0.519211
+d            |   0.500000 |   1.594766 |   2.189532
+g            |   0.667000 |  -0.410831 |   1.615939
+b            |   0.333000 | -219.475471 | 660.085499
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 2.0e-5):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+In(t)        |   0.200000 |  -0.509829 |   3.549146
+N(t)         |   0.400000 |   0.400000 |   0.000000
+S(t)         |   0.600000 |  -0.000001 |   1.000002
+Tr(t)        |   0.800000 |   0.799874 |   0.000157
+a            |   0.167000 |   0.739451 |   3.427853
+nu           |   0.833000 |   0.328620 |   0.605498
+d            |   0.500000 |   0.535505 |   0.071009
+g            |   0.667000 |   0.526051 |   0.211318
+b            |   0.333000 | 281.028637 | 842.929842
+
+Best maximum relative error for petab_treatment (excluding ALL unidentifiable parameters): 0.519211
+Analysis complete for petab_treatment

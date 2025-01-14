@@ -1,0 +1,94 @@
+Variable specs: ["xA(t)", "xB(t)", "xC(t)", "eA(t)", "eC(t)", "k2", "k1", "eB", "y1(t)", "y2(t)", "y3(t)", "y4(t)"]
+temp: Num[xA(t), xB(t), xC(t), eA(t), eC(t), k2, k1, eB, y1(t), y2(t), y3(t), y4(t)]
+Processing formula: xC
+expr: xC(t)
+Processing formula: eB*xB + xA*eA + xC*eC
+expr: eB*xB(t) + xA(t)*eA(t) + xC(t)*eC(t)
+Processing formula: eA
+expr: eA(t)
+Processing formula: eC
+expr: eC(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("eB" => 0.75, "k1" => 0.25, "k2" => 0.5), "initial_conditions" => Dict{String, Any}("eA" => 0.666, "xC" => 0.5, "eC" => 0.833, "xB" => 0.333, "xA" => 0.166))
+
+Looking for parameter: eB
+
+Looking for parameter: k1
+
+Looking for parameter: k2
+
+Looking for state: eA
+
+Looking for state: xC
+
+Looking for state: eC
+
+Looking for state: xB
+
+Looking for state: xA
+Starting model: petab_slowfast
+total degree: 131072
+using monodromy, line 917
+
+=== Model: petab_slowfast ===
+
+Found 4 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.003181):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+xA(t)        |   0.166000 |   0.703826 |   3.239917
+xB(t)        |   0.333000 |  -0.104091 |   1.312586
+xC(t)        |   0.500000 |   0.500001 |   0.000001
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.764101 |   0.082712
+k2           |   0.500000 |  -1.599211 |   4.198422
+k1           |   0.250000 |   0.290749 |   0.162995
+eB           |   0.750000 |   0.691477 |   0.078031
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.003181):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+xA(t)        |   0.166000 |   0.027197 |   0.836160
+xB(t)        |   0.333000 |   0.572536 |   0.719329
+xC(t)        |   0.500000 |   0.500001 |   0.000001
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.764102 |   0.082711
+k2           |   0.500000 |   0.290747 |   0.418505
+k1           |   0.250000 |  -1.599453 |   7.397814
+eB           |   0.750000 |   0.661369 |   0.118175
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.000792):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+xA(t)        |   0.166000 |  -0.053150 |   1.320178
+xB(t)        |   0.333000 |   0.526443 |   0.580911
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.851040 |   0.021657
+k2           |   0.500000 |   0.316272 |   0.367456
+k1           |   0.250000 |   0.583721 |   1.334886
+eB           |   0.750000 |   0.734365 |   0.020846
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.000792):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+xA(t)        |   0.166000 |   0.188056 |   0.132869
+xB(t)        |   0.333000 |   0.285238 |   0.143431
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.851040 |   0.021657
+k2           |   0.500000 |   0.583721 |   0.167443
+k1           |   0.250000 |   0.316272 |   0.265088
+eB           |   0.750000 |   0.792177 |   0.056236
+
+Best maximum relative error for petab_slowfast (excluding ALL unidentifiable parameters): 0.265088
+Analysis complete for petab_slowfast

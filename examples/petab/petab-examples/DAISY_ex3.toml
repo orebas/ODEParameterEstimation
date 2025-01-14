@@ -1,0 +1,27 @@
+[model]
+name = "DAISY_ex3"
+states = [
+    { name = "x1", initial_value = 0.2, estimate = true },
+    { name = "x2", initial_value = 0.4, estimate = true },
+    { name = "x3", initial_value = 0.6, estimate = true },
+    { name = "u0", initial_value = 0.8, estimate = true },
+]
+parameters = [
+    { name = "p1", value = 0.167, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "p3", value = 0.333, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "p4", value = 0.5, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "p6", value = 0.667, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "p7", value = 0.833, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+]
+observables = [
+    { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
+    { name = "obs_y2", formula = "u0", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 1.0]
+n_timepoints = 21
+noise_level = 0.0001
+output_dir = "petab_DAISY_ex3"
+blind = true
