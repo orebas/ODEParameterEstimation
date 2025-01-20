@@ -15,6 +15,10 @@ using DelimitedFiles
 using DataFrames
 using CSV
 using Printf
+using GaussianProcesses
+using Statistics
+using Optim, LineSearches  # for Nelder-Mead, remove this later maybe
+using Plots
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
@@ -37,6 +41,7 @@ Struct to store the results of parameter estimation.
 - `report_time::Any`: Time at which the result is reported
 - `unident_dict::Union{Nothing, AbstractDict}`: Dictionary of unidentifiable parameters and their values
 - `all_unidentifiable::Set{Any}`: Set of all parameters detected as unidentifiable during analysis
+- `solution::Union{Nothing, Any}`: The ODE solution (optional)
 """
 mutable struct ParameterEstimationResult
 	parameters::AbstractDict
@@ -46,9 +51,36 @@ mutable struct ParameterEstimationResult
 	return_code::Any
 	datasize::Int64
 	report_time::Any
-	unident_dict::Union{Nothing, AbstractDict}
+	unident_dict::Any
 	all_unidentifiable::Set{Any}
+	solution::Union{Nothing, Any}
 end
+
+# Single constructor with type conversion and default values
+#function ParameterEstimationResult(
+#	parameters::AbstractDict,
+#	states::AbstractDict,
+#	at_time::Float64,
+#	err::Union{Nothing, Float64},
+#	return_code::Any,
+#	datasize::Int64,
+#	report_time::Any,
+#	unident_dict::Union{Nothing, Dict, AbstractDict} = nothing,
+#	all_unidentifiable::Set{Any} = Set{Any}(),
+#	solution::Union{Nothing, Any} = nothing,
+#)
+# Convert Dict to AbstractDict if needed
+#	processed_dict = if unident_dict isa Dict
+#		convert(AbstractDict, unident_dict)
+#	else
+# unident_dict
+#	end
+#
+#	ParameterEstimationResult(
+#		parameters, states, at_time, err, return_code,
+#		datasize, report_time, processed_dict, all_unidentifiable, solution,
+#	)
+#end
 
 """
 	DerivativeData
@@ -346,9 +378,13 @@ Perform local identifiability analysis at multiple points.
 - Tuple containing derivative levels, unidentifiable dictionary, variable list, and DerivativeData object
 """
 function multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
+	#println("\nDEBUG [multipoint_local_identifiability_analysis]: Starting analysis...")
+	#println("DEBUG [multipoint_local_identifiability_analysis]: System: ", model)
+	#println("DEBUG [multipoint_local_identifiability_analysis]: Measured quantities: ", measured_quantities)
 
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
+	#println("DEBUG [multipoint_local_identifiability_analysis]: Initial varlist: ", varlist)
 
 	states_count = length(model_states)
 	ps_count = length(model_ps)
@@ -380,7 +416,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 	n = max(n, 3)
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 	unident_dict = Dict()
-
+	#println("DEBUG [multipoint_local_identifiability_analysis]: Initial unident_dict: ", unident_dict)
 
 	jac = nothing
 	evaluated_jac = nothing
@@ -389,6 +425,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 
 	all_identified = false
 	while (!all_identified)
+		#println("\nDEBUG [multipoint_local_identifiability_analysis]: Starting iteration with unident_dict: ", unident_dict)
 		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
 			parameter_values, points_ics, ordered_test_points[1]))
 		ns = nullspace(evaluated_jac)
@@ -401,7 +438,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 					push!(unident_set, varlist[i])
 				end
 			end
-			#println("After making the following substitutions:", unident_dict, " the following are globally unidentifiable:",	keys(candidate_plugins_for_unidentified))
+			#println("DEBUG [multipoint_local_identifiability_analysis]: Found candidates: ", candidate_plugins_for_unidentified)
 			if (!isempty(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
@@ -411,6 +448,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 					delete!(parameter_values, p.first)
 				end
 				unident_dict[p.first] = p.second
+				#println("DEBUG [multipoint_local_identifiability_analysis]: Updated unident_dict: ", unident_dict)
 			else
 				all_identified = true
 			end
@@ -419,7 +457,11 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 		end
 	end
 
-	#println("Finally, the following substitutions will be made:", unident_dict)
+	#println("\nDEBUG [multipoint_local_identifiability_analysis]: Final results:")
+	#println("DEBUG [multipoint_local_identifiability_analysis]: deriv_level: ", deriv_level)
+	#println("DEBUG [multipoint_local_identifiability_analysis]: unident_dict: ", unident_dict)
+	#println("DEBUG [multipoint_local_identifiability_analysis]: varlist: ", varlist)
+	#println("DEBUG [multipoint_local_identifiability_analysis]: unident_set: ", unident_set)
 
 	max_rank = rank(evaluated_jac, rtol = rtol)
 	maxn = n
@@ -693,7 +735,7 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 # Returns
 - Vector of result vectors
 """
-function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = false, max_num_points = 2)
+function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 4)
 	t = ModelingToolkit.get_iv(model)
 	eqns = ModelingToolkit.equations(model)
 	states = ModelingToolkit.unknowns(model)
@@ -707,19 +749,30 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 
 	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
 		[[] for _ in 1:7]
-
+	good_DD = nothing
+	println("\nDEBUG [MPHCPE]: Starting parameter estimation...")
 	while (!found_any_solutions)
 		good_num_points = good_num_points - 1
+		println("DEBUG [MPHCPE]: Analyzing identifiability with ", large_num_points, " points")
 		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
+		#	println("DEBUG [MPHCPE]: Target unidentifiable dict: ", target_udict)
+		#	println("DEBUG [MPHCPE]: Target varlist: ", target_varlist)
+
 		while (good_num_points > 1)
 			good_num_points = good_num_points - 1
+			#		println("DEBUG [MPHCPE]: Testing with ", good_num_points, " points")
 			(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+			#		print("DEBUG [MPHCPE]: Test unidentifiable dict: ", test_udict)
 			if !(test_deriv_level == target_deriv_level)
 				good_num_points = good_num_points + 1
 				break
 			end
 		end
+
+		println("DEBUG [MPHCPE]: Final analysis with ", good_num_points, " points")
 		(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+		println("DEBUG [MPHCPE]: Final unidentifiable dict: ", good_udict)
+		println("DEBUG [MPHCPE]: Final varlist: ", good_varlist)
 
 		time_index_set = pick_points(t_vector, good_num_points)
 		if (display_points)
@@ -730,9 +783,13 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 
 		@variables testing
+		#	print("\nDEBUG [MPHCPE]: Before equation system construction")
+		#	print("DEBUG [MPHCPE]: good_udict = ", good_udict)
 		for k in time_index_set
+			#	print("\nDEBUG [MPHCPE]: Constructing equation system for time point ", k)
 			(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
-
+			#print("DEBUG [MPHCPE]: After construct_equation_system for point ", k)
+			#print("DEBUG [MPHCPE]: varlist_k = ", varlist_k)
 
 			local_subst_dict = OrderedDict{Num, Any}()
 			local_subst_dict_reverse = OrderedDict()
@@ -785,78 +842,132 @@ function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; 
 		end
 	end
 
+	# Create a new ODESystem with the same equations and variables
 	@named new_model = ODESystem(eqns, t, states, params)
 	new_model = complete(new_model)
 	lowest_time_index = min(time_index_set...)
 
-	results_vec = []
-	local_states_dict_all = []
+	results_vec = []  # Will store all solution results
+
+	# Process each solution found by the system solver
 	for soln_index in eachindex(solns)
+		# Initialize arrays for initial conditions and parameters with placeholder values
 		initial_conditions = [1e10 for s in states]
 		parameter_values = [1e10 for p in params]
+
+		# Process parameters first
+		#	println("\nDEBUG [MPHCPE]: Processing parameters...")
+		#	println("DEBUG [MPHCPE]: Original parameter order: ", params)
+		#	println("DEBUG [MPHCPE]: Parameter values before lookup: ", parameter_values)
 		for i in eachindex(params)
 			if params[i] in keys(good_udict)
+				# If parameter is in unidentifiable dictionary, use that value
+				#println("DEBUG [MPHCPE]: Parameter ", params[i], " found in unidentifiable dict with value ", good_udict[params[i]])
 				parameter_values[i] = good_udict[params[i]]
 			else
-
+				# Look up the parameter in the substitution dictionary
 				param_search = forward_subst_dict[1][(params[i])]
+				#		println("DEBUG [MPHCPE]: Parameter lookup for ", params[i])
+				#		println("DEBUG [MPHCPE]: After substitution: ", param_search)
+				#		println("DEBUG [MPHCPE]: Trivial dict keys: ", keys(trivial_dict))
 				if (param_search in keys(trivial_dict))
+					# If it's a trivial parameter, use the value from trivial dictionary
+					#			println("DEBUG [MPHCPE]: Found in trivial_dict with value: ", trivial_dict[param_search])
 					parameter_values[i] = trivial_dict[param_search]
 				else
+					# Otherwise find its value in the solver solution
 					index = findfirst(isequal(param_search), final_varlist)
-					parameter_values[i] = real(solns[soln_index][index]) #TODOdo we ignore the imaginary part?
-				end
-			end                                                   #what about other vars
-		end
-
-		for i in eachindex(states)
-			if states[i] in keys(good_udict)
-				initial_conditions[i] = good_udict[states[i]]
-
-			else
-				model_state_search = forward_subst_dict[1][(states[i])]
-
-				if (model_state_search in keys(trivial_dict))
-					initial_conditions[i] = trivial_dict[model_state_search]
-					#					display(trivial_dict[model_state_search])
-
-				else
-					index = findfirst(
-						isequal(model_state_search),
-						trimmed_varlist)
-					initial_conditions[i] = real(solns[soln_index][index]) #see above
+					if isnothing(index)
+						# If not found in final_varlist, try trimmed_varlist
+						index = findfirst(isequal(param_search), trimmed_varlist)
+					end
+					#			println("DEBUG [MPHCPE]: Found in solver solution at index ", index, " with value ", real(solns[soln_index][index]))
+					parameter_values[i] = real(solns[soln_index][index])  # TODO: Consider complex parts?
 				end
 			end
 		end
+		#		println("DEBUG [MPHCPE]: Parameter values after lookup: ", parameter_values)
 
+		# Similar process for initial conditions of states
+		for i in eachindex(states)
+			if states[i] in keys(good_udict)
+				# If state is in unidentifiable dictionary, use that value
+				initial_conditions[i] = good_udict[states[i]]
+			else
+				# Look up the state in the substitution dictionary
+				model_state_search = forward_subst_dict[1][(states[i])]
+				#			println("DEBUG: State lookup for ", states[i])
+				#			println("DEBUG: After substitution: ", model_state_search)
+				#			println("DEBUG: Trivial dict keys: ", keys(trivial_dict))
+
+				if (model_state_search in keys(trivial_dict))
+					# If it's a trivial state, use the value from trivial dictionary
+					#				println("DEBUG: Found in trivial_dict with value: ", trivial_dict[model_state_search])
+					initial_conditions[i] = trivial_dict[model_state_search]
+				else
+					# Otherwise find its value in the solver solution
+					index = findfirst(
+						isequal(model_state_search),
+						trimmed_varlist)
+					initial_conditions[i] = real(solns[soln_index][index])  # TODO: Consider complex parts?
+				end
+			end
+		end
+		# Convert initial conditions to complex numbers, then to real if possible
 		initial_conditions = Base.convert(Array{ComplexF64, 1}, initial_conditions)
 		if (isreal(initial_conditions))
 			initial_conditions = Base.convert(Array{Float64, 1}, initial_conditions)
 		end
 
-
+		# Same conversion process for parameter values
 		parameter_values = Base.convert(Array{ComplexF64, 1}, parameter_values)
 		if (isreal(parameter_values))
 			parameter_values = Base.convert(Array{Float64, 1}, parameter_values)
 		end
-		tspan = (t_vector[lowest_time_index], t_vector[1])  #this is backwards
 
-		new_model = complete(new_model)
-		prob = ODEProblem(new_model, initial_conditions, tspan, Dict(ModelingToolkit.parameters(new_model) .=> parameter_values))
+		# Note: tspan is backwards intentionally
+		tspan = (t_vector[lowest_time_index], t_vector[1])
+
+		# Create and solve the ODE problem
+		new_model = complete(new_model)  # TODO: This line seems redundant as model was completed above
+		ic_dict = Dict(states .=> initial_conditions)
+		#	println("DEBUG [MPHCPE]: Solving ODE with initial conditions: ", ic_dict)
+		#	println("DEBUG [MPHCPE]: Original parameters: ", params)
+		#	println("DEBUG [MPHCPE]: Parameter values: ", parameter_values)
+
+		# Get parameters in the correct order from the model
+		ordered_params = [parameter_values[i] for i in eachindex(params)]
+		ordered_ic = [initial_conditions[i] for i in eachindex(states)]
+
+		prob = ODEProblem(new_model, ordered_ic, tspan, ordered_params)
 
 		ode_solution = ModelingToolkit.solve(prob, ode_solver, abstol = 1e-14, reltol = 1e-14)
 
+		# Create mapping from state variables to their names without "(t)"
 		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
 								for x in ModelingToolkit.unknowns(model)))
+
+		# Extract final state values from the ODE solution
 		newstates = OrderedDict()
 		for s in states
 			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
 		end
+
+		#		println("DEBUG [MPHCPE]: Original parameter order: ", params)
+		#		println("DEBUG [MPHCPE]: Parameter values order: ", parameter_values)
+		#		println("DEBUG [MPHCPE]: State values order: ", collect(values(newstates)))
+
+		# Store the combined state and parameter values
 		push!(results_vec, [collect(values(newstates)); parameter_values])
+		#		println("just pushed", last(results_vec))
 	end
 
-	return results_vec
 
+	# Create a tuple containing:
+	# 1. The vector of solutions
+	# 2. The unidentifiable parameters dictionary
+	# 3. The trivially solvable variables dictionary
+	return (results_vec, good_udict, trivial_dict, good_DD.all_unidentifiable)
 
 end
 
@@ -867,6 +978,7 @@ end
 export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, diag_solveJSwithHC
 export ParameterEstimationProblem, analyze_parameter_estimation_problem, fillPEP
 export OrderedODESystem, create_ordered_ode_system, sample_problem_data, analyze_estimation_result, save_to_toml
+export calculate_observable_derivatives, nth_deriv_at, aaad
 
 #later, disable output of the compile_workload
 #=

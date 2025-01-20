@@ -1,0 +1,485 @@
+using ODEParameterEstimation
+using PEtab
+using Statistics
+using Plots
+using ModelingToolkit
+using ModelingToolkit: t_nounits as t, D_nounits as D
+using DataFrames
+using OrderedCollections
+using OrdinaryDiffEq
+using GaussianProcesses
+using Loess
+using BaryRational
+using Printf
+using Dierckx
+
+
+
+
+#include("../all_examples.jl")
+
+
+#below copied from all_examples.jl
+
+function lv_periodic()
+	parameters = @parameters a b c d
+	states = @variables x1(t) x2(t)
+	observables = @variables y1(t) y2(t)
+	p_true = [1.5, 0.9, 3.0, 0.8]
+	ic_true = [2.0, 0.5]
+
+	equations = [
+		D(x1) ~ a * x1 - b * x1 * x2,
+		D(x2) ~ -c * x2 + d * x1 * x2,
+	]
+	measured_quantities = [y1 ~ x1, y2 ~ x2]
+
+	model, mq = create_ordered_ode_system("lv_periodic", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"lv_periodic",
+		model,
+		mq,
+		nothing,
+		[0.0, 10.0],
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+
+
+"""
+	generate_comparison_datasets(example_func, petab_dir; 
+							   datasize=1001, 
+							   time_interval=[0.0, 5.0], 
+							   relative_noise=0.01)
+
+Generate three datasets for comparison:
+1. Clean data from Julia simulation
+2. Data with relative noise
+3. PEtab data
+
+Also computes true derivatives for the clean data.
+
+Returns a tuple containing:
+- clean: OrderedDict with clean data
+- noisy: OrderedDict with noisy data
+- petab: OrderedDict with PEtab data
+- derivatives: OrderedDict with true derivatives
+"""
+function generate_comparison_datasets(example_func, petab_dir;
+	datasize,
+	time_interval,
+	relative_noise, nderivs = 5, tolerance = 1e-14)
+	# Get original problem
+	pep = example_func()
+
+	# Calculate derivatives symbolically
+	expanded_mq, obs_derivs = calculate_observable_derivatives(equations(pep.model.system),
+		pep.measured_quantities, nderivs)  # Get up to 2nd derivatives
+
+	# Create new ODESystem with derivative observables
+	@named new_sys = ODESystem(equations(pep.model.system), t; observed = expanded_mq)
+
+	# Create and solve ODE problem with derivatives
+	prob = ODEProblem(structural_simplify(new_sys), pep.ic, (time_interval[1], time_interval[2]), pep.p_true)
+	sol = solve(prob, Vern9(), abstol = tolerance, reltol = tolerance, saveat = range(time_interval[1], time_interval[2], length = datasize))
+
+	# 1. Generate clean data with derivatives
+	clean_data = OrderedDict{Any, Vector{Float64}}()
+	clean_data["t"] = sol.t
+
+	# Store original observables and create mapping from observable to its key
+	obs_to_key = Dict()  # Store mapping of observable to its key in clean_data
+	for mq in pep.measured_quantities
+		key = Num(mq.rhs)
+		clean_data[key] = sol[mq.lhs]
+		obs_to_key[mq.lhs] = key
+	end
+
+	# Store derivatives in a separate dictionary
+	derivatives = OrderedDict{Any, Vector{Float64}}()
+	derivatives["t"] = sol.t
+	# Store derivatives up to nderivs for each observable
+	for i in 1:length(pep.measured_quantities)
+		obs_key = obs_to_key[pep.measured_quantities[i].lhs]
+		# Store each derivative order
+		for d in 1:nderivs
+			derivatives["d$(d)_$obs_key"] = sol[obs_derivs[i, d]]
+		end
+	end
+
+	# 2. Generate data with relative noise
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+	for (key, values) in clean_data
+		if key == "t"
+			noisy_data[key] = values  # Keep time points as is
+		else
+			# Add relative noise: noise level is proportional to signal magnitude
+			noise = relative_noise .* values .* randn(length(values))
+			noisy_data[key] = values + noise
+		end
+	end
+
+	petab_data = nothing
+	# 3. Get PEtab data
+	if (!isnothing(petab_dir))
+		yaml_file = joinpath(petab_dir, "problem.yaml")
+		petab_model = PEtabModel(yaml_file)
+		meas_df = petab_model.petab_tables[:measurements]
+
+		# Convert PEtab data to same format as other datasets
+		petab_data = OrderedDict{Any, Vector{Float64}}()
+		petab_data["t"] = sort(unique(meas_df.time))
+		# For each observable in the problem
+		for mq in pep.measured_quantities
+			obs_name = string(mq.lhs)
+			obs_name = replace(obs_name, "(t)" => "")
+			obs_id = "obs_$obs_name"
+
+			# Initialize array for this observable's measurements
+			obs_values = Vector{Float64}(undef, length(petab_data["t"]))
+
+			# Fill in measurements
+			for (i, t) in enumerate(petab_data["t"])
+				measurements = meas_df[meas_df.time.==t.&&meas_df.observableId.==obs_id, :measurement]
+				obs_values[i] = isempty(measurements) ? NaN : mean(measurements)
+			end
+
+			petab_data[Num(mq.rhs)] = obs_values
+		end
+	end
+
+
+	return (clean = clean_data, noisy = noisy_data, petab = petab_data, derivatives = derivatives)
+end
+
+"""
+	evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measured_quantities)
+
+Evaluate different approximation methods on the datasets.
+Returns a dictionary of results for each method, including:
+- Function approximation
+- First through fifth derivatives
+- Error metrics for each
+"""
+function evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measured_quantities)
+	# Initialize with explicit types
+	results = Dict{Any, Dict{String, Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}}}()
+
+	# Helper function to compute error metrics
+	function compute_errors(pred, true_data)
+		rmse = sqrt(mean((pred .- true_data) .^ 2))
+		mae = mean(abs.(pred .- true_data))
+		max_err = maximum(abs.(pred .- true_data))
+		return (rmse = rmse, mae = mae, max_error = max_err)
+	end
+
+	# For each observable
+	for (i, mq) in enumerate(measured_quantities)
+		key = Num(mq.rhs)
+		if key == "t"
+			continue
+		end
+
+		results[key] = Dict{String, Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}}()
+		t = datasets.clean["t"]
+		#		println("DEBUG")
+		#		display(datasets.noisy)
+		y = datasets.noisy[key]  # Use noisy data for fitting
+
+		# 2. LOESS
+		model_lowess_rough = loess(collect(t), y, span = 0.2)
+		#		lowess_func_rough = x -> model_lowess_rough([x])[1]
+		lowess_func = aaad(t, Loess.predict(model_lowess_rough, t))
+
+		# Evaluate function and derivatives
+		pred_y = [lowess_func(x) for x in t_eval]
+		preds = Dict{String, Vector{Float64}}("y" => pred_y)
+		for d in 1:5
+			preds["d$d"] = [nth_deriv_at(lowess_func, d, x) for x in t_eval]
+		end
+
+		results[key]["LOESS"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+			"y" => preds["y"],
+			"d1" => preds["d1"],
+			"d2" => preds["d2"],
+			"d3" => preds["d3"],
+			"d4" => preds["d4"],
+			"d5" => preds["d5"],
+		)
+
+		# 1. Gaussian Process Regression
+		try
+			kernel = SEIso(log(std(t) / 8), 0.0)
+			gp = GP(t, y, MeanZero(), kernel, -2.0)
+			optimize!(gp)
+
+			# Create callable function
+			gpr_func = x -> begin
+				pred, _ = predict_y(gp, [x])
+				return pred[1]
+			end
+
+			# Evaluate function and derivatives
+			pred_y = [gpr_func(x) for x in t_eval]
+			preds = Dict{String, Vector{Float64}}("y" => pred_y)
+			for d in 1:5
+				preds["d$d"] = [nth_deriv_at(gpr_func, d, x) for x in t_eval]
+			end
+
+			results[key]["GPR"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+				"y" => preds["y"],
+				"d1" => preds["d1"],
+				"d2" => preds["d2"],
+				"d3" => preds["d3"],
+				"d4" => preds["d4"],
+				"d5" => preds["d5"],
+			)
+		catch e
+			@warn "GPR failed for $key" exception = e
+		end
+
+		# 3. AAA
+		try
+			# Use aaad from bary_derivs.jl
+			aaa_func = aaad(t, y)
+
+			# Evaluate function and derivatives
+			pred_y = [aaa_func(x) for x in t_eval]
+			preds = Dict{String, Vector{Float64}}("y" => pred_y)
+			for d in 1:5
+				preds["d$d"] = [nth_deriv_at(aaa_func, d, x) for x in t_eval]
+			end
+
+			results[key]["AAA"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+				"y" => preds["y"],
+				"d1" => preds["d1"],
+				"d2" => preds["d2"],
+				"d3" => preds["d3"],
+				"d4" => preds["d4"],
+				"d5" => preds["d5"],
+			)
+		catch e
+			@warn "AAA failed for $key" exception = e
+		end
+
+		# 4. B-Splines (5th order using Dierckx)
+		try
+			# Calculate reasonable smoothing parameter based on noise level
+			n = length(t)
+			mean_y = mean(abs.(y))
+			noise_level = 0.01  # 1% noise
+			s = n * (noise_level * mean_y)^2  # Expected sum of squared residuals
+
+			# Create 5th order spline interpolation (k=5)
+			spl = Spline1D(t, y; k = 5, s = s)  # Smoothing based on noise level
+
+			# Create callable function that matches our interface
+			spline_func = x -> evaluate(spl, x)
+
+			# Evaluate function and derivatives
+			pred_y = [spline_func(x) for x in t_eval]
+			preds = Dict{String, Vector{Float64}}("y" => pred_y)
+
+			# Use Dierckx's built-in derivative function for better accuracy
+			for d in 1:5
+				preds["d$d"] = [derivative(spl, x, nu = d) for x in t_eval]
+			end
+
+			results[key]["Dierckx5"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+				"y" => preds["y"],
+				"d1" => preds["d1"],
+				"d2" => preds["d2"],
+				"d3" => preds["d3"],
+				"d4" => preds["d4"],
+				"d5" => preds["d5"],
+			)
+		catch e
+			@warn "Dierckx spline failed for $key" exception = e
+		end
+
+		# 5. Savitzky-Golay filtering
+		#try
+		# Parameters for SG filter
+		#window_length = 21  # Must be odd
+		#poly_order = 5     # Must be less than window_length
+
+		# Create SG filter constructor for reuse
+		#sgfilter = SGolay(window_length, poly_order)
+
+		# Get filtered data and derivatives
+		#dt = t[2] - t[1]  # Time step for scaling derivatives
+		#preds = Dict{String, Vector{Float64}}()
+
+		# Original function (0th derivative)
+		#sg_result = sgfilter(y)
+		#preds["y"] = sg_result.y
+
+		# Higher derivatives (need to account for time scaling)
+		#for d in 1:5
+		# Create filter for each derivative order
+		#	sg_deriv = SGolay(window_length, poly_order, d, 1 / dt)  # Include rate=1/dt for proper scaling
+		#	sg_result = sg_deriv(y)
+		#	preds["d$d"] = sg_result.y
+		#end
+
+		#results[key]["SavGol"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+		#	"y" => preds["y"],
+		#	"d1" => preds["d1"],
+		#	"d2" => preds["d2"],
+		#	"d3" => preds["d3"],
+		#	"d4" => preds["d4"],
+		#	"d5" => preds["d5"],
+		#)
+		#catch e
+		#	@warn "Savitzky-Golay filtering failed for $key" exception = e
+		#end
+
+		# Calculate error metrics for each method
+		for (method, preds) in results[key]
+			# Get true values directly from the solution
+			error_dict = Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}()
+
+			# Function value errors
+			error_dict["y"] = compute_errors(preds["y"], sol(t_eval, idxs = mq.lhs))
+
+			# Derivative errors
+			for d in 1:5
+				error_dict["d$d"] = compute_errors(preds["d$d"], sol(t_eval, idxs = obs_derivs[i, d]))
+			end
+
+			results[key][method]["errors"] = error_dict
+		end
+	end
+
+	return results
+end
+
+"""
+	print_summary_statistics(results, datasets)
+
+Print comprehensive summary statistics for each observable and its derivatives.
+Includes data characteristics and error metrics for each approximation method.
+"""
+function print_summary_statistics(approx_results, datasets)
+	for (obs_key, methods) in approx_results
+		println("\n================================================================")
+		println("OBSERVABLE: $obs_key")
+		println("----------------------------------------------------------------")
+
+		# Data characteristics for this observable
+		true_vals = datasets.clean[obs_key]
+		println("Data Characteristics:")
+		println("  Mean:           $(round(mean(true_vals), digits=6))")
+		println("  Median:         $(round(median(true_vals), digits=6))")
+		println("  Std Deviation:  $(round(std(true_vals), digits=6))")
+		println("  Range:          [$(round(minimum(true_vals), digits=6)), $(round(maximum(true_vals), digits=6))]")
+		println("  Time span:      [$(minimum(datasets.clean["t"])), $(maximum(datasets.clean["t"]))]")
+		println("  Number of points: $(length(true_vals))")
+
+		# Function value and derivatives analysis
+		for d in 0:5
+			d_key = d == 0 ? "y" : "d$d"
+			println("\n$(d == 0 ? "ORIGINAL FUNCTION" : "$(d)$(d==1 ? "ST" : d==2 ? "ND" : d==3 ? "RD" : "TH") DERIVATIVE")")
+
+			# Get true values for this derivative level
+			true_deriv = if d == 0
+				datasets.clean[obs_key]
+			else
+				datasets.derivatives["d$(d)_$obs_key"]
+			end
+
+			# Print characteristics of the derivative
+			println("  Derivative Characteristics:")
+			println("    Mean:          $(round(mean(true_deriv), digits=6))")
+			println("    Range:         [$(round(minimum(true_deriv), digits=6)), $(round(maximum(true_deriv), digits=6))]")
+			println("    Std Deviation: $(round(std(true_deriv), digits=6))")
+
+			# Method comparison
+			println("\n  Method Performance:")
+			println("    Method      |    MAE     |  Max Error |    RMSE   ")
+			println("    -----------|------------|------------|------------")
+
+			# Sort methods by RMSE for easier comparison
+			sorted_methods = sort(collect(keys(methods)),
+				by = m -> methods[m]["errors"][d_key].rmse)
+
+			for method in sorted_methods
+				errors = methods[method]["errors"][d_key]
+				@printf("    %-10s | %10.2e | %10.2e | %10.2e\n",
+					method,
+					errors.mae,
+					errors.max_error,
+					errors.rmse)
+			end
+		end
+		println("\n================================================================")
+	end
+end
+
+
+datasize = 1001
+time_interval = [0.0, 5.0]
+relative_noise = 0.05
+#petab_dir = "petab_lv_periodic"
+petab_dir = nothing
+# Test the approximation methods
+datasets = generate_comparison_datasets(lv_periodic, petab_dir, datasize = datasize, time_interval = time_interval, relative_noise = relative_noise)  # Set noise to 0
+
+t_eval = range(minimum(datasets.clean["t"]), maximum(datasets.clean["t"]), length = datasize)
+
+# Get the solution and derivatives from generate_comparison_datasets
+pep = lv_periodic()
+expanded_mq, obs_derivs = calculate_observable_derivatives(equations(pep.model.system), pep.measured_quantities, 5)
+@named new_sys = ODESystem(equations(pep.model.system), t; observed = expanded_mq)
+prob = ODEProblem(structural_simplify(new_sys), pep.ic, (minimum(t_eval), maximum(t_eval)), pep.p_true)
+sol = solve(prob, Tsit5(), saveat = t_eval)
+
+approx_results = evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, pep.measured_quantities)
+
+# Print summary statistics
+print_summary_statistics(approx_results, datasets)
+
+# Plot comparison of methods
+observables = [key for (key, values) in datasets.clean if key != "t"]
+n_obs = length(observables)
+# Create one large plot grid for all observables
+p = plot(layout = (n_obs, 6), size = (2400, 400 * n_obs))
+
+# Colors for different methods
+colors = [:red, :blue, :green, :purple]
+
+for (obs_idx, key) in enumerate(observables)
+	# Original data and fits
+	plot!(p[obs_idx, 1], datasets.clean["t"], datasets.clean[key],
+		label = "True", title = "$(key) Data Fits")
+	scatter!(p[obs_idx, 1], datasets.clean["t"], datasets.noisy[key],
+		label = "Noisy", markersize = 2)
+
+	# All five derivatives
+	for d in 1:5
+		plot!(p[obs_idx, d+1], datasets.clean["t"], datasets.derivatives["d$(d)_$key"],
+			label = "True", title = "$(key) $(d)$(d==1 ? "st" : d==2 ? "nd" : d==3 ? "rd" : "th") Derivative")
+	end
+
+	# Plot each method except AAA
+	for (i, (method, color)) in enumerate(zip(keys(approx_results[key]), colors))
+		if method != "AAA"
+			res = approx_results[key][method]
+
+			# Data fits
+			plot!(p[obs_idx, 1], t_eval, res["y"], label = method, color = color)
+
+			# All derivatives
+			for d in 1:5
+				plot!(p[obs_idx, d+1], t_eval, res["d$d"], label = method, color = color)
+			end
+		end
+	end
+end
+
+display(p)

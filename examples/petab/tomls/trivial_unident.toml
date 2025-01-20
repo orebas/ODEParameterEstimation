@@ -1,0 +1,21 @@
+[model]
+name = "trivial_unident"
+states = [
+    { name = "x1", initial_value = 2.0, estimate = true },
+]
+parameters = [
+    { name = "a", value = 0.6, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+    { name = "b", value = 0.6, bounds = [-1.0e6, 1.0e6], scale = "lin" },
+]
+equations = [
+    "x1' = (a + b)*x1",
+]
+observables = [
+    { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
+]
+[simulation]
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
+output_dir = "petab_trivial_unident"
+blind = true

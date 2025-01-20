@@ -21,25 +21,14 @@ function sample_data(model::ModelingToolkit.ODESystem,
 	else
 		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
 	end
-	problem = ODEProblem(ModelingToolkit.complete(model), u0, time_interval, p_true)
+	# Get parameters in the correct order from the model
+	ordered_params = [p_true[p] for p in ModelingToolkit.parameters(model)]
+	ordered_u0 = [u0[s] for s in ModelingToolkit.unknowns(model)]
+
+	problem = ODEProblem(ModelingToolkit.complete(model), ordered_u0, time_interval, ordered_params)
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)
-
-	#println("\nDEBUG: Solution Info:")
-	#println("Type of solution_true: ", typeof(solution_true))
-	#println("\nFirst timepoint solution:")
-	#display(solution_true(sampling_times[1]))
-	#println("\nSolution keys:")
-	#display(keys(solution_true))   #this gives an error, keys is not defined on the solution object
-	#println("\nMeasured data equations:")
-	#for v in measured_data
-	#	println("\nEquation: ", v)
-	#	println("RHS: ", v.rhs)
-	#	println("RHS type: ", typeof(v.rhs))
-	#	println("Num(RHS): ", Num(v.rhs))
-	#	println("Solution value at first timepoint: ", solution_true[Num(v.rhs)][1])
-	#end
 
 	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
 											  for v in measured_data)

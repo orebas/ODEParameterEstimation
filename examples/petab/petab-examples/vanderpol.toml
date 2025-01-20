@@ -9,14 +9,16 @@ parameters = [
     { name = "b", value = 0.8, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "x1' = a*x2",
+    "x2' = -x1 - b*(-1 + x1*x1)*x2",
 ]
 observables = [
     { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
     { name = "obs_y2", formula = "x2", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_vanderpol"
 blind = true

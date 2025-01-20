@@ -15,34 +15,86 @@ Looking for state: V
 
 Looking for state: R
 Starting model: petab_fitzhugh-nagumo
-total degree: 512
-using monodromy, line 917
+
+DEBUG [ODEPEtestwrapper]: Calling MPHCPE...
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+
+DEBUG [MPHCPE]: Constructing equation system for time point 149LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(52)
+total degree: 128
+DEBUG [ODEPEtestwrapper]: Got 2 results from MPHCPE
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t149_V_t_ => 0.8188011539444728, _t149_Vˍtttt_t_ => 568.1879252768122, _t149_Vˍtt_t_ => 3.789480109282181, _t149_Vˍt_t_ => 1.6073939019899424, _t149_Vˍttt_t_ => 7.593761636147974)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
 
 === Model: petab_fitzhugh-nagumo ===
 
 Found 2 distinct solution clusters:
 
 Cluster 1: 1 similar solutions
-Best solution (Error: 0.000901):
+Best solution (Error: 1.0e15):
 --------------------------------------------------
 Variable      | True Value  | Estimated   | Rel. Error
 --------------------------------------------------
-V(t)         |   0.333000 |   0.337528 |   0.013598
-R(t)         |   0.670000 |  -0.490690 |   1.732373
-a            |   0.500000 |   1.320224 |   1.640449
-g            |   0.250000 |  -1.343719 |   6.374876
-b            |   0.750000 |  -3.367718 |   5.490290
+V(t)         |   0.333000 |   0.390922 |   0.173941
+R(t)         |   0.670000 |  -0.358048 |   1.534400
+a            |   0.500000 | -63.665111 | 128.330221
+g            |   0.250000 |   5.749961 |  21.999843
+b            |   0.750000 | 178.911396 | 237.548527
 
 Cluster 2: 1 similar solutions
-Best solution (Error: 0.0):
+Best solution (Error: 1.0e15):
 --------------------------------------------------
 Variable      | True Value  | Estimated   | Rel. Error
 --------------------------------------------------
-V(t)         |   0.333000 |   0.333000 |   0.000001
-R(t)         |   0.670000 |   0.670868 |   0.001295
-a            |   0.500000 |   0.500149 |   0.000298
-g            |   0.250000 |   0.249780 |   0.000879
-b            |   0.750000 |   0.749317 |   0.000911
+V(t)         |   0.333000 |   2.225345 |   5.682718
+R(t)         |   0.670000 |   1.604378 |   1.394594
+a            |   0.500000 | -40.495283 |  81.990565
+g            |   0.250000 | -13.086026 |  53.344105
+b            |   0.750000 |  40.324821 |  52.766428
 
-Best maximum relative error for petab_fitzhugh-nagumo (excluding ALL unidentifiable parameters): 0.001295
-Analysis complete for petab_fitzhugh-nagumo
+Best maximum relative error for petab_fitzhugh-nagumo (excluding ALL unidentifiable parameters): 81.990565
+
+DEBUG: Measured quantities:
+  Equation: y1(t) ~ V(t)
+  LHS: y1(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: V(t) (SymbolicUtils.BasicSymbolic{Real})
+
+DEBUG: Data sample keys:
+  V(t) (Num)
+  t (String)
+
+DEBUG: Processing observable:
+  obs_name: y1(t)
+  rhs: V(t)
+  rhs_str: V(t)
+  Found by RHS
+
+Observables Statistics:
+--------------------------------------------------
+Variable      | Mean        | Std         | Min         | Max         | Range       | Turns
+--------------------------------------------------
+y1(t)        |  39.413665 |  50.267766 |   0.274580 | 201.805958 | 201.531378 |        235
+
+Error Statistics for Best Solution:
+--------------------------------------------------
+
+Error Statistics by Observable:
+--------------------------------------------------
+Observable   | Error Type | Mean        | Std         | Min         | Max         | Range
+--------------------------------------------------

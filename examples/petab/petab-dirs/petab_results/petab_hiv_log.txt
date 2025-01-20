@@ -1,0 +1,276 @@
+Variable specs: ["x(t)", "y(t)", "v(t)", "w(t)", "z(t)", "d", "u", "lm", "q", "k", "b", "beta", "a", "h", "c", "y1(t)", "y2(t)", "y3(t)", "y4(t)"]
+temp: Num[x(t), y(t), v(t), w(t), z(t), d, u, lm, q, k, b, beta, a, h, c, y1(t), y2(t), y3(t), y4(t)]
+Processing formula: w
+expr: w(t)
+Processing formula: z
+expr: z(t)
+Processing formula: x
+expr: x(t)
+Processing formula: v + y
+expr: v(t) + y(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("beta" => 0.273, "c" => 0.636, "k" => 0.455, "b" => 0.818, "lm" => 0.091, "u" => 0.545, "q" => 0.727, "a" => 0.364, "h" => 0.909, "d" => 0.181), "initial_conditions" => Dict{String, Any}("v" => 0.5, "w" => 0.667, "x" => 0.167, "z" => 0.833, "y" => 0.333))
+
+Looking for parameter: beta
+
+Looking for parameter: c
+
+Looking for parameter: k
+
+Looking for parameter: b
+
+Looking for parameter: lm
+
+Looking for parameter: u
+
+Looking for parameter: q
+
+Looking for parameter: a
+
+Looking for parameter: h
+
+Looking for parameter: d
+
+Looking for state: v
+
+Looking for state: w
+
+Looking for state: x
+
+Looking for state: z
+
+Looking for state: y
+Starting model: petab_hiv
+
+DEBUG [ODEPEtestwrapper]: Calling MPHCPE...
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, c, d, u, q, k, h, b, beta, lm, x(t), y(t), v(t), w(t), z(t)]
+
+DEBUG [MPHCPE]: Constructing equation system for time point 620LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(30)
+LinearAlgebra.PosDefException(174)
+LinearAlgebra.PosDefException(348)
+LinearAlgebra.PosDefException(841)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+total degree: 93312
+using monodromy, line 917
+DEBUG [ODEPEtestwrapper]: Got 4 results from MPHCPE
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t620_zˍttt_t_ => -0.039738146846502787, _t620_w_t_ => 0.04229935908782861, _t620_xˍt_t_ => 0.026784631143382143, _t620_wˍtt_t_ => 0.024056290181473372, _t620_wˍt_t_ => -0.036314043459154566, _t620_zˍt_t_ => -0.05428694336295958, _t620_xˍtt_t_ => -0.002290660378719167, _t620_wˍttt_t_ => 2.8137618290074897, _t620_x_t_ => 0.26410429458653184, _t620_z_t_ => 0.0628288546073625, _t620_xˍttt_t_ => 0.0002318930346518755, _t620_zˍtt_t_ => 0.04621667324923351)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+=== Model: petab_hiv ===
+
+Found 3 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x(t)         |   0.167000 |   0.169192 |   0.013125
+y(t)         |   0.333000 |  -0.008685 |   1.026082
+v(t)         |   0.500000 |   0.849684 |   0.699367
+w(t)         |   0.667000 | 642896243836417239742117782636248591516816701421513999911637084828358113368502872261638795595198664027660564564580924887420570816579711140918518437122574154648865945482515991759608469264566608567944572676735085087406474546642944.000000 | 963862434537357141654451817251526301903740938656539282585218574415403608325464174126728457787363118495108269065756186450257256801406369291642447742436319744999722054555212576886254727123495014085695792081253493956687499072897024.000000
+z(t)         |   0.833000 | 457432118328855505891991996452028347275556206836561175229916837845526065433903088627467239990943584539442716124316292673769800226686172322170745424638364377694491260653272404403715889049355614333239303653933512646973252624711680.000000 | 549138197273536011577549703270322554527832017383576743873930404584381096927489354880786581096183499958239600529480913745330738367585506540403692264526002305294210924695225968396068634717832514248151898308902151219190196762312704.000000
+d            |   0.181000 |   0.125532 |   0.306453
+u            |   0.545000 |   0.278419 |   0.489140
+lm           |   0.091000 |   0.066961 |   0.264162
+q            |   0.727000 |  -4.980086 |   7.850188
+k            |   0.455000 |  -1.292024 |   3.839614
+b            |   0.818000 | 426.019935 | 519.806766
+beta         |   0.273000 |   0.071366 |   0.738586
+a            |   0.364000 |  -1.092818 |   4.002247
+h            |   0.909000 | -270.959399 | 299.085147
+c            |   0.636000 | -6607.081154 | 10389.492380
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x(t)         |   0.167000 |   4.407637 |  25.393036
+y(t)         |   0.333000 | 335372.780999 | 1007124.468464
+v(t)         |   0.500000 | 100057.774847 | 200114.549693
+w(t)         |   0.667000 |   0.000000 |   1.000000
+z(t)         |   0.833000 |   1.298666 |   0.559023
+d            |   0.181000 |  -0.035633 |   1.196868
+u            |   0.545000 |   0.227129 |   0.583249
+lm           |   0.091000 |   0.012397 |   0.863774
+q            |   0.727000 |  -0.000006 |   1.000009
+k            |   0.455000 |  -0.161500 |   1.354946
+b            |   0.818000 | -7151.944142 | 8744.207997
+beta         |   0.273000 |  -0.215809 |   1.790507
+a            |   0.364000 |   0.083900 |   0.769505
+h            |   0.909000 |   0.978571 |   0.076536
+c            |   0.636000 | -95172.281125 | 149642.951454
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+x(t)         |   0.167000 | -46540.799567 | 278688.422555
+y(t)         |   0.333000 |  31.673989 |  94.117085
+v(t)         |   0.500000 |   0.637638 |   0.275276
+w(t)         |   0.667000 | 14507172887271270292157057341890209637435846325733429536514692437804686590588524876278417590340353606470671856940853849023596556556575356352799707346959740429291078936934350531263824930661304711962038334314822493661850776647058252071069593128930300731993827506938613187172195148253344290735352501501952.000000 | 21749884388712546145923493292898134683625860314884604711905372521211914261912647835414009082484248239476523770530161455280425838307896604583917719606259931579644384342928013600351567167885486271576782582622797400458883606680888830491401714391352044081776164694145475295454183516527951862798465286275072.000000
+z(t)         |   0.833000 | 2117675923551981890472296893782653736791731304750789798811730422880928949434138673482376280302119141503755451192136047816485810735114409329105380185359623853672301551582279568875135487132978816663049119209178592272893544045567303250612486985252631118367399887039137162487585905376693032321024.000000 | 2542227999462163201651749645082843355852506146734890939875905768232232161455808611253835429926521511194361823741957311054967404548586169761169868655191595227239447610347326780428043210502924178474015302370930181682736164145898826700528960774885131462805412091520563361800738799191114052009984.000000
+d            |   0.181000 |   0.119149 |   0.341721
+u            |   0.545000 |   0.279838 |   0.486535
+lm           |   0.091000 |   0.064565 |   0.290500
+q            |   0.727000 |  -0.000006 |   1.000009
+k            |   0.455000 |  -0.526645 |   2.157460
+b            |   0.818000 | -7151.944142 | 8744.207997
+beta         |   0.273000 |   0.059907 |   0.780559
+a            |   0.364000 |  -0.131799 |   1.362085
+h            |   0.909000 |   0.978571 |   0.076536
+c            |   0.636000 | 1000496.386030 | 1573106.525204
+
+Best maximum relative error for petab_hiv (excluding ALL unidentifiable parameters): 1.007124468464e6
+
+DEBUG: Measured quantities:
+  Equation: y1(t) ~ w(t)
+  LHS: y1(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: w(t) (SymbolicUtils.BasicSymbolic{Real})
+  Equation: y2(t) ~ z(t)
+  LHS: y2(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: z(t) (SymbolicUtils.BasicSymbolic{Real})
+  Equation: y3(t) ~ x(t)
+  LHS: y3(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: x(t) (SymbolicUtils.BasicSymbolic{Real})
+  Equation: y4(t) ~ v(t) + y(t)
+  LHS: y4(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: v(t) + y(t) (SymbolicUtils.BasicSymbolic{Real})
+
+DEBUG: Data sample keys:
+  w(t) (Num)
+  z(t) (Num)
+  x(t) (Num)
+  v(t) + y(t) (Num)
+  t (String)
+
+DEBUG: Processing observable:
+  obs_name: y1(t)
+  rhs: w(t)
+  rhs_str: w(t)
+  Found by RHS
+
+DEBUG: Processing observable:
+  obs_name: y2(t)
+  rhs: z(t)
+  rhs_str: z(t)
+  Found by RHS
+
+DEBUG: Processing observable:
+  obs_name: y3(t)
+  rhs: x(t)
+  rhs_str: x(t)
+  Found by RHS
+
+DEBUG: Processing observable:
+  obs_name: y4(t)
+  rhs: v(t) + y(t)
+  rhs_str: v(t) + y(t)
+  Found by RHS
+
+Observables Statistics:
+--------------------------------------------------
+Variable      | Mean        | Std         | Min         | Max         | Range       | Turns
+--------------------------------------------------
+y1(t)        |   0.145876 |   0.165577 |   0.008361 |   0.667072 |   0.658711 |        245
+y2(t)        |   0.199801 |   0.214639 |   0.011834 |   0.833185 |   0.821351 |        251
+y3(t)        |   0.244965 |   0.041373 |   0.166806 |   0.311086 |   0.144280 |        584
+y4(t)        |   0.465781 |   0.171425 |   0.231679 |   0.833879 |   0.602200 |        374
+
+Error Statistics for Best Solution:
+--------------------------------------------------
+
+Error Statistics by Observable:
+--------------------------------------------------
+Observable   | Error Type | Mean        | Std         | Min         | Max         | Range
+--------------------------------------------------

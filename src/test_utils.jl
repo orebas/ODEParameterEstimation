@@ -14,9 +14,6 @@ end
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, showplot = true, run_ode_pe = true)
 	if run_ode_pe
 		println("Starting model: ", PEP.name)
-		#display(PEP.model)
-		#display(PEP.measured_quantities)
-		#display(PEP.data_sample)
 
 		res = ODEPEtestwrapper(
 			PEP.model,  # This is now an OrderedODESystem
@@ -32,9 +29,15 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 	end
 end
 
+function print_debug_info(prefix::String, unident_dict, all_unidentifiable, varlist)
+	#println("\nDEBUG [$prefix]: Getting unidentifiable parameters...")
+	#println("DEBUG [$prefix]: Initial unidentifiable parameters dict: ", unident_dict)
+	#println("DEBUG [$prefix]: Initial all unidentifiable parameters: ", all_unidentifiable)
+	#println("DEBUG [$prefix]: Initial varlist: ", varlist)
+end
 
 """
-	ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 4)
+	ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
 
 Wrapper function for testing ODE Parameter Estimation.
 
@@ -51,100 +54,47 @@ Wrapper function for testing ODE Parameter Estimation.
 # Returns
 - Vector of ParameterEstimationResult objects
 """
-function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 2)
-	# println("\nStarting ODEPEtestwrapper")
-
-	# Get original ordering from OrderedODESystem
-	original_states = model.original_states
-	original_parameters = model.original_parameters
-
+function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
 	# Get current ordering from ModelingToolkit
 	current_states = ModelingToolkit.unknowns(model.system)
 	current_params = ModelingToolkit.parameters(model.system)
-
-	# println("Original states ordering: ", original_states)
-	# println("Original parameters ordering: ", original_parameters)
-	# println("Current states ordering: ", current_states)
-	# println("Current parameters ordering: ", current_params)
-
-	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
 	# Create ordered dictionaries to preserve parameter order
 	param_dict = OrderedDict(current_params .=> ones(length(current_params)))
 	states_dict = OrderedDict(current_states .=> ones(length(current_states)))
 
-	# Get unidentifiable parameters information
-	(deriv_level, unident_dict, varlist, DD) = multipoint_local_identifiability_analysis(model.system, measured_quantities, max_num_points)
-
 	solved_res = []
-	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1], unident_dict, DD.all_unidentifiable)
+	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	results_vec = MPHCPE(model.system, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points)
+	# Create initial result object without unidentifiability info - MPHCPE will handle that
+	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1], Dict(), Set(), nothing)
 
-	for raw_sol in results_vec
-		# println("\nProcessing solution:")
-		# println("Raw solution vector: ", raw_sol)
+	#	println("\nDEBUG [ODEPEtestwrapper]: Calling MPHCPE...")
+	results_tuple = MPHCPE(model.system, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points)
+	results_vec, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+	#	println("DEBUG [ODEPEtestwrapper]: Got ", length(results_vec), " results from MPHCPE")
 
+	#	println("DEBUG [ODEPEtestwrapper]: Results vector: ", results_vec)
+	# Print unidentifiability information
+	println("\nUnidentifiability Analysis from MPHCPE:")
+	println("All unidentifiable variables: ", all_unidentifiable)
+	println("Unidentifiable variables substitution dictionary: ", unident_dict)
+	println("Trivially solvable variables: ", trivial_dict)
+
+	# Create initial result object with unidentifiability info
+	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1], unident_dict, all_unidentifiable, nothing)
+
+	# Process raw solutions
+	for (i, raw_sol) in enumerate(results_vec)
+		println("\nDEBUG [ODEPEtestwrapper]: Processing solution ", i)
 		push!(solved_res, deepcopy(newres))
 
-		# Create ordered collections for states and parameters
-		ordered_states = OrderedDict()
-		ordered_params = OrderedDict()
+		ordered_states, ordered_params, ode_solution, err = process_raw_solution(raw_sol, model, data_sample, ode_solver, abstol = abstol, reltol = reltol)
 
-		# Reorder states according to original ordering
-		for (i, state) in enumerate(original_states)
-			idx = findfirst(s -> isequal(s, state), current_states)
-			if isnothing(idx)
-				@warn "State $state not found in current states, using original index $i"
-				idx = i
-			end
-			ordered_states[state] = raw_sol[idx]
-		end
-
-		# Reorder parameters according to original ordering
-		for (i, param) in enumerate(original_parameters)
-			idx = findfirst(p -> isequal(p, param), current_params)
-			if isnothing(idx)
-				@warn "Parameter $param not found in current parameters, using original index $i"
-				idx = i
-			end
-			ordered_params[param] = raw_sol[length(current_states)+idx]
-		end
-
-		# Update result with ordered collections
+		# Update result with processed data
 		solved_res[end].states = ordered_states
 		solved_res[end].parameters = ordered_params
-
-		ic = collect(values(ordered_states))
-		ps = collect(values(ordered_params))
-
-
-		prob = ODEProblem(complete(model.system), ic, tspan, ps)
-		ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
-		#if @isdefined(Infiltrator)
-		#	@infiltrate
-		#end# Debug prints
-		#println("\nDEBUG: ODE Solution Info:")
-		#println("Available keys in solution: ", typeof(ode_solution(data_sample["t"])))
-		#println("\nDEBUG: Data Sample Info:")
-		#println("Keys in data_sample: ", keys(data_sample))
-
-		err = 0
-		if ode_solution.retcode == ReturnCode.Success
-			err = 0
-			for (key, sample) in data_sample
-				if isequal(key, "t")
-					continue
-				end
-				#		println("\nDEBUG: Processing key: ", key)
-				#		println("Type of key: ", typeof(key))
-				#				println("Available solution components: ", keys(ode_solution(data_sample["t"])))
-				err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
-			end
-			err /= length(data_sample)
-		else
-			err = 1e+15
-		end
+		solved_res[end].solution = ode_solution
 		solved_res[end].err = err
 	end
 	return solved_res
@@ -176,4 +126,92 @@ function reorder_solution(raw_sol::AbstractVector, model_states::AbstractVector,
 	end
 
 	return ordered_sol
+end
+
+function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode_solver; abstol = 1e-12, reltol = 1e-12)
+	# Create ordered collections for states and parameters
+	ordered_states = OrderedDict()
+	ordered_params = OrderedDict()
+
+	# Get current ordering from ModelingToolkit
+	current_states = ModelingToolkit.unknowns(model.system)
+	current_params = ModelingToolkit.parameters(model.system)
+
+	#	println("DEBUG [process_raw_solution]: Original parameter order: ", model.original_parameters)
+	#	println("DEBUG [process_raw_solution]: Current parameter order: ", current_params)
+	#	println("DEBUG [process_raw_solution]: Raw solution: ", raw_sol)
+
+	# Reorder states according to original ordering
+	for (i, state) in enumerate(model.original_states)
+		idx = findfirst(s -> isequal(s, state), current_states)
+		if isnothing(idx)
+			@warn "State $state not found in current states, using original index $i"
+			idx = i
+		end
+		ordered_states[state] = raw_sol[idx]
+	end
+
+	# Reorder parameters according to original ordering
+	param_offset = length(current_states)
+	#	println("DEBUG [process_raw_solution]: Parameter offset: ", param_offset)
+	for (i, param) in enumerate(model.original_parameters)
+		#		println("DEBUG [process_raw_solution]: Processing parameter $i: $param")
+		#		println("DEBUG [process_raw_solution]: Using index: ", param_offset + i)
+		ordered_params[param] = raw_sol[param_offset+i]
+		#		println("DEBUG [process_raw_solution]: Assigned value: ", ordered_params[param])
+	end
+
+
+
+
+
+
+
+	ic = collect(values(ordered_states))
+	ps = collect(values(ordered_params))
+
+	#	println("DEBUG [process_raw_solution]: Final ordered parameters: ", ordered_params)
+
+	# Solve ODE problem
+	tspan = (data_sample["t"][begin], data_sample["t"][end])
+
+	#	println("DEBUG [process_raw_solution]: Solving ODE with initial conditions: ", ic)
+	#	println("DEBUG [process_raw_solution]: Solving ODE with parameters: ", ps)
+	prob = ODEProblem(complete(model.system), ic, tspan, ps)
+	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+
+	# Calculate error
+	err = 0
+	if ode_solution.retcode == ReturnCode.Success
+		err = 0
+		for (key, sample) in data_sample
+			if isequal(key, "t")
+				continue
+			end
+			err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
+		end
+		err /= length(data_sample)
+	else
+		err = 1e+15
+	end
+
+
+	# Reorder parameters according to original ordering
+	param_offset = length(current_states)
+	#	println("DEBUG [process_raw_solution]: Parameter offset: ", param_offset)
+	for (i, param) in enumerate(model.original_parameters)
+		#		println("DEBUG [process_raw_solution]: Processing parameter $i: $param")
+		# Find the index of this parameter in the current parameters
+		idx = findfirst(p -> isequal(p, param), current_params)
+		if isnothing(idx)
+			@warn "Parameter $param not found in current parameters, using original index $i"
+			idx = i
+		end
+		#		println("DEBUG [process_raw_solution]: Found at index: ", idx)
+		ordered_params[param] = raw_sol[param_offset+idx]
+		#		println("DEBUG [process_raw_solution]: Assigned value: ", ordered_params[param])
+	end
+
+
+	return ordered_states, ordered_params, ode_solution, err
 end

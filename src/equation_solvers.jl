@@ -2,9 +2,36 @@ using DelimitedFiles
 
 
 
+########Below code is largely untested and hard to test.
+"""
+	add_random_linear_equation(F::System)
+
+Returns a new system which is F plus a random linear equation in F's variables.
+This tries to lower the dimension by 1, hopefully making the solution set finite.
+"""
+function add_random_linear_equation(F::HomotopyContinuation.System)
+
+	#println("DEBUG: Adding random linear equation to system")
+	#println("DEBUG: Original system:")
+	#display(F)
+
+	# Extract the variables we are solving for
+	vars = HomotopyContinuation.variables(F)  # e.g. [x, y, ...]
+	# Generate random coefficients and constant
+	coeffs = randn(length(vars))
+	c = randn()
+	# Build the linear expression a₁*x₁ + ... + aₙ*xₙ + c
+	eq = sum(coeffs[i] * vars[i] for i in 1:length(vars)) + c
+	# Append to the original system. Keep the same parameters, if any.
+	return HomotopyContinuation.System(
+		vcat(expressions(F), eq),
+		vars,
+		parameters = HomotopyContinuation.parameters(F),
+	)
+end
+
+
 function solveJSwithMonodromy(poly_system, varlist)
-	# println("\n=== Starting solveJSwithMonodromy ===")
-	# println("Input varlist: ", varlist)
 
 
 	#println("Input poly_system: ", poly_system)
@@ -12,14 +39,11 @@ function solveJSwithMonodromy(poly_system, varlist)
 	manglingDict = OrderedDict()
 	len = length(poly_system)
 
-	# Track variable mangling
-	# println("\nMangling variables:")
 	for i in eachindex(varlist)
 		newvarname = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
 		newvar = (@variables $newvarname)[1]
 		mangled_varlist[i] = newvar
 		manglingDict[Symbolics.unwrap(varlist[i])] = newvar
-		# println("$i: $(varlist[i]) -> $newvar")
 	end
 
 	for i in eachindex(poly_system)
@@ -62,20 +86,38 @@ function solveJSwithMonodromy(poly_system, varlist)
 	end
 	HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 	F = HomotopyContinuation.System(parsed, variables = hcvarlist, parameters = paramlist)
+	G = HomotopyContinuation.System(parsed, variables = hcvarlist, parameters = paramlist)
+
 	param_final = vcat(repeat([1.0], outer = len), repeat([0.0], outer = len))
 	pair_attempts = 0
 	max_attempts = 500
-	min_attempts = 50
+	min_attempts = 10
 	start_pairs = []
 
 	while (pair_attempts < max_attempts && (pair_attempts < min_attempts || isempty(start_pairs)))
 		testx, testp = HomotopyContinuation.find_start_pair(F)
 
-		newx = HomotopyContinuation.solve(F, testx, start_parameters = testp, target_parameters = param_final,
-			tracker_options = TrackerOptions(automatic_differentiation = 3))
+		try
+			newx = HomotopyContinuation.solve(G, testx, start_parameters = testp, target_parameters = param_final,
+				tracker_options = TrackerOptions(automatic_differentiation = 3))
 
-		if !isempty(solutions(newx))
-			push!(start_pairs, solutions(newx))
+			if !isempty(solutions(newx))
+				push!(start_pairs, solutions(newx))
+			end
+		catch e
+			if e isa FiniteException
+				@warn "Caught FiniteException. The solution set is positive-dimensional."
+				@warn "Attempting to reduce dimension by adding a random linear equation."
+
+				# ### ADDED / MODIFIED ###
+				# Build a random linear equation and form a new system
+				G = add_random_linear_equation(G)
+
+				# Now attempt to solve the *augmented* system
+			else
+				# If it's some other kind of error, rethrow
+				rethrow(e)
+			end
 		end
 
 		pair_attempts += 1
@@ -95,19 +137,31 @@ function solveJSwithMonodromy(poly_system, varlist)
 	#display(F)
 	# Flatten the start_pairs array since each element is already a solution set
 	flattened_start_pairs = length(start_pairs) > 0 ? vcat(start_pairs...) : Vector{eltype(start_pairs)}()
-	result = HomotopyContinuation.monodromy_solve(F, flattened_start_pairs, param_final,
-		show_progress = false,
-		target_solutions_count = 10000,
-		timeout = 300.0,
-		max_loops_no_progress = 100,
-		unique_points_rtol = 1e-6,
-		unique_points_atol = 1e-6,
-		trace_test = true,
-		trace_test_tol = 1e-10,
-		min_solutions = 100000,
-		tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
+	tryagain = true
+	result = nothing
+	while (tryagain)
+		try
+			begin
+				result = HomotopyContinuation.monodromy_solve(F, flattened_start_pairs, param_final,
+					show_progress = false,
+					target_solutions_count = 10000,
+					timeout = 300.0,
+					max_loops_no_progress = 100,
+					unique_points_rtol = 1e-6,
+					unique_points_atol = 1e-6,
+					trace_test = true,
+					trace_test_tol = 1e-10,
+					min_solutions = 100000,
+					tracker_options = TrackerOptions(automatic_differentiation = 3))#only_nonsingular = false  ,)
+				tryagain = false
+			end
+		catch e
+			println("Caught error: ", e)
+			println("Attempting to reduce dimension by adding a random linear equation.")
+			F = add_random_linear_equation(G)
 
-
+		end
+	end
 	#display(HomotopyContinuation.solutions(result))
 	solns = HomotopyContinuation.solutions(result)
 	complex_flag = false
@@ -168,7 +222,7 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 	end
 	println("total degree: ", total_degree)
 
-	if (total_degree > 200 && use_monodromy)
+	if (total_degree > 50 && use_monodromy)
 		println("using monodromy, line 917")
 		solns, hcvarlist = solveJSwithMonodromy(poly_system, varlist)
 		return solns, hcvarlist, trivial_dict, jsvarlist
@@ -213,8 +267,28 @@ function solveJSwithHC(input_poly_system, input_varlist, use_monodromy = true, d
 		parsed = eval.(Meta.parse.(string_target))
 		HomotopyContinuation.set_default_compile(:all)    #TODO test whether this helps or not
 		F = HomotopyContinuation.System(parsed, variables = hcvarlist)
-		#println("system we are solving (line 428)")
-		result = HomotopyContinuation.solve(F, show_progress = false;) #only_nonsingular = false
+		#println("system we are solving (line 428)") 
+
+		result = nothing
+		try
+			result = HomotopyContinuation.solve(F, show_progress = false) #only_nonsingular = false
+		catch e
+			if e isa FiniteException
+				@warn "Caught FiniteException. The solution set is positive-dimensional."
+				@warn "Attempting to reduce dimension by adding a random linear equation."
+
+				# ### ADDED / MODIFIED ###
+				# Build a random linear equation and form a new system
+				F_with_rand = add_random_linear_equation(F)
+
+				# Now attempt to solve the *augmented* system
+				result = HomotopyContinuation.solve(F_with_rand, show_progress = false)
+
+			else
+				# If it's some other kind of error, rethrow
+				rethrow(e)
+			end
+		end
 
 		# Get unique real solutions with appropriate tolerance
 		solns = solutions(result, only_real = true, real_tol = 1e-4)

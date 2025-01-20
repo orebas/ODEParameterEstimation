@@ -1,0 +1,1947 @@
+Variable specs: ["i(t)", "r(t)", "s(t)", "x1(t)", "x2(t)", "b1", "M", "b0", "nu", "g", "mu", "y1(t)", "y2(t)"]
+temp: Num[i(t), r(t), s(t), x1(t), x2(t), b1, M, b0, nu, g, mu, y1(t), y2(t)]
+Processing formula: i
+expr: i(t)
+Processing formula: r
+expr: r(t)
+
+Loaded true values: Dict{String, Any}("parameters" => Dict{String, Any}("nu" => 0.857, "g" => 0.429, "M" => 0.571, "b0" => 0.143, "mu" => 0.714, "b1" => 0.286), "initial_conditions" => Dict{String, Any}("x1" => 0.667, "x2" => 0.833, "r" => 0.333, "s" => 0.5, "i" => 0.167))
+
+Looking for parameter: nu
+
+Looking for parameter: g
+
+Looking for parameter: M
+
+Looking for parameter: b0
+
+Looking for parameter: mu
+
+Looking for parameter: b1
+
+Looking for state: x1
+
+Looking for state: x2
+
+Looking for state: r
+
+Looking for state: s
+
+Looking for state: i
+Starting model: petab_sirsforced
+
+DEBUG [ODEPEtestwrapper]: Calling MPHCPE...
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(b1 => 0.3032419264639947)
+DEBUG [MPHCPE]: Final varlist: Num[M, nu, g, mu, b0, i(t), r(t), s(t), x1(t), x2(t)]
+
+DEBUG [MPHCPE]: Constructing equation system for time point 102LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(67)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(119)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(32)
+total degree: 181398528
+using monodromy, line 917
+DEBUG [ODEPEtestwrapper]: Got 78 results from MPHCPE
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[b1, x1(t), x2(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(b1 => 0.3032419264639947)
+Trivially solvable variables: Dict{Any, Any}(_t102_iˍt_t_ => -0.1159557132746448, _t102_i_t_ => 0.07944095347635163, _t102_rˍt_t_ => -0.1882909727617461, _t102_rˍtt_t_ => 0.11510934862370092, _t102_iˍtt_t_ => 0.17192542497704788, _t102_iˍttt_t_ => -0.2648428743086555, _t102_iˍtttttt_t_ => 0.929476639139466, _t102_iˍtttt_t_ => 0.4329402871002799, _t102_r_t_ => 0.22434188354138598, _t102_iˍttttt_t_ => -0.7163173546964572)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+
+DEBUG [ODEPEtestwrapper]: Processing solution 10
+
+DEBUG [ODEPEtestwrapper]: Processing solution 11
+
+DEBUG [ODEPEtestwrapper]: Processing solution 12
+
+DEBUG [ODEPEtestwrapper]: Processing solution 13
+
+DEBUG [ODEPEtestwrapper]: Processing solution 14
+
+DEBUG [ODEPEtestwrapper]: Processing solution 15
+
+DEBUG [ODEPEtestwrapper]: Processing solution 16
+
+DEBUG [ODEPEtestwrapper]: Processing solution 17
+
+DEBUG [ODEPEtestwrapper]: Processing solution 18
+
+DEBUG [ODEPEtestwrapper]: Processing solution 19
+
+DEBUG [ODEPEtestwrapper]: Processing solution 20
+
+DEBUG [ODEPEtestwrapper]: Processing solution 21
+
+DEBUG [ODEPEtestwrapper]: Processing solution 22
+
+DEBUG [ODEPEtestwrapper]: Processing solution 23
+
+DEBUG [ODEPEtestwrapper]: Processing solution 24
+
+DEBUG [ODEPEtestwrapper]: Processing solution 25
+
+DEBUG [ODEPEtestwrapper]: Processing solution 26
+
+DEBUG [ODEPEtestwrapper]: Processing solution 27
+
+DEBUG [ODEPEtestwrapper]: Processing solution 28
+
+DEBUG [ODEPEtestwrapper]: Processing solution 29
+
+DEBUG [ODEPEtestwrapper]: Processing solution 30
+
+DEBUG [ODEPEtestwrapper]: Processing solution 31
+
+DEBUG [ODEPEtestwrapper]: Processing solution 32
+
+DEBUG [ODEPEtestwrapper]: Processing solution 33
+
+DEBUG [ODEPEtestwrapper]: Processing solution 34
+
+DEBUG [ODEPEtestwrapper]: Processing solution 35
+
+DEBUG [ODEPEtestwrapper]: Processing solution 36
+
+DEBUG [ODEPEtestwrapper]: Processing solution 37
+
+DEBUG [ODEPEtestwrapper]: Processing solution 38
+
+DEBUG [ODEPEtestwrapper]: Processing solution 39
+
+DEBUG [ODEPEtestwrapper]: Processing solution 40
+
+DEBUG [ODEPEtestwrapper]: Processing solution 41
+
+DEBUG [ODEPEtestwrapper]: Processing solution 42
+
+DEBUG [ODEPEtestwrapper]: Processing solution 43
+
+DEBUG [ODEPEtestwrapper]: Processing solution 44
+
+DEBUG [ODEPEtestwrapper]: Processing solution 45
+
+DEBUG [ODEPEtestwrapper]: Processing solution 46
+
+DEBUG [ODEPEtestwrapper]: Processing solution 47
+
+DEBUG [ODEPEtestwrapper]: Processing solution 48
+
+DEBUG [ODEPEtestwrapper]: Processing solution 49
+
+DEBUG [ODEPEtestwrapper]: Processing solution 50
+
+DEBUG [ODEPEtestwrapper]: Processing solution 51
+
+DEBUG [ODEPEtestwrapper]: Processing solution 52
+
+DEBUG [ODEPEtestwrapper]: Processing solution 53
+
+DEBUG [ODEPEtestwrapper]: Processing solution 54
+
+DEBUG [ODEPEtestwrapper]: Processing solution 55
+
+DEBUG [ODEPEtestwrapper]: Processing solution 56
+
+DEBUG [ODEPEtestwrapper]: Processing solution 57
+
+DEBUG [ODEPEtestwrapper]: Processing solution 58
+
+DEBUG [ODEPEtestwrapper]: Processing solution 59
+
+DEBUG [ODEPEtestwrapper]: Processing solution 60
+
+DEBUG [ODEPEtestwrapper]: Processing solution 61
+
+DEBUG [ODEPEtestwrapper]: Processing solution 62
+
+DEBUG [ODEPEtestwrapper]: Processing solution 63
+
+DEBUG [ODEPEtestwrapper]: Processing solution 64
+
+DEBUG [ODEPEtestwrapper]: Processing solution 65
+
+DEBUG [ODEPEtestwrapper]: Processing solution 66
+
+DEBUG [ODEPEtestwrapper]: Processing solution 67
+
+DEBUG [ODEPEtestwrapper]: Processing solution 68
+
+DEBUG [ODEPEtestwrapper]: Processing solution 69
+
+DEBUG [ODEPEtestwrapper]: Processing solution 70
+
+DEBUG [ODEPEtestwrapper]: Processing solution 71
+
+DEBUG [ODEPEtestwrapper]: Processing solution 72
+
+DEBUG [ODEPEtestwrapper]: Processing solution 73
+
+DEBUG [ODEPEtestwrapper]: Processing solution 74
+
+DEBUG [ODEPEtestwrapper]: Processing solution 75
+
+DEBUG [ODEPEtestwrapper]: Processing solution 76
+
+DEBUG [ODEPEtestwrapper]: Processing solution 77
+
+DEBUG [ODEPEtestwrapper]: Processing solution 78
+
+=== Model: petab_sirsforced ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • b1
+  • x1(t)
+  • x2(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • b1 = 0.303242
+
+
+Found 38 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 0.066733):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.221584 |   0.326847
+r(t)         |   0.333000 |   0.322165 |   0.032539
+s(t)         |   0.500000 |   8.105429 |  15.210858
+x1(t)        |   0.667000 |  -4.828950 |   8.239805
+x2(t)        |   0.833000 |  -4.873820 |   6.850925
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.477369 |   0.163977
+b0           |   0.143000 |   0.023587 |   0.835054
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.031272 |   0.927105
+mu           |   0.714000 |   1.116463 |   0.563673
+
+Cluster 2: 2 similar solutions
+Best solution (Error: 0.066733):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.221584 |   0.326847
+r(t)         |   0.333000 |   0.322165 |   0.032539
+s(t)         |   0.500000 |   8.105429 |  15.210858
+x1(t)        |   0.667000 |  -4.828950 |   8.239805
+x2(t)        |   0.833000 |   4.873820 |   4.850925
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.477369 |   1.836023
+b0           |   0.143000 |   0.023587 |   0.835054
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.031272 |   0.927105
+mu           |   0.714000 |   1.116463 |   0.563673
+
+Cluster 3: 2 similar solutions
+Best solution (Error: 0.038898):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.158620 |   0.050181
+r(t)         |   0.333000 |   0.333754 |   0.002265
+s(t)         |   0.500000 |   0.263745 |   0.472510
+x1(t)        |   0.667000 |   0.652652 |   0.021512
+x2(t)        |   0.833000 |  -0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.000000 |   1.000000
+b0           |   0.143000 |  -3.646069 |  26.496983
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.979059 |   3.613191
+mu           |   0.714000 |  -0.831324 |   2.164320
+
+Cluster 4: 2 similar solutions
+Best solution (Error: 0.01385):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.183616 |   0.099499
+r(t)         |   0.333000 |   0.329334 |   0.011008
+s(t)         |   0.500000 |   1.684114 |   2.368228
+x1(t)        |   0.667000 |   0.002482 |   0.996278
+x2(t)        |   0.833000 |   1.901722 |   1.282979
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.570089 |   1.998405
+b0           |   0.143000 |   0.122478 |   0.143512
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.155575 |   0.637354
+mu           |   0.714000 |   0.992160 |   0.389579
+
+Cluster 5: 2 similar solutions
+Best solution (Error: 0.01385):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.183616 |   0.099499
+r(t)         |   0.333000 |   0.329334 |   0.011008
+s(t)         |   0.500000 |   1.684114 |   2.368228
+x1(t)        |   0.667000 |   0.002482 |   0.996278
+x2(t)        |   0.833000 |  -1.901722 |   3.282979
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.570089 |   0.001595
+b0           |   0.143000 |   0.122478 |   0.143512
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.155575 |   0.637354
+mu           |   0.714000 |   0.992160 |   0.389579
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 0.008962):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.166994 |   0.000037
+r(t)         |   0.333000 |   0.332830 |   0.000510
+s(t)         |   0.500000 |   0.715131 |   0.430262
+x1(t)        |   0.667000 |   0.056984 |   0.914567
+x2(t)        |   0.833000 |   0.599093 |   0.280801
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.850552 |   0.489583
+b0           |   0.143000 |   1.266813 |   7.858835
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |  -0.387884 |   1.904158
+mu           |   0.714000 |   1.535618 |   1.150726
+
+Cluster 7: 1 similar solutions
+Best solution (Error: 0.008962):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.166994 |   0.000037
+r(t)         |   0.333000 |   0.332830 |   0.000510
+s(t)         |   0.500000 |   0.715131 |   0.430262
+x1(t)        |   0.667000 |   0.056984 |   0.914567
+x2(t)        |   0.833000 |  -0.599093 |   1.719199
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.850552 |   2.489583
+b0           |   0.143000 |   1.266813 |   7.858835
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |  -0.387884 |   1.904158
+mu           |   0.714000 |   1.535618 |   1.150726
+
+Cluster 8: 2 similar solutions
+Best solution (Error: 0.008955):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.170301 |   0.019768
+r(t)         |   0.333000 |   0.332140 |   0.002582
+s(t)         |   0.500000 |   0.904680 |   0.809361
+x1(t)        |   0.667000 |  -0.095238 |   1.142786
+x2(t)        |   0.833000 |   0.080249 |   0.903662
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -1.802371 |   4.156516
+b0           |   0.143000 |   0.694357 |   3.855646
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |  -0.111058 |   1.258877
+mu           |   0.714000 |   1.258793 |   0.763015
+
+Cluster 9: 2 similar solutions
+Best solution (Error: 0.008955):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.170301 |   0.019768
+r(t)         |   0.333000 |   0.332140 |   0.002582
+s(t)         |   0.500000 |   0.904680 |   0.809361
+x1(t)        |   0.667000 |  -0.095238 |   1.142786
+x2(t)        |   0.833000 |  -0.080249 |   1.096338
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   1.802371 |   2.156516
+b0           |   0.143000 |   0.694357 |   3.855646
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |  -0.111058 |   1.258877
+mu           |   0.714000 |   1.258793 |   0.763015
+
+Cluster 10: 2 similar solutions
+Best solution (Error: 0.005681):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.197638 |   0.183461
+r(t)         |   0.333000 |   0.326036 |   0.020911
+s(t)         |   0.500000 |   0.476072 |   0.047856
+x1(t)        |   0.667000 |   1.078850 |   0.617466
+x2(t)        |   0.833000 |   0.230094 |   0.723777
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.895810 |   0.568844
+b0           |   0.143000 |  -0.654090 |   5.574058
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.719071 |   0.676156
+mu           |   0.714000 |   0.428663 |   0.399631
+
+Cluster 11: 2 similar solutions
+Best solution (Error: 0.005681):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.197638 |   0.183461
+r(t)         |   0.333000 |   0.326036 |   0.020911
+s(t)         |   0.500000 |   0.476072 |   0.047856
+x1(t)        |   0.667000 |   1.078850 |   0.617466
+x2(t)        |   0.833000 |  -0.230094 |   1.276223
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.895810 |   2.568844
+b0           |   0.143000 |  -0.654090 |   5.574058
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.719071 |   0.676156
+mu           |   0.714000 |   0.428663 |   0.399631
+
+Cluster 12: 2 similar solutions
+Best solution (Error: 0.004067):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.160119 |   0.041204
+r(t)         |   0.333000 |   0.334269 |   0.003811
+s(t)         |   0.500000 |   1.527710 |   2.055419
+x1(t)        |   0.667000 |  -0.610436 |   1.915196
+x2(t)        |   0.833000 |  -1.685734 |   3.023691
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.867365 |   0.519028
+b0           |   0.143000 |   0.096958 |   0.321971
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.497473 |   0.159612
+mu           |   0.714000 |   0.650261 |   0.089270
+
+Cluster 13: 2 similar solutions
+Best solution (Error: 0.004067):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.160119 |   0.041204
+r(t)         |   0.333000 |   0.334269 |   0.003811
+s(t)         |   0.500000 |   1.527710 |   2.055419
+x1(t)        |   0.667000 |  -0.610436 |   1.915196
+x2(t)        |   0.833000 |   1.685734 |   1.023691
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.867365 |   2.519028
+b0           |   0.143000 |   0.096958 |   0.321971
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.497473 |   0.159612
+mu           |   0.714000 |   0.650261 |   0.089270
+
+Cluster 14: 2 similar solutions
+Best solution (Error: 0.003009):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.171594 |   0.027510
+r(t)         |   0.333000 |   0.331824 |   0.003533
+s(t)         |   0.500000 |   0.905718 |   0.811437
+x1(t)        |   0.667000 |   0.024662 |   0.963026
+x2(t)        |   0.833000 |   0.009545 |   0.988541
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -1.220399 |   3.137300
+b0           |   0.143000 |   0.106464 |   0.255498
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.392433 |   0.085238
+mu           |   0.714000 |   0.755302 |   0.057845
+
+Cluster 15: 2 similar solutions
+Best solution (Error: 0.003009):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.171594 |   0.027510
+r(t)         |   0.333000 |   0.331824 |   0.003533
+s(t)         |   0.500000 |   0.905718 |   0.811437
+x1(t)        |   0.667000 |   0.024662 |   0.963026
+x2(t)        |   0.833000 |  -0.009545 |   1.011459
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   1.220399 |   1.137300
+b0           |   0.143000 |   0.106464 |   0.255498
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.392433 |   0.085238
+mu           |   0.714000 |   0.755302 |   0.057845
+
+Cluster 16: 2 similar solutions
+Best solution (Error: 0.002452):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.172147 |   0.030819
+r(t)         |   0.333000 |   0.331838 |   0.003489
+s(t)         |   0.500000 |   0.412586 |   0.174827
+x1(t)        |   0.667000 |   0.918760 |   0.377451
+x2(t)        |   0.833000 |   0.924949 |   0.110383
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.653650 |   2.144746
+b0           |   0.143000 |   0.153312 |   0.072114
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.378948 |   0.116671
+mu           |   0.714000 |   0.768786 |   0.076732
+
+Cluster 17: 2 similar solutions
+Best solution (Error: 0.002452):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.172147 |   0.030819
+r(t)         |   0.333000 |   0.331838 |   0.003489
+s(t)         |   0.500000 |   0.412586 |   0.174827
+x1(t)        |   0.667000 |   0.918760 |   0.377451
+x2(t)        |   0.833000 |  -0.924949 |   2.110383
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.653650 |   0.144746
+b0           |   0.143000 |   0.153312 |   0.072114
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.378948 |   0.116671
+mu           |   0.714000 |   0.768786 |   0.076732
+
+Cluster 18: 2 similar solutions
+Best solution (Error: 0.002164):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.169203 |   0.013193
+r(t)         |   0.333000 |   0.331922 |   0.003238
+s(t)         |   0.500000 |   0.544055 |   0.088110
+x1(t)        |   0.667000 |  -0.145557 |   1.218227
+x2(t)        |   0.833000 |  -0.080150 |   1.096218
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   1.058986 |   0.854617
+b0           |   0.143000 |  -0.659194 |   5.609746
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.933165 |   1.175211
+mu           |   0.714000 |   0.214569 |   0.699483
+
+Cluster 19: 2 similar solutions
+Best solution (Error: 0.002164):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.169203 |   0.013193
+r(t)         |   0.333000 |   0.331922 |   0.003238
+s(t)         |   0.500000 |   0.544055 |   0.088110
+x1(t)        |   0.667000 |  -0.145557 |   1.218227
+x2(t)        |   0.833000 |   0.080150 |   0.903782
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -1.058986 |   2.854617
+b0           |   0.143000 |  -0.659194 |   5.609746
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.933165 |   1.175211
+mu           |   0.714000 |   0.214569 |   0.699483
+
+Cluster 20: 2 similar solutions
+Best solution (Error: 0.002149):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.169957 |   0.017705
+r(t)         |   0.333000 |   0.331935 |   0.003198
+s(t)         |   0.500000 |   0.467342 |   0.065315
+x1(t)        |   0.667000 |   0.098956 |   0.851640
+x2(t)        |   0.833000 |   0.901426 |   0.082144
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.092041 |   0.838808
+b0           |   0.143000 |  -0.354151 |   3.476582
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.721746 |   0.682390
+mu           |   0.714000 |   0.425989 |   0.403377
+
+Cluster 21: 2 similar solutions
+Best solution (Error: 0.002149):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.169957 |   0.017705
+r(t)         |   0.333000 |   0.331935 |   0.003198
+s(t)         |   0.500000 |   0.467342 |   0.065315
+x1(t)        |   0.667000 |   0.098956 |   0.851640
+x2(t)        |   0.833000 |  -0.901426 |   2.082144
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.092041 |   1.161192
+b0           |   0.143000 |  -0.354151 |   3.476582
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.721746 |   0.682390
+mu           |   0.714000 |   0.425989 |   0.403377
+
+Cluster 22: 2 similar solutions
+Best solution (Error: 0.001419):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.118296 |   0.291640
+r(t)         |   0.333000 |   0.340347 |   0.022065
+s(t)         |   0.500000 |   0.544631 |   0.089262
+x1(t)        |   0.667000 |   0.163752 |   0.754495
+x2(t)        |   0.833000 |   0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.000000 |   1.000000
+b0           |   0.143000 |  -6.636244 |  47.407299
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   5.627913 |  12.118679
+mu           |   0.714000 |  -4.480179 |   7.274760
+
+Cluster 23: 2 similar solutions
+Best solution (Error: 0.001327):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.100721 |   0.396882
+r(t)         |   0.333000 |   0.343823 |   0.032503
+s(t)         |   0.500000 |  17.150249 |  33.300498
+x1(t)        |   0.667000 | 3757.062609 | 5631.777525
+x2(t)        |   0.833000 |  -0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.000000 |   1.000000
+b0           |   0.143000 |  -0.000049 |   1.000341
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   3.205085 |   6.471062
+mu           |   0.714000 |  -2.057351 |   3.881444
+
+Cluster 24: 2 similar solutions
+Best solution (Error: 0.001227):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.151837 |   0.090796
+r(t)         |   0.333000 |   0.333948 |   0.002846
+s(t)         |   0.500000 |   0.626803 |   0.253606
+x1(t)        |   0.667000 |   2.149725 |   2.222976
+x2(t)        |   0.833000 |   2.120805 |   1.545985
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.877106 |   0.536088
+b0           |   0.143000 |  -2.189071 |  16.308187
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   3.374213 |   6.865298
+mu           |   0.714000 |  -2.226479 |   4.118317
+
+Cluster 25: 2 similar solutions
+Best solution (Error: 0.001227):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.151837 |   0.090796
+r(t)         |   0.333000 |   0.333948 |   0.002846
+s(t)         |   0.500000 |   0.626803 |   0.253606
+x1(t)        |   0.667000 |   2.149725 |   2.222976
+x2(t)        |   0.833000 |  -2.120805 |   3.545985
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.877106 |   2.536088
+b0           |   0.143000 |  -2.189071 |  16.308187
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   3.374213 |   6.865298
+mu           |   0.714000 |  -2.226479 |   4.118317
+
+Cluster 26: 2 similar solutions
+Best solution (Error: 0.000948):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.124441 |   0.254846
+r(t)         |   0.333000 |   0.341885 |   0.026682
+s(t)         |   0.500000 |  -0.255785 |   1.511570
+x1(t)        |   0.667000 |  -0.386895 |   1.580052
+x2(t)        |   0.833000 |  -3.678709 |   5.416217
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   1.149254 |   1.012704
+b0           |   0.143000 |  -0.460701 |   4.221684
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.051544 |   1.451152
+mu           |   0.714000 |   0.096190 |   0.865280
+
+Cluster 27: 2 similar solutions
+Best solution (Error: 0.000948):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.124441 |   0.254846
+r(t)         |   0.333000 |   0.341885 |   0.026682
+s(t)         |   0.500000 |  -0.255785 |   1.511570
+x1(t)        |   0.667000 |  -0.386895 |   1.580052
+x2(t)        |   0.833000 |   3.678709 |   3.416217
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -1.149254 |   3.012704
+b0           |   0.143000 |  -0.460701 |   4.221684
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.051544 |   1.451152
+mu           |   0.714000 |   0.096190 |   0.865280
+
+Cluster 28: 2 similar solutions
+Best solution (Error: 0.000781):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.121785 |   0.270750
+r(t)         |   0.333000 |   0.342476 |   0.028456
+s(t)         |   0.500000 |   0.184426 |   0.631148
+x1(t)        |   0.667000 |   1.220721 |   0.830167
+x2(t)        |   0.833000 |   0.000804 |   0.999035
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.738904 |   2.294053
+b0           |   0.143000 |  -0.460523 |   4.220437
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.331369 |   2.103425
+mu           |   0.714000 |  -0.183635 |   1.257192
+
+Cluster 29: 2 similar solutions
+Best solution (Error: 0.000781):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.121785 |   0.270750
+r(t)         |   0.333000 |   0.342476 |   0.028456
+s(t)         |   0.500000 |   0.184426 |   0.631148
+x1(t)        |   0.667000 |   1.220721 |   0.830167
+x2(t)        |   0.833000 |  -0.000804 |   1.000965
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.738904 |   0.294053
+b0           |   0.143000 |  -0.460523 |   4.220437
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.331369 |   2.103425
+mu           |   0.714000 |  -0.183635 |   1.257192
+
+Cluster 30: 2 similar solutions
+Best solution (Error: 0.000719):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.160324 |   0.039978
+r(t)         |   0.333000 |   0.333754 |   0.002264
+s(t)         |   0.500000 |   1.391471 |   1.782942
+x1(t)        |   0.667000 |   0.881242 |   0.321202
+x2(t)        |   0.833000 |   0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.000000 |   1.000000
+b0           |   0.143000 |  -0.380717 |   3.662358
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.373931 |   2.202636
+mu           |   0.714000 |  -0.226196 |   1.316802
+
+Cluster 31: 2 similar solutions
+Best solution (Error: 0.000684):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.166715 |   0.001705
+r(t)         |   0.333000 |   0.332851 |   0.000448
+s(t)         |   0.500000 |  -1.173363 |   3.346726
+x1(t)        |   0.667000 |  -0.375263 |   1.562613
+x2(t)        |   0.833000 |   0.524833 |   0.369948
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   2.925653 |   4.123735
+b0           |   0.143000 |   0.022183 |   0.844872
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.566417 |   0.320320
+mu           |   0.714000 |   0.581317 |   0.185830
+
+Cluster 32: 2 similar solutions
+Best solution (Error: 0.000684):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.166715 |   0.001705
+r(t)         |   0.333000 |   0.332851 |   0.000448
+s(t)         |   0.500000 |  -1.173363 |   3.346726
+x1(t)        |   0.667000 |  -0.375263 |   1.562613
+x2(t)        |   0.833000 |  -0.524833 |   1.630052
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -2.925653 |   6.123735
+b0           |   0.143000 |   0.022183 |   0.844872
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   0.566417 |   0.320320
+mu           |   0.714000 |   0.581317 |   0.185830
+
+Cluster 33: 2 similar solutions
+Best solution (Error: 0.000664):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.152650 |   0.085928
+r(t)         |   0.333000 |   0.335887 |   0.008669
+s(t)         |   0.500000 |  -0.717929 |   2.435858
+x1(t)        |   0.667000 |   0.081885 |   0.877235
+x2(t)        |   0.833000 |   0.399925 |   0.519898
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -1.210801 |   3.120492
+b0           |   0.143000 |   0.818462 |   4.723513
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.304843 |   2.041592
+mu           |   0.714000 |  -0.157108 |   1.220040
+
+Cluster 34: 2 similar solutions
+Best solution (Error: 0.000664):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.152650 |   0.085928
+r(t)         |   0.333000 |   0.335887 |   0.008669
+s(t)         |   0.500000 |  -0.717929 |   2.435858
+x1(t)        |   0.667000 |   0.081885 |   0.877235
+x2(t)        |   0.833000 |  -0.399925 |   1.480102
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   1.210801 |   1.120492
+b0           |   0.143000 |   0.818462 |   4.723513
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.304843 |   2.041592
+mu           |   0.714000 |  -0.157108 |   1.220040
+
+Cluster 35: 2 similar solutions
+Best solution (Error: 0.00064):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.141500 |   0.152695
+r(t)         |   0.333000 |   0.338387 |   0.016176
+s(t)         |   0.500000 |  -0.459634 |   1.919268
+x1(t)        |   0.667000 |  -0.964757 |   2.446412
+x2(t)        |   0.833000 |   1.635836 |   0.963789
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.651119 |   2.140313
+b0           |   0.143000 |   1.000686 |   5.997806
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.166814 |   1.719846
+mu           |   0.714000 |  -0.019080 |   1.026722
+
+Cluster 36: 2 similar solutions
+Best solution (Error: 0.00064):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.141500 |   0.152695
+r(t)         |   0.333000 |   0.338387 |   0.016176
+s(t)         |   0.500000 |  -0.459634 |   1.919268
+x1(t)        |   0.667000 |  -0.964757 |   2.446412
+x2(t)        |   0.833000 |  -1.635836 |   2.963789
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |   0.651119 |   0.140313
+b0           |   0.143000 |   1.000686 |   5.997806
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.166814 |   1.719846
+mu           |   0.714000 |  -0.019080 |   1.026722
+
+Cluster 37: 2 similar solutions
+Best solution (Error: 0.000561):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.167164 |   0.000984
+r(t)         |   0.333000 |   0.332813 |   0.000563
+s(t)         |   0.500000 |  -2.129621 |   5.259242
+x1(t)        |   0.667000 |  -0.003777 |   1.005663
+x2(t)        |   0.833000 |   0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.000000 |   1.000000
+b0           |   0.143000 |   0.325620 |   1.277061
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.219509 |   1.842678
+mu           |   0.714000 |  -0.071774 |   1.100524
+
+Cluster 38: 2 similar solutions
+Best solution (Error: 0.000545):
+--------------------------------------------------
+Variable      | True Value  | Estimated   | Rel. Error
+--------------------------------------------------
+i(t)         |   0.167000 |   0.185572 |   0.111208
+r(t)         |   0.333000 |   0.330413 |   0.007769
+s(t)         |   0.500000 |  -0.453263 |   1.906525
+x1(t)        |   0.667000 |   7.569170 |  10.348081
+x2(t)        |   0.833000 |  -0.000000 |   1.000000
+b1           |   0.286000 |   0.303242 |   0.060286
+M            |   0.571000 |  -0.000000 |   1.000000
+b0           |   0.143000 |   0.737646 |   4.158362
+nu           |   0.857000 |   0.871011 |   0.016349
+g            |   0.429000 |   1.164934 |   1.715463
+mu           |   0.714000 |  -0.017199 |   1.024089
+
+Best maximum relative error for petab_sirsforced (excluding ALL unidentifiable parameters): 0.174827
+
+DEBUG: Measured quantities:
+  Equation: y1(t) ~ i(t)
+  LHS: y1(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: i(t) (SymbolicUtils.BasicSymbolic{Real})
+  Equation: y2(t) ~ r(t)
+  LHS: y2(t) (SymbolicUtils.BasicSymbolic{Real})
+  RHS: r(t) (SymbolicUtils.BasicSymbolic{Real})
+
+DEBUG: Data sample keys:
+  i(t) (Num)
+  r(t) (Num)
+  t (String)
+
+DEBUG: Processing observable:
+  obs_name: y1(t)
+  rhs: i(t)
+  rhs_str: i(t)
+  Found by RHS
+
+DEBUG: Processing observable:
+  obs_name: y2(t)
+  rhs: r(t)
+  rhs_str: r(t)
+  Found by RHS
+
+Observables Statistics:
+--------------------------------------------------
+Variable      | Mean        | Std         | Min         | Max         | Range       | Turns
+--------------------------------------------------
+y1(t)        |   0.022862 |   0.037259 |   0.000072 |   0.167011 |   0.166940 |        327
+y2(t)        |   0.075062 |   0.088201 |   0.002241 |   0.333069 |   0.330828 |        263
+
+Error Statistics for Best Solution:
+--------------------------------------------------
+
+Error Statistics by Observable:
+--------------------------------------------------
+Observable   | Error Type | Mean        | Std         | Min         | Max         | Range
+--------------------------------------------------
+y1(t)        | Absolute   |   5.182563 |   3.425126 |   0.000165 |   7.983098 |   7.982933
+y1(t)        | Relative   | 9221.021853 | 15547.481961 |   0.002704 | 102341.297220 | 102341.294516
+y2(t)        | Absolute   |   0.098459 |   0.073468 |   0.000035 |   0.188952 |   0.188917
+y2(t)        | Relative   |  13.787503 |  20.317845 |   0.000397 |  84.310097 |  84.309700
+
+Detailed Time Series Comparison:
+------------------------------------------------------------------------------------------------------------------------
+t | y1(t)_act    | y1(t)_pred   | abs_err      | rel_err      | y2(t)_act    | y2(t)_pred   | abs_err      | rel_err     
+------------------------------------------------------------------------------------------------------------------------
+  0.0000 |     0.167011 |     0.221584 |     0.054572 |     0.326757 |     0.333069 |     0.322165 |     0.010905 |     0.032740
+  0.0050 |     0.165761 |     0.216933 |     0.051172 |     0.308711 |     0.331818 |     0.320740 |     0.011077 |     0.033384
+  0.0100 |     0.164552 |     0.212412 |     0.047859 |     0.290845 |     0.330579 |     0.319322 |     0.011258 |     0.034054
+  0.0150 |     0.163355 |     0.208015 |     0.044660 |     0.273392 |     0.329497 |     0.317909 |     0.011587 |     0.035167
+  0.0200 |     0.162107 |     0.203740 |     0.041633 |     0.256825 |     0.328292 |     0.316502 |     0.011789 |     0.035911
+  0.0250 |     0.160909 |     0.199583 |     0.038675 |     0.240352 |     0.327149 |     0.315102 |     0.012047 |     0.036825
+  0.0300 |     0.159761 |     0.195541 |     0.035780 |     0.223961 |     0.325950 |     0.313706 |     0.012244 |     0.037564
+  0.0350 |     0.158562 |     0.191609 |     0.033047 |     0.208420 |     0.324804 |     0.312317 |     0.012487 |     0.038445
+  0.0400 |     0.157362 |     0.187785 |     0.030423 |     0.193333 |     0.323510 |     0.310934 |     0.012576 |     0.038873
+  0.0450 |     0.156223 |     0.184066 |     0.027843 |     0.178229 |     0.322475 |     0.309556 |     0.012919 |     0.040061
+  0.0500 |     0.155046 |     0.180448 |     0.025402 |     0.163837 |     0.321219 |     0.308184 |     0.013035 |     0.040578
+  0.0550 |     0.153901 |     0.176929 |     0.023028 |     0.149629 |     0.320189 |     0.306818 |     0.013371 |     0.041761
+  0.0600 |     0.152781 |     0.173506 |     0.020725 |     0.135648 |     0.318813 |     0.305457 |     0.013356 |     0.041892
+  0.0650 |     0.151604 |     0.170175 |     0.018571 |     0.122495 |     0.317828 |     0.304103 |     0.013726 |     0.043186
+  0.0700 |     0.150490 |     0.166935 |     0.016445 |     0.109277 |     0.316548 |     0.302754 |     0.013794 |     0.043577
+  0.0750 |     0.149406 |     0.163782 |     0.014376 |     0.096222 |     0.315321 |     0.301410 |     0.013911 |     0.044117
+  0.0800 |     0.148294 |     0.160714 |     0.012421 |     0.083759 |     0.314173 |     0.300073 |     0.014100 |     0.044880
+  0.0850 |     0.147230 |     0.157729 |     0.010499 |     0.071311 |     0.313026 |     0.298741 |     0.014285 |     0.045635
+  0.0900 |     0.146117 |     0.154825 |     0.008708 |     0.059594 |     0.311924 |     0.297414 |     0.014510 |     0.046518
+  0.0950 |     0.145028 |     0.151998 |     0.006970 |     0.048056 |     0.310776 |     0.296094 |     0.014683 |     0.047245
+  0.1000 |     0.144025 |     0.149247 |     0.005222 |     0.036255 |     0.309541 |     0.294779 |     0.014762 |     0.047691
+  0.1050 |     0.142926 |     0.146570 |     0.003644 |     0.025494 |     0.308431 |     0.293469 |     0.014962 |     0.048509
+  0.1100 |     0.141880 |     0.143964 |     0.002084 |     0.014687 |     0.307444 |     0.292165 |     0.015279 |     0.049697
+  0.1150 |     0.140801 |     0.141427 |     0.000626 |     0.004448 |     0.306266 |     0.290867 |     0.015399 |     0.050280
+  0.1200 |     0.139784 |     0.138958 |     0.000826 |     0.005909 |     0.305024 |     0.289574 |     0.015450 |     0.050651
+  0.1250 |     0.138770 |     0.136555 |     0.002215 |     0.015963 |     0.303851 |     0.288287 |     0.015564 |     0.051223
+  0.1300 |     0.137720 |     0.134215 |     0.003505 |     0.025448 |     0.302717 |     0.287005 |     0.015711 |     0.051901
+  0.1350 |     0.136741 |     0.131938 |     0.004804 |     0.035129 |     0.301615 |     0.285729 |     0.015886 |     0.052670
+  0.1400 |     0.135713 |     0.129720 |     0.005993 |     0.044158 |     0.300356 |     0.284458 |     0.015897 |     0.052929
+  0.1450 |     0.134722 |     0.127562 |     0.007160 |     0.053149 |     0.299279 |     0.283193 |     0.016086 |     0.053749
+  0.1500 |     0.133724 |     0.125460 |     0.008264 |     0.061800 |     0.298041 |     0.281933 |     0.016108 |     0.054045
+  0.1550 |     0.132797 |     0.123414 |     0.009383 |     0.070660 |     0.297066 |     0.280679 |     0.016388 |     0.055164
+  0.1600 |     0.131779 |     0.121421 |     0.010357 |     0.078597 |     0.295957 |     0.279430 |     0.016528 |     0.055844
+  0.1650 |     0.130786 |     0.119481 |     0.011305 |     0.086439 |     0.294747 |     0.278186 |     0.016561 |     0.056187
+  0.1700 |     0.129868 |     0.117592 |     0.012276 |     0.094526 |     0.293778 |     0.276948 |     0.016831 |     0.057290
+  0.1750 |     0.128867 |     0.115753 |     0.013115 |     0.101769 |     0.292448 |     0.275715 |     0.016733 |     0.057216
+  0.1800 |     0.127953 |     0.113962 |     0.013992 |     0.109351 |     0.291311 |     0.274487 |     0.016824 |     0.057752
+  0.1850 |     0.126964 |     0.112217 |     0.014747 |     0.116150 |     0.290322 |     0.273265 |     0.017057 |     0.058752
+  0.1900 |     0.126046 |     0.110519 |     0.015527 |     0.123187 |     0.289270 |     0.272048 |     0.017222 |     0.059536
+  0.1950 |     0.125156 |     0.108865 |     0.016291 |     0.130162 |     0.288207 |     0.270837 |     0.017370 |     0.060269
+  0.2000 |     0.124249 |     0.107254 |     0.016995 |     0.136781 |     0.286937 |     0.269630 |     0.017307 |     0.060315
+  0.2050 |     0.123325 |     0.105686 |     0.017639 |     0.143028 |     0.285946 |     0.268429 |     0.017517 |     0.061259
+  0.2100 |     0.122414 |     0.104159 |     0.018255 |     0.149125 |     0.284758 |     0.267233 |     0.017525 |     0.061543
+  0.2150 |     0.121511 |     0.102671 |     0.018840 |     0.155048 |     0.283646 |     0.266042 |     0.017604 |     0.062062
+  0.2200 |     0.120593 |     0.101223 |     0.019370 |     0.160626 |     0.282626 |     0.264857 |     0.017769 |     0.062872
+  0.2250 |     0.119726 |     0.099812 |     0.019914 |     0.166327 |     0.281512 |     0.263677 |     0.017836 |     0.063357
+  0.2300 |     0.118854 |     0.098439 |     0.020415 |     0.171766 |     0.280251 |     0.262501 |     0.017749 |     0.063334
+  0.2350 |     0.118018 |     0.097102 |     0.020916 |     0.177227 |     0.279388 |     0.261331 |     0.018057 |     0.064630
+  0.2400 |     0.117137 |     0.095799 |     0.021337 |     0.182156 |     0.278292 |     0.260166 |     0.018125 |     0.065131
+  0.2450 |     0.116230 |     0.094531 |     0.021699 |     0.186688 |     0.277054 |     0.259006 |     0.018048 |     0.065143
+  0.2500 |     0.115426 |     0.093297 |     0.022129 |     0.191719 |     0.276047 |     0.257852 |     0.018195 |     0.065914
+  0.2550 |     0.114564 |     0.092095 |     0.022470 |     0.196133 |     0.274973 |     0.256702 |     0.018271 |     0.066446
+  0.2600 |     0.113719 |     0.090924 |     0.022794 |     0.200446 |     0.273876 |     0.255557 |     0.018319 |     0.066888
+  0.2650 |     0.112915 |     0.089785 |     0.023130 |     0.204848 |     0.272739 |     0.254417 |     0.018321 |     0.067176
+  0.2700 |     0.112098 |     0.088676 |     0.023423 |     0.208947 |     0.271656 |     0.253283 |     0.018373 |     0.067634
+  0.2750 |     0.111276 |     0.087596 |     0.023680 |     0.212802 |     0.270633 |     0.252153 |     0.018480 |     0.068285
+  0.2800 |     0.110421 |     0.086545 |     0.023876 |     0.216226 |     0.269654 |     0.251028 |     0.018626 |     0.069074
+  0.2850 |     0.109625 |     0.085522 |     0.024103 |     0.219865 |     0.268541 |     0.249908 |     0.018633 |     0.069385
+  0.2900 |     0.108837 |     0.084527 |     0.024311 |     0.223366 |     0.267409 |     0.248794 |     0.018616 |     0.069615
+  0.2950 |     0.108056 |     0.083558 |     0.024498 |     0.226715 |     0.266434 |     0.247684 |     0.018751 |     0.070376
+  0.3000 |     0.107233 |     0.082616 |     0.024617 |     0.229566 |     0.265104 |     0.246578 |     0.018526 |     0.069882
+  0.3050 |     0.106455 |     0.081699 |     0.024756 |     0.232552 |     0.264349 |     0.245478 |     0.018871 |     0.071386
+  0.3100 |     0.105656 |     0.080807 |     0.024849 |     0.235188 |     0.263079 |     0.244383 |     0.018697 |     0.071068
+  0.3150 |     0.104881 |     0.079939 |     0.024942 |     0.237811 |     0.262133 |     0.243292 |     0.018841 |     0.071874
+  0.3200 |     0.104160 |     0.079095 |     0.025065 |     0.240636 |     0.261029 |     0.242206 |     0.018822 |     0.072107
+  0.3250 |     0.103411 |     0.078275 |     0.025136 |     0.243072 |     0.259971 |     0.241126 |     0.018845 |     0.072490
+  0.3300 |     0.102623 |     0.077477 |     0.025146 |     0.245031 |     0.259113 |     0.240049 |     0.019064 |     0.073573
+  0.3350 |     0.101898 |     0.076702 |     0.025196 |     0.247267 |     0.257952 |     0.238978 |     0.018974 |     0.073556
+  0.3400 |     0.101139 |     0.075949 |     0.025191 |     0.249069 |     0.256976 |     0.237911 |     0.019065 |     0.074190
+  0.3450 |     0.100378 |     0.075217 |     0.025161 |     0.250664 |     0.255913 |     0.236849 |     0.019064 |     0.074494
+  0.3500 |     0.099668 |     0.074505 |     0.025162 |     0.252460 |     0.254921 |     0.235792 |     0.019130 |     0.075041
+  0.3550 |     0.098967 |     0.073815 |     0.025152 |     0.254146 |     0.253863 |     0.234739 |     0.019124 |     0.075331
+  0.3600 |     0.098208 |     0.073144 |     0.025064 |     0.255215 |     0.252735 |     0.233691 |     0.019044 |     0.075353
+  0.3650 |     0.097528 |     0.072493 |     0.025035 |     0.256695 |     0.251884 |     0.232648 |     0.019236 |     0.076368
+  0.3700 |     0.096721 |     0.071862 |     0.024859 |     0.257022 |     0.250752 |     0.231609 |     0.019143 |     0.076342
+  0.3750 |     0.096093 |     0.071249 |     0.024845 |     0.258547 |     0.249655 |     0.230575 |     0.019080 |     0.076426
+  0.3800 |     0.095376 |     0.070654 |     0.024721 |     0.259197 |     0.248725 |     0.229546 |     0.019180 |     0.077113
+  0.3850 |     0.094671 |     0.070078 |     0.024593 |     0.259769 |     0.247859 |     0.228521 |     0.019338 |     0.078021
+  0.3900 |     0.093989 |     0.069520 |     0.024469 |     0.260339 |     0.246801 |     0.227500 |     0.019301 |     0.078204
+  0.3950 |     0.093256 |     0.068979 |     0.024277 |     0.260324 |     0.245705 |     0.226484 |     0.019221 |     0.078227
+  0.4000 |     0.092616 |     0.068456 |     0.024160 |     0.260866 |     0.244702 |     0.225473 |     0.019229 |     0.078581
+  0.4050 |     0.091954 |     0.067949 |     0.024005 |     0.261053 |     0.243704 |     0.224466 |     0.019238 |     0.078939
+  0.4100 |     0.091309 |     0.067459 |     0.023850 |     0.261203 |     0.242886 |     0.223464 |     0.019423 |     0.079966
+  0.4150 |     0.090598 |     0.066985 |     0.023613 |     0.260635 |     0.241764 |     0.222466 |     0.019299 |     0.079824
+  0.4200 |     0.089931 |     0.066528 |     0.023404 |     0.260241 |     0.240776 |     0.221472 |     0.019304 |     0.080174
+  0.4250 |     0.089283 |     0.066086 |     0.023197 |     0.259818 |     0.239832 |     0.220483 |     0.019349 |     0.080678
+  0.4300 |     0.088665 |     0.065659 |     0.023005 |     0.259466 |     0.238787 |     0.219498 |     0.019288 |     0.080776
+  0.4350 |     0.088005 |     0.065248 |     0.022757 |     0.258591 |     0.237766 |     0.218518 |     0.019248 |     0.080953
+  0.4400 |     0.087345 |     0.064852 |     0.022493 |     0.257519 |     0.236790 |     0.217542 |     0.019248 |     0.081288
+  0.4450 |     0.086732 |     0.064470 |     0.022262 |     0.256672 |     0.235822 |     0.216570 |     0.019252 |     0.081636
+  0.4500 |     0.086091 |     0.064104 |     0.021987 |     0.255396 |     0.234850 |     0.215603 |     0.019247 |     0.081953
+  0.4550 |     0.085484 |     0.063751 |     0.021733 |     0.254230 |     0.233935 |     0.214640 |     0.019295 |     0.082481
+  0.4600 |     0.084824 |     0.063413 |     0.021410 |     0.252410 |     0.232916 |     0.213682 |     0.019234 |     0.082580
+  0.4650 |     0.084214 |     0.063089 |     0.021125 |     0.250851 |     0.232001 |     0.212727 |     0.019273 |     0.083075
+  0.4700 |     0.083600 |     0.062779 |     0.020821 |     0.249054 |     0.230976 |     0.211777 |     0.019199 |     0.083122
+  0.4750 |     0.082967 |     0.062482 |     0.020484 |     0.246899 |     0.230028 |     0.210831 |     0.019197 |     0.083454
+  0.4800 |     0.082403 |     0.062199 |     0.020204 |     0.245181 |     0.228915 |     0.209889 |     0.019025 |     0.083110
+  0.4850 |     0.081803 |     0.061930 |     0.019873 |     0.242937 |     0.228179 |     0.208952 |     0.019227 |     0.084262
+  0.4900 |     0.081202 |     0.061673 |     0.019528 |     0.240492 |     0.227184 |     0.208019 |     0.019166 |     0.084361
+  0.4950 |     0.080605 |     0.061430 |     0.019175 |     0.237894 |     0.226284 |     0.207090 |     0.019195 |     0.084826
+  0.5000 |     0.079992 |     0.061199 |     0.018793 |     0.234930 |     0.225046 |     0.206165 |     0.018881 |     0.083900
+  0.5050 |     0.079433 |     0.060982 |     0.018451 |     0.232282 |     0.224477 |     0.205244 |     0.019233 |     0.085681
+  0.5100 |     0.078857 |     0.060777 |     0.018080 |     0.229273 |     0.223370 |     0.204327 |     0.019043 |     0.085252
+  0.5150 |     0.078273 |     0.060585 |     0.017688 |     0.225979 |     0.222526 |     0.203415 |     0.019112 |     0.085885
+  0.5200 |     0.077718 |     0.060405 |     0.017313 |     0.222768 |     0.221431 |     0.202506 |     0.018925 |     0.085465
+  0.5250 |     0.077166 |     0.060238 |     0.016928 |     0.219376 |     0.220623 |     0.201602 |     0.019022 |     0.086218
+  0.5300 |     0.076639 |     0.060083 |     0.016556 |     0.216030 |     0.219570 |     0.200701 |     0.018868 |     0.085934
+  0.5350 |     0.076043 |     0.059940 |     0.016103 |     0.211764 |     0.218676 |     0.199805 |     0.018871 |     0.086299
+  0.5400 |     0.075492 |     0.059809 |     0.015683 |     0.207742 |     0.217944 |     0.198913 |     0.019032 |     0.087323
+  0.5450 |     0.074936 |     0.059691 |     0.015245 |     0.203442 |     0.216866 |     0.198024 |     0.018842 |     0.086883
+  0.5500 |     0.074349 |     0.059584 |     0.014765 |     0.198587 |     0.215980 |     0.197140 |     0.018840 |     0.087231
+  0.5550 |     0.073852 |     0.059490 |     0.014362 |     0.194468 |     0.215115 |     0.196260 |     0.018855 |     0.087653
+  0.5600 |     0.073317 |     0.059408 |     0.013910 |     0.189717 |     0.214176 |     0.195383 |     0.018793 |     0.087744
+  0.5650 |     0.072840 |     0.059337 |     0.013502 |     0.185370 |     0.213242 |     0.194511 |     0.018731 |     0.087840
+  0.5700 |     0.072250 |     0.059279 |     0.012971 |     0.179534 |     0.212353 |     0.193642 |     0.018710 |     0.088110
+  0.5750 |     0.071737 |     0.059232 |     0.012504 |     0.174310 |     0.211603 |     0.192777 |     0.018826 |     0.088967
+  0.5800 |     0.071208 |     0.059198 |     0.012010 |     0.168667 |     0.210519 |     0.191917 |     0.018602 |     0.088364
+  0.5850 |     0.070665 |     0.059175 |     0.011490 |     0.162601 |     0.209642 |     0.191060 |     0.018582 |     0.088637
+  0.5900 |     0.070205 |     0.059164 |     0.011041 |     0.157264 |     0.208812 |     0.190207 |     0.018605 |     0.089101
+  0.5950 |     0.069686 |     0.059165 |     0.010521 |     0.150979 |     0.207925 |     0.189358 |     0.018568 |     0.089301
+  0.6000 |     0.069181 |     0.059178 |     0.010003 |     0.144597 |     0.207044 |     0.188512 |     0.018532 |     0.089505
+  0.6050 |     0.068640 |     0.059203 |     0.009438 |     0.137494 |     0.206118 |     0.187671 |     0.018447 |     0.089498
+  0.6100 |     0.068195 |     0.059240 |     0.008955 |     0.131319 |     0.205102 |     0.186833 |     0.018269 |     0.089073
+  0.6150 |     0.067636 |     0.059288 |     0.008348 |     0.123420 |     0.204431 |     0.185999 |     0.018432 |     0.090164
+  0.6200 |     0.067190 |     0.059349 |     0.007841 |     0.116701 |     0.203346 |     0.185169 |     0.018178 |     0.089393
+  0.6250 |     0.066740 |     0.059422 |     0.007317 |     0.109642 |     0.202582 |     0.184342 |     0.018240 |     0.090036
+  0.6300 |     0.066183 |     0.059507 |     0.006676 |     0.100868 |     0.201632 |     0.183519 |     0.018113 |     0.089831
+  0.6350 |     0.065712 |     0.059605 |     0.006108 |     0.092948 |     0.200816 |     0.182700 |     0.018116 |     0.090212
+  0.6400 |     0.065251 |     0.059714 |     0.005537 |     0.084852 |     0.199981 |     0.181885 |     0.018096 |     0.090490
+  0.6450 |     0.064764 |     0.059836 |     0.004928 |     0.076085 |     0.199119 |     0.181073 |     0.018046 |     0.090628
+  0.6500 |     0.064270 |     0.059971 |     0.004299 |     0.066896 |     0.198268 |     0.180265 |     0.018002 |     0.090799
+  0.6550 |     0.063841 |     0.060118 |     0.003723 |     0.058317 |     0.197501 |     0.179461 |     0.018040 |     0.091343
+  0.6600 |     0.063352 |     0.060277 |     0.003075 |     0.048532 |     0.196561 |     0.178660 |     0.017901 |     0.091071
+  0.6650 |     0.062927 |     0.060450 |     0.002478 |     0.039374 |     0.195658 |     0.177863 |     0.017796 |     0.090952
+  0.6700 |     0.062439 |     0.060635 |     0.001804 |     0.028898 |     0.194902 |     0.177069 |     0.017832 |     0.091494
+  0.6750 |     0.062043 |     0.060833 |     0.001210 |     0.019496 |     0.194074 |     0.176280 |     0.017795 |     0.091691
+  0.6800 |     0.061540 |     0.061045 |     0.000495 |     0.008048 |     0.193052 |     0.175493 |     0.017558 |     0.090951
+  0.6850 |     0.061104 |     0.061269 |     0.000165 |     0.002704 |     0.192350 |     0.174711 |     0.017639 |     0.091705
+  0.6900 |     0.060687 |     0.061508 |     0.000820 |     0.013519 |     0.191522 |     0.173931 |     0.017591 |     0.091847
+  0.6950 |     0.060201 |     0.061759 |     0.001559 |     0.025893 |     0.190614 |     0.173156 |     0.017459 |     0.091591
+  0.7000 |     0.059797 |     0.062025 |     0.002228 |     0.037252 |     0.189910 |     0.172384 |     0.017526 |     0.092287
+  0.7050 |     0.059389 |     0.062305 |     0.002916 |     0.049097 |     0.188968 |     0.171615 |     0.017353 |     0.091832
+  0.7100 |     0.058892 |     0.062598 |     0.003706 |     0.062934 |     0.188165 |     0.170850 |     0.017315 |     0.092020
+  0.7150 |     0.058506 |     0.062906 |     0.004400 |     0.075214 |     0.187321 |     0.170088 |     0.017233 |     0.091996
+  0.7200 |     0.058084 |     0.063229 |     0.005145 |     0.088584 |     0.186517 |     0.169330 |     0.017187 |     0.092145
+  0.7250 |     0.057675 |     0.063567 |     0.005892 |     0.102152 |     0.185617 |     0.168575 |     0.017042 |     0.091814
+  0.7300 |     0.057211 |     0.063919 |     0.006708 |     0.117249 |     0.184779 |     0.167824 |     0.016955 |     0.091758
+  0.7350 |     0.056795 |     0.064287 |     0.007492 |     0.131918 |     0.184197 |     0.167076 |     0.017121 |     0.092948
+  0.7400 |     0.056425 |     0.064670 |     0.008245 |     0.146122 |     0.183206 |     0.166332 |     0.016875 |     0.092108
+  0.7450 |     0.056011 |     0.065069 |     0.009058 |     0.161713 |     0.182391 |     0.165591 |     0.016801 |     0.092114
+  0.7500 |     0.055605 |     0.065484 |     0.009879 |     0.177674 |     0.181503 |     0.164853 |     0.016650 |     0.091733
+  0.7550 |     0.055204 |     0.065915 |     0.010711 |     0.194032 |     0.180818 |     0.164119 |     0.016699 |     0.092354
+  0.7600 |     0.054781 |     0.066363 |     0.011583 |     0.211434 |     0.179971 |     0.163388 |     0.016583 |     0.092144
+  0.7650 |     0.054405 |     0.066828 |     0.012423 |     0.228352 |     0.179400 |     0.162660 |     0.016740 |     0.093313
+  0.7700 |     0.054012 |     0.067311 |     0.013298 |     0.246207 |     0.178563 |     0.161936 |     0.016627 |     0.093117
+  0.7750 |     0.053598 |     0.067811 |     0.014212 |     0.265160 |     0.177648 |     0.161215 |     0.016434 |     0.092506
+  0.7800 |     0.053269 |     0.068328 |     0.015059 |     0.282698 |     0.177085 |     0.160497 |     0.016587 |     0.093670
+  0.7850 |     0.052852 |     0.068864 |     0.016012 |     0.302966 |     0.176208 |     0.159783 |     0.016425 |     0.093213
+  0.7900 |     0.052431 |     0.069419 |     0.016988 |     0.324000 |     0.175331 |     0.159072 |     0.016259 |     0.092734
+  0.7950 |     0.052094 |     0.069993 |     0.017899 |     0.343594 |     0.174392 |     0.158364 |     0.016028 |     0.091907
+  0.8000 |     0.051680 |     0.070586 |     0.018907 |     0.365847 |     0.173978 |     0.157659 |     0.016319 |     0.093798
+  0.8050 |     0.051346 |     0.071200 |     0.019854 |     0.386674 |     0.172931 |     0.156958 |     0.015973 |     0.092369
+  0.8100 |     0.050983 |     0.071833 |     0.020851 |     0.408977 |     0.172145 |     0.156260 |     0.015885 |     0.092276
+  0.8150 |     0.050569 |     0.072488 |     0.021919 |     0.433455 |     0.171580 |     0.155565 |     0.016015 |     0.093339
+  0.8200 |     0.050243 |     0.073164 |     0.022920 |     0.456186 |     0.170924 |     0.154873 |     0.016051 |     0.093908
+  0.8250 |     0.049867 |     0.073861 |     0.023994 |     0.481155 |     0.170086 |     0.154185 |     0.015901 |     0.093489
+  0.8300 |     0.049516 |     0.074581 |     0.025065 |     0.506204 |     0.169268 |     0.153499 |     0.015769 |     0.093157
+  0.8350 |     0.049182 |     0.075324 |     0.026141 |     0.531520 |     0.168517 |     0.152817 |     0.015699 |     0.093162
+  0.8400 |     0.048778 |     0.076090 |     0.027312 |     0.559926 |     0.167785 |     0.152138 |     0.015647 |     0.093255
+  0.8450 |     0.048413 |     0.076880 |     0.028467 |     0.587990 |     0.167030 |     0.151463 |     0.015567 |     0.093201
+  0.8500 |     0.048060 |     0.077694 |     0.029635 |     0.616618 |     0.166249 |     0.150790 |     0.015459 |     0.092987
+  0.8550 |     0.047714 |     0.078534 |     0.030820 |     0.645944 |     0.165493 |     0.150120 |     0.015373 |     0.092890
+  0.8600 |     0.047385 |     0.079399 |     0.032014 |     0.675615 |     0.164741 |     0.149454 |     0.015287 |     0.092792
+  0.8650 |     0.047052 |     0.080291 |     0.033239 |     0.706436 |     0.163952 |     0.148791 |     0.015161 |     0.092473
+  0.8700 |     0.046710 |     0.081210 |     0.034500 |     0.738596 |     0.163253 |     0.148130 |     0.015122 |     0.092632
+  0.8750 |     0.046385 |     0.082157 |     0.035772 |     0.771198 |     0.162415 |     0.147473 |     0.014942 |     0.091999
+  0.8800 |     0.046031 |     0.083132 |     0.037101 |     0.806007 |     0.161806 |     0.146819 |     0.014987 |     0.092622
+  0.8850 |     0.045731 |     0.084137 |     0.038406 |     0.839822 |     0.161013 |     0.146168 |     0.014845 |     0.092197
+  0.8900 |     0.045361 |     0.085172 |     0.039810 |     0.877631 |     0.160281 |     0.145520 |     0.014761 |     0.092093
+  0.8950 |     0.045101 |     0.086237 |     0.041136 |     0.912078 |     0.159657 |     0.144875 |     0.014781 |     0.092582
+  0.9000 |     0.044728 |     0.087335 |     0.042607 |     0.952583 |     0.159029 |     0.144233 |     0.014796 |     0.093041
+  0.9050 |     0.044371 |     0.088465 |     0.044094 |     0.993772 |     0.158279 |     0.143594 |     0.014684 |     0.092775
+  0.9100 |     0.044045 |     0.089628 |     0.045584 |     1.034942 |     0.157379 |     0.142958 |     0.014421 |     0.091631
+  0.9150 |     0.043762 |     0.090826 |     0.047065 |     1.075484 |     0.156713 |     0.142326 |     0.014387 |     0.091807
+  0.9200 |     0.043429 |     0.092060 |     0.048631 |     1.119776 |     0.156151 |     0.141696 |     0.014455 |     0.092570
+  0.9250 |     0.043136 |     0.093330 |     0.050193 |     1.163595 |     0.155302 |     0.141069 |     0.014233 |     0.091646
+  0.9300 |     0.042819 |     0.094637 |     0.051818 |     1.210160 |     0.154657 |     0.140445 |     0.014212 |     0.091893
+  0.9350 |     0.042497 |     0.095983 |     0.053486 |     1.258578 |     0.154016 |     0.139824 |     0.014192 |     0.092145
+  0.9400 |     0.042172 |     0.097369 |     0.055197 |     1.308839 |     0.153205 |     0.139206 |     0.013999 |     0.091376
+  0.9450 |     0.041852 |     0.098796 |     0.056944 |     1.360595 |     0.152592 |     0.138591 |     0.014001 |     0.091755
+  0.9500 |     0.041574 |     0.100264 |     0.058691 |     1.411728 |     0.151793 |     0.137979 |     0.013814 |     0.091005
+  0.9550 |     0.041303 |     0.101776 |     0.060473 |     1.464148 |     0.151159 |     0.137370 |     0.013790 |     0.091225
+  0.9600 |     0.040990 |     0.103333 |     0.062343 |     1.520945 |     0.150542 |     0.136763 |     0.013779 |     0.091529
+  0.9650 |     0.040660 |     0.104936 |     0.064275 |     1.580795 |     0.149715 |     0.136160 |     0.013556 |     0.090542
+  0.9700 |     0.040398 |     0.106585 |     0.066187 |     1.638351 |     0.149187 |     0.135559 |     0.013628 |     0.091348
+  0.9750 |     0.040111 |     0.108284 |     0.068173 |     1.699586 |     0.148475 |     0.134962 |     0.013513 |     0.091012
+  0.9800 |     0.039793 |     0.110033 |     0.070241 |     1.765170 |     0.147842 |     0.134367 |     0.013475 |     0.091145
+  0.9850 |     0.039528 |     0.111834 |     0.072305 |     1.829196 |     0.147145 |     0.133776 |     0.013369 |     0.090859
+  0.9900 |     0.039241 |     0.113688 |     0.074447 |     1.897201 |     0.146560 |     0.133187 |     0.013374 |     0.091251
+  0.9950 |     0.038930 |     0.115597 |     0.076668 |     1.969395 |     0.145800 |     0.132601 |     0.013199 |     0.090530
+  1.0000 |     0.038682 |     0.117564 |     0.078881 |     2.039201 |     0.145093 |     0.132017 |     0.013076 |     0.090120
+  1.0050 |     0.038408 |     0.119588 |     0.081181 |     2.113667 |     0.144472 |     0.131437 |     0.013035 |     0.090226
+  1.0100 |     0.038142 |     0.121674 |     0.083532 |     2.190013 |     0.143844 |     0.130860 |     0.012984 |     0.090267
+  1.0150 |     0.037866 |     0.123821 |     0.085955 |     2.269991 |     0.143150 |     0.130285 |     0.012865 |     0.089868
+  1.0200 |     0.037537 |     0.126033 |     0.088496 |     2.357584 |     0.142495 |     0.129713 |     0.012781 |     0.089696
+  1.0250 |     0.037275 |     0.128312 |     0.091036 |     2.442257 |     0.141787 |     0.129144 |     0.012642 |     0.089164
+  1.0300 |     0.037039 |     0.130659 |     0.093620 |     2.527585 |     0.141140 |     0.128578 |     0.012562 |     0.089002
+  1.0350 |     0.036772 |     0.133077 |     0.096305 |     2.619010 |     0.140438 |     0.128015 |     0.012422 |     0.088455
+  1.0400 |     0.036506 |     0.135568 |     0.099062 |     2.713576 |     0.140030 |     0.127455 |     0.012575 |     0.089803
+  1.0450 |     0.036319 |     0.138135 |     0.101816 |     2.803406 |     0.139163 |     0.126897 |     0.012266 |     0.088142
+  1.0500 |     0.035982 |     0.140779 |     0.104798 |     2.912508 |     0.138565 |     0.126342 |     0.012223 |     0.088211
+  1.0550 |     0.035735 |     0.143505 |     0.107770 |     3.015812 |     0.137927 |     0.125790 |     0.012136 |     0.087990
+  1.0600 |     0.035473 |     0.146313 |     0.110841 |     3.124665 |     0.137413 |     0.125241 |     0.012172 |     0.088581
+  1.0650 |     0.035210 |     0.149208 |     0.113998 |     3.237692 |     0.136692 |     0.124695 |     0.011997 |     0.087770
+  1.0700 |     0.034933 |     0.152192 |     0.117258 |     3.356626 |     0.136179 |     0.124151 |     0.012028 |     0.088321
+  1.0750 |     0.034706 |     0.155267 |     0.120562 |     3.473850 |     0.135408 |     0.123611 |     0.011797 |     0.087124
+  1.0800 |     0.034420 |     0.158438 |     0.124018 |     3.603090 |     0.134855 |     0.123073 |     0.011782 |     0.087371
+  1.0850 |     0.034183 |     0.161707 |     0.127523 |     3.730569 |     0.134150 |     0.122537 |     0.011612 |     0.086562
+  1.0900 |     0.033931 |     0.165077 |     0.131147 |     3.865129 |     0.133754 |     0.122005 |     0.011749 |     0.087840
+  1.0950 |     0.033698 |     0.168553 |     0.134854 |     4.001794 |     0.132887 |     0.121476 |     0.011412 |     0.085874
+  1.1000 |     0.033506 |     0.172137 |     0.138631 |     4.137484 |     0.132385 |     0.120949 |     0.011436 |     0.086387
+  1.1050 |     0.033169 |     0.175834 |     0.142665 |     4.301172 |     0.131798 |     0.120425 |     0.011373 |     0.086290
+  1.1100 |     0.032987 |     0.179647 |     0.146659 |     4.445934 |     0.131172 |     0.119904 |     0.011268 |     0.085903
+  1.1150 |     0.032697 |     0.183580 |     0.150883 |     4.614654 |     0.130520 |     0.119385 |     0.011134 |     0.085308
+  1.1200 |     0.032486 |     0.187638 |     0.155152 |     4.775920 |     0.129919 |     0.118870 |     0.011050 |     0.085050
+  1.1250 |     0.032287 |     0.191824 |     0.159537 |     4.941198 |     0.129330 |     0.118357 |     0.010973 |     0.084847
+  1.1300 |     0.032031 |     0.196144 |     0.164114 |     5.123638 |     0.128716 |     0.117847 |     0.010869 |     0.084444
+  1.1350 |     0.031773 |     0.200602 |     0.168829 |     5.313565 |     0.128203 |     0.117340 |     0.010863 |     0.084730
+  1.1400 |     0.031552 |     0.205203 |     0.173651 |     5.503686 |     0.127701 |     0.116836 |     0.010866 |     0.085086
+  1.1450 |     0.031356 |     0.209952 |     0.178596 |     5.695816 |     0.126901 |     0.116334 |     0.010567 |     0.083269
+  1.1500 |     0.031097 |     0.214854 |     0.183757 |     5.909132 |     0.126250 |     0.115836 |     0.010415 |     0.082492
+  1.1550 |     0.030894 |     0.219915 |     0.189021 |     6.118354 |     0.125759 |     0.115340 |     0.010419 |     0.082850
+  1.1600 |     0.030667 |     0.225139 |     0.194472 |     6.341418 |     0.125374 |     0.114847 |     0.010527 |     0.083966
+  1.1650 |     0.030430 |     0.230534 |     0.200105 |     6.575991 |     0.124537 |     0.114357 |     0.010181 |     0.081747
+  1.1700 |     0.030274 |     0.236105 |     0.205832 |     6.799048 |     0.124140 |     0.113869 |     0.010271 |     0.082735
+  1.1750 |     0.030021 |     0.241859 |     0.211838 |     7.056379 |     0.123565 |     0.113385 |     0.010180 |     0.082386
+  1.1800 |     0.029743 |     0.247801 |     0.218058 |     7.331341 |     0.122822 |     0.112903 |     0.009918 |     0.080754
+  1.1850 |     0.029579 |     0.253940 |     0.224361 |     7.585229 |     0.122333 |     0.112425 |     0.009908 |     0.080992
+  1.1900 |     0.029346 |     0.260281 |     0.230935 |     7.869481 |     0.121841 |     0.111949 |     0.009892 |     0.081190
+  1.1950 |     0.029168 |     0.266832 |     0.237664 |     8.148047 |     0.121122 |     0.111476 |     0.009646 |     0.079638
+  1.2000 |     0.028920 |     0.273601 |     0.244681 |     8.460605 |     0.120569 |     0.111006 |     0.009563 |     0.079314
+  1.2050 |     0.028727 |     0.280596 |     0.251870 |     8.767837 |     0.119976 |     0.110539 |     0.009437 |     0.078661
+  1.2100 |     0.028533 |     0.287825 |     0.259292 |     9.087370 |     0.119382 |     0.110075 |     0.009307 |     0.077963
+  1.2150 |     0.028335 |     0.295297 |     0.266961 |     9.421442 |     0.118850 |     0.109614 |     0.009237 |     0.077717
+  1.2200 |     0.028084 |     0.303019 |     0.274935 |     9.789843 |     0.118250 |     0.109155 |     0.009095 |     0.076911
+  1.2250 |     0.027901 |     0.311002 |     0.283102 |    10.146829 |     0.117790 |     0.108700 |     0.009090 |     0.077169
+  1.2300 |     0.027696 |     0.319255 |     0.291559 |    10.527230 |     0.117177 |     0.108248 |     0.008929 |     0.076202
+  1.2350 |     0.027492 |     0.327788 |     0.300296 |    10.923219 |     0.116702 |     0.107799 |     0.008904 |     0.076293
+  1.2400 |     0.027348 |     0.336610 |     0.309262 |    11.308327 |     0.116020 |     0.107353 |     0.008667 |     0.074707
+  1.2450 |     0.027120 |     0.345733 |     0.318614 |    11.748358 |     0.115616 |     0.106910 |     0.008707 |     0.075306
+  1.2500 |     0.026886 |     0.355168 |     0.328282 |    12.210177 |     0.115111 |     0.106470 |     0.008641 |     0.075067
+  1.2550 |     0.026741 |     0.364926 |     0.338185 |    12.646494 |     0.114357 |     0.106033 |     0.008325 |     0.072795
+  1.2600 |     0.026576 |     0.375018 |     0.348442 |    13.111216 |     0.113996 |     0.105599 |     0.008397 |     0.073663
+  1.2650 |     0.026359 |     0.385458 |     0.359098 |    13.623166 |     0.113524 |     0.105168 |     0.008355 |     0.073601
+  1.2700 |     0.026111 |     0.396257 |     0.370146 |    14.175956 |     0.112807 |     0.104741 |     0.008066 |     0.071500
+  1.2750 |     0.025946 |     0.407429 |     0.381484 |    14.703165 |     0.112491 |     0.104317 |     0.008174 |     0.072664
+  1.2800 |     0.025798 |     0.418988 |     0.393190 |    15.240950 |     0.111867 |     0.103896 |     0.007971 |     0.071255
+  1.2850 |     0.025567 |     0.430947 |     0.405380 |    15.855614 |     0.111255 |     0.103478 |     0.007777 |     0.069901
+  1.2900 |     0.025409 |     0.443321 |     0.417913 |    16.447745 |     0.110778 |     0.103064 |     0.007714 |     0.069639
+  1.2950 |     0.025233 |     0.456126 |     0.430893 |    17.076825 |     0.110301 |     0.102653 |     0.007648 |     0.069341
+  1.3000 |     0.025012 |     0.469376 |     0.444365 |    17.766339 |     0.109744 |     0.102245 |     0.007499 |     0.068330
+  1.3050 |     0.024851 |     0.483089 |     0.458238 |    18.439701 |     0.109260 |     0.101841 |     0.007419 |     0.067902
+  1.3100 |     0.024598 |     0.497280 |     0.472682 |    19.215963 |     0.108634 |     0.101440 |     0.007194 |     0.066218
+  1.3150 |     0.024471 |     0.511967 |     0.487497 |    19.921512 |     0.108201 |     0.101043 |     0.007158 |     0.066156
+  1.3200 |     0.024312 |     0.527169 |     0.502857 |    20.683844 |     0.107570 |     0.100649 |     0.006921 |     0.064337
+  1.3250 |     0.024113 |     0.542902 |     0.518789 |    21.514736 |     0.107158 |     0.100259 |     0.006899 |     0.064377
+  1.3300 |     0.024005 |     0.559187 |     0.535182 |    22.294933 |     0.106590 |     0.099873 |     0.006718 |     0.063022
+  1.3350 |     0.023762 |     0.576042 |     0.552281 |    23.242660 |     0.106097 |     0.099490 |     0.006607 |     0.062275
+  1.3400 |     0.023612 |     0.593489 |     0.569877 |    24.134765 |     0.105742 |     0.099111 |     0.006631 |     0.062705
+  1.3450 |     0.023455 |     0.611548 |     0.588093 |    25.073576 |     0.105229 |     0.098736 |     0.006493 |     0.061708
+  1.3500 |     0.023315 |     0.630240 |     0.606925 |    26.031226 |     0.104694 |     0.098364 |     0.006329 |     0.060455
+  1.3550 |     0.023081 |     0.649588 |     0.626506 |    27.143455 |     0.104069 |     0.097997 |     0.006072 |     0.058344
+  1.3600 |     0.022974 |     0.669613 |     0.646640 |    28.146889 |     0.103632 |     0.097633 |     0.005998 |     0.057882
+  1.3650 |     0.022782 |     0.690341 |     0.667559 |    29.302517 |     0.103254 |     0.097274 |     0.005980 |     0.057912
+  1.3700 |     0.022594 |     0.711794 |     0.689199 |    30.503113 |     0.102682 |     0.096919 |     0.005764 |     0.056131
+  1.3750 |     0.022464 |     0.733997 |     0.711533 |    31.674336 |     0.102357 |     0.096567 |     0.005790 |     0.056562
+  1.3800 |     0.022296 |     0.756975 |     0.734680 |    32.951472 |     0.101726 |     0.096220 |     0.005505 |     0.054118
+  1.3850 |     0.022117 |     0.780755 |     0.758639 |    34.301925 |     0.101226 |     0.095878 |     0.005348 |     0.052834
+  1.3900 |     0.021972 |     0.805362 |     0.783390 |    35.654117 |     0.100706 |     0.095540 |     0.005166 |     0.051300
+  1.3950 |     0.021803 |     0.830824 |     0.809021 |    37.106267 |     0.100259 |     0.095206 |     0.005053 |     0.050397
+  1.4000 |     0.021657 |     0.857168 |     0.835512 |    38.579908 |     0.099759 |     0.094877 |     0.004882 |     0.048939
+  1.4050 |     0.021513 |     0.884423 |     0.862910 |    40.111552 |     0.099347 |     0.094552 |     0.004795 |     0.048264
+  1.4100 |     0.021379 |     0.912616 |     0.891238 |    41.688375 |     0.098891 |     0.094232 |     0.004659 |     0.047114
+  1.4150 |     0.021160 |     0.941778 |     0.920618 |    43.507840 |     0.098288 |     0.093917 |     0.004371 |     0.044472
+  1.4200 |     0.021084 |     0.971937 |     0.950854 |    45.098761 |     0.097777 |     0.093607 |     0.004170 |     0.042649
+  1.4250 |     0.020838 |     1.003124 |     0.982286 |    47.138167 |     0.097271 |     0.093302 |     0.003969 |     0.040805
+  1.4300 |     0.020729 |     1.035369 |     1.014641 |    48.948545 |     0.096981 |     0.093002 |     0.003979 |     0.041028
+  1.4350 |     0.020596 |     1.068703 |     1.048107 |    50.889246 |     0.096395 |     0.092707 |     0.003689 |     0.038266
+  1.4400 |     0.020440 |     1.103156 |     1.082716 |    52.970165 |     0.095854 |     0.092417 |     0.003437 |     0.035859
+  1.4450 |     0.020272 |     1.138760 |     1.118488 |    55.174545 |     0.095585 |     0.092133 |     0.003452 |     0.036113
+  1.4500 |     0.020135 |     1.175545 |     1.155410 |    57.383999 |     0.095285 |     0.091855 |     0.003430 |     0.036000
+  1.4550 |     0.019983 |     1.213543 |     1.193560 |    59.729746 |     0.094641 |     0.091582 |     0.003059 |     0.032326
+  1.4600 |     0.019836 |     1.252785 |     1.232949 |    62.157120 |     0.094250 |     0.091315 |     0.002936 |     0.031148
+  1.4650 |     0.019725 |     1.293301 |     1.273576 |    64.565053 |     0.093741 |     0.091053 |     0.002688 |     0.028674
+  1.4700 |     0.019572 |     1.335123 |     1.315552 |    67.216649 |     0.093277 |     0.090798 |     0.002479 |     0.026580
+  1.4750 |     0.019406 |     1.378281 |     1.358874 |    70.021834 |     0.092905 |     0.090549 |     0.002356 |     0.025364
+  1.4800 |     0.019302 |     1.422803 |     1.403501 |    72.710864 |     0.092368 |     0.090306 |     0.002062 |     0.022325
+  1.4850 |     0.019150 |     1.468720 |     1.449571 |    75.697126 |     0.091966 |     0.090070 |     0.001896 |     0.020616
+  1.4900 |     0.019023 |     1.516059 |     1.497037 |    78.696817 |     0.091527 |     0.089840 |     0.001687 |     0.018436
+  1.4950 |     0.018881 |     1.564848 |     1.545967 |    81.878160 |     0.091013 |     0.089617 |     0.001396 |     0.015335
+  1.5000 |     0.018712 |     1.615112 |     1.596400 |    85.316035 |     0.090699 |     0.089401 |     0.001298 |     0.014311
+  1.5050 |     0.018582 |     1.666876 |     1.648294 |    88.701947 |     0.090174 |     0.089191 |     0.000983 |     0.010901
+  1.5100 |     0.018478 |     1.720164 |     1.701687 |    92.093132 |     0.089696 |     0.088989 |     0.000707 |     0.007880
+  1.5150 |     0.018341 |     1.774997 |     1.756656 |    95.775812 |     0.089360 |     0.088794 |     0.000566 |     0.006333
+  1.5200 |     0.018194 |     1.831395 |     1.813201 |    99.656866 |     0.088821 |     0.088607 |     0.000215 |     0.002417
+  1.5250 |     0.018066 |     1.889376 |     1.871309 |   103.581306 |     0.088462 |     0.088427 |     0.000035 |     0.000397
+  1.5300 |     0.017962 |     1.948953 |     1.930991 |   107.503899 |     0.088032 |     0.088254 |     0.000223 |     0.002530
+  1.5350 |     0.017790 |     2.010142 |     1.992352 |   111.994654 |     0.087689 |     0.088090 |     0.000401 |     0.004579
+  1.5400 |     0.017687 |     2.072950 |     2.055263 |   116.201580 |     0.087219 |     0.087934 |     0.000715 |     0.008192
+  1.5450 |     0.017542 |     2.137387 |     2.119844 |   120.842818 |     0.086760 |     0.087786 |     0.001025 |     0.011820
+  1.5500 |     0.017415 |     2.203454 |     2.186039 |   125.526432 |     0.086404 |     0.087646 |     0.001242 |     0.014377
+  1.5550 |     0.017319 |     2.271153 |     2.253834 |   130.135445 |     0.086029 |     0.087515 |     0.001486 |     0.017272
+  1.5600 |     0.017188 |     2.340481 |     2.323293 |   135.170478 |     0.085550 |     0.087392 |     0.001842 |     0.021528
+  1.5650 |     0.017063 |     2.411430 |     2.394367 |   140.321087 |     0.085095 |     0.087278 |     0.002183 |     0.025656
+  1.5700 |     0.016952 |     2.483990 |     2.467038 |   145.535020 |     0.084583 |     0.087173 |     0.002590 |     0.030620
+  1.5750 |     0.016800 |     2.558144 |     2.541344 |   151.272205 |     0.084191 |     0.087078 |     0.002886 |     0.034282
+  1.5800 |     0.016693 |     2.633873 |     2.617180 |   156.778695 |     0.083840 |     0.086991 |     0.003151 |     0.037589
+  1.5850 |     0.016550 |     2.711152 |     2.694602 |   162.813862 |     0.083410 |     0.086914 |     0.003504 |     0.042010
+  1.5900 |     0.016445 |     2.789953 |     2.773508 |   168.653614 |     0.083037 |     0.086846 |     0.003810 |     0.045882
+  1.5950 |     0.016316 |     2.870240 |     2.853924 |   174.918233 |     0.082652 |     0.086789 |     0.004137 |     0.050053
+  1.6000 |     0.016203 |     2.951974 |     2.935771 |   181.187311 |     0.082286 |     0.086740 |     0.004455 |     0.054139
+  1.6050 |     0.016097 |     3.035111 |     3.019013 |   187.548893 |     0.081841 |     0.086702 |     0.004861 |     0.059401
+  1.6100 |     0.015949 |     3.119600 |     3.103651 |   194.603419 |     0.081485 |     0.086674 |     0.005189 |     0.063686
+  1.6150 |     0.015900 |     3.205387 |     3.189488 |   200.600798 |     0.081057 |     0.086656 |     0.005599 |     0.069078
+  1.6200 |     0.015714 |     3.292412 |     3.276698 |   208.518097 |     0.080509 |     0.086648 |     0.006139 |     0.076252
+  1.6250 |     0.015596 |     3.380609 |     3.365013 |   215.766125 |     0.080194 |     0.086651 |     0.006456 |     0.080510
+  1.6300 |     0.015537 |     3.469907 |     3.454370 |   222.333269 |     0.079863 |     0.086664 |     0.006801 |     0.085154
+  1.6350 |     0.015416 |     3.560230 |     3.544814 |   229.938562 |     0.079394 |     0.086687 |     0.007293 |     0.091862
+  1.6400 |     0.015301 |     3.651499 |     3.636198 |   237.641966 |     0.079143 |     0.086722 |     0.007579 |     0.095764
+  1.6450 |     0.015191 |     3.743627 |     3.728437 |   245.442114 |     0.078827 |     0.086766 |     0.007940 |     0.100721
+  1.6500 |     0.015066 |     3.836526 |     3.821459 |   253.643076 |     0.078419 |     0.086822 |     0.008402 |     0.107146
+  1.6550 |     0.014937 |     3.930100 |     3.915163 |   262.110332 |     0.077930 |     0.086888 |     0.008958 |     0.114952
+  1.6600 |     0.014851 |     4.024254 |     4.009403 |   269.972748 |     0.077677 |     0.086965 |     0.009288 |     0.119568
+  1.6650 |     0.014727 |     4.118884 |     4.104158 |   278.691715 |     0.077197 |     0.087052 |     0.009855 |     0.127658
+  1.6700 |     0.014658 |     4.213888 |     4.199230 |   286.487220 |     0.076784 |     0.087151 |     0.010367 |     0.135013
+  1.6750 |     0.014526 |     4.309157 |     4.294631 |   295.648662 |     0.076388 |     0.087260 |     0.010872 |     0.142328
+  1.6800 |     0.014406 |     4.404583 |     4.390178 |   304.756725 |     0.076037 |     0.087380 |     0.011342 |     0.149169
+  1.6850 |     0.014313 |     4.500055 |     4.485742 |   313.410096 |     0.075659 |     0.087510 |     0.011851 |     0.156644
+  1.6900 |     0.014226 |     4.595460 |     4.581234 |   322.035118 |     0.075331 |     0.087652 |     0.012321 |     0.163561
+  1.6950 |     0.014101 |     4.690685 |     4.676584 |   331.656050 |     0.074961 |     0.087803 |     0.012842 |     0.171321
+  1.7000 |     0.013993 |     4.785617 |     4.771624 |   341.008451 |     0.074582 |     0.087966 |     0.013384 |     0.179447
+  1.7050 |     0.013916 |     4.880143 |     4.866227 |   349.693816 |     0.074249 |     0.088139 |     0.013889 |     0.187060
+  1.7100 |     0.013815 |     4.974150 |     4.960335 |   359.052645 |     0.073942 |     0.088322 |     0.014379 |     0.194467
+  1.7150 |     0.013698 |     5.067529 |     5.053831 |   368.947870 |     0.073562 |     0.088515 |     0.014953 |     0.203267
+  1.7200 |     0.013600 |     5.160171 |     5.146571 |   378.436142 |     0.073019 |     0.088718 |     0.015699 |     0.215003
+  1.7250 |     0.013517 |     5.251968 |     5.238451 |   387.540683 |     0.072580 |     0.088931 |     0.016352 |     0.225291
+  1.7300 |     0.013381 |     5.342819 |     5.329438 |   398.284597 |     0.072485 |     0.089155 |     0.016670 |     0.229980
+  1.7350 |     0.013285 |     5.432622 |     5.419337 |   407.934069 |     0.071956 |     0.089387 |     0.017431 |     0.242244
+  1.7400 |     0.013204 |     5.521282 |     5.508078 |   417.145412 |     0.071688 |     0.089629 |     0.017941 |     0.250269
+  1.7450 |     0.013120 |     5.608707 |     5.595587 |   426.490249 |     0.071265 |     0.089881 |     0.018616 |     0.261223
+  1.7500 |     0.013037 |     5.694810 |     5.681773 |   435.816359 |     0.070867 |     0.090141 |     0.019275 |     0.271985
+  1.7550 |     0.012969 |     5.779508 |     5.766539 |   444.626637 |     0.070693 |     0.090411 |     0.019717 |     0.278913
+  1.7600 |     0.012862 |     5.862725 |     5.849864 |   454.829991 |     0.070362 |     0.090689 |     0.020327 |     0.288885
+  1.7650 |     0.012745 |     5.944390 |     5.931644 |   465.393655 |     0.069916 |     0.090975 |     0.021059 |     0.301208
+  1.7700 |     0.012656 |     6.024436 |     6.011779 |   475.000111 |     0.069420 |     0.091270 |     0.021850 |     0.314743
+  1.7750 |     0.012542 |     6.102803 |     6.090261 |   485.578718 |     0.069231 |     0.091573 |     0.022342 |     0.322712
+  1.7800 |     0.012474 |     6.179438 |     6.166965 |   494.392963 |     0.068960 |     0.091883 |     0.022923 |     0.332409
+  1.7850 |     0.012377 |     6.254294 |     6.241917 |   504.302195 |     0.068480 |     0.092201 |     0.023721 |     0.346394
+  1.7900 |     0.012302 |     6.327328 |     6.315026 |   513.347510 |     0.068267 |     0.092526 |     0.024260 |     0.355367
+  1.7950 |     0.012186 |     6.398504 |     6.386318 |   524.054406 |     0.067915 |     0.092858 |     0.024943 |     0.367275
+  1.8000 |     0.012129 |     6.467794 |     6.455665 |   532.259864 |     0.067625 |     0.093198 |     0.025573 |     0.378160
+  1.8050 |     0.012064 |     6.535172 |     6.523108 |   540.698562 |     0.067257 |     0.093543 |     0.026287 |     0.390840
+  1.8100 |     0.011940 |     6.600622 |     6.588682 |   551.834435 |     0.066843 |     0.093895 |     0.027052 |     0.404718
+  1.8150 |     0.011865 |     6.664131 |     6.652266 |   560.672345 |     0.066675 |     0.094253 |     0.027578 |     0.413617
+  1.8200 |     0.011786 |     6.725691 |     6.713906 |   569.672702 |     0.066244 |     0.094616 |     0.028372 |     0.428295
+  1.8250 |     0.011675 |     6.785302 |     6.773626 |   580.163650 |     0.065927 |     0.094985 |     0.029059 |     0.440774
+  1.8300 |     0.011605 |     6.842965 |     6.831360 |   588.653915 |     0.065533 |     0.095360 |     0.029827 |     0.455147
+  1.8350 |     0.011516 |     6.898690 |     6.887174 |   598.041460 |     0.065245 |     0.095739 |     0.030494 |     0.467377
+  1.8400 |     0.011435 |     6.952488 |     6.941053 |   607.013404 |     0.064889 |     0.096123 |     0.031234 |     0.481348
+  1.8450 |     0.011332 |     7.004376 |     6.993044 |   617.102685 |     0.064621 |     0.096511 |     0.031891 |     0.493505
+  1.8500 |     0.011268 |     7.054373 |     7.043105 |   625.048759 |     0.064442 |     0.096904 |     0.032462 |     0.503738
+  1.8550 |     0.011197 |     7.102505 |     7.091307 |   633.304853 |     0.063892 |     0.097301 |     0.033409 |     0.522892
+  1.8600 |     0.011138 |     7.148797 |     7.137659 |   640.834236 |     0.063557 |     0.097701 |     0.034144 |     0.537225
+  1.8650 |     0.011046 |     7.193280 |     7.182233 |   650.188232 |     0.063473 |     0.098105 |     0.034633 |     0.545627
+  1.8700 |     0.010994 |     7.235986 |     7.224993 |   657.186300 |     0.063033 |     0.098513 |     0.035480 |     0.562886
+  1.8750 |     0.010848 |     7.276952 |     7.266104 |   669.824192 |     0.062685 |     0.098923 |     0.036238 |     0.578091
+  1.8800 |     0.010807 |     7.316213 |     7.305406 |   676.016459 |     0.062502 |     0.099337 |     0.036834 |     0.589324
+  1.8850 |     0.010713 |     7.353809 |     7.343096 |   685.459929 |     0.062069 |     0.099753 |     0.037684 |     0.607122
+  1.8900 |     0.010681 |     7.389781 |     7.379100 |   690.865818 |     0.061943 |     0.100171 |     0.038228 |     0.617143
+  1.8950 |     0.010535 |     7.424170 |     7.413634 |   703.689132 |     0.061550 |     0.100592 |     0.039042 |     0.634307
+  1.9000 |     0.010458 |     7.457019 |     7.446561 |   712.031014 |     0.061157 |     0.101015 |     0.039857 |     0.651723
+  1.9050 |     0.010388 |     7.488372 |     7.477984 |   719.883162 |     0.061052 |     0.101439 |     0.040388 |     0.661535
+  1.9100 |     0.010278 |     7.518274 |     7.507996 |   730.523661 |     0.060541 |     0.101866 |     0.041324 |     0.682576
+  1.9150 |     0.010239 |     7.546769 |     7.536530 |   736.042185 |     0.060341 |     0.102293 |     0.041952 |     0.695248
+  1.9200 |     0.010160 |     7.573903 |     7.563743 |   744.489172 |     0.060008 |     0.102723 |     0.042714 |     0.711811
+  1.9250 |     0.010107 |     7.599720 |     7.589613 |   750.949960 |     0.059785 |     0.103153 |     0.043368 |     0.725403
+  1.9300 |     0.010038 |     7.624265 |     7.614228 |   758.552575 |     0.059507 |     0.103584 |     0.044077 |     0.740702
+  1.9350 |     0.010000 |     7.647585 |     7.637584 |   763.741330 |     0.059097 |     0.104017 |     0.044920 |     0.760110
+  1.9400 |     0.009907 |     7.669722 |     7.659815 |   773.180400 |     0.058743 |     0.104450 |     0.045706 |     0.778067
+  1.9450 |     0.009800 |     7.690720 |     7.680920 |   783.741185 |     0.058541 |     0.104883 |     0.046342 |     0.791607
+  1.9500 |     0.009722 |     7.710624 |     7.700902 |   792.123548 |     0.058164 |     0.105317 |     0.047153 |     0.810683
+  1.9550 |     0.009683 |     7.729476 |     7.719793 |   797.251336 |     0.058076 |     0.105752 |     0.047676 |     0.820915
+  1.9600 |     0.009571 |     7.747318 |     7.737746 |   808.417549 |     0.057646 |     0.106186 |     0.048540 |     0.842030
+  1.9650 |     0.009574 |     7.764190 |     7.754616 |   809.973047 |     0.057321 |     0.106621 |     0.049300 |     0.860065
+  1.9700 |     0.009490 |     7.780134 |     7.770644 |   818.832201 |     0.057076 |     0.107056 |     0.049979 |     0.875662
+  1.9750 |     0.009384 |     7.795188 |     7.785804 |   829.723230 |     0.056676 |     0.107490 |     0.050814 |     0.896562
+  1.9800 |     0.009287 |     7.809390 |     7.800103 |   839.888713 |     0.056421 |     0.107924 |     0.051503 |     0.912843
+  1.9850 |     0.009290 |     7.822778 |     7.813488 |   841.103944 |     0.056302 |     0.108358 |     0.052057 |     0.924601
+  1.9900 |     0.009189 |     7.835387 |     7.826198 |   851.704899 |     0.055881 |     0.108792 |     0.052910 |     0.946835
+  1.9950 |     0.009153 |     7.847253 |     7.838100 |   856.330057 |     0.055572 |     0.109225 |     0.053652 |     0.965447
+  2.0000 |     0.009022 |     7.858410 |     7.849388 |   870.006858 |     0.055413 |     0.109657 |     0.054244 |     0.978906
+  2.0050 |     0.008979 |     7.868890 |     7.859911 |   875.339518 |     0.055185 |     0.110089 |     0.054904 |     0.994915
+  2.0100 |     0.008928 |     7.878725 |     7.869798 |   881.485941 |     0.054874 |     0.110520 |     0.055646 |     1.014065
+  2.0150 |     0.008864 |     7.887947 |     7.879082 |   888.877242 |     0.054620 |     0.110950 |     0.056330 |     1.031292
+  2.0200 |     0.008788 |     7.896583 |     7.887794 |   897.519186 |     0.054216 |     0.111379 |     0.057164 |     1.054371
+  2.0250 |     0.008749 |     7.904663 |     7.895913 |   902.477511 |     0.053894 |     0.111808 |     0.057914 |     1.074583
+  2.0300 |     0.008647 |     7.912213 |     7.903566 |   914.008202 |     0.053843 |     0.112235 |     0.058392 |     1.084490
+  2.0350 |     0.008605 |     7.919261 |     7.910656 |   919.266175 |     0.053437 |     0.112661 |     0.059225 |     1.108312
+  2.0400 |     0.008549 |     7.925831 |     7.917282 |   926.110361 |     0.053174 |     0.113086 |     0.059912 |     1.126719
+  2.0450 |     0.008496 |     7.931948 |     7.923452 |   932.612203 |     0.053026 |     0.113510 |     0.060484 |     1.140660
+  2.0500 |     0.008439 |     7.937634 |     7.929195 |   939.596514 |     0.052702 |     0.113933 |     0.061231 |     1.161819
+  2.0550 |     0.008336 |     7.942912 |     7.934576 |   951.861368 |     0.052431 |     0.114355 |     0.061924 |     1.181064
+  2.0600 |     0.008266 |     7.947803 |     7.939537 |   960.525348 |     0.052296 |     0.114775 |     0.062479 |     1.194717
+  2.0650 |     0.008270 |     7.952327 |     7.944057 |   960.601005 |     0.051823 |     0.115194 |     0.063370 |     1.222812
+  2.0700 |     0.008188 |     7.956504 |     7.948315 |   970.670648 |     0.051681 |     0.115611 |     0.063930 |     1.237023
+  2.0750 |     0.008104 |     7.960351 |     7.952247 |   981.224825 |     0.051356 |     0.116027 |     0.064671 |     1.259266
+  2.0800 |     0.008098 |     7.963888 |     7.955790 |   982.432979 |     0.051114 |     0.116442 |     0.065328 |     1.278083
+  2.0850 |     0.008007 |     7.967130 |     7.959123 |   994.054884 |     0.050952 |     0.116855 |     0.065903 |     1.293448
+  2.0900 |     0.007973 |     7.970094 |     7.962121 |   998.641206 |     0.050619 |     0.117267 |     0.066647 |     1.316633
+  2.0950 |     0.007890 |     7.972794 |     7.964904 |  1009.510053 |     0.050367 |     0.117677 |     0.067310 |     1.336373
+  2.1000 |     0.007878 |     7.975246 |     7.967368 |  1011.319811 |     0.050154 |     0.118086 |     0.067931 |     1.354449
+  2.1050 |     0.007814 |     7.977463 |     7.969649 |  1019.871081 |     0.049794 |     0.118493 |     0.068698 |     1.379641
+  2.1100 |     0.007712 |     7.979458 |     7.971746 |  1033.664647 |     0.049508 |     0.118898 |     0.069390 |     1.401598
+  2.1150 |     0.007684 |     7.981245 |     7.973561 |  1037.683168 |     0.049243 |     0.119302 |     0.070059 |     1.422727
+  2.1200 |     0.007621 |     7.982833 |     7.975212 |  1046.488138 |     0.048925 |     0.119704 |     0.070779 |     1.446676
+  2.1250 |     0.007582 |     7.984236 |     7.976654 |  1052.016837 |     0.048980 |     0.120105 |     0.071125 |     1.452126
+  2.1300 |     0.007474 |     7.985463 |     7.977989 |  1067.420209 |     0.048497 |     0.120504 |     0.072007 |     1.484786
+  2.1350 |     0.007457 |     7.986525 |     7.979068 |  1069.952021 |     0.048318 |     0.120901 |     0.072583 |     1.502200
+  2.1400 |     0.007412 |     7.987431 |     7.980019 |  1076.650850 |     0.048070 |     0.121297 |     0.073227 |     1.523336
+  2.1450 |     0.007294 |     7.988191 |     7.980897 |  1094.195457 |     0.047871 |     0.121691 |     0.073819 |     1.542041
+  2.1500 |     0.007254 |     7.988812 |     7.981559 |  1100.334837 |     0.047668 |     0.122083 |     0.074415 |     1.561112
+  2.1550 |     0.007181 |     7.989304 |     7.982123 |  1111.512100 |     0.047431 |     0.122473 |     0.075042 |     1.582140
+  2.1600 |     0.007169 |     7.989674 |     7.982504 |  1113.429673 |     0.047083 |     0.122862 |     0.075779 |     1.609456
+  2.1650 |     0.007140 |     7.989928 |     7.982788 |  1118.076777 |     0.046877 |     0.123249 |     0.076373 |     1.629226
+  2.1700 |     0.007106 |     7.990075 |     7.982969 |  1123.418616 |     0.046674 |     0.123635 |     0.076961 |     1.648927
+  2.1750 |     0.007022 |     7.990120 |     7.983098 |  1136.877329 |     0.046398 |     0.124019 |     0.077621 |     1.672932
+  2.1800 |     0.007007 |     7.990070 |     7.983063 |  1139.379032 |     0.046303 |     0.124400 |     0.078098 |     1.686684
+  2.1850 |     0.006887 |     7.989930 |     7.983043 |  1159.129449 |     0.045985 |     0.124781 |     0.078795 |     1.713491
+  2.1900 |     0.006829 |     7.989707 |     7.982877 |  1168.888718 |     0.045771 |     0.125159 |     0.079388 |     1.734452
+  2.1950 |     0.006817 |     7.989405 |     7.982587 |  1170.941208 |     0.045535 |     0.125536 |     0.080001 |     1.756940
+  2.2000 |     0.006778 |     7.989028 |     7.982250 |  1177.712179 |     0.045343 |     0.125911 |     0.080568 |     1.776876
+  2.2050 |     0.006719 |     7.988583 |     7.981864 |  1187.943525 |     0.045039 |     0.126284 |     0.081245 |     1.803880
+  2.2100 |     0.006624 |     7.988072 |     7.981448 |  1204.978729 |     0.044700 |     0.126656 |     0.081956 |     1.833450
+  2.2150 |     0.006620 |     7.987501 |     7.980880 |  1205.482307 |     0.044601 |     0.127026 |     0.082425 |     1.848067
+  2.2200 |     0.006545 |     7.986873 |     7.980328 |  1219.378214 |     0.044296 |     0.127394 |     0.083098 |     1.875967
+  2.2250 |     0.006542 |     7.986191 |     7.979649 |  1219.765837 |     0.044080 |     0.127760 |     0.083680 |     1.898338
+  2.2300 |     0.006488 |     7.985459 |     7.978972 |  1229.880321 |     0.043941 |     0.128125 |     0.084184 |     1.915868
+  2.2350 |     0.006411 |     7.984681 |     7.978271 |  1244.533341 |     0.043767 |     0.128488 |     0.084721 |     1.935727
+  2.2400 |     0.006374 |     7.983859 |     7.977486 |  1251.635115 |     0.043454 |     0.128849 |     0.085395 |     1.965174
+  2.2450 |     0.006315 |     7.982997 |     7.976682 |  1263.176279 |     0.043255 |     0.129208 |     0.085953 |     1.987116
+  2.2500 |     0.006291 |     7.982096 |     7.975804 |  1267.711981 |     0.043140 |     0.129566 |     0.086426 |     2.003356
+  2.2550 |     0.006269 |     7.981160 |     7.974891 |  1272.109287 |     0.042812 |     0.129922 |     0.087110 |     2.034682
+  2.2600 |     0.006179 |     7.980190 |     7.974011 |  1290.448699 |     0.042772 |     0.130276 |     0.087504 |     2.045808
+  2.2650 |     0.006168 |     7.979190 |     7.973021 |  1292.593462 |     0.042403 |     0.130629 |     0.088226 |     2.080633
+  2.2700 |     0.006100 |     7.978160 |     7.972060 |  1306.929520 |     0.042013 |     0.130980 |     0.088966 |     2.117565
+  2.2750 |     0.006049 |     7.977104 |     7.971055 |  1317.658559 |     0.041988 |     0.131329 |     0.089341 |     2.127771
+  2.2800 |     0.006021 |     7.976023 |     7.970002 |  1323.704889 |     0.041747 |     0.131676 |     0.089929 |     2.154155
+  2.2850 |     0.005956 |     7.974918 |     7.968962 |  1337.978261 |     0.041603 |     0.132022 |     0.090419 |     2.173376
+  2.2900 |     0.005924 |     7.973792 |     7.967868 |  1345.125947 |     0.041346 |     0.132366 |     0.091020 |     2.201450
+  2.2950 |     0.005866 |     7.972645 |     7.966780 |  1358.214835 |     0.041075 |     0.132708 |     0.091634 |     2.230907
+  2.3000 |     0.005895 |     7.971480 |     7.965585 |  1351.225775 |     0.040784 |     0.133049 |     0.092265 |     2.262278
+  2.3050 |     0.005808 |     7.970297 |     7.964489 |  1371.193665 |     0.040652 |     0.133388 |     0.092736 |     2.281198
+  2.3100 |     0.005749 |     7.969099 |     7.963349 |  1385.074036 |     0.040397 |     0.133726 |     0.093329 |     2.310276
+  2.3150 |     0.005728 |     7.967885 |     7.962156 |  1389.951975 |     0.040211 |     0.134061 |     0.093850 |     2.333917
+  2.3200 |     0.005679 |     7.966657 |     7.960978 |  1401.756432 |     0.040094 |     0.134395 |     0.094301 |     2.352002
+  2.3250 |     0.005635 |     7.965417 |     7.959781 |  1412.439675 |     0.039971 |     0.134728 |     0.094757 |     2.370624
+  2.3300 |     0.005614 |     7.964165 |     7.958551 |  1417.738109 |     0.039672 |     0.135059 |     0.095386 |     2.404345
+  2.3350 |     0.005576 |     7.962901 |     7.957325 |  1427.039465 |     0.039351 |     0.135388 |     0.096037 |     2.440520
+  2.3400 |     0.005506 |     7.961628 |     7.956122 |  1444.930471 |     0.039273 |     0.135715 |     0.096442 |     2.455689
+  2.3450 |     0.005465 |     7.960346 |     7.954881 |  1455.589514 |     0.039129 |     0.136041 |     0.096912 |     2.476706
+  2.3500 |     0.005432 |     7.959055 |     7.953623 |  1464.193135 |     0.038795 |     0.136365 |     0.097571 |     2.515064
+  2.3550 |     0.005346 |     7.957756 |     7.952409 |  1487.491216 |     0.038632 |     0.136688 |     0.098056 |     2.538199
+  2.3600 |     0.005325 |     7.956449 |     7.951125 |  1493.196713 |     0.038446 |     0.137009 |     0.098563 |     2.563673
+  2.3650 |     0.005352 |     7.955137 |     7.949785 |  1485.441754 |     0.038190 |     0.137329 |     0.099139 |     2.595953
+  2.3700 |     0.005319 |     7.953818 |     7.948498 |  1494.233686 |     0.038102 |     0.137646 |     0.099544 |     2.612577
+  2.3750 |     0.005238 |     7.952494 |     7.947256 |  1517.311859 |     0.037850 |     0.137963 |     0.100113 |     2.644995
+  2.3800 |     0.005218 |     7.951164 |     7.945946 |  1522.665548 |     0.037697 |     0.138277 |     0.100580 |     2.668123
+  2.3850 |     0.005175 |     7.949830 |     7.944656 |  1535.346049 |     0.037406 |     0.138591 |     0.101184 |     2.704989
+  2.3900 |     0.005200 |     7.948492 |     7.943292 |  1527.504518 |     0.037249 |     0.138902 |     0.101653 |     2.729046
+  2.3950 |     0.005118 |     7.947150 |     7.942032 |  1551.767624 |     0.037145 |     0.139212 |     0.102067 |     2.747788
+  2.4000 |     0.005052 |     7.945805 |     7.940753 |  1571.655259 |     0.036873 |     0.139521 |     0.102647 |     2.783788
+  2.4050 |     0.004997 |     7.944457 |     7.939460 |  1588.919626 |     0.036842 |     0.139827 |     0.102985 |     2.795319
+  2.4100 |     0.004945 |     7.943106 |     7.938161 |  1605.173007 |     0.036495 |     0.140133 |     0.103638 |     2.839821
+  2.4150 |     0.004950 |     7.941753 |     7.936803 |  1603.239637 |     0.036355 |     0.140437 |     0.104082 |     2.862973
+  2.4200 |     0.004893 |     7.940398 |     7.935505 |  1621.961010 |     0.036222 |     0.140739 |     0.104517 |     2.885491
+  2.4250 |     0.004842 |     7.939041 |     7.934199 |  1638.763456 |     0.035860 |     0.141040 |     0.105180 |     2.933055
+  2.4300 |     0.004824 |     7.937682 |     7.932858 |  1644.514177 |     0.035650 |     0.141339 |     0.105689 |     2.964608
+  2.4350 |     0.004779 |     7.936322 |     7.931543 |  1659.782408 |     0.035484 |     0.141637 |     0.106152 |     2.991508
+  2.4400 |     0.004807 |     7.934961 |     7.930154 |  1649.712077 |     0.035511 |     0.141933 |     0.106422 |     2.996831
+  2.4450 |     0.004754 |     7.933598 |     7.928845 |  1667.873882 |     0.035194 |     0.142228 |     0.107034 |     3.041289
+  2.4500 |     0.004699 |     7.932235 |     7.927536 |  1687.046366 |     0.035246 |     0.142521 |     0.107274 |     3.043556
+  2.4550 |     0.004699 |     7.930872 |     7.926173 |  1686.827416 |     0.034832 |     0.142813 |     0.107980 |     3.100007
+  2.4600 |     0.004633 |     7.929508 |     7.924875 |  1710.589237 |     0.034710 |     0.143103 |     0.108393 |     3.122862
+  2.4650 |     0.004578 |     7.928143 |     7.923566 |  1730.922728 |     0.034634 |     0.143392 |     0.108758 |     3.140263
+  2.4700 |     0.004599 |     7.926779 |     7.922180 |  1722.704348 |     0.034491 |     0.143679 |     0.109188 |     3.165678
+  2.4750 |     0.004543 |     7.925414 |     7.920871 |  1743.550929 |     0.034319 |     0.143965 |     0.109646 |     3.194900
+  2.4800 |     0.004474 |     7.924050 |     7.919576 |  1770.161882 |     0.034080 |     0.144250 |     0.110170 |     3.232720
+  2.4850 |     0.004461 |     7.922685 |     7.918225 |  1775.174195 |     0.033891 |     0.144533 |     0.110641 |     3.264599
+  2.4900 |     0.004412 |     7.921321 |     7.916909 |  1794.261298 |     0.033685 |     0.144814 |     0.111129 |     3.299049
+  2.4950 |     0.004368 |     7.919958 |     7.915589 |  1811.980754 |     0.033526 |     0.145095 |     0.111568 |     3.327780
+  2.5000 |     0.004389 |     7.918594 |     7.914205 |  1803.104485 |     0.033255 |     0.145373 |     0.112119 |     3.371533
+  2.5050 |     0.004380 |     7.917232 |     7.912852 |  1806.639946 |     0.033063 |     0.145651 |     0.112587 |     3.405200
+  2.5100 |     0.004273 |     7.915870 |     7.911597 |  1851.678839 |     0.032954 |     0.145927 |     0.112972 |     3.428164
+  2.5150 |     0.004286 |     7.914508 |     7.910222 |  1845.532060 |     0.032772 |     0.146201 |     0.113429 |     3.461131
+  2.5200 |     0.004227 |     7.913147 |     7.908920 |  1870.927577 |     0.032582 |     0.146474 |     0.113892 |     3.495513
+  2.5250 |     0.004200 |     7.911787 |     7.907587 |  1882.711616 |     0.032501 |     0.146746 |     0.114245 |     3.515151
+  2.5300 |     0.004167 |     7.910428 |     7.906261 |  1897.342833 |     0.032353 |     0.147016 |     0.114663 |     3.544100
+  2.5350 |     0.004130 |     7.909070 |     7.904940 |  1913.866881 |     0.032122 |     0.147285 |     0.115163 |     3.585184
+  2.5400 |     0.004121 |     7.907713 |     7.903592 |  1917.894766 |     0.032061 |     0.147553 |     0.115492 |     3.602268
+  2.5450 |     0.004071 |     7.906356 |     7.902286 |  1941.189276 |     0.031700 |     0.147819 |     0.116119 |     3.663096
+  2.5500 |     0.004066 |     7.905001 |     7.900935 |  1943.063802 |     0.031607 |     0.148084 |     0.116477 |     3.685134
+  2.5550 |     0.004029 |     7.903647 |     7.899617 |  1960.539656 |     0.031405 |     0.148348 |     0.116943 |     3.723688
+  2.5600 |     0.003996 |     7.902294 |     7.898298 |  1976.738086 |     0.031157 |     0.148610 |     0.117453 |     3.769766
+  2.5650 |     0.003951 |     7.900941 |     7.896990 |  1998.642165 |     0.031129 |     0.148871 |     0.117741 |     3.782348
+  2.5700 |     0.003930 |     7.899590 |     7.895661 |  2009.180125 |     0.030966 |     0.149130 |     0.118164 |     3.815973
+  2.5750 |     0.003932 |     7.898241 |     7.894309 |  2007.958924 |     0.030929 |     0.149388 |     0.118460 |     3.830082
+  2.5800 |     0.003897 |     7.896892 |     7.892995 |  2025.318613 |     0.030704 |     0.149645 |     0.118942 |     3.873874
+  2.5850 |     0.003835 |     7.895544 |     7.891709 |  2057.790930 |     0.030421 |     0.149901 |     0.119480 |     3.927515
+  2.5900 |     0.003832 |     7.894198 |     7.890367 |  2059.319548 |     0.030480 |     0.150155 |     0.119675 |     3.926374
+  2.5950 |     0.003819 |     7.892853 |     7.889034 |  2065.985432 |     0.030276 |     0.150408 |     0.120132 |     3.967942
+  2.6000 |     0.003735 |     7.891509 |     7.887774 |  2111.582569 |     0.030072 |     0.150660 |     0.120588 |     4.009976
+  2.6050 |     0.003759 |     7.890167 |     7.886408 |  2098.255166 |     0.029856 |     0.150910 |     0.121054 |     4.054565
+  2.6100 |     0.003704 |     7.888825 |     7.885122 |  2129.000094 |     0.029647 |     0.151159 |     0.121512 |     4.098651
+  2.6150 |     0.003705 |     7.887485 |     7.883780 |  2128.017741 |     0.029537 |     0.151407 |     0.121870 |     4.125933
+  2.6200 |     0.003647 |     7.886146 |     7.882499 |  2161.162171 |     0.029494 |     0.151653 |     0.122159 |     4.141784
+  2.6250 |     0.003597 |     7.884809 |     7.881212 |  2191.168296 |     0.029402 |     0.151899 |     0.122497 |     4.166264
+  2.6300 |     0.003574 |     7.883473 |     7.879898 |  2204.577857 |     0.029225 |     0.152143 |     0.122918 |     4.205880
+  2.6350 |     0.003586 |     7.882138 |     7.878551 |  2196.843403 |     0.028922 |     0.152385 |     0.123463 |     4.268818
+  2.6400 |     0.003565 |     7.880804 |     7.877239 |  2209.604898 |     0.028725 |     0.152627 |     0.123902 |     4.313379
+  2.6450 |     0.003512 |     7.879472 |     7.875959 |  2242.309154 |     0.028671 |     0.152867 |     0.124197 |     4.331843
+  2.6500 |     0.003522 |     7.878141 |     7.874619 |  2235.876538 |     0.028379 |     0.153106 |     0.124727 |     4.395049
+  2.6550 |     0.003444 |     7.876811 |     7.873367 |  2286.260867 |     0.028388 |     0.153344 |     0.124956 |     4.401631
+  2.6600 |     0.003455 |     7.875482 |     7.872028 |  2278.541597 |     0.028206 |     0.153581 |     0.125374 |     4.444900
+  2.6650 |     0.003403 |     7.874155 |     7.870752 |  2312.567870 |     0.028036 |     0.153816 |     0.125780 |     4.486307
+  2.6700 |     0.003391 |     7.872830 |     7.869438 |  2320.530138 |     0.027806 |     0.154050 |     0.126244 |     4.540122
+  2.6750 |     0.003382 |     7.871505 |     7.868123 |  2326.220275 |     0.027820 |     0.154283 |     0.126463 |     4.545785
+  2.6800 |     0.003337 |     7.870182 |     7.866845 |  2357.499837 |     0.027597 |     0.154515 |     0.126917 |     4.598884
+  2.6850 |     0.003323 |     7.868860 |     7.865537 |  2366.759610 |     0.027406 |     0.154745 |     0.127339 |     4.646321
+  2.6900 |     0.003331 |     7.867539 |     7.864209 |  2361.040848 |     0.027136 |     0.154974 |     0.127838 |     4.711008
+  2.6950 |     0.003270 |     7.866220 |     7.862950 |  2404.206874 |     0.027208 |     0.155203 |     0.127995 |     4.704336
+  2.7000 |     0.003279 |     7.864902 |     7.861623 |  2397.690413 |     0.027202 |     0.155429 |     0.128228 |     4.713936
+  2.7050 |     0.003210 |     7.863586 |     7.860376 |  2448.626385 |     0.027053 |     0.155655 |     0.128602 |     4.753691
+  2.7100 |     0.003224 |     7.862270 |     7.859046 |  2437.334259 |     0.026754 |     0.155880 |     0.129125 |     4.826318
+  2.7150 |     0.003222 |     7.860956 |     7.857734 |  2438.891219 |     0.026605 |     0.156103 |     0.129499 |     4.867538
+  2.7200 |     0.003109 |     7.859643 |     7.856534 |  2526.934902 |     0.026547 |     0.156326 |     0.129779 |     4.888710
+  2.7250 |     0.003124 |     7.858332 |     7.855208 |  2514.228228 |     0.026299 |     0.156547 |     0.130248 |     4.952587
+  2.7300 |     0.003133 |     7.857022 |     7.853889 |  2507.004085 |     0.026260 |     0.156767 |     0.130507 |     4.969879
+  2.7350 |     0.003092 |     7.855713 |     7.852621 |  2539.511894 |     0.026158 |     0.156985 |     0.130827 |     5.001384
+  2.7400 |     0.003083 |     7.854405 |     7.851323 |  2546.896390 |     0.026057 |     0.157203 |     0.131146 |     5.032992
+  2.7450 |     0.003038 |     7.853099 |     7.850061 |  2583.981087 |     0.025823 |     0.157420 |     0.131597 |     5.096161
+  2.7500 |     0.003031 |     7.851794 |     7.848763 |  2589.082620 |     0.025681 |     0.157635 |     0.131954 |     5.138252
+  2.7550 |     0.003004 |     7.850490 |     7.847486 |  2612.491559 |     0.025497 |     0.157849 |     0.132353 |     5.190990
+  2.7600 |     0.003012 |     7.849188 |     7.846176 |  2604.854881 |     0.025368 |     0.158063 |     0.132695 |     5.230885
+  2.7650 |     0.002969 |     7.847887 |     7.844917 |  2641.865150 |     0.025280 |     0.158275 |     0.132994 |     5.260751
+  2.7700 |     0.002950 |     7.846587 |     7.843637 |  2659.104997 |     0.025193 |     0.158486 |     0.133292 |     5.290738
+  2.7750 |     0.002911 |     7.845288 |     7.842377 |  2693.941532 |     0.025104 |     0.158695 |     0.133592 |     5.321623
+  2.7800 |     0.002888 |     7.843990 |     7.841102 |  2715.004023 |     0.024844 |     0.158904 |     0.134060 |     5.395950
+  2.7850 |     0.002868 |     7.842694 |     7.839826 |  2733.404698 |     0.024887 |     0.159112 |     0.134225 |     5.393311
+  2.7900 |     0.002866 |     7.841399 |     7.838533 |  2734.963125 |     0.024626 |     0.159318 |     0.134692 |     5.469543
+  2.7950 |     0.002827 |     7.840105 |     7.837279 |  2772.742191 |     0.024516 |     0.159524 |     0.135008 |     5.506832
+  2.8000 |     0.002822 |     7.838813 |     7.835991 |  2776.668338 |     0.024334 |     0.159728 |     0.135394 |     5.563931
+  2.8050 |     0.002842 |     7.837522 |     7.834679 |  2756.412530 |     0.024081 |     0.159932 |     0.135850 |     5.641304
+  2.8100 |     0.002794 |     7.836232 |     7.833437 |  2803.256990 |     0.024203 |     0.160134 |     0.135931 |     5.616202
+  2.8150 |     0.002747 |     7.834943 |     7.832196 |  2851.414060 |     0.024067 |     0.160335 |     0.136269 |     5.662167
+  2.8200 |     0.002762 |     7.833655 |     7.830894 |  2835.660661 |     0.023865 |     0.160535 |     0.136670 |     5.726813
+  2.8250 |     0.002705 |     7.832369 |     7.829664 |  2894.709936 |     0.023767 |     0.160734 |     0.136968 |     5.763023
+  2.8300 |     0.002648 |     7.831084 |     7.828436 |  2956.659026 |     0.023676 |     0.160932 |     0.137256 |     5.797142
+  2.8350 |     0.002652 |     7.829800 |     7.827148 |  2951.859239 |     0.023397 |     0.161129 |     0.137732 |     5.886684
+  2.8400 |     0.002612 |     7.828517 |     7.825904 |  2995.743903 |     0.023352 |     0.161325 |     0.137973 |     5.908360
+  2.8450 |     0.002628 |     7.827235 |     7.824607 |  2977.763296 |     0.023330 |     0.161520 |     0.138191 |     5.923431
+  2.8500 |     0.002617 |     7.825955 |     7.823338 |  2989.562888 |     0.023054 |     0.161714 |     0.138660 |     6.014471
+  2.8550 |     0.002636 |     7.824675 |     7.822040 |  2967.756179 |     0.023050 |     0.161907 |     0.138857 |     6.024240
+  2.8600 |     0.002586 |     7.823397 |     7.820811 |  3024.465588 |     0.022806 |     0.162099 |     0.139293 |     6.107814
+  2.8650 |     0.002555 |     7.822120 |     7.819566 |  3061.058653 |     0.022823 |     0.162290 |     0.139467 |     6.110800
+  2.8700 |     0.002560 |     7.820845 |     7.818285 |  3054.255413 |     0.022666 |     0.162480 |     0.139813 |     6.168320
+  2.8750 |     0.002472 |     7.819570 |     7.817098 |  3162.606155 |     0.022429 |     0.162669 |     0.140239 |     6.252457
+  2.8800 |     0.002509 |     7.818297 |     7.815787 |  3114.810279 |     0.022520 |     0.162856 |     0.140336 |     6.231532
+  2.8850 |     0.002503 |     7.817024 |     7.814521 |  3121.842778 |     0.022261 |     0.163043 |     0.140783 |     6.324304
+  2.8900 |     0.002434 |     7.815753 |     7.813320 |  3210.615808 |     0.022138 |     0.163229 |     0.141091 |     6.373151
+  2.8950 |     0.002476 |     7.814483 |     7.812008 |  3155.717265 |     0.022098 |     0.163414 |     0.141316 |     6.394907
+  2.9000 |     0.002439 |     7.813215 |     7.810775 |  3202.184854 |     0.022054 |     0.163598 |     0.141544 |     6.418086
+  2.9050 |     0.002404 |     7.811947 |     7.809543 |  3248.289935 |     0.021777 |     0.163781 |     0.142004 |     6.520944
+  2.9100 |     0.002411 |     7.810680 |     7.808270 |  3239.243965 |     0.021743 |     0.163963 |     0.142220 |     6.540860
+  2.9150 |     0.002430 |     7.809415 |     7.806984 |  3212.147895 |     0.021657 |     0.164144 |     0.142487 |     6.579204
+  2.9200 |     0.002365 |     7.808151 |     7.805785 |  3300.097455 |     0.021564 |     0.164324 |     0.142760 |     6.620335
+  2.9250 |     0.002350 |     7.806887 |     7.804538 |  3321.674206 |     0.021413 |     0.164503 |     0.143090 |     6.682548
+  2.9300 |     0.002316 |     7.805625 |     7.803309 |  3368.908878 |     0.021260 |     0.164681 |     0.143421 |     6.746128
+  2.9350 |     0.002290 |     7.804364 |     7.802074 |  3406.516224 |     0.021114 |     0.164858 |     0.143744 |     6.808072
+  2.9400 |     0.002312 |     7.803104 |     7.800793 |  3374.241004 |     0.021072 |     0.165034 |     0.143963 |     6.832093
+  2.9450 |     0.002257 |     7.801846 |     7.799589 |  3456.419018 |     0.020874 |     0.165210 |     0.144335 |     6.914487
+  2.9500 |     0.002261 |     7.800588 |     7.798327 |  3448.876838 |     0.020626 |     0.165384 |     0.144758 |     7.018300
+  2.9550 |     0.002232 |     7.799331 |     7.797099 |  3493.249830 |     0.020769 |     0.165557 |     0.144789 |     6.971493
+  2.9600 |     0.002238 |     7.798076 |     7.795838 |  3484.142269 |     0.020695 |     0.165730 |     0.145035 |     7.008153
+  2.9650 |     0.002218 |     7.796821 |     7.794603 |  3514.375299 |     0.020342 |     0.165901 |     0.145559 |     7.155661
+  2.9700 |     0.002218 |     7.795568 |     7.793350 |  3513.917906 |     0.020336 |     0.166072 |     0.145736 |     7.166440
+  2.9750 |     0.002166 |     7.794316 |     7.792149 |  3596.767374 |     0.020351 |     0.166242 |     0.145890 |     7.168647
+  2.9800 |     0.002156 |     7.793065 |     7.790909 |  3613.600516 |     0.020353 |     0.166410 |     0.146058 |     7.176331
+  2.9850 |     0.002124 |     7.791814 |     7.789690 |  3667.495629 |     0.020094 |     0.166578 |     0.146484 |     7.289980
+  2.9900 |     0.002121 |     7.790565 |     7.788445 |  3672.919274 |     0.019932 |     0.166745 |     0.146813 |     7.365553
+  2.9950 |     0.002124 |     7.789317 |     7.787194 |  3666.791114 |     0.019868 |     0.166911 |     0.147043 |     7.400824
+  3.0000 |     0.002117 |     7.788070 |     7.785953 |  3677.960217 |     0.019881 |     0.167077 |     0.147195 |     7.403799
+  3.0050 |     0.002063 |     7.786824 |     7.784761 |  3773.185273 |     0.019626 |     0.167241 |     0.147615 |     7.521555
+  3.0100 |     0.002089 |     7.785579 |     7.783491 |  3726.119187 |     0.019511 |     0.167404 |     0.147893 |     7.580046
+  3.0150 |     0.002085 |     7.784336 |     7.782251 |  3732.708977 |     0.019432 |     0.167567 |     0.148135 |     7.623278
+  3.0200 |     0.002048 |     7.783093 |     7.781044 |  3798.746035 |     0.019294 |     0.167728 |     0.148434 |     7.693119
+  3.0250 |     0.002067 |     7.781851 |     7.779784 |  3764.056470 |     0.019273 |     0.167889 |     0.148616 |     7.710897
+  3.0300 |     0.001991 |     7.780610 |     7.778619 |  3905.981883 |     0.019285 |     0.168049 |     0.148764 |     7.713962
+  3.0350 |     0.001966 |     7.779370 |     7.777404 |  3955.946917 |     0.019087 |     0.168208 |     0.149121 |     7.812849
+  3.0400 |     0.001939 |     7.778132 |     7.776192 |  4009.988741 |     0.018943 |     0.168366 |     0.149423 |     7.887880
+  3.0450 |     0.002000 |     7.776894 |     7.774894 |  3888.247211 |     0.018841 |     0.168524 |     0.149683 |     7.944627
+  3.0500 |     0.001966 |     7.775657 |     7.773691 |  3954.124808 |     0.018646 |     0.168680 |     0.150034 |     8.046345
+  3.0550 |     0.001935 |     7.774422 |     7.772486 |  4015.817506 |     0.018731 |     0.168836 |     0.150105 |     8.013607
+  3.0600 |     0.001929 |     7.773187 |     7.771258 |  4028.706087 |     0.018561 |     0.168991 |     0.150430 |     8.104621
+  3.0650 |     0.001883 |     7.771953 |     7.770070 |  4126.922332 |     0.018456 |     0.169145 |     0.150689 |     8.164922
+  3.0700 |     0.001950 |     7.770720 |     7.768770 |  3983.052118 |     0.018612 |     0.169298 |     0.150686 |     8.096287
+  3.0750 |     0.001884 |     7.769489 |     7.767605 |  4123.726463 |     0.018298 |     0.169450 |     0.151152 |     8.260642
+  3.0800 |     0.001869 |     7.768258 |     7.766388 |  4154.427552 |     0.018123 |     0.169601 |     0.151478 |     8.358417
+  3.0850 |     0.001870 |     7.767028 |     7.765158 |  4152.810629 |     0.018052 |     0.169752 |     0.151700 |     8.403684
+  3.0900 |     0.001851 |     7.765799 |     7.763949 |  4195.139773 |     0.018075 |     0.169902 |     0.151827 |     8.399986
+  3.0950 |     0.001831 |     7.764571 |     7.762740 |  4238.780650 |     0.017902 |     0.170051 |     0.152148 |     8.498817
+  3.1000 |     0.001795 |     7.763345 |     7.761550 |  4324.442793 |     0.017692 |     0.170199 |     0.152507 |     8.620292
+  3.1050 |     0.001810 |     7.762119 |     7.760308 |  4286.532069 |     0.017775 |     0.170346 |     0.152571 |     8.583534
+  3.1100 |     0.001829 |     7.760894 |     7.759064 |  4241.151292 |     0.017562 |     0.170493 |     0.152930 |     8.707771
+  3.1150 |     0.001804 |     7.759670 |     7.757866 |  4300.056975 |     0.017660 |     0.170638 |     0.152978 |     8.662159
+  3.1200 |     0.001797 |     7.758447 |     7.756650 |  4316.882483 |     0.017509 |     0.170783 |     0.153275 |     8.754224
+  3.1250 |     0.001736 |     7.757225 |     7.755489 |  4467.897100 |     0.017302 |     0.170927 |     0.153625 |     8.878947
+  3.1300 |     0.001712 |     7.756003 |     7.754291 |  4529.112324 |     0.017341 |     0.171071 |     0.153730 |     8.865353
+  3.1350 |     0.001719 |     7.754783 |     7.753064 |  4509.820021 |     0.017159 |     0.171213 |     0.154055 |     8.978268
+  3.1400 |     0.001711 |     7.753564 |     7.751853 |  4531.398552 |     0.017127 |     0.171355 |     0.154228 |     9.004902
+  3.1450 |     0.001722 |     7.752346 |     7.750624 |  4501.134229 |     0.017010 |     0.171496 |     0.154487 |     9.082353
+  3.1500 |     0.001646 |     7.751128 |     7.749483 |  4708.640877 |     0.016820 |     0.171636 |     0.154816 |     9.204224
+  3.1550 |     0.001707 |     7.749912 |     7.748205 |  4538.732511 |     0.016746 |     0.171776 |     0.155029 |     9.257533
+  3.1600 |     0.001656 |     7.748696 |     7.747040 |  4677.288064 |     0.016783 |     0.171914 |     0.155131 |     9.243169
+  3.1650 |     0.001638 |     7.747482 |     7.745844 |  4728.805135 |     0.016593 |     0.172052 |     0.155460 |     9.369123
+  3.1700 |     0.001613 |     7.746268 |     7.744655 |  4802.672658 |     0.016500 |     0.172189 |     0.155690 |     9.435788
+  3.1750 |     0.001586 |     7.745055 |     7.743469 |  4882.685093 |     0.016371 |     0.172326 |     0.155955 |     9.526111
+  3.1800 |     0.001631 |     7.743843 |     7.742213 |  4747.878471 |     0.016388 |     0.172461 |     0.156073 |     9.523666
+  3.1850 |     0.001602 |     7.742632 |     7.741031 |  4832.932731 |     0.016425 |     0.172596 |     0.156172 |     9.508384
+  3.1900 |     0.001559 |     7.741422 |     7.739863 |  4965.126422 |     0.016104 |     0.172730 |     0.156627 |     9.726071
+  3.1950 |     0.001547 |     7.740213 |     7.738666 |  5002.047439 |     0.016100 |     0.172864 |     0.156763 |     9.736701
+  3.2000 |     0.001557 |     7.739005 |     7.737447 |  4967.906221 |     0.016119 |     0.172996 |     0.156877 |     9.732173
+  3.2050 |     0.001592 |     7.737797 |     7.736205 |  4859.854957 |     0.015923 |     0.173128 |     0.157205 |     9.872944
+  3.2100 |     0.001536 |     7.736591 |     7.735054 |  5034.554321 |     0.015879 |     0.173259 |     0.157381 |     9.911488
+  3.2150 |     0.001497 |     7.735385 |     7.733888 |  5167.393401 |     0.015681 |     0.173390 |     0.157709 |    10.057177
+  3.2200 |     0.001514 |     7.734180 |     7.732666 |  5106.745607 |     0.015710 |     0.173519 |     0.157810 |    10.045311
+  3.2250 |     0.001502 |     7.732976 |     7.731474 |  5145.874243 |     0.015581 |     0.173648 |     0.158068 |    10.145084
+  3.2300 |     0.001436 |     7.731773 |     7.730337 |  5383.265877 |     0.015586 |     0.173777 |     0.158190 |    10.149318
+  3.2350 |     0.001485 |     7.730571 |     7.729086 |  5203.230422 |     0.015519 |     0.173904 |     0.158385 |    10.205588
+  3.2400 |     0.001471 |     7.729370 |     7.727899 |  5255.234118 |     0.015543 |     0.174031 |     0.158488 |    10.196704
+  3.2450 |     0.001481 |     7.728170 |     7.726689 |  5217.552546 |     0.015311 |     0.174157 |     0.158846 |    10.374629
+  3.2500 |     0.001497 |     7.726970 |     7.725473 |  5162.266100 |     0.015211 |     0.174282 |     0.159071 |    10.457516
+  3.2550 |     0.001469 |     7.725771 |     7.724302 |  5256.906634 |     0.015121 |     0.174407 |     0.159286 |    10.534121
+  3.2600 |     0.001427 |     7.724573 |     7.723147 |  5412.579472 |     0.015000 |     0.174531 |     0.159531 |    10.635458
+  3.2650 |     0.001397 |     7.723376 |     7.721979 |  5526.580427 |     0.014972 |     0.174654 |     0.159682 |    10.665154
+  3.2700 |     0.001471 |     7.722180 |     7.720709 |  5248.786151 |     0.014846 |     0.174777 |     0.159931 |    10.772967
+  3.2750 |     0.001403 |     7.720985 |     7.719582 |  5501.677157 |     0.014802 |     0.174899 |     0.160097 |    10.816119
+  3.2800 |     0.001392 |     7.719791 |     7.718399 |  5545.504225 |     0.014810 |     0.175020 |     0.160210 |    10.817968
+  3.2850 |     0.001381 |     7.718597 |     7.717216 |  5589.076301 |     0.014557 |     0.175141 |     0.160583 |    11.031111
+  3.2900 |     0.001376 |     7.717404 |     7.716028 |  5608.679803 |     0.014641 |     0.175260 |     0.160620 |    10.970601
+  3.2950 |     0.001358 |     7.716212 |     7.714854 |  5681.638786 |     0.014577 |     0.175380 |     0.160802 |    11.031172
+  3.3000 |     0.001338 |     7.715021 |     7.713683 |  5764.773021 |     0.014393 |     0.175498 |     0.161105 |    11.193576
+  3.3050 |     0.001329 |     7.713831 |     7.712502 |  5804.166259 |     0.014166 |     0.175616 |     0.161450 |    11.397041
+  3.3100 |     0.001331 |     7.712641 |     7.711310 |  5794.863646 |     0.014204 |     0.175733 |     0.161529 |    11.372371
+  3.3150 |     0.001309 |     7.711452 |     7.710143 |  5888.813321 |     0.014271 |     0.175849 |     0.161578 |    11.322068
+  3.3200 |     0.001296 |     7.710264 |     7.708969 |  5949.514797 |     0.014097 |     0.175965 |     0.161868 |    11.482559
+  3.3250 |     0.001305 |     7.709077 |     7.707773 |  5907.025152 |     0.013949 |     0.176080 |     0.162132 |    11.623298
+  3.3300 |     0.001287 |     7.707891 |     7.706604 |  5987.829858 |     0.013912 |     0.176195 |     0.162283 |    11.665332
+  3.3350 |     0.001318 |     7.706706 |     7.705388 |  5847.227816 |     0.013939 |     0.176309 |     0.162370 |    11.648973
+  3.3400 |     0.001213 |     7.705521 |     7.704308 |  6349.383077 |     0.013843 |     0.176422 |     0.162579 |    11.744564
+  3.3450 |     0.001290 |     7.704337 |     7.703048 |  5973.123291 |     0.013711 |     0.176534 |     0.162824 |    11.875654
+  3.3500 |     0.001284 |     7.703154 |     7.701870 |  5998.873927 |     0.013628 |     0.176646 |     0.163018 |    11.961761
+  3.3550 |     0.001199 |     7.701972 |     7.700773 |  6423.731018 |     0.013554 |     0.176757 |     0.163204 |    12.041068
+  3.3600 |     0.001229 |     7.700790 |     7.699561 |  6263.698567 |     0.013442 |     0.176868 |     0.163426 |    12.157888
+  3.3650 |     0.001220 |     7.699610 |     7.698390 |  6312.670802 |     0.013561 |     0.176978 |     0.163417 |    12.050776
+  3.3700 |     0.001187 |     7.698430 |     7.697243 |  6485.547470 |     0.013344 |     0.177087 |     0.163743 |    12.271003
+  3.3750 |     0.001192 |     7.697250 |     7.696058 |  6454.836216 |     0.013388 |     0.177196 |     0.163808 |    12.234956
+  3.3800 |     0.001176 |     7.696072 |     7.694896 |  6544.286284 |     0.013341 |     0.177304 |     0.163963 |    12.290473
+  3.3850 |     0.001232 |     7.694895 |     7.693662 |  6242.500339 |     0.013231 |     0.177412 |     0.164180 |    12.408600
+  3.3900 |     0.001205 |     7.693718 |     7.692513 |  6383.517285 |     0.013054 |     0.177518 |     0.164464 |    12.598821
+  3.3950 |     0.001204 |     7.692542 |     7.691338 |  6387.819311 |     0.013047 |     0.177625 |     0.164577 |    12.614088
+  3.4000 |     0.001183 |     7.691366 |     7.690183 |  6501.229179 |     0.012946 |     0.177730 |     0.164784 |    12.728768
+  3.4050 |     0.001132 |     7.690192 |     7.689060 |  6792.311707 |     0.012811 |     0.177835 |     0.165024 |    12.881453
+  3.4100 |     0.001137 |     7.689018 |     7.687881 |  6759.414113 |     0.012835 |     0.177939 |     0.165105 |    12.863940
+  3.4150 |     0.001152 |     7.687845 |     7.686693 |  6671.812638 |     0.012654 |     0.178043 |     0.165390 |    13.070395
+  3.4200 |     0.001105 |     7.686673 |     7.685568 |  6957.620223 |     0.012764 |     0.178146 |     0.165383 |    12.957345
+  3.4250 |     0.001141 |     7.685501 |     7.684361 |  6737.329802 |     0.012572 |     0.178249 |     0.165677 |    13.178014
+  3.4300 |     0.001111 |     7.684330 |     7.683220 |  6918.511666 |     0.012555 |     0.178351 |     0.165796 |    13.205430
+  3.4350 |     0.001099 |     7.683160 |     7.682061 |  6988.288977 |     0.012495 |     0.178452 |     0.165958 |    13.282378
+  3.4400 |     0.001116 |     7.681991 |     7.680875 |  6882.635301 |     0.012388 |     0.178553 |     0.166165 |    13.413949
+  3.4450 |     0.001102 |     7.680823 |     7.679721 |  6970.023509 |     0.012385 |     0.178653 |     0.166268 |    13.425009
+  3.4500 |     0.001075 |     7.679655 |     7.678579 |  7140.132378 |     0.012240 |     0.178753 |     0.166513 |    13.604459
+  3.4550 |     0.001102 |     7.678488 |     7.677385 |  6965.358025 |     0.012275 |     0.178852 |     0.166576 |    13.570047
+  3.4600 |     0.001043 |     7.677321 |     7.676278 |  7358.951832 |     0.012044 |     0.178950 |     0.166906 |    13.858181
+  3.4650 |     0.001074 |     7.676156 |     7.675082 |  7145.664524 |     0.012090 |     0.179048 |     0.166958 |    13.809928
+  3.4700 |     0.001066 |     7.674991 |     7.673925 |  7200.173535 |     0.012161 |     0.179145 |     0.166984 |    13.730591
+  3.4750 |     0.001037 |     7.673827 |     7.672789 |  7395.827000 |     0.011877 |     0.179242 |     0.167365 |    14.091724
+  3.4800 |     0.001044 |     7.672663 |     7.671619 |  7346.013853 |     0.011837 |     0.179338 |     0.167501 |    14.150140
+  3.4850 |     0.001001 |     7.671500 |     7.670500 |  7665.398182 |     0.011863 |     0.179434 |     0.167570 |    14.124851
+  3.4900 |     0.001043 |     7.670338 |     7.669295 |  7354.193168 |     0.011775 |     0.179528 |     0.167753 |    14.246074
+  3.4950 |     0.001010 |     7.669177 |     7.668167 |  7592.205536 |     0.011726 |     0.179623 |     0.167897 |    14.318928
+  3.5000 |     0.000995 |     7.668016 |     7.667022 |  7706.734365 |     0.011674 |     0.179717 |     0.168043 |    14.395144
+  3.5050 |     0.001023 |     7.666856 |     7.665833 |  7490.569962 |     0.011622 |     0.179810 |     0.168188 |    14.470864
+  3.5100 |     0.000976 |     7.665697 |     7.664721 |  7853.300276 |     0.011596 |     0.179903 |     0.168306 |    14.513623
+  3.5150 |     0.000953 |     7.664539 |     7.663586 |  8044.770594 |     0.011483 |     0.179995 |     0.168512 |    14.675560
+  3.5200 |     0.000942 |     7.663381 |     7.662439 |  8134.139184 |     0.011373 |     0.180087 |     0.168714 |    14.835147
+  3.5250 |     0.000984 |     7.662224 |     7.661240 |  7783.573055 |     0.011380 |     0.180178 |     0.168797 |    14.832242
+  3.5300 |     0.000934 |     7.661067 |     7.660133 |  8201.057512 |     0.011412 |     0.180268 |     0.168856 |    14.796220
+  3.5350 |     0.000996 |     7.659912 |     7.658915 |  7686.831866 |     0.011199 |     0.180358 |     0.169159 |    15.104221
+  3.5400 |     0.000902 |     7.658757 |     7.657855 |  8493.201891 |     0.011076 |     0.180448 |     0.169371 |    15.291126
+  3.5450 |     0.000981 |     7.657602 |     7.656621 |  7804.406226 |     0.011173 |     0.180536 |     0.169363 |    15.158027
+  3.5500 |     0.000940 |     7.656449 |     7.655508 |  8142.457904 |     0.011022 |     0.180625 |     0.169603 |    15.387875
+  3.5550 |     0.000926 |     7.655296 |     7.654369 |  8263.353961 |     0.010809 |     0.180713 |     0.169904 |    15.718815
+  3.5600 |     0.000909 |     7.654143 |     7.653234 |  8417.098853 |     0.010977 |     0.180800 |     0.169823 |    15.470732
+  3.5650 |     0.000924 |     7.652992 |     7.652068 |  8280.808819 |     0.010815 |     0.180887 |     0.170072 |    15.725556
+  3.5700 |     0.000907 |     7.651841 |     7.650933 |  8431.907768 |     0.010790 |     0.180973 |     0.170183 |    15.771649
+  3.5750 |     0.000927 |     7.650690 |     7.649764 |  8253.933104 |     0.010764 |     0.181059 |     0.170294 |    15.820046
+  3.5800 |     0.000898 |     7.649541 |     7.648643 |  8521.405877 |     0.010696 |     0.181144 |     0.170447 |    15.934913
+  3.5850 |     0.000892 |     7.648392 |     7.647500 |  8574.947442 |     0.010678 |     0.181229 |     0.170550 |    15.971570
+  3.5900 |     0.000874 |     7.647243 |     7.646370 |  8752.922313 |     0.010536 |     0.181313 |     0.170777 |    16.209435
+  3.5950 |     0.000874 |     7.646096 |     7.645222 |  8746.161238 |     0.010550 |     0.181396 |     0.170846 |    16.193342
+  3.6000 |     0.000876 |     7.644949 |     7.644073 |  8725.689345 |     0.010436 |     0.181480 |     0.171043 |    16.389400
+  3.6050 |     0.000824 |     7.643802 |     7.642979 |  9280.677945 |     0.010455 |     0.181562 |     0.171107 |    16.365621
+  3.6100 |     0.000825 |     7.642657 |     7.641831 |  9257.368698 |     0.010390 |     0.181644 |     0.171254 |    16.481924
+  3.6150 |     0.000867 |     7.641512 |     7.640645 |  8812.536575 |     0.010219 |     0.181726 |     0.171507 |    16.783655
+  3.6200 |     0.000848 |     7.640367 |     7.639520 |  9012.047567 |     0.010315 |     0.181807 |     0.171492 |    16.624797
+  3.6250 |     0.000833 |     7.639224 |     7.638390 |  9165.327172 |     0.010139 |     0.181888 |     0.171749 |    16.939504
+  3.6300 |     0.000832 |     7.638081 |     7.637249 |  9180.646256 |     0.010185 |     0.181968 |     0.171782 |    16.865584
+  3.6350 |     0.000833 |     7.636938 |     7.636105 |  9163.549936 |     0.010098 |     0.182047 |     0.171949 |    17.027816
+  3.6400 |     0.000807 |     7.635796 |     7.634989 |  9461.253075 |     0.010155 |     0.182127 |     0.171972 |    16.935258
+  3.6450 |     0.000796 |     7.634655 |     7.633860 |  9596.152968 |     0.009946 |     0.182205 |     0.172259 |    17.318835
+  3.6500 |     0.000812 |     7.633515 |     7.632703 |  9401.985164 |     0.009884 |     0.182283 |     0.172400 |    17.443067
+  3.6550 |     0.000779 |     7.632375 |     7.631596 |  9795.985537 |     0.009855 |     0.182361 |     0.172506 |    17.503862
+  3.6600 |     0.000805 |     7.631235 |     7.630430 |  9480.258082 |     0.009781 |     0.182438 |     0.172657 |    17.651852
+  3.6650 |     0.000751 |     7.630097 |     7.629346 | 10161.822423 |     0.009812 |     0.182515 |     0.172703 |    17.602044
+  3.6700 |     0.000807 |     7.628959 |     7.628151 |  9447.278268 |     0.009578 |     0.182591 |     0.173013 |    18.063625
+  3.6750 |     0.000789 |     7.627821 |     7.627032 |  9667.056657 |     0.009568 |     0.182667 |     0.173099 |    18.090882
+  3.6800 |     0.000778 |     7.626684 |     7.625906 |  9797.989103 |     0.009516 |     0.182742 |     0.173227 |    18.204573
+  3.6850 |     0.000789 |     7.625548 |     7.624759 |  9660.637813 |     0.009616 |     0.182817 |     0.173201 |    18.012473
+  3.6900 |     0.000799 |     7.624413 |     7.623613 |  9538.508718 |     0.009622 |     0.182891 |     0.173270 |    18.008460
+  3.6950 |     0.000779 |     7.623278 |     7.622499 |  9787.765916 |     0.009434 |     0.182965 |     0.173531 |    18.393238
+  3.7000 |     0.000708 |     7.622143 |     7.621435 | 10765.313077 |     0.009379 |     0.183039 |     0.173660 |    18.515665
+  3.7050 |     0.000715 |     7.621010 |     7.620294 | 10653.387419 |     0.009347 |     0.183111 |     0.173765 |    18.591115
+  3.7100 |     0.000725 |     7.619876 |     7.619152 | 10512.062396 |     0.009379 |     0.183184 |     0.173805 |    18.532238
+  3.7150 |     0.000734 |     7.618744 |     7.618010 | 10375.075801 |     0.009172 |     0.183256 |     0.174084 |    18.980086
+  3.7200 |     0.000740 |     7.617612 |     7.616872 | 10291.437408 |     0.009210 |     0.183328 |     0.174118 |    18.905517
+  3.7250 |     0.000706 |     7.616481 |     7.615774 | 10781.868783 |     0.009216 |     0.183399 |     0.174183 |    18.900225
+  3.7300 |     0.000722 |     7.615350 |     7.614628 | 10547.909825 |     0.009131 |     0.183469 |     0.174338 |    19.092353
+  3.7350 |     0.000695 |     7.614220 |     7.613525 | 10953.034242 |     0.009059 |     0.183539 |     0.174480 |    19.260120
+  3.7400 |     0.000693 |     7.613090 |     7.612397 | 10982.000714 |     0.009072 |     0.183609 |     0.174538 |    19.240127
+  3.7450 |     0.000670 |     7.611961 |     7.611292 | 11363.432407 |     0.008745 |     0.183679 |     0.174933 |    20.003219
+  3.7500 |     0.000676 |     7.610833 |     7.610157 | 11262.482630 |     0.008951 |     0.183747 |     0.174796 |    19.528078
+  3.7550 |     0.000661 |     7.609705 |     7.609044 | 11514.849161 |     0.008803 |     0.183816 |     0.175012 |    19.880324
+  3.7600 |     0.000664 |     7.608578 |     7.607914 | 11452.169300 |     0.008667 |     0.183884 |     0.175216 |    20.215340
+  3.7650 |     0.000706 |     7.607451 |     7.606746 | 10779.289928 |     0.008796 |     0.183951 |     0.175155 |    19.913043
+  3.7700 |     0.000655 |     7.606325 |     7.605671 | 11613.657020 |     0.008814 |     0.184018 |     0.175205 |    19.878592
+  3.7750 |     0.000732 |     7.605200 |     7.604468 | 10391.297829 |     0.008654 |     0.184085 |     0.175431 |    20.272759
+  3.7800 |     0.000678 |     7.604075 |     7.603397 | 11214.726575 |     0.008689 |     0.184151 |     0.175462 |    20.193902
+  3.7850 |     0.000666 |     7.602951 |     7.602285 | 11414.143597 |     0.008692 |     0.184217 |     0.175525 |    20.193613
+  3.7900 |     0.000637 |     7.601827 |     7.601190 | 11926.471508 |     0.008624 |     0.184282 |     0.175659 |    20.369159
+  3.7950 |     0.000668 |     7.600704 |     7.600036 | 11374.713561 |     0.008602 |     0.184347 |     0.175745 |    20.429838
+  3.8000 |     0.000634 |     7.599581 |     7.598947 | 11981.966414 |     0.008489 |     0.184412 |     0.175922 |    20.722516
+  3.8050 |     0.000645 |     7.598459 |     7.597814 | 11772.268777 |     0.008394 |     0.184476 |     0.176082 |    20.976890
+  3.8100 |     0.000696 |     7.597338 |     7.596642 | 10908.086041 |     0.008223 |     0.184540 |     0.176317 |    21.441557
+  3.8150 |     0.000631 |     7.596217 |     7.595586 | 12036.972275 |     0.008280 |     0.184603 |     0.176323 |    21.294874
+  3.8200 |     0.000655 |     7.595097 |     7.594442 | 11597.287994 |     0.008191 |     0.184666 |     0.176475 |    21.545942
+  3.8250 |     0.000608 |     7.593977 |     7.593369 | 12491.425719 |     0.008373 |     0.184728 |     0.176356 |    21.063636
+  3.8300 |     0.000619 |     7.592858 |     7.592239 | 12273.554447 |     0.008152 |     0.184790 |     0.176638 |    21.667402
+  3.8350 |     0.000655 |     7.591739 |     7.591084 | 11583.704283 |     0.008131 |     0.184852 |     0.176721 |    21.734769
+  3.8400 |     0.000596 |     7.590621 |     7.590025 | 12734.971284 |     0.008119 |     0.184913 |     0.176794 |    21.774561
+  3.8450 |     0.000647 |     7.589504 |     7.588856 | 11724.050571 |     0.008038 |     0.184974 |     0.176936 |    22.013208
+  3.8500 |     0.000618 |     7.588387 |     7.587769 | 12286.076692 |     0.008118 |     0.185034 |     0.176916 |    21.791757
+  3.8550 |     0.000584 |     7.587270 |     7.586686 | 12987.771324 |     0.007902 |     0.185094 |     0.177193 |    22.425102
+  3.8600 |     0.000607 |     7.586154 |     7.585547 | 12495.180489 |     0.007920 |     0.185154 |     0.177234 |    22.377649
+  3.8650 |     0.000611 |     7.585039 |     7.584428 | 12423.163716 |     0.007807 |     0.185213 |     0.177406 |    22.723179
+  3.8700 |     0.000598 |     7.583924 |     7.583326 | 12677.469817 |     0.007722 |     0.185272 |     0.177550 |    22.993946
+  3.8750 |     0.000544 |     7.582810 |     7.582266 | 13943.692255 |     0.007733 |     0.185330 |     0.177597 |    22.967124
+  3.8800 |     0.000559 |     7.581696 |     7.581137 | 13566.830618 |     0.007734 |     0.185388 |     0.177654 |    22.970663
+  3.8850 |     0.000566 |     7.580583 |     7.580017 | 13403.073101 |     0.007663 |     0.185446 |     0.177783 |    23.200535
+  3.8900 |     0.000565 |     7.579470 |     7.578905 | 13406.628307 |     0.007602 |     0.185503 |     0.177901 |    23.402798
+  3.8950 |     0.000577 |     7.578358 |     7.577781 | 13132.111729 |     0.007507 |     0.185560 |     0.178053 |    23.718485
+  3.9000 |     0.000563 |     7.577246 |     7.576684 | 13462.800320 |     0.007565 |     0.185616 |     0.178051 |    23.535355
+  3.9050 |     0.000524 |     7.576135 |     7.575611 | 14454.562938 |     0.007418 |     0.185672 |     0.178254 |    24.030693
+  3.9100 |     0.000559 |     7.575025 |     7.574466 | 13543.987356 |     0.007547 |     0.185728 |     0.178181 |    23.608799
+  3.9150 |     0.000560 |     7.573915 |     7.573354 | 13512.317458 |     0.007456 |     0.185783 |     0.178327 |    23.917222
+  3.9200 |     0.000555 |     7.572805 |     7.572250 | 13636.131278 |     0.007300 |     0.185838 |     0.178538 |    24.456225
+  3.9250 |     0.000563 |     7.571696 |     7.571133 | 13442.135246 |     0.007347 |     0.185893 |     0.178546 |    24.303303
+  3.9300 |     0.000554 |     7.570588 |     7.570034 | 13673.078013 |     0.007274 |     0.185947 |     0.178673 |    24.564531
+  3.9350 |     0.000541 |     7.569480 |     7.568939 | 13986.586313 |     0.007315 |     0.186001 |     0.178686 |    24.428886
+  3.9400 |     0.000525 |     7.568372 |     7.567847 | 14410.470757 |     0.007352 |     0.186054 |     0.178702 |    24.306907
+  3.9450 |     0.000485 |     7.567266 |     7.566781 | 15603.804540 |     0.007071 |     0.186107 |     0.179035 |    25.318010
+  3.9500 |     0.000529 |     7.566159 |     7.565630 | 14304.749732 |     0.007182 |     0.186160 |     0.178978 |    24.920407
+  3.9550 |     0.000520 |     7.565053 |     7.564533 | 14546.943321 |     0.007123 |     0.186212 |     0.179089 |    25.143629
+  3.9600 |     0.000518 |     7.563948 |     7.563430 | 14609.969797 |     0.007147 |     0.186264 |     0.179117 |    25.063308
+  3.9650 |     0.000479 |     7.562843 |     7.562364 | 15802.947658 |     0.007074 |     0.186315 |     0.179241 |    25.338265
+  3.9700 |     0.000479 |     7.561739 |     7.561259 | 15775.926095 |     0.006963 |     0.186367 |     0.179403 |    25.763578
+  3.9750 |     0.000524 |     7.560635 |     7.560110 | 14417.106056 |     0.006958 |     0.186417 |     0.179459 |    25.791522
+  3.9800 |     0.000496 |     7.559531 |     7.559036 | 15248.154293 |     0.006885 |     0.186468 |     0.179583 |    26.084720
+  3.9850 |     0.000509 |     7.558428 |     7.557920 | 14860.947379 |     0.006988 |     0.186518 |     0.179530 |    25.692468
+  3.9900 |     0.000490 |     7.557326 |     7.556836 | 15421.252320 |     0.006871 |     0.186568 |     0.179697 |    26.151979
+  3.9950 |     0.000486 |     7.556224 |     7.555738 | 15531.739450 |     0.006975 |     0.186617 |     0.179642 |    25.754105
+  4.0000 |     0.000504 |     7.555123 |     7.554619 | 14998.915127 |     0.006791 |     0.186666 |     0.179875 |    26.486677
+  4.0050 |     0.000467 |     7.554022 |     7.553555 | 16178.340101 |     0.006706 |     0.186715 |     0.180009 |    26.843544
+  4.0100 |     0.000477 |     7.552922 |     7.552444 | 15820.715134 |     0.006609 |     0.186763 |     0.180155 |    27.259204
+  4.0150 |     0.000461 |     7.551822 |     7.551361 | 16375.912125 |     0.006551 |     0.186811 |     0.180261 |    27.516778
+  4.0200 |     0.000458 |     7.550722 |     7.550264 | 16474.446268 |     0.006531 |     0.186859 |     0.180328 |    27.609905
+  4.0250 |     0.000458 |     7.549623 |     7.549166 | 16492.532270 |     0.006634 |     0.186906 |     0.180272 |    27.172663
+  4.0300 |     0.000466 |     7.548525 |     7.548058 | 16181.243685 |     0.006617 |     0.186953 |     0.180337 |    27.254619
+  4.0350 |     0.000447 |     7.547427 |     7.546980 | 16881.259215 |     0.006424 |     0.187000 |     0.180576 |    28.108011
+  4.0400 |     0.000483 |     7.546329 |     7.545846 | 15611.353917 |     0.006575 |     0.187046 |     0.180472 |    27.448674
+  4.0450 |     0.000431 |     7.545232 |     7.544802 | 17510.948826 |     0.006436 |     0.187092 |     0.180656 |    28.068372
+  4.0500 |     0.000444 |     7.544136 |     7.543692 | 17000.573996 |     0.006449 |     0.187138 |     0.180689 |    28.019954
+  4.0550 |     0.000435 |     7.543040 |     7.542605 | 17352.675998 |     0.006524 |     0.187183 |     0.180660 |    27.692333
+  4.0600 |     0.000475 |     7.541944 |     7.541470 | 15892.300630 |     0.006436 |     0.187228 |     0.180793 |    28.092950
+  4.0650 |     0.000443 |     7.540849 |     7.540407 | 17032.295678 |     0.006314 |     0.187273 |     0.180959 |    28.661639
+  4.0700 |     0.000459 |     7.539755 |     7.539296 | 16440.018347 |     0.006233 |     0.187317 |     0.181085 |    29.054059
+  4.0750 |     0.000398 |     7.538660 |     7.538263 | 18947.355125 |     0.006104 |     0.187361 |     0.181257 |    29.694772
+  4.0800 |     0.000435 |     7.537567 |     7.537132 | 17336.586504 |     0.006178 |     0.187405 |     0.181227 |    29.335826
+  4.0850 |     0.000446 |     7.536474 |     7.536028 | 16902.900088 |     0.006182 |     0.187448 |     0.181266 |    29.321033
+  4.0900 |     0.000424 |     7.535381 |     7.534957 | 17760.028235 |     0.006090 |     0.187491 |     0.181401 |    29.784908
+  4.0950 |     0.000444 |     7.534289 |     7.533845 | 16981.721734 |     0.006121 |     0.187534 |     0.181413 |    29.636421
+  4.1000 |     0.000404 |     7.533197 |     7.532792 | 18627.748334 |     0.006104 |     0.187576 |     0.181473 |    29.731372
+  4.1050 |     0.000445 |     7.532105 |     7.531660 | 16910.695922 |     0.006048 |     0.187618 |     0.181570 |    30.020957
+  4.1100 |     0.000463 |     7.531014 |     7.530552 | 16275.770096 |     0.005983 |     0.187660 |     0.181677 |    30.363440
+  4.1150 |     0.000399 |     7.529924 |     7.529525 | 18879.185914 |     0.006012 |     0.187701 |     0.181689 |    30.220005
+  4.1200 |     0.000394 |     7.528834 |     7.528440 | 19110.068145 |     0.006000 |     0.187743 |     0.181742 |    30.289002
+  4.1250 |     0.000434 |     7.527745 |     7.527310 | 17328.112389 |     0.005853 |     0.187783 |     0.181930 |    31.083394
+  4.1300 |     0.000434 |     7.526655 |     7.526221 | 17327.879236 |     0.006009 |     0.187824 |     0.181815 |    30.259136
+  4.1350 |     0.000383 |     7.525567 |     7.525183 | 19629.678138 |     0.005863 |     0.187864 |     0.182001 |    31.040310
+  4.1400 |     0.000383 |     7.524479 |     7.524096 | 19655.117830 |     0.005840 |     0.187904 |     0.182063 |    31.173083
+  4.1450 |     0.000383 |     7.523391 |     7.523008 | 19637.574255 |     0.005861 |     0.187943 |     0.182083 |    31.069280
+  4.1500 |     0.000356 |     7.522304 |     7.521948 | 21132.485609 |     0.005793 |     0.187983 |     0.182189 |    31.447415
+  4.1550 |     0.000363 |     7.521217 |     7.520854 | 20727.666770 |     0.005816 |     0.188022 |     0.182205 |    31.327104
+  4.1600 |     0.000358 |     7.520130 |     7.519772 | 21000.701851 |     0.005735 |     0.188060 |     0.182325 |    31.790929
+  4.1650 |     0.000361 |     7.519045 |     7.518684 | 20845.760469 |     0.005637 |     0.188098 |     0.182462 |    32.370491
+  4.1700 |     0.000375 |     7.517959 |     7.517584 | 20064.645845 |     0.005679 |     0.188137 |     0.182458 |    32.128466
+  4.1750 |     0.000378 |     7.516874 |     7.516496 | 19881.617344 |     0.005535 |     0.188174 |     0.182639 |    32.994630
+  4.1800 |     0.000405 |     7.515789 |     7.515384 | 18537.200946 |     0.005599 |     0.188212 |     0.182613 |    32.615492
+  4.1850 |     0.000344 |     7.514705 |     7.514361 | 21816.215067 |     0.005558 |     0.188249 |     0.182691 |    32.869708
+  4.1900 |     0.000387 |     7.513621 |     7.513234 | 19410.388261 |     0.005515 |     0.188286 |     0.182771 |    33.142018
+  4.1950 |     0.000357 |     7.512538 |     7.512181 | 21042.223364 |     0.005491 |     0.188322 |     0.182831 |    33.297852
+  4.2000 |     0.000358 |     7.511455 |     7.511097 | 20974.095695 |     0.005329 |     0.188358 |     0.183029 |    34.343381
+  4.2050 |     0.000372 |     7.510373 |     7.510001 | 20186.155685 |     0.005400 |     0.188394 |     0.182995 |    33.889160
+  4.2100 |     0.000328 |     7.509291 |     7.508963 | 22870.251298 |     0.005418 |     0.188430 |     0.183012 |    33.775556
+  4.2150 |     0.000360 |     7.508209 |     7.507849 | 20846.875809 |     0.005394 |     0.188465 |     0.183071 |    33.938788
+  4.2200 |     0.000353 |     7.507128 |     7.506775 | 21288.001133 |     0.005276 |     0.188501 |     0.183225 |    34.728922
+  4.2250 |     0.000358 |     7.506047 |     7.505690 | 20993.475489 |     0.005419 |     0.188535 |     0.183116 |    33.791752
+  4.2300 |     0.000350 |     7.504967 |     7.504617 | 21421.006412 |     0.005230 |     0.188570 |     0.183340 |    35.054815
+  4.2350 |     0.000397 |     7.503887 |     7.503490 | 18884.322782 |     0.005339 |     0.188604 |     0.183265 |    34.324724
+  4.2400 |     0.000324 |     7.502808 |     7.502484 | 23146.685414 |     0.005270 |     0.188638 |     0.183368 |    34.795425
+  4.2450 |     0.000324 |     7.501729 |     7.501405 | 23146.402801 |     0.005161 |     0.188672 |     0.183511 |    35.557786
+  4.2500 |     0.000320 |     7.500650 |     7.500331 | 23474.190537 |     0.005314 |     0.188705 |     0.183391 |    34.508166
+  4.2550 |     0.000319 |     7.499572 |     7.499253 | 23537.096462 |     0.005063 |     0.188738 |     0.183675 |    36.274489
+  4.2600 |     0.000314 |     7.498494 |     7.498180 | 23855.770337 |     0.005194 |     0.188771 |     0.183577 |    35.343415
+  4.2650 |     0.000354 |     7.497417 |     7.497063 | 21198.742325 |     0.005172 |     0.188804 |     0.183631 |    35.502149
+  4.2700 |     0.000357 |     7.496340 |     7.495983 | 21023.353307 |     0.005019 |     0.188836 |     0.183817 |    36.621934
+  4.2750 |     0.000309 |     7.495263 |     7.494955 | 24282.449279 |     0.005147 |     0.188868 |     0.183722 |    35.697320
+  4.2800 |     0.000300 |     7.494187 |     7.493887 | 24953.124750 |     0.004996 |     0.188900 |     0.183904 |    36.810223
+  4.2850 |     0.000328 |     7.493112 |     7.492784 | 22858.930878 |     0.005009 |     0.188931 |     0.183922 |    36.716740
+  4.2900 |     0.000302 |     7.492036 |     7.491734 | 24802.255567 |     0.004980 |     0.188963 |     0.183983 |    36.944179
+  4.2950 |     0.000327 |     7.490961 |     7.490635 | 22917.916936 |     0.004923 |     0.188994 |     0.184070 |    37.386274
+  4.3000 |     0.000315 |     7.489887 |     7.489572 | 23797.099952 |     0.004968 |     0.189024 |     0.184057 |    37.051274
+  4.3050 |     0.000273 |     7.488813 |     7.488540 | 27414.193699 |     0.004940 |     0.189055 |     0.184115 |    37.272677
+  4.3100 |     0.000341 |     7.487739 |     7.487398 | 21961.273608 |     0.004722 |     0.189085 |     0.184363 |    39.040147
+  4.3150 |     0.000344 |     7.486666 |     7.486322 | 21738.854259 |     0.004925 |     0.189115 |     0.184190 |    37.397673
+  4.3200 |     0.000287 |     7.485593 |     7.485306 | 26073.273466 |     0.004676 |     0.189144 |     0.184468 |    39.447768
+  4.3250 |     0.000290 |     7.484521 |     7.484231 | 25805.332899 |     0.004852 |     0.189174 |     0.184321 |    37.985081
+  4.3300 |     0.000303 |     7.483448 |     7.483145 | 24677.734316 |     0.004834 |     0.189203 |     0.184369 |    38.143313
+  4.3350 |     0.000302 |     7.482377 |     7.482075 | 24761.036457 |     0.004641 |     0.189232 |     0.184591 |    39.770910
+  4.3400 |     0.000307 |     7.481306 |     7.480998 | 24334.617556 |     0.004667 |     0.189260 |     0.184594 |    39.555242
+  4.3450 |     0.000336 |     7.480235 |     7.479899 | 22249.670295 |     0.004589 |     0.189289 |     0.184700 |    40.247925
+  4.3500 |     0.000284 |     7.479164 |     7.478880 | 26329.203210 |     0.004631 |     0.189317 |     0.184686 |    39.884583
+  4.3550 |     0.000268 |     7.478094 |     7.477826 | 27929.763967 |     0.004598 |     0.189345 |     0.184746 |    40.177314
+  4.3600 |     0.000252 |     7.477024 |     7.476772 | 29627.586715 |     0.004655 |     0.189372 |     0.184718 |    39.683252
+  4.3650 |     0.000265 |     7.475955 |     7.475690 | 28199.373664 |     0.004670 |     0.189400 |     0.184730 |    39.559780
+  4.3700 |     0.000279 |     7.474886 |     7.474607 | 26791.758588 |     0.004651 |     0.189427 |     0.184776 |    39.726432
+  4.3750 |     0.000319 |     7.473818 |     7.473499 | 23448.299844 |     0.004480 |     0.189454 |     0.184974 |    41.293177
+  4.3800 |     0.000264 |     7.472750 |     7.472486 | 28323.225294 |     0.004481 |     0.189480 |     0.184999 |    41.281134
+  4.3850 |     0.000279 |     7.471682 |     7.471403 | 26802.419042 |     0.004346 |     0.189507 |     0.185160 |    42.601495
+  4.3900 |     0.000271 |     7.470614 |     7.470343 | 27539.193659 |     0.004388 |     0.189533 |     0.185145 |    42.194633
+  4.3950 |     0.000297 |     7.469547 |     7.469251 | 25164.608417 |     0.004497 |     0.189559 |     0.185062 |    41.156097
+  4.4000 |     0.000325 |     7.468481 |     7.468155 | 22947.812576 |     0.004521 |     0.189584 |     0.185063 |    40.930744
+  4.4050 |     0.000254 |     7.467415 |     7.467161 | 29447.547111 |     0.004284 |     0.189610 |     0.185326 |    43.264873
+  4.4100 |     0.000253 |     7.466349 |     7.466096 | 29559.848159 |     0.004308 |     0.189635 |     0.185327 |    43.020298
+  4.4150 |     0.000286 |     7.465283 |     7.464998 | 26128.495427 |     0.004327 |     0.189660 |     0.185333 |    42.834715
+  4.4200 |     0.000276 |     7.464218 |     7.463943 | 27092.016177 |     0.004326 |     0.189684 |     0.185358 |    42.845924
+  4.4250 |     0.000300 |     7.463154 |     7.462853 | 24857.238836 |     0.004221 |     0.189709 |     0.185488 |    43.944725
+  4.4300 |     0.000269 |     7.462089 |     7.461820 | 27690.720922 |     0.004290 |     0.189733 |     0.185443 |    43.224447
+  4.4350 |     0.000246 |     7.461025 |     7.460779 | 30324.562154 |     0.004200 |     0.189757 |     0.185557 |    44.183907
+  4.4400 |     0.000266 |     7.459962 |     7.459696 | 28056.037644 |     0.004211 |     0.189781 |     0.185570 |    44.066932
+  4.4450 |     0.000276 |     7.458898 |     7.458623 | 27035.725583 |     0.004230 |     0.189804 |     0.185574 |    43.868392
+  4.4500 |     0.000267 |     7.457836 |     7.457568 | 27883.324041 |     0.004167 |     0.189828 |     0.185661 |    44.555869
+  4.4550 |     0.000258 |     7.456773 |     7.456515 | 28848.170831 |     0.004111 |     0.189851 |     0.185740 |    45.181153
+  4.4600 |     0.000269 |     7.455711 |     7.455442 | 27668.604690 |     0.004113 |     0.189873 |     0.185760 |    45.164651
+  4.4650 |     0.000270 |     7.454649 |     7.454379 | 27608.181943 |     0.004092 |     0.189896 |     0.185804 |    45.405358
+  4.4700 |     0.000273 |     7.453588 |     7.453315 | 27292.434460 |     0.004049 |     0.189918 |     0.185870 |    45.909034
+  4.4750 |     0.000255 |     7.452527 |     7.452272 | 29275.702307 |     0.004035 |     0.189940 |     0.185906 |    46.075598
+  4.4800 |     0.000234 |     7.451466 |     7.451232 | 31822.667800 |     0.004152 |     0.189962 |     0.185810 |    44.750615
+  4.4850 |     0.000240 |     7.450406 |     7.450166 | 31096.710009 |     0.004052 |     0.189984 |     0.185932 |    45.883324
+  4.4900 |     0.000262 |     7.449346 |     7.449084 | 28423.057119 |     0.003966 |     0.190006 |     0.186039 |    46.906818
+  4.4950 |     0.000214 |     7.448287 |     7.448072 | 34787.251018 |     0.004019 |     0.190027 |     0.186008 |    46.283197
+  4.5000 |     0.000240 |     7.447227 |     7.446988 | 31093.444023 |     0.003920 |     0.190048 |     0.186128 |    47.482485
+  4.5050 |     0.000220 |     7.446169 |     7.445948 | 33785.165606 |     0.004012 |     0.190069 |     0.186057 |    46.380507
+  4.5100 |     0.000228 |     7.445110 |     7.444882 | 32601.386667 |     0.003930 |     0.190089 |     0.186159 |    47.370637
+  4.5150 |     0.000255 |     7.444052 |     7.443797 | 29161.223506 |     0.003873 |     0.190110 |     0.186237 |    48.088639
+  4.5200 |     0.000229 |     7.442994 |     7.442765 | 32536.613502 |     0.003893 |     0.190130 |     0.186236 |    47.835283
+  4.5250 |     0.000224 |     7.441937 |     7.441713 | 33251.535609 |     0.003721 |     0.190150 |     0.186429 |    50.105379
+  4.5300 |     0.000190 |     7.440880 |     7.440690 | 39157.317111 |     0.003733 |     0.190169 |     0.186436 |    49.940823
+  4.5350 |     0.000237 |     7.439823 |     7.439587 | 31450.388792 |     0.003707 |     0.190189 |     0.186482 |    50.301358
+  4.5400 |     0.000233 |     7.438767 |     7.438534 | 31974.519869 |     0.003787 |     0.190208 |     0.186421 |    49.227599
+  4.5450 |     0.000266 |     7.437711 |     7.437445 | 27987.412687 |     0.003886 |     0.190227 |     0.186342 |    47.956457
+  4.5500 |     0.000208 |     7.436655 |     7.436447 | 35809.216459 |     0.003903 |     0.190246 |     0.186344 |    47.748589
+  4.5550 |     0.000218 |     7.435600 |     7.435382 | 34084.874355 |     0.003763 |     0.190265 |     0.186502 |    49.566807
+  4.5600 |     0.000217 |     7.434545 |     7.434328 | 34216.327730 |     0.003732 |     0.190283 |     0.186551 |    49.985821
+  4.5650 |     0.000246 |     7.433490 |     7.433244 | 30205.765856 |     0.003539 |     0.190302 |     0.186762 |    52.770321
+  4.5700 |     0.000206 |     7.432436 |     7.432230 | 36024.796798 |     0.003614 |     0.190320 |     0.186706 |    51.668150
+  4.5750 |     0.000213 |     7.431382 |     7.431169 | 34832.490184 |     0.003575 |     0.190337 |     0.186762 |    52.237859
+  4.5800 |     0.000219 |     7.430328 |     7.430109 | 33874.239453 |     0.003568 |     0.190355 |     0.186787 |    52.351732
+  4.5850 |     0.000208 |     7.429275 |     7.429067 | 35680.770858 |     0.003582 |     0.190372 |     0.186790 |    52.144290
+  4.5900 |     0.000192 |     7.428222 |     7.428030 | 38638.420554 |     0.003540 |     0.190390 |     0.186850 |    52.786195
+  4.5950 |     0.000205 |     7.427170 |     7.426964 | 36157.439097 |     0.003407 |     0.190407 |     0.187000 |    54.885083
+  4.6000 |     0.000224 |     7.426118 |     7.425894 | 33144.949631 |     0.003592 |     0.190424 |     0.186831 |    52.007329
+  4.6050 |     0.000175 |     7.425066 |     7.424891 | 42532.136566 |     0.003436 |     0.190440 |     0.187004 |    54.417787
+  4.6100 |     0.000200 |     7.424014 |     7.423815 | 37187.979024 |     0.003516 |     0.190457 |     0.186941 |    53.172863
+  4.6150 |     0.000179 |     7.422963 |     7.422784 | 41434.377568 |     0.003634 |     0.190473 |     0.186839 |    51.409182
+  4.6200 |     0.000221 |     7.421912 |     7.421691 | 33575.714440 |     0.003391 |     0.190489 |     0.187098 |    55.180345
+  4.6250 |     0.000157 |     7.420862 |     7.420704 | 47120.361856 |     0.003251 |     0.190505 |     0.187254 |    57.601196
+  4.6300 |     0.000178 |     7.419811 |     7.419633 | 41654.946962 |     0.003401 |     0.190520 |     0.187120 |    55.026718
+  4.6350 |     0.000198 |     7.418762 |     7.418563 | 37443.701560 |     0.003486 |     0.190536 |     0.187050 |    53.658378
+  4.6400 |     0.000224 |     7.417712 |     7.417488 | 33127.737213 |     0.003532 |     0.190551 |     0.187019 |    52.954414
+  4.6450 |     0.000185 |     7.416663 |     7.416478 | 40037.852941 |     0.003274 |     0.190566 |     0.187292 |    57.206907
+  4.6500 |     0.000173 |     7.415614 |     7.415441 | 42942.954697 |     0.003385 |     0.190581 |     0.187196 |    55.299593
+  4.6550 |     0.000227 |     7.414565 |     7.414338 | 32658.947666 |     0.003295 |     0.190596 |     0.187301 |    56.850450
+  4.6600 |     0.000150 |     7.413517 |     7.413368 | 49565.078172 |     0.003303 |     0.190610 |     0.187307 |    56.701047
+  4.6650 |     0.000131 |     7.412469 |     7.412338 | 56553.283668 |     0.003492 |     0.190625 |     0.187133 |    53.592903
+  4.6700 |     0.000190 |     7.411422 |     7.411232 | 38992.436680 |     0.003162 |     0.190639 |     0.187476 |    59.281647
+  4.6750 |     0.000167 |     7.410374 |     7.410207 | 44315.430675 |     0.003276 |     0.190653 |     0.187376 |    57.189290
+  4.6800 |     0.000154 |     7.409328 |     7.409174 | 48099.299151 |     0.003275 |     0.190666 |     0.187392 |    57.224467
+  4.6850 |     0.000192 |     7.408281 |     7.408089 | 38527.154455 |     0.003303 |     0.190680 |     0.187377 |    56.722959
+  4.6900 |     0.000180 |     7.407235 |     7.407054 | 41064.929798 |     0.003212 |     0.190693 |     0.187482 |    58.376207
+  4.6950 |     0.000161 |     7.406189 |     7.406028 | 46107.041449 |     0.003210 |     0.190706 |     0.187497 |    58.412670
+  4.7000 |     0.000143 |     7.405143 |     7.405000 | 51788.953696 |     0.003140 |     0.190719 |     0.187580 |    59.740174
+  4.7050 |     0.000191 |     7.404098 |     7.403907 | 38776.242239 |     0.003172 |     0.190732 |     0.187560 |    59.126360
+  4.7100 |     0.000185 |     7.403053 |     7.402868 | 40100.496209 |     0.003109 |     0.190745 |     0.187636 |    60.352549
+  4.7150 |     0.000166 |     7.402008 |     7.401842 | 44526.343390 |     0.003164 |     0.190757 |     0.187593 |    59.284835
+  4.7200 |     0.000209 |     7.400964 |     7.400754 | 35328.041692 |     0.003073 |     0.190770 |     0.187697 |    61.082849
+  4.7250 |     0.000142 |     7.399920 |     7.399778 | 52264.217877 |     0.003112 |     0.190782 |     0.187670 |    60.306920
+  4.7300 |     0.000130 |     7.398876 |     7.398746 | 56931.760888 |     0.003065 |     0.190794 |     0.187729 |    61.258382
+  4.7350 |     0.000148 |     7.397833 |     7.397685 | 50048.416270 |     0.003134 |     0.190806 |     0.187671 |    59.872969
+  4.7400 |     0.000161 |     7.396790 |     7.396628 | 45830.754197 |     0.003029 |     0.190817 |     0.187788 |    61.987846
+  4.7450 |     0.000167 |     7.395747 |     7.395580 | 44335.926979 |     0.002884 |     0.190829 |     0.187945 |    65.176898
+  4.7500 |     0.000155 |     7.394704 |     7.394550 | 47845.311222 |     0.003095 |     0.190840 |     0.187745 |    60.662621
+  4.7550 |     0.000167 |     7.393662 |     7.393495 | 44287.139884 |     0.002916 |     0.190851 |     0.187935 |    64.454268
+  4.7600 |     0.000129 |     7.392620 |     7.392491 | 57251.531391 |     0.002918 |     0.190862 |     0.187943 |    64.400031
+  4.7650 |     0.000190 |     7.391579 |     7.391389 | 38986.591719 |     0.002906 |     0.190872 |     0.187966 |    64.670986
+  4.7700 |     0.000154 |     7.390538 |     7.390384 | 48127.221023 |     0.003038 |     0.190883 |     0.187845 |    61.827371
+  4.7750 |     0.000180 |     7.389497 |     7.389317 | 41087.344267 |     0.002759 |     0.190893 |     0.188135 |    68.197069
+  4.7800 |     0.000161 |     7.388456 |     7.388295 | 45887.506046 |     0.003139 |     0.190904 |     0.187765 |    59.825973
+  4.7850 |     0.000162 |     7.387416 |     7.387253 | 45461.053582 |     0.002966 |     0.190914 |     0.187947 |    63.359034
+  4.7900 |     0.000164 |     7.386376 |     7.386212 | 45046.446728 |     0.002888 |     0.190923 |     0.188035 |    65.107641
+  4.7950 |     0.000160 |     7.385336 |     7.385176 | 46135.603757 |     0.002851 |     0.190933 |     0.188082 |    65.959473
+  4.8000 |     0.000163 |     7.384297 |     7.384133 | 45179.805817 |     0.002861 |     0.190943 |     0.188081 |    65.730722
+  4.8050 |     0.000178 |     7.383258 |     7.383080 | 41467.592141 |     0.002864 |     0.190952 |     0.188089 |    65.684354
+  4.8100 |     0.000151 |     7.382219 |     7.382068 | 48864.424846 |     0.002857 |     0.190961 |     0.188104 |    65.831169
+  4.8150 |     0.000162 |     7.381180 |     7.381019 | 45641.439611 |     0.002835 |     0.190970 |     0.188135 |    66.355505
+  4.8200 |     0.000142 |     7.380142 |     7.380000 | 51827.912734 |     0.002785 |     0.190979 |     0.188194 |    67.574693
+  4.8250 |     0.000176 |     7.379104 |     7.378928 | 41851.222806 |     0.002748 |     0.190988 |     0.188240 |    68.494933
+  4.8300 |     0.000127 |     7.378067 |     7.377940 | 58148.990716 |     0.002737 |     0.190996 |     0.188260 |    68.794619
+  4.8350 |     0.000182 |     7.377029 |     7.376847 | 40426.639802 |     0.002718 |     0.191005 |     0.188287 |    69.268325
+  4.8400 |     0.000139 |     7.375992 |     7.375853 | 52929.248096 |     0.002803 |     0.191013 |     0.188210 |    67.146542
+  4.8450 |     0.000107 |     7.374956 |     7.374849 | 69223.130972 |     0.002748 |     0.191021 |     0.188274 |    68.524497
+  4.8500 |     0.000141 |     7.373919 |     7.373778 | 52237.708966 |     0.002467 |     0.191029 |     0.188562 |    76.418698
+  4.8550 |     0.000122 |     7.372883 |     7.372761 | 60606.183358 |     0.002723 |     0.191037 |     0.188314 |    69.165118
+  4.8600 |     0.000155 |     7.371847 |     7.371692 | 47425.921747 |     0.002673 |     0.191044 |     0.188371 |    70.460938
+  4.8650 |     0.000120 |     7.370812 |     7.370691 | 61267.586101 |     0.002643 |     0.191052 |     0.188409 |    71.290962
+  4.8700 |     0.000124 |     7.369776 |     7.369652 | 59415.777808 |     0.002601 |     0.191059 |     0.188459 |    72.468231
+  4.8750 |     0.000090 |     7.368741 |     7.368651 | 81820.991663 |     0.002700 |     0.191066 |     0.188367 |    69.773496
+  4.8800 |     0.000122 |     7.367707 |     7.367585 | 60418.734815 |     0.002672 |     0.191073 |     0.188401 |    70.506879
+  4.8850 |     0.000076 |     7.366672 |     7.366597 | 97051.878651 |     0.002529 |     0.191080 |     0.188551 |    74.564286
+  4.8900 |     0.000094 |     7.365638 |     7.365544 | 78233.862587 |     0.002603 |     0.191087 |     0.188484 |    72.407700
+  4.8950 |     0.000147 |     7.364605 |     7.364458 | 50170.054785 |     0.002486 |     0.191093 |     0.188608 |    75.883174
+  4.9000 |     0.000146 |     7.363571 |     7.363425 | 50287.854091 |     0.002441 |     0.191100 |     0.188659 |    77.292166
+  4.9050 |     0.000137 |     7.362538 |     7.362401 | 53642.321981 |     0.002483 |     0.191106 |     0.188623 |    75.953005
+  4.9100 |     0.000104 |     7.361505 |     7.361400 | 70453.289349 |     0.002581 |     0.191112 |     0.188531 |    73.037074
+  4.9150 |     0.000125 |     7.360472 |     7.360348 | 59082.405073 |     0.002574 |     0.191118 |     0.188544 |    73.240474
+  4.9200 |     0.000125 |     7.359440 |     7.359315 | 59030.954037 |     0.002528 |     0.191124 |     0.188596 |    74.616086
+  4.9250 |     0.000097 |     7.358408 |     7.358310 | 75579.171599 |     0.002530 |     0.191129 |     0.188600 |    74.550773
+  4.9300 |     0.000157 |     7.357376 |     7.357219 | 46770.062627 |     0.002501 |     0.191135 |     0.188634 |    75.437017
+  4.9350 |     0.000142 |     7.356344 |     7.356202 | 51768.876124 |     0.002400 |     0.191140 |     0.188740 |    78.636523
+  4.9400 |     0.000116 |     7.355313 |     7.355197 | 63353.713219 |     0.002467 |     0.191145 |     0.188678 |    76.471759
+  4.9450 |     0.000121 |     7.354282 |     7.354161 | 60838.839189 |     0.002482 |     0.191150 |     0.188669 |    76.027443
+  4.9500 |     0.000124 |     7.353252 |     7.353127 | 59227.282264 |     0.002465 |     0.191155 |     0.188691 |    76.552847
+  4.9550 |     0.000072 |     7.352221 |     7.352149 | 102341.297220 |     0.002484 |     0.191160 |     0.188676 |    75.948954
+  4.9600 |     0.000112 |     7.351191 |     7.351079 | 65634.362826 |     0.002435 |     0.191165 |     0.188730 |    77.506148
+  4.9650 |     0.000101 |     7.350161 |     7.350060 | 72627.717271 |     0.002395 |     0.191169 |     0.188774 |    78.814409
+  4.9700 |     0.000093 |     7.349132 |     7.349039 | 78985.819545 |     0.002436 |     0.191174 |     0.188737 |    77.474816
+  4.9750 |     0.000109 |     7.348102 |     7.347994 | 67618.374853 |     0.002341 |     0.191178 |     0.188837 |    80.669552
+  4.9800 |     0.000155 |     7.347073 |     7.346918 | 47291.925310 |     0.002264 |     0.191182 |     0.188918 |    83.451425
+  4.9850 |     0.000128 |     7.346045 |     7.345917 | 57357.618365 |     0.002305 |     0.191186 |     0.188881 |    81.945073
+  4.9900 |     0.000100 |     7.345016 |     7.344917 | 73791.110263 |     0.002249 |     0.191190 |     0.188941 |    84.026968
+  4.9950 |     0.000125 |     7.343988 |     7.343863 | 58815.329356 |     0.002241 |     0.191193 |     0.188952 |    84.310097
+  5.0000 |     0.000143 |     7.342960 |     7.342817 | 51366.749414 |     0.002268 |     0.191197 |     0.188928 |    83.287009
+------------------------------------------------------------------------------------------------------------------------
+Analysis complete for petab_sirsforced

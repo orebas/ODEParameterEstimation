@@ -12,6 +12,7 @@ example_functions = [
 	daisy_mamil3,
 	daisy_mamil4,
 	fitzhugh_nagumo,
+	lv_periodic,
 	hiv,
 	lotka_volterra,
 	seir,
@@ -26,6 +27,7 @@ example_functions = [
 	global_unident_test,
 	sum_test,
 	sirsforced,
+	trivial_unident,
 ]
 
 # Generate TOML for each example

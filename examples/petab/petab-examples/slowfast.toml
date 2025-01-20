@@ -13,6 +13,11 @@ parameters = [
     { name = "eB", value = 0.75, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "xA' = -k1*xA",
+    "xB' = k1*xA - k2*xB",
+    "xC' = k2*xB",
+    "eA' = 0",
+    "eC' = 0",
 ]
 observables = [
     { name = "obs_y1", formula = "xC", transformation = "lin", noise_distribution = "normal" },
@@ -21,8 +26,8 @@ observables = [
     { name = "obs_y4", formula = "eC", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_slowfast"
 blind = true

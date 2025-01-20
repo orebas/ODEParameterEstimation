@@ -12,7 +12,7 @@ function compare_data_sources(example_func, petab_dir)
 
 	# Get original problem and sample data
 	pep = example_func()
-	orig_data = sample_problem_data(pep, datasize = 21, time_interval = [0.0, 1.0])
+	orig_data = sample_problem_data(pep, datasize = 1001, time_interval = [0.0, 5.0])
 
 	# Load and simulate PEtab problem
 	yaml_file = joinpath(petab_dir, "problem.yaml")
@@ -59,29 +59,34 @@ function compare_data_sources(example_func, petab_dir)
 			end
 		end
 
-		#println("\nOriginal values:")
-		#display(orig_values)
-		#println("\nPEtab values:")
-		#display(obs_data)
-
 		# Calculate relative differences
-		rel_diffs = abs.(orig_values .- obs_data) ./ (abs.(orig_values) .+ abs.(obs_data) .+ 1e-10)
-		max_rel_diff = maximum(rel_diffs)
-		mean_rel_diff = mean(rel_diffs)
+		valid_indices = .!isnan.(obs_data)
+		if any(valid_indices)
+			rel_diffs = abs.(orig_values[valid_indices] .- obs_data[valid_indices]) ./
+						(abs.(orig_values[valid_indices]) .+ abs.(obs_data[valid_indices]) .+ 1e-10)
+			max_rel_diff = maximum(rel_diffs)
+			mean_rel_diff = mean(rel_diffs)
 
-		push!(max_rel_diffs, max_rel_diff)
-		push!(mean_rel_diffs, mean_rel_diff)
+			push!(max_rel_diffs, max_rel_diff)
+			push!(mean_rel_diffs, mean_rel_diff)
 
-		println("  Max relative difference: $(round(max_rel_diff * 100, digits=2))%")
-		println("  Mean relative difference: $(round(mean_rel_diff * 100, digits=2))%")
+			println("  Max relative difference: $(round(max_rel_diff * 100, digits=2))%")
+			println("  Mean relative difference: $(round(mean_rel_diff * 100, digits=2))%")
 
-		# Optional: Plot comparison
-		p = plot(orig_data.data_sample["t"], orig_values, label = "Original", title = "Observable $i")
-		scatter!(unique_times, obs_data, label = "PEtab")
-		display(p)
+			# Optional: Plot comparison
+			p = plot(orig_data.data_sample["t"], orig_values, label = "Original", title = "Observable $i")
+			scatter!(unique_times[valid_indices], obs_data[valid_indices], label = "PEtab")
+			display(p)
+		else
+			println("WARNING: No valid data points for comparison")
+		end
 	end
 
-	return (max = maximum(max_rel_diffs), mean = mean(mean_rel_diffs))
+	if !isempty(max_rel_diffs)
+		return (max = maximum(max_rel_diffs), mean = mean(mean_rel_diffs))
+	else
+		return (max = NaN, mean = NaN)
+	end
 end
 
 # List of all example functions and their corresponding PEtab directories

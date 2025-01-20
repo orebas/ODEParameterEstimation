@@ -1,3 +1,17 @@
+#using Statistics
+#using GaussianProcesses
+#using Optim
+#using Plots
+using ModelingToolkit
+using OrdinaryDiffEq
+#using PEtab
+using Statistics
+using GaussianProcesses
+using Optim
+using Plots
+using LineSearches
+
+
 """
 	rational_interpolation_coefficients(x, y, n)
 CODE COPIED FROM previous version of ParameterEstimation.jl
@@ -119,13 +133,87 @@ function nth_deriv(f, n::Int, t)
 end
 
 
-function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	#@suppress begin
 	@assert length(xs) == length(ys)
 	internalApprox = BaryRational.aaa(xs, ys, verbose = false)
 	return AAADapprox(internalApprox)
 	#end
 end
+
+
+
+function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, use_gpr::Bool = false) where {T}
+	if (use_gpr)
+		kernel = SEIso(log(std(xs) / 8), 0.0)
+		gp = GP(xs, ys, MeanZero(), kernel, -2.0)
+		optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+		# Create callable function
+		gpr_func = x -> begin
+			pred, _ = predict_y(gp, [x])
+			return pred[1]
+		end
+		return gpr_func
+	else
+		return aaad_old_reliable(xs, ys)
+	end
+
+end
+
+
+
+
+
+
+
+
+
+
+function aaad_in_testing(xs::AbstractArray{T}, ys::AbstractArray{T}; save_plot::Union{String, Nothing} = "plot.png") where {T}
+	@assert length(xs) == length(ys)
+
+	# First smooth with GP
+	# Use shorter lengthscale for more local fitting
+	ll = log(std(xs) / 8)  # Changed from /4 to /8 for shorter lengthscale
+	lσ = 1.0  # Increased signal variance (was 0.0)
+	kernel = SEIso(ll, lσ)
+	mZero = MeanZero()
+
+	# Start with smaller noise for tighter fit
+	log_noise = -2.0  # Decreased from 0.0 for less noise/smoother fit
+	gp = GP(xs, ys, mZero, kernel, log_noise)
+
+	try
+		optimize!(gp, method = BFGS(linesearch = LineSearches.BackTracking()))
+	catch e
+		@warn "GP optimization failed, using unoptimized GP" exception = e
+	end
+
+	# Get smoothed predictions at original points
+	ys_smooth, _ = predict_y(gp, xs)
+
+	# Save plot if requested
+	if !isnothing(save_plot)
+		# Create dense grid for smooth plotting
+		x_plot = range(minimum(xs), maximum(xs), length = 200)
+		y_plot, var_plot = predict_y(gp, x_plot)
+
+		# Plot GP fit with confidence intervals
+		p = Plots.plot(x_plot, y_plot, ribbon = 2 * sqrt.(var_plot),
+			label = "GP fit", fillalpha = 0.2)
+		# Add original data points
+		scatter!(xs, ys, label = "Data", markersize = 3)
+
+		# Save plot
+		savefig(p, save_plot)
+	end
+
+	# Fit AAA to smoothed data
+	internalApprox = BaryRational.aaa(xs, ys_smooth, verbose = false)
+	return AAADapprox(internalApprox)
+end
+
 
 
 

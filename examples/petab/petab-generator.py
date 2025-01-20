@@ -236,10 +236,9 @@ class PETABGenerator:
                 noise = np.random.normal(0, self.data_spec.noise_level, len(t))
                 noisy_values = 10**(log_values + noise)
             else:
-                # For linear data, apply additive noise scaled by the mean
-                noise_scale = np.mean(np.abs(true_values)) * self.data_spec.noise_level
-                noise = np.random.normal(0, noise_scale, len(t))
-                noisy_values = true_values + noise
+                # For linear data, apply relative (multiplicative) noise
+                noise = np.random.normal(0, self.data_spec.noise_level, len(t))
+                noisy_values = true_values * (1 + noise)
             
             measurements = pd.DataFrame({
                 "simulationConditionId": self.data_spec.condition_id,

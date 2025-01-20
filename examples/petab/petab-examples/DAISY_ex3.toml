@@ -14,14 +14,18 @@ parameters = [
     { name = "p7", value = 0.833, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "x1' = u0 + x2 - p1*x1",
+    "x2' = x3 + p3*x1 - p4*x2",
+    "x3' = p6*x1 - p7*x3",
+    "u0' = 1.0",
 ]
 observables = [
     { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
     { name = "obs_y2", formula = "u0", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_DAISY_ex3"
 blind = true

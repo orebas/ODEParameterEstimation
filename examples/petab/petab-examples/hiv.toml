@@ -20,6 +20,11 @@ parameters = [
     { name = "h", value = 0.909, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "x' = lm - d*x - beta*x*v",
+    "y' = -a*y + beta*x*v",
+    "v' = k*y - u*v",
+    "w' = -b*w - c*q*y*w + c*x*y*w",
+    "z' = -h*z + c*q*y*w",
 ]
 observables = [
     { name = "obs_y1", formula = "w", transformation = "lin", noise_distribution = "normal" },
@@ -28,8 +33,8 @@ observables = [
     { name = "obs_y4", formula = "v + y", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_hiv"
 blind = true

@@ -1,5 +1,10 @@
 #module SharedUtils
 
+using ModelingToolkit
+using Statistics
+using Printf
+using OrderedCollections
+using Symbolics
 
 struct OrderedODESystem
 	system::ODESystem
@@ -12,6 +17,7 @@ struct ParameterEstimationProblem
 	model::OrderedODESystem
 	measured_quantities::Vector{Equation}
 	data_sample::Union{Nothing, OrderedDict}
+	recommended_time_interval::Union{Nothing, Vector{Float64}}  # [start_time, end_time] or nothing for default
 	solver::Any
 	p_true::Any
 	ic::Any
@@ -58,6 +64,7 @@ function sample_problem_data(problem::ParameterEstimationProblem;
 			solver = solver,
 			uneven_sampling = uneven_sampling,
 			uneven_sampling_times = uneven_sampling_times),
+		problem.recommended_time_interval,
 		solver,
 		problem.p_true,
 		problem.ic,
@@ -104,6 +111,51 @@ function cluster_solutions(sorted_results)
 	return clusters
 end
 
+# Helper function to calculate number of "turns" using sign changes in divided differences
+function count_turns(values)
+	if length(values) < 3
+		return 0
+	end
+	diffs = diff(values)
+	sign_changes = sum(abs.(sign.(diffs[2:end]) - sign.(diffs[1:end-1])) .> 1)
+	return sign_changes
+end
+
+# Helper function to calculate statistics for a time series
+function calculate_timeseries_stats(values)
+	return (
+		mean = mean(values),
+		std = std(values),
+		min = minimum(values),
+		max = maximum(values),
+		range = maximum(values) - minimum(values),
+		turns = count_turns(values),
+	)
+end
+
+# Helper function to print a statistics table
+function print_stats_table(io, name, stats)
+	println(io, "\n$name Statistics:")
+	println(io, "-"^50)
+	println(io, "Variable      | Mean        | Std         | Min         | Max         | Range       | Turns")
+	println(io, "-"^50)
+	for (var, stat) in stats
+		@printf(io, "%-12s | %10.6f | %10.6f | %10.6f | %10.6f | %10.6f | %10d\n",
+			var, stat.mean, stat.std, stat.min, stat.max, stat.range, stat.turns)
+	end
+end
+
+# Helper function to calculate error statistics
+function calculate_error_stats(predicted, actual)
+	abs_error = abs.(predicted - actual)
+	rel_error = abs_error ./ (abs.(actual) .+ 1e-10)  # Add small constant to avoid division by zero
+
+	return (
+		absolute = calculate_timeseries_stats(abs_error),
+		relative = calculate_timeseries_stats(rel_error),
+	)
+end
+
 # Modified analyze_estimation_result function
 function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 	# Merge dictionaries into a single OrderedDict
@@ -128,7 +180,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 
 	# Show unidentifiable parameters if any
 	if !isempty(sorted_results)
-		first_result = first(sorted_results)
+		first_result = last(sorted_results)
 
 		# First show all structurally unidentifiable parameters
 		if hasfield(typeof(first_result), :all_unidentifiable) && !isempty(first_result.all_unidentifiable)
@@ -164,30 +216,36 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 	# Print best solution from each cluster
 	println("\nFound $(length(clusters)) distinct solution clusters:")
 	for (i, cluster) in enumerate(clusters)
-		best_solution = first(cluster)  # cluster is sorted by error
+		best_solution = last(cluster)  # cluster is sorted by error
 		println("\nCluster $i: $(length(cluster)) similar solutions")
 		println("Best solution (Error: $(round(best_solution.err, digits=6))):")
 		println("-"^50)
 
-		# Get all parameter names
-		param_names = collect(keys(best_solution.parameters))
+		# Get parameters in original order from the model
+		param_names = problem.model.original_parameters
+		#println("DEBUG [analyze_estimation_result]: Original parameters: ", param_names)
+		#println("DEBUG [analyze_estimation_result]: problem.p_true: ", problem.p_true)
+		#println("DEBUG [analyze_estimation_result]: best_solution.parameters: ", best_solution.parameters)
 
 		# Filter out init_ parameters from the parameter list since they're already in states
 		non_init_params = filter(p -> !startswith(string(p), "init_"), param_names)
 
-		# Collect values, excluding init_ parameters from parameters
+		# First get the state names in the order they appear in the model
+		state_names = problem.model.original_states
+
+		# Collect values in matching order
 		estimates = vcat(
-			collect(values(best_solution.states)),
+			[best_solution.states[s] for s in state_names],
 			[best_solution.parameters[p] for p in non_init_params],
 		)
 		true_values = vcat(
-			collect(values(problem.ic)),
+			[problem.ic[s] for s in state_names],
 			[problem.p_true[p] for p in non_init_params],
 		)
-		var_names = vcat(
-			collect(keys(problem.ic)),
-			non_init_params,
-		)
+		var_names = vcat(state_names, non_init_params)
+
+		#println("DEBUG [analyze_estimation_result]: Estimates order: ", var_names)
+		#println("DEBUG [analyze_estimation_result]: Estimates values: ", estimates)
 
 		# Calculate relative errors
 		rel_errors = abs.((estimates .- true_values) ./ true_values)
@@ -256,7 +314,185 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 		end
 	end
 	println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")
+
+	# Debug printing
+	#	println("\nDEBUG: Measured quantities:")
+	#	for eq in problem.measured_quantities
+	#		println("  Equation: ", eq)
+	#		println("  LHS: ", eq.lhs, " (", typeof(eq.lhs), ")")
+	#		println("  RHS: ", eq.rhs, " (", typeof(eq.rhs), ")")
+	#	end
+
+	#	println("\nDEBUG: Data sample keys:")
+	#	for key in keys(problem.data_sample)
+	#		println("  ", key, " (", typeof(key), ")")
+	#	end
+
+	# Calculate and print observable statistics
+	observable_stats = OrderedDict()
+	for eq in problem.measured_quantities
+		obs_name = string(eq.lhs)
+		rhs = eq.rhs
+		rhs_str = string(rhs)
+		#		println("\nDEBUG: Processing observable:")
+		#		println("  obs_name: ", obs_name)
+		#		println("  rhs: ", rhs)
+		#		println("  rhs_str: ", rhs_str)
+		if haskey(problem.data_sample, rhs)
+			#			println("  Found by RHS")
+			observable_stats[obs_name] = calculate_timeseries_stats(problem.data_sample[rhs])
+		elseif haskey(problem.data_sample, rhs_str)
+			#			println("  Found by RHS string")
+			observable_stats[obs_name] = calculate_timeseries_stats(problem.data_sample[rhs_str])
+		else
+			#			println("  Not found in data sample")
+		end
+	end
+
+	if !isempty(observable_stats)
+		print_stats_table(stdout, "Observables", observable_stats)
+	end
+
+	# For the best solution, calculate error statistics
+	if !isempty(sorted_results)
+		best_solution = last(sorted_results)
+		println("\nError Statistics for Best Solution:")
+		println("-"^50)
+
+		# Use stored solution
+		sol = best_solution.solution
+
+		# Calculate error statistics for each observable
+		println("\nError Statistics by Observable:")
+		println("-"^50)
+		println("Observable   | Error Type | Mean        | Std         | Min         | Max         | Range")
+		println("-"^50)
+
+		for eq in problem.measured_quantities
+			obs_name = string(eq.lhs)
+			rhs = eq.rhs
+			rhs_str = string(rhs)
+
+			if haskey(problem.data_sample, rhs)
+				# Get predicted values from solution
+				predicted = Array(sol[rhs])  # Convert to Array for calculations
+				actual = problem.data_sample[rhs]
+				error_stats = calculate_error_stats(predicted, actual)
+
+				# Print absolute error stats
+				@printf("%-12s | Absolute   | %10.6f | %10.6f | %10.6f | %10.6f | %10.6f\n",
+					obs_name,
+					error_stats.absolute.mean,
+					error_stats.absolute.std,
+					error_stats.absolute.min,
+					error_stats.absolute.max,
+					error_stats.absolute.range)
+
+				# Print relative error stats
+				@printf("%-12s | Relative   | %10.6f | %10.6f | %10.6f | %10.6f | %10.6f\n",
+					obs_name,
+					error_stats.relative.mean,
+					error_stats.relative.std,
+					error_stats.relative.min,
+					error_stats.relative.max,
+					error_stats.relative.range)
+			end
+		end
+	end
+
+	# For the best solution, add detailed time series comparison
+	if !isempty(sorted_results)
+		best_solution = last(sorted_results)
+		sol = best_solution.solution
+
+		println("\nDetailed Time Series Comparison:")
+		println("-"^120)
+
+		# Print header
+		header = "t"
+		for eq in problem.measured_quantities
+			obs_name = string(eq.lhs)
+			header *= @sprintf(" | %-12s | %-12s | %-12s | %-12s",
+				"$(obs_name)_act", "$(obs_name)_pred", "abs_err", "rel_err")
+		end
+		println(header)
+		println("-"^120)
+
+		# Print data for each time point
+		t_points = problem.data_sample["t"]
+		for (i, t) in enumerate(t_points)
+			line = @sprintf("%8.4f", t)
+			for eq in problem.measured_quantities
+				rhs = eq.rhs
+				if haskey(problem.data_sample, rhs)
+					actual = problem.data_sample[rhs][i]
+					predicted = sol[rhs][i]
+					abs_err = abs(predicted - actual)
+					rel_err = abs_err / (abs(actual) + 1e-10)
+
+					line *= @sprintf(" | %12.6f | %12.6f | %12.6f | %12.6f",
+						actual, predicted, abs_err, rel_err)
+				end
+			end
+			println(line)
+		end
+		println("-"^120)
+	end
+
 	return besterror
+end
+
+function clean_time_variables(name::String)
+	# Remove (t) and fix time variable
+	name = replace(name, r"\(t\)" => "")  # Remove (t)
+	name = replace(name, "t_nounits" => "t")  # Replace t_nounits with t
+	return name
+end
+
+function clean_rational_numbers(name::String)
+	# Convert rational numbers (e.g., 1//3 -> 0.333333)
+	while contains(name, "//")
+		m = match(r"(\d+)//(\d+)", name)
+		if !isnothing(m)
+			num = parse(Int, m.captures[1])
+			den = parse(Int, m.captures[2])
+			name = replace(name, "$(num)//$(den)" => string(float(num / den)))
+		else
+			break
+		end
+	end
+	return name
+end
+
+function clean_power_notation(name::String)
+	# Handle power notation (e.g., x^2 -> x*x, x^3 -> x*x*x)
+	while contains(name, "^")
+		m = match(r"(\w+)\^(\d+)", name)
+		if !isnothing(m)
+			base = m.captures[1]
+			power = parse(Int, m.captures[2])
+			replacement = join(fill(base, power), "*")
+			name = replace(name, "$(base)^$(power)" => replacement)
+		else
+			break
+		end
+	end
+	return name
+end
+
+function fix_multiplication_syntax(name::String)
+	# Fix multiplication syntax (add * between number and variable)
+	name = replace(name, r"(\d+)([a-zA-Z])" => s"\1*\2")
+	name = replace(name, r"(\d+\.\d+)([a-zA-Z])" => s"\1*\2")
+	return name
+end
+
+function clean_name(name::String)
+	name = clean_time_variables(name)
+	name = clean_rational_numbers(name)
+	name = clean_power_notation(name)
+	name = fix_multiplication_syntax(name)
+	return name
 end
 
 function save_to_toml(
@@ -264,49 +500,11 @@ function save_to_toml(
 	output_file::String;
 	parameter_bounds::Dict = Dict(),  # Optional bounds for parameters
 	estimate_initial_conditions::Bool = true,  # Whether to estimate all ICs
-	timespan::Tuple = (0.0, 1.0),
-	n_timepoints::Int = 21,
-	noise_level::Float64 = 0.000000001,
+	timespan::Tuple = (0.0, 5.0),
+	n_timepoints::Int = 1001,
+	noise_level::Float64 = 0.001,
 	blind::Bool = true,
 )
-	# Helper function to clean variable names and expressions
-	function clean_name(name::String)
-		# Remove (t) and fix time variable
-		name = replace(name, r"\(t\)" => "")  # Remove (t)
-		name = replace(name, "t_nounits" => "t")  # Replace t_nounits with t
-
-		# Convert rational numbers (e.g., 1//3 -> 0.333333)
-		while contains(name, "//")
-			m = match(r"(\d+)//(\d+)", name)
-			if !isnothing(m)
-				num = parse(Int, m.captures[1])
-				den = parse(Int, m.captures[2])
-				name = replace(name, "$(num)//$(den)" => string(float(num / den)))
-			else
-				break
-			end
-		end
-
-		# Handle power notation (e.g., x^2 -> x*x, x^3 -> x*x*x)
-		while contains(name, "^")
-			m = match(r"(\w+)\^(\d+)", name)
-			if !isnothing(m)
-				base = m.captures[1]
-				power = parse(Int, m.captures[2])
-				replacement = join(fill(base, power), "*")
-				name = replace(name, "$(base)^$(power)" => replacement)
-			else
-				break
-			end
-		end
-
-		# Fix multiplication syntax (add * between number and variable)
-		name = replace(name, r"(\d+)([a-zA-Z])" => s"\1*\2")
-		name = replace(name, r"(\d+\.\d+)([a-zA-Z])" => s"\1*\2")
-
-		return name
-	end
-
 	# Open file for writing
 	open(output_file, "w") do io
 		# Write model section header
@@ -330,18 +528,12 @@ function save_to_toml(
 		println(io, "]")
 
 		# Extract and write equations
-		#The differential equations are not included in the equations section if you add filtering for differential equations
-		#Please don't add it back.
 		println(io, "equations = [")
 		eqs = equations(pep.model.system)
 		for eq in eqs
-			#if eq.lhs isa Differential  # Only include differential equations
 			state = clean_name(string(ModelingToolkit.arguments(eq.lhs)[1]))
-			# Convert the RHS to a string and clean it up
-			rhs = string(eq.rhs)
-			rhs = clean_name(rhs)
+			rhs = clean_name(string(eq.rhs))
 			println(io, "    \"$(state)' = $(rhs)\",")
-			#end
 		end
 		println(io, "]")
 
@@ -362,4 +554,37 @@ function save_to_toml(
 		println(io, "output_dir = \"petab_$(pep.name)\"")
 		println(io, "blind = $(blind)")
 	end
+end
+
+"""
+	calculate_observable_derivatives(equations, measured_quantities, nderivs=5)
+
+Calculate symbolic derivatives of observables up to the specified order using ModelingToolkit.
+Returns the expanded measured quantities with derivatives and the derivative variables.
+"""
+function calculate_observable_derivatives(equations, measured_quantities, nderivs = 5)
+	# Create equation dictionary for substitution
+	equation_dict = Dict(eq.lhs => eq.rhs for eq in equations)
+
+	n_observables = length(measured_quantities)
+
+	# Create symbolic variables for derivatives
+	ObservableDerivatives = Symbolics.variables(:d_obs, 1:n_observables, 1:nderivs)
+
+	# Initialize vector to store derivative equations
+	SymbolicDerivs = Vector{Vector{Equation}}(undef, nderivs)
+
+	# Calculate first derivatives
+	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
+
+	# Calculate higher order derivatives
+	for j in 2:nderivs
+		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
+	end
+
+	# Create new measured quantities with derivatives
+	expanded_measured_quantities = copy(measured_quantities)
+	append!(expanded_measured_quantities, vcat(SymbolicDerivs...))
+
+	return expanded_measured_quantities, ObservableDerivatives
 end

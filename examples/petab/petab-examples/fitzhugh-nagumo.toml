@@ -10,13 +10,15 @@ parameters = [
     { name = "b", value = 0.75, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "V' = g*(R + V - (0.3333333333333333)*(V*V*V))",
+    "R' = (-a + V + b*R) / g",
 ]
 observables = [
     { name = "obs_y1", formula = "V", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_fitzhugh-nagumo"
 blind = true

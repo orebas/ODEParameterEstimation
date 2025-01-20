@@ -1,0 +1,24 @@
+[model]
+name = "one_species_system"
+states = [
+    { name = "x", initial_value = 5.5, estimate = true }
+]
+
+parameters = [
+    { name = "k", value = 0.75, bounds = [1e-4, 1e2], scale = "lin" }
+]
+
+equations = [
+    "x' = -k * x"
+]
+
+observables = [
+    { name = "obs_x", formula = "x", transformation = "lin", noise_distribution = "normal" }
+]
+
+[simulation]
+timespan = [0, 1.0]
+n_timepoints = 20
+noise_level = 0.00001
+output_dir = "blind_petab_problem"
+blind = true 

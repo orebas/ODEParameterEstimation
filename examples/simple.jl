@@ -37,8 +37,8 @@ function simple()
 		mq,               # Measured quantities
 		nothing,          # No specific data sample (will be generated)
 		nothing,          # No specific solver
-		OrderedDict(parameters .=> p_true),  # True parameters
-		OrderedDict(states .=> ic_true),     # Initial conditions
+		OrderedDict(p => v for (p, v) in zip(parameters, p_true)),  # True parameters
+		OrderedDict(s => v for (s, v) in zip(states, ic_true)),     # Initial conditions
 		2,                 # Problem type (0 for standard problem)
 	)
 end

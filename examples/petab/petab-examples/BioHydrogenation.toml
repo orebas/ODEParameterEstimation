@@ -15,14 +15,18 @@ parameters = [
     { name = "k10", value = 0.857, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "x4' = (-k5*x4) / (k6 + x4)",
+    "x5' = (-k7*x5) / (k8 + x6 + x5) + (k5*x4) / (k6 + x4)",
+    "x6' = (-(k10 - x6)*k9*x6) / k10 + (k7*x5) / (k8 + x6 + x5)",
+    "x7' = ((k10 - x6)*k9*x6) / k10",
 ]
 observables = [
     { name = "obs_y1", formula = "x4", transformation = "lin", noise_distribution = "normal" },
     { name = "obs_y2", formula = "x5", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_BioHydrogenation"
 blind = true

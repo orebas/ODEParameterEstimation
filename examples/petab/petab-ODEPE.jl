@@ -8,10 +8,19 @@ using Symbolics
 using SymbolicIndexingInterface
 using ODEParameterEstimation
 using JSON
+using GaussianProcesses
+using LineSearches
+using Plots
+using BaryRational
+using ForwardDiff
+using Printf
+using Loess
 
 # Include our core converter and the examples file
 include("convert_petab.jl")
 include("../all_examples.jl")
+include("../../src/bary_derivs.jl")
+
 
 """
 	compare_problems(prob1, prob2)
@@ -196,26 +205,27 @@ function process_all_petab_problems()
 
 	# Find all directories that start with "petab"
 	petab_dirs = [
-		"petab_simple",
-		"petab_simple_linear_combination",
+		#"petab_simple",
+		#"petab_simple_linear_combination",
 		"petab_sum_test",
-		"petab_onesp_cubed",
-		"petab_threesp_cubed",
-		"petab_substr_test",
-		"petab_global_unident_test",
-		"petab_vanderpol",
-		"petab_slowfast",
-		"petab_fitzhugh-nagumo",
-		"petab_Lotka_Volterra",
-		"petab_DAISY_ex3",
-		"petab_DAISY_mamil3",
-		"petab_treatment",
-		"petab_DAISY_mamil4",
-		"petab_BioHydrogenation",
-		"petab_SEIR",
-		"petab_hiv",
-		"petab_Crauste",
-		"petab_sirsforced",
+		#"petab_onesp_cubed",
+		#"petab_threesp_cubed",
+		#"petab_substr_test",
+		#"petab_global_unident_test",
+		#"petab_trivial_unident",
+		#"petab_vanderpol",
+		#"petab_slowfast",
+		#"petab_fitzhugh-nagumo",
+		#"petab_Lotka_Volterra",
+		#"petab_DAISY_ex3",
+		#"petab_DAISY_mamil3",
+		#"petab_treatment",
+		#"petab_DAISY_mamil4",
+		#"petab_BioHydrogenation",
+		#"petab_SEIR",
+		#"petab_hiv",
+		#"petab_Crauste",
+		#"petab_sirsforced",
 	]
 
 	println("\nFound $(length(petab_dirs)) PEtab directories to process:")
@@ -272,10 +282,223 @@ function process_all_petab_problems()
 	return results
 end
 
+"""
+	analyze_interpolation_methods(petab_dir::String, output_prefix::String = "interp_analysis")
+
+Analyze different interpolation methods on a PEtab problem.
+"""
+function analyze_interpolation_methods(petab_dir::String, output_prefix::String = "interp_analysis")
+	# Load the PEtab problem with true values
+	prob = process_petab_with_true_values(petab_dir)
+
+	# Calculate derivatives of observables
+	expanded_measured_quantities, ObservableDerivatives = calculate_observable_derivatives(
+		equations(prob.model.system),
+		prob.measured_quantities,
+		5,
+	)
+
+	# Create new ODESystem with derivative observables
+	@named new_sys = ODESystem(equations(prob.model.system), t; observed = expanded_measured_quantities)
+
+	# Create new ODEProblem with derivatives
+	new_prob = ODEProblem(structural_simplify(new_sys), prob.ic, (0.0, 10.0), prob.p_true)
+
+	# Solve the system
+	sol = solve(new_prob, Tsit5())
+
+	# Get the sample data time points
+	ts = prob.data_sample["t"]
+	observables = collect(keys(filter(p -> p.first != "t", prob.data_sample)))
+
+	# Storage for predictions and errors
+	all_preds = Dict()
+	all_errors = Dict()
+	all_first_derivs = Dict()
+	all_first_deriv_errors = Dict()
+	all_second_derivs = Dict()
+	all_second_deriv_errors = Dict()
+
+	# Generate midpoints for testing interpolation
+	midpoints = [(ts[i] + ts[i+1]) / 2 for i in 1:(length(ts)-1)]
+
+	# Debug file for method parameters and predictions
+	open(output_prefix * "_debug.txt", "w") do debug_io
+		println(debug_io, "Interpolation Debug Information")
+		println(debug_io, "============================")
+		println(debug_io, "Generated at: ", Dates.now())
+		println(debug_io)
+
+		# For each observable
+		for (obs_idx, obs_key) in enumerate(observables)
+			println(debug_io, "\nObservable: $obs_key")
+			println(debug_io, "="^(length("Observable: $obs_key")))
+
+			ys = prob.data_sample[obs_key]
+
+			# Get true values and derivatives at midpoints for this observable
+			true_vals = [sol(t, idxs = prob.measured_quantities[obs_idx].lhs) for t in midpoints]
+			true_first_derivs = [sol(t, idxs = ObservableDerivatives[obs_idx, 1]) for t in midpoints]
+			true_second_derivs = [sol(t, idxs = ObservableDerivatives[obs_idx, 2]) for t in midpoints]
+
+			# Standard GPR
+			println(debug_io, "\nMethod: GPR")
+
+			# Create and optimize GP with standard parameters
+			kernel = SEIso(log(std(ts) / 8), 0.0)  # Standard SE kernel
+			mZero = MeanZero()
+			gp = GP(ts, ys, mZero, kernel, -2.0)  # Standard noise level
+
+			try
+				optimize!(gp, method = BFGS(linesearch = LineSearches.BackTracking()))
+
+				# Get predictions
+				preds, vars = predict_y(gp, midpoints)
+
+				# Create function for derivatives
+				gpr_func = let gp = gp
+					x -> begin
+						pred, _ = predict_y(gp, [x])
+						return pred[1]
+					end
+				end
+
+				# Calculate derivatives
+				first_derivs = [ForwardDiff.derivative(gpr_func, x) for x in midpoints]
+				second_derivs = [ForwardDiff.derivative(x -> ForwardDiff.derivative(gpr_func, x), x) for x in midpoints]
+
+				# Store results
+				method_key = "$(obs_key)_GPR"
+				all_preds[method_key] = copy(preds)
+				all_errors[method_key] = abs.(preds .- true_vals)
+				all_first_derivs[method_key] = copy(first_derivs)
+				all_first_deriv_errors[method_key] = abs.(first_derivs .- true_first_derivs)
+				all_second_derivs[method_key] = copy(second_derivs)
+				all_second_deriv_errors[method_key] = abs.(second_derivs .- true_second_derivs)
+			catch e
+				@warn "GPR failed for $obs_key" exception = e
+				println(debug_io, "GPR failed: ", e)
+			end
+
+			# Loess
+			println(debug_io, "\nMethod: Loess")
+			try
+				# Fit Loess model
+				model = loess(collect(ts), ys; span = 0.75)  # Standard span
+
+				# Get predictions
+				preds = predict(model, midpoints)
+
+				# Create interpolating function for derivatives
+				loess_func = x -> predict(model, [x])[1]
+
+				# Calculate derivatives
+				first_derivs = [ForwardDiff.derivative(loess_func, x) for x in midpoints]
+				second_derivs = [ForwardDiff.derivative(x -> ForwardDiff.derivative(loess_func, x), x) for x in midpoints]
+
+				# Store results
+				method_key = "$(obs_key)_Loess"
+				all_preds[method_key] = copy(preds)
+				all_errors[method_key] = abs.(preds .- true_vals)
+				all_first_derivs[method_key] = copy(first_derivs)
+				all_first_deriv_errors[method_key] = abs.(first_derivs .- true_first_derivs)
+				all_second_derivs[method_key] = copy(second_derivs)
+				all_second_deriv_errors[method_key] = abs.(second_derivs .- true_second_derivs)
+			catch e
+				@warn "Loess failed for $obs_key" exception = e
+				println(debug_io, "Loess failed: ", e)
+			end
+
+			# AAA (keeping this as a baseline)
+			println(debug_io, "\nMethod: AAA")
+			aaa_approx = BaryRational.aaa(ts, ys, verbose = false)
+			aaa_preds = [baryEval(x, aaa_approx.f, aaa_approx.x, aaa_approx.w) for x in midpoints]
+
+			aaa_func = x -> baryEval(x, aaa_approx.f, aaa_approx.x, aaa_approx.w)
+			aaa_first_derivs = [ForwardDiff.derivative(aaa_func, x) for x in midpoints]
+			aaa_second_derivs = [ForwardDiff.derivative(x -> ForwardDiff.derivative(aaa_func, x), x) for x in midpoints]
+
+			method_key = "$(obs_key)_AAA"
+			all_preds[method_key] = aaa_preds
+			all_errors[method_key] = abs.(aaa_preds .- true_vals)
+			all_first_derivs[method_key] = aaa_first_derivs
+			all_first_deriv_errors[method_key] = abs.(aaa_first_derivs .- true_first_derivs)
+			all_second_derivs[method_key] = aaa_second_derivs
+			all_second_deriv_errors[method_key] = abs.(aaa_second_derivs .- true_second_derivs)
+		end
+	end
+
+	# Calculate and save detailed statistics
+	open(output_prefix * "_detailed_stats.txt", "w") do io
+		println(io, "Detailed Interpolation Error Statistics")
+		println(io, "===================================")
+		println(io, "Generated at: ", Dates.now())
+		println(io)
+
+		# For each observable
+		for obs_key in observables
+			println(io, "\nObservable: $obs_key")
+			println(io, "="^(length("Observable: $obs_key")))
+
+			# For each method
+			methods = ["GPR", "Loess", "AAA"]
+
+			for method in methods
+				method_key = "$(obs_key)_$(method)"
+				if !haskey(all_errors, method_key)
+					continue
+				end
+
+				println(io, "\nMethod: $method")
+				println(io, "-"^(length("Method: $method")))
+
+				# Function to print statistics
+				function print_stats(io, name, errors)
+					println(io, "\n$name:")
+					println(io, "  Mean Error: ", mean(errors))
+					println(io, "  Median Error: ", median(errors))
+					println(io, "  Max Error: ", maximum(errors))
+					println(io, "  Min Error: ", minimum(errors))
+					println(io, "  Std Error: ", std(errors))
+					println(io, "  RMSE: ", sqrt(mean(errors .^ 2)))
+				end
+
+				print_stats(io, "Values", all_errors[method_key])
+				print_stats(io, "First Derivatives", all_first_deriv_errors[method_key])
+				print_stats(io, "Second Derivatives", all_second_deriv_errors[method_key])
+			end
+		end
+	end
+
+	# Create visualization plots
+	for obs_key in observables
+		p1 = plot(title = "Value Errors - $obs_key", xlabel = "Time", ylabel = "Absolute Error", yscale = :log10)
+		p2 = plot(title = "First Derivative Errors - $obs_key", xlabel = "Time", ylabel = "Absolute Error", yscale = :log10)
+		p3 = plot(title = "Second Derivative Errors - $obs_key", xlabel = "Time", ylabel = "Absolute Error", yscale = :log10)
+
+		for method in ["GPR", "Loess", "AAA"]
+			method_key = "$(obs_key)_$(method)"
+			if !haskey(all_errors, method_key)
+				continue
+			end
+
+			plot!(p1, midpoints, all_errors[method_key], label = method)
+			plot!(p2, midpoints, all_first_deriv_errors[method_key], label = method)
+			plot!(p3, midpoints, all_second_deriv_errors[method_key], label = method)
+		end
+
+		p = plot(p1, p2, p3, layout = (3, 1), size = (800, 1200))
+		savefig(p, output_prefix * "_$(obs_key)_errors.png")
+	end
+
+	return all_errors, all_first_deriv_errors, all_second_deriv_errors
+end
+
 # Run the analysis
 using Dates
-println("Starting PEtab analysis at ", Dates.now())
-results = process_all_petab_problems()
-println("\nAnalysis complete at ", Dates.now())
-println("See petab_results/summary.txt for a summary of all results")
+#println("Starting PEtab analysis at ", Dates.now())
+#results = process_all_petab_problems()
+#println("\nAnalysis complete at ", Dates.now())
+#println("See petab_results/summary.txt for a summary of all results")
 
+analyze_interpolation_methods("petab_Lotka_Volterra")

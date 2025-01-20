@@ -13,14 +13,17 @@ parameters = [
     { name = "a01", value = 0.833, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "x1' = (-a01 - a21 - a31)*x1 + a12*x2 + a13*x3",
+    "x2' = -a12*x2 + a21*x1",
+    "x3' = -a13*x3 + a31*x1",
 ]
 observables = [
     { name = "obs_y1", formula = "x1", transformation = "lin", noise_distribution = "normal" },
     { name = "obs_y2", formula = "x2", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_DAISY_mamil3"
 blind = true

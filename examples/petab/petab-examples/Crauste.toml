@@ -23,6 +23,11 @@ parameters = [
     { name = "rho_P", value = 0.929, bounds = [-1.0e6, 1.0e6], scale = "lin" },
 ]
 equations = [
+    "N' = -mu_N*N - delta_NE*N*P",
+    "E' = -delta_EL*E + delta_NE*N*P - mu_EE*(E*E) + rho_E*E*P",
+    "S' = delta_EL*S - delta_LM*S - mu_LE*E*S - mu_LL*(S*S)",
+    "M' = delta_LM*S - mu_M*M",
+    "P' = -mu_P*P - mu_PE*E*P - mu_PL*S*P + rho_P*(P*P)",
 ]
 observables = [
     { name = "obs_y1", formula = "N", transformation = "lin", noise_distribution = "normal" },
@@ -31,8 +36,8 @@ observables = [
     { name = "obs_y4", formula = "P", transformation = "lin", noise_distribution = "normal" },
 ]
 [simulation]
-timespan = [0.0, 1.0]
-n_timepoints = 21
-noise_level = 0.0001
+timespan = [0.0, 5.0]
+n_timepoints = 1001
+noise_level = 0.001
 output_dir = "petab_Crauste"
 blind = true
