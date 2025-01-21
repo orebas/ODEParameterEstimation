@@ -141,20 +141,50 @@ function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	#end
 end
 
-
-
-function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, use_gpr::Bool = false) where {T}
+function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, use_gpr::Bool = true) where {T}
 	if (use_gpr)
-		kernel = SEIso(log(std(xs) / 8), 0.0)
-		gp = GP(xs, ys, MeanZero(), kernel, -2.0)
-		optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+
+
+		if use_gpr
+			# Scale inputs and outputs to have std ≈ 1
+			xs_mean, xs_std = mean(xs), std(xs)
+			ys_mean, ys_std = mean(ys), std(ys)
+			xs_scaled = (xs .- xs_mean) ./ xs_std
+			ys_scaled = (ys .- ys_mean) ./ ys_std
+
+			# For LV solutions, we can use a longer length scale since we know it's smooth
+			# Start with length scale = 1.0 which is reasonable for scaled data
+			kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
+
+			# Add small noise but not too small since LV solutions usually have minimal noise
+			gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
+
+			optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+			# Create callable function that handles the scaling
+			gpr_func = x -> begin
+				x_scaled = (x - xs_mean) / xs_std
+				pred, _ = predict_y(gp, [x_scaled])
+				return pred[1] * ys_std + ys_mean
+			end
+
+			return gpr_func
+		end
+
+
+
+
+		#     kernel = SEIso(log(std(xs) / 8), 0.0)
+		#	gp = GP(xs, ys, MeanZero(), kernel, -2.0)
+		#	optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
 		# Create callable function
-		gpr_func = x -> begin
-			pred, _ = predict_y(gp, [x])
-			return pred[1]
-		end
-		return gpr_func
+		#	gpr_func = x -> begin
+		#		pred, _ = predict_y(gp, [x])
+		#		return pred[1]
+		#	end
+		#	return gpr_func
 	else
 		return aaad_old_reliable(xs, ys)
 	end
