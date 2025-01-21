@@ -35,13 +35,30 @@ function create_ordered_ode_system(name, states, parameters, equations, measured
 	ordered_system = OrderedODESystem(model, parameters, states)
 	return ordered_system, measured_quantities
 end
+function add_relative_noise(data::OrderedDict, noise_level::Float64)
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+
+	# Copy time points unchanged
+	noisy_data["t"] = data["t"]
+
+	# Add noise to each measurement
+	for (key, values) in data
+		if key != "t"  # Skip time points
+			noise = 1.0 .+ noise_level .* randn(length(values))
+			noisy_data[key] = values .* noise
+		end
+	end
+
+	return noisy_data
+end
 
 function sample_problem_data(problem::ParameterEstimationProblem;
 	datasize = 21,
 	time_interval = [-0.5, 0.5],
 	solver = package_wide_default_ode_solver,
 	uneven_sampling = false,
-	uneven_sampling_times = Vector{Float64}())
+	uneven_sampling_times = Vector{Float64}(),
+	noise_level = 0.0)
 
 	# Create new OrderedODESystem with completed system
 	ordered_system = OrderedODESystem(
@@ -50,20 +67,26 @@ function sample_problem_data(problem::ParameterEstimationProblem;
 		problem.model.original_states,
 	)
 
+	# Generate clean data
+	clean_data = ODEParameterEstimation.sample_data(
+		ordered_system.system,
+		problem.measured_quantities,
+		time_interval,
+		problem.p_true,
+		problem.ic,
+		datasize,
+		solver = solver,
+		uneven_sampling = uneven_sampling,
+		uneven_sampling_times = uneven_sampling_times)
+
+	# Add noise if requested
+	data = noise_level > 0 ? add_relative_noise(clean_data, noise_level) : clean_data
+
 	return ParameterEstimationProblem(
 		problem.name,
 		ordered_system,
 		problem.measured_quantities,
-		ODEParameterEstimation.sample_data(
-			ordered_system.system,
-			problem.measured_quantities,
-			time_interval,
-			problem.p_true,
-			problem.ic,
-			datasize,
-			solver = solver,
-			uneven_sampling = uneven_sampling,
-			uneven_sampling_times = uneven_sampling_times),
+		data,
 		problem.recommended_time_interval,
 		solver,
 		problem.p_true,
@@ -248,7 +271,13 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 		#println("DEBUG [analyze_estimation_result]: Estimates values: ", estimates)
 
 		# Calculate relative errors
-		rel_errors = abs.((estimates .- true_values) ./ true_values)
+		rel_errors = map(zip(estimates, true_values)) do (est, true_val)
+			if abs(true_val) < 1e-6
+				abs(est - true_val) # Use absolute error when true value is near zero
+			else
+				abs((est - true_val) / true_val) # Use relative error otherwise
+			end
+		end
 
 		# Print table header
 		println("Variable      | True Value  | Estimated   | Rel. Error")
@@ -309,7 +338,14 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 
 		# Calculate relative errors only for identifiable parameters
 		if !isempty(estimates)
-			errorvec = abs.((estimates .- true_values) ./ true_values)
+			# Calculate errors, using absolute error when true value is near zero
+			errorvec = map(zip(estimates, true_values)) do (est, true_val)
+				if abs(true_val) < 1e-6
+					abs(est - true_val)  # Use absolute error when true value is near zero
+				else
+					abs((est - true_val) / true_val)  # Use relative error otherwise
+				end
+			end
 			besterror = min(besterror, maximum(errorvec))
 		end
 	end

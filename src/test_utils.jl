@@ -37,7 +37,7 @@ function print_debug_info(prefix::String, unident_dict, all_unidentifiable, varl
 end
 
 """
-	ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
+	ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
 
 Wrapper function for testing ODE Parameter Estimation.
 
@@ -46,7 +46,7 @@ Wrapper function for testing ODE Parameter Estimation.
 - `measured_quantities`: Measured quantities
 - `data_sample`: Sample data
 - `ode_solver`: ODE solver to use
-- `system_solver`: System solver function (optional, default: solveJSwithHC)
+- `system_solver`: System solver function (optional, default: solve_with_hc)
 - `abstol`: Absolute tolerance (optional, default: 1e-12)
 - `reltol`: Relative tolerance (optional, default: 1e-12)
 - `max_num_points`: Maximum number of points to use (optional, default: 4)
@@ -54,7 +54,7 @@ Wrapper function for testing ODE Parameter Estimation.
 # Returns
 - Vector of ParameterEstimationResult objects
 """
-function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
+function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, abstol = 1e-12, reltol = 1e-12, max_num_points = 1)
 	# Get current ordering from ModelingToolkit
 	current_states = ModelingToolkit.unknowns(model.system)
 	current_params = ModelingToolkit.parameters(model.system)

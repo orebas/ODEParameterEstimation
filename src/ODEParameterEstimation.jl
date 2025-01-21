@@ -719,7 +719,7 @@ end
 
 
 """
-	MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 4)
+	MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
 
 Perform Multi-point Homotopy Continuation Parameter Estimation.
 
@@ -728,14 +728,14 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 - `measured_quantities`: Measured quantities
 - `data_sample`: Sample data
 - `ode_solver`: ODE solver to use
-- `system_solver`: System solver function (optional, default: solveJSwithHC)
+- `system_solver`: System solver function (optional, default: solve_with_hc)
 - `display_points`: Whether to display points (optional, default: true)
 - `max_num_points`: Maximum number of points to use (optional, default: 4)
 
 # Returns
 - Vector of result vectors
 """
-function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solveJSwithHC, display_points = true, max_num_points = 4)
+function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
 	t = ModelingToolkit.get_iv(model)
 	eqns = ModelingToolkit.equations(model)
 	states = ModelingToolkit.unknowns(model)
@@ -975,7 +975,7 @@ end
 
 
 
-export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, diag_solveJSwithHC
+export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, solve_with_hc
 export ParameterEstimationProblem, analyze_parameter_estimation_problem, fillPEP
 export OrderedODESystem, create_ordered_ode_system, sample_problem_data, analyze_estimation_result, save_to_toml
 export calculate_observable_derivatives, nth_deriv_at, aaad
