@@ -16,96 +16,45 @@ using Dierckx
 
 
 
-#include("../all_examples.jl")
+include("load_examples.jl")
+
+
+
+"""
+	calculate_observable_derivatives(equations, measured_quantities, nderivs=5)
+
+Calculate symbolic derivatives of observables up to the specified order using ModelingToolkit.
+Returns the expanded measured quantities with derivatives and the derivative variables.
+"""
+function calculate_observable_derivatives(equations, measured_quantities, nderivs = 5)
+	# Create equation dictionary for substitution
+	equation_dict = Dict(eq.lhs => eq.rhs for eq in equations)
+
+	n_observables = length(measured_quantities)
+
+	# Create symbolic variables for derivatives
+	ObservableDerivatives = Symbolics.variables(:d_obs, 1:n_observables, 1:nderivs)
+
+	# Initialize vector to store derivative equations
+	SymbolicDerivs = Vector{Vector{Equation}}(undef, nderivs)
+
+	# Calculate first derivatives
+	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
+
+	# Calculate higher order derivatives
+	for j in 2:nderivs
+		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
+	end
+
+	# Create new measured quantities with derivatives
+	expanded_measured_quantities = copy(measured_quantities)
+	append!(expanded_measured_quantities, vcat(SymbolicDerivs...))
+
+	return expanded_measured_quantities, ObservableDerivatives
+end
 
 
 #below copied from all_examples.jl
-
-function lv_periodic()
-	parameters = @parameters a b c d
-	states = @variables x1(t) x2(t)
-	observables = @variables y1(t) y2(t)
-	p_true = [1.5, 0.9, 3.0, 0.8]
-	ic_true = [2.0, 0.5]
-
-	equations = [
-		D(x1) ~ a * x1 - b * x1 * x2,
-		D(x2) ~ -c * x2 + d * x1 * x2,
-	]
-	measured_quantities = [y1 ~ x1, y2 ~ x2]
-
-	model, mq = create_ordered_ode_system("lv_periodic", states, parameters, equations, measured_quantities)
-
-	return ParameterEstimationProblem(
-		"lv_periodic",
-		model,
-		mq,
-		nothing,
-		[0.0, 10.0],
-		nothing,
-		OrderedDict(parameters .=> p_true),
-		OrderedDict(states .=> ic_true),
-		0,
-	)
-end
-
-
-
-function hiv()
-	#=
-	HIV infection model with immune response.
-	Based on models from Perelson et al.
-	Combines viral dynamics with immune system response.
-	Numerical characteristics:
-	- Highly stiff due to multiple timescales
-	- Fast: viral replication and clearance (hours)
-	- Medium: infected cell death (days)
-	- Slow: immune response development (weeks)
-	- Benefits greatly from stiff solvers
-	=#
-	parameters = @parameters lm d beta a k u c q b h
-	states = @variables x(t) y(t) v(t) w(t) z(t)
-	observables = @variables y1(t) y2(t) y3(t) y4(t)
-	p_true = [1.0,     # lm: production of immune cells (per day)
-		0.01,    # d: natural death rate of immune cells (per day)
-		2e-5,    # beta: infection rate (per virion per day)
-		0.5,     # a: death rate of infected cells (per day)
-		50.0,    # k: virus production by infected cells (per day)
-		3.0,     # u: viral clearance rate (per day)
-		0.05,    # c: immune response rate (per day)
-		0.1,     # q: probability of immune cell activation
-		0.002,   # b: death rate of immune cells (per day)
-		0.1]     # h: death rate of activated cells (per day)
-	ic_true = [1000.0,  # x: initial uninfected CD4+ T cells (per μL)
-		0.0,     # y: initial infected cells
-		1e-3,    # v: initial virus (per mL)
-		1.0,     # w: initial immune response
-		0.0]     # z: initial activated immune cells
-
-	equations = [
-		D(x) ~ lm - d * x - beta * x * v,
-		D(y) ~ beta * x * v - a * y,
-		D(v) ~ k * y - u * v,
-		D(w) ~ c * x * y * w - c * q * y * w - b * w,
-		D(z) ~ c * q * y * w - h * z,
-	]
-	measured_quantities = [y1 ~ w, y2 ~ z, y3 ~ x, y4 ~ y + v]
-
-	model, mq = create_ordered_ode_system("hiv", states, parameters, equations, measured_quantities)
-
-	return ParameterEstimationProblem(
-		"hiv",
-		model,
-		mq,
-		nothing,
-		[0.0, 180.0],  # recommended timescale: half year to see full immune response
-		nothing,  # solver
-		OrderedDict(parameters .=> p_true),
-		OrderedDict(states .=> ic_true),
-		0,
-	)
-end
-
 
 
 
@@ -113,11 +62,11 @@ end
 	generate_comparison_datasets(example_func, petab_dir; 
 							   datasize=1001, 
 							   time_interval=[0.0, 5.0], 
-							   relative_noise=0.01)
+							   additiverelative_noise=0.01)
 
 Generate three datasets for comparison:
 1. Clean data from Julia simulation
-2. Data with relative noise
+2. Data with additive noise
 3. PEtab data
 
 Also computes true derivatives for the clean data.
@@ -131,7 +80,7 @@ Returns a tuple containing:
 function generate_comparison_datasets(example_func, petab_dir;
 	datasize,
 	time_interval,
-	relative_noise, nderivs = 5, tolerance = 1e-14)
+	additive_noise, nderivs = 5, tolerance = 1e-14)
 	# Get original problem
 	pep = example_func()
 
@@ -176,8 +125,9 @@ function generate_comparison_datasets(example_func, petab_dir;
 		if key == "t"
 			noisy_data[key] = values  # Keep time points as is
 		else
-			# Add relative noise: noise level is proportional to signal magnitude
-			noise = relative_noise .* values .* randn(length(values))
+			# Add additive noise proportional to mean signal magnitude
+			noise_scale = additive_noise * mean(abs.(values))
+			noise = noise_scale * randn(length(values))
 			noisy_data[key] = values + noise
 		end
 	end
@@ -275,15 +225,19 @@ function evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measu
 
 		# 1. Gaussian Process Regression
 		try
-			kernel = SEIso(log(std(t) / 8), 0.0)
-			gp = GP(t, y, MeanZero(), kernel, -2.0)
-			optimize!(gp)
+
+			# Use test_gpr_function from run_examples.jl
+			gpr_func = test_gpr_function(t, y)
+
+			#kernel = SEIso(log(std(t) / 8), 0.0)
+			#gp = GP(t, y, MeanZero(), kernel, -2.0)
+			#optimize!(gp)
 
 			# Create callable function
-			gpr_func = x -> begin
-				pred, _ = predict_y(gp, [x])
-				return pred[1]
-			end
+			#gpr_func = x -> begin
+			#	pred, _ = predict_y(gp, [x])
+			#	return pred[1]
+			#end
 
 			# Evaluate function and derivatives
 			pred_y = [gpr_func(x) for x in t_eval]
@@ -482,16 +436,19 @@ function print_summary_statistics(approx_results, datasets)
 	end
 end
 
-example_function = hiv
+example_function = repressilator
 pep = example_function()
 
 datasize = 1001
 time_interval = pep.recommended_time_interval
-relative_noise = 0.05
+if isnothing(time_interval)
+	time_interval = [0.0, 5.0]
+end
+additive_noise = 0.0001
 #petab_dir = "petab_lv_periodic"
 petab_dir = nothing
 # Test the approximation methods
-datasets = generate_comparison_datasets(example_function, petab_dir, datasize = datasize, time_interval = time_interval, relative_noise = relative_noise)  # Set noise to 0
+datasets = generate_comparison_datasets(example_function, petab_dir, datasize = datasize, time_interval = time_interval, additive_noise = additive_noise)  # Set noise to 0
 
 t_eval = range(minimum(datasets.clean["t"]), maximum(datasets.clean["t"]), length = datasize)
 

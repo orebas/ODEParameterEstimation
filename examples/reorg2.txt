@@ -1,0 +1,178 @@
+               _
+   _       _ _(_)_     |  Documentation: https://docs.julialang.org
+  (_)     | (_) (_)    |
+   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 1.11.2 (2024-12-01)
+ _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+|__/                   |
+
+[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C
+[?2004lPrecompiling ODEParameterEstimation...
+  38246.8 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 40 seconds. 572 already precompiled.
+run_parameter_estimation_examples
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0K[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C
+[?2004l[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[32]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t32_x2ˍt_t_ => -1.0219031297954544, _t32_x2_t_ => -1.1735140029695337, _t32_x1ˍt_t_ => -1.1735140029836941, _t32_x1_t_ => 0.983502555302311)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: vanderpol ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   0.000000 |   0.000000 |   0.000000
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for vanderpol: 0.0
+
+Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[50]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+ERROR: UndefVarError: `GaussianParameterSampler` not defined in `HomotopyContinuation`
+Suggestion: check for spelling errors or missing imports.
+Stacktrace:
+  [1] solve_with_monodromy(system::HomotopyContinuation.ModelKit.System, tracking_system::HomotopyContinuation.ModelKit.System, param_final::Vector{…}; show_progress::Bool, max_attempts::Int64, min_attempts::Int64, target_solutions_count::Int64, timeout::Float64, max_loops_no_progress::Int64, unique_points_rtol::Float64, unique_points_atol::Float64, trace_test::Bool, trace_test_tol::Float64, min_solutions::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:688
+  [2] solve_with_monodromy
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:650 [inlined]
+  [3] solve_with_hc(poly_system::Vector{…}, varlist::Vector{…}; use_monodromy::Bool, show_progress::Bool, display_system::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:568
+  [4] solve_with_hc(poly_system::Vector{Num}, varlist::Vector{Num})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:517
+  [5] MPHCPE(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:104
+  [6] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
+  [7] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:57
+  [8] analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode::Bool, showplot::Bool, run_ode_pe::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
+  [9] analyze_parameter_estimation_problem
+    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
+ [10] run_parameter_estimation_examples(; models::Symbol, datasize::Int64, noise_level::Float64, showplot::Bool)
+    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
+ [11] top-level scope
+    @ REPL[2]:1
+Some type information was truncated. Use `show(err)` to see complete types.
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0K[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C[0Kjulia> [7Crun_parameter_estimation_examples(noise_level=0.0, datasize=101)[71C
+[?2004l[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[8]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t8_x1_t_ => 1.9109462110126298, _t8_x2_t_ => -0.43725296127332236, _t8_x1ˍt_t_ => -0.43725296127350965, _t8_x2ˍt_t_ => -0.7514757905580813)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: vanderpol ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   0.000000 |  -0.000000 |   0.000000
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for vanderpol: 0.0
+
+Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[2]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+ERROR: BoundsError: attempt to access Tuple{Vector{Any}} at index [2]
+Stacktrace:
+  [1] indexed_iterate
+    @ ./tuple.jl:159 [inlined]
+  [2] monodromy_solve(F::HomotopyContinuation.ModelKit.System, args::Vector{…}; seed::UInt32, tracker_options::HomotopyContinuation.TrackerOptions, show_progress::Bool, threading::Bool, compile::Symbol, catch_interrupt::Bool, dim::Nothing, codim::Nothing, intrinsic::Nothing, options::Nothing, group_action::Nothing, group_actions::Nothing, kwargs::@Kwargs{…})
+    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/monodromy.jl:650
+  [3] solve_with_monodromy(system::HomotopyContinuation.ModelKit.System, tracking_system::HomotopyContinuation.ModelKit.System, param_final::Vector{…}; show_progress::Bool, max_attempts::Int64, min_attempts::Int64, target_solutions_count::Int64, timeout::Float64, max_loops_no_progress::Int64, unique_points_rtol::Float64, unique_points_atol::Float64, trace_test::Bool, trace_test_tol::Float64, min_solutions::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:688
+  [4] solve_with_monodromy
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:650 [inlined]
+  [5] solve_with_hc(poly_system::Vector{…}, varlist::Vector{…}; use_monodromy::Bool, show_progress::Bool, display_system::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:568
+  [6] solve_with_hc(poly_system::Vector{Num}, varlist::Vector{Num})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:517
+  [7] MPHCPE(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:104
+  [8] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
+  [9] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:57
+ [10] analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode::Bool, showplot::Bool, run_ode_pe::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
+ [11] analyze_parameter_estimation_problem
+    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
+ [12] run_parameter_estimation_examples(; models::Symbol, datasize::Int64, noise_level::Float64, showplot::Bool)
+    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
+ [13] top-level scope
+    @ REPL[2]:1
+Some type information was truncated. Use `show(err)` to see complete types.
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C
+[?2004l

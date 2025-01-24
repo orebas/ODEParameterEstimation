@@ -4,20 +4,37 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 using OrderedCollections
 
 function crauste()
-	parameters = @parameters mu_N mu_EE mu_LE mu_LL mu_M mu_P mu_PE mu_PL delta_NE delta_EL delta_LM rho_E rho_P
-	states = @variables N(t) E(t) S(t) M(t) P(t)
+	parameters = @parameters mu_N mu_EE mu_LE mu_LL mu_M mu_P mu_PE mu_PL delta_NE delta_EL delta_LM rho_E rho_P mu_EL mu_E mu_L
+	states = @variables N(t) E(t) L(t) M(t) P(t)
 	observables = @variables y1(t) y2(t) y3(t) y4(t)
-	p_true = [0.05, 0.02, 0.1, 0.02, 0.1, 0.15, 0.1, 0.05, 0.2, 0.2, 0.1, 0.2, 0.3]
-	ic_true = [1000.0, 0.0, 0.0, 0.0, 100.0]
+	p_true = [
+		0.75,            # mu_N
+		0.0000216,       # mu_EE
+		0.000000036,     # mu_LE
+		0.0000075,       # mu_LL
+		0.0,             # mu_M
+		0.055,           # mu_P
+		0.00000018,      # mu_PE
+		0.000018,        # mu_PL
+		0.009,           # delta_NE
+		0.59,            # delta_EL
+		0.025,           # delta_LM
+		0.64,            # rho_E
+		0.15,             # rho_P
+		0.0,             # mu_EL (new)
+		0.0,             # mu_E (new)
+		0.0,             # mu_L (new)
+	]
+	ic_true = [8090.0, 0.0, 0.0, 0.0, 1.0]
 
 	equations = [
 		D(N) ~ -N * mu_N - N * P * delta_NE,
-		D(E) ~ N * P * delta_NE - E^2 * mu_EE - E * delta_EL + E * P * rho_E,
-		D(S) ~ S * delta_EL - S * delta_LM - S^2 * mu_LL - E * S * mu_LE,
-		D(M) ~ S * delta_LM - mu_M * M,
-		D(P) ~ P^2 * rho_P - P * mu_P - E * P * mu_PE - S * P * mu_PL,
+		D(E) ~ N * P * delta_NE + E * (rho_E * P - mu_EE * E - mu_EL * L - mu_E - delta_EL),
+		D(L) ~ delta_EL * E - L * (mu_LL * L + mu_LE * E + mu_L + delta_LM),
+		D(M) ~ L * delta_LM - mu_M * M,
+		D(P) ~ P * (rho_P * P - mu_PE * E - mu_PL * L - mu_P),
 	]
-	measured_quantities = [y1 ~ N, y2 ~ E, y3 ~ S + M, y4 ~ P]
+	measured_quantities = [y1 ~ N, y2 ~ E, y3 ~ L + M, y4 ~ P]
 
 	model, mq = create_ordered_ode_system("Crauste", states, parameters, equations, measured_quantities)
 
@@ -26,13 +43,14 @@ function crauste()
 		model,
 		mq,
 		nothing,
-		[0.0, 100.0],  # recommended timescale: 100 days for cell population dynamics
+		[0.0, 25.0],  # recommended timescale: 100 days for cell population dynamics
 		nothing,  # solver
 		OrderedDict(parameters .=> p_true),
 		OrderedDict(states .=> ic_true),
 		0,
 	)
 end
+
 
 function daisy_ex3()
 	parameters = @parameters p1 p3 p4 p6 p7

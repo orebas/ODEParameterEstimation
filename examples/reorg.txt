@@ -1,0 +1,2426 @@
+               _
+   _       _ _(_)_     |  Documentation: https://docs.julialang.org
+  (_)     | (_) (_)    |
+   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 1.11.2 (2024-12-01)
+ _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+|__/                   |
+
+[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C
+[?2004lPrecompiling ODEParameterEstimation...
+  37651.0 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 41 seconds. 572 already precompiled.
+run_parameter_estimation_examples
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0Kjulia> [7C[7C
+[?2004l
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0Kjulia> [7C[7C
+[?2004l
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C
+[?2004l[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[2]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t2_x2_t_ => -0.09283365502519791, _t2_x2ˍt_t_ => -1.7200028064965411, _t2_x1_t_ => 1.9976208281617527, _t2_x1ˍt_t_ => -0.09283365498117035)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: vanderpol ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   0.000000 |   0.000000 |   0.000000
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for vanderpol: 0.0
+
+Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[25]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t25_rˍtttt_t_ => 0.0747414056999105, _t25_rˍttt_t_ => -0.046206922980637444, _t25_rˍt_t_ => -0.028010755403087506, _t25_rˍtt_t_ => 0.036856493890426334, _t25_r_t_ => 0.05627129590658753)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+┌ Warning: At t=0.2858413252301504, dt was forced below floating point epsilon 5.551115123125783e-17, and step error estimate = 3.5431449556311505. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/wCRRo/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: Lotka_Volterra ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+r(t)         |   2.000000 |   2.000000 |   0.000000
+w(t)         |   1.000000 |   1.000000 |   0.000000
+k1           |   1.000000 |   1.000000 |   0.000000
+k2           |   0.500000 |   0.500000 |   0.000000
+k3           |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for Lotka_Volterra: 0.0
+
+Best maximum relative error for Lotka_Volterra (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[59]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/wCRRo/src/integrator_interface.jl:589
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t59_p1_t_ => 0.7855381400937657, _t59_p2ˍtt_t_ => 0.000910286792485504, _t59_p1ˍt_t_ => -0.002647005447511175, _t59_p1ˍtt_t_ => 0.0004919887986049032, _t59_p2ˍt_t_ => 0.0004969597923168423, _t59_p3_t_ => 0.7808424984426193, _t59_p2_t_ => 0.7759801432284101, _t59_p3ˍt_t_ => 0.002131194538520731, _t59_p3ˍtt_t_ => -0.0013936320530323343)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/wCRRo/src/integrator_interface.jl:589
+
+=== Model: repressilator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 4.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+m1(t)        |   0.000000 |  -0.000146 |   0.000146
+m2(t)        |   0.000000 |  -0.000153 |   0.000153
+m3(t)        |   0.000000 |   0.000598 |   0.000598
+p1(t)        |   2.000000 |   2.000070 |   0.000035
+p2(t)        |   1.000000 |   1.000443 |   0.000443
+p3(t)        |   3.000000 |   2.999235 |   0.000255
+beta         |   2.000000 |   2.000000 |   0.000000
+n            |   2.000000 |   2.000000 |   0.000000
+alpha        |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for repressilator: 4.0e-6
+
+Best maximum relative error for repressilator (excluding ALL unidentifiable parameters): 0.000598
+[ Info: Running model: treatment
+Starting model: treatment
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.19823984003925088)
+DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
+We are trying these points:[13]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:235
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:236
+┌ Warning: Failed to run model treatment
+│   exception = FiniteException: The solution set of the given system has at least dimension 3 > 0. Consider intersecting with an (affine) subspace of codimension 3 to reduce to (possibly) finitely many solutions.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: simple
+Starting model: simple
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[72]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t72_x2ˍt_t_ => -0.4546326766987627, _t72_x1_t_ => -0.5682908458733297, _t72_x1ˍt_t_ => -0.057630587702246716, _t72_x2_t_ => 0.14407646925548115)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.333000 |   0.333000 |   0.000000
+x2(t)        |   0.667000 |   0.667000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple: 0.0
+
+Best maximum relative error for simple (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: trivial_unident
+Starting model: trivial_unident
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.9658368490883557)
+DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
+We are trying these points:[58]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[a, b])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.9658368490883557)
+Trivially solvable variables: Dict{Any, Any}(_t58_x1ˍt_t_ => 73.36659605046452, _t58_x1_t_ => 61.13883004210674)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: trivial_unident ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • b
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.965837
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.965837 |   0.609728
+b            |   0.600000 |   0.234163 |   0.609728
+
+
+Best approximation error for trivial_unident: 0.0
+
+Best maximum relative error for trivial_unident (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: simple_linear_combination
+Starting model: simple_linear_combination
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[41]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple_linear_combination ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   1.000000 |   1.000000 |   0.000000
+x2(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple_linear_combination: 0.0
+
+Best maximum relative error for simple_linear_combination (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: substr_test
+Starting model: substr_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
+We are trying these points:[47]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t47_x3ˍt_t_ => 0.0004801324982839361, _t47_x2_t_ => 3.746557215160201, _t47_x1_t_ => 1.217232318321295, _t47_x1ˍt_t_ => -0.37465572151600934, _t47_x2ˍt_t_ => 0.2434464636640179, _t47_x3_t_ => 4.00110415236602)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: substr_test ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+beta         |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for substr_test: 0.0
+
+Best maximum relative error for substr_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lv_periodic
+Starting model: lv_periodic
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
+We are trying these points:[72]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t72_x2ˍt_t_ => 0.4520782160737369, _t72_x1_t_ => 5.231662806463452, _t72_x1ˍt_t_ => 6.051699403091348, _t72_x2_t_ => 0.3813945278303057, _t72_x1ˍtt_t_ => 4.871662713369375, _t72_x2ˍtt_t_ => 2.382276653077952)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: lv_periodic ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 3.7e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000438 |   0.000219
+x2(t)        |   0.500000 |   0.499835 |   0.000331
+a            |   1.500000 |   1.500000 |   0.000000
+b            |   0.900000 |   0.900000 |   0.000001
+c            |   3.000000 |   2.999880 |   0.000040
+d            |   0.800000 |   0.799977 |   0.000029
+
+
+Best approximation error for lv_periodic: 3.7e-5
+
+Best maximum relative error for lv_periodic (excluding ALL unidentifiable parameters): 0.000331
+[ Info: Running model: fitzhugh_nagumo
+Starting model: fitzhugh-nagumo
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+We are trying these points:[85]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t85_V_t_ => -1.050721124332533, _t85_Vˍttt_t_ => 23.88940942287445, _t85_Vˍt_t_ => -2.0230552536207824, _t85_Vˍtt_t_ => -0.6214978080824949, _t85_Vˍtttt_t_ => 65.240478515625)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: fitzhugh-nagumo ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+V(t)         |  -1.000000 |  -1.000000 |   0.000000
+R(t)         |   0.000000 |   0.026166 |   0.026166
+g            |   3.000000 |   3.122557 |   0.040852
+a            |   0.200000 |   0.273077 |   0.365383
+b            |   0.200000 |   2.797604 |  12.988021
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+V(t)         |  -1.000000 |  -1.000000 |   0.000000
+R(t)         |   0.000000 |  -0.000063 |   0.000063
+g            |   3.000000 |   2.999716 |   0.000095
+a            |   0.200000 |   0.199989 |   0.000057
+b            |   0.200000 |   0.194092 |   0.029541
+
+
+Best approximation error for fitzhugh-nagumo: 0.0
+
+Best maximum relative error for fitzhugh-nagumo (excluding ALL unidentifiable parameters): 0.029541
+[ Info: Running model: daisy_mamil3
+Starting model: DAISY_mamil3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
+We are trying these points:[56]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t56_x1ˍtt_t_ => 0.0031726282636394543, _t56_x1ˍtttt_t_ => 0.0038750067796553544, _t56_x1ˍttt_t_ => -0.0022103743435172296, _t56_x1_t_ => 0.13112300245407427, _t56_x1ˍt_t_ => -0.015727111238296565, _t56_x2ˍt_t_ => -0.017188893207529254, _t56_x2ˍtt_t_ => -0.004993010453471669, _t56_x2_t_ => 0.4955113439195295)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: DAISY_mamil3 ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.250000 |   0.250000 |   0.000000
+x2(t)        |   0.500000 |   0.500000 |   0.000000
+x3(t)        |   0.750000 |   0.750000 |   0.000000
+a12          |   0.167000 |   0.167000 |   0.000000
+a13          |   0.333000 |   0.333000 |   0.000000
+a21          |   0.500000 |   0.500000 |   0.000000
+a31          |   0.667000 |   0.667000 |   0.000000
+a01          |   0.833000 |   0.833000 |   0.000000
+
+
+Best approximation error for DAISY_mamil3: 0.0
+
+Best maximum relative error for DAISY_mamil3 (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: sirsforced
+Starting model: sirsforced
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(b1 => 0.8773555909280994)
+DEBUG [MPHCPE]: Final varlist: Num[M, nu, g, mu, b0, i(t), r(t), s(t), x1(t), x2(t)]
+We are trying these points:[100]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 6
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: No start solutions found.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:351
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 0 points
+┌ Warning: Failed to run model sirsforced
+│   exception = BoundsError: attempt to access 0-element Vector{Any} at index [1]
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: brusselator
+Starting model: brusselator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
+We are trying these points:[19]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t19_Y_t_ => 3.842230929905364, _t19_Xˍt_t_ => 0.04735406239851592, _t19_X_t_ => 0.36883515389274607, _t19_Xˍtt_t_ => 0.024220605615814517)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: brusselator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+X(t)         |   1.000000 |   1.000000 |   0.000000
+Y(t)         |   1.000000 |   1.000000 |   0.000000
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   3.000000 |   3.000000 |   0.000000
+
+
+Best approximation error for brusselator: 0.0
+
+Best maximum relative error for brusselator (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: seir
+Starting model: SEIR
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
+We are trying these points:[39]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t39_Nˍttt_t_ => 0, _t39_Inˍtttt_t_ => -0.00012367288501025087, _t39_In_t_ => 14.384366640829457, _t39_Inˍtt_t_ => 0.04947584667830007, _t39_Inˍttttt_t_ => -2.620235149919381e-5, _t39_Nˍtt_t_ => 0, _t39_Inˍttt_t_ => 0.001549235297782836, _t39_N_t_ => 999.9999999999999, _t39_Inˍt_t_ => 0.9140742828261335, _t39_Nˍt_t_ => 0)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+┌ Warning: At t=26.5014359551577, dt was forced below floating point epsilon 3.552713678800501e-15, and step error estimate = 1.005003648278033. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/wCRRo/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+┌ Warning: At t=26.48512804568679, dt was forced below floating point epsilon 3.552713678800501e-15, and step error estimate = 1.0054490727959697. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/wCRRo/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+=== Model: SEIR ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 | 990.000231 |   0.000000
+E(t)         |  10.000000 |  10.000003 |   0.000000
+In(t)        |   0.000000 |  -0.000001 |   0.000001
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+a            |   0.200000 |   0.200000 |   0.000000
+b            |   0.400000 |   0.400000 |   0.000000
+nu           |   0.150000 |   0.150000 |   0.000000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 | 742.499848 |   0.250000
+E(t)         |  10.000000 |   7.499999 |   0.250000
+In(t)        |   0.000000 |  -0.000001 |   0.000001
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+a            |   0.200000 |   0.150000 |   0.250000
+b            |   0.400000 |   0.400000 |   0.000000
+nu           |   0.150000 |   0.200000 |   0.333334
+
+
+Best approximation error for SEIR: 0.0
+
+Best maximum relative error for SEIR (excluding ALL unidentifiable parameters): 1.0e-6
+[ Info: Running model: biohydrogenation
+Starting model: BioHydrogenation
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.024635890143693273)
+DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
+We are trying these points:[6]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x7(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(x7(t) => 0.024635890143693273)
+Trivially solvable variables: Dict{Any, Any}(_t6_x5_t_ => 0.08015608012190838, _t6_x4_t_ => 3.9169580383758413, _t6_x5ˍttt_t_ => 0.07142925532889421, _t6_x5ˍtt_t_ => -0.08821756599171593, _t6_x5ˍt_t_ => 0.30879020568445514, _t6_x4ˍt_t_ => -0.33099423833693997, _t6_x5ˍtttt_t_ => -0.08927840796968667, _t6_x4ˍtt_t_ => 0.0094541710479632, _t6_x5ˍttttt_t_ => 0.13494044169783592)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+=== Model: BioHydrogenation ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x7(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • x7(t) = 0.024636
+
+
+Found 5 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 0.002394):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |   0.000119 |   0.000119
+x6(t)        |   0.000000 |   0.151802 |   0.151802
+x7(t)        |   0.000000 |   0.024918 |   0.024918
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.126186 |   0.579382
+k8           |   1.000000 |   0.220282 |   0.779718
+k9           |   0.200000 |  -0.000000 |   1.000000
+k10          |   5.000000 |  -0.000000 |   1.000000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 9.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.000000 |   0.000000
+x6(t)        |   0.000000 |   3.485467 |   3.485467
+x7(t)        |   0.000000 |  -0.068346 |   0.068346
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |  -0.035930 |   1.119767
+k8           |   1.000000 |  -3.605235 |   4.605235
+k9           |   0.200000 |   0.186404 |   0.067982
+k10          |   5.000000 |   8.191492 |   0.638298
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 9.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.000000 |   0.000000
+x6(t)        |   0.000000 |  -4.706025 |   4.706025
+x7(t)        |   0.000000 |  -0.068346 |   0.068346
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |  -0.035930 |   1.119767
+k8           |   1.000000 |   4.586257 |   3.586257
+k9           |   0.200000 |  -0.186404 |   1.932018
+k10          |   5.000000 |  -8.191492 |   2.638298
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.000000 |   0.000000
+x6(t)        |   0.000000 |   0.000002 |   0.000002
+x7(t)        |   0.000000 |   0.024587 |   0.024587
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.300000 |   0.000001
+k8           |   1.000000 |   0.999998 |   0.000002
+k9           |   0.200000 |   0.200003 |   0.000017
+k10          |   5.000000 |   4.976129 |   0.004774
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.000000 |   0.000000
+x6(t)        |   0.000000 |  -4.976127 |   4.976127
+x7(t)        |   0.000000 |   0.024587 |   0.024587
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.300000 |   0.000001
+k8           |   1.000000 |   5.976126 |   4.976126
+k9           |   0.200000 |  -0.200003 |   2.000017
+k10          |   5.000000 |  -4.976129 |   1.995226
+
+
+Best approximation error for BioHydrogenation: 0.0
+
+Best maximum relative error for BioHydrogenation (excluding ALL unidentifiable parameters): 0.004774
+[ Info: Running model: global_unident_test
+Starting model: global_unident_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.252338285036222, x3(t) => 0.02296662405756722, b => 0.031889658480076855)
+DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
+We are trying these points:[76]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[d, x3(t), b, c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(d => 0.252338285036222, x3(t) => 0.02296662405756722, b => 0.031889658480076855)
+Trivially solvable variables: Dict{Any, Any}(_t76_x1ˍt_t_ => -0.13745785575818914, _t76_x2_t_ => 6.127107212090279, _t76_x2ˍt_t_ => 0.6872892787909421, _t76_x1_t_ => 1.374578557581944)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: global_unident_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • d
+  • x3(t)
+  • b
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • d = 0.252338
+  • x3(t) = 0.022967
+  • b = 0.031890
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |  -1.555211 |   1.388803
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.031890 |   0.840552
+c            |   0.300000 |   0.468110 |   0.560368
+d            |   0.400000 |   0.252338 |   0.369154
+
+
+Best approximation error for global_unident_test: 0.0
+
+Best maximum relative error for global_unident_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: sum_test
+Starting model: sum_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.06546292847031909)
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
+We are trying these points:[35]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x1(t), x2(t), c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(c => 0.06546292847031909)
+Trivially solvable variables: Dict{Any, Any}(_t35_x3ˍtt_t_ => 0.20227067730229464, _t35_x3ˍt_t_ => 1.7706517214653523, _t35_x3_t_ => 6.760275257958004, _t35_x3ˍtttt_t_ => 0.009609423845631682, _t35_x3ˍttt_t_ => 0.05564010214803261)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: sum_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x1(t)
+  • x2(t)
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • c = 0.065463
+
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  13.748239 |   5.874120
+x2(t)        |   3.000000 |   9.165493 |   2.055164
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |  -0.200000 |   3.000000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.065463 |   0.781790
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   9.165493 |   3.582746
+x2(t)        |   3.000000 |  13.748239 |   3.582746
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |   0.065463 |   0.781790
+
+
+Best approximation error for sum_test: 0.0
+
+Best maximum relative error for sum_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: slowfast
+Starting model: slowfast
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
+We are trying these points:[87]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t87_eC_t_ => 0.833, _t87_xCˍt_t_ => 0.010801159772759306, _t87_xCˍtt_t_ => -0.0029835336125159095, _t87_eAˍt_t_ => 0, _t87_eAˍtt_t_ => 0, _t87_xC_t_ => 0.9580613102641717, _t87_eCˍtt_t_ => 0, _t87_eCˍt_t_ => 0, _t87_eA_t_ => 0.666)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: slowfast ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |  -0.167000 |   2.006024
+xB(t)        |   0.333000 |   0.666000 |   1.000000
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.500000 |   1.000000
+k2           |   0.500000 |   0.250000 |   0.500000
+eB           |   0.750000 |   0.708000 |   0.056000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |   0.166000 |   0.000000
+xB(t)        |   0.333000 |   0.333000 |   0.000000
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.250000 |   0.000000
+k2           |   0.500000 |   0.500000 |   0.000000
+eB           |   0.750000 |   0.750000 |   0.000000
+
+
+Best approximation error for slowfast: 0.0
+
+Best maximum relative error for slowfast (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: crauste
+Starting model: Crauste
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[mu_LE, mu_PE, delta_EL, mu_M, mu_LL, rho_E, mu_PL, mu_N, mu_P, delta_LM, delta_NE, mu_EE, rho_P, N(t), E(t), S(t), M(t), P(t)]
+We are trying these points:[99]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 4
+  3 => 5
+  1 => 5
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: Caught FiniteException. The solution set is positive-dimensional.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:60
+┌ Warning: Attempting to reduce dimension by adding a random linear equation.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:61
+┌ Warning: No start solutions found.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:351
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 0 points
+┌ Warning: Failed to run model crauste
+│   exception = BoundsError: attempt to access 0-element Vector{Any} at index [1]
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: threesp_cubed
+Starting model: threesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
+We are trying these points:[56]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+
+DEBUG [ODEPEtestwrapper]: Processing solution 10
+
+DEBUG [ODEPEtestwrapper]: Processing solution 11
+
+DEBUG [ODEPEtestwrapper]: Processing solution 12
+
+DEBUG [ODEPEtestwrapper]: Processing solution 13
+
+DEBUG [ODEPEtestwrapper]: Processing solution 14
+
+DEBUG [ODEPEtestwrapper]: Processing solution 15
+
+DEBUG [ODEPEtestwrapper]: Processing solution 16
+
+DEBUG [ODEPEtestwrapper]: Processing solution 17
+
+DEBUG [ODEPEtestwrapper]: Processing solution 18
+
+DEBUG [ODEPEtestwrapper]: Processing solution 19
+
+DEBUG [ODEPEtestwrapper]: Processing solution 20
+
+DEBUG [ODEPEtestwrapper]: Processing solution 21
+
+DEBUG [ODEPEtestwrapper]: Processing solution 22
+
+DEBUG [ODEPEtestwrapper]: Processing solution 23
+
+DEBUG [ODEPEtestwrapper]: Processing solution 24
+
+DEBUG [ODEPEtestwrapper]: Processing solution 25
+
+DEBUG [ODEPEtestwrapper]: Processing solution 26
+
+DEBUG [ODEPEtestwrapper]: Processing solution 27
+
+=== Model: threesp_cubed ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 0.4915):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.477416 |   0.261292
+x2(t)        |   3.000000 |  -1.432589 |   1.477530
+x3(t)        |   4.000000 |   3.797767 |   0.050558
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for threesp_cubed: 0.0
+
+Best maximum relative error for threesp_cubed (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: onesp_cubed
+Starting model: onesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
+We are trying these points:[63]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: onesp_cubed ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+
+
+Best approximation error for onesp_cubed: 0.0
+
+Best maximum relative error for onesp_cubed (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: daisy_ex3
+Starting model: DAISY_ex3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
+We are trying these points:[22]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t22_x1ˍt_t_ => 2.53944609988951, _t22_u0ˍtt_t_ => 0, _t22_x1_t_ => 2.11783591545393, _t22_x1ˍtttttt_t_ => 0.8271255493164062, _t22_u0_t_ => 1.84999999999996, _t22_x1ˍttttt_t_ => -0.2462291717529297, _t22_x1ˍtt_t_ => 1.5605764558949886, _t22_u0ˍtttt_t_ => 0, _t22_x1ˍttt_t_ => 0.8380617373113637, _t22_x1ˍtttt_t_ => 0.9032902838662267, _t22_x1ˍttttttt_t_ => -1.51806640625, _t22_u0ˍttt_t_ => 0, _t22_u0ˍt_t_ => 1.0, _t22_u0ˍtttttt_t_ => 0, _t22_u0ˍttttt_t_ => 0)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_ex3 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.01916):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200417 |   0.002084
+x2(t)        |   0.400000 |   0.966614 |   1.416535
+x3(t)        |   0.600000 |   4.637076 |   6.728459
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p1           |   0.167000 |   3.008271 |  17.013599
+p3           |   0.333000 |  -5.832947 |  18.516357
+p4           |   0.500000 |  -0.333070 |   1.666139
+p6           |   0.667000 | -12.982594 |  20.464159
+p7           |   0.833000 |  -2.478311 |   3.975163
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.01916):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200417 |   0.002084
+x2(t)        |   0.400000 |   0.966614 |   1.416535
+x3(t)        |   0.600000 |   2.563456 |   3.272426
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p1           |   0.167000 |   3.008271 |  17.013599
+p3           |   0.333000 |  -5.832947 |  18.516357
+p4           |   0.500000 |  -2.478311 |   5.956622
+p6           |   0.667000 |  -0.469516 |   1.703922
+p7           |   0.833000 |  -0.333070 |   1.399844
+
+
+Best approximation error for DAISY_ex3: 0.01916
+
+Best maximum relative error for DAISY_ex3 (excluding ALL unidentifiable parameters): 18.516357
+[ Info: Running model: daisy_mamil4
+Starting model: DAISY_mamil4
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
+We are trying these points:[25]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t25_x1_t_ => 0.27643655279289464, _t25_x1ˍttt_t_ => 0.07322922272010146, _t25_x1ˍttttt_t_ => 0.5617866909597069, _t25_x1ˍtttt_t_ => -0.20390930269422824, _t25_x1ˍtt_t_ => -0.024126407029292807, _t25_x1ˍt_t_ => -0.0021996334444156496)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_mamil4 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200000 |   0.000000
+x2(t)        |   0.400000 |   0.400000 |   0.000000
+x3(t)        |   0.600000 |   0.799994 |   0.333323
+x4(t)        |   0.800000 |   0.600006 |   0.249992
+k01          |   0.125000 |   0.125000 |   0.000000
+k12          |   0.250000 |   0.250000 |   0.000000
+k13          |   0.375000 |   0.499999 |   0.333331
+k14          |   0.500000 |   0.375002 |   0.249995
+k21          |   0.625000 |   0.625000 |   0.000000
+k31          |   0.750000 |   0.874985 |   0.166647
+k41          |   0.875000 |   0.750015 |   0.142840
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200000 |   0.000000
+x2(t)        |   0.400000 |   0.400000 |   0.000000
+x3(t)        |   0.600000 |   0.600006 |   0.000011
+x4(t)        |   0.800000 |   0.799994 |   0.000008
+k01          |   0.125000 |   0.125000 |   0.000000
+k12          |   0.250000 |   0.250000 |   0.000000
+k13          |   0.375000 |   0.375002 |   0.000007
+k14          |   0.500000 |   0.499999 |   0.000002
+k21          |   0.625000 |   0.625000 |   0.000000
+k31          |   0.750000 |   0.750015 |   0.000021
+k41          |   0.875000 |   0.874985 |   0.000017
+
+
+Best approximation error for DAISY_mamil4: 0.0
+
+Best maximum relative error for DAISY_mamil4 (excluding ALL unidentifiable parameters): 2.1e-5
+[ Info: Running model: two_compartment_pk
+Starting model: two_compartment_pk
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.06524196664053017, V1 => 0.8830045665621795, V2 => 0.7113815544277622)
+DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
+We are trying these points:[76]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[k12, k21, V1, C2(t), V2, ke])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(k12 => 0.06524196664053017, V1 => 0.8830045665621795, V2 => 0.7113815544277622)
+Trivially solvable variables: Dict{Any, Any}(_t76_C1ˍt_t_ => -0.022972607407721446, _t76_C1ˍtt_t_ => 0.0010061560919339546, _t76_C1_t_ => 0.5245117486670762, _t76_C1ˍttt_t_ => -4.406770496115375e-5)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: two_compartment_pk ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • k12
+  • k21
+  • V1
+  • C2(t)
+  • V2
+  • ke
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • k12 = 0.065242
+  • V1 = 0.883005
+  • V2 = 0.711382
+
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.217736):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |  43.681811 |   3.368181
+C2(t)        |   0.000000 | -48.145354 |  48.145354
+k12          |   0.500000 |   0.065242 |   0.869516
+k21          |   0.250000 |   0.839040 |   2.356160
+ke           |   0.150000 |   0.047391 |   0.684058
+V1           |   1.000000 |   0.883005 |   0.116995
+V2           |   2.000000 |   0.711382 |   0.644309
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.217592):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |  43.659661 |   3.365966
+C2(t)        |   0.000000 |  53.333830 |  53.333830
+k12          |   0.500000 |   0.065242 |   0.869516
+k21          |   0.250000 |   0.047391 |   0.810435
+ke           |   0.150000 |   0.839040 |   4.593600
+V1           |   1.000000 |   0.883005 |   0.116995
+V2           |   2.000000 |   0.711382 |   0.644309
+
+
+Best approximation error for two_compartment_pk: 0.217592
+
+Best maximum relative error for two_compartment_pk (excluding ALL unidentifiable parameters): 3.365966
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0Kjulia> [7C[7C
+[?2004l
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0Kjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C
+[?2004l┌ Error: Failed to revise /home/orebas/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl
+│   exception =
+│    UndefVarError: `Solution` not defined in `HomotopyContinuation`
+│    Suggestion: check for spelling errors or missing imports.
+│    Stacktrace:
+│     [1] getproperty(x::Module, f::Symbol)
+│       @ Base Base.jl:42
+│     [2] top-level scope
+│       @ none:0
+│    Revise evaluation error at /home/orebas/.julia/dev/ODEParameterEstimation/examples/none:0
+│    
+└ @ Revise ~/.julia/packages/Revise/CawM1/src/packagedef.jl:776
+┌ Warning: The running code does not match the saved version for the following files:
+│ 
+│   /home/orebas/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl
+│ 
+│ If the error was due to evaluation order, it can sometimes be resolved by calling `Revise.retry()`.
+│ Use Revise.errors() to report errors again. Only the first error in each file is shown.
+│ Your prompt color may be yellow until the errors are resolved.
+└ @ Revise ~/.julia/packages/Revise/CawM1/src/packagedef.jl:893
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[97]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model vanderpol
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[9]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model lotka_volterra
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[11]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2
+┌ Warning: Failed to run model repressilator
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: treatment
+Starting model: treatment
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.6368468431062078)
+DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
+We are trying these points:[73]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 6
+┌ Warning: Failed to run model treatment
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: simple
+Starting model: simple
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[49]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model simple
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: trivial_unident
+Starting model: trivial_unident
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.012680882353987677)
+DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
+We are trying these points:[43]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+┌ Warning: Failed to run model trivial_unident
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: simple_linear_combination
+Starting model: simple_linear_combination
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[16]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model simple_linear_combination
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: substr_test
+Starting model: substr_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
+We are trying these points:[10]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+┌ Warning: Failed to run model substr_test
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: lv_periodic
+Starting model: lv_periodic
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
+We are trying these points:[75]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+┌ Warning: Failed to run model lv_periodic
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: fitzhugh_nagumo
+Starting model: fitzhugh-nagumo
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+We are trying these points:[97]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model fitzhugh_nagumo
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_mamil3
+Starting model: DAISY_mamil3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
+We are trying these points:[12]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+┌ Warning: Failed to run model daisy_mamil3
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: sirsforced
+Starting model: sirsforced
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(b1 => 0.5664200795321486)
+DEBUG [MPHCPE]: Final varlist: Num[M, nu, g, mu, b0, i(t), r(t), s(t), x1(t), x2(t)]
+We are trying these points:[74]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 6
+┌ Warning: Failed to run model sirsforced
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: brusselator
+Starting model: brusselator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
+We are trying these points:[100]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+┌ Warning: Failed to run model brusselator
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: seir
+Starting model: SEIR
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
+We are trying these points:[67]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+┌ Warning: Failed to run model seir
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: biohydrogenation
+Starting model: BioHydrogenation
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.6262720179649562)
+DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
+We are trying these points:[34]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+┌ Warning: Failed to run model biohydrogenation
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: global_unident_test
+Starting model: global_unident_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.28878003407518793, x3(t) => 0.2417879885033849, b => 0.9580986259424292)
+DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
+We are trying these points:[6]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model global_unident_test
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: sum_test
+Starting model: sum_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.41463473777060755)
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
+We are trying these points:[31]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model sum_test
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: slowfast
+Starting model: slowfast
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
+We are trying these points:[98]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+┌ Warning: Failed to run model slowfast
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: crauste
+Starting model: Crauste
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[mu_LE, mu_PE, delta_EL, mu_M, mu_LL, rho_E, mu_PL, mu_N, mu_P, delta_LM, delta_NE, mu_EE, rho_P, N(t), E(t), S(t), M(t), P(t)]
+We are trying these points:[33]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 4
+  3 => 5
+  1 => 5
+┌ Warning: Failed to run model crauste
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: threesp_cubed
+Starting model: threesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
+We are trying these points:[65]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+┌ Warning: Failed to run model threesp_cubed
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: onesp_cubed
+Starting model: onesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
+We are trying these points:[35]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+┌ Warning: Failed to run model onesp_cubed
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_ex3
+Starting model: DAISY_ex3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
+We are trying these points:[86]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+┌ Warning: Failed to run model daisy_ex3
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_mamil4
+Starting model: DAISY_mamil4
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
+We are trying these points:[17]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+┌ Warning: Failed to run model daisy_mamil4
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: two_compartment_pk
+Starting model: two_compartment_pk
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.6935377605837605, V1 => 0.029057654237962915, V2 => 0.8217712997330587)
+DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
+We are trying these points:[7]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+┌ Warning: Failed to run model two_compartment_pk
+│   exception =
+│    UndefVarError: `prepare_variables_for_hc` not defined in `ODEParameterEstimation`
+│    Suggestion: check for spelling errors or missing imports.
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+
+[0K[0K[33mjulia> [7C[7C[?2004h[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C
+[?2004l┌ Error: Failed to revise /home/orebas/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl
+│   exception =
+│    UndefVarError: `Solution` not defined in `HomotopyContinuation`
+│    Suggestion: check for spelling errors or missing imports.
+│    Stacktrace:
+│     [1] getproperty(x::Module, f::Symbol)
+│       @ Base Base.jl:42
+│     [2] top-level scope
+│       @ none:0
+│    Revise evaluation error at /home/orebas/.julia/dev/ODEParameterEstimation/examples/none:0
+│    
+└ @ Revise ~/.julia/packages/Revise/CawM1/src/packagedef.jl:776
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[79]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model vanderpol
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[50]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model lotka_volterra
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[65]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2
+┌ Warning: Failed to run model repressilator
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: treatment
+Starting model: treatment
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.4250487007545458)
+DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
+We are trying these points:[13]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 6
+┌ Warning: Failed to run model treatment
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: simple
+Starting model: simple
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[63]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model simple
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: trivial_unident
+Starting model: trivial_unident
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.6167172781091268)
+DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
+We are trying these points:[3]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+┌ Warning: Failed to run model trivial_unident
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: simple_linear_combination
+Starting model: simple_linear_combination
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[13]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model simple_linear_combination
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: substr_test
+Starting model: substr_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
+We are trying these points:[89]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+┌ Warning: Failed to run model substr_test
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: lv_periodic
+Starting model: lv_periodic
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
+We are trying these points:[85]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+┌ Warning: Failed to run model lv_periodic
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: fitzhugh_nagumo
+Starting model: fitzhugh-nagumo
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+We are trying these points:[51]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model fitzhugh_nagumo
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_mamil3
+Starting model: DAISY_mamil3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
+We are trying these points:[35]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+┌ Warning: Failed to run model daisy_mamil3
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: sirsforced
+Starting model: sirsforced
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(b1 => 0.4683269011353025)
+DEBUG [MPHCPE]: Final varlist: Num[M, nu, g, mu, b0, i(t), r(t), s(t), x1(t), x2(t)]
+We are trying these points:[81]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 6
+┌ Warning: Failed to run model sirsforced
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: brusselator
+Starting model: brusselator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
+We are trying these points:[58]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+┌ Warning: Failed to run model brusselator
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: seir
+Starting model: SEIR
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
+We are trying these points:[9]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+┌ Warning: Failed to run model seir
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: biohydrogenation
+Starting model: BioHydrogenation
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.7706362953079381)
+DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
+We are trying these points:[25]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+┌ Warning: Failed to run model biohydrogenation
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: global_unident_test
+Starting model: global_unident_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.42369293385136164, x3(t) => 0.4018007872140208, b => 0.014924620666940447)
+DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
+We are trying these points:[62]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model global_unident_test
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: sum_test
+Starting model: sum_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.9415112874615278)
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
+We are trying these points:[21]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model sum_test
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: slowfast
+Starting model: slowfast
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
+We are trying these points:[46]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+┌ Warning: Failed to run model slowfast
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: crauste
+Starting model: Crauste
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[mu_LE, mu_PE, delta_EL, mu_M, mu_LL, rho_E, mu_PL, mu_N, mu_P, delta_LM, delta_NE, mu_EE, rho_P, N(t), E(t), S(t), M(t), P(t)]
+We are trying these points:[58]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 4
+  3 => 5
+  1 => 5
+┌ Warning: Failed to run model crauste
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: threesp_cubed
+Starting model: threesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
+We are trying these points:[29]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+┌ Warning: Failed to run model threesp_cubed
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: onesp_cubed
+Starting model: onesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
+We are trying these points:[2]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+┌ Warning: Failed to run model onesp_cubed
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_ex3
+Starting model: DAISY_ex3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
+We are trying these points:[16]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+┌ Warning: Failed to run model daisy_ex3
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: daisy_mamil4
+Starting model: DAISY_mamil4
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
+We are trying these points:[49]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+┌ Warning: Failed to run model daisy_mamil4
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: two_compartment_pk
+Starting model: two_compartment_pk
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.7815973231849354, V1 => 0.5083330435282619, V2 => 0.5186939178248161)
+DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
+We are trying these points:[80]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+┌ Warning: Failed to run model two_compartment_pk
+│   exception =
+│    MethodError: no method matching convert_to_hc_format(::Vector{Num}, ::Vector{Num}; parameterize::Bool)
+│    The function `convert_to_hc_format` exists, but no method is defined for this combination of argument types.
+│    
+│    Closest candidates are:
+│      convert_to_hc_format(!Matched::Vector{<:SymbolicUtils.Symbolic}, ::Vector; parameterize)
+│       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:241
+│    
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+
+[0K[0K[33mjulia> [7C[7C[?2004h[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C[7C[0K[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C[0K[33mjulia> [7C run_parameter_estimation_examples(noise_level=0.0, datasize=101)[72C
+[?2004l┌ Error: Failed to revise /home/orebas/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl
+│   exception =
+│    UndefVarError: `Solution` not defined in `HomotopyContinuation`
+│    Suggestion: check for spelling errors or missing imports.
+│    Stacktrace:
+│     [1] getproperty(x::Module, f::Symbol)
+│       @ Base Base.jl:42
+│     [2] top-level scope
+│       @ none:0
+│    Revise evaluation error at /home/orebas/.julia/dev/ODEParameterEstimation/examples/none:0
+│    
+└ @ Revise ~/.julia/packages/Revise/CawM1/src/packagedef.jl:776
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[42]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+┌ Warning: Failed to run model vanderpol
+│   exception = BoundsError: attempt to access Tuple{Vector{Vector{ComplexF64}}, Vector{HomotopyContinuation.ModelKit.Variable}} at index [3]
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[53]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+┌ Warning: Failed to run model lotka_volterra
+│   exception = BoundsError: attempt to access Tuple{Vector{Vector{ComplexF64}}, Vector{HomotopyContinuation.ModelKit.Variable}} at index [3]
+└ @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:104
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[76]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2

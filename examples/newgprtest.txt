@@ -1,0 +1,3901 @@
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[34]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(17)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(2)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t34_x2_t_ => -1.284033897361951, _t34_x2ˍt_t_ => -1.1934452131082582, _t34_x1_t_ => 0.8607672651906073, _t34_x1ˍt_t_ => -1.284026926701599)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: vanderpol ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 2.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000062 |   0.000031
+x2(t)        |   0.000000 |  -0.000226 |   0.000226
+a            |   1.000000 |   0.999995 |   0.000005
+b            |   1.000000 |   1.000032 |   0.000032
+
+
+Best approximation error for vanderpol: 2.0e-6
+
+Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.000226
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[8]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+System of length 7
+ 7 variables: _z__tpk2__d, _z__tpk1__d, _z__tpk3__d, _z__t8_w_t__d, _z__t8_wˍt_t__d, _z__t8_wˍtt_t__d, _z__t8_wˍttt_t__d
+ 7 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇
+
+ -1.44614184919408 - 2.06844454297971*_z__tpk1__d - monodromy_constants₁ + 2.06844454297971*_z__t8_w_t__d*_z__tpk2__d
+ -1.56933758377623 + 1.44614184919408*_z__tpk1__d - monodromy_constants₂ - 1.44614184919408*_z__t8_w_t__d*_z__tpk2__d + 2.06844454297971*_z__t8_wˍt_t__d*_z__tpk2__d
+ 5.35212412871215 + 1.56933758377623*_z__tpk1__d - monodromy_constants₃ - 1.56933758377623*_z__t8_w_t__d*_z__tpk2__d - 2.89228369838816*_z__t8_wˍt_t__d*_z__tpk2__d + 2.06844454297971*_z__t8_wˍtt_t__d*_z__tpk2__d
+ 7.72442444730451 - 5.35212412871215*_z__tpk1__d - monodromy_constants₄ + 5.35212412871215*_z__t8_w_t__d*_z__tpk2__d - 4.70801275132869*_z__t8_wˍt_t__d*_z__tpk2__d - 4.33842554758223*_z__t8_wˍtt_t__d*_z__tpk2__d + 2.06844454297971*_z__t8_wˍttt_t__d*_z__tpk2__d
+ _z__t8_wˍt_t__d - monodromy_constants₅ - 2.06844454297971*_z__t8_w_t__d*_z__tpk2__d + _z__t8_w_t__d*_z__tpk3__d
+ _z__t8_wˍtt_t__d - monodromy_constants₆ + 1.44614184919408*_z__t8_w_t__d*_z__tpk2__d - 2.06844454297971*_z__t8_wˍt_t__d*_z__tpk2__d + _z__t8_wˍt_t__d*_z__tpk3__d
+ _z__t8_wˍttt_t__d - monodromy_constants₇ + 1.56933758377623*_z__t8_w_t__d*_z__tpk2__d + 2.89228369838816*_z__t8_wˍt_t__d*_z__tpk2__d - 2.06844454297971*_z__t8_wˍtt_t__d*_z__tpk2__d + _z__t8_wˍtt_t__d*_z__tpk3__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t8_rˍt_t_ => -1.4461418491940776, _t8_rˍtt_t_ => -1.5693375837762287, _t8_rˍttt_t_ => 5.352124128712149, _t8_rˍtttt_t_ => 7.724424447304507, _t8_r_t_ => 2.068444542979705)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: Lotka_Volterra ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.040524):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+r(t)         |   2.000000 |   0.767983 |   0.616008
+w(t)         |   1.000000 |  -4.239159 |   5.239159
+k1           |   1.000000 |  -1.454486 |   2.454486
+k2           |   0.500000 |   1.599942 |   2.199884
+k3           |   0.300000 |   4.960971 |  15.536572
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.000661):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+r(t)         |   2.000000 |   1.999240 |   0.000380
+w(t)         |   1.000000 |   1.006877 |   0.006877
+k1           |   1.000000 |   1.002762 |   0.002762
+k2           |   0.500000 |   0.498587 |   0.002826
+k3           |   0.300000 |   0.298294 |   0.005686
+
+
+Best approximation error for Lotka_Volterra: 0.000661
+
+Best maximum relative error for Lotka_Volterra (excluding ALL unidentifiable parameters): 0.006877
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[87]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(23)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(64)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(32)
+System of length 9
+ 9 variables: _z__tpn__d, _z__tpbeta__d, _z__tpalpha__d, _z__t87_m1_t__d, _z__t87_m2_t__d, _z__t87_m3_t__d, _z__t87_m2ˍt_t__d, _z__t87_m3ˍt_t__d, _z__t87_m1ˍt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ 0.000105124103356502 - monodromy_constants₁ + (0.781098496082271 - _z__t87_m2_t__d)*_z__tpalpha__d
+ -0.000151273101437255 - monodromy_constants₂ + (0.000105124103356502 - _z__t87_m2ˍt_t__d)*_z__tpalpha__d
+ -0.000312128802761436 - monodromy_constants₃ + (0.781080275824076 - _z__t87_m3_t__d)*_z__tpalpha__d
+ 0.000126602099044248 - monodromy_constants₄ + _z__tpalpha__d*(-0.000312128802761436 - _z__t87_m3ˍt_t__d)
+ 0.000206914031878114 - monodromy_constants₅ + (0.780150509520666 - _z__t87_m1_t__d)*_z__tpalpha__d
+ 2.94674246106297e-05 - monodromy_constants₆ + (0.000206914031878114 - _z__t87_m1ˍt_t__d)*_z__tpalpha__d
+ _z__t87_m2_t__d - _z__tpbeta__d - monodromy_constants₇ + _z__t87_m2ˍt_t__d*(1 + 0.780150509520666*_z__tpn__d) + 0.780150509520666*_z__tpn__d*_z__t87_m2_t__d
+ _z__t87_m3_t__d - _z__tpbeta__d - monodromy_constants₈ + _z__t87_m3ˍt_t__d*(1 + 0.781098496082271*_z__tpn__d) + 0.781098496082271*_z__tpn__d*_z__t87_m3_t__d
+ _z__t87_m1_t__d - _z__tpbeta__d - monodromy_constants₉ + _z__t87_m1ˍt_t__d*(1 + 0.781080275824076*_z__tpn__d) + 0.781080275824076*_z__tpn__d*_z__t87_m1_t__d
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:589
+┌ Warning: At t=12.036950668873027, dt was forced below floating point epsilon -1.6642326706561606e-15, and step error estimate = 1.0003774377160695. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t87_p1_t_ => 0.7801505095206664, _t87_p1ˍt_t_ => 0.00020691403187811375, _t87_p3ˍtt_t_ => 0.00012660209904424846, _t87_p2ˍtt_t_ => -0.0001512731014372548, _t87_p3ˍt_t_ => -0.0003121288027614355, _t87_p2ˍt_t_ => 0.00010512410335650202, _t87_p1ˍtt_t_ => 2.9467424610629678e-5, _t87_p2_t_ => 0.7810984960822706, _t87_p3_t_ => 0.7810802758240762)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:589
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: repressilator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.017812):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+m1(t)        |   0.000000 |   1.532523 |   1.532523
+m2(t)        |   0.000000 | -10.134153 |  10.134153
+m3(t)        |   0.000000 |   0.892811 |   0.892811
+p1(t)        |   2.000000 |  -0.507216 |   1.253608
+p2(t)        |   1.000000 |   1.912730 |   0.912730
+p3(t)        |   3.000000 |   1.274117 |   0.575294
+beta         |   2.000000 |   1.982659 |   0.008670
+n            |   2.000000 |   1.971548 |   0.014226
+alpha        |   1.000000 |   1.000344 |   0.000344
+
+
+Best approximation error for repressilator: 0.017812
+
+Best maximum relative error for repressilator (excluding ALL unidentifiable parameters): 4.339209
+[ Info: Running model: treatment
+Starting model: treatment
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.4227931458560691)
+DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
+We are trying these points:[62]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 6
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(82)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(60)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(26)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(76)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(23)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(63)
+LinearAlgebra.PosDefException(82)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+System of length 15
+ 15 variables: _z__tpnu__d, _z__tpd__d, _z__tpg__d, _z__tpb__d, _z__t62_In_t__d, _z__t62_S_t__d, _z__t62_Inˍt_t__d, _z__t62_Inˍtt_t__d, _z__t62_Inˍttt_t__d, _z__t62_Inˍtttt_t__d, _z__t62_Inˍttttt_t__d, _z__t62_Sˍt_t__d, _z__t62_Sˍtt_t__d, _z__t62_Sˍttt_t__d, _z__t62_Sˍtttt_t__d
+ 15 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅
+
+ 71.0599975585938 + 109.733856276735*_z__tpnu__d - monodromy_constants₁ - _z__tpg__d*_z__t62_In_t__d
+ 26.5508117675781 + 71.0599975585938*_z__tpnu__d - monodromy_constants₂ - _z__tpg__d*_z__t62_Inˍt_t__d
+ -7.91069316864014 + 26.5508117675781*_z__tpnu__d - monodromy_constants₃ - _z__t62_Inˍtt_t__d*_z__tpg__d
+ -20.3634967803955 - 7.91069316864014*_z__tpnu__d - monodromy_constants₄ - _z__t62_Inˍttt_t__d*_z__tpg__d
+ -1.65831625461578 - 20.3634967803955*_z__tpnu__d - monodromy_constants₅ - _z__t62_Inˍtttt_t__d*_z__tpg__d
+ 19.2637204229832 - 1.65831625461578*_z__tpnu__d - monodromy_constants₆ - _z__tpg__d*_z__t62_Inˍttttt_t__d
+ 422.793146064397*_z__t62_In_t__d + 1000.00000049274*_z__t62_Inˍt_t__d - monodromy_constants₇ + 1000.00000049274*_z__tpg__d*_z__t62_In_t__d - _z__tpb__d*_z__t62_S_t__d*_z__t62_In_t__d - 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d
+ 422.793146064397*_z__t62_Inˍt_t__d + 1000.00000049274*_z__t62_Inˍtt_t__d - monodromy_constants₈ + 1000.00000049274*_z__tpg__d*_z__t62_Inˍt_t__d - _z__tpb__d*_z__t62_S_t__d*_z__t62_Inˍt_t__d - _z__tpb__d*_z__t62_Sˍt_t__d*_z__t62_In_t__d - 71.0599975585938*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d - 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d
+ 422.793146064397*_z__t62_Inˍtt_t__d + 1000.00000049274*_z__t62_Inˍttt_t__d - monodromy_constants₉ + 1000.00000049274*_z__t62_Inˍtt_t__d*_z__tpg__d - _z__t62_Inˍtt_t__d*_z__tpb__d*_z__t62_S_t__d - 2*_z__tpb__d*_z__t62_Sˍt_t__d*_z__t62_Inˍt_t__d - _z__tpb__d*_z__t62_Sˍtt_t__d*_z__t62_In_t__d - 26.5508117675781*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d - 142.119995117188*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d - 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtt_t__d
+ 422.793146064397*_z__t62_Inˍttt_t__d + 1000.00000049274*_z__t62_Inˍtttt_t__d - monodromy_constants₁₀ + 1000.00000049274*_z__t62_Inˍttt_t__d*_z__tpg__d - 3*_z__t62_Inˍtt_t__d*_z__tpb__d*_z__t62_Sˍt_t__d - _z__t62_Inˍttt_t__d*_z__tpb__d*_z__t62_S_t__d - _z__tpb__d*_z__t62_In_t__d*_z__t62_Sˍttt_t__d - 3*_z__tpb__d*_z__t62_Sˍtt_t__d*_z__t62_Inˍt_t__d + 7.91069316864014*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d - 79.6524353027344*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d - 213.179992675781*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtt_t__d - 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍttt_t__d
+ 422.793146064397*_z__t62_Inˍtttt_t__d + 1000.00000049274*_z__t62_Inˍttttt_t__d - monodromy_constants₁₁ + 1000.00000049274*_z__t62_Inˍtttt_t__d*_z__tpg__d - 6*_z__t62_Inˍtt_t__d*_z__tpb__d*_z__t62_Sˍtt_t__d - 4*_z__t62_Inˍttt_t__d*_z__tpb__d*_z__t62_Sˍt_t__d - _z__t62_Inˍtttt_t__d*_z__tpb__d*_z__t62_S_t__d - _z__tpb__d*_z__t62_In_t__d*_z__t62_Sˍtttt_t__d - 4*_z__tpb__d*_z__t62_Inˍt_t__d*_z__t62_Sˍttt_t__d + 20.3634967803955*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d + 31.6427726745605*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d - 159.304870605469*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtt_t__d - 284.239990234375*_z__tpb__d*_z__tpd__d*_z__t62_Sˍttt_t__d - 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtttt_t__d
+ 1000.00000049274*_z__t62_Sˍt_t__d - monodromy_constants₁₂ + _z__tpb__d*_z__t62_S_t__d*_z__t62_In_t__d + 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d
+ 1000.00000049274*_z__t62_Sˍtt_t__d - monodromy_constants₁₃ + _z__tpb__d*_z__t62_S_t__d*_z__t62_Inˍt_t__d + _z__tpb__d*_z__t62_Sˍt_t__d*_z__t62_In_t__d + 71.0599975585938*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d + 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d
+ 1000.00000049274*_z__t62_Sˍttt_t__d - monodromy_constants₁₄ + _z__t62_Inˍtt_t__d*_z__tpb__d*_z__t62_S_t__d + 2*_z__tpb__d*_z__t62_Sˍt_t__d*_z__t62_Inˍt_t__d + _z__tpb__d*_z__t62_Sˍtt_t__d*_z__t62_In_t__d + 26.5508117675781*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d + 142.119995117188*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d + 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtt_t__d
+ 1000.00000049274*_z__t62_Sˍtttt_t__d - monodromy_constants₁₅ + 3*_z__t62_Inˍtt_t__d*_z__tpb__d*_z__t62_Sˍt_t__d + _z__t62_Inˍttt_t__d*_z__tpb__d*_z__t62_S_t__d + _z__tpb__d*_z__t62_In_t__d*_z__t62_Sˍttt_t__d + 3*_z__tpb__d*_z__t62_Sˍtt_t__d*_z__t62_Inˍt_t__d - 7.91069316864014*_z__tpb__d*_z__tpd__d*_z__t62_S_t__d + 79.6524353027344*_z__tpb__d*_z__tpd__d*_z__t62_Sˍt_t__d + 213.179992675781*_z__tpb__d*_z__tpd__d*_z__t62_Sˍtt_t__d + 109.733856276735*_z__tpb__d*_z__tpd__d*_z__t62_Sˍttt_t__d
+┌ Warning: At t=0.9094044511555065, dt was forced below floating point epsilon -9.989050495983546e-17, and step error estimate = 1.0016920875143658. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+┌ Warning: At t=0.9094044511555084, dt was forced below floating point epsilon -9.98981600450811e-17, and step error estimate = 1.0012539090889019. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[a, S(t), d, g, b, In(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.4227931458560691)
+Trivially solvable variables: Dict{Any, Any}(_t62_Trˍtttt_t_ => -20.363496780395508, _t62_Trˍtttttt_t_ => 19.26372042298317, _t62_Nˍtttt_t_ => 0, _t62_Nˍt_t_ => 0, _t62_Trˍttt_t_ => -7.910693168640137, _t62_Nˍttt_t_ => 0, _t62_Trˍttttt_t_ => -1.6583162546157837, _t62_Tr_t_ => 109.73385627673484, _t62_Trˍt_t_ => 71.05999755859375, _t62_N_t_ => 1000.0000004927427, _t62_Trˍtt_t_ => 26.550811767578125, _t62_Nˍtt_t_ => 0)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+┌ Warning: At t=4.113491335525589, dt was forced below floating point epsilon 8.881784197001252e-16, and step error estimate = 1.0033104020217811. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+=== Model: treatment ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • S(t)
+  • d
+  • g
+  • b
+  • In(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.422793
+
+
+Found 5 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 |  -1.112346 |   1.022247
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 |   0.002142 |   0.999998
+Tr(t)        |   0.000000 |   9.249153 |   9.249153
+a            |   0.100000 |   0.422793 |   3.227931
+b            |   0.800000 | 184.499323 | 229.624153
+d            |   2.000000 |  -0.083343 |   1.041671
+g            |   0.300000 |  -1.120575 |   4.735251
+nu           |   0.100000 |  -0.697782 |   7.977821
+
+
+Cluster 2: 2 similar solutions
+Best solution (Error: 12.673713):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | -1157623839119379.500000 | 23152476782388.589844
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | 1157623839120884.750000 | 1218551409599.931396
+Tr(t)        |   0.000000 | -3777.706522 | 3777.706522
+a            |   0.100000 |   0.422793 |   3.227931
+b            |   0.800000 |  -5.296393 |   7.620491
+d            |   2.000000 |   0.150211 |   0.924894
+g            |   0.300000 |  -0.686525 |   3.288415
+nu           |   0.100000 |   0.189087 |   0.890871
+
+
+Cluster 3: 2 similar solutions
+Best solution (Error: 1.685121):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 |  -3.248012 |   1.064960
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 |   2.702146 |   0.997156
+Tr(t)        |   0.000000 |   7.591945 |   7.591945
+a            |   0.100000 |   0.422793 |   3.227931
+b            |   0.800000 |  60.334988 |  74.418735
+d            |   2.000000 |   0.261398 |   0.869301
+g            |   0.300000 |  -1.014952 |   4.383174
+nu           |   0.100000 |  -0.592159 |   6.921592
+
+
+Cluster 4: 2 similar solutions
+Best solution (Error: 1.567952):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 |  17.919966 |   0.641601
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 |  39.450046 |   0.958474
+Tr(t)        |   0.000000 |  54.974442 |  54.974442
+a            |   0.100000 |   0.422793 |   3.227931
+b            |   0.800000 |   1.677995 |   1.097494
+d            |   2.000000 |  -0.597931 |   1.298966
+g            |   0.300000 |  -0.233706 |   1.779020
+nu           |   0.100000 |  -0.263731 |   3.637315
+
+
+Cluster 5: 2 similar solutions
+Best solution (Error: 1.391148):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 |  -8.534497 |   1.170690
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | -11.774513 |   1.012394
+Tr(t)        |   0.000000 |   3.935593 |   3.935593
+a            |   0.100000 |   0.422793 |   3.227931
+b            |   0.800000 |   6.835450 |   7.544312
+d            |   2.000000 |   2.080676 |   0.040338
+g            |   0.300000 |  -0.849865 |   3.832882
+nu           |   0.100000 |  -0.427071 |   5.270715
+
+
+Best approximation error for treatment: 1.391148
+
+Best maximum relative error for treatment (excluding ALL unidentifiable parameters): 5.270715
+[ Info: Running model: simple
+Starting model: simple
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[93]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(75)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t93_x1_t_ => -0.527973344116177, _t93_x1ˍt_t_ => 0.13215439110354055, _t93_x2_t_ => -0.3303864725706809, _t93_x2ˍt_t_ => -0.4223787404152972)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.333000 |   0.332999 |   0.000002
+x2(t)        |   0.667000 |   0.667001 |   0.000002
+a            |   0.400000 |   0.399999 |   0.000001
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple: 0.0
+
+Best maximum relative error for simple (excluding ALL unidentifiable parameters): 2.0e-6
+[ Info: Running model: trivial_unident
+Starting model: trivial_unident
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.013574820250066066)
+DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
+We are trying these points:[8]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(68)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(95)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[a, b])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.013574820250066066)
+Trivially solvable variables: Dict{Any, Any}(_t8_x1_t_ => 3.04527299665063, _t8_x1ˍt_t_ => 3.623046875)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: trivial_unident ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • b
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.013575
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.505532):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.008093 |   0.004047
+a            |   0.600000 |   0.013575 |   0.977375
+b            |   0.600000 |   1.176153 |   0.960255
+
+
+Best approximation error for trivial_unident: 0.505532
+
+Best maximum relative error for trivial_unident (excluding ALL unidentifiable parameters): 0.004047
+[ Info: Running model: simple_linear_combination
+Starting model: simple_linear_combination
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[55]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(63)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple_linear_combination ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   1.000000 |   0.999999 |   0.000001
+x2(t)        |   2.000000 |   1.999998 |   0.000001
+a            |   0.400000 |   0.400001 |   0.000001
+b            |   0.800000 |   0.800001 |   0.000001
+
+
+Best approximation error for simple_linear_combination: 0.0
+
+Best maximum relative error for simple_linear_combination (excluding ALL unidentifiable parameters): 1.0e-6
+[ Info: Running model: substr_test
+Starting model: substr_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
+We are trying these points:[54]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(61)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(30)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(17)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(64)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(58)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(76)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(98)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t54_x2ˍt_t_ => 0.21693303622305393, _t54_x2_t_ => 3.8271401309761974, _t54_x3ˍt_t_ => 0.0004801502329314644, _t54_x1_t_ => 1.0846655500645688, _t54_x3_t_ => 4.001271953534813, _t54_x1ˍt_t_ => -0.38271393095601525)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: substr_test ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+beta         |   0.300000 |   0.299999 |   0.000004
+
+
+Best approximation error for substr_test: 0.0
+
+Best maximum relative error for substr_test (excluding ALL unidentifiable parameters): 4.0e-6
+[ Info: Running model: lv_periodic
+Starting model: lv_periodic
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
+We are trying these points:[9]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t9_x1ˍt_t_ => 5.56866765512155, _t9_x1ˍtt_t_ => -13.192435017560664, _t9_x2_t_ => 0.8594711665548402, _t9_x1_t_ => 7.626467264831035, _t9_x2ˍt_t_ => 2.6659092150793287, _t9_x2ˍtt_t_ => 11.54004398866187)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: lv_periodic ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.195192):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.932156 |   0.033922
+x2(t)        |   0.500000 |   0.317339 |   0.365322
+a            |   1.500000 |   1.459746 |   0.026836
+b            |   0.900000 |   0.848859 |   0.056824
+c            |   3.000000 |   2.110277 |   0.296574
+d            |   0.800000 |   0.683420 |   0.145725
+
+
+Best approximation error for lv_periodic: 0.195192
+
+Best maximum relative error for lv_periodic (excluding ALL unidentifiable parameters): 0.365322
+[ Info: Running model: fitzhugh_nagumo
+Starting model: fitzhugh-nagumo
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+We are trying these points:[43]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(30)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(72)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(61)
+System of length 7
+ 7 variables: _z__tpa__d, _z__tpg__d, _z__tpb__d, _z__t43_R_t__d, _z__t43_Rˍt_t__d, _z__t43_Rˍtt_t__d, _z__t43_Rˍttt_t__d
+ 7 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇
+
+ -2.01335022842977 - monodromy_constants₁ + _z__tpg__d*(0.66602180007162 - _z__t43_R_t__d)
+ -0.916966553777456 - monodromy_constants₂ + (-0.103114159042825 - _z__t43_Rˍt_t__d)*_z__tpg__d
+ 22.9130819514394 - monodromy_constants₃ + _z__tpg__d*(-8.35913366922009 - _z__t43_Rˍtt_t__d)
+ 86.8687953352928 - monodromy_constants₄ + (-26.5062145048906 - _z__t43_Rˍttt_t__d)*_z__tpg__d
+ 1.02528786793315 + _z__tpa__d - monodromy_constants₅ - _z__tpb__d*_z__t43_R_t__d + _z__tpg__d*_z__t43_Rˍt_t__d
+ 2.01335022842977 - monodromy_constants₆ - _z__tpb__d*_z__t43_Rˍt_t__d + _z__tpg__d*_z__t43_Rˍtt_t__d
+ 0.916966553777456 - monodromy_constants₇ - _z__tpb__d*_z__t43_Rˍtt_t__d + _z__tpg__d*_z__t43_Rˍttt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t43_Vˍtttt_t_ => 86.86879533529282, _t43_Vˍt_t_ => -2.013350228429772, _t43_Vˍttt_t_ => 22.91308195143938, _t43_V_t_ => -1.0252878679331474, _t43_Vˍtt_t_ => -0.9169665537774563)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: fitzhugh-nagumo ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 1.5e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+V(t)         |  -1.000000 |  -1.000334 |   0.000334
+R(t)         |   0.000000 |   0.026976 |   0.026976
+g            |   3.000000 |   3.091586 |   0.030529
+a            |   0.200000 |  -0.409509 |   3.047544
+b            |   0.200000 |   1.560311 |   6.801557
+
+
+Best approximation error for fitzhugh-nagumo: 1.5e-5
+
+Best maximum relative error for fitzhugh-nagumo (excluding ALL unidentifiable parameters): 6.801557
+[ Info: Running model: daisy_mamil3
+Starting model: DAISY_mamil3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
+We are trying these points:[13]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(54)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+System of length 10
+ 10 variables: _z__tpa13__d, _z__tpa31__d, _z__tpa21__d, _z__tpa12__d, _z__tpa01__d, _z__t13_x3_t__d, _z__t13_x3ˍt_t__d, _z__t13_x3ˍtt_t__d, _z__t13_x3ˍttt_t__d, _z__t13_x2ˍttt_t__d
+ 10 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀
+
+ 0.00844849106215406 + 0.51327360806086*_z__tpa12__d - 0.188330012022283*_z__tpa21__d - monodromy_constants₁
+ -0.0317576386441942 + 0.00844849106215406*_z__tpa12__d + 0.0606945735008821*_z__tpa21__d - monodromy_constants₂
+ -0.0606945735008821 - 0.51327360806086*_z__tpa12__d - monodromy_constants₃ - _z__t13_x3_t__d*_z__tpa13__d + 0.188330012022283*(_z__tpa01__d + _z__tpa21__d + _z__tpa31__d)
+ 0.0879589329279042 - 0.00844849106215406*_z__tpa12__d - monodromy_constants₄ - _z__t13_x3ˍt_t__d*_z__tpa13__d + 0.0606945735008821*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ -0.183106696332288 + 0.0317576386441942*_z__tpa12__d - monodromy_constants₅ - _z__t13_x3ˍtt_t__d*_z__tpa13__d - 0.0879589329279042*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ 0.394389948090975 - monodromy_constants₆ - _z__t13_x2ˍttt_t__d*_z__tpa12__d - _z__t13_x3ˍttt_t__d*_z__tpa13__d + 0.183106696332288*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ _z__t13_x3ˍt_t__d - 0.188330012022283*_z__tpa31__d - monodromy_constants₇ + _z__t13_x3_t__d*_z__tpa13__d
+ _z__t13_x3ˍtt_t__d + 0.0606945735008821*_z__tpa31__d - monodromy_constants₈ + _z__t13_x3ˍt_t__d*_z__tpa13__d
+ _z__t13_x3ˍttt_t__d - 0.0879589329279042*_z__tpa31__d - monodromy_constants₉ + _z__t13_x3ˍtt_t__d*_z__tpa13__d
+ _z__t13_x2ˍttt_t__d - 0.0317576386441942*_z__tpa12__d - 0.0879589329279042*_z__tpa21__d - monodromy_constants₁₀
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t13_x2ˍtt_t_ => -0.03175763864419423, _t13_x1ˍt_t_ => -0.06069457350088214, _t13_x1ˍtt_t_ => 0.08795893292790424, _t13_x1ˍttt_t_ => -0.18310669633228827, _t13_x2_t_ => 0.5132736080608595, _t13_x2ˍt_t_ => 0.008448491062154062, _t13_x1ˍtttt_t_ => 0.39438994809097494, _t13_x1_t_ => 0.1883300120222827)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: DAISY_mamil3 ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 4.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.250000 |   0.249999 |   0.000005
+x2(t)        |   0.500000 |   0.500000 |   0.000000
+x3(t)        |   0.750000 |   0.781799 |   0.042398
+a12          |   0.167000 |   0.166997 |   0.000021
+a13          |   0.333000 |   0.321597 |   0.034245
+a21          |   0.500000 |   0.499991 |   0.000017
+a31          |   0.667000 |   0.647321 |   0.029503
+a01          |   0.833000 |   0.859336 |   0.031615
+
+
+Best approximation error for DAISY_mamil3: 4.0e-6
+
+Best maximum relative error for DAISY_mamil3 (excluding ALL unidentifiable parameters): 0.042398
+[ Info: Running model: brusselator
+Starting model: brusselator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
+We are trying these points:[40]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+┌ Warning: At t=7.011808013705336, dt was forced below floating point epsilon -7.634227886465558e-16, and step error estimate = 1.8066267026090477. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t40_X_t_ => 1.6795914772914418, _t40_Xˍtt_t_ => 1.0735684910353798, _t40_Y_t_ => 1.4430677693785299, _t40_Xˍt_t_ => -1.8296673757202122)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: brusselator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 37887.983129):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+X(t)         |   1.000000 | 5740031.712917 | 5740030.712917
+Y(t)         |   1.000000 | -5740027.175156 | 5740028.175156
+a            |   1.000000 |   1.687776 |   0.687776
+b            |   3.000000 |   4.775506 |   0.591835
+
+
+Best approximation error for brusselator: 37887.983129
+
+Best maximum relative error for brusselator (excluding ALL unidentifiable parameters): 5.740030712917e6
+[ Info: Running model: seir
+Starting model: SEIR
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
+We are trying these points:[12]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(59)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(57)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(57)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(60)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(30)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(60)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(95)
+System of length 12
+ 12 variables: _z__tpa__d, _z__tpnu__d, _z__tpb__d, _z__t12_S_t__d, _z__t12_E_t__d, _z__t12_Eˍt_t__d, _z__t12_Eˍtt_t__d, _z__t12_Eˍttt_t__d, _z__t12_Eˍtttt_t__d, _z__t12_Sˍt_t__d, _z__t12_Sˍtt_t__d, _z__t12_Sˍttt_t__d
+ 12 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂
+
+ 0.41771704587677 + 4.66290263667203*_z__tpa__d - monodromy_constants₁ - _z__t12_E_t__d*_z__tpnu__d
+ -0.0112035832796664 + 0.41771704587677*_z__tpa__d - monodromy_constants₂ - _z__t12_Eˍt_t__d*_z__tpnu__d
+ 0.0155375953567614 - 0.0112035832796664*_z__tpa__d - monodromy_constants₃ - _z__t12_Eˍtt_t__d*_z__tpnu__d
+ -0.00589540169758607 + 0.0155375953567614*_z__tpa__d - monodromy_constants₄ - _z__tpnu__d*_z__t12_Eˍttt_t__d
+ 0.00245951360890473 - 0.00589540169758607*_z__tpa__d - monodromy_constants₅ - _z__t12_Eˍtttt_t__d*_z__tpnu__d
+ 1000.00000364066*_z__t12_Eˍt_t__d - monodromy_constants₆ + 1000.00000364066*_z__t12_E_t__d*_z__tpnu__d - 4.66290263667203*_z__tpb__d*_z__t12_S_t__d
+ 1000.00000364066*_z__t12_Eˍtt_t__d - monodromy_constants₇ + 1000.00000364066*_z__t12_Eˍt_t__d*_z__tpnu__d - 0.41771704587677*_z__tpb__d*_z__t12_S_t__d - 4.66290263667203*_z__tpb__d*_z__t12_Sˍt_t__d
+ 1000.00000364066*_z__t12_Eˍttt_t__d - monodromy_constants₈ + 1000.00000364066*_z__t12_Eˍtt_t__d*_z__tpnu__d + 0.0112035832796664*_z__tpb__d*_z__t12_S_t__d - 0.835434091753541*_z__tpb__d*_z__t12_Sˍt_t__d - 4.66290263667203*_z__tpb__d*_z__t12_Sˍtt_t__d
+ 1000.00000364066*_z__t12_Eˍtttt_t__d - monodromy_constants₉ - 0.0155375953567614*_z__tpb__d*_z__t12_S_t__d + 0.0336107498389993*_z__tpb__d*_z__t12_Sˍt_t__d - 1.25315113763031*_z__tpb__d*_z__t12_Sˍtt_t__d - 4.66290263667203*_z__tpb__d*_z__t12_Sˍttt_t__d + 1000.00000364066*_z__tpnu__d*_z__t12_Eˍttt_t__d
+ 1000.00000364066*_z__t12_Sˍt_t__d - monodromy_constants₁₀ + 4.66290263667203*_z__tpb__d*_z__t12_S_t__d
+ 1000.00000364066*_z__t12_Sˍtt_t__d - monodromy_constants₁₁ + 0.41771704587677*_z__tpb__d*_z__t12_S_t__d + 4.66290263667203*_z__tpb__d*_z__t12_Sˍt_t__d
+ 1000.00000364066*_z__t12_Sˍttt_t__d - monodromy_constants₁₂ - 0.0112035832796664*_z__tpb__d*_z__t12_S_t__d + 0.835434091753541*_z__tpb__d*_z__t12_Sˍt_t__d + 4.66290263667203*_z__tpb__d*_z__t12_Sˍtt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t12_Inˍttttt_t_ => 0.0024595136089047287, _t12_Inˍtt_t_ => -0.011203583279666418, _t12_Inˍtttt_t_ => -0.005895401697586067, _t12_In_t_ => 4.662902636672035, _t12_Nˍt_t_ => 0, _t12_Nˍtt_t_ => 0, _t12_Inˍttt_t_ => 0.015537595356761358, _t12_N_t_ => 1000.0000036406599, _t12_Nˍttt_t_ => 0, _t12_Inˍt_t_ => 0.4177170458767705)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+=== Model: SEIR ===
+
+Found 4 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 1.143787):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 |   0.030299 |   0.999969
+E(t)         |  10.000000 |   3.569214 |   0.643079
+In(t)        |   0.000000 |   0.005202 |   0.005202
+N(t)         | 1000.000000 | 1000.000004 |   0.000000
+a            |   0.200000 |  -0.070309 |   1.351544
+b            |   0.400000 | -28.894560 |  73.236400
+nu           |   0.150000 |   0.418660 |   1.791065
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.143787):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 |  -0.180418 |   1.000182
+E(t)         |  10.000000 | -21.289356 |   3.128936
+In(t)        |   0.000000 |   0.005202 |   0.005202
+N(t)         | 1000.000000 | 1000.000004 |   0.000000
+a            |   0.200000 |   0.418660 |   1.093299
+b            |   0.400000 | -28.894560 |  73.236400
+nu           |   0.150000 |  -0.070309 |   1.468725
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 1.091709):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 |   1.287017 |   0.998700
+E(t)         |  10.000000 | -20.693887 |   3.069389
+In(t)        |   0.000000 |   0.132282 |   0.132282
+N(t)         | 1000.000000 | 1000.000004 |   0.000000
+a            |   0.200000 |   0.358955 |   0.794777
+b            |   0.400000 | 157.095180 | 391.737949
+nu           |   0.150000 |  -0.067894 |   1.452625
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 1.091709):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 |  -0.243430 |   1.000246
+E(t)         |  10.000000 |   3.756791 |   0.624321
+In(t)        |   0.000000 |   0.132282 |   0.132282
+N(t)         | 1000.000000 | 1000.000004 |   0.000000
+a            |   0.200000 |  -0.067894 |   1.339469
+b            |   0.400000 | 157.095180 | 391.737949
+nu           |   0.150000 |   0.358955 |   1.393036
+
+
+Best approximation error for SEIR: 1.091709
+
+Best maximum relative error for SEIR (excluding ALL unidentifiable parameters): 73.2364
+[ Info: Running model: biohydrogenation
+Starting model: BioHydrogenation
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.4898032569079869)
+DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
+We are trying these points:[45]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(72)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(54)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(82)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(80)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(53)
+System of length 13
+ 13 variables: _z__tpk9__d, _z__tpk7__d, _z__tpk10__d, _z__tpk6__d, _z__tpk5__d, _z__tpk8__d, _z__t45_x6_t__d, _z__t45_x6ˍt_t__d, _z__t45_x6ˍtt_t__d, _z__t45_x4ˍttt_t__d, _z__t45_x6ˍttt_t__d, _z__t45_x4ˍtttt_t__d, _z__t45_x6ˍtttt_t__d
+ 13 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃
+
+ -1.87272455721236*_z__tpk5__d + 1.87272455721236*_z__tpk7__d - monodromy_constants₁ - 3.29050369832408*_z__t45_x6_t__d*_z__tpk5__d - 3.29050369832408*_z__tpk5__d*_z__tpk8__d + 0.569130056947263*_z__tpk6__d*_z__tpk7__d + 0.20989977743011*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*(3.29050369832408 + _z__tpk6__d)
+ -0.513687052336092*_z__tpk5__d + 0.513687052336092*_z__tpk7__d - monodromy_constants₂ + 0.310981540009379*_z__t45_x6_t__d*_z__tpk5__d - 3.29050369832408*_z__t45_x6ˍt_t__d*_z__tpk5__d + 0.310981540009379*_z__tpk5__d*_z__tpk8__d + 0.20989977743011*_z__tpk6__d*_z__tpk7__d + 0.20989977743011*(3.29050369832408 + _z__tpk6__d)*(0.20989977743011 + _z__t45_x6ˍt_t__d) - 0.0311801953685062*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*(3.29050369832408 + _z__tpk6__d) - 0.0652749560328415*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)
+ 0.226823511142089*_z__tpk5__d - 0.226823511142089*_z__tpk7__d - monodromy_constants₃ - 0.0111133633181453*_z__t45_x6_t__d*_z__tpk5__d + 0.621963080018759*_z__t45_x6ˍt_t__d*_z__tpk5__d - 3.29050369832408*_z__t45_x6ˍtt_t__d*_z__tpk5__d - 0.0111133633181453*_z__tpk5__d*_z__tpk8__d - 0.0311801953685062*_z__tpk6__d*_z__tpk7__d + 0.20989977743011*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d)*(3.29050369832408 + _z__tpk6__d) - 0.0623603907370125*(3.29050369832408 + _z__tpk6__d)*(0.20989977743011 + _z__t45_x6ˍt_t__d) + 0.00990222013206221*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*(3.29050369832408 + _z__tpk6__d) - 0.130549912065683*(0.20989977743011 + _z__t45_x6ˍt_t__d) + 0.0217256228339614*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)
+ -0.06867076494758*_z__tpk5__d + 0.06867076494758*_z__tpk7__d - monodromy_constants₄ - 0.0333400899544358*_z__t45_x6ˍt_t__d*_z__tpk5__d + 0.932944620028138*_z__t45_x6ˍtt_t__d*_z__tpk5__d - 0.569130056947263*_z__tpk5__d*_z__t45_x4ˍttt_t__d - 3.29050369832408*_z__tpk5__d*_z__t45_x6ˍttt_t__d + 0.00990222013206221*_z__tpk6__d*_z__tpk7__d + 0.569130056947263*_z__tpk7__d*_z__t45_x4ˍttt_t__d - 0.0935405861055187*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d)*(3.29050369832408 + _z__tpk6__d) + 0.20989977743011*(3.29050369832408 + _z__tpk6__d)*(0.00990222013206221 + _z__t45_x6ˍttt_t__d) + 0.0297066603961866*(3.29050369832408 + _z__tpk6__d)*(0.20989977743011 + _z__t45_x6ˍt_t__d) + 0.20989977743011*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__t45_x4ˍttt_t__d - 0.00837654565111734*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*(3.29050369832408 + _z__tpk6__d) - _z__t45_x6_t__d*_z__tpk5__d*_z__t45_x4ˍttt_t__d - _z__tpk5__d*_z__tpk8__d*_z__t45_x4ˍttt_t__d - 0.195824868098524*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d) + 0.0651768685018843*(0.20989977743011 + _z__t45_x6ˍt_t__d) - 0.0102777735169246*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)
+ 0.0419597861456702*_z__tpk5__d - 0.0419597861456702*_z__tpk7__d - monodromy_constants₅ - 0.569130056947263*_z__t45_x4ˍtttt_t__d*_z__tpk5__d + 0.569130056947263*_z__t45_x4ˍtttt_t__d*_z__tpk7__d + 0.20989977743011*_z__t45_x4ˍtttt_t__d*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d) - 0.0666801799088717*_z__t45_x6ˍtt_t__d*_z__tpk5__d - 3.29050369832408*_z__t45_x6ˍtttt_t__d*_z__tpk5__d - 0.839599109720439*_z__tpk5__d*_z__t45_x4ˍttt_t__d + 1.24392616003752*_z__tpk5__d*_z__t45_x6ˍttt_t__d - 0.00837654565111734*_z__tpk6__d*_z__tpk7__d + 0.839599109720439*_z__tpk7__d*_z__t45_x4ˍttt_t__d + 0.0594133207923733*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d)*(3.29050369832408 + _z__tpk6__d) + 0.20989977743011*(-0.00837654565111734 + _z__t45_x6ˍtttt_t__d)*(3.29050369832408 + _z__tpk6__d) + 0.839599109720439*(0.20989977743011 + _z__t45_x6ˍt_t__d)*_z__t45_x4ˍttt_t__d - 0.124720781474025*(3.29050369832408 + _z__tpk6__d)*(0.00990222013206221 + _z__t45_x6ˍttt_t__d) - 0.0335061826044694*(3.29050369832408 + _z__tpk6__d)*(0.20989977743011 + _z__t45_x6ˍt_t__d) - 0.124720781474025*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__t45_x4ˍttt_t__d + 0.00847996723314282*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*(3.29050369832408 + _z__tpk6__d) - _z__t45_x4ˍtttt_t__d*_z__t45_x6_t__d*_z__tpk5__d - _z__t45_x4ˍtttt_t__d*_z__tpk5__d*_z__tpk8__d - 4*_z__t45_x6ˍt_t__d*_z__tpk5__d*_z__t45_x4ˍttt_t__d + 0.130353737003769*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d) - 0.261099824131366*(0.00990222013206221 + _z__t45_x6ˍttt_t__d) - 0.0411110940676986*(0.20989977743011 + _z__t45_x6ˍt_t__d) + 0.0110800860860765*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)
+ 3.29050369832408*_z__tpk5__d - monodromy_constants₆ - 0.310981540009379*(3.29050369832408 + _z__tpk6__d)
+ 0.0967095182266052 - 0.310981540009379*_z__tpk5__d - monodromy_constants₇ + 0.0111133633181453*(3.29050369832408 + _z__tpk6__d)
+ -monodromy_constants₈ - 0.569130056947263*_z__t45_x6_t__d^2*_z__tpk9__d - _z__t45_x6_t__d^3*_z__tpk9__d - 0.569130056947263*_z__tpk7__d*_z__tpk10__d + 0.569130056947263*_z__t45_x6_t__d*_z__tpk9__d*_z__tpk10__d - _z__t45_x6_t__d^2*_z__tpk8__d*_z__tpk9__d + _z__t45_x6_t__d^2*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍt_t__d*(0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__tpk10__d + _z__t45_x6_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+ -monodromy_constants₉ - 0.20989977743011*_z__t45_x6_t__d^2*_z__tpk9__d - 0.20989977743011*_z__tpk7__d*_z__tpk10__d + 0.20989977743011*_z__t45_x6_t__d*_z__tpk9__d*_z__tpk10__d - 1.13826011389453*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__tpk9__d - 3*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d^2*_z__tpk9__d + 0.569130056947263*_z__t45_x6ˍt_t__d*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍt_t__d*(0.20989977743011 + _z__t45_x6ˍt_t__d)*_z__tpk10__d + (0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__t45_x6ˍtt_t__d*_z__tpk10__d - 2*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__tpk8__d*_z__tpk9__d + 2*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍt_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+ -0.0103681525180817 + 0.0111133633181453*_z__tpk5__d - monodromy_constants₁₀ + (3.29050369832408 + _z__tpk6__d)*_z__t45_x4ˍttt_t__d
+ -monodromy_constants₁₁ + 0.0311801953685062*_z__t45_x6_t__d^2*_z__tpk9__d - 1.13826011389453*_z__t45_x6ˍt_t__d^2*_z__tpk9__d + 0.0311801953685062*_z__tpk7__d*_z__tpk10__d - 1.13826011389453*_z__t45_x6_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d - 0.0311801953685062*_z__t45_x6_t__d*_z__tpk9__d*_z__tpk10__d - 3*_z__t45_x6_t__d^2*_z__t45_x6ˍtt_t__d*_z__tpk9__d - 0.839599109720439*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__tpk9__d + 0.419799554860219*_z__t45_x6ˍt_t__d*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍt_t__d*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d)*_z__tpk10__d - 6*_z__t45_x6ˍt_t__d^2*_z__t45_x6_t__d*_z__tpk9__d - 2*_z__t45_x6ˍt_t__d^2*_z__tpk8__d*_z__tpk9__d + 2*_z__t45_x6ˍt_t__d^2*_z__tpk9__d*_z__tpk10__d + 0.569130056947263*_z__t45_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + 2*_z__t45_x6ˍtt_t__d*(0.20989977743011 + _z__t45_x6ˍt_t__d)*_z__tpk10__d + (0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__t45_x6ˍttt_t__d*_z__tpk10__d - 2*_z__t45_x6_t__d*_z__t45_x6ˍtt_t__d*_z__tpk8__d*_z__tpk9__d + 2*_z__t45_x6_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍtt_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+ 0.000370520532723291 - 1.24392616003752*_z__t45_x4ˍttt_t__d - monodromy_constants₁₂ + _z__t45_x4ˍtttt_t__d*(3.29050369832408 + _z__tpk6__d) + _z__tpk5__d*_z__t45_x4ˍttt_t__d
+ -monodromy_constants₁₃ - 0.00990222013206221*_z__t45_x6_t__d^2*_z__tpk9__d - 1.25939866458066*_z__t45_x6ˍt_t__d^2*_z__tpk9__d - 6*_z__t45_x6ˍt_t__d^3*_z__tpk9__d - 0.00990222013206221*_z__tpk7__d*_z__tpk10__d - 1.25939866458066*_z__t45_x6_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d - 1.13826011389453*_z__t45_x6_t__d*_z__tpk9__d*_z__t45_x6ˍttt_t__d + 0.00990222013206221*_z__t45_x6_t__d*_z__tpk9__d*_z__tpk10__d - 3*_z__t45_x6_t__d^2*_z__tpk9__d*_z__t45_x6ˍttt_t__d + 0.187081172211037*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__tpk9__d - 3.41478034168358*_z__t45_x6ˍt_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d - 0.0935405861055187*_z__t45_x6ˍt_t__d*_z__tpk9__d*_z__tpk10__d + _z__t45_x6ˍt_t__d*(0.00990222013206221 + _z__t45_x6ˍttt_t__d)*_z__tpk10__d + 0.629699332290329*_z__t45_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + 0.569130056947263*_z__tpk9__d*_z__t45_x6ˍttt_t__d*_z__tpk10__d + 3*(-0.0311801953685062 + _z__t45_x6ˍtt_t__d)*_z__t45_x6ˍtt_t__d*_z__tpk10__d + 3*(0.20989977743011 + _z__t45_x6ˍt_t__d)*_z__t45_x6ˍttt_t__d*_z__tpk10__d + (0.569130056947263 + _z__t45_x6_t__d + _z__tpk8__d)*_z__t45_x6ˍtttt_t__d*_z__tpk10__d - 2*_z__t45_x6_t__d*_z__tpk8__d*_z__tpk9__d*_z__t45_x6ˍttt_t__d + 2*_z__t45_x6_t__d*_z__tpk9__d*_z__t45_x6ˍttt_t__d*_z__tpk10__d - 18*_z__t45_x6ˍt_t__d*_z__t45_x6_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d - 6*_z__t45_x6ˍt_t__d*_z__t45_x6ˍtt_t__d*_z__tpk8__d*_z__tpk9__d + 6*_z__t45_x6ˍt_t__d*_z__t45_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + _z__tpk8__d*_z__tpk9__d*_z__t45_x6ˍttt_t__d*_z__tpk10__d
+┌ Warning: At t=0.3751209713568027, dt was forced below floating point epsilon -5.418177960124247e-17, and step error estimate = 1.0114926340275168. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:589
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x7(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(x7(t) => 0.4898032569079869)
+Trivially solvable variables: Dict{Any, Any}(_t45_x5ˍtt_t_ => -0.031180195368506247, _t45_x4ˍt_t_ => -0.3109815400093794, _t45_x5_t_ => 0.5691300569472627, _t45_x5ˍtttt_t_ => -0.00837654565111734, _t45_x4_t_ => 3.2905036983240827, _t45_x5ˍt_t_ => 0.20989977743010968, _t45_x5ˍttttt_t_ => 0.008479967233142816, _t45_x5ˍttt_t_ => 0.009902220132062212, _t45_x4ˍtt_t_ => 0.011113363318145275)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+┌ Warning: At t=4.569309440509039, dt was forced below floating point epsilon 8.881784197001252e-16, and step error estimate = 3.0270453218901445. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+=== Model: BioHydrogenation ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x7(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • x7(t) = 0.489803
+
+
+Found 5 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.002112):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   3.988316 |   0.002921
+x5(t)        |   0.000000 |   0.462153 |   0.462153
+x6(t)        |   0.000000 |  -1.025632 |   1.025632
+x7(t)        |   0.000000 |   0.890222 |   0.890222
+k5           |   0.500000 |   0.500073 |   0.000146
+k6           |   2.000000 |   2.000783 |   0.000391
+k7           |   0.300000 |   0.195054 |   0.349820
+k8           |   1.000000 |   0.563479 |   0.436521
+k9           |   0.200000 |  -0.000000 |   1.000000
+k10          |   5.000000 |  -0.000000 |   1.000000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 2.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000003 |   0.000001
+x5(t)        |   0.000000 |  -0.000052 |   0.000052
+x6(t)        |   0.000000 |  -4.267166 |   4.267166
+x7(t)        |   0.000000 |  -0.302192 |   0.302192
+k5           |   0.500000 |   0.500073 |   0.000146
+k6           |   2.000000 |   2.000783 |   0.000391
+k7           |   0.300000 |  -0.036140 |   1.120466
+k8           |   1.000000 |   4.146233 |   3.146233
+k9           |   0.200000 |  -0.198825 |   1.994125
+k10          |   5.000000 |  -7.607371 |   2.521474
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 2.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000003 |   0.000001
+x5(t)        |   0.000000 |  -0.000052 |   0.000052
+x6(t)        |   0.000000 |   3.340205 |   3.340205
+x7(t)        |   0.000000 |  -0.302192 |   0.302192
+k5           |   0.500000 |   0.500073 |   0.000146
+k6           |   2.000000 |   2.000783 |   0.000391
+k7           |   0.300000 |  -0.036140 |   1.120466
+k8           |   1.000000 |  -3.461138 |   4.461138
+k9           |   0.200000 |   0.198825 |   0.005875
+k10          |   5.000000 |   7.607371 |   0.521474
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000003 |   0.000001
+x5(t)        |   0.000000 |  -0.000086 |   0.000086
+x6(t)        |   0.000000 |   0.134453 |   0.134453
+x7(t)        |   0.000000 |   0.355848 |   0.355848
+k5           |   0.500000 |   0.500073 |   0.000146
+k6           |   2.000000 |   2.000783 |   0.000391
+k7           |   0.300000 |   0.253567 |   0.154776
+k8           |   1.000000 |   0.717773 |   0.282227
+k9           |   0.200000 |   0.635070 |   2.175348
+k10          |   5.000000 |   0.584323 |   0.883135
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000003 |   0.000001
+x5(t)        |   0.000000 |  -0.000086 |   0.000086
+x6(t)        |   0.000000 |  -0.449870 |   0.449870
+x7(t)        |   0.000000 |   0.355848 |   0.355848
+k5           |   0.500000 |   0.500073 |   0.000146
+k6           |   2.000000 |   2.000783 |   0.000391
+k7           |   0.300000 |   0.253567 |   0.154776
+k8           |   1.000000 |   1.302095 |   0.302095
+k9           |   0.200000 |  -0.635070 |   4.175348
+k10          |   5.000000 |  -0.584323 |   1.116865
+
+
+Best approximation error for BioHydrogenation: 1.0e-6
+
+Best maximum relative error for BioHydrogenation (excluding ALL unidentifiable parameters): 1.025632
+[ Info: Running model: global_unident_test
+Starting model: global_unident_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.27668588073703226, x3(t) => 0.3594672330416475, b => 0.7169722419367855)
+DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
+We are trying these points:[78]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(58)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(63)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(26)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(59)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[d, x3(t), b, c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(d => 0.27668588073703226, x3(t) => 0.3594672330416475, b => 0.7169722419367855)
+Trivially solvable variables: Dict{Any, Any}(_t78_x1ˍt_t_ => -0.13609009457286447, _t78_x2ˍt_t_ => 0.6802613828331232, _t78_x2_t_ => 6.195430769410698, _t78_x1_t_ => 1.3609015142696683)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: global_unident_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • d
+  • x3(t)
+  • b
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • d = 0.276686
+  • x3(t) = 0.359467
+  • b = 0.716972
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 1.3e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000826 |   0.000275
+x3(t)        |   4.000000 |  -1.408829 |   1.352207
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.716972 |   2.584861
+c            |   0.300000 |  -0.217111 |   1.723705
+d            |   0.400000 |   0.276686 |   0.308285
+
+
+Best approximation error for global_unident_test: 1.3e-5
+
+Best maximum relative error for global_unident_test (excluding ALL unidentifiable parameters): 0.000275
+[ Info: Running model: sum_test
+Starting model: sum_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.3134678234642012)
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
+We are trying these points:[79]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(82)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(83)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(90)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(86)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(87)
+System of length 10
+ 10 variables: _z__tpa__d, _z__tpb__d, _z__t79_x1_t__d, _z__t79_x2_t__d, _z__t79_x1ˍt_t__d, _z__t79_x2ˍt_t__d, _z__t79_x1ˍtt_t__d, _z__t79_x2ˍtt_t__d, _z__t79_x2ˍttt_t__d, _z__t79_x1ˍttt_t__d
+ 10 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀
+
+ 2.36955851502717 - monodromy_constants₁ - 0.313467823464201*(_z__t79_x1_t__d + _z__t79_x2_t__d)
+ 0.352060252800584 - monodromy_constants₂ - 0.313467823464201*(_z__t79_x1ˍt_t__d + _z__t79_x2ˍt_t__d)
+ 0.0826104692532681 - monodromy_constants₃ - 0.313467823464201*(_z__t79_x1ˍtt_t__d + _z__t79_x2ˍtt_t__d)
+ 0.0151462965004612 - monodromy_constants₄ - 0.313467823464201*(_z__t79_x1ˍttt_t__d + _z__t79_x2ˍttt_t__d)
+ _z__t79_x1ˍt_t__d - monodromy_constants₅ + _z__t79_x1_t__d*_z__tpa__d
+ _z__t79_x2ˍt_t__d - monodromy_constants₆ - _z__t79_x2_t__d*_z__tpb__d
+ _z__t79_x1ˍtt_t__d - monodromy_constants₇ + _z__tpa__d*_z__t79_x1ˍt_t__d
+ _z__t79_x2ˍtt_t__d - monodromy_constants₈ - _z__tpb__d*_z__t79_x2ˍt_t__d
+ _z__t79_x2ˍttt_t__d - monodromy_constants₉ - _z__tpb__d*_z__t79_x2ˍtt_t__d
+ _z__t79_x1ˍttt_t__d - monodromy_constants₁₀ + _z__tpa__d*_z__t79_x1ˍtt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x1(t), x2(t), c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(c => 0.3134678234642012)
+Trivially solvable variables: Dict{Any, Any}(_t79_x3ˍttt_t_ => 0.08261046925326809, _t79_x3ˍt_t_ => 2.3695585150271654, _t79_x3ˍtt_t_ => 0.35206025280058384, _t79_x3_t_ => 11.254287985472768, _t79_x3ˍtttt_t_ => 0.015146296500461176)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: sum_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x1(t)
+  • x2(t)
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • c = 0.313468
+
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 1.9e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.897595 |   0.448797
+x2(t)        |   3.000000 |   1.891890 |   0.369370
+x3(t)        |   4.000000 |   3.998690 |   0.000327
+a            |   0.100000 |  -0.199138 |   2.991378
+b            |   0.200000 |  -0.104350 |   1.521748
+c            |   0.300000 |   0.313468 |   0.044893
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.9e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.891890 |   0.054055
+x2(t)        |   3.000000 |   2.897595 |   0.034135
+x3(t)        |   4.000000 |   3.998690 |   0.000327
+a            |   0.100000 |   0.104350 |   0.043495
+b            |   0.200000 |   0.199138 |   0.004311
+c            |   0.300000 |   0.313468 |   0.044893
+
+
+Best approximation error for sum_test: 1.9e-5
+
+Best maximum relative error for sum_test (excluding ALL unidentifiable parameters): 0.043495
+[ Info: Running model: slowfast
+Starting model: slowfast
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
+We are trying these points:[93]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(61)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(27)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(74)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(51)
+LinearAlgebra.PosDefException(67)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(55)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(49)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(51)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(98)
+System of length 9
+ 9 variables: _z__tpk2__d, _z__tpk1__d, _z__tpeB__d, _z__t93_xA_t__d, _z__t93_xB_t__d, _z__t93_xAˍt_t__d, _z__t93_xBˍt_t__d, _z__t93_xAˍtt_t__d, _z__t93_xBˍtt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ -0.0248254732609956 + 0.666000000034781*_z__t93_xA_t__d - monodromy_constants₁ + _z__t93_xB_t__d*_z__tpeB__d
+ 0.00652087830510895 + 0.666000000034781*_z__t93_xAˍt_t__d - monodromy_constants₂ + _z__t93_xBˍt_t__d*_z__tpeB__d
+ -0.00178698151410475 + 0.666000000034781*_z__t93_xAˍtt_t__d - monodromy_constants₃ + _z__t93_xBˍtt_t__d*_z__tpeB__d
+ _z__t93_xAˍt_t__d - monodromy_constants₄ + _z__t93_xA_t__d*_z__tpk1__d
+ _z__t93_xBˍt_t__d - monodromy_constants₅ - _z__t93_xA_t__d*_z__tpk1__d + _z__t93_xB_t__d*_z__tpk2__d
+ 0.00916053317632759 - monodromy_constants₆ - _z__t93_xB_t__d*_z__tpk2__d
+ _z__t93_xAˍtt_t__d - monodromy_constants₇ + _z__t93_xAˍt_t__d*_z__tpk1__d
+ _z__t93_xBˍtt_t__d - monodromy_constants₈ - _z__t93_xAˍt_t__d*_z__tpk1__d + _z__t93_xBˍt_t__d*_z__tpk2__d
+ -0.00249949804128846 - monodromy_constants₉ - _z__t93_xBˍt_t__d*_z__tpk2__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t93_xC_t_ => 0.9640353665256988, _t93_eAˍt_t_ => 0, _t93_eCˍt_t_ => 0, _t93_eCˍtt_t_ => 0, _t93_eC_t_ => 0.8330000003998711, _t93_eAˍtt_t_ => 0, _t93_eA_t_ => 0.6660000000347809, _t93_xCˍt_t_ => 0.00916053317632759, _t93_xCˍtt_t_ => -0.0024994980412884615)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: slowfast ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 4.0e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |   0.159630 |   0.038375
+xB(t)        |   0.333000 |   0.332286 |   0.002144
+xC(t)        |   0.500000 |   0.507084 |   0.014168
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.249286 |   0.002857
+k2           |   0.500000 |   0.485850 |   0.028300
+eB           |   0.750000 |   0.747632 |   0.003157
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 4.0e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |  -0.155699 |   1.937946
+xB(t)        |   0.333000 |   0.647615 |   0.944789
+xC(t)        |   0.500000 |   0.507084 |   0.014168
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.485850 |   0.943400
+k2           |   0.500000 |   0.249286 |   0.501428
+eB           |   0.750000 |   0.707885 |   0.056154
+
+
+Best approximation error for slowfast: 4.0e-5
+
+Best maximum relative error for slowfast (excluding ALL unidentifiable parameters): 0.038375
+[ Info: Running model: threesp_cubed
+Starting model: threesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
+We are trying these points:[84]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(55)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(67)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(45)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(76)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(76)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(26)
+LinearAlgebra.PosDefException(55)
+LinearAlgebra.PosDefException(89)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(88)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(93)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(48)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(91)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(98)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(92)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(100)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(101)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(39)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(26)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(72)
+LinearAlgebra.PosDefException(85)
+LinearAlgebra.PosDefException(99)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(51)
+LinearAlgebra.PosDefException(51)
+LinearAlgebra.PosDefException(1)
+System of length 9
+ 9 variables: _z__tpa__d, _z__tpb__d, _z__tpc__d, _z__t84_x1_t__d, _z__t84_x2_t__d, _z__t84_x3_t__d, _z__t84_x2ˍt_t__d, _z__t84_x3ˍt_t__d, _z__t84_x1ˍt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ -5.58962141132139 - monodromy_constants₁ + _z__t84_x2_t__d^3
+ 1.95955946110189 - monodromy_constants₂ + 3*_z__t84_x2ˍt_t__d*_z__t84_x2_t__d^2
+ -10.1070257213123 - monodromy_constants₃ + _z__t84_x3_t__d^3
+ 4.36191391944885 - monodromy_constants₄ + 3*_z__t84_x3ˍt_t__d*_z__t84_x3_t__d^2
+ -1.11430774568822 - monodromy_constants₅ + _z__t84_x1_t__d^3
+ 0.572257522493601 - monodromy_constants₆ + 3*_z__t84_x1ˍt_t__d*_z__t84_x1_t__d^2
+ _z__t84_x2ˍt_t__d - monodromy_constants₇ + _z__tpb__d*_z__t84_x1_t__d
+ _z__t84_x3ˍt_t__d - monodromy_constants₈ + _z__tpc__d*_z__t84_x1_t__d
+ _z__t84_x1ˍt_t__d - monodromy_constants₉ + _z__tpa__d*_z__t84_x2_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+
+DEBUG [ODEPEtestwrapper]: Processing solution 10
+
+DEBUG [ODEPEtestwrapper]: Processing solution 11
+
+DEBUG [ODEPEtestwrapper]: Processing solution 12
+
+DEBUG [ODEPEtestwrapper]: Processing solution 13
+
+DEBUG [ODEPEtestwrapper]: Processing solution 14
+
+DEBUG [ODEPEtestwrapper]: Processing solution 15
+
+=== Model: threesp_cubed ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.000111):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000052 |   0.000026
+x2(t)        |   3.000000 |   3.000236 |   0.000079
+x3(t)        |   4.000000 |   4.000101 |   0.000025
+a            |   0.100000 |   0.100001 |   0.000014
+b            |   0.200000 |   0.200039 |   0.000193
+c            |   0.300000 |   0.300012 |   0.000040
+
+
+Best approximation error for threesp_cubed: 0.000111
+
+Best maximum relative error for threesp_cubed (excluding ALL unidentifiable parameters): 0.000193
+[ Info: Running model: onesp_cubed
+Starting model: onesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
+We are trying these points:[51]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(36)
+LinearAlgebra.PosDefException(78)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: onesp_cubed ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+
+
+Best approximation error for onesp_cubed: 0.0
+
+Best maximum relative error for onesp_cubed (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: daisy_ex3
+Starting model: DAISY_ex3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
+We are trying these points:[55]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(97)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(78)
+LinearAlgebra.PosDefException(87)
+LinearAlgebra.PosDefException(94)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(50)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(1)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(35)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(19)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(60)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(37)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(54)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(72)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(71)
+LinearAlgebra.PosDefException(79)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(73)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(75)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(76)
+LinearAlgebra.PosDefException(67)
+LinearAlgebra.PosDefException(77)
+LinearAlgebra.PosDefException(81)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(64)
+LinearAlgebra.PosDefException(64)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(74)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(18)
+LinearAlgebra.PosDefException(29)
+LinearAlgebra.PosDefException(41)
+LinearAlgebra.PosDefException(57)
+LinearAlgebra.PosDefException(59)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(61)
+LinearAlgebra.PosDefException(70)
+LinearAlgebra.PosDefException(69)
+LinearAlgebra.PosDefException(64)
+LinearAlgebra.PosDefException(70)
+System of length 18
+ 18 variables: _z__tpp7__d, _z__tpp3__d, _z__tpp6__d, _z__tpp1__d, _z__tpp4__d, _z__t55_x2_t__d, _z__t55_x3_t__d, _z__t55_x2ˍt_t__d, _z__t55_x2ˍtt_t__d, _z__t55_x2ˍttt_t__d, _z__t55_x2ˍtttt_t__d, _z__t55_x2ˍttttt_t__d, _z__t55_x2ˍtttttt_t__d, _z__t55_x3ˍt_t__d, _z__t55_x3ˍtt_t__d, _z__t55_x3ˍttt_t__d, _z__t55_x3ˍtttt_t__d, _z__t55_x3ˍttttt_t__d
+ 18 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅, monodromy_constants₁₆, monodromy_constants₁₇, monodromy_constants₁₈
+
+ 3.43046043112346 - _z__t55_x2_t__d + 9.33450370290163*_z__tpp1__d - monodromy_constants₁
+ 3.21142371743917 - _z__t55_x2ˍt_t__d + 6.93046236038208*_z__tpp1__d - monodromy_constants₂
+ 2.51800706982613 - _z__t55_x2ˍtt_t__d + 4.21142371743917*_z__tpp1__d - monodromy_constants₃
+ 1.41210351884365 - _z__t55_x2ˍttt_t__d + 2.51800706982613*_z__tpp1__d - monodromy_constants₄
+ 0.80060513317585 - _z__t55_x2ˍtttt_t__d + 1.41210351884365*_z__tpp1__d - monodromy_constants₅
+ 0.595147512853146 - _z__t55_x2ˍttttt_t__d + 0.80060513317585*_z__tpp1__d - monodromy_constants₆
+ 0.00274272263050079 - _z__t55_x2ˍtttttt_t__d + 0.595147512853146*_z__tpp1__d - monodromy_constants₇
+ _z__t55_x2ˍt_t__d - _z__t55_x3_t__d - 9.33450370290163*_z__tpp3__d - monodromy_constants₈ + _z__t55_x2_t__d*_z__tpp4__d
+ _z__t55_x2ˍtt_t__d - _z__t55_x3ˍt_t__d - 6.93046236038208*_z__tpp3__d - monodromy_constants₉ + _z__t55_x2ˍt_t__d*_z__tpp4__d
+ _z__t55_x2ˍttt_t__d - _z__t55_x3ˍtt_t__d - 4.21142371743917*_z__tpp3__d - monodromy_constants₁₀ + _z__tpp4__d*_z__t55_x2ˍtt_t__d
+ _z__t55_x2ˍtttt_t__d - _z__t55_x3ˍttt_t__d - 2.51800706982613*_z__tpp3__d - monodromy_constants₁₁ + _z__tpp4__d*_z__t55_x2ˍttt_t__d
+ _z__t55_x2ˍttttt_t__d - _z__t55_x3ˍtttt_t__d - 1.41210351884365*_z__tpp3__d - monodromy_constants₁₂ + _z__t55_x2ˍtttt_t__d*_z__tpp4__d
+ _z__t55_x2ˍtttttt_t__d - _z__t55_x3ˍttttt_t__d - 0.80060513317585*_z__tpp3__d - monodromy_constants₁₃ + _z__t55_x2ˍttttt_t__d*_z__tpp4__d
+ _z__t55_x3ˍt_t__d - 9.33450370290163*_z__tpp6__d - monodromy_constants₁₄ + _z__t55_x3_t__d*_z__tpp7__d
+ _z__t55_x3ˍtt_t__d - 6.93046236038208*_z__tpp6__d - monodromy_constants₁₅ + _z__t55_x3ˍt_t__d*_z__tpp7__d
+ _z__t55_x3ˍttt_t__d - 4.21142371743917*_z__tpp6__d - monodromy_constants₁₆ + _z__t55_x3ˍtt_t__d*_z__tpp7__d
+ _z__t55_x3ˍtttt_t__d - 2.51800706982613*_z__tpp6__d - monodromy_constants₁₇ + _z__t55_x3ˍttt_t__d*_z__tpp7__d
+ _z__t55_x3ˍttttt_t__d - 1.41210351884365*_z__tpp6__d - monodromy_constants₁₈ + _z__t55_x3ˍtttt_t__d*_z__tpp7__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t55_x1ˍttttt_t_ => 0.8006051331758499, _t55_u0ˍt_t_ => 1.0, _t55_x1ˍtttttt_t_ => 0.5951475128531456, _t55_x1ˍttt_t_ => 2.518007069826126, _t55_u0ˍttttt_t_ => 0, _t55_x1ˍtttt_t_ => 1.4121035188436508, _t55_u0ˍtttttt_t_ => 0, _t55_u0ˍttt_t_ => 0, _t55_x1ˍt_t_ => 6.93046236038208, _t55_u0ˍtttt_t_ => 0, _t55_u0ˍtt_t_ => 0, _t55_x1_t_ => 9.334503702901628, _t55_x1ˍtt_t_ => 4.211423717439175, _t55_x1ˍttttttt_t_ => 0.0027427226305007935, _t55_u0_t_ => 3.5000019292586226)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_ex3 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.000588):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.295112 |   0.475561
+x2(t)        |   0.400000 |   0.275398 |   0.311506
+x3(t)        |   0.600000 |   1.498241 |   1.497068
+u0(t)        |   0.800000 |   0.800002 |   0.000002
+p1           |   0.167000 |   0.720760 |   3.315929
+p3           |   0.333000 |   1.456792 |   3.374751
+p4           |   0.500000 |   0.561654 |   0.123309
+p6           |   0.667000 |   0.039745 |   0.940412
+p7           |   0.833000 |   0.970766 |   0.165386
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.000588):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.295112 |   0.475561
+x2(t)        |   0.400000 |   0.275398 |   0.311506
+x3(t)        |   0.600000 |   1.610909 |   1.684849
+u0(t)        |   0.800000 |   0.800002 |   0.000002
+p1           |   0.167000 |   0.720760 |   3.315929
+p3           |   0.333000 |   1.456792 |   3.374751
+p4           |   0.500000 |   0.970766 |   0.941533
+p6           |   0.667000 |   0.635737 |   0.046871
+p7           |   0.833000 |   0.561654 |   0.325745
+
+
+Best approximation error for DAISY_ex3: 0.000588
+
+Best maximum relative error for DAISY_ex3 (excluding ALL unidentifiable parameters): 3.374751
+[ Info: Running model: daisy_mamil4
+Starting model: DAISY_mamil4
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
+We are trying these points:[10]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(33)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(34)
+LinearAlgebra.PosDefException(59)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(49)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(55)
+LinearAlgebra.PosDefException(84)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(66)
+LinearAlgebra.PosDefException(72)
+LinearAlgebra.PosDefException(62)
+LinearAlgebra.PosDefException(55)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(22)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(28)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(54)
+LinearAlgebra.PosDefException(82)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(44)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(59)
+LinearAlgebra.PosDefException(96)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(17)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(45)
+System of length 22
+ 22 variables: _z__tpk12__d, _z__tpk21__d, _z__tpk01__d, _z__tpk14__d, _z__tpk13__d, _z__tpk31__d, _z__tpk41__d, _z__t10_x2_t__d, _z__t10_x3_t__d, _z__t10_x4_t__d, _z__t10_x4ˍt_t__d, _z__t10_x3ˍt_t__d, _z__t10_x3ˍtt_t__d, _z__t10_x4ˍtt_t__d, _z__t10_x4ˍttt_t__d, _z__t10_x3ˍttt_t__d, _z__t10_x4ˍtttt_t__d, _z__t10_x3ˍtttt_t__d, _z__t10_x2ˍt_t__d, _z__t10_x2ˍtt_t__d, _z__t10_x2ˍttt_t__d, _z__t10_x2ˍtttt_t__d
+ 22 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅, monodromy_constants₁₆, monodromy_constants₁₇, monodromy_constants₁₈, monodromy_constants₁₉, monodromy_constants₂₀, monodromy_constants₂₁, monodromy_constants₂₂
+
+ -1.30397195766046 + _z__t10_x3_t__d + _z__t10_x4_t__d - monodromy_constants₁
+ 0.153910827279248 + _z__t10_x3ˍt_t__d + _z__t10_x4ˍt_t__d - monodromy_constants₂
+ -0.176258325799154 + _z__t10_x3ˍtt_t__d + _z__t10_x4ˍtt_t__d - monodromy_constants₃
+ 0.420422523968682 + _z__t10_x3ˍttt_t__d + _z__t10_x4ˍttt_t__d - monodromy_constants₄
+ -1.13307954886113 + _z__t10_x3ˍtttt_t__d + _z__t10_x4ˍtttt_t__d - monodromy_constants₅
+ _z__t10_x4ˍt_t__d - 0.261820614904974*_z__tpk41__d - monodromy_constants₆ + _z__t10_x4_t__d*_z__tpk14__d
+ _z__t10_x3ˍt_t__d - 0.261820614904974*_z__tpk31__d - monodromy_constants₇ + _z__t10_x3_t__d*_z__tpk13__d
+ _z__t10_x3ˍtt_t__d - 0.0627543729652942*_z__tpk31__d - monodromy_constants₈ + _z__t10_x3ˍt_t__d*_z__tpk13__d
+ _z__t10_x4ˍtt_t__d - 0.0627543729652942*_z__tpk41__d - monodromy_constants₉ + _z__t10_x4ˍt_t__d*_z__tpk14__d
+ _z__t10_x4ˍttt_t__d + 0.208713506794311*_z__tpk41__d - monodromy_constants₁₀ + _z__t10_x4ˍtt_t__d*_z__tpk14__d
+ _z__t10_x3ˍttt_t__d + 0.208713506794311*_z__tpk31__d - monodromy_constants₁₁ + _z__t10_x3ˍtt_t__d*_z__tpk13__d
+ _z__t10_x4ˍtttt_t__d - 0.582998340637459*_z__tpk41__d - monodromy_constants₁₂ + _z__t10_x4ˍttt_t__d*_z__tpk14__d
+ _z__t10_x3ˍtttt_t__d - 0.582998340637459*_z__tpk31__d - monodromy_constants₁₃ + _z__t10_x3ˍttt_t__d*_z__tpk13__d
+ 0.0627543729652942 + 0.261820614904974*_z__tpk01__d + 0.261820614904974*_z__tpk21__d + 0.261820614904974*_z__tpk31__d + 0.261820614904974*_z__tpk41__d - monodromy_constants₁₄ - _z__t10_x2_t__d*_z__tpk12__d - _z__t10_x3_t__d*_z__tpk13__d - _z__t10_x4_t__d*_z__tpk14__d
+ -0.208713506794311 + 0.0627543729652942*_z__tpk01__d + 0.0627543729652942*_z__tpk21__d + 0.0627543729652942*_z__tpk31__d + 0.0627543729652942*_z__tpk41__d - monodromy_constants₁₅ - _z__t10_x2ˍt_t__d*_z__tpk12__d - _z__t10_x3ˍt_t__d*_z__tpk13__d - _z__t10_x4ˍt_t__d*_z__tpk14__d
+ 0.582998340637459 - 0.208713506794311*_z__tpk01__d - 0.208713506794311*_z__tpk21__d - 0.208713506794311*_z__tpk31__d - 0.208713506794311*_z__tpk41__d - monodromy_constants₁₆ - _z__t10_x2ˍtt_t__d*_z__tpk12__d - _z__t10_x3ˍtt_t__d*_z__tpk13__d - _z__t10_x4ˍtt_t__d*_z__tpk14__d
+ -1.60449224234253 + 0.582998340637459*_z__tpk01__d + 0.582998340637459*_z__tpk21__d + 0.582998340637459*_z__tpk31__d + 0.582998340637459*_z__tpk41__d - monodromy_constants₁₇ - _z__t10_x2ˍttt_t__d*_z__tpk12__d - _z__t10_x3ˍttt_t__d*_z__tpk13__d - _z__t10_x4ˍttt_t__d*_z__tpk14__d
+ 4.41745512506895 - 1.60449224234253*_z__tpk01__d - 1.60449224234253*_z__tpk21__d - 1.60449224234253*_z__tpk31__d - 1.60449224234253*_z__tpk41__d - monodromy_constants₁₈ - _z__t10_x2ˍtttt_t__d*_z__tpk12__d - _z__t10_x3ˍtttt_t__d*_z__tpk13__d - _z__t10_x4ˍtttt_t__d*_z__tpk14__d
+ _z__t10_x2ˍt_t__d - 0.261820614904974*_z__tpk21__d - monodromy_constants₁₉ + _z__t10_x2_t__d*_z__tpk12__d
+ _z__t10_x2ˍtt_t__d - 0.0627543729652942*_z__tpk21__d - monodromy_constants₂₀ + _z__t10_x2ˍt_t__d*_z__tpk12__d
+ _z__t10_x2ˍttt_t__d + 0.208713506794311*_z__tpk21__d - monodromy_constants₂₁ + _z__t10_x2ˍtt_t__d*_z__tpk12__d
+ _z__t10_x2ˍtttt_t__d - 0.582998340637459*_z__tpk21__d - monodromy_constants₂₂ + _z__t10_x2ˍttt_t__d*_z__tpk12__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t10_x1ˍttttt_t_ => 4.417455125068955, _t10_x1ˍtttt_t_ => -1.6044922423425305, _t10_x1_t_ => 0.26182061490497416, _t10_x1ˍt_t_ => 0.06275437296529418, _t10_x1ˍttt_t_ => 0.5829983406374595, _t10_x1ˍtt_t_ => -0.2087135067943109)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_mamil4 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.007013):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200005 |   0.000023
+x2(t)        |   0.400000 |   0.389979 |   0.025053
+x3(t)        |   0.600000 |   1.268559 |   1.114265
+x4(t)        |   0.800000 |   0.131438 |   0.835702
+k01          |   0.125000 |   0.130910 |   0.047278
+k12          |   0.250000 |   0.255990 |   0.023961
+k13          |   0.375000 |   0.580025 |   0.546734
+k14          |   0.500000 |  -1.657119 |   4.314237
+k21          |   0.625000 |   0.618302 |   0.010717
+k31          |   0.750000 |   1.955256 |   1.607008
+k41          |   0.875000 |  -0.865183 |   1.988781
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.007013):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200005 |   0.000023
+x2(t)        |   0.400000 |   0.389979 |   0.025053
+x3(t)        |   0.600000 |   0.131438 |   0.780936
+x4(t)        |   0.800000 |   1.268559 |   0.585699
+k01          |   0.125000 |   0.130910 |   0.047278
+k12          |   0.250000 |   0.255990 |   0.023961
+k13          |   0.375000 |  -1.657119 |   5.418983
+k14          |   0.500000 |   0.580025 |   0.160050
+k21          |   0.625000 |   0.618302 |   0.010717
+k31          |   0.750000 |  -0.865183 |   2.153577
+k41          |   0.875000 |   1.955256 |   1.234578
+
+
+Best approximation error for DAISY_mamil4: 0.007013
+
+Best maximum relative error for DAISY_mamil4 (excluding ALL unidentifiable parameters): 4.314237
+[ Info: Running model: two_compartment_pk
+Starting model: two_compartment_pk
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.1974971225729345, V1 => 0.19687932499765648, V2 => 0.3979611062857923)
+DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
+We are trying these points:[61]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+LinearAlgebra.PosDefException(17)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(51)
+LinearAlgebra.PosDefException(21)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(14)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(20)
+LinearAlgebra.PosDefException(42)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(12)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(25)
+LinearAlgebra.PosDefException(40)
+LinearAlgebra.PosDefException(31)
+LinearAlgebra.PosDefException(38)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(15)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(13)
+LinearAlgebra.PosDefException(24)
+LinearAlgebra.PosDefException(16)
+LinearAlgebra.PosDefException(32)
+LinearAlgebra.PosDefException(47)
+LinearAlgebra.PosDefException(95)
+LinearAlgebra.PosDefException(46)
+LinearAlgebra.PosDefException(56)
+LinearAlgebra.PosDefException(63)
+LinearAlgebra.PosDefException(53)
+LinearAlgebra.PosDefException(68)
+LinearAlgebra.PosDefException(52)
+LinearAlgebra.PosDefException(61)
+LinearAlgebra.PosDefException(43)
+LinearAlgebra.PosDefException(58)
+LinearAlgebra.PosDefException(65)
+LinearAlgebra.PosDefException(56)
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[k12, k21, V1, C2(t), V2, ke])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(k12 => 0.1974971225729345, V1 => 0.19687932499765648, V2 => 0.3979611062857923)
+Trivially solvable variables: Dict{Any, Any}(_t61_C1ˍtt_t_ => 0.0013284748420119286, _t61_C1ˍt_t_ => -0.0314934179186821, _t61_C1_t_ => 0.7190450525881157, _t61_C1ˍttt_t_ => -6.179790943861008e-5)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: two_compartment_pk ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • k12
+  • k21
+  • V1
+  • C2(t)
+  • V2
+  • ke
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • k12 = 0.197497
+  • V1 = 0.196879
+  • V2 = 0.397961
+
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.049601):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.513029 |   0.748697
+C2(t)        |   0.000000 |  -0.745960 |   0.745960
+k12          |   0.500000 |   0.197497 |   0.605006
+k21          |   0.250000 |  -0.285796 |   2.143184
+ke           |   0.150000 |   0.017339 |   0.884405
+V1           |   1.000000 |   0.196879 |   0.803121
+V2           |   2.000000 |   0.397961 |   0.801019
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.049601):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.513029 |   0.748697
+C2(t)        |   0.000000 |  -9.439777 |   9.439777
+k12          |   0.500000 |   0.197497 |   0.605006
+k21          |   0.250000 |   0.017339 |   0.930643
+ke           |   0.150000 |  -0.285796 |   2.905306
+V1           |   1.000000 |   0.196879 |   0.803121
+V2           |   2.000000 |   0.397961 |   0.801019
+
+
+Best approximation error for two_compartment_pk: 0.049601
+
+Best maximum relative error for two_compartment_pk (excluding ALL unidentifiable parameters): 0.748697

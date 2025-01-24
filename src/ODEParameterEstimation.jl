@@ -11,20 +11,84 @@ using PrecompileTools
 using ForwardDiff
 using Random
 using DelimitedFiles
-#using PEtab
 using DataFrames
 using CSV
 using Printf
 using GaussianProcesses
 using Statistics
-using Optim, LineSearches  # for Nelder-Mead, remove this later maybe
+using Optim, LineSearches
 using Plots
+
+
+using ModelingToolkit
+using OrderedCollections
+using LinearAlgebra
+using Random
+using ForwardDiff
+
+
+
+using ModelingToolkit, OrdinaryDiffEq, DataFrames, Optim
+using PEtab
+using OrderedCollections
+using Statistics
+using SymbolicIndexingInterface
+using ODEParameterEstimation
+
+
+
+
+
+
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
 const package_wide_default_ode_solver = AutoVern9(Rodas4P())
-#package_wide_default_ode_solver = Vern9()
 
+# Remove old includes
+#include("utils.jl")
+#include("SharedUtils.jl")
+#include("bary_derivs.jl")
+#include("sample_data.jl")
+#include("equation_solvers.jl")
+#include("test_utils.jl")
+
+# Include core types first
+include("types/core_types.jl")
+
+# Include utility modules
+include("utils/math_utils.jl")
+include("utils/model_utils.jl")
+include("utils/data_utils.jl")
+include("utils/analysis_utils.jl")
+
+# Include core functionality
+include("core/solvers/homotopy_continuation.jl")
+include("core/solvers/parameter_estimation.jl")
+include("analysis/clustering.jl")
+include("data/derivatives.jl")
+include("data/sampling.jl")
+include("petab/loader.jl")
+include("utils/testing_utils.jl")
+
+# Export types
+export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, DerivativeData
+
+# Export constants
+export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
+
+# Export core functions
+export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation
+
+# Export utility functions
+export unpack_ODE, tag_symbol, create_ordered_ode_system
+export add_relative_noise, sample_problem_data, calculate_error_stats
+export analyze_estimation_result, print_stats_table
+export clear_denoms, hmcs, analyze_parameter_estimation_problem
+export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at
+
+# Export PEtab integration
+export load_model
 
 """
 	ParameterEstimationResult
@@ -55,32 +119,6 @@ mutable struct ParameterEstimationResult
 	all_unidentifiable::Set{Any}
 	solution::Union{Nothing, Any}
 end
-
-# Single constructor with type conversion and default values
-#function ParameterEstimationResult(
-#	parameters::AbstractDict,
-#	states::AbstractDict,
-#	at_time::Float64,
-#	err::Union{Nothing, Float64},
-#	return_code::Any,
-#	datasize::Int64,
-#	report_time::Any,
-#	unident_dict::Union{Nothing, Dict, AbstractDict} = nothing,
-#	all_unidentifiable::Set{Any} = Set{Any}(),
-#	solution::Union{Nothing, Any} = nothing,
-#)
-# Convert Dict to AbstractDict if needed
-#	processed_dict = if unident_dict isa Dict
-#		convert(AbstractDict, unident_dict)
-#	else
-# unident_dict
-#	end
-#
-#	ParameterEstimationResult(
-#		parameters, states, at_time, err, return_code,
-#		datasize, report_time, processed_dict, all_unidentifiable, solution,
-#	)
-#end
 
 """
 	DerivativeData
@@ -113,14 +151,6 @@ mutable struct DerivativeData
 	all_unidentifiable::Set{Any}
 end
 
-include("utils.jl")
-include("SharedUtils.jl")
-include("bary_derivs.jl")
-include("sample_data.jl")
-include("equation_solvers.jl")
-#include("single-point.jl")
-include("test_utils.jl")
-
 """
 	handle_simple_substitutions(eqns, varlist)
 
@@ -138,7 +168,6 @@ function handle_simple_substitutions(eqns, varlist)
 	filtered_eqns = typeof(eqns)()
 	trivial_vars = []
 	for i in eqns
-
 		g = Symbolics.get_variables(i)
 		if (length(g) == 1 && Symbolics.degree(i) == 1)
 			thisvar = g[1]
@@ -161,9 +190,6 @@ function handle_simple_substitutions(eqns, varlist)
 	return filtered_eqns, reduced_varlist, trivial_vars, trivial_dict
 end
 
-
-
-
 """
 	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
 
@@ -183,11 +209,6 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
-
-	states_count = length(model_states)
-	ps_count = length(model_ps)
-	D = Differential(t)
-
 	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
 
 	#First, we fully substitute values we have chosen for an unidentifiable variables.
@@ -195,7 +216,6 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 
 	model_eq_cleared = clear_denoms.(model_eq)
 	measured_quantities_cleared = clear_denoms.(measured_quantities)
-
 
 	DD.states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
 	DD.states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
@@ -207,9 +227,8 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
 	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
 
-
 	for i in 1:(max_deriv_level-2)
-		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))  #this constructs the derivatives of the state equations
+		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
 		temp = DD.states_rhs[end]
 		temp2 = D.(temp)
 		temp3 = deepcopy(temp2)
@@ -219,14 +238,15 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 			push!(temp4, deepcopy(temptemp))
 		end
 		push!(DD.states_rhs, temp4)
-		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))  #this constructs the derivatives of the state equations
+		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
 		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
 	end
+
 	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
 		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
-		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j])) #applies differential operator everywhere.  
+		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
 		DD.states_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs_cleared[i][j]))
-		DD.states_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs_cleared[i][j])) #applies differential operator everywhere.  
+		DD.states_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs_cleared[i][j]))
 	end
 
 	for i in 1:(max_deriv_level-1)
@@ -234,7 +254,6 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
 		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
 		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
-
 	end
 
 	for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
@@ -242,782 +261,8 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 		DD.obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs[i][j]))
 		DD.obs_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs_cleared[i][j]))
 		DD.obs_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs_cleared[i][j]))
-
 	end
 	return DD
 end
 
-
-
-"""
-	multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
-								  varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
-
-Compute the numerical Jacobian at multiple points.
-the multiple points have different values for states, but the same parameters.
-
-
-# Arguments
-- `model`: The ODE model
-- `measured_quantities_in`: Input measured quantities
-- `max_deriv_level::Int`: Maximum derivative level
-- `max_num_points`: Maximum number of points
-- `unident_dict`: Dictionary of unidentifiable variables
-- `varlist`: List of variables
-- `param_dict`: Dictionary of parameters
-- `ic_dict_vector`: Vector of initial condition dictionaries
-- `values_dict`: Dictionary of values; we just use this to copy its shape
-- `DD`: DerivativeData object (optional)
-
-# Returns
-- Tuple containing the Jacobian matrix and DerivativeData object
-"""
-
-
-function multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
-	varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	measured_quantities = deepcopy(measured_quantities_in)
-
-	states_count = length(model_states)
-	ps_count = length(model_ps)
-	D = Differential(t)
-	subst_dict = Dict()
-
-	num_real_params = length(keys(param_dict))
-	num_real_states = length(keys(ic_dict_vector[1]))
-
-
-	if (DD == :nothing)
-		DD = populate_derivatives(model, measured_quantities, max_deriv_level, unident_dict)
-	end
-
-	function f(param_and_ic_values_vec)
-
-		obs_deriv_vals = []
-		for k in eachindex(ic_dict_vector)
-			evaluated_subst_dict = OrderedDict{Any, Any}(deepcopy(values_dict))
-			thekeys = collect(keys(evaluated_subst_dict))
-			for i in 1:num_real_params
-				evaluated_subst_dict[thekeys[i]] = param_and_ic_values_vec[i]  #this sets just the params
-			end
-			for i in 1:num_real_states  #this is wrong replace this
-				evaluated_subst_dict[thekeys[i+num_real_params]] =  #check this?
-					param_and_ic_values_vec[(k-1)*num_real_states+num_real_params+i]
-			end
-
-			for i in eachindex(DD.states_rhs)
-				for j in eachindex(DD.states_rhs[i])
-					evaluated_subst_dict[DD.states_lhs[i][j]] = substitute(DD.states_rhs[i][j], evaluated_subst_dict)
-				end
-			end
-			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
-				push!(obs_deriv_vals, (substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
-			end
-		end
-		return obs_deriv_vals
-	end
-
-	full_values = collect(values(param_dict))
-	for k in eachindex(ic_dict_vector)
-		append!(full_values, collect(values(ic_dict_vector[k])))
-	end
-	matrix = ForwardDiff.jacobian(f, full_values)
-	return Matrix{Float64}(matrix), DD
-
-end
-
-
-"""
-	multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_num_points, deriv_count, num_points_used)
-
-Create a view of the Jacobian matrix for specific derivative levels and points.
-
-# Arguments
-- `evaluated_jac`: Evaluated Jacobian matrix
-- `deriv_level`: Dictionary of derivative levels for each observable
-- `num_obs`: Number of observables
-- `max_num_points`: Maximum number of points
-- `deriv_count`: Total number of derivatives
-- `num_points_used`: Number of points actually used
-
-# Returns
-- View of the Jacobian matrix
-"""
-function multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_num_points, deriv_count, num_points_used)
-	function linear_index(which_obs, this_deriv_level, this_point)
-		return this_deriv_level * num_obs + which_obs + (this_point - 1) * num_obs * (deriv_count + 1)
-	end
-	view_array = []
-	for k in 1:num_points_used
-		for (which_observable, max_deriv_level_this) in deriv_level
-			for j in 0:max_deriv_level_this
-				push!(view_array, linear_index(which_observable, j, k))
-			end
-		end
-	end
-	return view(evaluated_jac, view_array, :)
-
-end
-
-
-
-"""
-	multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
-
-Perform local identifiability analysis at multiple points.
-
-# Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities`: Measured quantities
-- `max_num_points`: Maximum number of points to use
-- `rtol`: Relative tolerance (default: 1e-12)
-- `atol`: Absolute tolerance (default: 1e-12)
-
-# Returns
-- Tuple containing derivative levels, unidentifiable dictionary, variable list, and DerivativeData object
-"""
-function multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
-	#println("\nDEBUG [multipoint_local_identifiability_analysis]: Starting analysis...")
-	#println("DEBUG [multipoint_local_identifiability_analysis]: System: ", model)
-	#println("DEBUG [multipoint_local_identifiability_analysis]: Measured quantities: ", measured_quantities)
-
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	varlist = Vector{Num}(vcat(model_ps, model_states))
-	#println("DEBUG [multipoint_local_identifiability_analysis]: Initial varlist: ", varlist)
-
-	states_count = length(model_states)
-	ps_count = length(model_ps)
-	D = Differential(t)
-
-	#first, we construct a single (consistent) set of parameters, and n different sets of initial conditions
-	parameter_values = Dict([p => rand(Float64) for p in ModelingToolkit.parameters(model)])
-	points_ics = []
-	test_points = []
-	ordered_test_points = []
-
-	for i in 1:max_num_points
-		initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
-		test_point = merge(parameter_values, initial_conditions)
-		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
-		for i in model_ps
-			ordered_test_point[i] = parameter_values[i]
-		end
-		for i in model_states
-			ordered_test_point[i] = initial_conditions[i]
-		end
-		push!(points_ics, deepcopy(initial_conditions))
-		push!(test_points, deepcopy(test_point))
-		push!(ordered_test_points, deepcopy(ordered_test_point))
-	end
-
-	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)  #check this is sufficient, for the number of derivatives to take
-	#see comment from non-multipoint version
-	n = max(n, 3)
-	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
-	unident_dict = Dict()
-	#println("DEBUG [multipoint_local_identifiability_analysis]: Initial unident_dict: ", unident_dict)
-
-	jac = nothing
-	evaluated_jac = nothing
-	DD = nothing
-	unident_set = Set{Any}()
-
-	all_identified = false
-	while (!all_identified)
-		#println("\nDEBUG [multipoint_local_identifiability_analysis]: Starting iteration with unident_dict: ", unident_dict)
-		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
-			parameter_values, points_ics, ordered_test_points[1]))
-		ns = nullspace(evaluated_jac)
-
-		if (!isempty(ns))
-			candidate_plugins_for_unidentified = OrderedDict()
-			for i in eachindex(varlist)
-				if (!isapprox(norm(ns[i, :]), 0.0, atol = atol))
-					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
-					push!(unident_set, varlist[i])
-				end
-			end
-			#println("DEBUG [multipoint_local_identifiability_analysis]: Found candidates: ", candidate_plugins_for_unidentified)
-			if (!isempty(candidate_plugins_for_unidentified))
-				p = first(candidate_plugins_for_unidentified)
-				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
-				for k in eachindex(points_ics)
-					delete!(points_ics[k], p.first)
-					delete!(ordered_test_points[k], p.first)
-					delete!(parameter_values, p.first)
-				end
-				unident_dict[p.first] = p.second
-				#println("DEBUG [multipoint_local_identifiability_analysis]: Updated unident_dict: ", unident_dict)
-			else
-				all_identified = true
-			end
-		else
-			all_identified = true
-		end
-	end
-
-	#println("\nDEBUG [multipoint_local_identifiability_analysis]: Final results:")
-	#println("DEBUG [multipoint_local_identifiability_analysis]: deriv_level: ", deriv_level)
-	#println("DEBUG [multipoint_local_identifiability_analysis]: unident_dict: ", unident_dict)
-	#println("DEBUG [multipoint_local_identifiability_analysis]: varlist: ", varlist)
-	#println("DEBUG [multipoint_local_identifiability_analysis]: unident_set: ", unident_set)
-
-	max_rank = rank(evaluated_jac, rtol = rtol)
-	maxn = n
-	while (n > 0)
-		n = n - 1
-		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
-		reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
-		r = rank(reduced_evaluated_jac, rtol = rtol)
-		if (r < max_rank)
-			n = n + 1
-			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
-			break
-		end
-	end
-
-	keep_looking = true
-	while (keep_looking)
-		improvement_found = false
-		sorting = collect(deriv_level)
-		sorting = sort(sorting, by = (x -> x[2]), rev = true)
-		for i in keys(deriv_level)
-			if (deriv_level[i] > 0)
-				deriv_level[i] = deriv_level[i] - 1
-				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
-
-				r = rank(reduced_evaluated_jac, rtol = rtol)
-				if (r < max_rank)
-					deriv_level[i] = deriv_level[i] + 1
-				else
-					improvement_found = true
-					break
-				end
-			else
-				temp = pop!(deriv_level, i)
-				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
-
-				r = rank(reduced_evaluated_jac, rtol = rtol)
-				if (r < max_rank)
-					deriv_level[i] = temp
-				else
-					improvement_found = true
-					break
-				end
-			end
-		end
-		keep_looking = improvement_found
-	end
-	DD.all_unidentifiable = unident_set
-	return (deriv_level, unident_dict, varlist, DD)
-end
-
-
-"""
-	construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
-							  deriv_level, unident_dict, varlist, DD, time_index_set = nothing, return_parameterized_system = false)
-
-Construct an equation system for parameter estimation.
-
-# Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities_in`: Input measured quantities
-- `data_sample`: Sample data
-- `deriv_level`: Dictionary of derivative levels
-- `unident_dict`: Dictionary of unidentifiable variables
-- `varlist`: List of variables
-- `DD`: DerivativeData object
-- `time_index_set`: Set of time indices (optional)
-- `return_parameterized_system`: Whether to return a parameterized system (optional, default: false)
-
-# Returns
-- Tuple containing the target equations and variable list
-"""
-function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
-	deriv_level, unident_dict, varlist, DD, time_index_set = nothing, return_parameterized_system = false)  #return_parameterized_system not supported yet
-
-	measured_quantities = deepcopy(measured_quantities_in)
-	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	D = Differential(t)
-
-	t_vector = pop!(data_sample, "t")
-	time_interval = (minimum(t_vector), maximum(t_vector))
-	if (isnothing(time_index_set))
-		time_index_set = [fld(length(t_vector), 2)]  #TODO add vector handling 
-	end
-	time_index = time_index_set[1]
-
-	interpolants = Dict()
-	for j in measured_quantities
-		r = j.rhs
-		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
-		#		display(key)
-		#		display(typeof(key))
-		#		temp = collect(keys(data_sample))
-
-		#		display(temp)
-		#		display(typeof(temp))
-		#		display(temp[1])
-		#		display(typeof(temp[1]))
-		y_vector = data_sample[key]
-		interpolants[r] = aaad(t_vector, y_vector)
-	end
-
-	#handle unidentifiable variables, just substituting for them
-	unident_subst!(model_eq, measured_quantities, unident_dict)
-
-	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
-
-	#We begin building a system of equations which will be solved, e.g. by homotopoy continuation.
-	#the first set of equations, built below, constrains the observables values and their derivatives 
-	#to values determined by interpolation.
-	target = []  # TODO give this a type later
-	for (key, value) in deriv_level  # 0 means include the observation itself, 1 means first derivative
-		push!(target, DD.obs_rhs_cleared[1][key] - DD.obs_lhs_cleared[1][key])
-		for i in 1:value
-			push!(target, DD.obs_rhs_cleared[i+1][key] - DD.obs_lhs_cleared[i+1][key])
-		end
-	end
-	interpolated_values_dict = Dict()
-	for (key, value) in deriv_level
-		interpolated_values_dict[DD.obs_lhs[1][key]] =
-			nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
-		for i in 1:value
-			interpolated_values_dict[DD.obs_lhs[i+1][key]] =
-				nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
-		end
-	end
-
-	#if (!return_parameterized_system)
-	for i in eachindex(target)
-		target[i] = substitute(target[i], interpolated_values_dict)
-	end
-	#end
-
-	#Now, we scan for state variables and their derivatives we need values for.
-	#We add precisely the state variables we need and no more.
-	#This forces the system to be square.
-	vars_needed = OrderedSet()
-	vars_added = OrderedSet()
-
-	vars_needed = union(vars_needed, model_ps)
-	vars_needed = union(vars_needed, model_states)
-	vars_needed = setdiff(vars_needed, keys(unident_dict))
-
-	keep_adding = true
-	while (keep_adding)
-		added = false
-		for i in target
-			for j in Symbolics.get_variables(i)
-				push!(vars_needed, j)
-			end
-		end
-
-		for i in setdiff(vars_needed, vars_added)
-			for j in eachindex(DD.states_lhs), k in eachindex(DD.states_lhs[j])
-				if (isequal(DD.states_lhs[j][k], i))
-					push!(target, DD.states_lhs_cleared[j][k] - DD.states_rhs_cleared[j][k])
-					added = true
-					push!(vars_added, i)
-				end
-			end
-		end
-		diff_set = setdiff(vars_needed, vars_added)
-		keep_adding = !isempty(diff_set) && added
-	end
-
-	push!(data_sample, ("t" => t_vector)) #TODO(orebas) maybe don't pop this in the first place
-
-
-	return_var = collect(vars_needed)
-
-	return target, return_var
-
-end
-
-
-
-"""
-	squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
-
-Make a polynomial system square by removing equations.
-
-# Arguments
-- `poly_system`: Polynomial system to squarify
-- `varlist`: List of variables
-- `rtol`: Relative tolerance (default: 1e-12)
-
-# Returns
-- Tuple containing the new system, variable list, and trashed equations
-"""
-function squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
-	mat = ModelingToolkit.jacobian(poly_system, varlist)
-	vsubst = Dict([p => rand(Float64) for p in varlist])
-	numerical_mat = Matrix{Float64}(Symbolics.value.((substitute.(mat, Ref(vsubst)))))
-	target_rank = rank(numerical_mat, rtol = rtol)
-	currentlist = 1:length(poly_system)
-	trashlist = []
-	keep_looking = true
-	while (keep_looking)
-		improvement_found = false
-		for j in currentlist
-			newlist = filter(x -> x != j, currentlist)
-			jac_view = view(numerical_mat, newlist, :)
-			rank2 = rank(jac_view, rtol = rtol)
-			if (rank2 == target_rank)
-				improvement_found = true
-				currentlist = newlist
-				push!(trashlist, j)
-				break
-			end
-		end
-		keep_looking = improvement_found
-	end
-	new_system = [poly_system[i] for i in currentlist]
-	trash_system = [poly_system[i] for i in trashlist]
-
-	#println("we trash these: (line 708)")
-	#display(trash_system)
-
-	return new_system, varlist, trash_system
-end
-
-
-"""
-	pick_points(vec, n)
-
-Select n points from a vector, trying to spread them out.
-TODO:  this can be improved, taking the measured_data into account
-TODO:  actually, for now, it's just random (and therefore nondeterministic)
-I haven't tested this (i.e. justified it), but by default, we avoid the endpoints.
-n is assumed to be less than length(vec)
-
-# Arguments
-- `vec`: Vector to pick points from
-- `n`: Number of points to pick
-
-# Returns
-- Vector of selected indices
-"""
-function pick_points(vec, n)
-	if (n == length(vec))
-		return 1:n
-	elseif (n == length(vec) - 1)
-		return 1:(n-1)
-	elseif (n == length(vec) - 2)
-		return 2:(n-1)
-	else
-		l = length(vec)
-		perm = randperm(l - 2) .+ 1
-		reduced = perm[1:n]
-		#res = [ [1] ; reduced ; [l]]
-		sort!(reduced)
-		return reduced
-	end
-end
-
-
-"""
-	MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
-
-Perform Multi-point Homotopy Continuation Parameter Estimation.
-
-# Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities`: Measured quantities
-- `data_sample`: Sample data
-- `ode_solver`: ODE solver to use
-- `system_solver`: System solver function (optional, default: solve_with_hc)
-- `display_points`: Whether to display points (optional, default: true)
-- `max_num_points`: Maximum number of points to use (optional, default: 4)
-
-# Returns
-- Vector of result vectors
-"""
-function MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
-	t = ModelingToolkit.get_iv(model)
-	eqns = ModelingToolkit.equations(model)
-	states = ModelingToolkit.unknowns(model)
-	params = ModelingToolkit.parameters(model)
-
-	t_vector = data_sample["t"]
-	time_interval = extrema(t_vector)
-	found_any_solutions = false
-	large_num_points = min(length(params), max_num_points, length(t_vector)) + 1
-	good_num_points = large_num_points
-
-	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
-		[[] for _ in 1:7]
-	good_DD = nothing
-	println("\nDEBUG [MPHCPE]: Starting parameter estimation...")
-	while (!found_any_solutions)
-		good_num_points = good_num_points - 1
-		println("DEBUG [MPHCPE]: Analyzing identifiability with ", large_num_points, " points")
-		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
-		#	println("DEBUG [MPHCPE]: Target unidentifiable dict: ", target_udict)
-		#	println("DEBUG [MPHCPE]: Target varlist: ", target_varlist)
-
-		while (good_num_points > 1)
-			good_num_points = good_num_points - 1
-			#		println("DEBUG [MPHCPE]: Testing with ", good_num_points, " points")
-			(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-			#		print("DEBUG [MPHCPE]: Test unidentifiable dict: ", test_udict)
-			if !(test_deriv_level == target_deriv_level)
-				good_num_points = good_num_points + 1
-				break
-			end
-		end
-
-		println("DEBUG [MPHCPE]: Final analysis with ", good_num_points, " points")
-		(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-		println("DEBUG [MPHCPE]: Final unidentifiable dict: ", good_udict)
-		println("DEBUG [MPHCPE]: Final varlist: ", good_varlist)
-
-		time_index_set = pick_points(t_vector, good_num_points)
-		if (display_points)
-			println("We are trying these points:", time_index_set)
-			println("Using these observations and their derivatives:")
-			display(good_deriv_level)
-		end
-		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
-
-		@variables testing
-		#	print("\nDEBUG [MPHCPE]: Before equation system construction")
-		#	print("DEBUG [MPHCPE]: good_udict = ", good_udict)
-		for k in time_index_set
-			#	print("\nDEBUG [MPHCPE]: Constructing equation system for time point ", k)
-			(target_k, varlist_k) = construct_equation_system(model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD, [k])
-			#print("DEBUG [MPHCPE]: After construct_equation_system for point ", k)
-			#print("DEBUG [MPHCPE]: varlist_k = ", varlist_k)
-
-			local_subst_dict = OrderedDict{Num, Any}()
-			local_subst_dict_reverse = OrderedDict()
-			subst_var_list = []
-
-			for i in eachindex(good_DD.states_lhs), j in eachindex(good_DD.states_lhs[i])
-				push!(subst_var_list, good_DD.states_lhs[i][j])
-			end
-			for i in eachindex(states)
-				push!(subst_var_list, states[i])
-			end
-			for i in eachindex(good_DD.obs_lhs), j in eachindex(good_DD.obs_lhs[i])
-				push!(subst_var_list, good_DD.obs_lhs[i][j])
-			end
-			for i in subst_var_list
-				newname = tag_symbol(i, "_t" * string(k) * "_", "_")
-				j = Symbolics.wrap(i)
-
-				#newname = testing
-				local_subst_dict[j] = newname
-				local_subst_dict_reverse[newname] = j
-			end
-			for i in params
-				newname = tag_symbol(i, "_t" * string("p"), "_")
-				j = Symbolics.wrap(i)
-				local_subst_dict[j] = newname
-				local_subst_dict_reverse[newname] = j
-
-			end
-
-			target_k_subst = substitute.(target_k, Ref(local_subst_dict))
-			varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict)) #TODO maybe ask why this didn't work but didn't fail without broadcasting
-			push!(full_target, target_k_subst)
-			push!(full_varlist, varlist_k_subst)
-			push!(forward_subst_dict, local_subst_dict)
-			push!(reverse_subst_dict, local_subst_dict_reverse)
-		end
-		# println("full target")
-		#display(full_target)
-
-		final_target = reduce(vcat, full_target)
-		# Maintain order by keeping first occurrence of each variable
-		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-
-		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
-
-		solns = solve_result
-		if (!isempty(solns))
-			found_any_solutions = true
-		end
-	end
-
-	# Create a new ODESystem with the same equations and variables
-	@named new_model = ODESystem(eqns, t, states, params)
-	new_model = complete(new_model)
-	lowest_time_index = min(time_index_set...)
-
-	results_vec = []  # Will store all solution results
-
-	# Process each solution found by the system solver
-	for soln_index in eachindex(solns)
-		# Initialize arrays for initial conditions and parameters with placeholder values
-		initial_conditions = [1e10 for s in states]
-		parameter_values = [1e10 for p in params]
-
-		# Process parameters first
-		#	println("\nDEBUG [MPHCPE]: Processing parameters...")
-		#	println("DEBUG [MPHCPE]: Original parameter order: ", params)
-		#	println("DEBUG [MPHCPE]: Parameter values before lookup: ", parameter_values)
-		for i in eachindex(params)
-			if params[i] in keys(good_udict)
-				# If parameter is in unidentifiable dictionary, use that value
-				#println("DEBUG [MPHCPE]: Parameter ", params[i], " found in unidentifiable dict with value ", good_udict[params[i]])
-				parameter_values[i] = good_udict[params[i]]
-			else
-				# Look up the parameter in the substitution dictionary
-				param_search = forward_subst_dict[1][(params[i])]
-				#		println("DEBUG [MPHCPE]: Parameter lookup for ", params[i])
-				#		println("DEBUG [MPHCPE]: After substitution: ", param_search)
-				#		println("DEBUG [MPHCPE]: Trivial dict keys: ", keys(trivial_dict))
-				if (param_search in keys(trivial_dict))
-					# If it's a trivial parameter, use the value from trivial dictionary
-					#			println("DEBUG [MPHCPE]: Found in trivial_dict with value: ", trivial_dict[param_search])
-					parameter_values[i] = trivial_dict[param_search]
-				else
-					# Otherwise find its value in the solver solution
-					index = findfirst(isequal(param_search), final_varlist)
-					if isnothing(index)
-						# If not found in final_varlist, try trimmed_varlist
-						index = findfirst(isequal(param_search), trimmed_varlist)
-					end
-					#			println("DEBUG [MPHCPE]: Found in solver solution at index ", index, " with value ", real(solns[soln_index][index]))
-					parameter_values[i] = real(solns[soln_index][index])  # TODO: Consider complex parts?
-				end
-			end
-		end
-		#		println("DEBUG [MPHCPE]: Parameter values after lookup: ", parameter_values)
-
-		# Similar process for initial conditions of states
-		for i in eachindex(states)
-			if states[i] in keys(good_udict)
-				# If state is in unidentifiable dictionary, use that value
-				initial_conditions[i] = good_udict[states[i]]
-			else
-				# Look up the state in the substitution dictionary
-				model_state_search = forward_subst_dict[1][(states[i])]
-				#			println("DEBUG: State lookup for ", states[i])
-				#			println("DEBUG: After substitution: ", model_state_search)
-				#			println("DEBUG: Trivial dict keys: ", keys(trivial_dict))
-
-				if (model_state_search in keys(trivial_dict))
-					# If it's a trivial state, use the value from trivial dictionary
-					#				println("DEBUG: Found in trivial_dict with value: ", trivial_dict[model_state_search])
-					initial_conditions[i] = trivial_dict[model_state_search]
-				else
-					# Otherwise find its value in the solver solution
-					index = findfirst(
-						isequal(model_state_search),
-						trimmed_varlist)
-					initial_conditions[i] = real(solns[soln_index][index])  # TODO: Consider complex parts?
-				end
-			end
-		end
-		# Convert initial conditions to complex numbers, then to real if possible
-		initial_conditions = Base.convert(Array{ComplexF64, 1}, initial_conditions)
-		if (isreal(initial_conditions))
-			initial_conditions = Base.convert(Array{Float64, 1}, initial_conditions)
-		end
-
-		# Same conversion process for parameter values
-		parameter_values = Base.convert(Array{ComplexF64, 1}, parameter_values)
-		if (isreal(parameter_values))
-			parameter_values = Base.convert(Array{Float64, 1}, parameter_values)
-		end
-
-		# Note: tspan is backwards intentionally
-		tspan = (t_vector[lowest_time_index], t_vector[1])
-
-		# Create and solve the ODE problem
-		new_model = complete(new_model)  # TODO: This line seems redundant as model was completed above
-		ic_dict = Dict(states .=> initial_conditions)
-		#	println("DEBUG [MPHCPE]: Solving ODE with initial conditions: ", ic_dict)
-		#	println("DEBUG [MPHCPE]: Original parameters: ", params)
-		#	println("DEBUG [MPHCPE]: Parameter values: ", parameter_values)
-
-		# Get parameters in the correct order from the model
-		ordered_params = [parameter_values[i] for i in eachindex(params)]
-		ordered_ic = [initial_conditions[i] for i in eachindex(states)]
-
-		prob = ODEProblem(new_model, ordered_ic, tspan, ordered_params)
-
-		ode_solution = ModelingToolkit.solve(prob, ode_solver, abstol = 1e-14, reltol = 1e-14)
-
-		# Create mapping from state variables to their names without "(t)"
-		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
-								for x in ModelingToolkit.unknowns(model)))
-
-		# Extract final state values from the ODE solution
-		newstates = OrderedDict()
-		for s in states
-			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
-		end
-
-		#		println("DEBUG [MPHCPE]: Original parameter order: ", params)
-		#		println("DEBUG [MPHCPE]: Parameter values order: ", parameter_values)
-		#		println("DEBUG [MPHCPE]: State values order: ", collect(values(newstates)))
-
-		# Store the combined state and parameter values
-		push!(results_vec, [collect(values(newstates)); parameter_values])
-		#		println("just pushed", last(results_vec))
-	end
-
-
-	# Create a tuple containing:
-	# 1. The vector of solutions
-	# 2. The unidentifiable parameters dictionary
-	# 3. The trivially solvable variables dictionary
-	return (results_vec, good_udict, trivial_dict, good_DD.all_unidentifiable)
-
-end
-
-
-
-
-
-export MPHCPE, HCPE, ODEPEtestwrapper, ParameterEstimationResult, sample_data, solve_with_hc
-export ParameterEstimationProblem, analyze_parameter_estimation_problem, fillPEP
-export OrderedODESystem, create_ordered_ode_system, sample_problem_data, analyze_estimation_result, save_to_toml
-export calculate_observable_derivatives, nth_deriv_at, aaad
-
-#later, disable output of the compile_workload
-#=
-@recompile_invalidations begin
-	@compile_workload begin
-		parameters = @parameters a b
-		states = @variables x1(t) x2(t)
-		observables = @variables y1(t) y2(t)
-		D = Differential(t)
-
-		equations = [
-			D(x1) ~ -a * x2,
-			D(x2) ~ b * x1,  #edited from 1/b
-		]
-		measured_quantities = [y1 ~ x1, y2 ~ x2]
-
-		p_true = [0.4, 0.8]
-		ic_true = [0.333, 0.667]
-
-		model, mq = create_ordered_ode_system("simple", states, parameters, equations, measured_quantities)
-
-		pep = ParameterEstimationProblem(
-			"simple",
-			model,
-			mq,
-			nothing,
-			nothing,
-			OrderedDict(parameters .=> p_true),
-			OrderedDict(states .=> ic_true),
-			0
-		)
-
-		data_sample = sample_problem_data(pep, datasize = 19, time_interval = [-1.0, 1.0])
-
-		ret = ODEPEtestwrapper(pep.model, pep.measured_quantities, data_sample, package_wide_default_ode_solver)
-
-		display(ret)
-	end
-end =#
-
-
-end
+end # module

@@ -1,0 +1,1673 @@
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[263]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t263_x1_t_ => 1.2389506067460974, _t263_x2_t_ => -0.9672066759427258, _t263_x1ˍt_t_ => -0.9672066759426663, _t263_x2ˍt_t_ => -0.7214963834453488)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: vanderpol ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   0.000000 |   0.000000 |   0.000000
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for vanderpol: 0.0
+
+Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lotka_volterra
+Starting model: Lotka_Volterra
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
+We are trying these points:[803]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+System of length 7
+ 7 variables: _z__tpk2__d, _z__tpk1__d, _z__tpk3__d, _z__t803_w_t__d, _z__t803_wˍt_t__d, _z__t803_wˍtt_t__d, _z__t803_wˍttt_t__d
+ 7 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇
+
+ -1.05826362523065 - 0.757166869657163*_z__tpk1__d - monodromy_constants₁ + 0.757166869657163*_z__t803_w_t__d*_z__tpk2__d
+ 1.33643245975838 + 1.05826362523065*_z__tpk1__d - monodromy_constants₂ - 1.05826362523065*_z__t803_w_t__d*_z__tpk2__d + 0.757166869657163*_z__t803_wˍt_t__d*_z__tpk2__d
+ -0.519701484500956 - 1.33643245975838*_z__tpk1__d - monodromy_constants₃ + 1.33643245975838*_z__t803_w_t__d*_z__tpk2__d - 2.11652725046129*_z__t803_wˍt_t__d*_z__tpk2__d + 0.757166869657163*_z__t803_wˍtt_t__d*_z__tpk2__d
+ -4.99735422633239 + 0.519701484500956*_z__tpk1__d - monodromy_constants₄ - 0.519701484500956*_z__t803_w_t__d*_z__tpk2__d + 4.00929737927515*_z__t803_wˍt_t__d*_z__tpk2__d - 3.17479087569194*_z__t803_wˍtt_t__d*_z__tpk2__d + 0.757166869657163*_z__tpk2__d*_z__t803_wˍttt_t__d
+ _z__t803_wˍt_t__d - monodromy_constants₅ - 0.757166869657163*_z__t803_w_t__d*_z__tpk2__d + _z__t803_w_t__d*_z__tpk3__d
+ _z__t803_wˍtt_t__d - monodromy_constants₆ + 1.05826362523065*_z__t803_w_t__d*_z__tpk2__d - 0.757166869657163*_z__t803_wˍt_t__d*_z__tpk2__d + _z__t803_wˍt_t__d*_z__tpk3__d
+ _z__t803_wˍttt_t__d - monodromy_constants₇ - 1.33643245975838*_z__t803_w_t__d*_z__tpk2__d + 2.11652725046129*_z__t803_wˍt_t__d*_z__tpk2__d - 0.757166869657163*_z__t803_wˍtt_t__d*_z__tpk2__d + _z__t803_wˍtt_t__d*_z__tpk3__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t803_rˍttt_t_ => -0.5197014845009562, _t803_r_t_ => 0.7571668696571625, _t803_rˍt_t_ => -1.0582636252306474, _t803_rˍtt_t_ => 1.3364324597583845, _t803_rˍtttt_t_ => -4.997354226332391)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: Lotka_Volterra ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+r(t)         |   2.000000 |   2.000000 |   0.000000
+w(t)         |   1.000000 |   1.000000 |   0.000000
+k1           |   1.000000 |   1.000000 |   0.000000
+k2           |   0.500000 |   0.500000 |   0.000000
+k3           |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for Lotka_Volterra: 0.0
+
+Best maximum relative error for Lotka_Volterra (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: repressilator
+Starting model: repressilator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
+We are trying these points:[204]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 2
+  3 => 2
+  1 => 2
+System of length 9
+ 9 variables: _z__tpn__d, _z__tpbeta__d, _z__tpalpha__d, _z__t204_m1_t__d, _z__t204_m2_t__d, _z__t204_m3_t__d, _z__t204_m2ˍt_t__d, _z__t204_m3ˍt_t__d, _z__t204_m1ˍt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ 0.0203389026253138 - monodromy_constants₁ + (0.846006744248665 - _z__t204_m2_t__d)*_z__tpalpha__d
+ -0.0409021220881698 - monodromy_constants₂ + _z__tpalpha__d*(0.0203389026253138 - _z__t204_m2ˍt_t__d)
+ -0.0421141069033545 - monodromy_constants₃ + (0.818714163933161 - _z__t204_m3_t__d)*_z__tpalpha__d
+ 0.00845237783692498 - monodromy_constants₄ + (-0.0421141069033545 - _z__t204_m3ˍt_t__d)*_z__tpalpha__d
+ 0.0436152188049968 - monodromy_constants₅ + (0.682337168036228 - _z__t204_m1_t__d)*_z__tpalpha__d
+ -0.0112531601433767 - monodromy_constants₆ + _z__tpalpha__d*(0.0436152188049968 - _z__t204_m1ˍt_t__d)
+ _z__t204_m2_t__d - _z__tpbeta__d - monodromy_constants₇ + _z__t204_m2ˍt_t__d*(1 + 0.682337168036228*_z__tpn__d) + 0.682337168036228*_z__tpn__d*_z__t204_m2_t__d
+ _z__t204_m3_t__d - _z__tpbeta__d - monodromy_constants₈ + _z__t204_m3ˍt_t__d*(1 + 0.846006744248665*_z__tpn__d) + 0.846006744248665*_z__tpn__d*_z__t204_m3_t__d
+ _z__t204_m1_t__d - _z__tpbeta__d - monodromy_constants₉ + _z__t204_m1ˍt_t__d*(1 + 0.818714163933161*_z__tpn__d) + 0.818714163933161*_z__tpn__d*_z__t204_m1_t__d
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:589
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t204_p1_t_ => 0.6823371680362276, _t204_p2ˍtt_t_ => -0.04090212208816979, _t204_p3ˍtt_t_ => 0.008452377836924985, _t204_p1ˍt_t_ => 0.0436152188049968, _t204_p2ˍt_t_ => 0.020338902625313793, _t204_p3ˍt_t_ => -0.04211410690335449, _t204_p1ˍtt_t_ => -0.01125316014337674, _t204_p2_t_ => 0.8460067442486647, _t204_p3_t_ => 0.8187141639331613)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:589
+
+=== Model: repressilator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+m1(t)        |   0.000000 |  -0.000000 |   0.000000
+m2(t)        |   0.000000 |   0.000000 |   0.000000
+m3(t)        |   0.000000 |   0.000000 |   0.000000
+p1(t)        |   2.000000 |   2.000000 |   0.000000
+p2(t)        |   1.000000 |   1.000000 |   0.000000
+p3(t)        |   3.000000 |   3.000000 |   0.000000
+beta         |   2.000000 |   2.000000 |   0.000000
+n            |   2.000000 |   2.000000 |   0.000000
+alpha        |   1.000000 |   1.000000 |   0.000000
+
+
+Best approximation error for repressilator: 0.0
+
+Best maximum relative error for repressilator (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: treatment
+Starting model: treatment
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.3749915938233973)
+DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
+We are trying these points:[113]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 6
+System of length 15
+ 15 variables: _z__tpnu__d, _z__tpd__d, _z__tpg__d, _z__tpb__d, _z__t113_In_t__d, _z__t113_S_t__d, _z__t113_Inˍt_t__d, _z__t113_Inˍtt_t__d, _z__t113_Inˍttt_t__d, _z__t113_Inˍtttt_t__d, _z__t113_Inˍttttt_t__d, _z__t113_Sˍt_t__d, _z__t113_Sˍtt_t__d, _z__t113_Sˍttt_t__d, _z__t113_Sˍtttt_t__d
+ 15 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅
+
+ 18.5149431954741 + 9.25575046821404*_z__tpnu__d - monodromy_constants₁ - _z__t113_In_t__d*_z__tpg__d
+ 8.81832582280128 + 18.5149431954741*_z__tpnu__d - monodromy_constants₂ - _z__tpg__d*_z__t113_Inˍt_t__d
+ 9.69396208892613 + 8.81832582280128*_z__tpnu__d - monodromy_constants₃ - _z__t113_Inˍtt_t__d*_z__tpg__d
+ 3.37836704246001 + 9.69396208892613*_z__tpnu__d - monodromy_constants₄ - _z__tpg__d*_z__t113_Inˍttt_t__d
+ -0.0750058274716139 + 3.37836704246001*_z__tpnu__d - monodromy_constants₅ - _z__tpg__d*_z__t113_Inˍtttt_t__d
+ -6.30208188295364 - 0.0750058274716139*_z__tpnu__d - monodromy_constants₆ - _z__tpg__d*_z__t113_Inˍttttt_t__d
+ 374.991593823397*_z__t113_In_t__d + 1000.0*_z__t113_Inˍt_t__d - monodromy_constants₇ + 1000.0*_z__t113_In_t__d*_z__tpg__d - _z__t113_S_t__d*_z__t113_In_t__d*_z__tpb__d - 9.25575046821404*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d
+ 374.991593823397*_z__t113_Inˍt_t__d + 1000.0*_z__t113_Inˍtt_t__d - monodromy_constants₈ + 1000.0*_z__tpg__d*_z__t113_Inˍt_t__d - _z__t113_In_t__d*_z__tpb__d*_z__t113_Sˍt_t__d - _z__t113_S_t__d*_z__tpb__d*_z__t113_Inˍt_t__d - 18.5149431954741*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d - 9.25575046821404*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d
+ 374.991593823397*_z__t113_Inˍtt_t__d + 1000.0*_z__t113_Inˍttt_t__d - monodromy_constants₉ + 1000.0*_z__t113_Inˍtt_t__d*_z__tpg__d - _z__t113_In_t__d*_z__tpb__d*_z__t113_Sˍtt_t__d - _z__t113_Inˍtt_t__d*_z__t113_S_t__d*_z__tpb__d - 8.81832582280128*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d - 2*_z__tpb__d*_z__t113_Sˍt_t__d*_z__t113_Inˍt_t__d - 37.0298863909482*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d - 9.25575046821404*_z__tpb__d*_z__tpd__d*_z__t113_Sˍtt_t__d
+ 374.991593823397*_z__t113_Inˍttt_t__d + 1000.0*_z__t113_Inˍtttt_t__d - monodromy_constants₁₀ + 1000.0*_z__tpg__d*_z__t113_Inˍttt_t__d - _z__t113_In_t__d*_z__t113_Sˍttt_t__d*_z__tpb__d - 3*_z__t113_Inˍtt_t__d*_z__tpb__d*_z__t113_Sˍt_t__d - _z__t113_S_t__d*_z__tpb__d*_z__t113_Inˍttt_t__d - 9.69396208892613*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d - 9.25575046821404*_z__t113_Sˍttt_t__d*_z__tpb__d*_z__tpd__d - 3*_z__tpb__d*_z__t113_Sˍtt_t__d*_z__t113_Inˍt_t__d - 26.4549774684039*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d - 55.5448295864223*_z__tpb__d*_z__tpd__d*_z__t113_Sˍtt_t__d
+ 374.991593823397*_z__t113_Inˍtttt_t__d + 1000.0*_z__t113_Inˍttttt_t__d - monodromy_constants₁₁ + 1000.0*_z__tpg__d*_z__t113_Inˍtttt_t__d - 6*_z__t113_Inˍtt_t__d*_z__tpb__d*_z__t113_Sˍtt_t__d - _z__t113_S_t__d*_z__tpb__d*_z__t113_Inˍtttt_t__d - 3.37836704246001*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d - 4*_z__t113_Sˍttt_t__d*_z__tpb__d*_z__t113_Inˍt_t__d - 74.0597727818964*_z__t113_Sˍttt_t__d*_z__tpb__d*_z__tpd__d - _z__t113_Sˍtttt_t__d*_z__t113_In_t__d*_z__tpb__d - 9.25575046821404*_z__t113_Sˍtttt_t__d*_z__tpb__d*_z__tpd__d - 4*_z__tpb__d*_z__t113_Sˍt_t__d*_z__t113_Inˍttt_t__d - 38.7758483557045*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d - 52.9099549368077*_z__tpb__d*_z__tpd__d*_z__t113_Sˍtt_t__d
+ 1000.0*_z__t113_Sˍt_t__d - monodromy_constants₁₂ + _z__t113_S_t__d*_z__t113_In_t__d*_z__tpb__d + 9.25575046821404*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d
+ 1000.0*_z__t113_Sˍtt_t__d - monodromy_constants₁₃ + _z__t113_In_t__d*_z__tpb__d*_z__t113_Sˍt_t__d + _z__t113_S_t__d*_z__tpb__d*_z__t113_Inˍt_t__d + 18.5149431954741*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d + 9.25575046821404*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d
+ 1000.0*_z__t113_Sˍttt_t__d - monodromy_constants₁₄ + _z__t113_In_t__d*_z__tpb__d*_z__t113_Sˍtt_t__d + _z__t113_Inˍtt_t__d*_z__t113_S_t__d*_z__tpb__d + 8.81832582280128*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d + 2*_z__tpb__d*_z__t113_Sˍt_t__d*_z__t113_Inˍt_t__d + 37.0298863909482*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d + 9.25575046821404*_z__tpb__d*_z__tpd__d*_z__t113_Sˍtt_t__d
+ 1000.0*_z__t113_Sˍtttt_t__d - monodromy_constants₁₅ + _z__t113_In_t__d*_z__t113_Sˍttt_t__d*_z__tpb__d + 3*_z__t113_Inˍtt_t__d*_z__tpb__d*_z__t113_Sˍt_t__d + _z__t113_S_t__d*_z__tpb__d*_z__t113_Inˍttt_t__d + 9.69396208892613*_z__t113_S_t__d*_z__tpb__d*_z__tpd__d + 9.25575046821404*_z__t113_Sˍttt_t__d*_z__tpb__d*_z__tpd__d + 3*_z__tpb__d*_z__t113_Sˍtt_t__d*_z__t113_Inˍt_t__d + 26.4549774684039*_z__tpb__d*_z__tpd__d*_z__t113_Sˍt_t__d + 55.5448295864223*_z__tpb__d*_z__tpd__d*_z__t113_Sˍtt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[a, S(t), d, g, b, In(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.3749915938233973)
+Trivially solvable variables: Dict{Any, Any}(_t113_Trˍtttttt_t_ => -6.302081882953644, _t113_Tr_t_ => 9.255750468214043, _t113_Trˍt_t_ => 18.51494319547409, _t113_Nˍt_t_ => 0, _t113_Nˍttt_t_ => 0, _t113_Nˍtttt_t_ => 0, _t113_Nˍtt_t_ => 0, _t113_Trˍttt_t_ => 9.693962088926128, _t113_Trˍttttt_t_ => -0.07500582747161388, _t113_N_t_ => 999.9999999999999, _t113_Trˍtttt_t_ => 3.378367042460013, _t113_Trˍtt_t_ => 8.818325822801285)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+
+DEBUG [ODEPEtestwrapper]: Processing solution 10
+
+=== Model: treatment ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • S(t)
+  • d
+  • g
+  • b
+  • In(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.374992
+
+
+Found 6 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.105771):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | 118.871839 |   1.377437
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | -17.384486 |   1.018299
+Tr(t)        |   0.000000 |   0.000049 |   0.000049
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 | -13.324543 |  17.655679
+d            |   2.000000 |  -1.765817 |   1.882908
+g            |   0.300000 |   0.126181 |   0.579396
+nu           |   0.100000 |  -0.529941 |   6.299409
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.105771):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | -16.575197 |   1.331504
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 |   2.424042 |   0.997448
+Tr(t)        |   0.000000 |   0.000049 |   0.000049
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 |  95.559548 | 118.449435
+d            |   2.000000 |   1.385657 |   0.307171
+g            |   0.300000 |  -0.904933 |   4.016442
+nu           |   0.100000 |   0.501173 |   4.011727
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.006549):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | -45.865612 |   1.917312
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | -2205.455633 |   3.321532
+Tr(t)        |   0.000000 |   0.000001 |   0.000001
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 |  -0.694268 |   1.867835
+d            |   2.000000 |   2.604049 |   0.302025
+g            |   0.300000 |  -0.327042 |   2.090141
+nu           |   0.100000 |   1.223223 |  11.232231
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.006549):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 |  17.683844 |   0.646323
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | 850.330615 |   0.104915
+Tr(t)        |   0.000000 |   0.000001 |   0.000001
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 |   1.800684 |   1.250856
+d            |   2.000000 |   0.381546 |   0.809227
+g            |   0.300000 |   0.848232 |   1.827438
+nu           |   0.100000 |   0.047949 |   0.520507
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | -54.546580 |   2.090932
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | -1036.373611 |   2.090920
+Tr(t)        |   0.000000 |   0.000000 |   0.000000
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 |  -0.733321 |   1.916651
+d            |   2.000000 |  -1.090954 |   1.545477
+g            |   0.300000 |  -0.274994 |   1.916648
+nu           |   0.100000 |   0.399997 |   2.999970
+
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+In(t)        |  50.000000 | 599.869104 |  10.997382
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+S(t)         | 950.000000 | 11397.387426 |  10.997250
+Tr(t)        |   0.000000 |   0.000000 |   0.000000
+a            |   0.100000 |   0.374992 |   2.749916
+b            |   0.800000 |   0.066681 |   0.916648
+d            |   2.000000 |  23.995003 |  10.997502
+g            |   0.300000 |   0.025005 |   0.916648
+nu           |   0.100000 |   0.099997 |   0.000027
+
+
+Best approximation error for treatment: 0.0
+
+Best maximum relative error for treatment (excluding ALL unidentifiable parameters): 2.7e-5
+[ Info: Running model: simple
+Starting model: simple
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[269]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t269_x2ˍt_t_ => -0.06593641194502542, _t269_x1_t_ => -0.08242051493122432, _t269_x1ˍt_t_ => -0.3232536384790062, _t269_x2_t_ => 0.8081340961975093)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.333000 |   0.333000 |   0.000000
+x2(t)        |   0.667000 |   0.667000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple: 0.0
+
+Best maximum relative error for simple (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: trivial_unident
+Starting model: trivial_unident
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.7377822178692747)
+DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
+We are trying these points:[61]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[a, b])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.7377822178692747)
+Trivially solvable variables: Dict{Any, Any}(_t61_x1_t_ => 2.866658829114139, _t61_x1ˍt_t_ => 3.439990594920972)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: trivial_unident ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • b
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.737782
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.737782 |   0.229637
+b            |   0.600000 |   0.462218 |   0.229637
+
+
+Best approximation error for trivial_unident: 0.0
+
+Best maximum relative error for trivial_unident (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: simple_linear_combination
+Starting model: simple_linear_combination
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
+We are trying these points:[328]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: simple_linear_combination ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   1.000000 |   1.000000 |   0.000000
+x2(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple_linear_combination: 0.0
+
+Best maximum relative error for simple_linear_combination (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: substr_test
+Starting model: substr_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
+We are trying these points:[747]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t747_x2_t_ => 4.015964953295465, _t747_x3_t_ => 4.00179080075131, _t747_x1_t_ => 0.6603126130487543, _t747_x1ˍt_t_ => -0.4015964953295361, _t747_x3ˍt_t_ => 0.0004802148960888486, _t747_x2ˍt_t_ => 0.1320625226097576)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: substr_test ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+beta         |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for substr_test: 0.0
+
+Best maximum relative error for substr_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: lv_periodic
+Starting model: lv_periodic
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
+We are trying these points:[686]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t686_x1_t_ => 3.342526320289128, _t686_x2ˍtt_t_ => 1.0990946327902122, _t686_x1ˍt_t_ => 4.018120077855942, _t686_x1ˍtt_t_ => 5.154832578235101, _t686_x2_t_ => 0.33097700069350766, _t686_x2ˍt_t_ => -0.10789153307503474)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: lv_periodic ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   0.500000 |   0.500000 |   0.000000
+a            |   1.500000 |   1.500000 |   0.000000
+b            |   0.900000 |   0.900000 |   0.000000
+c            |   3.000000 |   3.000000 |   0.000000
+d            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for lv_periodic: 0.0
+
+Best maximum relative error for lv_periodic (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: fitzhugh_nagumo
+Starting model: fitzhugh-nagumo
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
+We are trying these points:[477]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+System of length 7
+ 7 variables: _z__tpa__d, _z__tpg__d, _z__tpb__d, _z__t477_R_t__d, _z__t477_Rˍt_t__d, _z__t477_Rˍtt_t__d, _z__t477_Rˍttt_t__d
+ 7 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇
+
+ -2.01485894158088 - monodromy_constants₁ - _z__tpg__d*(-0.665836751675534 + _z__t477_R_t__d)
+ -0.878244235820603 - monodromy_constants₂ + (-0.117194634907443 - _z__t477_Rˍt_t__d)*_z__tpg__d
+ 23.1127210855484 - monodromy_constants₃ + (-8.40318972699917 - _z__t477_Rˍtt_t__d)*_z__tpg__d
+ 76.793701171875 - monodromy_constants₄ + (-25.9365570679149 - _z__t477_Rˍttt_t__d)*_z__tpg__d
+ 1.02867156125797 + _z__tpa__d - monodromy_constants₅ + _z__t477_Rˍt_t__d*_z__tpg__d - _z__tpb__d*_z__t477_R_t__d
+ 2.01485894158088 - monodromy_constants₆ - _z__t477_Rˍt_t__d*_z__tpb__d + _z__tpg__d*_z__t477_Rˍtt_t__d
+ 0.878244235820603 - monodromy_constants₇ - _z__tpb__d*_z__t477_Rˍtt_t__d + _z__tpg__d*_z__t477_Rˍttt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t477_Vˍttt_t_ => 23.1127210855484, _t477_Vˍtttt_t_ => 76.793701171875, _t477_V_t_ => -1.0286715612579655, _t477_Vˍt_t_ => -2.014858941580883, _t477_Vˍtt_t_ => -0.8782442358206026)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: fitzhugh-nagumo ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+V(t)         |  -1.000000 |  -1.000000 |   0.000000
+R(t)         |   0.000000 |   0.041889 |   0.041889
+g            |   3.000000 |   3.201140 |   0.067047
+a            |   0.200000 |   0.389561 |   0.947804
+b            |   0.200000 |   4.526155 |  21.630777
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+V(t)         |  -1.000000 |  -1.000000 |   0.000000
+R(t)         |   0.000000 |   0.000042 |   0.000042
+g            |   3.000000 |   3.000187 |   0.000062
+a            |   0.200000 |   0.200008 |   0.000041
+b            |   0.200000 |   0.203841 |   0.019204
+
+
+Best approximation error for fitzhugh-nagumo: 0.0
+
+Best maximum relative error for fitzhugh-nagumo (excluding ALL unidentifiable parameters): 0.019204
+[ Info: Running model: daisy_mamil3
+Starting model: DAISY_mamil3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
+We are trying these points:[773]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 2
+  1 => 4
+System of length 10
+ 10 variables: _z__tpa13__d, _z__tpa31__d, _z__tpa21__d, _z__tpa12__d, _z__tpa01__d, _z__t773_x3_t__d, _z__t773_x3ˍt_t__d, _z__t773_x3ˍtt_t__d, _z__t773_x3ˍttt_t__d, _z__t773_x2ˍttt_t__d
+ 10 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀
+
+ -0.0214899544473753 + 0.473834088836483*_z__tpa12__d - 0.115280676776631*_z__tpa21__d - monodromy_constants₁
+ -0.00292446273058999 - 0.0214899544473753*_z__tpa12__d + 0.0130265702467303*_z__tpa21__d - monodromy_constants₂
+ -0.0130265702467303 - 0.473834088836483*_z__tpa12__d - monodromy_constants₃ - _z__t773_x3_t__d*_z__tpa13__d - 0.115280676776631*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ 0.00198072917362646 + 0.0214899544473753*_z__tpa12__d - monodromy_constants₄ - _z__t773_x3ˍt_t__d*_z__tpa13__d - 0.0130265702467303*(_z__tpa01__d + _z__tpa21__d + _z__tpa31__d)
+ -0.000522153054065555 + 0.00292446273058999*_z__tpa12__d - monodromy_constants₅ - _z__t773_x3ˍtt_t__d*_z__tpa13__d - 0.00198072917362646*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ 0.000423278107092528 - monodromy_constants₆ - _z__t773_x2ˍttt_t__d*_z__tpa12__d - _z__t773_x3ˍttt_t__d*_z__tpa13__d + 0.000522153054065555*(-_z__tpa01__d - _z__tpa21__d - _z__tpa31__d)
+ _z__t773_x3ˍt_t__d - 0.115280676776631*_z__tpa31__d - monodromy_constants₇ + _z__t773_x3_t__d*_z__tpa13__d
+ _z__t773_x3ˍtt_t__d + 0.0130265702467303*_z__tpa31__d - monodromy_constants₈ + _z__t773_x3ˍt_t__d*_z__tpa13__d
+ _z__t773_x3ˍttt_t__d - 0.00198072917362646*_z__tpa31__d - monodromy_constants₉ + _z__t773_x3ˍtt_t__d*_z__tpa13__d
+ _z__t773_x2ˍttt_t__d - 0.00292446273058999*_z__tpa12__d - 0.00198072917362646*_z__tpa21__d - monodromy_constants₁₀
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t773_x1ˍttt_t_ => -0.000522153054065555, _t773_x1_t_ => 0.11528067677663137, _t773_x1ˍtt_t_ => 0.001980729173626461, _t773_x2ˍt_t_ => -0.021489954447375337, _t773_x2ˍtt_t_ => -0.002924462730589994, _t773_x2_t_ => 0.47383408883648276, _t773_x1ˍt_t_ => -0.013026570246730262, _t773_x1ˍtttt_t_ => 0.00042327810709252844)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: DAISY_mamil3 ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.250000 |   0.250000 |   0.000000
+x2(t)        |   0.500000 |   0.500000 |   0.000000
+x3(t)        |   0.750000 |   0.750000 |   0.000000
+a12          |   0.167000 |   0.167000 |   0.000000
+a13          |   0.333000 |   0.333000 |   0.000000
+a21          |   0.500000 |   0.500000 |   0.000000
+a31          |   0.667000 |   0.667000 |   0.000000
+a01          |   0.833000 |   0.833000 |   0.000000
+
+
+Best approximation error for DAISY_mamil3: 0.0
+
+Best maximum relative error for DAISY_mamil3 (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: brusselator
+Starting model: brusselator
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
+We are trying these points:[947]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 2
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t947_Xˍtt_t_ => 0.07623363637905811, _t947_X_t_ => 0.4378328313280241, _t947_Y_t_ => 4.3703817157834415, _t947_Xˍt_t_ => 0.08646030906757574)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: brusselator ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.000203):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+X(t)         |   1.000000 |   1.116964 |   0.116964
+Y(t)         |   1.000000 |   0.930114 |   0.069886
+a            |   1.000000 |   1.000000 |   0.000000
+b            |   3.000000 |   3.000000 |   0.000000
+
+
+Best approximation error for brusselator: 0.000203
+
+Best maximum relative error for brusselator (excluding ALL unidentifiable parameters): 0.116964
+[ Info: Running model: seir
+Starting model: SEIR
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
+We are trying these points:[780]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 5
+System of length 12
+ 12 variables: _z__tpa__d, _z__tpnu__d, _z__tpb__d, _z__t780_S_t__d, _z__t780_E_t__d, _z__t780_Eˍt_t__d, _z__t780_Eˍtt_t__d, _z__t780_Eˍttt_t__d, _z__t780_Eˍtttt_t__d, _z__t780_Sˍt_t__d, _z__t780_Sˍtt_t__d, _z__t780_Sˍttt_t__d
+ 12 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂
+
+ 1.75535529722876 + 49.8957444269407*_z__tpa__d - monodromy_constants₁ - _z__t780_E_t__d*_z__tpnu__d
+ -0.0308323455524473 + 1.75535529722876*_z__tpa__d - monodromy_constants₂ - _z__t780_Eˍt_t__d*_z__tpnu__d
+ -0.0102009310212594 - 0.0308323455524473*_z__tpa__d - monodromy_constants₃ - _z__tpnu__d*_z__t780_Eˍtt_t__d
+ -0.000343805956617871 - 0.0102009310212594*_z__tpa__d - monodromy_constants₄ - _z__t780_Eˍttt_t__d*_z__tpnu__d
+ 0.000107875819594483 - 0.000343805956617871*_z__tpa__d - monodromy_constants₅ - _z__t780_Eˍtttt_t__d*_z__tpnu__d
+ 1000.0*_z__t780_Eˍt_t__d - monodromy_constants₆ + 1000.0*_z__t780_E_t__d*_z__tpnu__d - 49.8957444269407*_z__t780_S_t__d*_z__tpb__d
+ 1000.0*_z__t780_Eˍtt_t__d - monodromy_constants₇ + 1000.0*_z__t780_Eˍt_t__d*_z__tpnu__d - 1.75535529722876*_z__t780_S_t__d*_z__tpb__d - 49.8957444269407*_z__tpb__d*_z__t780_Sˍt_t__d
+ 1000.0*_z__t780_Eˍttt_t__d - monodromy_constants₈ + 0.0308323455524473*_z__t780_S_t__d*_z__tpb__d - 3.51071059445752*_z__tpb__d*_z__t780_Sˍt_t__d - 49.8957444269407*_z__tpb__d*_z__t780_Sˍtt_t__d + 1000.0*_z__tpnu__d*_z__t780_Eˍtt_t__d
+ 1000.0*_z__t780_Eˍtttt_t__d - monodromy_constants₉ + 1000.0*_z__t780_Eˍttt_t__d*_z__tpnu__d + 0.0102009310212594*_z__t780_S_t__d*_z__tpb__d + 0.0924970366573419*_z__tpb__d*_z__t780_Sˍt_t__d - 5.26606589168628*_z__tpb__d*_z__t780_Sˍtt_t__d - 49.8957444269407*_z__tpb__d*_z__t780_Sˍttt_t__d
+ 1000.0*_z__t780_Sˍt_t__d - monodromy_constants₁₀ + 49.8957444269407*_z__t780_S_t__d*_z__tpb__d
+ 1000.0*_z__t780_Sˍtt_t__d - monodromy_constants₁₁ + 1.75535529722876*_z__t780_S_t__d*_z__tpb__d + 49.8957444269407*_z__tpb__d*_z__t780_Sˍt_t__d
+ 1000.0*_z__t780_Sˍttt_t__d - monodromy_constants₁₂ - 0.0308323455524473*_z__t780_S_t__d*_z__tpb__d + 3.51071059445752*_z__tpb__d*_z__t780_Sˍt_t__d + 49.8957444269407*_z__tpb__d*_z__t780_Sˍtt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t780_In_t_ => 49.89574442694073, _t780_Inˍt_t_ => 1.7553552972287605, _t780_Inˍttt_t_ => -0.010200931021259407, _t780_Inˍtttt_t_ => -0.00034380595661787083, _t780_Nˍttt_t_ => 0, _t780_Inˍtt_t_ => -0.030832345552447293, _t780_N_t_ => 1000.0000000000001, _t780_Nˍt_t_ => 0, _t780_Inˍttttt_t_ => 0.00010787581959448289, _t780_Nˍtt_t_ => 0)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+=== Model: SEIR ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.000125):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 | 742.560500 |   0.249939
+E(t)         |  10.000000 |   7.387530 |   0.261247
+In(t)        |   0.000000 |   0.083320 |   0.083320
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+a            |   0.200000 |   0.150000 |   0.249998
+b            |   0.400000 |   0.400000 |   0.000001
+nu           |   0.150000 |   0.199999 |   0.333327
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.000125):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S(t)         | 990.000000 | 990.073507 |   0.000074
+E(t)         |  10.000000 |   9.877748 |   0.012225
+In(t)        |   0.000000 |   0.083315 |   0.083315
+N(t)         | 1000.000000 | 1000.000000 |   0.000000
+a            |   0.200000 |   0.199999 |   0.000005
+b            |   0.400000 |   0.400000 |   0.000001
+nu           |   0.150000 |   0.150000 |   0.000002
+
+
+Best approximation error for SEIR: 0.000125
+
+Best maximum relative error for SEIR (excluding ALL unidentifiable parameters): 0.083315
+[ Info: Running model: biohydrogenation
+Starting model: BioHydrogenation
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.7406010276264121)
+DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
+We are trying these points:[607]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 5
+  1 => 2
+System of length 13
+ 13 variables: _z__tpk9__d, _z__tpk7__d, _z__tpk10__d, _z__tpk6__d, _z__tpk5__d, _z__tpk8__d, _z__t607_x6_t__d, _z__t607_x6ˍt_t__d, _z__t607_x6ˍtt_t__d, _z__t607_x4ˍttt_t__d, _z__t607_x6ˍttt_t__d, _z__t607_x4ˍtttt_t__d, _z__t607_x6ˍtttt_t__d
+ 13 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃
+
+ -2.22685310968097*_z__tpk5__d + 2.22685310968097*_z__tpk7__d - monodromy_constants₁ - 3.03630565774502*_z__t607_x6_t__d*_z__tpk5__d - 3.03630565774502*_z__tpk5__d*_z__tpk8__d + 0.733408740981232*_z__tpk6__d*_z__tpk7__d + 0.186772494978868*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*(3.03630565774502 + _z__tpk6__d)
+ -0.346018363354336*_z__tpk5__d + 0.346018363354336*_z__tpk7__d - monodromy_constants₂ + 0.301441757518966*_z__t607_x6_t__d*_z__tpk5__d - 3.03630565774502*_z__tpk5__d*_z__t607_x6ˍt_t__d + 0.301441757518966*_z__tpk5__d*_z__tpk8__d + 0.186772494978868*_z__tpk6__d*_z__tpk7__d + 0.186772494978868*(0.186772494978868 + _z__t607_x6ˍt_t__d)*(3.03630565774502 + _z__tpk6__d) - 0.0252050154958852*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*(3.03630565774502 + _z__tpk6__d) - 0.0563010291426322*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)
+ 0.180416026605274*_z__tpk5__d - 0.180416026605274*_z__tpk7__d - monodromy_constants₃ - 0.0118844545294561*_z__t607_x6_t__d*_z__tpk5__d - 3.03630565774502*_z__t607_x6ˍtt_t__d*_z__tpk5__d + 0.602883515037932*_z__tpk5__d*_z__t607_x6ˍt_t__d - 0.0118844545294561*_z__tpk5__d*_z__tpk8__d - 0.0252050154958852*_z__tpk6__d*_z__tpk7__d - 0.0504100309917703*(0.186772494978868 + _z__t607_x6ˍt_t__d)*(3.03630565774502 + _z__tpk6__d) + 0.186772494978868*(3.03630565774502 + _z__tpk6__d)*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d) + 0.00498628616333008*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*(3.03630565774502 + _z__tpk6__d) - 0.112602058285264*(0.186772494978868 + _z__t607_x6ˍt_t__d) + 0.0174153775626742*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)
+ -0.0445924890687603*_z__tpk5__d + 0.0445924890687603*_z__tpk7__d - monodromy_constants₄ - 0.733408740981232*_z__t607_x4ˍttt_t__d*_z__tpk5__d + 0.733408740981232*_z__t607_x4ˍttt_t__d*_z__tpk7__d + 0.186772494978868*_z__t607_x4ˍttt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d) + 0.904325272556898*_z__t607_x6ˍtt_t__d*_z__tpk5__d - 3.03630565774502*_z__t607_x6ˍttt_t__d*_z__tpk5__d - 0.0356533635883682*_z__tpk5__d*_z__t607_x6ˍt_t__d + 0.00498628616333008*_z__tpk6__d*_z__tpk7__d + 0.186772494978868*(0.00498628616333008 + _z__t607_x6ˍttt_t__d)*(3.03630565774502 + _z__tpk6__d) + 0.0149588584899902*(0.186772494978868 + _z__t607_x6ˍt_t__d)*(3.03630565774502 + _z__tpk6__d) - 0.0756150464876555*(3.03630565774502 + _z__tpk6__d)*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d) - 0.331298828125*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*(3.03630565774502 + _z__tpk6__d) - _z__t607_x4ˍttt_t__d*_z__tpk5__d*_z__tpk8__d - _z__t607_x6_t__d*_z__t607_x4ˍttt_t__d*_z__tpk5__d - 0.168903087427897*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d) + 0.0522461326880226*(0.186772494978868 + _z__t607_x6ˍt_t__d) - 0.00540786817542541*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)
+ 1.01373409286195*_z__tpk5__d - 1.01373409286195*_z__tpk7__d - monodromy_constants₅ - 0.747089979915472*_z__t607_x4ˍttt_t__d*_z__tpk5__d + 0.747089979915472*_z__t607_x4ˍttt_t__d*_z__tpk7__d - 0.100820061983541*_z__t607_x4ˍttt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d) - 0.733408740981232*_z__t607_x4ˍtttt_t__d*_z__tpk5__d + 0.733408740981232*_z__t607_x4ˍtttt_t__d*_z__tpk7__d + 0.186772494978868*_z__t607_x4ˍtttt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d) - 0.0713067271767365*_z__t607_x6ˍtt_t__d*_z__tpk5__d + 1.20576703007586*_z__t607_x6ˍttt_t__d*_z__tpk5__d - 3.03630565774502*_z__t607_x6ˍtttt_t__d*_z__tpk5__d - 0.331298828125*_z__tpk6__d*_z__tpk7__d + 0.186772494978868*(-0.331298828125 + _z__t607_x6ˍtttt_t__d)*(3.03630565774502 + _z__tpk6__d) - 0.100820061983541*(0.00498628616333008 + _z__t607_x6ˍttt_t__d)*(3.03630565774502 + _z__tpk6__d) + 0.747089979915472*(0.186772494978868 + _z__t607_x6ˍt_t__d)*_z__t607_x4ˍttt_t__d - 1.3251953125*(0.186772494978868 + _z__t607_x6ˍt_t__d)*(3.03630565774502 + _z__tpk6__d) + 0.0299177169799805*(3.03630565774502 + _z__tpk6__d)*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d) - 1275.0*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*(3.03630565774502 + _z__tpk6__d) - 4*_z__t607_x4ˍttt_t__d*_z__tpk5__d*_z__t607_x6ˍt_t__d - _z__t607_x4ˍtttt_t__d*_z__tpk5__d*_z__tpk8__d - _z__t607_x6_t__d*_z__t607_x4ˍtttt_t__d*_z__tpk5__d + 0.104492265376045*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d) - 0.225204116570529*(0.00498628616333008 + _z__t607_x6ˍttt_t__d) - 0.0216314727017016*(0.186772494978868 + _z__t607_x6ˍt_t__d) + 0.399824759802969*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)
+ 3.03630565774502*_z__tpk5__d - monodromy_constants₆ - 0.301441757518966*(3.03630565774502 + _z__tpk6__d)
+ 0.090867133176123 - 0.301441757518966*_z__tpk5__d - monodromy_constants₇ + 0.0118844545294561*(3.03630565774502 + _z__tpk6__d)
+ -monodromy_constants₈ - 0.733408740981232*_z__t607_x6_t__d^2*_z__tpk9__d - _z__t607_x6_t__d^3*_z__tpk9__d - 0.733408740981232*_z__tpk7__d*_z__tpk10__d + 0.733408740981232*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d - _z__t607_x6_t__d^2*_z__tpk8__d*_z__tpk9__d + _z__t607_x6_t__d^2*_z__tpk9__d*_z__tpk10__d + (0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*_z__t607_x6ˍt_t__d*_z__tpk10__d + _z__t607_x6_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+ -monodromy_constants₉ - 0.186772494978868*_z__t607_x6_t__d^2*_z__tpk9__d - 0.186772494978868*_z__tpk7__d*_z__tpk10__d - 1.46681748196246*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d + 0.186772494978868*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d - 3*_z__t607_x6_t__d^2*_z__tpk9__d*_z__t607_x6ˍt_t__d + _z__t607_x6ˍtt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*_z__tpk10__d + 0.733408740981232*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d + (0.186772494978868 + _z__t607_x6ˍt_t__d)*_z__t607_x6ˍt_t__d*_z__tpk10__d - 2*_z__t607_x6_t__d*_z__tpk8__d*_z__tpk9__d*_z__t607_x6ˍt_t__d + 2*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d + _z__tpk8__d*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d
+ -0.0107474125815404 + 0.0118844545294561*_z__tpk5__d - monodromy_constants₁₀ + _z__t607_x4ˍttt_t__d*(3.03630565774502 + _z__tpk6__d)
+ -monodromy_constants₁₁ + 0.0252050154958852*_z__t607_x6_t__d^2*_z__tpk9__d + 0.0252050154958852*_z__tpk7__d*_z__tpk10__d - 1.46681748196246*_z__tpk9__d*_z__t607_x6ˍt_t__d^2 - 0.747089979915472*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d - 6*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d^2 - 0.0252050154958852*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d - 1.46681748196246*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d*_z__tpk9__d - 3*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d^2*_z__tpk9__d + 0.733408740981232*_z__t607_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + 2*_z__t607_x6ˍtt_t__d*(0.186772494978868 + _z__t607_x6ˍt_t__d)*_z__tpk10__d + _z__t607_x6ˍttt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*_z__tpk10__d - 2*_z__tpk8__d*_z__tpk9__d*_z__t607_x6ˍt_t__d^2 + 0.373544989957736*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d + 2*_z__tpk9__d*_z__t607_x6ˍt_t__d^2*_z__tpk10__d + (-0.0252050154958852 + _z__t607_x6ˍtt_t__d)*_z__t607_x6ˍt_t__d*_z__tpk10__d - 2*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d*_z__tpk8__d*_z__tpk9__d + 2*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d + _z__t607_x6ˍtt_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+ 0.000423720778388127 - 1.20576703007586*_z__t607_x4ˍttt_t__d - monodromy_constants₁₂ + _z__t607_x4ˍttt_t__d*_z__tpk5__d + _z__t607_x4ˍtttt_t__d*(3.03630565774502 + _z__tpk6__d)
+ -monodromy_constants₁₃ - 0.00498628616333008*_z__t607_x6_t__d^2*_z__tpk9__d - 0.00498628616333008*_z__tpk7__d*_z__tpk10__d - 1.12063496987321*_z__tpk9__d*_z__t607_x6ˍt_t__d^2 - 6*_z__tpk9__d*_z__t607_x6ˍt_t__d^3 + 0.151230092975311*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d + 0.00498628616333008*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d - 1.12063496987321*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d*_z__tpk9__d - 4.40045244588739*_z__t607_x6ˍtt_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d + 0.560317484936604*_z__t607_x6ˍtt_t__d*_z__tpk9__d*_z__tpk10__d + 3*_z__t607_x6ˍtt_t__d*(-0.0252050154958852 + _z__t607_x6ˍtt_t__d)*_z__tpk10__d - 1.46681748196246*_z__t607_x6ˍttt_t__d*_z__t607_x6_t__d*_z__tpk9__d - 3*_z__t607_x6ˍttt_t__d*_z__t607_x6_t__d^2*_z__tpk9__d + 0.733408740981232*_z__t607_x6ˍttt_t__d*_z__tpk9__d*_z__tpk10__d + 3*_z__t607_x6ˍttt_t__d*(0.186772494978868 + _z__t607_x6ˍt_t__d)*_z__tpk10__d + _z__t607_x6ˍtttt_t__d*(0.733408740981232 + _z__t607_x6_t__d + _z__tpk8__d)*_z__tpk10__d - 0.0756150464876555*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d + (0.00498628616333008 + _z__t607_x6ˍttt_t__d)*_z__t607_x6ˍt_t__d*_z__tpk10__d - 18*_z__t607_x6ˍtt_t__d*_z__t607_x6_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d - 6*_z__t607_x6ˍtt_t__d*_z__tpk8__d*_z__tpk9__d*_z__t607_x6ˍt_t__d + 6*_z__t607_x6ˍtt_t__d*_z__tpk9__d*_z__t607_x6ˍt_t__d*_z__tpk10__d - 2*_z__t607_x6ˍttt_t__d*_z__t607_x6_t__d*_z__tpk8__d*_z__tpk9__d + 2*_z__t607_x6ˍttt_t__d*_z__t607_x6_t__d*_z__tpk9__d*_z__tpk10__d + _z__t607_x6ˍttt_t__d*_z__tpk8__d*_z__tpk9__d*_z__tpk10__d
+┌ Warning: At t=3.029974349411251, dt was forced below floating point epsilon -2.438221592317512e-16, and step error estimate = 166.39529270679625. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+┌ Warning: At t=3.0299743494112508, dt was forced below floating point epsilon -4.3444136215661143e-16, and step error estimate = 54.194269799618986. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+┌ Warning: At t=3.0299743494112557, dt was forced below floating point epsilon -1.1231684429873637e-16, and step error estimate = 2215.474233364155. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+┌ Warning: At t=3.029974349411251, dt was forced below floating point epsilon -2.438221592317512e-16, and step error estimate = 166.39529270679625. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x7(t)])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(x7(t) => 0.7406010276264121)
+Trivially solvable variables: Dict{Any, Any}(_t607_x5ˍt_t_ => 0.18677249497886805, _t607_x4ˍt_t_ => -0.3014417575189659, _t607_x5_t_ => 0.7334087409812321, _t607_x5ˍtt_t_ => -0.025205015495885164, _t607_x5ˍttttt_t_ => -1275.0, _t607_x5ˍtttt_t_ => -0.331298828125, _t607_x5ˍttt_t_ => 0.004986286163330078, _t607_x4_t_ => 3.0363056577450207, _t607_x4ˍtt_t_ => 0.011884454529456079)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+┌ Warning: At t=3.040773801467564, dt was forced below floating point epsilon 4.440892098500626e-16, and step error estimate = 1.015521387940968. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+┌ Warning: At t=3.043327979240686, dt was forced below floating point epsilon 4.440892098500626e-16, and step error estimate = 1.0424351598717538. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+┌ Warning: At t=5.100069053972152e-5, dt was forced below floating point epsilon 6.776263578034403e-21, and step error estimate = 2.7425084933438817. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+┌ Warning: At t=5.1000690508001986e-5, dt was forced below floating point epsilon 6.776263578034403e-21, and step error estimate = 2.614836148675376. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+┌ Warning: At t=5.100069055659282e-5, dt was forced below floating point epsilon 6.776263578034403e-21, and step error estimate = 2.599383044196863. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+┌ Warning: At t=5.100069053972152e-5, dt was forced below floating point epsilon 6.776263578034403e-21, and step error estimate = 2.7425084933438817. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/3fgw8/src/integrator_interface.jl:623
+
+=== Model: BioHydrogenation ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x7(t)
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • x7(t) = 0.740601
+
+
+Found 4 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.225643 |   0.225643
+x6(t)        |   0.000000 |  -2.897424 |   2.897424
+x7(t)        |   0.000000 |  -0.230398 |   0.230398
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.000000 |   1.000000
+k8           |   1.000000 |   3.130372 |   2.130372
+k9           |   0.200000 |  -0.219665 |   2.098326
+k10          |   5.000000 |  -5.991886 |   2.198377
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   4.000000 |   0.000000
+x5(t)        |   0.000000 |  -0.225644 |   0.225644
+x6(t)        |   0.000000 |   3.094463 |   3.094463
+x7(t)        |   0.000000 |  -0.230398 |   0.230398
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.000000 |   1.000000
+k8           |   1.000000 |  -2.861514 |   3.861514
+k9           |   0.200000 |   0.219665 |   0.098326
+k10          |   5.000000 |   5.991886 |   0.198377
+
+
+Cluster 3: 2 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   3.036313 |   0.240922
+x5(t)        |   0.000000 |   0.733404 |   0.733404
+x6(t)        |   0.000000 |  -1.348460 |   1.348460
+x7(t)        |   0.000000 |   2.089060 |   2.089060
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.210849 |   0.297171
+k8           |   1.000000 |   0.615150 |   0.384850
+k9           |   0.200000 | 140018.820160 | 700093.100800
+k10          |   5.000000 |   0.000002 |   1.000000
+
+
+Cluster 4: 2 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x4(t)        |   4.000000 |   3.036313 |   0.240922
+x5(t)        |   0.000000 |   0.733404 |   0.733404
+x6(t)        |   0.000000 |  -1.348537 |   1.348537
+x7(t)        |   0.000000 |   2.089134 |   2.089134
+k5           |   0.500000 |   0.500000 |   0.000000
+k6           |   2.000000 |   2.000000 |   0.000000
+k7           |   0.300000 |   0.210849 |   0.297171
+k8           |   1.000000 |   0.615152 |   0.384848
+k9           |   0.200000 | -140018.820160 | 700095.100800
+k10          |   5.000000 |  -0.000002 |   1.000000
+
+
+Best approximation error for BioHydrogenation: 1.0e15
+
+Best maximum relative error for BioHydrogenation (excluding ALL unidentifiable parameters): 2.897424
+[ Info: Running model: global_unident_test
+Starting model: global_unident_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.022451808173287735, x3(t) => 0.45350988152800864, b => 0.7505029157869612)
+DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
+We are trying these points:[172]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 1
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[d, x3(t), b, c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(d => 0.022451808173287735, x3(t) => 0.45350988152800864, b => 0.7505029157869612)
+Trivially solvable variables: Dict{Any, Any}(_t172_x2ˍt_t_ => 0.9180531430539958, _t172_x2_t_ => 3.819468569458422, _t172_x1ˍt_t_ => -0.18361062861078636, _t172_x1_t_ => 1.8361062861083153)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: global_unident_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • d
+  • x3(t)
+  • b
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • d = 0.022452
+  • x3(t) = 0.453510
+  • b = 0.750503
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   0.416713 |   0.895822
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.750503 |   2.752515
+c            |   0.300000 |  -0.250503 |   1.835010
+d            |   0.400000 |   0.022452 |   0.943870
+
+
+Best approximation error for global_unident_test: 0.0
+
+Best maximum relative error for global_unident_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: sum_test
+Starting model: sum_test
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.6108481941835061)
+DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
+We are trying these points:[482]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 4
+System of length 10
+ 10 variables: _z__tpa__d, _z__tpb__d, _z__t482_x1_t__d, _z__t482_x2_t__d, _z__t482_x1ˍt_t__d, _z__t482_x2ˍt_t__d, _z__t482_x1ˍtt_t__d, _z__t482_x2ˍtt_t__d, _z__t482_x2ˍttt_t__d, _z__t482_x1ˍttt_t__d
+ 10 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀
+
+ 1.92766294368002 - monodromy_constants₁ - 0.610848194183506*(_z__t482_x1_t__d + _z__t482_x2_t__d)
+ 0.244010352555875 - monodromy_constants₂ - 0.610848194183506*(_z__t482_x1ˍt_t__d + _z__t482_x2ˍt_t__d)
+ 0.062954294134272 - monodromy_constants₃ - 0.610848194183506*(_z__t482_x1ˍtt_t__d + _z__t482_x2ˍtt_t__d)
+ 0.0111756364603934 - monodromy_constants₄ - 0.610848194183506*(_z__t482_x1ˍttt_t__d + _z__t482_x2ˍttt_t__d)
+ _z__t482_x1ˍt_t__d - monodromy_constants₅ + _z__tpa__d*_z__t482_x1_t__d
+ _z__t482_x2ˍt_t__d - monodromy_constants₆ - _z__tpb__d*_z__t482_x2_t__d
+ _z__t482_x1ˍtt_t__d - monodromy_constants₇ + _z__t482_x1ˍt_t__d*_z__tpa__d
+ _z__t482_x2ˍtt_t__d - monodromy_constants₈ - _z__t482_x2ˍt_t__d*_z__tpb__d
+ _z__t482_x2ˍttt_t__d - monodromy_constants₉ - _z__tpb__d*_z__t482_x2ˍtt_t__d
+ _z__t482_x1ˍttt_t__d - monodromy_constants₁₀ + _z__t482_x1ˍtt_t__d*_z__tpa__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[x1(t), x2(t), c])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(c => 0.6108481941835061)
+Trivially solvable variables: Dict{Any, Any}(_t482_x3ˍttt_t_ => 0.062954294134272, _t482_x3_t_ => 8.062202909368828, _t482_x3ˍtt_t_ => 0.24401035255587544, _t482_x3ˍt_t_ => 1.9276629436800192, _t482_x3ˍtttt_t_ => 0.011175636460393434)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: sum_test ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • x1(t)
+  • x2(t)
+  • c
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • c = 0.610848
+
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.473361 |   0.263319
+x2(t)        |   3.000000 |   0.982241 |   0.672586
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |  -0.200000 |   3.000000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.610848 |   1.036161
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   0.982241 |   0.508880
+x2(t)        |   3.000000 |   1.473361 |   0.508880
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |   0.610848 |   1.036161
+
+
+Best approximation error for sum_test: 0.0
+
+Best maximum relative error for sum_test (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: slowfast
+Starting model: slowfast
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
+We are trying these points:[781]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 4 entries:
+  4 => 0
+  2 => 2
+  3 => 0
+  1 => 2
+System of length 9
+ 9 variables: _z__tpk2__d, _z__tpk1__d, _z__tpeB__d, _z__t781_xA_t__d, _z__t781_xB_t__d, _z__t781_xAˍt_t__d, _z__t781_xBˍt_t__d, _z__t781_xAˍtt_t__d, _z__t781_xBˍtt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ -0.0359776735794306 + 0.666*_z__t781_xA_t__d - monodromy_constants₁ + _z__t781_xB_t__d*_z__tpeB__d
+ 0.00962824324699959 + 0.666*_z__t781_xAˍt_t__d - monodromy_constants₂ + _z__t781_xBˍt_t__d*_z__tpeB__d
+ -0.00272397323774563 + 0.666*_z__t781_xAˍtt_t__d - monodromy_constants₃ + _z__tpeB__d*_z__t781_xBˍtt_t__d
+ _z__t781_xAˍt_t__d - monodromy_constants₄ + _z__t781_xA_t__d*_z__tpk1__d
+ _z__t781_xBˍt_t__d - monodromy_constants₅ - _z__t781_xA_t__d*_z__tpk1__d + _z__t781_xB_t__d*_z__tpk2__d
+ 0.0134989475474043 - monodromy_constants₆ - _z__t781_xB_t__d*_z__tpk2__d
+ _z__t781_xAˍtt_t__d - monodromy_constants₇ + _z__t781_xAˍt_t__d*_z__tpk1__d
+ _z__t781_xBˍtt_t__d - monodromy_constants₈ - _z__t781_xAˍt_t__d*_z__tpk1__d + _z__t781_xBˍt_t__d*_z__tpk2__d
+ -0.00379728678827718 - monodromy_constants₉ - _z__t781_xBˍt_t__d*_z__tpk2__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t781_eCˍtt_t_ => 0, _t781_xCˍtt_t_ => -0.0037972867882771766, _t781_eAˍtt_t_ => 0, _t781_eAˍt_t_ => 0, _t781_eCˍt_t_ => 0, _t781_eA_t_ => 0.666, _t781_eC_t_ => 0.833, _t781_xC_t_ => 0.9483846090218229, _t781_xCˍt_t_ => 0.013498947547404327)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: slowfast ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |   0.166000 |   0.000000
+xB(t)        |   0.333000 |   0.333000 |   0.000000
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.250000 |   0.000000
+k2           |   0.500000 |   0.500000 |   0.000000
+eB           |   0.750000 |   0.750000 |   0.000000
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+xA(t)        |   0.166000 |  -0.167000 |   2.006024
+xB(t)        |   0.333000 |   0.666000 |   1.000000
+xC(t)        |   0.500000 |   0.500000 |   0.000000
+eA(t)        |   0.666000 |   0.666000 |   0.000000
+eC(t)        |   0.833000 |   0.833000 |   0.000000
+k1           |   0.250000 |   0.500000 |   1.000000
+k2           |   0.500000 |   0.250000 |   0.500000
+eB           |   0.750000 |   0.708000 |   0.056000
+
+
+Best approximation error for slowfast: 0.0
+
+Best maximum relative error for slowfast (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: threesp_cubed
+Starting model: threesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
+We are trying these points:[871]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 3 entries:
+  2 => 1
+  3 => 1
+  1 => 1
+System of length 9
+ 9 variables: _z__tpa__d, _z__tpb__d, _z__tpc__d, _z__t871_x1_t__d, _z__t871_x2_t__d, _z__t871_x3_t__d, _z__t871_x2ˍt_t__d, _z__t871_x3ˍt_t__d, _z__t871_x1ˍt_t__d
+ 9 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉
+
+ -5.21334836894097 - monodromy_constants₁ + _z__t871_x2_t__d^3
+ 1.80694993248206 - monodromy_constants₂ + 3*_z__t871_x2ˍt_t__d*_z__t871_x2_t__d^2
+ -9.27342914352039 - monodromy_constants₃ + _z__t871_x3_t__d^3
+ 3.97911464878712 - monodromy_constants₄ + 3*_z__t871_x3ˍt_t__d*_z__t871_x3_t__d^2
+ -1.00496540831597 - monodromy_constants₅ + _z__t871_x1_t__d^3
+ 0.521908350675687 - monodromy_constants₆ + 3*_z__t871_x1ˍt_t__d*_z__t871_x1_t__d^2
+ _z__t871_x2ˍt_t__d - monodromy_constants₇ + _z__tpb__d*_z__t871_x1_t__d
+ _z__t871_x3ˍt_t__d - monodromy_constants₈ + _z__tpc__d*_z__t871_x1_t__d
+ _z__t871_x1ˍt_t__d - monodromy_constants₉ + _z__tpa__d*_z__t871_x2_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+DEBUG [ODEPEtestwrapper]: Processing solution 3
+
+DEBUG [ODEPEtestwrapper]: Processing solution 4
+
+DEBUG [ODEPEtestwrapper]: Processing solution 5
+
+DEBUG [ODEPEtestwrapper]: Processing solution 6
+
+DEBUG [ODEPEtestwrapper]: Processing solution 7
+
+DEBUG [ODEPEtestwrapper]: Processing solution 8
+
+DEBUG [ODEPEtestwrapper]: Processing solution 9
+
+DEBUG [ODEPEtestwrapper]: Processing solution 10
+
+DEBUG [ODEPEtestwrapper]: Processing solution 11
+
+DEBUG [ODEPEtestwrapper]: Processing solution 12
+
+DEBUG [ODEPEtestwrapper]: Processing solution 13
+
+DEBUG [ODEPEtestwrapper]: Processing solution 14
+
+DEBUG [ODEPEtestwrapper]: Processing solution 15
+
+DEBUG [ODEPEtestwrapper]: Processing solution 16
+
+DEBUG [ODEPEtestwrapper]: Processing solution 17
+
+DEBUG [ODEPEtestwrapper]: Processing solution 18
+
+=== Model: threesp_cubed ===
+
+Found 13 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.420582):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -1.000000 |   1.500000
+x2(t)        |   3.000000 |  -1.500000 |   1.500000
+x3(t)        |   4.000000 |  -2.000000 |   1.500000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Cluster 2: 2 similar solutions
+Best solution (Error: 0.398895):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.240967 |   0.379516
+x2(t)        |   3.000000 |  -1.350940 |   1.450313
+x3(t)        |   4.000000 |  -1.776410 |   1.444102
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.396606):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.333150 |   1.166575
+x2(t)        |   3.000000 |  -0.687007 |   1.229002
+x3(t)        |   4.000000 |  -1.590389 |   1.397597
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.39444):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -1.000000 |   1.500000
+x2(t)        |   3.000000 |  -1.500000 |   1.500000
+x3(t)        |   4.000000 |  -0.575704 |   1.143926
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 0.382):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.333150 |   1.166575
+x2(t)        |   3.000000 |  -0.687007 |   1.229002
+x3(t)        |   4.000000 |  -0.780510 |   1.195127
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 0.359697):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.907817 |   1.453909
+x2(t)        |   3.000000 |   2.037946 |   0.320685
+x3(t)        |   4.000000 |  -1.962430 |   1.490608
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Cluster 7: 1 similar solutions
+Best solution (Error: 0.334552):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.907817 |   1.453909
+x2(t)        |   3.000000 |   2.037946 |   0.320685
+x3(t)        |   4.000000 |  -0.594489 |   1.148622
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 8: 2 similar solutions
+Best solution (Error: 0.304143):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -1.000000 |   1.500000
+x2(t)        |   3.000000 |  -1.500000 |   1.500000
+x3(t)        |   4.000000 |   2.575704 |   0.356074
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 9: 2 similar solutions
+Best solution (Error: 0.302096):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.333150 |   1.166575
+x2(t)        |   3.000000 |  -0.687007 |   1.229002
+x3(t)        |   4.000000 |   2.370899 |   0.407275
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 10: 1 similar solutions
+Best solution (Error: 0.267278):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |  -2.000000 |   1.500000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 11: 2 similar solutions
+Best solution (Error: 0.245119):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |  -0.907817 |   1.453909
+x2(t)        |   3.000000 |   2.037946 |   0.320685
+x3(t)        |   4.000000 |   2.556919 |   0.360770
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |  -0.150000 |   1.500000
+
+
+Cluster 12: 2 similar solutions
+Best solution (Error: 0.189831):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.240967 |   0.379516
+x2(t)        |   3.000000 |  -1.350940 |   1.450313
+x3(t)        |   4.000000 |   3.552819 |   0.111795
+a            |   0.100000 |  -0.050000 |   1.500000
+b            |   0.200000 |  -0.100000 |   1.500000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Cluster 13: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+x2(t)        |   3.000000 |   3.000000 |   0.000000
+x3(t)        |   4.000000 |   4.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+b            |   0.200000 |   0.200000 |   0.000000
+c            |   0.300000 |   0.300000 |   0.000000
+
+
+Best approximation error for threesp_cubed: 0.0
+
+Best maximum relative error for threesp_cubed (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: onesp_cubed
+Starting model: onesp_cubed
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
+We are trying these points:[92]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 1
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+=== Model: onesp_cubed ===
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.100000 |   0.100000 |   0.000000
+
+
+Best approximation error for onesp_cubed: 0.0
+
+Best maximum relative error for onesp_cubed (excluding ALL unidentifiable parameters): 0.0
+[ Info: Running model: daisy_ex3
+Starting model: DAISY_ex3
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
+We are trying these points:[860]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  2 => 0
+  1 => 7
+System of length 18
+ 18 variables: _z__tpp7__d, _z__tpp3__d, _z__tpp6__d, _z__tpp1__d, _z__tpp4__d, _z__t860_x2_t__d, _z__t860_x3_t__d, _z__t860_x2ˍt_t__d, _z__t860_x2ˍtt_t__d, _z__t860_x2ˍttt_t__d, _z__t860_x2ˍtttt_t__d, _z__t860_x2ˍttttt_t__d, _z__t860_x2ˍtttttt_t__d, _z__t860_x3ˍt_t__d, _z__t860_x3ˍtt_t__d, _z__t860_x3ˍttt_t__d, _z__t860_x3ˍtttt_t__d, _z__t860_x3ˍttttt_t__d
+ 18 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅, monodromy_constants₁₆, monodromy_constants₁₇, monodromy_constants₁₈
+
+ 12.9799654014779 - _z__t860_x2_t__d + 27.9121578219044*_z__tpp1__d - monodromy_constants₁
+ 9.73674367421336 - _z__t860_x2ˍt_t__d + 18.0749654014778*_z__tpp1__d - monodromy_constants₂
+ 6.23549664474558 - _z__t860_x2ˍtt_t__d + 10.7367436742134*_z__tpp1__d - monodromy_constants₃
+ 3.58913484215736 - _z__t860_x2ˍttt_t__d + 6.23549664474558*_z__tpp1__d - monodromy_constants₄
+ 2.08311462402344 - _z__t860_x2ˍtttt_t__d + 3.58913484215736*_z__tpp1__d - monodromy_constants₅
+ -3.4453125 - _z__t860_x2ˍttttt_t__d + 2.08311462402344*_z__tpp1__d - monodromy_constants₆
+ 358.0 - _z__t860_x2ˍtttttt_t__d - 3.4453125*_z__tpp1__d - monodromy_constants₇
+ _z__t860_x2ˍt_t__d - _z__t860_x3_t__d - 27.9121578219044*_z__tpp3__d - monodromy_constants₈ + _z__t860_x2_t__d*_z__tpp4__d
+ _z__t860_x2ˍtt_t__d - _z__t860_x3ˍt_t__d - 18.0749654014778*_z__tpp3__d - monodromy_constants₉ + _z__tpp4__d*_z__t860_x2ˍt_t__d
+ _z__t860_x2ˍttt_t__d - _z__t860_x3ˍtt_t__d - 10.7367436742134*_z__tpp3__d - monodromy_constants₁₀ + _z__t860_x2ˍtt_t__d*_z__tpp4__d
+ _z__t860_x2ˍtttt_t__d - _z__t860_x3ˍttt_t__d - 6.23549664474558*_z__tpp3__d - monodromy_constants₁₁ + _z__t860_x2ˍttt_t__d*_z__tpp4__d
+ _z__t860_x2ˍttttt_t__d - _z__t860_x3ˍtttt_t__d - 3.58913484215736*_z__tpp3__d - monodromy_constants₁₂ + _z__t860_x2ˍtttt_t__d*_z__tpp4__d
+ _z__t860_x2ˍtttttt_t__d - _z__t860_x3ˍttttt_t__d - 2.08311462402344*_z__tpp3__d - monodromy_constants₁₃ + _z__t860_x2ˍttttt_t__d*_z__tpp4__d
+ _z__t860_x3ˍt_t__d - 27.9121578219044*_z__tpp6__d - monodromy_constants₁₄ + _z__t860_x3_t__d*_z__tpp7__d
+ _z__t860_x3ˍtt_t__d - 18.0749654014778*_z__tpp6__d - monodromy_constants₁₅ + _z__t860_x3ˍt_t__d*_z__tpp7__d
+ _z__t860_x3ˍttt_t__d - 10.7367436742134*_z__tpp6__d - monodromy_constants₁₆ + _z__t860_x3ˍtt_t__d*_z__tpp7__d
+ _z__t860_x3ˍtttt_t__d - 6.23549664474558*_z__tpp6__d - monodromy_constants₁₇ + _z__t860_x3ˍttt_t__d*_z__tpp7__d
+ _z__t860_x3ˍttttt_t__d - 3.58913484215736*_z__tpp6__d - monodromy_constants₁₈ + _z__tpp7__d*_z__t860_x3ˍtttt_t__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t860_x1ˍtt_t_ => 10.736743674213358, _t860_x1ˍttttttt_t_ => 358.0, _t860_u0_t_ => 5.094999999999962, _t860_u0ˍtttttt_t_ => 0, _t860_x1ˍttttt_t_ => 2.0831146240234375, _t860_x1_t_ => 27.912157821904362, _t860_u0ˍtttt_t_ => 0, _t860_x1ˍtttt_t_ => 3.589134842157364, _t860_u0ˍtt_t_ => 0, _t860_u0ˍttt_t_ => 0, _t860_u0ˍttttt_t_ => 0, _t860_u0ˍt_t_ => 1.0, _t860_x1ˍttt_t_ => 6.235496644745581, _t860_x1ˍtttttt_t_ => -3.4453125, _t860_x1ˍt_t_ => 18.07496540147781)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_ex3 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 9.987828276552618e132):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 | -22151580247493693993187595203107275500817487107457784881303377882027847957230075041080674011256637397205189433972536634829328920550047744.000000 | 110757901237468464801438219841719198192249091531265175747105303751692214124831662124108126022600797726735240609587020302340300657255251968.000000
+x2(t)        |   0.400000 | -1339683150592326413770306627179140033695818910641316248206973111545519977545020290024187436235451836149994403975101346176983093615049834496.000000 | 3349207876480815951793770469166775215250133772506910641966847408328647533281451315759744686049711362226334704973342759493556230909704798208.000000
+x3(t)        |   0.600000 | -84448848832214813649056323275755667550351749668061110786533483727896749882579805908072583435252497011820016255435501253279126146314087170048.000000 | 140748081387024685889462038578266918173704606605322972226064163736994746952839435049956752465093650618690904747244316234978746110398900994048.000000
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p1           |   0.167000 | 139.323196 | 833.270632
+p3           |   0.333000 | -8561.025424 | 25709.785057
+p4           |   0.500000 |   0.325595 |   0.348810
+p6           |   0.667000 | -539563.338609 | 808941.537644
+p7           |   0.833000 | -62.686398 |  76.253779
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 9.98367534713948e132):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 | -22142369641683247304282624334305570433638480613366608633270814158763387520233010467835053772302218715071069346732160465261344699663253504.000000 | 110711848208416231356913365497710672856354059060809294506942485135369911939846339257880024827828704316064640173385139454500379552821280768.000000
+x2(t)        |   0.400000 | -1339126111623863594058543726326783097645365064878724394660781831526821344850195168648681599907368874254977795840611956192390156031029673984.000000 | 3347815279059658985146359315816957744113412662196810986651954578817053362125487921621703999768422185637444489601529890480975390077574184960.000000
+x3(t)        |   0.600000 | -32729848542183255089696285501657791724950910149307623250836282574347269650588857883983863795881528274588288101545019110522925064139046912.000000 | 54549747570305426870993727894035379312197631584187288304530999510061124638087667500404854337696676877410715689333586141473656422063407104.000000
+u0(t)        |   0.800000 |   0.800000 |   0.000000
+p1           |   0.167000 | 139.323196 | 833.270632
+p3           |   0.333000 | -8561.025424 | 25709.785057
+p4           |   0.500000 | -62.686398 | 126.372796
+p6           |   0.667000 | -116.064127 | 175.009186
+p7           |   0.833000 |   0.325595 |   0.609129
+
+
+Best approximation error for DAISY_ex3: 9.98367534713948e132
+
+Best maximum relative error for DAISY_ex3 (excluding ALL unidentifiable parameters): 3.347815279059658e138
+[ Info: Running model: daisy_mamil4
+Starting model: DAISY_mamil4
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
+We are trying these points:[945]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 2 entries:
+  3 => 4
+  1 => 5
+System of length 22
+ 22 variables: _z__tpk12__d, _z__tpk21__d, _z__tpk01__d, _z__tpk14__d, _z__tpk13__d, _z__tpk31__d, _z__tpk41__d, _z__t945_x2_t__d, _z__t945_x3_t__d, _z__t945_x4_t__d, _z__t945_x4ˍt_t__d, _z__t945_x3ˍt_t__d, _z__t945_x3ˍtt_t__d, _z__t945_x4ˍtt_t__d, _z__t945_x4ˍttt_t__d, _z__t945_x3ˍttt_t__d, _z__t945_x4ˍtttt_t__d, _z__t945_x3ˍtttt_t__d, _z__t945_x2ˍt_t__d, _z__t945_x2ˍtt_t__d, _z__t945_x2ˍttt_t__d, _z__t945_x2ˍtttt_t__d
+ 22 parameters: monodromy_constants₁, monodromy_constants₂, monodromy_constants₃, monodromy_constants₄, monodromy_constants₅, monodromy_constants₆, monodromy_constants₇, monodromy_constants₈, monodromy_constants₉, monodromy_constants₁₀, monodromy_constants₁₁, monodromy_constants₁₂, monodromy_constants₁₃, monodromy_constants₁₄, monodromy_constants₁₅, monodromy_constants₁₆, monodromy_constants₁₇, monodromy_constants₁₈, monodromy_constants₁₉, monodromy_constants₂₀, monodromy_constants₂₁, monodromy_constants₂₂
+
+ -1.02057544808932 + _z__t945_x3_t__d + _z__t945_x4_t__d - monodromy_constants₁
+ 0.0374553158061453 + _z__t945_x3ˍt_t__d + _z__t945_x4ˍt_t__d - monodromy_constants₂
+ -0.00696853608845061 + _z__t945_x3ˍtt_t__d + _z__t945_x4ˍtt_t__d - monodromy_constants₃
+ 0.0021101851008325 + _z__t945_x3ˍttt_t__d + _z__t945_x4ˍttt_t__d - monodromy_constants₄
+ -0.000684140242810827 + _z__t945_x3ˍtttt_t__d + _z__t945_x4ˍtttt_t__d - monodromy_constants₅
+ _z__t945_x4ˍt_t__d - 0.249898958339819*_z__tpk41__d - monodromy_constants₆ + _z__t945_x4_t__d*_z__tpk14__d
+ _z__t945_x3ˍt_t__d - 0.249898958339819*_z__tpk31__d - monodromy_constants₇ + _z__t945_x3_t__d*_z__tpk13__d
+ _z__t945_x3ˍtt_t__d + 0.00625056849735545*_z__tpk31__d - monodromy_constants₈ + _z__t945_x3ˍt_t__d*_z__tpk13__d
+ _z__t945_x4ˍtt_t__d + 0.00625056849735545*_z__tpk41__d - monodromy_constants₉ + _z__t945_x4ˍt_t__d*_z__tpk14__d
+ _z__t945_x4ˍttt_t__d - 0.000836518912735507*_z__tpk41__d - monodromy_constants₁₀ + _z__t945_x4ˍtt_t__d*_z__tpk14__d
+ _z__t945_x3ˍttt_t__d - 0.000836518912735507*_z__tpk31__d - monodromy_constants₁₁ + _z__t945_x3ˍtt_t__d*_z__tpk13__d
+ _z__t945_x4ˍtttt_t__d + 0.000273137562944115*_z__tpk41__d - monodromy_constants₁₂ + _z__t945_x4ˍttt_t__d*_z__tpk14__d
+ _z__t945_x3ˍtttt_t__d + 0.000273137562944115*_z__tpk31__d - monodromy_constants₁₃ + _z__t945_x3ˍttt_t__d*_z__tpk13__d
+ -0.00625056849735545 + 0.249898958339819*_z__tpk01__d + 0.249898958339819*_z__tpk21__d + 0.249898958339819*_z__tpk31__d + 0.249898958339819*_z__tpk41__d - monodromy_constants₁₄ - _z__t945_x2_t__d*_z__tpk12__d - _z__t945_x3_t__d*_z__tpk13__d - _z__t945_x4_t__d*_z__tpk14__d
+ 0.000836518912735507 - 0.00625056849735545*_z__tpk01__d - 0.00625056849735545*_z__tpk21__d - 0.00625056849735545*_z__tpk31__d - 0.00625056849735545*_z__tpk41__d - monodromy_constants₁₅ - _z__t945_x2ˍt_t__d*_z__tpk12__d - _z__t945_x3ˍt_t__d*_z__tpk13__d - _z__t945_x4ˍt_t__d*_z__tpk14__d
+ -0.000273137562944115 + 0.000836518912735507*_z__tpk01__d + 0.000836518912735507*_z__tpk21__d + 0.000836518912735507*_z__tpk31__d + 0.000836518912735507*_z__tpk41__d - monodromy_constants₁₆ - _z__t945_x2ˍtt_t__d*_z__tpk12__d - _z__t945_x3ˍtt_t__d*_z__tpk13__d - _z__t945_x4ˍtt_t__d*_z__tpk14__d
+ 9.04023535781562e-05 - 0.000273137562944115*_z__tpk01__d - 0.000273137562944115*_z__tpk21__d - 0.000273137562944115*_z__tpk31__d - 0.000273137562944115*_z__tpk41__d - monodromy_constants₁₇ - _z__t945_x2ˍttt_t__d*_z__tpk12__d - _z__t945_x3ˍttt_t__d*_z__tpk13__d - _z__t945_x4ˍttt_t__d*_z__tpk14__d
+ -4.79297227684583e-06 + 9.04023535781562e-05*_z__tpk01__d + 9.04023535781562e-05*_z__tpk21__d + 9.04023535781562e-05*_z__tpk31__d + 9.04023535781562e-05*_z__tpk41__d - monodromy_constants₁₈ - _z__t945_x2ˍtttt_t__d*_z__tpk12__d - _z__t945_x3ˍtttt_t__d*_z__tpk13__d - _z__t945_x4ˍtttt_t__d*_z__tpk14__d
+ _z__t945_x2ˍt_t__d - 0.249898958339819*_z__tpk21__d - monodromy_constants₁₉ + _z__t945_x2_t__d*_z__tpk12__d
+ _z__t945_x2ˍtt_t__d + 0.00625056849735545*_z__tpk21__d - monodromy_constants₂₀ + _z__t945_x2ˍt_t__d*_z__tpk12__d
+ _z__t945_x2ˍttt_t__d - 0.000836518912735507*_z__tpk21__d - monodromy_constants₂₁ + _z__t945_x2ˍtt_t__d*_z__tpk12__d
+ _z__t945_x2ˍtttt_t__d + 0.000273137562944115*_z__tpk21__d - monodromy_constants₂₂ + _z__t945_x2ˍttt_t__d*_z__tpk12__d
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}(_t945_x1_t_ => 0.24989895833981876, _t945_x1ˍt_t_ => -0.0062505684973554465, _t945_x1ˍttt_t_ => -0.0002731375629441146, _t945_x1ˍttttt_t_ => -4.7929722768458305e-6, _t945_x1ˍtt_t_ => 0.0008365189127355066, _t945_x1ˍtttt_t_ => 9.040235357815618e-5)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: DAISY_mamil4 ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200005 |   0.000026
+x2(t)        |   0.400000 |   0.399998 |   0.000006
+x3(t)        |   0.600000 |   0.600005 |   0.000009
+x4(t)        |   0.800000 |   0.799991 |   0.000011
+k01          |   0.125000 |   0.125000 |   0.000001
+k12          |   0.250000 |   0.250000 |   0.000000
+k13          |   0.375000 |   0.375002 |   0.000006
+k14          |   0.500000 |   0.499994 |   0.000011
+k21          |   0.625000 |   0.624999 |   0.000001
+k31          |   0.750000 |   0.750025 |   0.000033
+k41          |   0.875000 |   0.874962 |   0.000043
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   0.200000 |   0.200005 |   0.000026
+x2(t)        |   0.400000 |   0.399998 |   0.000006
+x3(t)        |   0.600000 |   0.799991 |   0.333318
+x4(t)        |   0.800000 |   0.600005 |   0.249993
+k01          |   0.125000 |   0.125000 |   0.000001
+k12          |   0.250000 |   0.250000 |   0.000000
+k13          |   0.375000 |   0.499994 |   0.333318
+k14          |   0.500000 |   0.375002 |   0.249996
+k21          |   0.625000 |   0.624999 |   0.000001
+k31          |   0.750000 |   0.874962 |   0.166616
+k41          |   0.875000 |   0.750025 |   0.142829
+
+
+Best approximation error for DAISY_mamil4: 0.0
+
+Best maximum relative error for DAISY_mamil4 (excluding ALL unidentifiable parameters): 4.3e-5
+[ Info: Running model: two_compartment_pk
+Starting model: two_compartment_pk
+
+DEBUG [MPHCPE]: Starting parameter estimation...
+DEBUG [MPHCPE]: Analyzing identifiability with 2 points
+DEBUG [MPHCPE]: Final analysis with 1 points
+DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.9189781605535653, V1 => 0.25319597323309617, V2 => 0.7409434223462631)
+DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
+We are trying these points:[458]
+Using these observations and their derivatives:
+Dict{Int64, Int64} with 1 entry:
+  1 => 3
+
+Unidentifiability Analysis from MPHCPE:
+All unidentifiable variables: Set(Any[k12, k21, V1, C2(t), V2, ke])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(k12 => 0.9189781605535653, V1 => 0.25319597323309617, V2 => 0.7409434223462631)
+Trivially solvable variables: Dict{Any, Any}(_t458_C1_t_ => 0.9711142025845304, _t458_C1ˍt_t_ => -0.04253297956132576, _t458_C1ˍtt_t_ => 0.0018628990082577568, _t458_C1ˍttt_t_ => -8.162237390030302e-5)
+
+DEBUG [ODEPEtestwrapper]: Processing solution 1
+
+DEBUG [ODEPEtestwrapper]: Processing solution 2
+
+=== Model: two_compartment_pk ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • k12
+  • k21
+  • V1
+  • C2(t)
+  • V2
+  • ke
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • k12 = 0.918978
+  • V1 = 0.253196
+  • V2 = 0.740943
+
+
+Found 1 distinct solution clusters:
+
+Cluster 1: 2 similar solutions
+Best solution (Error: 629517.792786):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 | 362570743.840576 | 36257073.384058
+C2(t)        |   0.000000 | -125204476.237528 | 125204476.237528
+k12          |   0.500000 |   0.918978 |   0.837956
+k21          |   0.250000 |  -0.009489 |   1.037955
+ke           |   0.150000 |  -0.009489 |   1.063259
+V1           |   1.000000 |   0.253196 |   0.746804
+V2           |   2.000000 |   0.740943 |   0.629528
+
+
+Best approximation error for two_compartment_pk: 629517.792786
+
+Best maximum relative error for two_compartment_pk (excluding ALL unidentifiable parameters): 3.6257073384058e7
