@@ -101,12 +101,14 @@ Analyze the results of parameter estimation, including clustering solutions and 
 - `problem`: The parameter estimation problem
 - `result`: Vector of solution results
 """
-function analyze_estimation_result(problem::ParameterEstimationProblem, result)
+function analyze_estimation_result(problem::ParameterEstimationProblem, result; nooutput = true)
 	# Merge dictionaries into a single OrderedDict
 	all_params = merge(OrderedDict(), problem.ic, problem.p_true)
 
 	# Print header
-	println("\n=== Model: $(problem.name) ===")
+	if !nooutput
+		println("\n=== Model: $(problem.name) ===")
+	end
 
 	# Filter out solutions with no error or error > threshold
 	valid_results = filter(x -> !isnothing(x.err) && x.err < MAX_ERROR_THRESHOLD, result)
@@ -128,42 +130,50 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 
 		# First show all structurally unidentifiable parameters
 		if hasfield(typeof(first_result), :all_unidentifiable) && !isempty(first_result.all_unidentifiable)
-			println("\nAll structurally unidentifiable parameters:")
-			println("-"^50)
-			println("These parameters cannot be uniquely determined from the data:")
-			for param in first_result.all_unidentifiable
-				println("  • $param")
+			if !nooutput
+				println("\nAll structurally unidentifiable parameters:")
+				println("-"^50)
+				println("These parameters cannot be uniquely determined from the data:")
+				for param in first_result.all_unidentifiable
+					println("  • $param")
+				end
+				println()
 			end
-			println()
 		end
 
 		# Then show the minimal set of fixed values
 		if !isnothing(first_result.unident_dict) && !isempty(first_result.unident_dict)
-			println("\nMinimal set of fixed values to make remaining parameters identifiable:")
-			println("-"^50)
-			println("These parameters were fixed to make the system identifiable:")
-			for (param, value) in first_result.unident_dict
-				# Format the value - handle complex numbers
-				val_str = if value isa Complex
-					abs(imag(value)) < 1e-10 ?
-					@sprintf("%.6f", real(value)) :
-					@sprintf("%.3f%+.3fi", real(value), imag(value))
-				else
-					@sprintf("%.6f", value)
+			if !nooutput
+				println("\nMinimal set of fixed values to make remaining parameters identifiable:")
+				println("-"^50)
+				println("These parameters were fixed to make the system identifiable:")
+				for (param, value) in first_result.unident_dict
+					# Format the value - handle complex numbers
+					val_str = if value isa Complex
+						abs(imag(value)) < 1e-10 ?
+						@sprintf("%.6f", real(value)) :
+						@sprintf("%.3f%+.3fi", real(value), imag(value))
+					else
+						@sprintf("%.6f", value)
+					end
+					println("  • $param = $val_str")
 				end
-				println("  • $param = $val_str")
+				println()
 			end
-			println()
 		end
 	end
 
 	# Print best solution from each cluster
-	println("\nFound $(length(clusters)) distinct solution clusters:")
+	if !nooutput
+		println("\nFound $(length(clusters)) distinct solution clusters:")
+	end
 	for (i, cluster) in enumerate(clusters)
 		best_solution = last(cluster)  # cluster is sorted by error
-		println("\nCluster $i: $(length(cluster)) similar solutions")
-		println("Best solution (Error: $(round(best_solution.err, digits=6))):")
-		println("-"^50)
+		if !nooutput
+			println("\nCluster $i: $(length(cluster)) similar solutions")
+			println("Best solution (Error: $(round(best_solution.err, digits=6))):")
+			println("-"^50)
+		end
 
 		# Get parameters in original order from the model
 		param_names = problem.model.original_parameters
@@ -200,8 +210,10 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 
 		# Print table header with dynamic width
 		header = @sprintf("%-*s | True Value  | Estimated   | Rel. Error", max_var_len, "Variable")
-		println(header)
-		println("-"^(length(header)))
+		if !nooutput
+			println(header)
+			println("-"^(length(header)))
+		end
 
 		# Print states and parameters
 		for (var, true_val, est_val, rel_err) in zip(var_names, true_values, estimates, rel_errors)
@@ -215,15 +227,19 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 			end
 
 			# Print the row with dynamic width
-			@printf("%-*s | %10.6f | %10s | %10.6f\n",
-				max_var_len, var, true_val, est_str, rel_err)
+			if !nooutput
+				@printf("%-*s | %10.6f | %10s | %10.6f\n",
+					max_var_len, var, true_val, est_str, rel_err)
+			end
 		end
 		println()
 	end
 
 	# Print best approximation error summary line
 	best_error = isempty(sorted_results) ? Inf : last(sorted_results).err
-	println("\nBest approximation error for $(problem.name): $(round(best_error, digits=6))")
+	if !nooutput
+		println("\nBest approximation error for $(problem.name): $(round(best_error, digits=6))")
+	end
 
 	# Calculate and return best error (excluding unidentifiable parameters)
 	besterror = Inf
@@ -274,7 +290,16 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 			besterror = min(besterror, maximum(errorvec))
 		end
 	end
-	println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")
-
-	return besterror
+	if !nooutput
+		println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")
+	end
+	# Return a tuple containing:
+	# - besterror: The minimum maximum relative error across all results
+	# - estimates: Vector of estimated values for identifiable parameters/states
+	# - true_values: Vector of true values for identifiable parameters/states 
+	# - identifiable_names: Vector of names of identifiable parameters/states
+	# - unidentifiable_names: Vector of names of unidentifiable parameters/states
+	return (
+		[last(cluster) for cluster in clusters]
+	)
 end

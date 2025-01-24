@@ -1,3385 +1,0 @@
-               _
-   _       _ _(_)_     |  Documentation: https://docs.julialang.org
-  (_)     | (_) (_)    |
-   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
-  | | | | | | |/ _` |  |
-  | | |_| | | | (_| |  |  Version 1.11.3 (2025-01-21)
- _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
-|__/                   |
-
-[?2004h[0Kjulia> [7C[7Cinc[0K[0Kjulia> [7Cinc[10Clude[4Dl[0K[0Kjulia> [7Cincl[11Cude[3Du[0K[0Kjulia> [7Cinclu[12Cde[2Dd[0K[0Kjulia> [7Cinclud[13Ce[1De[0K[0Kjulia> [7Cinclude[14C("ru[0K[0Kjulia> [7Cinclude("ru[18Cn_examples.jl"[14Dn[0K[0Kjulia> [7Cinclude("run[19C_examples.jl"[13D[0K[0Kjulia> [7Cinclude("run_examples.jl"[32C)[0Kjulia> [7Cinclude("run_examples.jl")[33C
-[?2004lPrecompiling ODEParameterEstimation...
-  35478.9 ms  ✓ ODEParameterEstimation
-  1 dependency successfully precompiled in 37 seconds. 572 already precompiled.
-run_parameter_estimation_examples
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[24]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: MethodError: no method matching construct_equation_system(::ODESystem, ::Vector{…}, ::OrderedDict{…}, ::Dict{…}, ::Dict{…}, ::Vector{…}, ::DerivativeData, ::Vector{…}; interpolator::typeof(aaad))
-This method may not support any kwargs.
-
-Closest candidates are:
-  construct_equation_system(::ODESystem, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any, !Matched::Any, !Matched::Any) got unsupported keyword argument "interpolator"
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:483
-  construct_equation_system(::ODESystem, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any, !Matched::Any) got unsupported keyword argument "interpolator"
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:483
-  construct_equation_system(::ODESystem, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any) got unsupported keyword argument "interpolator"
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:483
-
-Stacktrace:
- [1] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:64
- [2] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [3] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [4] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [5] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [6] top-level scope
-   @ REPL[2]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[22]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: MethodError: no method matching construct_equation_system(::ODESystem, ::Vector{…}, ::OrderedDict{…}, ::Dict{…}, ::Dict{…}, ::Vector{…}, ::DerivativeData, ::Vector{…}; interpolator::typeof(aaad))
-The function `construct_equation_system` exists, but no method is defined for this combination of argument types.
-
-Closest candidates are:
-  construct_equation_system(::ODESystem, ::Any, ::Any, ::Any, ::Any, ::Any, ::Any; interpolator, time_index_set, return_parameterized_system)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:483
-
-Stacktrace:
- [1] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:64
- [2] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [3] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [4] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [5] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [6] top-level scope
-   @ REPL[2]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[36]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: UndefVarError: `squarify_by_trashing` not defined in `ODEParameterEstimation`
-Suggestion: check for spelling errors or missing imports.
-Stacktrace:
- [1] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:399
- [2] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:387
- [3] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [4] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [5] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [6] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [7] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [8] top-level scope
-   @ REPL[2]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[24]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t24_x2_t_ => -2.459934151335895, _t24_x2ˍt_t_ => -1.8861115084736646, _t24_x1_t_ => -0.3207473753949448, _t24_x1ˍt_t_ => -2.4599341513354775)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: vanderpol ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.000000 |   0.000000
-x2(t)        |   0.000000 |   0.000000 |   0.000000
-a            |   1.000000 |   1.000000 |   0.000000
-b            |   1.000000 |   1.000000 |   0.000000
-
-
-Best approximation error for vanderpol: 0.0
-
-Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: lotka_volterra
-Starting model: Lotka_Volterra
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
-We are trying these points:[31]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t31_rˍtt_t_ => 0.31944638234663714, _t31_rˍt_t_ => 0.4539525269139542, _t31_r_t_ => 0.6380890806721135, _t31_rˍtttt_t_ => 0.0019383449997576463, _t31_rˍttt_t_ => 0.18041108690152718)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-┌ Warning: At t=4.746077536818496, dt was forced below floating point epsilon 8.881784197001252e-16, and step error estimate = NaN. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-=== Model: Lotka_Volterra ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-r(t)         |   2.000000 |   2.000001 |   0.000001
-w(t)         |   1.000000 |   1.000001 |   0.000001
-k1           |   1.000000 |   1.000000 |   0.000000
-k2           |   0.500000 |   0.500000 |   0.000000
-k3           |   0.300000 |   0.300000 |   0.000000
-
-
-Best approximation error for Lotka_Volterra: 0.0
-
-Best maximum relative error for Lotka_Volterra (excluding ALL unidentifiable parameters): 1.0e-6
-[ Info: Running model: repressilator
-Starting model: repressilator
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[n, beta, alpha, m1(t), m2(t), m3(t), p1(t), p2(t), p3(t)]
-We are trying these points:[20]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 3 entries:
-  2 => 2
-  3 => 2
-  1 => 2
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:589
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t20_p1ˍtt_t_ => -0.006418558923106721, _t20_p2ˍt_t_ => -0.013515066919181848, _t20_p3_t_ => 0.7560830089749009, _t20_p3ˍtt_t_ => 0.003299655356925335, _t20_p1ˍt_t_ => 0.007833180454782429, _t20_p2ˍtt_t_ => 0.004065633177177341, _t20_p1_t_ => 0.7868779260544754, _t20_p2_t_ => 0.8000389843816331, _t20_p3ˍt_t_ => 0.004912518954593048)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:589
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: repressilator ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-m1(t)        |   0.000000 |  -0.000000 |   0.000000
-m2(t)        |   0.000000 |   0.000000 |   0.000000
-m3(t)        |   0.000000 |  -0.000000 |   0.000000
-p1(t)        |   2.000000 |   2.000000 |   0.000000
-p2(t)        |   1.000000 |   1.000000 |   0.000000
-p3(t)        |   3.000000 |   3.000000 |   0.000000
-beta         |   2.000000 |   2.000000 |   0.000000
-n            |   2.000000 |   2.000000 |   0.000000
-alpha        |   1.000000 |   1.000000 |   0.000000
-
-
-Best approximation error for repressilator: 0.0
-
-Best maximum relative error for repressilator (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: treatment
-Starting model: treatment
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.1195045538302183)
-DEBUG [MPHCPE]: Final varlist: Num[nu, d, g, b, In(t), N(t), S(t), Tr(t)]
-We are trying these points:[38]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 0
-  1 => 6
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[a, S(t), d, g, b, In(t)])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.1195045538302183)
-Trivially solvable variables: Dict{Any, Any}(_t38_Trˍt_t_ => 85.77371911256955, _t38_Trˍttt_t_ => -21.305556864652317, _t38_Nˍtt_t_ => 0, _t38_Trˍttttt_t_ => 22.668941020965576, _t38_Tr_t_ => 161.08395525112698, _t38_Nˍttt_t_ => 0, _t38_Trˍtt_t_ => 16.99305350387658, _t38_Trˍtttttt_t_ => 26.753101348876953, _t38_N_t_ => 1000.0, _t38_Nˍtttt_t_ => 0, _t38_Nˍt_t_ => 0, _t38_Trˍtttt_t_ => -15.454732099547982)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-DEBUG [ODEPEtestwrapper]: Processing solution 3
-
-DEBUG [ODEPEtestwrapper]: Processing solution 4
-
-DEBUG [ODEPEtestwrapper]: Processing solution 5
-
-DEBUG [ODEPEtestwrapper]: Processing solution 6
-
-DEBUG [ODEPEtestwrapper]: Processing solution 7
-
-DEBUG [ODEPEtestwrapper]: Processing solution 8
-
-DEBUG [ODEPEtestwrapper]: Processing solution 9
-
-DEBUG [ODEPEtestwrapper]: Processing solution 10
-
-=== Model: treatment ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • a
-  • S(t)
-  • d
-  • g
-  • b
-  • In(t)
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • a = 0.119505
-
-
-Found 4 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.075319):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-In(t)        |  50.000000 |  -4.592197 |   1.091844
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-S(t)         | 950.000000 | -44.998276 |   1.047367
-Tr(t)        |   0.000000 |   5.507813 |   5.507813
-a            |   0.100000 |   0.119505 |   0.195046
-b            |   0.800000 |  10.569270 |  12.211588
-d            |   2.000000 |  -0.136806 |   1.068403
-g            |   0.300000 |  -1.323606 |   5.412021
-nu           |   0.100000 |  -0.506688 |   6.066884
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 0.075319):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-In(t)        |  50.000000 |  -3.572443 |   1.071449
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-S(t)         | 950.000000 | -95.114464 |   1.100120
-Tr(t)        |   0.000000 |   5.507813 |   5.507813
-a            |   0.100000 |   0.119505 |   0.195046
-b            |   0.800000 |   5.000280 |   5.250350
-d            |   2.000000 |  -1.402907 |   1.701454
-g            |   0.300000 |  -0.626193 |   3.087310
-nu           |   0.100000 |  -1.204102 |  13.041018
-
-
-Cluster 3: 1 similar solutions
-Best solution (Error: 3.5e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-In(t)        |  50.000000 | -748.988412 |  15.979768
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-S(t)         | 950.000000 | -14258.078814 |  16.008504
-Tr(t)        |   0.000000 |   0.002668 |   0.002668
-a            |   0.100000 |   0.119505 |   0.195046
-b            |   0.800000 |  -0.053398 |   1.066748
-d            |   2.000000 | -14.825457 |   8.412728
-g            |   0.300000 |  -0.020024 |   1.066747
-nu           |   0.100000 |   0.401683 |   3.016831
-
-
-Cluster 4: 1 similar solutions
-Best solution (Error: 3.5e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-In(t)        |  50.000000 |  53.146869 |   0.062937
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-S(t)         | 950.000000 | 1011.781999 |   0.065034
-Tr(t)        |   0.000000 |   0.002668 |   0.002668
-a            |   0.100000 |   0.119505 |   0.195046
-b            |   0.800000 |   0.752489 |   0.059389
-d            |   2.000000 |   2.123006 |   0.061503
-g            |   0.300000 |   0.282179 |   0.059405
-nu           |   0.100000 |   0.099481 |   0.005194
-
-
-Best approximation error for treatment: 3.5e-5
-
-Best maximum relative error for treatment (excluding ALL unidentifiable parameters): 0.005194
-[ Info: Running model: simple
-Starting model: simple
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[44]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t44_x1_t_ => -0.5598451468541898, _t44_x1ˍt_t_ => 0.07981360594541698, _t44_x2ˍt_t_ => -0.447876117483418, _t44_x2_t_ => -0.19953401486368152)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: simple ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.333000 |   0.333000 |   0.000000
-x2(t)        |   0.667000 |   0.667000 |   0.000000
-a            |   0.400000 |   0.400000 |   0.000000
-b            |   0.800000 |   0.800000 |   0.000000
-
-
-Best approximation error for simple: 0.0
-
-Best maximum relative error for simple (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: trivial_unident
-Starting model: trivial_unident
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(a => 0.9473737003770043)
-DEBUG [MPHCPE]: Final varlist: Num[b, x1(t)]
-We are trying these points:[19]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[a, b])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.9473737003770043)
-Trivially solvable variables: Dict{Any, Any}(_t19_x1ˍt_t_ => 20.81073038028834, _t19_x1_t_ => 17.342275316929914)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: trivial_unident ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • a
-  • b
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • a = 0.947374
-
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.000000 |   0.000000
-a            |   0.600000 |   0.947374 |   0.578956
-b            |   0.600000 |   0.252626 |   0.578956
-
-
-Best approximation error for trivial_unident: 0.0
-
-Best maximum relative error for trivial_unident (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: simple_linear_combination
-Starting model: simple_linear_combination
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[23]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}()
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: simple_linear_combination ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   1.000000 |   1.000000 |   0.000000
-x2(t)        |   2.000000 |   2.000000 |   0.000000
-a            |   0.400000 |   0.400000 |   0.000000
-b            |   0.800000 |   0.800000 |   0.000000
-
-
-Best approximation error for simple_linear_combination: 0.0
-
-Best maximum relative error for simple_linear_combination (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: substr_test
-Starting model: substr_test
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, beta, x1(t), x2(t), x3(t)]
-We are trying these points:[4]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 3 entries:
-  2 => 1
-  3 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t4_x3_t_ => 4.000144002592031, _t4_x1_t_ => 1.9082272675539154, _t4_x2ˍt_t_ => 0.381645453510685, _t4_x2_t_ => 3.117264408215538, _t4_x1ˍt_t_ => -0.3117264408215077, _t4_x3ˍt_t_ => 0.00048001728031277224)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: substr_test ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.000000 |   0.000000
-x2(t)        |   3.000000 |   3.000000 |   0.000000
-x3(t)        |   4.000000 |   4.000000 |   0.000000
-a            |   0.100000 |   0.100000 |   0.000000
-b            |   0.200000 |   0.200000 |   0.000000
-beta         |   0.300000 |   0.300000 |   0.000000
-
-
-Best approximation error for substr_test: 0.0
-
-Best maximum relative error for substr_test (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: lv_periodic
-Starting model: lv_periodic
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, d, b, c, x1(t), x2(t)]
-We are trying these points:[31]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 2
-  1 => 2
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t31_x1ˍt_t_ => -0.6783894448282783, _t31_x2ˍt_t_ => -4.3173322851786535, _t31_x2ˍtt_t_ => 7.094977195297808, _t31_x2_t_ => 2.2341225077771396, _t31_x1_t_ => 1.3321470297296927, _t31_x1ˍtt_t_ => 5.513249517782256)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: lv_periodic ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.014837):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   1.870932 |   0.064534
-x2(t)        |   0.500000 |   0.550822 |   0.101643
-a            |   1.500000 |   1.498200 |   0.001200
-b            |   0.900000 |   0.898538 |   0.001624
-c            |   3.000000 |   3.029435 |   0.009812
-d            |   0.800000 |   0.823470 |   0.029338
-
-
-Best approximation error for lv_periodic: 0.014837
-
-Best maximum relative error for lv_periodic (excluding ALL unidentifiable parameters): 0.101643
-[ Info: Running model: fitzhugh_nagumo
-Starting model: fitzhugh-nagumo
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, g, b, V(t), R(t)]
-We are trying these points:[4]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t4_Vˍttt_t_ => 22.080387473106384, _t4_Vˍtttt_t_ => 88.347900390625, _t4_Vˍt_t_ => -2.0021244026177953, _t4_V_t_ => -1.0036019226545911, _t4_Vˍtt_t_ => -1.1603992357267998)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: fitzhugh-nagumo ===
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-V(t)         |  -1.000000 |  -1.000000 |   0.000000
-R(t)         |   0.000000 |   0.058347 |   0.058347
-g            |   3.000000 |   3.287744 |   0.095915
-a            |   0.200000 |   0.580803 |   1.904013
-b            |   0.200000 |   6.526531 |  31.632657
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-V(t)         |  -1.000000 |  -1.000000 |   0.000000
-R(t)         |   0.000000 |   0.000039 |   0.000039
-g            |   3.000000 |   3.000175 |   0.000058
-a            |   0.200000 |   0.200008 |   0.000039
-b            |   0.200000 |   0.203527 |   0.017636
-
-
-Best approximation error for fitzhugh-nagumo: 0.0
-
-Best maximum relative error for fitzhugh-nagumo (excluding ALL unidentifiable parameters): 0.017636
-[ Info: Running model: daisy_mamil3
-Starting model: DAISY_mamil3
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a13, a31, a21, a12, a01, x1(t), x2(t), x3(t)]
-We are trying these points:[6]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 2
-  1 => 4
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t6_x1ˍttt_t_ => -0.2271454239592714, _t6_x2_t_ => 0.5122613393448264, _t6_x2ˍtt_t_ => -0.03722286888537951, _t6_x1ˍtttt_t_ => 0.4898358841674053, _t6_x1ˍt_t_ => -0.0704751147995637, _t6_x1_t_ => 0.19487147279733527, _t6_x1ˍtt_t_ => 0.10838981646659107, _t6_x2ˍt_t_ => 0.011888092728080224)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: DAISY_mamil3 ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.250000 |   0.250000 |   0.000000
-x2(t)        |   0.500000 |   0.500000 |   0.000000
-x3(t)        |   0.750000 |   0.750000 |   0.000000
-a12          |   0.167000 |   0.167000 |   0.000000
-a13          |   0.333000 |   0.333000 |   0.000000
-a21          |   0.500000 |   0.500000 |   0.000000
-a31          |   0.667000 |   0.667000 |   0.000000
-a01          |   0.833000 |   0.833000 |   0.000000
-
-
-Best approximation error for DAISY_mamil3: 0.0
-
-Best maximum relative error for DAISY_mamil3 (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: sirsforced
-Starting model: sirsforced
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(b1 => 0.5681338211619582)
-DEBUG [MPHCPE]: Final varlist: Num[M, nu, g, mu, b0, i(t), r(t), s(t), x1(t), x2(t)]
-We are trying these points:[11]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 2
-  1 => 6
-┌ Warning: At t=0.4541589714605186, dt was forced below floating point epsilon -4.9956570130962026e-17, and step error estimate = 1.0003961671272208. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=1.1528640541296842, dt was forced below floating point epsilon -1.997903909899096e-16, and step error estimate = 1.0014236448625653. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=0.4541589714605186, dt was forced below floating point epsilon -4.9956570130962026e-17, and step error estimate = 1.0003961671272208. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=0.4541589714605186, dt was forced below floating point epsilon -4.9956570130962026e-17, and step error estimate = 1.0003961671272208. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=4.04642842776727, dt was forced below floating point epsilon -7.990206280481746e-16, and step error estimate = 1.002432960852059. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=1.1528640541296842, dt was forced below floating point epsilon -1.997903909899096e-16, and step error estimate = 1.0014236448625653. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=1.1528640541296842, dt was forced below floating point epsilon -1.997903909899096e-16, and step error estimate = 1.0014236448625653. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=4.04642842776727, dt was forced below floating point epsilon -7.990206280481746e-16, and step error estimate = 1.002432960852059. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=1.1528640541296842, dt was forced below floating point epsilon -1.997903909899096e-16, and step error estimate = 1.0014236448625653. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-┌ Warning: At t=0.4541589714605186, dt was forced below floating point epsilon -4.9956570130962026e-17, and step error estimate = 1.0003961671272208. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[b1, x1(t), x2(t)])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(b1 => 0.5681338211619582)
-Trivially solvable variables: Dict{Any, Any}(_t11_i_t_ => 2.5894722645517332e-5, _t11_rˍtt_t_ => 0.0009260246508557392, _t11_iˍtttt_t_ => 0.00011936407200603205, _t11_r_t_ => 0.0007527663234116679, _t11_iˍttttt_t_ => -0.00017709077706765455, _t11_iˍtttttt_t_ => 0.00026172158962115, _t11_iˍtt_t_ => 5.464712224012176e-5, _t11_iˍt_t_ => -3.741068633373215e-5, _t11_iˍttt_t_ => -8.054280916934325e-5, _t11_rˍt_t_ => -0.0008382201303493494)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-DEBUG [ODEPEtestwrapper]: Processing solution 3
-
-DEBUG [ODEPEtestwrapper]: Processing solution 4
-
-DEBUG [ODEPEtestwrapper]: Processing solution 5
-
-DEBUG [ODEPEtestwrapper]: Processing solution 6
-
-DEBUG [ODEPEtestwrapper]: Processing solution 7
-
-DEBUG [ODEPEtestwrapper]: Processing solution 8
-
-DEBUG [ODEPEtestwrapper]: Processing solution 9
-
-DEBUG [ODEPEtestwrapper]: Processing solution 10
-
-DEBUG [ODEPEtestwrapper]: Processing solution 11
-
-DEBUG [ODEPEtestwrapper]: Processing solution 12
-
-DEBUG [ODEPEtestwrapper]: Processing solution 13
-
-DEBUG [ODEPEtestwrapper]: Processing solution 14
-
-DEBUG [ODEPEtestwrapper]: Processing solution 15
-
-DEBUG [ODEPEtestwrapper]: Processing solution 16
-
-DEBUG [ODEPEtestwrapper]: Processing solution 17
-
-DEBUG [ODEPEtestwrapper]: Processing solution 18
-
-DEBUG [ODEPEtestwrapper]: Processing solution 19
-
-DEBUG [ODEPEtestwrapper]: Processing solution 20
-
-DEBUG [ODEPEtestwrapper]: Processing solution 21
-
-DEBUG [ODEPEtestwrapper]: Processing solution 22
-
-DEBUG [ODEPEtestwrapper]: Processing solution 23
-
-DEBUG [ODEPEtestwrapper]: Processing solution 24
-
-DEBUG [ODEPEtestwrapper]: Processing solution 25
-
-DEBUG [ODEPEtestwrapper]: Processing solution 26
-
-DEBUG [ODEPEtestwrapper]: Processing solution 27
-
-DEBUG [ODEPEtestwrapper]: Processing solution 28
-
-DEBUG [ODEPEtestwrapper]: Processing solution 29
-
-DEBUG [ODEPEtestwrapper]: Processing solution 30
-
-DEBUG [ODEPEtestwrapper]: Processing solution 31
-
-DEBUG [ODEPEtestwrapper]: Processing solution 32
-
-DEBUG [ODEPEtestwrapper]: Processing solution 33
-
-DEBUG [ODEPEtestwrapper]: Processing solution 34
-
-DEBUG [ODEPEtestwrapper]: Processing solution 35
-
-DEBUG [ODEPEtestwrapper]: Processing solution 36
-
-DEBUG [ODEPEtestwrapper]: Processing solution 37
-
-DEBUG [ODEPEtestwrapper]: Processing solution 38
-
-DEBUG [ODEPEtestwrapper]: Processing solution 39
-
-DEBUG [ODEPEtestwrapper]: Processing solution 40
-
-DEBUG [ODEPEtestwrapper]: Processing solution 41
-
-DEBUG [ODEPEtestwrapper]: Processing solution 42
-
-DEBUG [ODEPEtestwrapper]: Processing solution 43
-
-DEBUG [ODEPEtestwrapper]: Processing solution 44
-
-DEBUG [ODEPEtestwrapper]: Processing solution 45
-
-DEBUG [ODEPEtestwrapper]: Processing solution 46
-
-DEBUG [ODEPEtestwrapper]: Processing solution 47
-
-DEBUG [ODEPEtestwrapper]: Processing solution 48
-
-DEBUG [ODEPEtestwrapper]: Processing solution 49
-┌ Warning: At t=14.486306507991504, dt was forced below floating point epsilon 1.7763568394002505e-15, and step error estimate = 1.0041030985697752. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-DEBUG [ODEPEtestwrapper]: Processing solution 50
-
-DEBUG [ODEPEtestwrapper]: Processing solution 51
-
-DEBUG [ODEPEtestwrapper]: Processing solution 52
-
-DEBUG [ODEPEtestwrapper]: Processing solution 53
-
-DEBUG [ODEPEtestwrapper]: Processing solution 54
-
-DEBUG [ODEPEtestwrapper]: Processing solution 55
-
-DEBUG [ODEPEtestwrapper]: Processing solution 56
-
-DEBUG [ODEPEtestwrapper]: Processing solution 57
-
-DEBUG [ODEPEtestwrapper]: Processing solution 58
-
-DEBUG [ODEPEtestwrapper]: Processing solution 59
-
-DEBUG [ODEPEtestwrapper]: Processing solution 60
-┌ Warning: At t=14.486306507991504, dt was forced below floating point epsilon 1.7763568394002505e-15, and step error estimate = 1.0041030985697752. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-DEBUG [ODEPEtestwrapper]: Processing solution 61
-
-DEBUG [ODEPEtestwrapper]: Processing solution 62
-
-DEBUG [ODEPEtestwrapper]: Processing solution 63
-
-DEBUG [ODEPEtestwrapper]: Processing solution 64
-
-DEBUG [ODEPEtestwrapper]: Processing solution 65
-
-DEBUG [ODEPEtestwrapper]: Processing solution 66
-
-DEBUG [ODEPEtestwrapper]: Processing solution 67
-
-DEBUG [ODEPEtestwrapper]: Processing solution 68
-
-DEBUG [ODEPEtestwrapper]: Processing solution 69
-
-DEBUG [ODEPEtestwrapper]: Processing solution 70
-
-DEBUG [ODEPEtestwrapper]: Processing solution 71
-
-DEBUG [ODEPEtestwrapper]: Processing solution 72
-┌ Warning: At t=0.16269799792346618, dt was forced below floating point epsilon 2.7755575615628914e-17, and step error estimate = NaN. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-DEBUG [ODEPEtestwrapper]: Processing solution 73
-┌ Warning: At t=0.16269799792346618, dt was forced below floating point epsilon 2.7755575615628914e-17, and step error estimate = NaN. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-DEBUG [ODEPEtestwrapper]: Processing solution 74
-
-DEBUG [ODEPEtestwrapper]: Processing solution 75
-
-DEBUG [ODEPEtestwrapper]: Processing solution 76
-
-DEBUG [ODEPEtestwrapper]: Processing solution 77
-
-DEBUG [ODEPEtestwrapper]: Processing solution 78
-
-=== Model: sirsforced ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • b1
-  • x1(t)
-  • x2(t)
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • b1 = 0.568134
-
-
-Found 35 distinct solution clusters:
-
-Cluster 1: 2 similar solutions
-Best solution (Error: 0.014847):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   2.286881 |  12.693896
-r(t)         |   0.333000 |   0.437374 |   0.313435
-s(t)         |   0.500000 |  -2.752921 |   6.505842
-x1(t)        |   0.667000 |  -0.235855 |   1.353605
-x2(t)        |   0.833000 |   0.955148 |   0.146636
-b0           |   0.143000 |  10.755018 |  74.209913
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.140046 |   1.657450
-M            |   0.571000 |   0.600486 |   0.051639
-mu           |   0.714000 |   0.002954 |   0.995863
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 2: 2 similar solutions
-Best solution (Error: 0.014847):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   2.286881 |  12.693896
-r(t)         |   0.333000 |   0.437374 |   0.313435
-s(t)         |   0.500000 |  -2.752921 |   6.505842
-x1(t)        |   0.667000 |  -0.235855 |   1.353605
-x2(t)        |   0.833000 |  -0.955148 |   2.146636
-b0           |   0.143000 |  10.755018 |  74.209913
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.140046 |   1.657450
-M            |   0.571000 |  -0.600486 |   2.051639
-mu           |   0.714000 |   0.002954 |   0.995863
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 3: 2 similar solutions
-Best solution (Error: 0.00368):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.000000 |   1.000000
-r(t)         |   0.333000 |   0.682430 |   1.049339
-s(t)         |   0.500000 | -155075.476160 | 310151.952320
-x1(t)        |   0.667000 | 135.342775 | 201.912706
-x2(t)        |   0.833000 |  -0.000000 |   1.000000
-b0           |   0.143000 |  -0.000026 |   1.000178
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.068560 |   0.840187
-M            |   0.571000 |   0.000000 |   1.000000
-mu           |   0.714000 |   1.074440 |   0.504818
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 4: 2 similar solutions
-Best solution (Error: 0.003554):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.004356 |   0.973919
-r(t)         |   0.333000 |   0.669411 |   1.010242
-s(t)         |   0.500000 | -19.573314 |  40.146628
-x1(t)        |   0.667000 | -76.162264 | 115.186303
-x2(t)        |   0.833000 |  10.409507 |  11.496407
-b0           |   0.143000 |  -0.000271 |   1.001897
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.134037 |   1.643444
-M            |   0.571000 |   0.598079 |   0.047424
-mu           |   0.714000 |   0.008963 |   0.987447
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 5: 2 similar solutions
-Best solution (Error: 0.003554):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.004356 |   0.973919
-r(t)         |   0.333000 |   0.669411 |   1.010242
-s(t)         |   0.500000 | -19.573314 |  40.146628
-x1(t)        |   0.667000 | -76.162264 | 115.186303
-x2(t)        |   0.833000 | -10.409507 |  13.496407
-b0           |   0.143000 |  -0.000271 |   1.001897
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.134037 |   1.643444
-M            |   0.571000 |  -0.598079 |   2.047424
-mu           |   0.714000 |   0.008963 |   0.987447
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 6: 2 similar solutions
-Best solution (Error: 0.003353):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.007478 |   0.955224
-r(t)         |   0.333000 |   0.645389 |   0.938105
-s(t)         |   0.500000 |  -0.963098 |   2.926196
-x1(t)        |   0.667000 |  -1.298892 |   2.947364
-x2(t)        |   0.833000 |  -0.561009 |   1.673480
-b0           |   0.143000 |   0.888910 |   5.216154
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.124409 |   1.621000
-M            |   0.571000 |  -0.167145 |   1.292723
-mu           |   0.714000 |   0.018591 |   0.973962
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 7: 2 similar solutions
-Best solution (Error: 0.003353):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.007478 |   0.955224
-r(t)         |   0.333000 |   0.645389 |   0.938105
-s(t)         |   0.500000 |  -0.963098 |   2.926196
-x1(t)        |   0.667000 |  -1.298892 |   2.947364
-x2(t)        |   0.833000 |   0.561009 |   0.326520
-b0           |   0.143000 |   0.888910 |   5.216154
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.124409 |   1.621000
-M            |   0.571000 |   0.167145 |   0.707277
-mu           |   0.714000 |   0.018591 |   0.973962
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 8: 2 similar solutions
-Best solution (Error: 0.003305):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.000346 |   0.997928
-r(t)         |   0.333000 |   0.633101 |   0.901203
-s(t)         |   0.500000 |  -0.590966 |   2.181932
-x1(t)        |   0.667000 |   0.010423 |   0.984373
-x2(t)        |   0.833000 |   0.001598 |   0.998082
-b0           |   0.143000 |  -7.439528 |  53.024669
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.144884 |   1.668727
-M            |   0.571000 |   0.305053 |   0.465757
-mu           |   0.714000 |  -0.001884 |   1.002639
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 9: 2 similar solutions
-Best solution (Error: 0.003305):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.000346 |   0.997928
-r(t)         |   0.333000 |   0.633101 |   0.901203
-s(t)         |   0.500000 |  -0.590966 |   2.181932
-x1(t)        |   0.667000 |   0.010423 |   0.984373
-x2(t)        |   0.833000 |  -0.001598 |   1.001918
-b0           |   0.143000 |  -7.439528 |  53.024669
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.144884 |   1.668727
-M            |   0.571000 |  -0.305053 |   1.534243
-mu           |   0.714000 |  -0.001884 |   1.002639
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 10: 2 similar solutions
-Best solution (Error: 0.002793):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.016171 |   0.903166
-r(t)         |   0.333000 |   0.578737 |   0.737949
-s(t)         |   0.500000 | -22.999366 |  46.998731
-x1(t)        |   0.667000 |  -5.029622 |   8.540663
-x2(t)        |   0.833000 |   0.563111 |   0.323996
-b0           |   0.143000 |   0.010889 |   0.923853
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.852910 |   0.988136
-M            |   0.571000 |  -0.352757 |   1.617788
-mu           |   0.714000 |   0.290090 |   0.593712
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 11: 2 similar solutions
-Best solution (Error: 0.002793):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.016171 |   0.903166
-r(t)         |   0.333000 |   0.578737 |   0.737949
-s(t)         |   0.500000 | -22.999366 |  46.998731
-x1(t)        |   0.667000 |  -5.029622 |   8.540663
-x2(t)        |   0.833000 |  -0.563111 |   1.676004
-b0           |   0.143000 |   0.010889 |   0.923853
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.852910 |   0.988136
-M            |   0.571000 |   0.352757 |   0.382212
-mu           |   0.714000 |   0.290090 |   0.593712
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 12: 2 similar solutions
-Best solution (Error: 0.00239):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.036693 |   0.780280
-r(t)         |   0.333000 |   0.541841 |   0.627150
-s(t)         |   0.500000 |  -0.642999 |   2.285998
-x1(t)        |   0.667000 |  -9.269364 |  14.897097
-x2(t)        |   0.833000 |  -0.000000 |   1.000000
-b0           |   0.143000 |  -0.231981 |   2.622243
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.217938 |   1.839015
-M            |   0.571000 |  -0.000000 |   1.000000
-mu           |   0.714000 |  -0.074938 |   1.104955
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 13: 2 similar solutions
-Best solution (Error: 0.00225):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.041712 |   0.750228
-r(t)         |   0.333000 |   0.528029 |   0.585673
-s(t)         |   0.500000 |  -0.125079 |   1.250158
-x1(t)        |   0.667000 |  -0.353775 |   1.530398
-x2(t)        |   0.833000 |   0.212313 |   0.745123
-b0           |   0.143000 |  -0.225894 |   2.579679
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.919054 |   1.142317
-M            |   0.571000 |  -0.419991 |   1.735535
-mu           |   0.714000 |   0.223946 |   0.686350
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 14: 2 similar solutions
-Best solution (Error: 0.00225):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.041712 |   0.750228
-r(t)         |   0.333000 |   0.528029 |   0.585673
-s(t)         |   0.500000 |  -0.125079 |   1.250158
-x1(t)        |   0.667000 |  -0.353775 |   1.530398
-x2(t)        |   0.833000 |  -0.212313 |   1.254877
-b0           |   0.143000 |  -0.225894 |   2.579679
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.919054 |   1.142317
-M            |   0.571000 |   0.419991 |   0.264465
-mu           |   0.714000 |   0.223946 |   0.686350
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 15: 2 similar solutions
-Best solution (Error: 0.001581):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.056967 |   0.658879
-r(t)         |   0.333000 |   0.452563 |   0.359047
-s(t)         |   0.500000 |   0.490630 |   0.018741
-x1(t)        |   0.667000 |  -0.144218 |   1.216219
-x2(t)        |   0.833000 |  -0.000000 |   1.000000
-b0           |   0.143000 |  -1.573243 |  12.001700
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   2.052483 |   3.784342
-M            |   0.571000 |  -0.000000 |   1.000000
-mu           |   0.714000 |  -0.909483 |   2.273786
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 16: 1 similar solutions
-Best solution (Error: 0.001009):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.067103 |   0.598186
-r(t)         |   0.333000 |   0.384712 |   0.155292
-s(t)         |   0.500000 |  28.799627 |  56.599254
-x1(t)        |   0.667000 |  -1.129162 |   2.692897
-x2(t)        |   0.833000 |  -0.728947 |   1.875087
-b0           |   0.143000 |   0.154346 |   0.079343
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.339475 |   0.208683
-M            |   0.571000 |  -0.387993 |   1.679497
-mu           |   0.714000 |   0.803525 |   0.125385
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 17: 1 similar solutions
-Best solution (Error: 0.001009):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.067103 |   0.598186
-r(t)         |   0.333000 |   0.384712 |   0.155292
-s(t)         |   0.500000 |  28.799627 |  56.599254
-x1(t)        |   0.667000 |  -1.129162 |   2.692897
-x2(t)        |   0.833000 |   0.728947 |   0.124913
-b0           |   0.143000 |   0.154346 |   0.079343
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.339475 |   0.208683
-M            |   0.571000 |   0.387993 |   0.320503
-mu           |   0.714000 |   0.803525 |   0.125385
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 18: 2 similar solutions
-Best solution (Error: 0.000658):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.117900 |   0.294013
-r(t)         |   0.333000 |   0.380186 |   0.141700
-s(t)         |   0.500000 |   0.516829 |   0.033658
-x1(t)        |   0.667000 |  -0.020061 |   1.030077
-x2(t)        |   0.833000 |  -0.014835 |   1.017809
-b0           |   0.143000 |  -0.475712 |   4.326660
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.037217 |   1.417756
-M            |   0.571000 |  -0.602131 |   2.054520
-mu           |   0.714000 |   0.105783 |   0.851845
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 19: 2 similar solutions
-Best solution (Error: 0.000658):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.117900 |   0.294013
-r(t)         |   0.333000 |   0.380186 |   0.141700
-s(t)         |   0.500000 |   0.516829 |   0.033658
-x1(t)        |   0.667000 |  -0.020061 |   1.030077
-x2(t)        |   0.833000 |   0.014835 |   0.982191
-b0           |   0.143000 |  -0.475712 |   4.326660
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.037217 |   1.417756
-M            |   0.571000 |   0.602131 |   0.054520
-mu           |   0.714000 |   0.105783 |   0.851845
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 20: 2 similar solutions
-Best solution (Error: 0.00053):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.119627 |   0.283673
-r(t)         |   0.333000 |   0.364728 |   0.095279
-s(t)         |   0.500000 |   0.634626 |   0.269252
-x1(t)        |   0.667000 |   1.431933 |   1.146826
-x2(t)        |   0.833000 |   0.098780 |   0.881416
-b0           |   0.143000 |  -0.471946 |   4.300321
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.485441 |   2.462567
-M            |   0.571000 |   0.253738 |   0.555626
-mu           |   0.714000 |  -0.342441 |   1.479610
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 21: 2 similar solutions
-Best solution (Error: 0.00053):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.119627 |   0.283673
-r(t)         |   0.333000 |   0.364728 |   0.095279
-s(t)         |   0.500000 |   0.634626 |   0.269252
-x1(t)        |   0.667000 |   1.431933 |   1.146826
-x2(t)        |   0.833000 |  -0.098780 |   1.118584
-b0           |   0.143000 |  -0.471946 |   4.300321
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.485441 |   2.462567
-M            |   0.571000 |  -0.253738 |   1.444374
-mu           |   0.714000 |  -0.342441 |   1.479610
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 22: 1 similar solutions
-Best solution (Error: 0.000417):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.208830 |   0.250477
-r(t)         |   0.333000 |   0.312049 |   0.062917
-s(t)         |   0.500000 |  10.161173 |  19.322345
-x1(t)        |   0.667000 |  -0.237499 |   1.356070
-x2(t)        |   0.833000 |   0.675172 |   0.189470
-b0           |   0.143000 |  -0.043578 |   1.304741
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.643846 |   0.500807
-M            |   0.571000 |   0.800493 |   0.401914
-mu           |   0.714000 |   0.499154 |   0.300905
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 23: 1 similar solutions
-Best solution (Error: 0.000417):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.208830 |   0.250477
-r(t)         |   0.333000 |   0.312049 |   0.062917
-s(t)         |   0.500000 |  10.161173 |  19.322345
-x1(t)        |   0.667000 |  -0.237499 |   1.356070
-x2(t)        |   0.833000 |  -0.675172 |   1.810530
-b0           |   0.143000 |  -0.043578 |   1.304741
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.643846 |   0.500807
-M            |   0.571000 |  -0.800493 |   2.401914
-mu           |   0.714000 |   0.499154 |   0.300905
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 24: 2 similar solutions
-Best solution (Error: 0.000239):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.175950 |   0.053590
-r(t)         |   0.333000 |   0.309197 |   0.071480
-s(t)         |   0.500000 |   2.276199 |   3.552397
-x1(t)        |   0.667000 |  -0.428749 |   1.642802
-x2(t)        |   0.833000 |  -0.902798 |   2.083791
-b0           |   0.143000 |  -0.217492 |   2.520926
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.964740 |   1.248811
-M            |   0.571000 |   0.158863 |   0.721781
-mu           |   0.714000 |   0.178260 |   0.750336
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 25: 2 similar solutions
-Best solution (Error: 0.000239):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.175950 |   0.053590
-r(t)         |   0.333000 |   0.309197 |   0.071480
-s(t)         |   0.500000 |   2.276199 |   3.552397
-x1(t)        |   0.667000 |  -0.428749 |   1.642802
-x2(t)        |   0.833000 |   0.902798 |   0.083791
-b0           |   0.143000 |  -0.217492 |   2.520926
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.964740 |   1.248811
-M            |   0.571000 |  -0.158863 |   1.278219
-mu           |   0.714000 |   0.178260 |   0.750336
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 26: 1 similar solutions
-Best solution (Error: 0.000222):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.144717 |   0.133432
-r(t)         |   0.333000 |   0.344093 |   0.033311
-s(t)         |   0.500000 |   0.836455 |   0.672911
-x1(t)        |   0.667000 |  -0.114026 |   1.170953
-x2(t)        |   0.833000 |  -0.020577 |   1.024703
-b0           |   0.143000 |  -0.376895 |   3.635626
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.998406 |   1.327286
-M            |   0.571000 |   0.661795 |   0.159010
-mu           |   0.714000 |   0.144594 |   0.797487
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 27: 1 similar solutions
-Best solution (Error: 0.000222):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.144717 |   0.133432
-r(t)         |   0.333000 |   0.344093 |   0.033311
-s(t)         |   0.500000 |   0.836455 |   0.672911
-x1(t)        |   0.667000 |  -0.114026 |   1.170953
-x2(t)        |   0.833000 |   0.020577 |   0.975297
-b0           |   0.143000 |  -0.376895 |   3.635626
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.998406 |   1.327286
-M            |   0.571000 |  -0.661795 |   2.159010
-mu           |   0.714000 |   0.144594 |   0.797487
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 28: 2 similar solutions
-Best solution (Error: 0.000181):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.146222 |   0.124421
-r(t)         |   0.333000 |   0.328428 |   0.013731
-s(t)         |   0.500000 |   0.555176 |   0.110351
-x1(t)        |   0.667000 |   0.040845 |   0.938763
-x2(t)        |   0.833000 |  -0.108822 |   1.130638
-b0           |   0.143000 |  -0.609527 |   5.262427
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.160382 |   1.704854
-M            |   0.571000 |   0.552123 |   0.033059
-mu           |   0.714000 |  -0.017382 |   1.024345
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 29: 2 similar solutions
-Best solution (Error: 0.000181):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.146222 |   0.124421
-r(t)         |   0.333000 |   0.328428 |   0.013731
-s(t)         |   0.500000 |   0.555176 |   0.110351
-x1(t)        |   0.667000 |   0.040845 |   0.938763
-x2(t)        |   0.833000 |   0.108822 |   0.869362
-b0           |   0.143000 |  -0.609527 |   5.262427
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.160382 |   1.704854
-M            |   0.571000 |  -0.552123 |   1.966941
-mu           |   0.714000 |  -0.017382 |   1.024345
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 30: 1 similar solutions
-Best solution (Error: 5.7e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.161119 |   0.035217
-r(t)         |   0.333000 |   0.335747 |   0.008249
-s(t)         |   0.500000 |  -8.974478 |  18.948956
-x1(t)        |   0.667000 |  -0.085973 |   1.128895
-x2(t)        |   0.833000 |  -0.097665 |   1.117245
-b0           |   0.143000 |   0.067711 |   0.526495
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.142045 |   1.662111
-M            |   0.571000 |   0.577532 |   0.011439
-mu           |   0.714000 |   0.000955 |   0.998663
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 31: 1 similar solutions
-Best solution (Error: 5.7e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.161119 |   0.035217
-r(t)         |   0.333000 |   0.335747 |   0.008249
-s(t)         |   0.500000 |  -8.974478 |  18.948956
-x1(t)        |   0.667000 |  -0.085973 |   1.128895
-x2(t)        |   0.833000 |   0.097665 |   0.882755
-b0           |   0.143000 |   0.067711 |   0.526495
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   1.142045 |   1.662111
-M            |   0.571000 |  -0.577532 |   2.011439
-mu           |   0.714000 |   0.000955 |   0.998663
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 32: 1 similar solutions
-Best solution (Error: 3.1e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.163661 |   0.019993
-r(t)         |   0.333000 |   0.334342 |   0.004029
-s(t)         |   0.500000 |   0.899515 |   0.799030
-x1(t)        |   0.667000 |   0.101872 |   0.847268
-x2(t)        |   0.833000 |   0.128975 |   0.845168
-b0           |   0.143000 |   0.468827 |   2.278510
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.103037 |   0.759820
-M            |   0.571000 |   0.570261 |   0.001295
-mu           |   0.714000 |   1.039963 |   0.456530
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 33: 1 similar solutions
-Best solution (Error: 3.1e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.163661 |   0.019993
-r(t)         |   0.333000 |   0.334342 |   0.004029
-s(t)         |   0.500000 |   0.899515 |   0.799030
-x1(t)        |   0.667000 |   0.101872 |   0.847268
-x2(t)        |   0.833000 |  -0.128975 |   1.154832
-b0           |   0.143000 |   0.468827 |   2.278510
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.103037 |   0.759820
-M            |   0.571000 |  -0.570261 |   1.998705
-mu           |   0.714000 |   1.039963 |   0.456530
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 34: 2 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.166946 |   0.000322
-r(t)         |   0.333000 |   0.333120 |   0.000360
-s(t)         |   0.500000 |   0.508674 |   0.017348
-x1(t)        |   0.667000 |   0.327224 |   0.509409
-x2(t)        |   0.833000 |   0.408857 |   0.509176
-b0           |   0.143000 |   0.146365 |   0.023529
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.425624 |   0.007868
-M            |   0.571000 |   0.570974 |   0.000045
-mu           |   0.714000 |   0.717376 |   0.004728
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Cluster 35: 2 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-i(t)         |   0.167000 |   0.166946 |   0.000322
-r(t)         |   0.333000 |   0.333120 |   0.000360
-s(t)         |   0.500000 |   0.508674 |   0.017348
-x1(t)        |   0.667000 |   0.327224 |   0.509409
-x2(t)        |   0.833000 |  -0.408857 |   1.490824
-b0           |   0.143000 |   0.146365 |   0.023529
-b1           |   0.286000 |   0.568134 |   0.986482
-g            |   0.429000 |   0.425624 |   0.007868
-M            |   0.571000 |  -0.570974 |   1.999955
-mu           |   0.714000 |   0.717376 |   0.004728
-nu           |   0.857000 |   0.857000 |   0.000000
-
-
-Best approximation error for sirsforced: 1.0e-6
-
-Best maximum relative error for sirsforced (excluding ALL unidentifiable parameters): 0.023529
-[ Info: Running model: brusselator
-Starting model: brusselator
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, X(t), Y(t)]
-We are trying these points:[20]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 0
-  1 => 2
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t20_X_t_ => 2.0235357018039046, _t20_Y_t_ => 1.2658188171637295, _t20_Xˍtt_t_ => 1.3548966709810486, _t20_Xˍt_t_ => -1.9001565936533436)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: brusselator ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.032415):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-X(t)         |   1.000000 |   1.074842 |   0.074842
-Y(t)         |   1.000000 |   2.868097 |   1.868097
-a            |   1.000000 |   1.071078 |   0.071078
-b            |   3.000000 |   3.176704 |   0.058901
-
-
-Best approximation error for brusselator: 0.032415
-
-Best maximum relative error for brusselator (excluding ALL unidentifiable parameters): 1.868097
-[ Info: Running model: seir
-Starting model: SEIR
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, nu, b, S(t), E(t), In(t), N(t)]
-We are trying these points:[40]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 0
-  1 => 5
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t40_In_t_ => 50.00100987913498, _t40_Inˍtttt_t_ => -0.0003373074123018682, _t40_Nˍttt_t_ => 0, _t40_Inˍttttt_t_ => 0.00010874142472161452, _t40_Inˍtt_t_ => -0.03144501637365771, _t40_Inˍttt_t_ => -0.010221364681775924, _t40_Nˍtt_t_ => 0, _t40_Nˍt_t_ => 0, _t40_Inˍt_t_ => 1.7534869825009505, _t40_N_t_ => 999.9999999999999)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-DEBUG [ODEPEtestwrapper]: Processing solution 3
-
-DEBUG [ODEPEtestwrapper]: Processing solution 4
-
-=== Model: SEIR ===
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 2.4e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-S(t)         | 990.000000 | 742.502054 |   0.249998
-E(t)         |  10.000000 |   7.496098 |   0.250390
-In(t)        |   0.000000 |   0.002890 |   0.002890
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-a            |   0.200000 |   0.150000 |   0.250000
-b            |   0.400000 |   0.400000 |   0.000000
-nu           |   0.150000 |   0.200000 |   0.333333
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 2.4e-5):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-S(t)         | 990.000000 | 990.002687 |   0.000003
-E(t)         |  10.000000 |   9.995762 |   0.000424
-In(t)        |   0.000000 |   0.002889 |   0.002889
-N(t)         | 1000.000000 | 1000.000000 |   0.000000
-a            |   0.200000 |   0.200000 |   0.000000
-b            |   0.400000 |   0.400000 |   0.000000
-nu           |   0.150000 |   0.150000 |   0.000000
-
-
-Best approximation error for SEIR: 2.4e-5
-
-Best maximum relative error for SEIR (excluding ALL unidentifiable parameters): 0.002889
-[ Info: Running model: biohydrogenation
-Starting model: BioHydrogenation
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(x7(t) => 0.5307548429345148)
-DEBUG [MPHCPE]: Final varlist: Num[k9, k7, k10, k6, k5, k8, x4(t), x5(t), x6(t)]
-We are trying these points:[42]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 5
-  1 => 2
-┌ Warning: At t=3.1194279441421346, dt was forced below floating point epsilon -4.406084048803484e-16, and step error estimate = 1.1282891908311479. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[x7(t)])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(x7(t) => 0.5307548429345148)
-Trivially solvable variables: Dict{Any, Any}(_t42_x5ˍt_t_ => 0.16206629426533503, _t42_x5ˍtttt_t_ => -0.0017003806569846347, _t42_x5ˍtt_t_ => -0.021469875825829376, _t42_x4_t_ => 2.720763582613756, _t42_x4ˍt_t_ => -0.28816986224784813, _t42_x4ˍtt_t_ => 0.01293076015079464, _t42_x5_t_ => 0.9196850705689134, _t42_x5ˍttttt_t_ => 0.0012336443178355694, _t42_x5ˍttt_t_ => 0.0022780026565669687)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-┌ Warning: At t=2.8448946148652587, dt was forced below floating point epsilon 4.440892098500626e-16, and step error estimate = 2.8125336784274624. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-DEBUG [ODEPEtestwrapper]: Processing solution 3
-
-DEBUG [ODEPEtestwrapper]: Processing solution 4
-
-DEBUG [ODEPEtestwrapper]: Processing solution 5
-
-DEBUG [ODEPEtestwrapper]: Processing solution 6
-
-=== Model: BioHydrogenation ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • x7(t)
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • x7(t) = 0.530755
-
-
-Found 5 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.000941):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x4(t)        |   4.000000 |   4.000000 |   0.000000
-x5(t)        |   0.000000 |   0.046387 |   0.046387
-x6(t)        |   0.000000 |  -0.083362 |   0.083362
-x7(t)        |   0.000000 |   0.157452 |   0.157452
-k5           |   0.500000 |   0.500000 |   0.000000
-k6           |   2.000000 |   2.000000 |   0.000000
-k7           |   0.300000 |   0.193046 |   0.356513
-k8           |   1.000000 |   0.538945 |   0.461055
-k9           |   0.200000 |  -0.000000 |   1.000000
-k10          |   5.000000 |   0.000000 |   1.000000
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x4(t)        |   4.000000 |   4.000000 |   0.000000
-x5(t)        |   0.000000 |   0.000054 |   0.000054
-x6(t)        |   0.000000 |  -0.258030 |   0.258030
-x7(t)        |   0.000000 |   0.576959 |   0.576959
-k5           |   0.500000 |   0.500000 |   0.000000
-k6           |   2.000000 |   2.000000 |   0.000000
-k7           |   0.300000 |   0.334000 |   0.113333
-k8           |   1.000000 |   1.368426 |   0.368426
-k9           |   0.200000 |   0.162185 |   0.189073
-k10          |   5.000000 |  34.581051 |   5.916210
-
-
-Cluster 3: 1 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x4(t)        |   4.000000 |   4.000000 |   0.000000
-x5(t)        |   0.000000 |   0.000054 |   0.000054
-x6(t)        |   0.000000 | -34.839080 |  34.839080
-x7(t)        |   0.000000 |   0.576959 |   0.576959
-k5           |   0.500000 |   0.500000 |   0.000000
-k6           |   2.000000 |   2.000000 |   0.000000
-k7           |   0.300000 |   0.334000 |   0.113333
-k8           |   1.000000 |  35.949477 |  34.949477
-k9           |   0.200000 |  -0.162185 |   1.810927
-k10          |   5.000000 | -34.581051 |   7.916210
-
-
-Cluster 4: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x4(t)        |   4.000000 |   4.000000 |   0.000000
-x5(t)        |   0.000000 |   0.000001 |   0.000001
-x6(t)        |   0.000000 |  -0.001579 |   0.001579
-x7(t)        |   0.000000 |   0.440446 |   0.440446
-k5           |   0.500000 |   0.500000 |   0.000000
-k6           |   2.000000 |   2.000000 |   0.000000
-k7           |   0.300000 |   0.300245 |   0.000816
-k8           |   1.000000 |   1.002365 |   0.002365
-k9           |   0.200000 |   0.199543 |   0.002283
-k10          |   5.000000 |   5.044487 |   0.008897
-
-
-Cluster 5: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x4(t)        |   4.000000 |   4.000000 |   0.000000
-x5(t)        |   0.000000 |   0.000001 |   0.000001
-x6(t)        |   0.000000 |  -5.046066 |   5.046066
-x7(t)        |   0.000000 |   0.440446 |   0.440446
-k5           |   0.500000 |   0.500000 |   0.000000
-k6           |   2.000000 |   2.000000 |   0.000000
-k7           |   0.300000 |   0.300245 |   0.000816
-k8           |   1.000000 |   6.046852 |   5.046852
-k9           |   0.200000 |  -0.199543 |   1.997717
-k10          |   5.000000 |  -5.044487 |   2.008897
-
-
-Best approximation error for BioHydrogenation: 0.0
-
-Best maximum relative error for BioHydrogenation (excluding ALL unidentifiable parameters): 0.008897
-[ Info: Running model: global_unident_test
-Starting model: global_unident_test
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(d => 0.19372696235028974, x3(t) => 0.9081911228967643, b => 0.6467728477074044)
-DEBUG [MPHCPE]: Final varlist: Num[a, c, x1(t), x2(t)]
-We are trying these points:[35]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[d, x3(t), b, c])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(d => 0.19372696235028974, x3(t) => 0.9081911228967643, b => 0.6467728477074044)
-Trivially solvable variables: Dict{Any, Any}(_t35_x1ˍt_t_ => -0.14235406455252164, _t35_x1_t_ => 1.4235406455252158, _t35_x2ˍt_t_ => 0.7117703227626109, _t35_x2_t_ => 5.8822967723739215)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: global_unident_test ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • d
-  • x3(t)
-  • b
-  • c
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • d = 0.193727
-  • x3(t) = 0.908191
-  • b = 0.646773
-
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.000000 |   0.000000
-x2(t)        |   3.000000 |   3.000000 |   0.000000
-x3(t)        |   4.000000 |  -0.208566 |   1.052142
-a            |   0.100000 |   0.100000 |   0.000000
-b            |   0.200000 |   0.646773 |   2.233864
-c            |   0.300000 |  -0.146773 |   1.489243
-d            |   0.400000 |   0.193727 |   0.515683
-
-
-Best approximation error for global_unident_test: 0.0
-
-Best maximum relative error for global_unident_test (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: sum_test
-Starting model: sum_test
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(c => 0.8683330949776217)
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t), x3(t)]
-We are trying these points:[27]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[x1(t), x2(t), c])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(c => 0.8683330949776217)
-Trivially solvable variables: Dict{Any, Any}(_t27_x3ˍtttt_t_ => 0.011647968151976329, _t27_x3_t_ => 8.442814908823525, _t27_x3ˍt_t_ => 1.976455836210465, _t27_x3ˍtt_t_ => 0.2565018817961189, _t27_x3ˍttt_t_ => 0.06517930491015989)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: sum_test ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • x1(t)
-  • x2(t)
-  • c
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • c = 0.868333
-
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   0.690979 |   0.654510
-x2(t)        |   3.000000 |   1.036469 |   0.654510
-x3(t)        |   4.000000 |   4.000000 |   0.000000
-a            |   0.100000 |   0.100000 |   0.000000
-b            |   0.200000 |   0.200000 |   0.000000
-c            |   0.300000 |   0.868333 |   1.894444
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   1.036469 |   0.481766
-x2(t)        |   3.000000 |   0.690979 |   0.769674
-x3(t)        |   4.000000 |   4.000000 |   0.000000
-a            |   0.100000 |  -0.200000 |   3.000000
-b            |   0.200000 |  -0.100000 |   1.500000
-c            |   0.300000 |   0.868333 |   1.894444
-
-
-Best approximation error for sum_test: 0.0
-
-Best maximum relative error for sum_test (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: slowfast
-Starting model: slowfast
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k2, k1, eB, xA(t), xB(t), xC(t), eA(t), eC(t)]
-We are trying these points:[4]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 4 entries:
-  4 => 0
-  2 => 2
-  3 => 0
-  1 => 2
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t4_eCˍt_t_ => 0, _t4_eCˍtt_t_ => 0, _t4_eAˍtt_t_ => 0, _t4_xC_t_ => 0.5895283089730284, _t4_eA_t_ => 0.666, _t4_eAˍt_t_ => 0, _t4_xCˍtt_t_ => -0.04878885122419163, _t4_eC_t_ => 0.833, _t4_xCˍt_t_ => 0.13329708347017297)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: slowfast ===
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-xA(t)        |   0.166000 |  -0.167000 |   2.006024
-xB(t)        |   0.333000 |   0.666000 |   1.000000
-xC(t)        |   0.500000 |   0.500000 |   0.000000
-eA(t)        |   0.666000 |   0.666000 |   0.000000
-eC(t)        |   0.833000 |   0.833000 |   0.000000
-k1           |   0.250000 |   0.500000 |   1.000000
-k2           |   0.500000 |   0.250000 |   0.500000
-eB           |   0.750000 |   0.708000 |   0.056000
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-xA(t)        |   0.166000 |   0.166000 |   0.000000
-xB(t)        |   0.333000 |   0.333000 |   0.000000
-xC(t)        |   0.500000 |   0.500000 |   0.000000
-eA(t)        |   0.666000 |   0.666000 |   0.000000
-eC(t)        |   0.833000 |   0.833000 |   0.000000
-k1           |   0.250000 |   0.250000 |   0.000000
-k2           |   0.500000 |   0.500000 |   0.000000
-eB           |   0.750000 |   0.750000 |   0.000000
-
-
-Best approximation error for slowfast: 0.0
-
-Best maximum relative error for slowfast (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: threesp_cubed
-Starting model: threesp_cubed
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, c, x1(t), x2(t), x3(t)]
-We are trying these points:[22]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 3 entries:
-  2 => 1
-  3 => 1
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}()
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-DEBUG [ODEPEtestwrapper]: Processing solution 3
-
-DEBUG [ODEPEtestwrapper]: Processing solution 4
-
-DEBUG [ODEPEtestwrapper]: Processing solution 5
-
-DEBUG [ODEPEtestwrapper]: Processing solution 6
-
-DEBUG [ODEPEtestwrapper]: Processing solution 7
-
-DEBUG [ODEPEtestwrapper]: Processing solution 8
-
-=== Model: threesp_cubed ===
-
-Found 5 distinct solution clusters:
-
-Cluster 1: 2 similar solutions
-Best solution (Error: 1.884979):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |  -1.000000 |   1.500000
-x2(t)        |   3.000000 |  -1.500000 |   1.500000
-x3(t)        |   4.000000 |  -2.000000 |   1.500000
-a            |   0.100000 |   0.100000 |   0.000000
-b            |   0.200000 |   0.200000 |   0.000000
-c            |   0.300000 |   0.300000 |   0.000000
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 1.83767):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |  -1.000000 |   1.500000
-x2(t)        |   3.000000 |  -1.500000 |   1.500000
-x3(t)        |   4.000000 |  -1.190982 |   1.297745
-a            |   0.100000 |   0.100000 |   0.000000
-b            |   0.200000 |   0.200000 |   0.000000
-c            |   0.300000 |  -0.150000 |   1.500000
-
-
-Cluster 3: 2 similar solutions
-Best solution (Error: 1.823166):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |  -0.612593 |   1.306297
-x2(t)        |   3.000000 |  -1.000270 |   1.333423
-x3(t)        |   4.000000 |  -1.250405 |   1.312601
-a            |   0.100000 |  -0.050000 |   1.500000
-b            |   0.200000 |  -0.100000 |   1.500000
-c            |   0.300000 |  -0.150000 |   1.500000
-
-
-Cluster 4: 2 similar solutions
-Best solution (Error: 1.783697):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   1.585745 |   0.207127
-x2(t)        |   3.000000 |  -1.458558 |   1.486186
-x3(t)        |   4.000000 |  -1.937837 |   1.484459
-a            |   0.100000 |  -0.050000 |   1.500000
-b            |   0.200000 |  -0.100000 |   1.500000
-c            |   0.300000 |  -0.150000 |   1.500000
-
-
-Cluster 5: 1 similar solutions
-Best solution (Error: 1.105013):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |  -0.612593 |   1.306297
-x2(t)        |   3.000000 |  -1.000270 |   1.333423
-x3(t)        |   4.000000 |   3.131558 |   0.217110
-a            |   0.100000 |  -0.050000 |   1.500000
-b            |   0.200000 |  -0.100000 |   1.500000
-c            |   0.300000 |  -0.150000 |   1.500000
-
-
-Best approximation error for threesp_cubed: 1.105013
-
-Best maximum relative error for threesp_cubed (excluding ALL unidentifiable parameters): 1.5
-[ Info: Running model: onesp_cubed
-Starting model: onesp_cubed
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, x1(t)]
-We are trying these points:[48]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 1
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}()
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: onesp_cubed ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.000000 |   0.000000
-a            |   0.100000 |   0.100000 |   0.000000
-
-
-Best approximation error for onesp_cubed: 0.0
-
-Best maximum relative error for onesp_cubed (excluding ALL unidentifiable parameters): 0.0
-[ Info: Running model: daisy_ex3
-Starting model: DAISY_ex3
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[p7, p3, p6, p1, p4, x1(t), x2(t), x3(t), u0(t)]
-We are trying these points:[49]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 0
-  1 => 7
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t49_u0ˍtttttt_t_ => 0, _t49_x1_t_ => 38.553257083142476, _t49_x1ˍtt_t_ => 14.391886782160327, _t49_u0_t_ => 5.5999999999999925, _t49_x1ˍttt_t_ => 8.343732621637173, _t49_x1ˍt_t_ => 24.37520388815858, _t49_u0ˍttttt_t_ => 0, _t49_x1ˍttttttt_t_ => 0.84002685546875, _t49_x1ˍtttt_t_ => 4.819631133694202, _t49_u0ˍtt_t_ => 0, _t49_u0ˍttt_t_ => 0, _t49_u0ˍtttt_t_ => 0, _t49_x1ˍttttt_t_ => 2.8069476187229156, _t49_x1ˍtttttt_t_ => 1.6135625839233398, _t49_u0ˍt_t_ => 1.0)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: DAISY_ex3 ===
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 1.0149452456463702e14):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.200000 | 14777282778135876.000000 | 73886413890679376.000000
-x2(t)        |   0.400000 | -151750310148476160.000000 | 379375775371190400.000000
-x3(t)        |   0.600000 | -13698829711832584.000000 | 22831382853054308.000000
-u0(t)        |   0.800000 |   0.800000 |   0.000000
-p1           |   0.167000 |   1.530216 |   8.162969
-p3           |   0.333000 |  13.094792 |  38.323699
-p4           |   0.500000 |  10.614493 |  20.228986
-p6           |   0.667000 |  10.545501 |  14.810346
-p7           |   0.833000 |   0.423672 |   0.491390
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 1.0149450123857206e14):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.200000 | 14777279381934334.000000 | 73886396909671664.000000
-x2(t)        |   0.400000 | -151750275272331808.000000 | 379375688180829504.000000
-x3(t)        |   0.600000 | 1532761029851794688.000000 | 2554601716419657728.000000
-u0(t)        |   0.800000 |   0.800000 |   0.000000
-p1           |   0.167000 |   1.530216 |   8.162969
-p3           |   0.333000 |  13.094792 |  38.323699
-p4           |   0.500000 |   0.423672 |   0.152655
-p6           |   0.667000 | -122.901175 | 185.259633
-p7           |   0.833000 |  10.614493 |  11.742489
-
-
-Best approximation error for DAISY_ex3: 1.0149450123857206e14
-
-Best maximum relative error for DAISY_ex3 (excluding ALL unidentifiable parameters): 3.793757753711904e17
-[ Info: Running model: daisy_mamil4
-Starting model: DAISY_mamil4
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k12, k21, k01, k14, k13, k31, k41, x1(t), x2(t), x3(t), x4(t)]
-We are trying these points:[3]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  3 => 4
-  1 => 5
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t3_x1_t_ => 0.23778965588787113, _t3_x1ˍt_t_ => 0.13816621938067664, _t3_x1ˍtt_t_ => -0.418483279156149, _t3_x1ˍttt_t_ => 1.1608987500558783, _t3_x1ˍtttt_t_ => -3.1965391296234884, _t3_x1ˍttttt_t_ => 8.792942362022586)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: DAISY_mamil4 ===
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.200000 |   0.200000 |   0.000000
-x2(t)        |   0.400000 |   0.400000 |   0.000000
-x3(t)        |   0.600000 |   0.800001 |   0.333334
-x4(t)        |   0.800000 |   0.599999 |   0.250001
-k01          |   0.125000 |   0.125000 |   0.000000
-k12          |   0.250000 |   0.250000 |   0.000000
-k13          |   0.375000 |   0.500000 |   0.333332
-k14          |   0.500000 |   0.375000 |   0.249999
-k21          |   0.625000 |   0.625000 |   0.000000
-k31          |   0.750000 |   0.874999 |   0.166665
-k41          |   0.875000 |   0.750001 |   0.142856
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 0.0):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   0.200000 |   0.200000 |   0.000000
-x2(t)        |   0.400000 |   0.400000 |   0.000000
-x3(t)        |   0.600000 |   0.599999 |   0.000001
-x4(t)        |   0.800000 |   0.800001 |   0.000001
-k01          |   0.125000 |   0.125000 |   0.000000
-k12          |   0.250000 |   0.250000 |   0.000000
-k13          |   0.375000 |   0.375000 |   0.000001
-k14          |   0.500000 |   0.500000 |   0.000001
-k21          |   0.625000 |   0.625000 |   0.000000
-k31          |   0.750000 |   0.750001 |   0.000002
-k41          |   0.875000 |   0.874999 |   0.000001
-
-
-Best approximation error for DAISY_mamil4: 0.0
-
-Best maximum relative error for DAISY_mamil4 (excluding ALL unidentifiable parameters): 2.0e-6
-[ Info: Running model: two_compartment_pk
-Starting model: two_compartment_pk
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}(k12 => 0.1174941176101425, V1 => 0.40345192962772103, V2 => 0.3731040461692432)
-DEBUG [MPHCPE]: Final varlist: Num[k21, ke, C1(t), C2(t)]
-We are trying these points:[26]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 3
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set(Any[k12, k21, V1, C2(t), V2, ke])
-Unidentifiable variables substitution dictionary: Dict{Any, Any}(k12 => 0.1174941176101425, V1 => 0.40345192962772103, V2 => 0.3731040461692432)
-Trivially solvable variables: Dict{Any, Any}(_t26_C1_t_ => 0.8871772511769775, _t26_C1ˍt_t_ => -0.0388566672327566, _t26_C1ˍttt_t_ => -7.454321007793752e-5, _t26_C1ˍtt_t_ => 0.0017018535903359222)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-DEBUG [ODEPEtestwrapper]: Processing solution 2
-
-=== Model: two_compartment_pk ===
-
-All structurally unidentifiable parameters:
---------------------------------------------------
-These parameters cannot be uniquely determined from the data:
-  • k12
-  • k21
-  • V1
-  • C2(t)
-  • V2
-  • ke
-
-
-Minimal set of fixed values to make remaining parameters identifiable:
---------------------------------------------------
-These parameters were fixed to make the system identifiable:
-  • k12 = 0.117494
-  • V1 = 0.403452
-  • V2 = 0.373104
-
-
-Found 2 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-C1(t)        |  10.000000 |  10.000113 |   0.000011
-C2(t)        |   0.000000 |  -7.116478 |   7.116478
-k12          |   0.500000 |   0.117494 |   0.765012
-k21          |   0.250000 |   0.731223 |   1.924890
-ke           |   0.150000 |   0.051284 |   0.658107
-V1           |   1.000000 |   0.403452 |   0.596548
-V2           |   2.000000 |   0.373104 |   0.813448
-
-
-Cluster 2: 1 similar solutions
-Best solution (Error: 1.0e-6):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-C1(t)        |  10.000000 |  10.000113 |   0.000011
-C2(t)        |   0.000000 |  41.899885 |  41.899885
-k12          |   0.500000 |   0.117494 |   0.765012
-k21          |   0.250000 |   0.051284 |   0.794864
-ke           |   0.150000 |   0.731223 |   3.874817
-V1           |   1.000000 |   0.403452 |   0.596548
-V2           |   2.000000 |   0.373104 |   0.813448
-
-
-Best approximation error for two_compartment_pk: 1.0e-6
-
-Best maximum relative error for two_compartment_pk (excluding ALL unidentifiable parameters): 1.1e-5
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = mean(xs), std(xs)
-[7C        ys_mean, ys_std = mean(ys), std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C
-[?2004lcreate_gpr_function (generic function with 1 method)
-
-[0K[0Kjulia> [7C[7C[?2004h[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = mean(xs), std(xs)
-[7C        ys_mean, ys_std = mean(ys), std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = mean(xs), std(xs)
-[7C        ys_mean, ys_std = mean(ys), std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[8C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[7C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[6C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[5C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[4C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[3C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[2C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1A[79C[1B[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1A[78C[1B[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1A[77C[1B[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1A[78C[1B[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1A[79C[1B[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[1C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[2C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[3C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[4C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[5C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[6C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[7C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[8C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad)[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaad[8C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aaa[7C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=aa[6C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=a[5C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=[4C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=c[5C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=cr[6C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=cre[7C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=crea[8C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=creat[9C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create[10C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_[11C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_g[12C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_g[12Cpr_function[11D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gp[13C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gp[13Cr_function[10D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr[14C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr[14C_function[9D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_[15C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_[15Cfunction[8D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_f[16C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_f[16Cunction[7D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_fu[17C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_fu[17Cnction[6D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_fun[18C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_fun[18Cction[5D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_func[19C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_func[19Ction[4D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_funct[20C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_funct[20Cion[3D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_functi[21C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_functi[21Con[2D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_functio[22C[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_functio[22Cn[1D[0K[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function[23C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[37]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: UndefVarError: `mean` not defined in `Main`
-Suggestion: check for spelling errors or missing imports.
-Hint: a global variable of this name may be made accessible by importing Statistics in the current active module Main
-Hint: a global variable of this name may be made accessible by importing StatsBase in the current active module Main
-Hint: a global variable of this name may be made accessible by importing Distributions in the current active module Main
-Stacktrace:
- [1] create_gpr_function(xs::Vector{Float64}, ys::Vector{Float64})
-   @ Main ./REPL[3]:3
- [2] construct_equation_system(model::ODESystem, measured_quantities_in::Vector{…}, data_sample::OrderedDict{…}, deriv_level::Dict{…}, unident_dict::Dict{…}, varlist::Vector{…}, DD::DerivativeData; interpolator::typeof(create_gpr_function), time_index_set::Vector{…}, return_parameterized_system::Bool)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:501
- [3] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:63
- [4] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [5] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [6] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [7] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [8] top-level scope
-   @ REPL[4]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C
-[?2004lcreate_gpr_function (generic function with 1 method)
-
-[0K[0Kjulia> [7C[7C[?2004h[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[7]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: UndefVarError: `Statistics` not defined in `Main`
-Suggestion: check for spelling errors or missing imports.
-Hint: Statistics is loaded but not imported in the active module Main.
-Stacktrace:
- [1] create_gpr_function(xs::Vector{Float64}, ys::Vector{Float64})
-   @ Main ./REPL[5]:3
- [2] construct_equation_system(model::ODESystem, measured_quantities_in::Vector{…}, data_sample::OrderedDict{…}, deriv_level::Dict{…}, unident_dict::Dict{…}, varlist::Vector{…}, DD::DerivativeData; interpolator::typeof(create_gpr_function), time_index_set::Vector{…}, return_parameterized_system::Bool)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:501
- [3] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:63
- [4] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [5] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [6] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [7] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [8] top-level scope
-   @ REPL[6]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7Cus[0K[0Kjulia> [7Cus[9Cing[3Di[0K[0Kjulia> [7Cusi[10Cng[2Dn[0K[0Kjulia> [7Cusin[11Cg[1Dg[0K[0Kjulia> [7Cusing[12C Sta[0K[0Kjulia> [7Cusing Sta[16Ctistics[7Dt[0K[0Kjulia> [7Cusing Stat[17Cistics[6Di[0K[0Kjulia> [7Cusing Stati[18Cstics[5D[0K[0Kjulia> [7Cusing Stati[18C
-[?2004lERROR: ArgumentError: Package Stati not found in current path.
-- Run `import Pkg; Pkg.add("Stati")` to install the Stati package.
-Stacktrace:
- [1] macro expansion
-   @ ./loading.jl:2296 [inlined]
- [2] macro expansion
-   @ ./lock.jl:273 [inlined]
- [3] __require(into::Module, mod::Symbol)
-   @ Base ./loading.jl:2271
- [4] #invoke_in_world#3
-   @ ./essentials.jl:1089 [inlined]
- [5] invoke_in_world
-   @ ./essentials.jl:1086 [inlined]
- [6] require(into::Module, mod::Symbol)
-   @ Base ./loading.jl:2260
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Stati[18C[0Kjulia> [7Cusing Stati[18C[0K[0Kjulia> [7Cusing Stati[18C[0Kjulia> [7Cusing Statistics[23C[0Kjulia> [7Cusing Statistics[23C
-[?2004l
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Statistics[23C[0Kjulia> [7Cusing Statistics[23C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Stati[18C[0Kjulia> [7Cusing Stati[18C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Statistics[23C[0Kjulia> [7Cusing Statistics[23C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Statistics[23C[0Kjulia> [7Cusing Statistics[23C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Stati[18C[0Kjulia> [7Cusing Stati[18C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[23]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-ERROR: UndefVarError: `SEIso` not defined in `Main`
-Suggestion: check for spelling errors or missing imports.
-Hint: a global variable of this name may be made accessible by importing GaussianProcesses in the current active module Main
-Stacktrace:
- [1] create_gpr_function(xs::Vector{Float64}, ys::Vector{Float64})
-   @ Main ./REPL[5]:10
- [2] construct_equation_system(model::ODESystem, measured_quantities_in::Vector{…}, data_sample::OrderedDict{…}, deriv_level::Dict{…}, unident_dict::Dict{…}, varlist::Vector{…}, DD::DerivativeData; interpolator::typeof(create_gpr_function), time_index_set::Vector{…}, return_parameterized_system::Bool)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:501
- [3] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:63
- [4] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [5] 
-   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [6] analyze_parameter_estimation_problem
-   @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [7] 
-   @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [8] top-level scope
-   @ REPL[9]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7Cus[0K[0Kjulia> [7Cus[9Cing[3Di[0K[0Kjulia> [7Cusi[10Cng[2Dn[0K[0Kjulia> [7Cusin[11Cg[1Dg[0K[0Kjulia> [7Cusing[12C Ga[0K[0Kjulia> [7Cusing Ga[15CussianProcesses[15Di[0K[0Kjulia> [7Cusing Gai[16C[0Kjulia> [7Cusing Ga[15Cu[0K[0Kjulia> [7Cusing Gau[16CssianProcesses[14D[0K[0Kjulia> [7Cusing GaussianProcesses[30C[0Kjulia> [7Cusing GaussianProcesses[30C
-[?2004l
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7Cus[0K[0Kjulia> [7Cus[9Cing[3Di[0K[0Kjulia> [7Cusi[10Cng[2Dn[0K[0Kjulia> [7Cusin[11Cg[1Dg[0K[0Kjulia> [7Cusing[12C Opt[0K[0Kjulia> [7Cusing Opt[16Cim[2Di[0K[0Kjulia> [7Cusing Opti[17Cm[1Dm[0K[0Kjulia> [7Cusing Optim[18C[0Kjulia> [7Cusing Optim[18C
-[?2004l
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7Cus[0K[0Kjulia> [7Cus[9Cing[3Di[0K[0Kjulia> [7Cusi[10Cng[2Dn[0K[0Kjulia> [7Cusin[11Cg[1Dg[0K[0Kjulia> [7Cusing[12C Lin[0Kjulia> [7Cusing Line[17CS[0K[0Kjulia> [7Cusing LineS[18Cearches[7D[0K[0Kjulia> [7Cusing LineSearches[25C[0Kjulia> [7Cusing LineSearches[25C
-[?2004l
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing LineSearches[25C[0Kjulia> [7Cusing LineSearches[25C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing Optim[18C[0Kjulia> [7Cusing Optim[18C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cusing GaussianProcesses[30C[0Kjulia> [7Cusing GaussianProcesses[30C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[49]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-LinearAlgebra.PosDefException(39)
-LinearAlgebra.PosDefException(2)
-LinearAlgebra.PosDefException(3)
-LinearAlgebra.PosDefException(3)
-LinearAlgebra.PosDefException(5)
-LinearAlgebra.PosDefException(5)
-LinearAlgebra.PosDefException(8)
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: ArgumentError: invalid argument #4 to LAPACK call
-Stacktrace:
-  [1] chklapackerror
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:38 [inlined]
-  [2] gesdd!(job::Char, A::Matrix{Float64})
-    @ LinearAlgebra.LAPACK ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:1714
-  [3] svdvals!
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:217 [inlined]
-  [4] svdvals(A::Matrix{Float64})
-    @ LinearAlgebra ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:242
-  [5] #rank#19
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/generic.jl:999 [inlined]
-  [6] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num}, rtol::Float64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:44
-  [7] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:41
-  [8] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:444
-  [9] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [10] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [11] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [12] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [13] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [14] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [15] top-level scope
-    @ REPL[13]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C [0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # Add small noise to avoid singular covariance matrix
-[7C        noise_level = 1e-6
-[7C        xs_scaled = xs_scaled .+ noise_level * randn(length(xs_scaled))
-[7C        ys_scaled = ys_scaled .+ noise_level * randn(length(ys_scaled))
-[7C
-[7C    
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C
-[?2004lcreate_gpr_function (generic function with 1 method)
-
-[0K[0Kjulia> [7C[7C[?2004h[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # Add small noise to avoid singular covariance matrix
-[7C        noise_level = 1e-6
-[7C        xs_scaled = xs_scaled .+ noise_level * randn(length(xs_scaled))
-[7C        ys_scaled = ys_scaled .+ noise_level * randn(length(ys_scaled))
-[7C
-[7C    
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0Kjulia> [7Cfunction create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-[7C        # Scale inputs and outputs to have std ≈ 1
-[7C        xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-[7C        ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-[7C        xs_scaled = (xs .- xs_mean) ./ xs_std
-[7C        ys_scaled = (ys .- ys_mean) ./ ys_std
-[7C
-[7C        # Add small noise to avoid singular covariance matrix
-[7C        noise_level = 1e-6
-[7C        xs_scaled = xs_scaled .+ noise_level * randn(length(xs_scaled))
-[7C        ys_scaled = ys_scaled .+ noise_level * randn(length(ys_scaled))
-[7C
-[7C    
-[7C        # For LV solutions, we can use a longer length scale since we know it's smooth
-[7C        # Start with length scale = 1.0 which is reasonable for scaled data
-[7C        kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-[7C
-[7C        # Add small noise but not too small since LV solutions usually have minimal noise
-[7C        gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-[7C
-[7C        optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-[7C
-[7C        # Create callable function that handles the scaling
-[7C        gpr_func = x -> begin
-[7C                x_scaled = (x - xs_mean) / xs_std
-[7C                pred, _ = predict_y(gp, [x_scaled])
-[7C                return pred[1] * ys_std + ys_mean
-[7C        end
-[7C
-[7C        return gpr_func
-[7Cend[10C[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[1A[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[3]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t3_x1_t_ => 1.9669513330609538, _t3_x2_t_ => -0.5429481197492468, _t3_x1ˍt_t_ => -0.30072689488819676, _t3_x2ˍt_t_ => 0)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: vanderpol ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.151734):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.027564 |   0.013782
-x2(t)        |   0.000000 |  -0.556612 |   0.556612
-a            |   1.000000 |   0.553878 |   0.446122
-b            |   1.000000 |   1.262758 |   0.262758
-
-
-Best approximation error for vanderpol: 0.151734
-
-Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 0.556612
-[ Info: Running model: lotka_volterra
-Starting model: Lotka_Volterra
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
-We are trying these points:[18]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-┌ Warning: No start solutions found.
-└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:472
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 0 points
-ERROR: BoundsError: attempt to access 0-element Vector{Any} at index [1]
-Stacktrace:
-  [1] throw_boundserror(A::Vector{Any}, I::Tuple{Int64})
-    @ Base ./essentials.jl:14
-  [2] getindex
-    @ ./essentials.jl:916 [inlined]
-  [3] multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64, rtol::Float64, atol::Float64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:383
-  [4] multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:344
-  [5] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:49
-  [6] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
-  [7] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
-  [8] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
-  [9] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [10] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[47]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t47_x2_t_ => -0.5429481197492468, _t47_x1_t_ => -1.279053779494187, _t47_x1ˍt_t_ => 0.9389988359358891, _t47_x2ˍt_t_ => 0)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-┌ Warning: At t=1.679032095145299, dt was forced below floating point epsilon 2.220446049250313e-16, and step error estimate = 1.8928613002892514. Aborting. There is either an error in your model specification or the true solution is unstable (or the true solution can not be represented in the precision of Float64).
-└ @ SciMLBase ~/.julia/packages/SciMLBase/AkGLd/src/integrator_interface.jl:623
-
-=== Model: vanderpol ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 1.0e15):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |  -2.778776 |   2.389388
-x2(t)        |   0.000000 |  -0.112021 |   0.112021
-a            |   1.000000 |  -1.729445 |   2.729445
-b            |   1.000000 |  -3.704145 |   4.704145
-
-
-Best approximation error for vanderpol: 1.0e15
-
-Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 4.704145
-[ Info: Running model: lotka_volterra
-Starting model: Lotka_Volterra
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
-We are trying these points:[14]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: ArgumentError: invalid argument #4 to LAPACK call
-Stacktrace:
-  [1] chklapackerror
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:38 [inlined]
-  [2] gesdd!(job::Char, A::Matrix{Float64})
-    @ LinearAlgebra.LAPACK ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:1714
-  [3] svdvals!
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:217 [inlined]
-  [4] svdvals(A::Matrix{Float64})
-    @ LinearAlgebra ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:242
-  [5] #rank#19
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/generic.jl:999 [inlined]
-  [6] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num}, rtol::Float64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:44
-  [7] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:41
-  [8] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:444
-  [9] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [10] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [11] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [12] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [13] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [14] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [15] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[11]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: InexactError: Int64(NaN)
-Stacktrace:
-  [1] Int64
-    @ ./float.jl:994 [inlined]
-  [2] convert
-    @ ./number.jl:7 [inlined]
-  [3] exp(a::HomotopyContinuation.DoubleDouble.DoubleF64)
-    @ HomotopyContinuation.DoubleDouble ~/.julia/packages/HomotopyContinuation/HdN5z/src/DoubleDouble.jl:676
-  [4] _broadcast_getindex_evalf
-    @ ./broadcast.jl:678 [inlined]
-  [5] _broadcast_getindex
-    @ ./broadcast.jl:651 [inlined]
-  [6] getindex
-    @ ./broadcast.jl:610 [inlined]
-  [7] macro expansion
-    @ ./broadcast.jl:973 [inlined]
-  [8] macro expansion
-    @ ./simdloop.jl:77 [inlined]
-  [9] copyto!
-    @ ./broadcast.jl:972 [inlined]
- [10] copyto!
-    @ ./broadcast.jl:925 [inlined]
- [11] materialize!
-    @ ./broadcast.jl:883 [inlined]
- [12] materialize!
-    @ ./broadcast.jl:880 [inlined]
- [13] solve!(BSS::HomotopyContinuation.BinomialSystemSolver, H::Matrix{Int64}, U::Matrix{Int64})
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:256
- [14] solve!(BSS::HomotopyContinuation.BinomialSystemSolver)
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:174
- [15] solve
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:162 [inlined]
- [16] iterate(iter::HomotopyContinuation.PolyhedralStartSolutionsIterator)
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/polyhedral.jl:68
- [17] _collect(cont::UnitRange{…}, itr::HomotopyContinuation.PolyhedralStartSolutionsIterator, ::Base.HasEltype, isz::Base.SizeUnknown)
-    @ Base ./array.jl:727
- [18] collect
-    @ ./array.jl:716 [inlined]
- [19] #solve#280
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:503 [inlined]
- [20] solve(args::HomotopyContinuation.ModelKit.System; show_progress::Bool, threading::Bool, catch_interrupt::Bool, target_parameters::Nothing, stop_early_cb::Function, transform_result::Nothing, transform_parameters::typeof(identity), flatten::Nothing, target_subspaces::Nothing, kwargs::@Kwargs{})
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:489
- [21] solve
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:433 [inlined]
- [22] solve_with_fallback(system::HomotopyContinuation.ModelKit.System; show_progress::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:388
- [23] solve_with_fallback(system::HomotopyContinuation.ModelKit.System)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:384
- [24] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:477
- [25] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [26] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [27] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [28] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [29] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [30] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [31] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[10]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: InexactError: Int64(NaN)
-Stacktrace:
-  [1] Int64
-    @ ./float.jl:994 [inlined]
-  [2] convert
-    @ ./number.jl:7 [inlined]
-  [3] exp(a::HomotopyContinuation.DoubleDouble.DoubleF64)
-    @ HomotopyContinuation.DoubleDouble ~/.julia/packages/HomotopyContinuation/HdN5z/src/DoubleDouble.jl:676
-  [4] _broadcast_getindex_evalf
-    @ ./broadcast.jl:678 [inlined]
-  [5] _broadcast_getindex
-    @ ./broadcast.jl:651 [inlined]
-  [6] getindex
-    @ ./broadcast.jl:610 [inlined]
-  [7] macro expansion
-    @ ./broadcast.jl:973 [inlined]
-  [8] macro expansion
-    @ ./simdloop.jl:77 [inlined]
-  [9] copyto!
-    @ ./broadcast.jl:972 [inlined]
- [10] copyto!
-    @ ./broadcast.jl:925 [inlined]
- [11] materialize!
-    @ ./broadcast.jl:883 [inlined]
- [12] materialize!
-    @ ./broadcast.jl:880 [inlined]
- [13] solve!(BSS::HomotopyContinuation.BinomialSystemSolver, H::Matrix{Int64}, U::Matrix{Int64})
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:256
- [14] solve!(BSS::HomotopyContinuation.BinomialSystemSolver)
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:174
- [15] solve
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/binomial_system.jl:162 [inlined]
- [16] iterate(iter::HomotopyContinuation.PolyhedralStartSolutionsIterator)
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/polyhedral.jl:68
- [17] _collect(cont::UnitRange{…}, itr::HomotopyContinuation.PolyhedralStartSolutionsIterator, ::Base.HasEltype, isz::Base.SizeUnknown)
-    @ Base ./array.jl:727
- [18] collect
-    @ ./array.jl:716 [inlined]
- [19] #solve#280
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:503 [inlined]
- [20] solve(args::HomotopyContinuation.ModelKit.System; show_progress::Bool, threading::Bool, catch_interrupt::Bool, target_parameters::Nothing, stop_early_cb::Function, transform_result::Nothing, transform_parameters::typeof(identity), flatten::Nothing, target_subspaces::Nothing, kwargs::@Kwargs{})
-    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:489
- [21] solve
-    @ ~/.julia/packages/HomotopyContinuation/HdN5z/src/solve.jl:433 [inlined]
- [22] solve_with_fallback(system::HomotopyContinuation.ModelKit.System; show_progress::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:388
- [23] solve_with_fallback(system::HomotopyContinuation.ModelKit.System)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:384
- [24] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:477
- [25] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [26] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [27] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [28] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [29] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [30] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [31] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[23C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[8]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-LinearAlgebra.PosDefException(1)
-
-Unidentifiability Analysis from MPHCPE:
-All unidentifiable variables: Set{Any}()
-Unidentifiable variables substitution dictionary: Dict{Any, Any}()
-Trivially solvable variables: Dict{Any, Any}(_t8_x1_t_ => 1.7203240101597215, _t8_x2_t_ => -0.5429481197492468, _t8_x1ˍt_t_ => -0.6363782933517159, _t8_x2ˍt_t_ => 0)
-
-DEBUG [ODEPEtestwrapper]: Processing solution 1
-
-=== Model: vanderpol ===
-
-Found 1 distinct solution clusters:
-
-Cluster 1: 1 similar solutions
-Best solution (Error: 0.029668):
---------------------------------------------------
-Variable     | True Value  | Estimated   | Rel. Error
------------------------------------------------------
-x1(t)        |   2.000000 |   2.497461 |   0.248730
-x2(t)        |   0.000000 |  -2.893042 |   2.893042
-a            |   1.000000 |   1.172079 |   0.172079
-b            |   1.000000 |   1.616975 |   0.616975
-
-
-Best approximation error for vanderpol: 0.029668
-
-Best maximum relative error for vanderpol (excluding ALL unidentifiable parameters): 2.893042
-[ Info: Running model: lotka_volterra
-Starting model: Lotka_Volterra
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[k2, k1, k3, r(t), w(t)]
-We are trying these points:[46]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 1 entry:
-  1 => 4
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: ArgumentError: invalid argument #4 to LAPACK call
-Stacktrace:
-  [1] chklapackerror
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:38 [inlined]
-  [2] gesdd!(job::Char, A::Matrix{Float64})
-    @ LinearAlgebra.LAPACK ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:1714
-  [3] svdvals!
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:217 [inlined]
-  [4] svdvals(A::Matrix{Float64})
-    @ LinearAlgebra ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:242
-  [5] #rank#19
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/generic.jl:999 [inlined]
-  [6] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num}, rtol::Float64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:44
-  [7] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:41
-  [8] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:444
-  [9] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [10] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [11] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [12] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [13] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [14] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [15] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[23C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=51,noise_level=0.00, interpolator=create_gpr_function)[24C
-[?2004l[ Info: Running model: vanderpol
-Starting model: vanderpol
-
-DEBUG [MPHCPE]: Starting parameter estimation...
-DEBUG [MPHCPE]: Analyzing identifiability with 2 points
-DEBUG [MPHCPE]: Final analysis with 1 points
-DEBUG [MPHCPE]: Final unidentifiable dict: Dict{Any, Any}()
-DEBUG [MPHCPE]: Final varlist: Num[a, b, x1(t), x2(t)]
-We are trying these points:[22]
-Using these observations and their derivatives:
-Dict{Int64, Int64} with 2 entries:
-  2 => 1
-  1 => 1
-┌ Warning: Terminated early due to NaN in gradient.
-└ @ Optim ~/.julia/packages/Optim/fBdaz/src/multivariate/optimize/optimize.jl:98
-ERROR: ArgumentError: invalid argument #4 to LAPACK call
-Stacktrace:
-  [1] chklapackerror
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:38 [inlined]
-  [2] gesdd!(job::Char, A::Matrix{Float64})
-    @ LinearAlgebra.LAPACK ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/lapack.jl:1714
-  [3] svdvals!
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:217 [inlined]
-  [4] svdvals(A::Matrix{Float64})
-    @ LinearAlgebra ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/svd.jl:242
-  [5] #rank#19
-    @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/LinearAlgebra/src/generic.jl:999 [inlined]
-  [6] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num}, rtol::Float64)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:44
-  [7] squarify_by_trashing(poly_system::Vector{Num}, varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:41
-  [8] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num}, use_monodromy::Bool, display_system::Bool)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:444
-  [9] solve_with_hc(input_poly_system::Vector{Num}, input_varlist::Vector{Num})
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/homotopy_continuation.jl:432
- [10] multipoint_parameter_estimation(model::ODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::typeof(solve_with_hc), display_points::Bool, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/solvers/parameter_estimation.jl:103
- [11] ODEPEtestwrapper(model::OrderedODESystem, measured_quantities::Vector{…}, data_sample::OrderedDict{…}, ode_solver::OrdinaryDiffEqCore.CompositeAlgorithm{…}; system_solver::Function, abstol::Float64, reltol::Float64, max_num_points::Int64, interpolator::Function)
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:73
- [12] 
-    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:18
- [13] analyze_parameter_estimation_problem
-    @ ~/.julia/dev/ODEParameterEstimation/src/utils/testing_utils.jl:14 [inlined]
- [14] 
-    @ Main ~/.julia/dev/ODEParameterEstimation/examples/run_examples.jl:96
- [15] top-level scope
-    @ REPL[15]:1
-Some type information was truncated. Use `show(err)` to see complete types.
-
-[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C
-[?2004l

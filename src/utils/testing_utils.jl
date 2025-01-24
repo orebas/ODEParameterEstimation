@@ -11,22 +11,23 @@ function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = 
 		pe.unident_count)
 end
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, showplot = true, run_ode_pe = true, interpolator)
-	if run_ode_pe
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, interpolator, nooutput = false)
+	if !nooutput
 		println("Starting model: ", PEP.name)
-
-		res = ODEPEtestwrapper(
-			PEP.model,  # This is now an OrderedODESystem
-			PEP.measured_quantities,
-			PEP.data_sample,
-			PEP.solver,
-			interpolator = interpolator)
-		besterror = analyze_estimation_result(PEP, res)
-
-		if test_mode
-			# @test besterror < 1e-1
-		end
 	end
+
+	res = ODEPEtestwrapper(
+		PEP.model,  # This is now an OrderedODESystem
+		PEP.measured_quantities,
+		PEP.data_sample,
+		PEP.solver,
+		interpolator = interpolator, nooutput = nooutput)
+	besterror = analyze_estimation_result(PEP, res)
+
+	if test_mode
+		# @test besterror < 1e-1
+	end
+	return res
 end
 
 function print_debug_info(prefix::String, unident_dict, all_unidentifiable, varlist)
@@ -54,7 +55,7 @@ Wrapper function for testing ODE Parameter Estimation.
 # Returns
 - Vector of ParameterEstimationResult objects
 """
-function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, abstol = 1e-12, reltol = 1e-12, max_num_points = 1, interpolator)
+function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, abstol = 1e-12, reltol = 1e-12, max_num_points = 1, interpolator, nooutput = false)
 	# Get current ordering from ModelingToolkit
 	current_states = ModelingToolkit.unknowns(model.system)
 	current_params = ModelingToolkit.parameters(model.system)
@@ -70,23 +71,27 @@ function ODEPEtestwrapper(model::OrderedODESystem, measured_quantities, data_sam
 	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1], Dict(), Set(), nothing)
 
 	#	println("\nDEBUG [ODEPEtestwrapper]: Calling MPHCPE...")
-	results_tuple = multipoint_parameter_estimation(model.system, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points, interpolator = interpolator)
+	results_tuple = multipoint_parameter_estimation(model.system, measured_quantities, data_sample, ode_solver, system_solver = system_solver, max_num_points = max_num_points, interpolator = interpolator, nooutput = nooutput)
 	results_vec, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 	#	println("DEBUG [ODEPEtestwrapper]: Got ", length(results_vec), " results from MPHCPE")
 
 	#	println("DEBUG [ODEPEtestwrapper]: Results vector: ", results_vec)
 	# Print unidentifiability information
-	println("\nUnidentifiability Analysis from MPHCPE:")
-	println("All unidentifiable variables: ", all_unidentifiable)
-	println("Unidentifiable variables substitution dictionary: ", unident_dict)
-	println("Trivially solvable variables: ", trivial_dict)
+	if !nooutput
+		println("\nUnidentifiability Analysis from MPHCPE:")
+		println("All unidentifiable variables: ", all_unidentifiable)
+		println("Unidentifiable variables substitution dictionary: ", unident_dict)
+		println("Trivially solvable variables: ", trivial_dict)
+	end
 
 	# Create initial result object with unidentifiability info
 	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(data_sample["t"]), tspan[1], unident_dict, all_unidentifiable, nothing)
 
 	# Process raw solutions
 	for (i, raw_sol) in enumerate(results_vec)
-		println("\nDEBUG [ODEPEtestwrapper]: Processing solution ", i)
+		if !nooutput
+			println("\nDEBUG [ODEPEtestwrapper]: Processing solution ", i)
+		end
 		push!(solved_res, deepcopy(newres))
 
 		ordered_states, ordered_params, ode_solution, err = process_raw_solution(raw_sol, model, data_sample, ode_solver, abstol = abstol, reltol = reltol)

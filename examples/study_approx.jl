@@ -436,7 +436,7 @@ function print_summary_statistics(approx_results, datasets)
 	end
 end
 
-example_function = repressilator
+example_function = lv_periodic
 pep = example_function()
 
 datasize = 1001

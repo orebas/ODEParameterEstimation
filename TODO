@@ -2,23 +2,14 @@
 
 
 
-rewrite output:  
-	show which vars are globally unident
-	for each output set, show map from var to value, including what was used for global subst
-	show error (to sample data)
-	optional:  compare each output param value to input param value if supplied
 
 
-implement multiple point method
-produce overdetermind equations from multiple point
 add tests against SI.jl (local vs structural identifiability)
 test  all examples from SI.jl, and whatever other sources are available
 add newton or other polisher to increase precision (perhaps using SCIML optimizers)
 add support for big float, make sure we support complex valued ODEs, and in general make more type agnostic
     -may not work because HomotopyContinuation doesn't support most of these
-test solving with monodromy
 
 add tests with longer time periods, and oscillatory ODEs
 check max derivative calculuation
 add tests for stiff diffeqs, and support stiff diffeqs generally
-get ratioanl functions working properly

@@ -1,5 +1,5 @@
 """
-	MPHCPE(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
+	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
 
 Perform Multi-point Homotopy Continuation Parameter Estimation.
 
@@ -15,7 +15,7 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 # Returns
 - Vector of result vectors
 """
-function multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4, interpolator = interpolator)
+function multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4, interpolator = interpolator, nooutput = false)
 	t = ModelingToolkit.get_iv(model)
 	eqns = ModelingToolkit.equations(model)
 	states = ModelingToolkit.unknowns(model)
@@ -30,10 +30,14 @@ function multipoint_parameter_estimation(model::ODESystem, measured_quantities, 
 	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
 		[[] for _ in 1:7]
 	good_DD = nothing
-	println("\nDEBUG [MPHCPE]: Starting parameter estimation...")
+	if !nooutput
+		println("\nDEBUG [multipoint_parameter_estimation]: Starting parameter estimation...")
+	end
 	while (!found_any_solutions)
 		good_num_points = good_num_points - 1
-		println("DEBUG [MPHCPE]: Analyzing identifiability with ", large_num_points, " points")
+		if !nooutput
+			println("DEBUG [multipoint_parameter_estimation]: Analyzing identifiability with ", large_num_points, " points")
+		end
 		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 
 		while (good_num_points > 1)
@@ -45,16 +49,22 @@ function multipoint_parameter_estimation(model::ODESystem, measured_quantities, 
 			end
 		end
 
-		println("DEBUG [MPHCPE]: Final analysis with ", good_num_points, " points")
+		if !nooutput
+			println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
+		end
 		(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-		println("DEBUG [MPHCPE]: Final unidentifiable dict: ", good_udict)
-		println("DEBUG [MPHCPE]: Final varlist: ", good_varlist)
+		if !nooutput
+			println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
+			println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
+		end
 
 		time_index_set = pick_points(t_vector, good_num_points)
 		if (display_points)
-			println("We are trying these points:", time_index_set)
-			println("Using these observations and their derivatives:")
-			display(good_deriv_level)
+			if !nooutput
+				println("We are trying these points:", time_index_set)
+				println("Using these observations and their derivatives:")
+				display(good_deriv_level)
+			end
 		end
 		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 

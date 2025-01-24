@@ -84,7 +84,7 @@ export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation
 export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table
-export clear_denoms, hmcs, analyze_parameter_estimation_problem
+export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at
 
 # Export PEtab integration
