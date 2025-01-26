@@ -101,7 +101,7 @@ Analyze the results of parameter estimation, including clustering solutions and 
 - `problem`: The parameter estimation problem
 - `result`: Vector of solution results
 """
-function analyze_estimation_result(problem::ParameterEstimationProblem, result; nooutput = true)
+function analyze_estimation_result(problem::ParameterEstimationProblem, result; nooutput = false)
 	# Merge dictionaries into a single OrderedDict
 	all_params = merge(OrderedDict(), problem.ic, problem.p_true)
 
@@ -300,6 +300,6 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	# - identifiable_names: Vector of names of identifiable parameters/states
 	# - unidentifiable_names: Vector of names of unidentifiable parameters/states
 	return (
-		[last(cluster) for cluster in clusters]
+		[last(cluster) for cluster in clusters], besterror,
 	)
 end

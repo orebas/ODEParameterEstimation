@@ -77,7 +77,7 @@ function run_parameter_estimation_examples(;
 	models = :all,
 	datasize = 501,
 	noise_level = 0.01,
-	showplot = true, interpolator = aaad)
+	interpolator = aaad)
 
 	# Dictionary mapping model names to their constructor functions
 	model_dict = Dict(
@@ -155,8 +155,7 @@ function run_parameter_estimation_examples(;
 				datasize = datasize,
 				time_interval = time_interval,
 				noise_level = noise_level),
-			test_mode = false,
-			showplot = showplot, interpolator = interpolator)
+			test_mode = false, interpolator = interpolator)
 		#	catch e
 		#		@warn "Failed to run model $model_name" exception = e
 		#	end

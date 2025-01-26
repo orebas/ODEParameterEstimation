@@ -1,3 +1,52 @@
+
+
+
+
+
+
+"""
+	handle_simple_substitutions(eqns, varlist)
+
+Look for equations like a-5.5 and replace a with 5.5.
+
+# Arguments
+- `eqns`: Equations to process
+- `varlist`: List of variables
+
+# Returns
+- Tuple containing filtered equations, reduced variable list, trivial variables, and trivial dictionary
+"""
+function handle_simple_substitutions(eqns, varlist)
+	trivial_dict = Dict()
+	filtered_eqns = typeof(eqns)()
+	trivial_vars = []
+	for i in eqns
+		g = Symbolics.get_variables(i)
+		if (length(g) == 1 && Symbolics.degree(i) == 1)
+			thisvar = g[1]
+			td = (polynomial_coeffs(i, (thisvar,)))[1]
+			if (1 in Set(keys(td)))
+				thisvarvalue = (-td[1] / td[thisvar])
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			else
+				thisvarvalue = 0
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			end
+		else
+			push!(filtered_eqns, i)
+		end
+	end
+	reduced_varlist = filter(x -> !(x in Set(trivial_vars)), varlist)
+	filtered_eqns = Symbolics.substitute.(filtered_eqns, Ref(trivial_dict))
+	return filtered_eqns, reduced_varlist, trivial_vars, trivial_dict
+end
+
+
+
+
+
 ########Below code is largely untested and hard to test.
 """
 	add_random_linear_equation(F::System)
@@ -94,7 +143,7 @@ function find_start_solutions(system, tracking_system, param_final; max_attempts
 	attempt_count = 0
 	start_pairs = []
 
-	display(system)
+	#display(system)
 
 	while (attempt_count < max_attempts && (attempt_count < min_attempts || isempty(start_pairs)))
 		test_point, test_params = HomotopyContinuation.find_start_pair(tracking_system)

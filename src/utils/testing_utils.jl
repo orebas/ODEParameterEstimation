@@ -1,15 +1,4 @@
-function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = package_wide_default_ode_solver, add_noise = false)  #TODO add noise handling 
 
-	return ParameterEstimationProblem(
-		pe.Name,
-		complete(pe.model),
-		pe.measured_quantities,
-		sample_data(pe.model, pe.measured_quantities, time_interval, pe.p_true, pe.ic, datasize, solver = solver),
-		solver,
-		pe.p_true,
-		pe.ic,
-		pe.unident_count)
-end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, interpolator, nooutput = false)
 	if !nooutput
@@ -22,7 +11,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		PEP.data_sample,
 		PEP.solver,
 		interpolator = interpolator, nooutput = nooutput)
-	besterror = analyze_estimation_result(PEP, res)
+	besterror = analyze_estimation_result(PEP, res, nooutput = nooutput)
 
 	if test_mode
 		# @test besterror < 1e-1

@@ -38,12 +38,18 @@ function custom_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {
 end
 
 
+
+
+#  interesting noise levels:
+# 0.000001
+#
+
 function run_lv_with_noise()
 	estimation_problem = lotka_volterra()
-	datasize = 501
+	datasize = 1001
 
 	time_interval = isnothing(estimation_problem.recommended_time_interval) ? [0.0, 5.0] : estimation_problem.recommended_time_interval
-	estimation_problem_with_data = sample_problem_data(estimation_problem, datasize = datasize, time_interval = time_interval, noise_level = 0.001)
+	estimation_problem_with_data = sample_problem_data(estimation_problem, datasize = datasize, time_interval = time_interval, noise_level = 0.000001)
 	res = analyze_parameter_estimation_problem(estimation_problem_with_data, test_mode = false, nooutput = true, interpolator = aaad)
 	res2 = analyze_parameter_estimation_problem(estimation_problem_with_data, test_mode = false, nooutput = true, interpolator = custom_gpr_function)
 

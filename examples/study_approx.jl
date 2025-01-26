@@ -436,7 +436,7 @@ function print_summary_statistics(approx_results, datasets)
 	end
 end
 
-example_function = lv_periodic
+example_function = crauste
 pep = example_function()
 
 datasize = 1001

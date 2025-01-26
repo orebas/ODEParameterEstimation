@@ -1,3 +1,90 @@
+
+"""
+	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+
+Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
+diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
+
+# Arguments
+- `model::ODESystem`: The ODE system
+- `measured_quantities_in`: Input measured quantities
+- `max_deriv_level`: Maximum derivative level
+- `unident_dict`: Dictionary of unidentifiable variables
+
+# Returns
+- DerivativeData object
+"""
+function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+
+	#First, we fully substitute values we have chosen for an unidentifiable variables.
+	unident_subst!(model_eq, measured_quantities, unident_dict)
+
+	model_eq_cleared = clear_denoms.(model_eq)
+	measured_quantities_cleared = clear_denoms.(measured_quantities)
+
+	DD.states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
+	DD.states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
+	DD.obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+	DD.obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+
+	DD.states_lhs_cleared = [[eq.lhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.lhs for eq in model_eq_cleared]))]
+	DD.states_rhs_cleared = [[eq.rhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.rhs for eq in model_eq_cleared]))]
+	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
+	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
+
+	for i in 1:(max_deriv_level-2)
+		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
+		temp = DD.states_rhs[end]
+		temp2 = D.(temp)
+		temp3 = deepcopy(temp2)
+		temp4 = []
+		for j in 1:length(temp3)
+			temptemp = expand_derivatives(temp3[j])
+			push!(temp4, deepcopy(temptemp))
+		end
+		push!(DD.states_rhs, temp4)
+		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
+		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
+	end
+
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
+		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
+		DD.states_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs_cleared[i][j]))
+		DD.states_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs_cleared[i][j]))
+	end
+
+	for i in 1:(max_deriv_level-1)
+		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
+		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
+		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
+		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
+	end
+
+	for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
+		DD.obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs[i][j]))
+		DD.obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs[i][j]))
+		DD.obs_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs_cleared[i][j]))
+		DD.obs_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs_cleared[i][j]))
+	end
+	return DD
+end
+
+
+
+
+
+
+
+
+
+
+
+
 """
 	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
 
