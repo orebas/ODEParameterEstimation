@@ -459,6 +459,31 @@ function solve_with_fallback(system; show_progress = false)
 end
 
 """
+	prepare_system_for_hc(poly_system, varlist)
+
+Prepares a polynomial system for HomotopyContinuation by mangling variables and applying substitutions.
+
+# Arguments
+- `poly_system`: System of polynomial equations to prepare
+- `varlist`: List of variables in the system
+
+# Returns
+- `prepared_system`: System after mangling and substitution
+- `mangled_varlist`: List of mangled variables
+"""
+function prepare_system_for_hc(poly_system, varlist)
+	mangled_varlist, variable_mapping = mangle_variables(varlist)
+
+	# Apply substitutions
+	prepared_system = deepcopy(poly_system)
+	for i in eachindex(prepared_system)
+		prepared_system[i] = Symbolics.substitute(Symbolics.unwrap(prepared_system[i]), variable_mapping)
+	end
+
+	return prepared_system, mangled_varlist
+end
+
+"""
 	solve_with_hc(input_poly_system, input_varlist, use_monodromy=true, display_system=false)
 
 Main entry point for solving polynomial systems using HomotopyContinuation.jl.
@@ -512,15 +537,10 @@ function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, d
 	end
 
 	# Standard solving method
-	mangled_varlist, variable_mapping = mangle_variables(varlist)
-
-	# Apply substitutions
-	for i in eachindex(poly_system)
-		poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), variable_mapping)
-	end
+	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
 
 	# Convert to HomotopyContinuation format
-	hc_system, hc_variables = convert_to_hc_format(poly_system, mangled_varlist)
+	hc_system, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist)
 
 	# Solve the system
 	solutions = solve_with_fallback(hc_system)
@@ -548,16 +568,11 @@ This method is more efficient for systems with high total degree.
 - `hc_variables`: Variables in HomotopyContinuation format
 """
 function solve_with_monodromy(poly_system, varlist)
-	# Reuse existing helper functions
-	mangled_varlist, variable_mapping = mangle_variables(varlist)
-
-	# Apply substitutions
-	for i in eachindex(poly_system)
-		poly_system[i] = Symbolics.substitute(Symbolics.unwrap(poly_system[i]), variable_mapping)
-	end
+	# Prepare system for HC
+	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
 
 	# Convert to HC format with parameterization
-	system, tracking_system, param_final, hc_variables = convert_to_hc_format(poly_system, mangled_varlist, parameterize = true)
+	system, tracking_system, param_final, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist, parameterize = true)
 
 	# Find start solutions
 	start_pairs = find_start_solutions(system, tracking_system, param_final)
@@ -623,4 +638,88 @@ function solve_with_monodromy_tracking(system, start_pairs, param_final)
 	end
 
 	return HomotopyContinuation.solutions(result)
+end
+
+"""
+	solve_with_nlopt(poly_system, varlist; 
+					start_point=nothing,
+					optimizer=BFGS(),
+					polish_only=false,
+					options=Dict())
+
+Solves a polynomial system using traditional nonlinear optimization methods.
+Can be used either as a standalone solver or to polish solutions from other methods.
+
+# Arguments
+- `poly_system`: System of polynomial equations to solve
+- `varlist`: List of variables in the system
+- `start_point`: Optional starting point. If not provided, random initialization is used
+- `optimizer`: The optimization algorithm to use (default: BFGS)
+- `polish_only`: If true, assumes start_point is close to solution and uses more local methods
+- `options`: Dictionary of additional options for the optimizer
+
+# Returns
+- `solutions`: Array of solutions found
+- `hc_variables`: Variables in HomotopyContinuation format
+"""
+function solve_with_nlopt(poly_system, varlist;
+	start_point = nothing,
+	optimizer = BFGS(),
+	polish_only = false,
+	options = Dict())
+
+	# Prepare system for optimization
+	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
+
+	# Convert polynomial system to objective function (sum of squares)
+	function objective(x, p)
+		total = 0.0
+		for eq in prepared_system
+			val = Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, x))))
+			total += abs2(val)
+		end
+		return total
+	end
+
+	# Set up optimization problem
+	n = length(varlist)
+	x0 = if isnothing(start_point)
+		randn(n)  # Random initialization if no start point provided
+	else
+		start_point
+	end
+
+	# Configure optimization based on whether we're polishing or solving from scratch
+	if polish_only
+		# For polishing, use more local methods with tighter tolerances
+		opt_f = OptimizationFunction(objective, Optimization.AutoForwardDiff())
+		prob = OptimizationProblem(opt_f, x0, nothing;
+			abstol = 1e-12,
+			reltol = 1e-12,
+			maxiters = 1000)
+		optimizer = Newton()  # Override to use Newton for polishing
+	else
+		# For solving from scratch, use more global methods
+		opt_f = OptimizationFunction(objective, Optimization.AutoForwardDiff())
+		prob = OptimizationProblem(opt_f, x0, nothing;
+			abstol = 1e-8,
+			reltol = 1e-8,
+			maxiters = 10000)
+	end
+
+	# Merge user options with defaults
+	for (k, v) in options
+		setfield!(prob, k, v)
+	end
+
+	# Solve the optimization problem
+	sol = solve(prob, optimizer)
+
+	# Check if solution is valid (residual is small enough)
+	if sol.minimum < 1e-10
+		return [sol.u], mangled_varlist
+	else
+		@warn "Optimization did not converge to a solution. Residual: $(sol.minimum)"
+		return [], mangled_varlist
+	end
 end

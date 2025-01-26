@@ -1,9 +1,10 @@
 using ODEParameterEstimation
 using ModelingToolkit
-using ModelingToolkit: t_nounits as t, D_nounits as D
 using OrderedCollections
 
 
+const t = ModelingToolkit.t_nounits
+const D = ModelingToolkit.D_nounits
 
 function quadratic_test()
 	parameters = @parameters a b c
@@ -45,7 +46,7 @@ function run_first_example()
 	res = analyze_parameter_estimation_problem(estimation_problem_with_data, test_mode = false, nooutput = true, interpolator = aaad)
 
 	#if you switch "nooutput = true" to "nooutput = false", you can see analysis for how good the estimation is
-	analysis_result = analyze_estimation_result(estimation_problem_with_data, res, nooutput = true)
+	analysis_result, best_error = analyze_estimation_result(estimation_problem_with_data, res, nooutput = true)
 
 
 	for (i, sol) in enumerate(analysis_result)
