@@ -1,6 +1,6 @@
 
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, interpolator, nooutput = false)
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; test_mode = false, interpolator, nooutput = false, system_solver = solve_with_hc)
 	if !nooutput
 		println("Starting model: ", PEP.name)
 	end
@@ -10,7 +10,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; t
 		PEP.measured_quantities,
 		PEP.data_sample,
 		PEP.solver,
-		interpolator = interpolator, nooutput = nooutput)
+		interpolator = interpolator, nooutput = nooutput, system_solver = system_solver)
 	besterror = analyze_estimation_result(PEP, res, nooutput = nooutput)
 
 	if test_mode

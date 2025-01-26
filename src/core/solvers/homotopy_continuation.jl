@@ -550,7 +550,14 @@ function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, d
 		return ([], [], [], [])
 	end
 
-	return solutions, hc_variables, trivial_dict, symbolic_variables
+	# Convert HC solutions back to JuliaSymbolics format
+	symbolic_solutions = []
+	for sol in solutions
+		symbolic_sol = [convert(ComplexF64, s) for s in sol]  # Convert to standard Julia complex numbers
+		push!(symbolic_solutions, symbolic_sol)
+	end
+
+	return symbolic_solutions, hc_variables, trivial_dict, symbolic_variables
 end
 
 """

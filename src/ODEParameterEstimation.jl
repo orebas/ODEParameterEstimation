@@ -88,7 +88,7 @@ export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at
 
 # Export PEtab integration
 export load_model
-
+#=
 @recompile_invalidations begin
 	@compile_workload begin
 		using ModelingToolkit: t_nounits as t, D_nounits as D
@@ -125,7 +125,7 @@ export load_model
 
 	end
 end
-
+=#
 
 
 end # module

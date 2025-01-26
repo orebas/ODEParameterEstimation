@@ -1,4 +1,3 @@
-
 """
 	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
 
@@ -198,7 +197,6 @@ function multipoint_parameter_estimation(model::ODESystem, measured_quantities, 
 		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
 
 		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
-
 		solns = solve_result
 		if (!isempty(solns))
 			found_any_solutions = true
