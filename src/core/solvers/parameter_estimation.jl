@@ -83,6 +83,47 @@ end
 
 
 
+function determine_optimal_points_count(model, measured_quantities, max_num_points, t_vector, nooutput)
+	(t, eqns, states, params) = unpack_ODE(model)
+	time_interval = extrema(t_vector)
+	large_num_points = min(length(params), max_num_points, length(t_vector)) + 1
+	good_num_points = large_num_points
+
+	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
+		[[] for _ in 1:7]
+	good_DD = nothing
+
+	if !nooutput
+		println("\nDEBUG [multipoint_parameter_estimation]: Starting parameter estimation...")
+	end
+	#while (good_num_points > 1)
+	#	good_num_points = good_num_points - 1
+	#	if !nooutput
+	#		println("DEBUG [multipoint_parameter_estimation]: Analyzing identifiability with ", large_num_points, " points")
+	#	end
+	(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
+
+	while (good_num_points > 1)
+		good_num_points = good_num_points - 1
+		(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+		if !(test_deriv_level == target_deriv_level)
+			good_num_points = good_num_points + 1
+			break
+		end
+	end
+
+	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+	if !nooutput
+		println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
+		println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
+		println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
+	end
+
+
+	return good_num_points, good_deriv_level, good_udict, good_varlist, good_DD
+
+end
+
 
 """
 	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
@@ -102,48 +143,23 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 - Vector of result vectors
 """
 function multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4, interpolator = interpolator, nooutput = false)
-	t = ModelingToolkit.get_iv(model)
-	eqns = ModelingToolkit.equations(model)
-	states = ModelingToolkit.unknowns(model)
-	params = ModelingToolkit.parameters(model)
+
+	t, eqns, states, params = unpack_ODE(model)
 
 	t_vector = data_sample["t"]
 	time_interval = extrema(t_vector)
 	found_any_solutions = false
-	large_num_points = min(length(params), max_num_points, length(t_vector)) + 1
-	good_num_points = large_num_points
+	num_points_cap = min(length(params), max_num_points, length(t_vector)) + 1
+	good_num_points = num_points_cap
 
 	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
 		[[] for _ in 1:7]
 	good_DD = nothing
-	if !nooutput
-		println("\nDEBUG [multipoint_parameter_estimation]: Starting parameter estimation...")
-	end
 	while (!found_any_solutions)
-		good_num_points = good_num_points - 1
-		if !nooutput
-			println("DEBUG [multipoint_parameter_estimation]: Analyzing identifiability with ", large_num_points, " points")
-		end
-		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
+		good_num_points, good_deriv_level, good_udict, good_varlist, good_DD = determine_optimal_points_count(model, measured_quantities, num_points_cap, t_vector, nooutput)
 
-		while (good_num_points > 1)
-			good_num_points = good_num_points - 1
-			(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-			if !(test_deriv_level == target_deriv_level)
-				good_num_points = good_num_points + 1
-				break
-			end
-		end
 
-		if !nooutput
-			println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
-		end
-		(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
-		if !nooutput
-			println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
-			println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
-		end
-
+		#####################################################################################
 		time_index_set = pick_points(t_vector, good_num_points)
 		if (display_points)
 			if !nooutput
@@ -281,8 +297,6 @@ function multipoint_parameter_estimation(model::ODESystem, measured_quantities, 
 
 	return (results_vec, good_udict, trivial_dict, good_DD.all_unidentifiable)
 end
-
-
 
 
 
@@ -439,6 +453,8 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
 
+	#println("DEBUG [multipoint_local_identifiability_analysis]: Starting analysis with ", max_num_points, " points")
+
 	states_count = length(model_states)
 	ps_count = length(model_ps)
 	D = Differential(t)
@@ -475,8 +491,10 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 
 	all_identified = false
 	while (!all_identified)
+
+		temp = ordered_test_points[1]
 		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
-			parameter_values, points_ics, ordered_test_points[1]))
+			parameter_values, points_ics, temp))
 		ns = nullspace(evaluated_jac)
 
 		if (!isempty(ns))

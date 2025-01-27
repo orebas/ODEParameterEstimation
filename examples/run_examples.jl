@@ -49,8 +49,8 @@ include("load_examples.jl")
 
 ez_models = [:simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
 
-using Optim
-using ModelingToolkit
+#using Optim
+#using ModelingToolkit
 using SciMLBase
 using Optimization
 using OptimizationOptimJL
@@ -59,9 +59,9 @@ using OptimizationMOI
 using NLSolversBase: NLSolversBase
 using NonlinearSolve
 using LeastSquaresOptim
-using AbstractAlgebra, RationalUnivariateRepresentation, RS
-using Symbolics
-using DynamicPolynomials
+#using AbstractAlgebra, RationalUnivariateRepresentation, RS
+#using Symbolics
+#using DynamicPolynomials
 #using Nemo
 
 
@@ -71,6 +71,8 @@ function solve_with_nlopt(poly_system, varlist;
 	optimizer = GaussNewton(),
 	polish_only = false,
 	options = Dict())
+
+	#@which GaussNewton()
 
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
@@ -91,7 +93,11 @@ function solve_with_nlopt(poly_system, varlist;
 		start_point
 	end
 
+
+
 	# Create NonlinearLeastSquaresProblem
+	#@which NonlinearLeastSquaresProblem(NonlinearFunction(residual!, resid_prototype = zeros(m)), x0, nothing;)
+
 	prob = NonlinearLeastSquaresProblem(
 		NonlinearFunction(residual!, resid_prototype = zeros(m)),
 		x0,
@@ -109,7 +115,8 @@ function solve_with_nlopt(poly_system, varlist;
 	solver_opts = merge(solver_opts, options)
 
 	# Solve the problem
-	sol = solve(prob, optimizer; solver_opts...)
+	#@which solve(prob, optimizer; solver_opts...)
+	sol = NonlinearSolve.solve(prob, optimizer; solver_opts...)
 
 	# Check if solution is valid
 	if SciMLBase.successful_retcode(sol)
@@ -146,8 +153,8 @@ function exprs_to_AA_polys(exprs, vars)
 	var_names = string.(vars)
 	ring_command = "R = @polynomial_ring(QQ, $var_names)"
 	#approximation_command = "R(expr::Float64) = R(Nemo.rational_approx(expr, 1e-4))"
-	temp = Base.eval(M, Meta.parse(ring_command))
-	display(temp)
+	ring_object = Base.eval(M, Meta.parse(ring_command))
+	#display(temp)
 	#Base.eval(M, Meta.parse(approximation_command))
 
 
@@ -156,7 +163,7 @@ function exprs_to_AA_polys(exprs, vars)
 	for expr in exprs
 		push!(AA_polys, Base.eval(M, Meta.parse(string(expr))))
 	end
-	return R, AA_polys
+	return ring_object, AA_polys
 
 end
 
@@ -199,5 +206,9 @@ function solve_with_rs(poly_system, varlist;
 	#end
 end
 
-run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, models = ez_models, system_solver = solve_with_rs)
+run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000)
+run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, models = :hard)
+
+
+#run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, system_solver = solve_with_nlopt, interpolator = aaad, models = [:lv_periodic])
 #run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, models = :hard)

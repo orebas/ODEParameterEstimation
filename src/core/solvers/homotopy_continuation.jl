@@ -1,6 +1,14 @@
+using NonlinearSolve
 
 
-
+#using Optim
+#using Optimization
+#using OptimizationOptimJL
+#using OptimizationOptimisers
+#using OptimizationMOI
+#using NLSolversBase: NLSolversBase
+#using NonlinearSolve
+#using LeastSquaresOptim
 
 
 
@@ -484,7 +492,7 @@ function prepare_system_for_hc(poly_system, varlist)
 end
 
 """
-	solve_with_hc(input_poly_system, input_varlist, use_monodromy=true, display_system=false)
+	solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = false, polish_solutions = true)
 
 Main entry point for solving polynomial systems using HomotopyContinuation.jl.
 Automatically chooses between standard solving methods and monodromy-based methods
@@ -495,6 +503,7 @@ based on system complexity.
 - `input_varlist`: List of variables in the system
 - `use_monodromy`: Whether to allow using monodromy method for high-degree systems
 - `display_system`: Whether to display debug information about the system
+- `polish_solutions`: Whether to polish solutions using solve_with_nlopt
 
 # Returns
 - `solutions`: Array of solutions found
@@ -502,7 +511,7 @@ based on system complexity.
 - `trivial_dict`: Dictionary of trivial substitutions found
 - `symbolic_variables`: Original variable list in Julia Symbolics format
 """
-function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = false)
+function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = false, polish_solutions = true)
 	if display_system
 		println("Starting solve_with_hc with system:")
 		display(input_poly_system)
@@ -531,30 +540,55 @@ function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, d
 		println("Total degree: ", total_degree)
 	end
 
-	if total_degree > 50 && use_monodromy
-		solutions, hc_variables = solve_with_monodromy(poly_system, varlist)
-		return solutions, hc_variables, trivial_dict, symbolic_variables
-	end
-
-	# Standard solving method
-	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
-
-	# Convert to HomotopyContinuation format
-	hc_system, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist)
-
-	# Solve the system
-	solutions = solve_with_fallback(hc_system)
-
-	if isempty(solutions)
-		@warn "No solutions found."
-		return ([], [], [], [])
-	end
-
-	# Convert HC solutions back to JuliaSymbolics format
 	symbolic_solutions = []
-	for sol in solutions
-		symbolic_sol = [convert(ComplexF64, s) for s in sol]  # Convert to standard Julia complex numbers
-		push!(symbolic_solutions, symbolic_sol)
+	hc_variables = []
+	if total_degree > 50 && use_monodromy
+		symbolic_solutions, hc_variables = solve_with_monodromy(poly_system, varlist)
+		#return solutions, hc_variables, trivial_dict, symbolic_variables
+	end
+	if (isempty(symbolic_solutions))
+
+		# Standard solving method
+		prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
+
+		# Convert to HomotopyContinuation format
+		hc_system, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist)
+
+		# Solve the system
+		solutions = solve_with_fallback(hc_system)
+
+		if isempty(solutions)
+			@warn "No solutions found."
+			return ([], [], [], [])
+		end
+
+		# Convert HC solutions back to JuliaSymbolics format
+		symbolic_solutions = []
+		for sol in solutions
+			symbolic_sol = [convert(ComplexF64, s) for s in sol]  # Convert to standard Julia complex numbers
+			push!(symbolic_solutions, symbolic_sol)
+		end
+	end
+
+	# Polish solutions if requested
+	if polish_solutions && !isempty(symbolic_solutions)
+		polished_solutions = []
+		for sol in symbolic_solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, use polished solution, otherwise keep original
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			else
+				push!(polished_solutions, sol)
+			end
+		end
+		symbolic_solutions = polished_solutions
 	end
 
 	return symbolic_solutions, hc_variables, trivial_dict, symbolic_variables
@@ -671,62 +705,77 @@ Can be used either as a standalone solver or to polish solutions from other meth
 """
 function solve_with_nlopt(poly_system, varlist;
 	start_point = nothing,
-	optimizer = BFGS(),
+	optimizer = NonlinearSolve.LevenbergMarquardt(),
 	polish_only = false,
 	options = Dict())
 
 	# Prepare system for optimization
-	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
+	prepared_system, mangled_varlist = (poly_system, varlist)
 
-	# Convert polynomial system to objective function (sum of squares)
-	function objective(x, p)
-		total = 0.0
-		for eq in prepared_system
-			val = Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, x))))
-			total += abs2(val)
+	# Define residual function for NonlinearLeastSquares
+	function residual!(res, u, p)
+		for (i, eq) in enumerate(prepared_system)
+			res[i] = real(Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, u)))))
 		end
-		return total
 	end
 
 	# Set up optimization problem
 	n = length(varlist)
+	m = length(prepared_system)  # Number of equations
 	x0 = if isnothing(start_point)
 		randn(n)  # Random initialization if no start point provided
 	else
 		start_point
 	end
 
-	# Configure optimization based on whether we're polishing or solving from scratch
-	if polish_only
-		# For polishing, use more local methods with tighter tolerances
-		opt_f = OptimizationFunction(objective, Optimization.AutoForwardDiff())
-		prob = OptimizationProblem(opt_f, x0, nothing;
-			abstol = 1e-12,
-			reltol = 1e-12,
-			maxiters = 1000)
-		optimizer = Newton()  # Override to use Newton for polishing
+	# Calculate initial residual
+	initial_residual = zeros(m)
+	residual!(initial_residual, x0, nothing)
+	initial_norm = norm(initial_residual)
+
+	# Create NonlinearLeastSquaresProblem
+	prob = NonlinearLeastSquaresProblem(
+		NonlinearFunction(residual!, resid_prototype = zeros(m)),
+		x0,
+		nothing;  # no parameters needed
+	)
+
+	# Set solver options based on polish_only
+	solver_opts = if polish_only
+		(abstol = 1e-12, reltol = 1e-12, maxiters = 1000)
 	else
-		# For solving from scratch, use more global methods
-		opt_f = OptimizationFunction(objective, Optimization.AutoForwardDiff())
-		prob = OptimizationProblem(opt_f, x0, nothing;
-			abstol = 1e-8,
-			reltol = 1e-8,
-			maxiters = 10000)
+		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
 	end
 
-	# Merge user options with defaults
-	for (k, v) in options
-		setfield!(prob, k, v)
+	# Merge with user options
+	solver_opts = merge(solver_opts, options)
+
+	# Solve the problem with exception handling
+	sol = try
+		NonlinearSolve.solve(prob, optimizer; solver_opts...)
+	catch e
+		@warn "Error during optimization: $(e)"
+		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
-	# Solve the optimization problem
-	sol = solve(prob, optimizer)
+	# Check if solution is valid
+	if SciMLBase.successful_retcode(sol)
+		# Calculate final residual
+		final_residual = zeros(m)
+		residual!(final_residual, sol.u, nothing)
+		final_norm = norm(final_residual)
 
-	# Check if solution is valid (residual is small enough)
-	if sol.minimum < 1e-10
-		return [sol.u], mangled_varlist
+		improvement = initial_norm - final_norm
+		if improvement > 0
+			println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
+		else
+			println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
+		end
+
+		# Return all four expected values: solutions, variables, trivial_dict, trimmed_varlist
+		return [sol.u], mangled_varlist, Dict(), mangled_varlist
 	else
-		@warn "Optimization did not converge to a solution. Residual: $(sol.minimum)"
-		return [], mangled_varlist
+		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
+		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 end
