@@ -155,7 +155,12 @@ function multipoint_parameter_estimation(model::ODESystem, measured_quantities, 
 	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
 		[[] for _ in 1:7]
 	good_DD = nothing
+	attempt_count = 0
 	while (!found_any_solutions)
+		attempt_count += 1
+		if attempt_count > 10
+			break
+		end
 		good_num_points, good_deriv_level, good_udict, good_varlist, good_DD = determine_optimal_points_count(model, measured_quantities, num_points_cap, t_vector, nooutput)
 
 
