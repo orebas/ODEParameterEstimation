@@ -18,57 +18,37 @@ using GaussianProcesses
 using Statistics
 using Optim, LineSearches
 using Plots
-
-
+using Dates
 using ModelingToolkit
-using OrderedCollections
-using LinearAlgebra
 using Random
-using ForwardDiff
-
-
-
-using ModelingToolkit, OrdinaryDiffEq, DataFrames, Optim
 using PEtab
-using OrderedCollections
 using Statistics
 using SymbolicIndexingInterface
-using ODEParameterEstimation
-
-
-
-
-
-
+using NonlinearSolve
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
 const package_wide_default_ode_solver = AutoVern9(Rodas4P())
+#const package_wide_default_ode_solver = Vern9()
 
-# Remove old includes
-#include("utils.jl")
-#include("SharedUtils.jl")
-#include("bary_derivs.jl")
-#include("sample_data.jl")
-#include("equation_solvers.jl")
-#include("test_utils.jl")
 
 # Include core types first
+include("untestedlinter.jl")
 include("types/core_types.jl")
 
 # Include utility modules
-include("utils/math_utils.jl")
-include("utils/model_utils.jl")
-include("utils/data_utils.jl")
-include("utils/analysis_utils.jl")
+include("core/math_utils.jl")
+include("core/model_utils.jl")
+include("core/analysis_utils.jl")
 
 # Include core functionality
-include("core/solvers/homotopy_continuation.jl")
-include("core/solvers/parameter_estimation.jl")
-include("data/derivatives.jl")
-include("data/sampling.jl")
+include("core/homotopy_continuation.jl")
+include("core/pointpicker.jl")
+
+include("core/parameter_estimation.jl")
+include("core/derivatives.jl")
+include("core/sampling.jl")
 include("petab/loader.jl")
-include("utils/testing_utils.jl")
 
 # Export types
 export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, DerivativeData
@@ -84,7 +64,7 @@ export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
-export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at
+export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at, aaad_gpr_pivot
 
 # Export PEtab integration
 export load_model

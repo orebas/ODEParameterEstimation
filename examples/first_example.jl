@@ -43,40 +43,10 @@ function run_first_example()
 
 
 	estimation_problem_with_data = sample_problem_data(estimation_problem, datasize = 101, time_interval = time_interval, noise_level = 0.0)
-	res = analyze_parameter_estimation_problem(estimation_problem_with_data, test_mode = false, nooutput = true, interpolator = aaad)
-
-	#if you switch "nooutput = true" to "nooutput = false", you can see analysis for how good the estimation is
-	analysis_result, best_error = analyze_estimation_result(estimation_problem_with_data, res, nooutput = true)
+	res = analyze_parameter_estimation_problem(estimation_problem_with_data, nooutput = true, interpolator = aaad)
 
 
-	for (i, sol) in enumerate(analysis_result)
-		println("\n", "="^50)
-		println("Solution #$i")
-		println("="^50)
-
-		println("\n📊 Parameters:")
-		println("-"^30)
-		display(sol.parameters)
-
-		println("\n🔄 States:")
-		println("-"^30)
-		display(sol.states)
-
-		println("\n📈 Performance Metrics:")
-		println("-"^30)
-		println("Error: ", sol.err)
-		println("Return code: ", sol.return_code)
-		println("Data size: ", sol.datasize)
-
-		println("\n🔍 Identifiability Analysis:")
-		println("-"^30)
-		println("Unidentifiable dictionary:")
-		display(sol.unident_dict)
-		println("\nAll unidentifiable parameters:")
-		display(sol.all_unidentifiable)
-
-		#display(sol.solution)  #this contains the entire ODE solution, you probably don't want to display this
-	end
+	#display(sol.solution)  #this contains the entire ODE solution, you probably don't want to display this
 
 	#display(analysis_result[1])
 end

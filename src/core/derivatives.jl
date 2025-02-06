@@ -1,17 +1,3 @@
-#using Statistics
-#using GaussianProcesses
-#using Optim
-#using Plots
-using ModelingToolkit
-using OrdinaryDiffEq
-#using PEtab
-using Statistics
-using GaussianProcesses
-using Optim
-using Plots
-using LineSearches
-
-
 """
 	rational_interpolation_coefficients(x, y, n)
 CODE COPIED FROM previous version of ParameterEstimation.jl
@@ -141,54 +127,12 @@ function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	#end
 end
 
-function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, use_gpr::Bool = false) where {T}
-	if (use_gpr)
-		return create_gpr_function(xs, ys)
-	else
-		return aaad_old_reliable(xs, ys)
-	end
-end
-
-function create_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-	# Scale inputs and outputs to have std ≈ 1
-	xs_mean, xs_std = Statistics.mean(xs), Statistics.std(xs)
-	ys_mean, ys_std = Statistics.mean(ys), Statistics.std(ys)
-	xs_scaled = (xs .- xs_mean) ./ xs_std
-	ys_scaled = (ys .- ys_mean) ./ ys_std
-
-	# Add small noise to avoid singular covariance matrix
-	noise_level = 1e-8
-	xs_scaled = xs_scaled .+ noise_level * randn(length(xs_scaled))
-	ys_scaled = ys_scaled .+ noise_level * randn(length(ys_scaled))
-
-
-	# For LV solutions, we can use a longer length scale since we know it's smooth
-	# Start with length scale = 1.0 which is reasonable for scaled data
-	kernel = SEIso(0.0, 0.0)  # log(1.0) = 0.0
-
-	# Add small noise but not too small since LV solutions usually have minimal noise
-	gp = GP(xs_scaled, ys_scaled, MeanZero(), kernel, log(1e-2))
-
-	optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-
-	# Create callable function that handles the scaling
-	gpr_func = x -> begin
-		x_scaled = (x - xs_mean) / xs_std
-		pred, _ = predict_y(gp, [x_scaled])
-		return pred[1] * ys_std + ys_mean
-	end
-
-	return gpr_func
+function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool = false) where {T}
+	return aaad_old_reliable(xs, ys)
 end
 
 
-
-
-
-
-
-
-
+#=
 function aaad_in_testing(xs::AbstractArray{T}, ys::AbstractArray{T}; save_plot::Union{String, Nothing} = "plot.png") where {T}
 	@assert length(xs) == length(ys)
 
@@ -231,7 +175,7 @@ function aaad_in_testing(xs::AbstractArray{T}, ys::AbstractArray{T}; save_plot::
 	# Fit AAA to smoothed data
 	internalApprox = BaryRational.aaa(xs, ys_smooth, verbose = false)
 	return AAADapprox(internalApprox)
-end
+end=#
 
 
 
@@ -405,4 +349,46 @@ function default_interpolator(datasize)
 		#end
 	end
 	return interpolators
+end
+
+
+
+
+
+
+
+
+function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+	@assert length(xs) == length(ys)
+
+	# 1. Normalize y values
+	y_mean = mean(ys)
+	y_std = std(ys)
+	ys_normalized = (ys .- y_mean) ./ y_std
+
+	initial_lengthscale = log(std(xs) / 8)
+	initial_variance = 0.0
+	initial_noise = -2.0
+
+	kernel = SEIso(initial_lengthscale, initial_variance)
+	jitter = 1e-8
+	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+
+	# 2. Do GPR approximation on normalized data
+	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+	noise_level = exp(gp.logNoise.value)
+	if (noise_level < 1e-5)
+		println("Noise level is too low, using  AAA")
+
+		return aaad(xs, ys)
+	else
+		function denormalized_gpr(x)
+			pred, _ = predict_f(gp, [x])
+			return y_std * (pred[1]) + y_mean
+		end
+		return denormalized_gpr
+	end
+
 end

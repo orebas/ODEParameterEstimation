@@ -1,5 +1,3 @@
-using Printf
-using OrderedCollections
 
 """
 	get_solution_vector(solution)
@@ -303,3 +301,49 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		[last(cluster) for cluster in clusters], besterror,
 	)
 end
+
+
+
+
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator,
+	max_num_points = 1, nooutput = false, system_solver = solve_with_hc, abstol = 1e-14, reltol = 1e-14,
+	trap_debug = false, diagnostics = false, diagnostic_data = nothing)
+	#if trap_debug
+	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+	#	filename = "PEP_debug_$(timestamp).log"
+	#	open(filename, "w") do log_file
+	#		redirect_stdout(log_file) do
+	#	println("Trap debug enabled. Saving diagnostic output to: ", filename)
+	# Prepare diagnostic_data: merge true parameter values and initial conditions
+	diag_data = Dict(:true_solution => merge(PEP.p_true, PEP.ic), :true_derivatives => Dict())
+
+
+	if !nooutput
+		println("Starting model: ", PEP.name)
+	end
+
+
+	results_tuple = multipoint_parameter_estimation(PEP,
+		system_solver = system_solver,
+		max_num_points = max_num_points,
+		interpolator = interpolator,
+		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = diagnostic_data)
+
+	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+
+
+	if !nooutput
+		println("\nUnidentifiability Analysis from multipoint_parameter_estimation:")
+		println("All unidentifiable variables: ", all_unidentifiable)
+		println("Unidentifiable variables substitution dictionary: ", unident_dict)
+		println("Trivially solvable variables: ", trivial_dict)
+	end
+
+
+
+	besterror = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
+	return solved_res
+
+end
+
+

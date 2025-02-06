@@ -16,7 +16,7 @@ using Statistics
 
 
 
-
+#=
 function test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	# For 1D input data, we need a matrix of size 1 × (degree+1)
 	# The +1 is because we include the constant term (degree 0)
@@ -29,10 +29,30 @@ function test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	noise_level = 1e-6 * ys_std
 	ys_noisy = ys .+ noise_level * randn(length(ys))
 
+	# Initial kernel parameters
+	initial_lengthscale = log(std(xs) / 8)
+	initial_variance = 0.0
+	initial_noise = -2.0
 
-	kernel = SEIso(log(std(xs) / 8), 0.0)
-	gp = GP(xs, ys_noisy, MeanZero(), kernel, -2.0)
-	optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+	println("\nGPR Hyperparameters:")
+	println("  Initial lengthscale: $(exp(initial_lengthscale))")
+	println("  Initial variance: $(exp(initial_variance))")
+	println("  Initial noise: $(exp(initial_noise))")
+
+	kernel = SEIso(initial_lengthscale, initial_variance)
+	gp = GP(xs, ys_noisy, MeanZero(), kernel, initial_noise)
+	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+	# Print optimized parameters
+	println("\nOptimized GPR Hyperparameters:")
+	println(fieldnames(typeof(gp)))
+	println(fieldnames(typeof(gp.kernel)))
+
+	noise_level = exp(gp.logNoise.value)
+
+	println("  Lengthscale: $(exp(gp.kernel.ℓ2/2))")
+	println("  Variance: $(exp(gp.kernel.σ2))")
+	println("  Noise: $(noise_level)")
 
 	# Create callable function
 	gpr_func = x -> begin
@@ -40,7 +60,7 @@ function test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 		return pred[1]
 	end
 	return gpr_func
-end
+end=#
 
 
 
@@ -75,9 +95,9 @@ Specialized models: :slowfast, :allee_competition, :two_compartment_pk, :fitzhug
 """
 function run_parameter_estimation_examples(;
 	models = :all,
-	datasize = 501,
-	noise_level = 0.01,
-	interpolator = aaad,
+	datasize = 1501,
+	noise_level = 1e-2,
+	interpolator = aaad_gpr_pivot,
 	system_solver = solve_with_hc)
 
 	# Dictionary mapping model names to their constructor functions
@@ -156,7 +176,7 @@ function run_parameter_estimation_examples(;
 				datasize = datasize,
 				time_interval = time_interval,
 				noise_level = noise_level),
-			test_mode = false, interpolator = interpolator, system_solver = system_solver)
+			interpolator = interpolator, system_solver = system_solver)
 		#	catch e
 		#		@warn "Failed to run model $model_name" exception = e
 		#	end

@@ -18,6 +18,152 @@ using Dierckx
 
 include("load_examples.jl")
 
+"""
+	auto_aaa_bic(Z, F; mmax=50, do_sort=true)
+
+Calls `aaa` multiple times, from m=1 to m=mmax, 
+and picks whichever final approximation minimizes the BIC.
+
+Returns the best approximation as an `AAAapprox`.
+"""
+function auto_aaa_bic(Z, F; mmax = 200, do_sort = true, verbose = true)
+	println("starting auto_aaa_bic")
+	M        = length(Z)
+	best_bic = Inf
+	best_r   = nothing
+	best_m   = 0
+
+	inittol = 0.25
+	for m in 1:48
+		inittol = inittol / 2.0
+		#println("m = $m")
+		# Use `tol=0.0` so it never breaks early,
+		# and set `mmax=m` so the rational degree is exactly m-1 at final.
+		r_m = aaa(Z, F; verbose = false, tol = inittol)
+
+		# Evaluate on the sample points:
+		Rm  = r_m.(Z)
+		SSR = sum(abs2.(F .- Rm))        # sum of squared residuals
+
+		# Let's do the BIC measure.
+		# A quick parameter count for a type-(m-1,m-1) rational:
+		#    k ≈ 2m  (if you want to be more precise, feel free!)
+		k   = 2 * length(r_m.x)
+		bic = k * log(M) + M * log(SSR / M + 1e-100)  # +1e-300 to avoid log(0)
+
+		# Calculate AIC measure
+		aic = 2 * k + M * log(SSR / M + 1e-100)
+
+		# Debug output
+		#println("  m = $m:")
+		#println("    tol = $inittol")
+		#println("    SSR = $SSR")
+		#println("    k (params) = $k")
+		#println("    BIC = $bic")
+		#println("    AIC = $aic")
+
+		if verbose
+			println("m = $m : SSR = $SSR, BIC = $bic")
+		end
+
+		# Update best if improved:
+		if bic < best_bic
+			best_bic = bic
+			best_r   = r_m
+			best_m   = m
+		end
+	end
+
+	if verbose
+		println("Best BIC at m=$best_m  =>  BIC=$best_bic")
+	end
+
+	# Optionally sort the final approximation so that bary(...) is efficient.
+	# Or do Froissart cleanups if you like.
+
+	return best_r
+end
+
+
+
+
+
+function aaad_lowpres(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+	@assert length(xs) == length(ys)
+
+	# 1. Normalize y values
+	y_mean = mean(ys)
+	y_std = std(ys)
+	ys_normalized = (ys .- y_mean) ./ y_std
+	lowtol = 0.1
+	# 2. Do low tolerance AAA approximation on normalized data
+	internalApprox = BaryRational.aaa(xs, ys_normalized, verbose = false, tol = lowtol)
+	unusedinternalApprox = BaryRational.aaa(xs, ys_normalized, verbose = false, tol = 1e-14)
+	aaa_bic = auto_aaa_bic(xs, ys_normalized, do_sort = true, verbose = false)
+
+
+
+	# Function to calculate adjusted noise estimate
+	function adjusted_noise(resid, m_support, y_std)
+		n = length(resid)
+		m = m_support
+		# Avoid division by zero or negative values
+		effective_df = max(n - m, 1)
+		noise_normalized = sqrt(sum(resid .^ 2) / effective_df)
+		return noise_normalized * y_std  # Denormalize
+	end
+
+
+	# Calculate residuals and noise estimates for each approximation
+	println("\nNoise level estimates (standard deviation of residuals):")
+
+	# Low precision AAA
+	low_resid = ys_normalized .- [ODEParameterEstimation.baryEval(x, internalApprox.f, internalApprox.x, internalApprox.w) for x in xs]
+	low_noise = adjusted_noise(low_resid, length(internalApprox.x), y_std)
+	println("  Low precision AAA (tol=$lowtol): ", @sprintf("%.2e", low_noise))
+
+	# High precision AAA
+	high_resid = ys_normalized .- [ODEParameterEstimation.baryEval(x, unusedinternalApprox.f, unusedinternalApprox.x, unusedinternalApprox.w) for x in xs]
+	high_noise = adjusted_noise(high_resid, length(unusedinternalApprox.x), y_std)
+	println("  High precision AAA (tol=1e-14): ", @sprintf("%.2e", high_noise))
+
+	# BIC-selected AAA
+	bic_resid = ys_normalized .- [ODEParameterEstimation.baryEval(x, aaa_bic.f, aaa_bic.x, aaa_bic.w) for x in xs]
+	bic_noise = adjusted_noise(bic_resid, length(aaa_bic.x), y_std)
+	println("  BIC-selected AAA: ", @sprintf("%.2e", bic_noise))
+
+	# Add debugging information
+	println("\nAAA Approximation Comparison:")
+	println("Low precision (tol=$lowtol) support points: ", length(internalApprox.x))
+	println("High precision (tol=1e-14) support points: ", length(unusedinternalApprox.x))
+	println("BIC support points: ", length(aaa_bic.x))
+	println("Support points difference: ", length(unusedinternalApprox.x) - length(internalApprox.x))
+
+	# Compare evaluations at a few test points
+	test_points = range(minimum(xs), maximum(xs), length = 5)
+	println("\nEvaluation comparison at test points:")
+	for x in test_points
+		low_prec = ODEParameterEstimation.baryEval(x, internalApprox.f, internalApprox.x, internalApprox.w)
+		high_prec = ODEParameterEstimation.baryEval(x, unusedinternalApprox.f, unusedinternalApprox.x, unusedinternalApprox.w)
+		diff = abs(low_prec - high_prec)
+		println(@sprintf("  x=%.3f: diff=%.2e", x, diff))
+	end
+
+	callable_struct = AAADapprox(internalApprox)
+
+	# 3. Create wrapper to denormalize output
+	function denormalize(x)
+		return y_std * callable_struct(x) + y_mean
+	end
+
+	return denormalize
+end
+
+
+
+
+
+
 
 
 """
@@ -195,7 +341,7 @@ function evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measu
 			continue
 		end
 
-		display(datasets)
+		#display(datasets)
 		results[key] = Dict{String, Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}}()
 		t = datasets.clean["t"]
 		println("DEBUG")
@@ -214,14 +360,14 @@ function evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measu
 			preds["d$d"] = [nth_deriv_at(lowess_func, d, x) for x in t_eval]
 		end
 
-		results[key]["LOESS"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
-			"y" => preds["y"],
-			"d1" => preds["d1"],
-			"d2" => preds["d2"],
-			"d3" => preds["d3"],
-			"d4" => preds["d4"],
-			"d5" => preds["d5"],
-		)
+		#results[key]["LOESS"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+		#	"y" => preds["y"],
+		#	"d1" => preds["d1"],
+		#	"d2" => preds["d2"],
+		#	"d3" => preds["d3"],
+		#	"d4" => preds["d4"],
+		#	"d5" => preds["d5"],
+		#)
 
 		# 1. Gaussian Process Regression
 		try
@@ -282,12 +428,39 @@ function evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, measu
 			@warn "AAA failed for $key" exception = e
 		end
 
+		# 3(a). AAA low precision
+		try
+			# Use aaad from bary_derivs.jl
+			aaa_func2 = aaad_lowpres(t, y)
+
+			# Evaluate function and derivatives
+			pred_y = [aaa_func2(x) for x in t_eval]
+			preds = Dict{String, Vector{Float64}}("y" => pred_y)
+			for d in 1:5
+				preds["d$d"] = [nth_deriv_at(aaa_func2, d, x) for x in t_eval]
+			end
+
+			results[key]["AAA-lowpres"] = Dict{String, Union{Vector{Float64}, Dict{String, NamedTuple{(:rmse, :mae, :max_error), Tuple{Float64, Float64, Float64}}}}}(
+				"y" => preds["y"],
+				"d1" => preds["d1"],
+				"d2" => preds["d2"],
+				"d3" => preds["d3"],
+				"d4" => preds["d4"],
+				"d5" => preds["d5"],
+			)
+		catch e
+			@warn "AAA-lowpres failed for $key" exception = e
+		end
+
+
+
+
 		# 4. B-Splines (5th order using Dierckx)
 		try
 			# Calculate reasonable smoothing parameter based on noise level
 			n = length(t)
 			mean_y = mean(abs.(y))
-			noise_level = 0.01  # 1% noise
+			noise_level = 0.0 # 1% noise
 			s = n * (noise_level * mean_y)^2  # Expected sum of squared residuals
 
 			# Create 5th order spline interpolation (k=5)
@@ -436,15 +609,15 @@ function print_summary_statistics(approx_results, datasets)
 	end
 end
 
-example_function = crauste
+example_function = lv_periodic
 pep = example_function()
 
-datasize = 1001
+datasize = 21
 time_interval = pep.recommended_time_interval
 if isnothing(time_interval)
 	time_interval = [0.0, 5.0]
 end
-additive_noise = 0.0001
+additive_noise = 1e-6
 #petab_dir = "petab_lv_periodic"
 petab_dir = nothing
 # Test the approximation methods
@@ -461,44 +634,46 @@ sol = solve(prob, Tsit5(), saveat = t_eval)
 approx_results = evaluate_approximation_methods(datasets, t_eval, sol, obs_derivs, pep.measured_quantities)
 
 # Print summary statistics
-print_summary_statistics(approx_results, datasets)
+if false
+	print_summary_statistics(approx_results, datasets)
 
-# Plot comparison of methods
-observables = [key for (key, values) in datasets.clean if key != "t"]
-n_obs = length(observables)
-# Create one large plot grid for all observables
-p = plot(layout = (n_obs, 6), size = (2400, 400 * n_obs))
+	# Plot comparison of methods
+	observables = [key for (key, values) in datasets.clean if key != "t"]
+	n_obs = length(observables)
+	# Create one large plot grid for all observables
+	p = plot(layout = (n_obs, 6), size = (2400, 400 * n_obs))
 
-# Colors for different methods
-colors = [:red, :blue, :green, :purple]
+	# Colors for different methods
+	colors = [:red, :blue, :green, :purple]
 
-for (obs_idx, key) in enumerate(observables)
-	# Original data and fits
-	plot!(p[obs_idx, 1], datasets.clean["t"], datasets.clean[key],
-		label = "True", title = "$(key) Data Fits")
-	scatter!(p[obs_idx, 1], datasets.clean["t"], datasets.noisy[key],
-		label = "Noisy", markersize = 2)
+	for (obs_idx, key) in enumerate(observables)
+		# Original data and fits
+		plot!(p[obs_idx, 1], datasets.clean["t"], datasets.clean[key],
+			label = "True", title = "$(key) Data Fits")
+		scatter!(p[obs_idx, 1], datasets.clean["t"], datasets.noisy[key],
+			label = "Noisy", markersize = 2)
 
-	# All five derivatives
-	for d in 1:5
-		plot!(p[obs_idx, d+1], datasets.clean["t"], datasets.derivatives["d$(d)_$key"],
-			label = "True", title = "$(key) $(d)$(d==1 ? "st" : d==2 ? "nd" : d==3 ? "rd" : "th") Derivative")
-	end
+		# All five derivatives
+		for d in 1:5
+			plot!(p[obs_idx, d+1], datasets.clean["t"], datasets.derivatives["d$(d)_$key"],
+				label = "True", title = "$(key) $(d)$(d==1 ? "st" : d==2 ? "nd" : d==3 ? "rd" : "th") Derivative")
+		end
 
-	# Plot each method except AAA
-	for (i, (method, color)) in enumerate(zip(keys(approx_results[key]), colors))
-		if method != "AAA"
-			res = approx_results[key][method]
+		# Plot each method except AAA
+		for (i, (method, color)) in enumerate(zip(keys(approx_results[key]), colors))
+			if method != "AAA"
+				res = approx_results[key][method]
 
-			# Data fits
-			plot!(p[obs_idx, 1], t_eval, res["y"], label = method, color = color)
+				# Data fits
+				plot!(p[obs_idx, 1], t_eval, res["y"], label = method, color = color)
 
-			# All derivatives
-			for d in 1:5
-				plot!(p[obs_idx, d+1], t_eval, res["d$d"], label = method, color = color)
+				# All derivatives
+				for d in 1:5
+					plot!(p[obs_idx, d+1], t_eval, res["d$d"], label = method, color = color)
+				end
 			end
 		end
 	end
 end
 
-display(p)
+#display(p)

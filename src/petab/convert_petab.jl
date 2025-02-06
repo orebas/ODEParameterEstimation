@@ -1,16 +1,3 @@
-using ModelingToolkit, OrdinaryDiffEq, DataFrames, Optim
-using ModelingToolkit: t_nounits as t, D_nounits as D
-using PEtab
-using OrderedCollections
-using Statistics
-using SymbolicUtils
-using Symbolics
-using SymbolicIndexingInterface
-using ODEParameterEstimation
-
-
-
-
 """
 	define_vars_in_module(mod::Module, var_specs::Vector{String})
 
@@ -46,7 +33,7 @@ function create_scratch_module(var_specs::Vector{String})
 
 	# Bring in the needed symbols from ModelingToolkit
 	Base.eval(M, :(using ModelingToolkit))
-	Base.eval(M, :(using ModelingToolkit: t_nounits as t, D_nounits as D))    # Now define the user’s variables:
+	Base.eval(M, :(using ModelingToolkit: t_nounits as t, D_nounits as D))    # Now define the user's variables:
 	vars_str = "@variables " * join(var_specs, " ")
 	temp = Base.eval(M, Meta.parse(vars_str))
 	println("temp: ", temp)
@@ -138,7 +125,7 @@ function convert_petab_to_odepe(petab_dir::String)
 		obs_data = Vector{Float64}(undef, length(unique_times))
 
 		for (j, t) in enumerate(unique_times)
-			measurements = meas_df[meas_df.time.==t.&&meas_df.observableId.=="obs_"*obs_id, :measurement]
+			measurements = meas_df[(meas_df.time.==t).&(meas_df.observableId.==("obs_"*obs_id)), :measurement]
 			obs_data[j] = isempty(measurements) ? NaN : mean(measurements)
 		end
 		data_sample[Num(mq.rhs)] = obs_data

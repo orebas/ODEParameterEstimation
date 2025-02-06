@@ -1,16 +1,3 @@
-using NonlinearSolve
-
-
-#using Optim
-#using Optimization
-#using OptimizationOptimJL
-#using OptimizationOptimisers
-#using OptimizationMOI
-#using NLSolversBase: NLSolversBase
-#using NonlinearSolve
-#using LeastSquaresOptim
-
-
 
 """
 	handle_simple_substitutions(eqns, varlist)
@@ -511,7 +498,7 @@ based on system complexity.
 - `trivial_dict`: Dictionary of trivial substitutions found
 - `symbolic_variables`: Original variable list in Julia Symbolics format
 """
-function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = false, polish_solutions = true)
+function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = true, polish_solutions = true)
 	if display_system
 		println("Starting solve_with_hc with system:")
 		display(input_poly_system)
@@ -525,6 +512,13 @@ function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, d
 	# Handle substitutions and squarification
 	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
 	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
+	println("DEBUG [solve_with_hc]: Poly system:")
+	for term in poly_system
+		println("\t$term")
+	end
+	println("DEBUG [solve_with_hc]: Varlist: $varlist")
+	println("DEBUG [solve_with_hc]: Trivial vars: $trivial_vars")
+	println("DEBUG [solve_with_hc]: Trivial dict: $trivial_dict")
 
 	# Preserve original ordering after squarifying
 	varlist = sort(varlist, by = v -> get(original_order, v, length(input_varlist) + 1))
@@ -621,9 +615,12 @@ function solve_with_monodromy(poly_system, varlist)
 	if isempty(start_pairs)
 		@warn "No start solutions found."
 		return [], hc_variables
+	else
+		println("DEBUG [solve_with_monodromy]: Start pairs: $start_pairs")
 	end
 
 	# Solve using monodromy
+	println("DEBUG [solve_with_monodromy]: Solving with monodromy tracking.")
 	solutions = solve_with_monodromy_tracking(system, start_pairs, param_final)
 
 	if isempty(solutions)
@@ -655,15 +652,16 @@ function solve_with_monodromy_tracking(system, start_pairs, param_final)
 
 	while (tryagain)
 		try
+			println("DEBUG [solve_with_monodromy_tracking]: starting monodromy solve.")
 			result = HomotopyContinuation.monodromy_solve(system, flattened_start_pairs, param_final,
-				show_progress = false,
+				show_progress = true,
 				target_solutions_count = 10000,
-				timeout = 300.0,
-				max_loops_no_progress = 100,
-				unique_points_rtol = 1e-6,
-				unique_points_atol = 1e-6,
+				#timeout = 300.0,
+				#max_loops_no_progress = 100,
+				unique_points_rtol = 1e-4,
+				unique_points_atol = 1e-4,
 				trace_test = true,
-				trace_test_tol = 1e-10,
+				trace_test_tol = 1e-6,
 				min_solutions = 100000,
 				tracker_options = TrackerOptions(automatic_differentiation = 3))
 			tryagain = false

@@ -1,6 +1,3 @@
-using ModelingToolkit
-using Symbolics
-
 """
 	unpack_ODE(model::ODESystem)
 

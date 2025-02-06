@@ -171,7 +171,6 @@ end
 
 
 
-
 function solve_with_rs(poly_system, varlist;
 	start_point = nothing,  # Not used but kept for interface consistency
 	options = Dict())
@@ -193,21 +192,48 @@ function solve_with_rs(poly_system, varlist;
 
 	# Convert solutions back to our format
 	solutions = []
+	display(sol)
 	for s in sol
 		# Extract real solutions
-		real_sol = [convert(Float64, real(v)) for v in s]
+		#display(s)
+		real_sol = [convert(Float64, real(v[1])) for v in s]
 		push!(solutions, real_sol)
 	end
 
+	#return solutions, varlist, Dict(), varlist
 	return solutions, varlist, Dict(), varlist
-	#catch e
-	#	@warn "RS solver failed: $e"
-	#	return [], varlist, Dict(), varlist
-	#end
 end
 
-run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000)
-run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, models = :hard)
+@variables a b
+poly_system = [(a^2 + b^2 - 5), (a - 2 * b)]
+varlist = [a, b]
+
+display(solve_with_rs(poly_system, varlist))
+
+println("Running parameter estimation examples, no noise, maximum")
+run_parameter_estimation_examples(datasize = 2001, noise_level = 0.000, system_solver = solve_with_rs)
+run_parameter_estimation_examples(datasize = 2001, noise_level = 0.000, models = :hard, system_solver = solve_with_rs)
+
+#=
+println("ez Running parameter estimation examples with  GPR, no noise, maximum")
+run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, interpolator = test_gpr_function)
+
+println("ez Running parameter estimation examples with  GPR, 1e-8 noise, maximum")
+run_parameter_estimation_examples(datasize = 1501, noise_level = 1e-8, interpolator = test_gpr_function)
+
+println("ez Running parameter estimation examples with  GPR, 1e-6 noise, maximum")
+run_parameter_estimation_examples(datasize = 1501, noise_level = 1e-6, interpolator = test_gpr_function)
+
+println("ez Running parameter estimation examples with  GPR, 1e-4 noise, maximum")
+run_parameter_estimation_examples(datasize = 1501, noise_level = 1e-4, interpolator = test_gpr_function)
+
+println("ez Running parameter estimation examples with  GPR, 1e-2 noise, maximum")
+run_parameter_estimation_examples(datasize = 1501, noise_level = 1e-2, interpolator = test_gpr_function)
+=#
+
+
+
+#run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, models = :hard)
 
 
 #run_parameter_estimation_examples(datasize = 1501, noise_level = 0.000, system_solver = solve_with_nlopt, interpolator = aaad, models = [:lv_periodic])

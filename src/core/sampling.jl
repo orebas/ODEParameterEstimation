@@ -1,3 +1,53 @@
+
+
+"""
+	add_relative_noise(data::OrderedDict, noise_level::Float64)
+
+Add relative Gaussian noise to data values while preserving time points.
+
+# Arguments
+- `data`: OrderedDict containing time series data
+- `noise_level`: Standard deviation of the relative noise to add
+
+# Returns
+- New OrderedDict with noisy data
+"""
+function add_relative_noise(data::OrderedDict, noise_level::Float64)
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+
+	# Copy time points unchanged
+	noisy_data["t"] = data["t"]
+
+	# Add noise to each measurement
+	for (key, values) in data
+		if key != "t"  # Skip time points
+			noise = 1.0 .+ noise_level .* randn(length(values))
+			noisy_data[key] = values .* noise
+		end
+	end
+
+	return noisy_data
+end
+
+function add_additive_noise(data::OrderedDict, noise_level::Float64)
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+
+	# Copy time points unchanged
+	noisy_data["t"] = data["t"]
+
+	# Add noise to each measurement
+	for (key, values) in data
+		if key != "t"  # Skip time points
+			mean_val = mean(values)
+			noise = mean_val .* noise_level .* randn(length(values))
+			noisy_data[key] = values .+ noise
+		end
+	end
+
+	return noisy_data
+end
+
+
 #This is a utility function which fills in observed data by solving an ODE.
 
 function sample_data(model::ModelingToolkit.ODESystem,
@@ -29,6 +79,17 @@ function sample_data(model::ModelingToolkit.ODESystem,
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)
+
+	#if false # Plot state variables
+	#	states = ModelingToolkit.unknowns(model)
+	#	for state in states
+	#		plot(solution_true.t, solution_true[state],
+	#			label = string(state),
+	#			xlabel = "Time",
+	#			ylabel = "Value")
+	#		savefig("state_$(state)_plot.png")
+	#	end
+	#end
 
 	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
 											  for v in measured_data)
@@ -106,18 +167,4 @@ function sample_problem_data(problem::ParameterEstimationProblem;
 		problem.ic,
 		problem.unident_count,
 	)
-end
-
-
-function fillPEP(pe::ParameterEstimationProblem; datasize = 21, time_interval = [-0.5, 0.5], solver = package_wide_default_ode_solver, add_noise = false)  #TODO add noise handling 
-
-	return ParameterEstimationProblem(
-		pe.Name,
-		complete(pe.model),
-		pe.measured_quantities,
-		sample_data(pe.model, pe.measured_quantities, time_interval, pe.p_true, pe.ic, datasize, solver = solver),
-		solver,
-		pe.p_true,
-		pe.ic,
-		pe.unident_count)
 end

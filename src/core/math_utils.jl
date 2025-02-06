@@ -91,3 +91,28 @@ function calculate_timeseries_stats(values)
 		turns = count_turns(values),
 	)
 end
+
+
+"""
+	calculate_error_stats(predicted, actual)
+
+Calculate error statistics between predicted and actual values.
+
+# Arguments
+- `predicted`: Vector of predicted values
+- `actual`: Vector of actual values
+
+# Returns
+- Named tuple containing absolute and relative error statistics
+"""
+function calculate_error_stats(predicted, actual)
+	abs_error = abs.(predicted - actual)
+	rel_error = abs_error ./ (abs.(actual) .+ 1e-10)  # Add small constant to avoid division by zero
+
+	return (
+		absolute = calculate_timeseries_stats(abs_error),
+		relative = calculate_timeseries_stats(rel_error),
+	)
+end
+
+
