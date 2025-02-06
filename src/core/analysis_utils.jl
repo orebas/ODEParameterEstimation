@@ -305,7 +305,7 @@ end
 
 
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator,
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
 	max_num_points = 1, nooutput = false, system_solver = solve_with_hc, abstol = 1e-14, reltol = 1e-14,
 	trap_debug = false, diagnostics = false, diagnostic_data = nothing)
 	#if trap_debug
