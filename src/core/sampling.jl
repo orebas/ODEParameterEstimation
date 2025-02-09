@@ -55,7 +55,7 @@ function sample_data(model::ModelingToolkit.ODESystem,
 	time_interval::Vector{T},
 	p_true,
 	u0,
-	num_points::Int;
+	 num_points::Int;
 	uneven_sampling = false,
 	uneven_sampling_times = Vector{T}(),
 	solver = package_wide_default_ode_solver, inject_noise = false, mean_noise = 0,
@@ -72,7 +72,7 @@ function sample_data(model::ModelingToolkit.ODESystem,
 		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
 	end
 	# Get parameters in the correct order from the model
-	ordered_params = [p_true[p] for p in ModelingToolkit.parameters(model)]
+	ordered_params = [  p_true[p] for p in ModelingToolkit.parameters(model)]
 	ordered_u0 = [u0[s] for s in ModelingToolkit.unknowns(model)]
 
 	problem = ODEProblem(ModelingToolkit.complete(model), ordered_u0, time_interval, ordered_params)

@@ -133,23 +133,20 @@ function determine_optimal_points_count(model, measured_quantities, max_num_poin
 
 	if !nooutput
 		println("DEBUG [determine_optimal_points_count]: Final analysis with ", good_num_points, " points")
-
 		println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
 		println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
 		println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
 	end
-
 
 	return good_num_points, good_deriv_level, good_udict, good_varlist, good_DD
 
 end
 
 
-using .SimpleUnusedLinter
 
 function construct_multipoint_equation_system!(time_index_set,
 	model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
-	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params)
+	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing)
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 
 	for k in time_index_set
@@ -166,7 +163,8 @@ function construct_multipoint_equation_system!(time_index_set,
 			precomputed_interpolants = precomputed_interpolants,
 			diagnostics = diagnostics,
 			diagnostic_data = diagnostic_data,
-		)
+			ideal = ideal,
+			sol = sol)
 
 		local_subst_dict = OrderedDict{Num, Any}()
 		local_subst_dict_reverse = OrderedDict()
@@ -233,8 +231,6 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	# Solve ODE problem
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	#	println("DEBUG [process_raw_solution]: Solving ODE with initial conditions: ", ic)
-	#	println("DEBUG [process_raw_solution]: Solving ODE with parameters: ", ps)
 	prob = ODEProblem(complete(model.system), ic, tspan, ps)
 	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 
@@ -256,7 +252,6 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 
 	# Reorder parameters according to original ordering
 	param_offset = length(current_states)
-	#	println("DEBUG [process_raw_solution]: Parameter offset: ", param_offset)
 	for (i, param) in enumerate(model.original_parameters)
 		# Find the index of this parameter in the current parameters
 		idx = findfirst(p -> isequal(p, param), current_params)
@@ -273,11 +268,8 @@ end
 
 
 
-
-
-
 """
-	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_hc, display_points = true, max_num_points = 4)
+	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_rs, display_points = true, max_num_points = 4)
 
 Perform Multi-point Homotopy Continuation Parameter Estimation.
 
@@ -286,7 +278,7 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 - `measured_quantities`: Measured quantities
 - `data_sample`: Sample data
 - `ode_solver`: ODE solver to use
-- `system_solver`: System solver function (optional, default: solve_with_hc)
+- `system_solver`: System solver function (optional, default: solve_with_rs)
 - `display_points`: Whether to display points (optional, default: true)
 - `max_num_points`: Maximum number of points to use (optional, default: 4)
 
@@ -295,12 +287,13 @@ Perform Multi-point Homotopy Continuation Parameter Estimation.
 """
 function multipoint_parameter_estimation(
 	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_hc,
+	system_solver = solve_with_rs,
 	max_num_points = 1,
 	interpolator = interpolator,
 	nooutput = false,
 	diagnostics = false,
 	diagnostic_data = nothing,
+	polish_solutions = true,
 )
 
 	t, eqns, states, params = unpack_ODE(PEP.model.system)
@@ -337,11 +330,70 @@ function multipoint_parameter_estimation(
 			PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
 			interpolator, interpolants, diagnostics, diagnostic_data, states, params)
 
-		#full_target is the system of equations to solve
-
 		final_target = reduce(vcat, full_target)
 		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
 
+
+		if !isnothing(diagnostic_data)
+			# Compute ideal_sol externally and pass to construct_multipoint_equation_system!
+			max_deriv = max(7, 1 + maximum(collect(values(good_deriv_level))))
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(PEP.model.system), PEP.measured_quantities, max_deriv)
+			@named new_sys = ODESystem(equations(PEP.model.system), t; observed = expanded_mq)
+			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			ideal_sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
+
+			ideal_full_target, ideal_full_varlist, ideal_forward_subst_dict, ideal_reverse_subst_dict = construct_multipoint_equation_system!(time_index_set,
+				PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
+				interpolator, interpolants, diagnostics, diagnostic_data, states, params; ideal = true, sol = ideal_sol)
+
+			ideal_final_target = reduce(vcat, ideal_full_target)
+			ideal_final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+
+
+			println("DEBUG [multipoint_parameter_estimation]: Ideal final target: ")
+			for eq in ideal_final_target
+				println(eq)
+			end
+			println("DEBUG [but we are actually solving this: ")
+			for eq in final_target
+				println(eq)
+			end
+			println("As a reminder the true parameter values are: ")
+			println(PEP.p_true)
+			println("And the true states are: ")
+			println(PEP.ic)
+			println("The forward substitution dictionary is: ")
+			println(forward_subst_dict)
+			println("The reverse substitution dictionary is: ")
+			println(reverse_subst_dict)
+		end
+
+		# New: Evaluate the polynomial system using exact state and parameter values.
+		# For state values, if diagnostic_data is provided and ideal_sol is computed, use the ODE solver output at the lowest time index.
+		if !isnothing(diagnostic_data)
+			lowest_time = min(time_index_set...)
+			exact_state_vals = OrderedDict{Any, Any}()
+			for s in states
+				exact_state_vals[s] = ideal_sol(t_vector[lowest_time], idxs = s)
+			end
+		else
+			exact_state_vals = PEP.ic
+		end
+
+		exact_system = evaluate_poly_system(ideal_final_target, ideal_forward_subst_dict[1], ideal_reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
+		inexact_system = evaluate_poly_system(final_target, forward_subst_dict[1], reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
+		println("DEBUG [multipoint_parameter_estimation]: Evaluated ideal polynomial system with exact state and parameter values:")
+		for eq in exact_system
+			println(eq)
+		end
+		println("DEBUG [multipoint_parameter_estimation]: Evaluated interpolated polynomial system with exact state and parameter values:")
+		for eq in inexact_system
+			println(eq)
+		end
+		println("and by the way the exact state values are: (at the time index $lowest_time)")
+		println(exact_state_vals)
+		println("and by the way the exact parameter values are:")
+		println(PEP.p_true)
 		if !nooutput
 			println("DEBUG [multipoint_parameter_estimation]: Solving system...")
 			println("DEBUG [multipoint_parameter_estimation]: Final target: $final_target")
@@ -351,6 +403,12 @@ function multipoint_parameter_estimation(
 		if (!isempty(solns))  #TODO(orebas) this should probably be moved to after the backsolving step
 			found_any_solutions = true
 		end
+	end
+	println("DEBUG [multipoint_parameter_estimation]: Raw solutions from solver before backsolving:")
+	for (i, soln) in enumerate(solns)
+		println("\nSolution $i:")
+		var_value_dict = Dict(var => val for (var, val) in zip(final_varlist, soln))
+		println(var_value_dict)
 	end
 
 	@named new_model = ODESystem(eqns, t, states, params)
@@ -434,6 +492,34 @@ function multipoint_parameter_estimation(
 		solved_res[end].parameters = ordered_params
 		solved_res[end].solution = ode_solution
 		solved_res[end].err = err
+	end
+	# Polish solutions if requested
+	if polish_solutions
+		polished_solved_res = []
+		for (i, candidate) in enumerate(solved_res)
+			if !nooutput
+				println("\nDEBUG [multipoint_parameter_estimation]: Polishing solution ", i)
+			end
+			try
+				polished_result, opt_result = polish_solution_using_optimization(
+					candidate,
+					PEP,
+					solver = PEP.solver,
+					abstol = 1e-14,
+					reltol = 1e-14,
+				)
+				# Only keep the polished result if it improved the error
+				if polished_result.err < candidate.err
+					push!(polished_solved_res, polished_result)
+				else
+					push!(polished_solved_res, candidate)
+				end
+			catch e
+				println("Warning: Failed to polish solution ", i, ": ", e)
+				push!(polished_solved_res, candidate)
+			end
+		end
+		solved_res = polished_solved_res
 	end
 
 	return (solved_res, good_udict, trivial_dict, good_DD.all_unidentifiable)
@@ -687,9 +773,48 @@ end
 
 
 
+
+
+
+
+"""
+	calculate_observable_derivatives(equations, measured_quantities, nderivs=5)
+
+Calculate symbolic derivatives of observables up to the specified order using ModelingToolkit.
+Returns the expanded measured quantities with derivatives and the derivative variables.
+"""
+function calculate_observable_derivatives(equations, measured_quantities, nderivs = 5)
+	# Create equation dictionary for substitution
+	equation_dict = Dict(eq.lhs => eq.rhs for eq in equations)
+
+	n_observables = length(measured_quantities)
+
+	# Create symbolic variables for derivatives
+	ObservableDerivatives = Symbolics.variables(:d_obs, 1:n_observables, 1:nderivs)
+
+	# Initialize vector to store derivative equations
+	SymbolicDerivs = Vector{Vector{Equation}}(undef, nderivs)
+
+	# Calculate first derivatives
+	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
+
+	# Calculate higher order derivatives
+	for j in 2:nderivs
+		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
+	end
+
+	# Create new measured quantities with derivatives
+	expanded_measured_quantities = copy(measured_quantities)
+	append!(expanded_measured_quantities, vcat(SymbolicDerivs...))
+
+	return expanded_measured_quantities, ObservableDerivatives
+end
+
+
+
 """
 	construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
-							deriv_level, unident_dict, varlist, DD, time_index_set = nothing, return_parameterized_system = false)
+							deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false)
 
 Construct an equation system for parameter estimation.
 
@@ -708,13 +833,14 @@ Construct an equation system for parameter estimation.
 - Tuple containing the target equations and variable list
 """
 function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
-	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false, precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing)
+	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false,
+	precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing, ideal = false, sol = nothing)
 
 	measured_quantities = deepcopy(measured_quantities_in)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	D = Differential(t)
 
-	t_vector = pop!(data_sample, "t")
+	t_vector = data_sample["t"]
 	time_interval = (minimum(t_vector), maximum(t_vector))
 	if (isnothing(time_index_set))
 		time_index_set = [fld(length(t_vector), 2)]
@@ -739,24 +865,26 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		end
 	end
 	interpolated_values_dict = Dict()
-	for (key, value) in deriv_level
-		interpolated_values_dict[DD.obs_lhs[1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
-		for i in 1:value
-			interpolated_values_dict[DD.obs_lhs[i+1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
+	if (!ideal)
+		for (key, value) in deriv_level
+			interpolated_values_dict[DD.obs_lhs[1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
+			for i in 1:value
+				interpolated_values_dict[DD.obs_lhs[i+1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
+			end
 		end
-	end
-
-	if diagnostics && diagnostic_data !== nothing && haskey(diagnostic_data, :true_derivatives)
-		println("***** Diagnostics: Interpolated Derivatives *****")
-		for (obs_key, deriv_max) in deriv_level
-			local_t = t_vector[time_index]
-			interp0 = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[obs_key].rhs)], 0, local_t)
-			true0 = diagnostic_data[:true_derivatives][(obs_key, 0)]
-			println("Observable ", obs_key, " derivative order 0: interp = ", interp0, ", true = ", true0, ", error = ", abs(interp0 - true0))
-			for i in 1:deriv_max
-				interpi = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[obs_key].rhs)], i, local_t)
-				truei = diagnostic_data[:true_derivatives][(obs_key, i)]
-				println("Observable ", obs_key, " derivative order ", i, ": interp = ", interpi, ", true = ", truei, ", error = ", abs(interpi - truei))
+	else
+		if sol === nothing
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
+			@named new_sys = ODESystem(equations(model), t; observed = expanded_mq)
+			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
+		else
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
+		end
+		for (key, value) in deriv_level
+			interpolated_values_dict[DD.obs_lhs[1][key]] = sol(t_vector[time_index], idxs = measured_quantities[key].lhs)
+			for i in 1:value
+				interpolated_values_dict[DD.obs_lhs[i+1][key]] = sol(t_vector[time_index], idxs = obs_derivs[key, i])
 			end
 		end
 	end
@@ -765,19 +893,6 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 		target[i] = substitute(target[i], interpolated_values_dict)
 	end
 
-	if diagnostics && diagnostic_data !== nothing && haskey(diagnostic_data, :true_solution)
-		println("***** Diagnostics: Equation Residuals at True Solution *****")
-		true_sol = diagnostic_data[:true_solution]
-		for eq in target
-			local_eq = substitute(eq, true_sol)
-			residual = try
-				real(ModelingToolkit.value(local_eq))
-			catch
-				NaN
-			end
-			println("Equation: ", eq, " evaluates to residual: ", residual)
-		end
-	end
 
 	vars_needed = OrderedSet()
 	vars_added = OrderedSet()
@@ -829,3 +944,227 @@ function lookup_value(var, var_search, soln_index, good_udict, trivial_dict, fin
 	end
 	return real(solns[soln_index][index])
 end
+
+# New helper function to evaluate a polynomial system by substituting exact state and parameter values
+function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_subst::OrderedDict, true_states::OrderedDict, true_params::OrderedDict, eqns)
+	sub_dict = Dict()
+
+	#println("starting evaluate_poly_system")
+	#println(poly_system)
+	poly_system = substitute(poly_system, reverse_subst)
+	#println("poly_system after substitution:")
+	#println(poly_system)
+
+	#println("break")
+
+
+	# Create DD structure to compute derivatives
+	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+	DD.states_lhs = [[eq.lhs for eq in eqns], expand_derivatives.(D.([eq.lhs for eq in eqns]))]
+	DD.states_rhs = [[eq.rhs for eq in eqns], expand_derivatives.(D.([eq.rhs for eq in eqns]))]
+
+	# Compute higher derivatives
+	for i in 1:7
+		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
+		temp = DD.states_rhs[end]
+		temp2 = D.(temp)
+		temp3 = deepcopy(temp2)
+		temp4 = []
+		for j in 1:length(temp3)
+			temptemp = expand_derivatives(temp3[j])
+			push!(temp4, deepcopy(temptemp))
+		end
+		push!(DD.states_rhs, temp4)
+	end
+
+	# Convert all derivatives to terms
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
+		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
+	end
+
+
+	# First pass: substitute known parameters and states (0th derivatives)
+	for (temp_var, base_var) in forward_subst
+		if haskey(true_params, temp_var)
+			sub_dict[temp_var] = true_params[temp_var]
+		elseif haskey(true_states, temp_var)
+			sub_dict[temp_var] = true_states[temp_var]
+		end
+	end
+	#println("after first pass")
+	#println(sub_dict)
+
+	# Create a dictionary of derivative values
+	deriv_values = Dict()
+
+	# For each state (V and R)
+
+	# Second pass: map derivative values to temporary variables
+	#for (temp_var, base_var) in reverse_subst
+	#	if !haskey(sub_dict, temp_var)
+	#		if haskey(deriv_values, base_var)
+	#			sub_dict[temp_var] = deriv_values[base_var]
+	#		end
+	#	end
+	#end
+	#println("DD.states_rhs:")
+	#println(DD.states_rhs)
+	#println("DD.states_lhs:")
+	#println(DD.states_lhs)
+
+
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		sub_dict[DD.states_lhs[i][j]] = simplify(substitute(DD.states_rhs[i][j], sub_dict))
+	end
+
+
+	#println("deriv_values:")
+	#println(deriv_values)
+	#println("sub_dict after computing derivatives:")
+	#println(sub_dict)
+
+	# Apply all substitutions to the polynomial system
+	for i in 1:7
+		evaluated = [simplify(substitute(expr, sub_dict)) for expr in poly_system]
+		#println(evaluated)
+	end
+
+	# Final pass: convert any remaining derivatives to terms
+	evaluated = [ModelingToolkit.diff2term(expand_derivatives(expr)) for expr in evaluated]
+
+
+
+	return evaluated
+end
+
+"""
+	polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+										 solver = Vern9(),
+										 opt_method = BFGS,
+										 opt_maxiters = 200000,
+										 abstol = 1e-13,
+										 reltol = 1e-13,
+										 lb = nothing,
+										 ub = nothing)
+
+Using a local-optimization approach, polish a candidate solution obtained from multi-point analysis.
+This function assumes that `PEP` contains the original model, measured quantities, and data_sample,
+and that the candidate_solution (of type ParameterEstimationResult) includes guessed values for states
+and parameters in OrderedDicts. We form an ODEProblem from these values, define a loss function that sums
+squared errors between simulated trajectories with the data stored in `PEP.data_sample.
+On success, the returned `polished_result` is a new ParameterEstimationResult whose fields (states, parameters,
+solution, err) have been updated with the optimized values.
+
+An example call is provided below.
+"""
+function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+	solver = Vern9(),
+	opt_method = BFGS,
+	opt_maxiters = 200000,
+	abstol = 1e-13,
+	reltol = 1e-13,
+	lb = nothing,
+	ub = nothing)
+	# Extract the time vector from the data sample
+	t_vector = PEP.data_sample["t"]
+
+	# Candidate solution contains states and parameters as OrderedDicts.
+	# For the optimization we form a single vector: [state_values; parameter_values]
+	state_keys = collect(keys(candidate_solution.states))
+	param_keys = collect(keys(candidate_solution.parameters))
+	n_ic = length(state_keys)
+	n_param = length(param_keys)
+
+	# Convert to Float64 explicitly
+	initial_states = Float64[v for v in values(candidate_solution.states)]
+	initial_params = Float64[v for v in values(candidate_solution.parameters)]
+	p0 = vcat(initial_states, initial_params)
+
+	# Set default bounds if not provided
+	if lb === nothing
+		lb = -3.0 * ones(Float64, length(p0))
+	end
+	if ub === nothing
+		ub = 3.0 * ones(Float64, length(p0))
+	end
+
+	# Build the ODE problem using the model stored in PEP.
+	# (We call complete() to ensure the system is fully defined.)
+	new_model = complete(PEP.model.system)
+	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
+
+	prob = ODEProblem(new_model, initial_states, tspan, initial_params)
+
+	# Create a mapping from state variables to their index in the solution vector.
+	state_index = Dict{Any, Int}()
+	for (i, s) in enumerate(state_keys)
+		state_index[s] = i
+	end
+
+	# The loss function:
+	# Given a vector p_vec (with the candidate's state and parameter guesses),
+	# re-simulate the ODE and compute the sum of squared differences between
+	# simulated measurements and the data stored in PEP.data_sample.
+	# Here we assume that each measured quantity equation is of the form `LHS ~ rhs`,
+	# where the source of the measurement is the state corresponding to `rhs`.
+	function loss(p_vec)
+		ic_guess = p_vec[1:n_ic]
+		param_guess = p_vec[n_ic+1:end]
+		prob_opt = remake(prob, u0 = ic_guess, p = param_guess)
+		sol_opt = ModelingToolkit.solve(prob_opt, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+		if sol_opt.retcode != ReturnCode.Success
+			return Inf
+		end
+		total_error = 0.0
+		# Loop over each measured quantity
+		for eq in PEP.measured_quantities
+			# Assume that the measured value is generated from a state variable given as eq.rhs.
+			measured_var = eq.rhs
+			idx = state_index[measured_var]  # ensure that the measured state occurs in candidate_solution.states
+			# Extract simulated values (one per time point)
+			sim_vals = [sol_opt.u[i][idx] for i in 1:length(sol_opt.u)]
+			# Determine which key to use from the data sample.
+			# Try using string(measured_var) and fallback to string(eq.lhs).
+			key1 = measured_var
+			key2 = string(eq.lhs)
+			data_true = haskey(PEP.data_sample, key1) ? PEP.data_sample[key1] : PEP.data_sample[key2]
+			total_error += sum((sim_vals .- data_true) .^ 2)
+		end
+		return total_error
+	end
+
+	# Print initial loss value for debugging
+	initial_loss = loss(p0)
+	println("Initial parameter vector: ", p0)
+	println("Initial loss value: ", initial_loss)
+
+
+	# Set up the Optimization problem using auto-differentiation via ForwardDiff
+	adtype = Optimization.AutoForwardDiff()
+	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
+	optprob = Optimization.OptimizationProblem(optf, p0)  #lb = lb, ub = ub
+
+	# Solve the optimization problem.
+	result = Optimization.solve(optprob, opt_method(), callback = (p, l) -> false, maxiters = opt_maxiters)
+
+	# Extract the optimized initial conditions and parameters.
+	p_opt = result.u
+	ic_opt = p_opt[1:n_ic]
+	param_opt = p_opt[n_ic+1:end]
+
+	# Re-simulate the ODE using the optimized values.
+	prob_polished = remake(prob, u0 = ic_opt, p = param_opt)
+	sol_polished = ModelingToolkit.solve(prob_polished, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+
+	# Update a copy of the candidate solution with the polished values.
+	polished_result = deepcopy(candidate_solution)
+	polished_result.states = OrderedDict(zip(state_keys, ic_opt))
+	polished_result.parameters = OrderedDict(zip(param_keys, param_opt))
+	polished_result.solution = sol_polished
+	polished_result.err = loss(p_opt)
+
+	return polished_result, result
+end
+
+

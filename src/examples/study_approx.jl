@@ -88,6 +88,41 @@ end
 
 
 
+function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+	@assert length(xs) == length(ys)
+
+	# 1. Normalize y values
+	y_mean = mean(ys)
+	y_std = std(ys)
+	ys_normalized = (ys .- y_mean) ./ y_std
+
+	initial_lengthscale = log(std(xs) / 8)
+	initial_variance = 0.0
+	initial_noise = -2.0
+
+	kernel = SEIso(initial_lengthscale, initial_variance)
+	jitter = 1e-8
+	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+
+	# 2. Do GPR approximation on normalized data
+	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+	noise_level = exp(gp.logNoise.value)
+	if (noise_level < 1e-5)
+		println("Noise level is too low, using  AAA")
+
+		return aaad(xs, ys)
+	else
+		function denormalized_gpr(x)
+			return y_std * predict_y(gp, x)[1] + y_mean
+		end
+		return denormalized_gpr
+	end
+
+end
+
+
 function aaad_lowpres(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	@assert length(xs) == length(ys)
 

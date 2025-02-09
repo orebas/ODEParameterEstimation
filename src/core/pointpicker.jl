@@ -93,7 +93,19 @@ function compute_point_interestingness(interpolants, t)
 end
 
 
-
+function pick_points(vec, n, interpolants)
+	if n == 1
+		return fld(length(vec), 3)
+	else
+		if n == 2
+			return [fld(length(vec), 3), fld(length(vec), 2) + 1]
+		else
+			# For n>2 points, return n equispaced points (excluding start and end)
+			step = fld(length(vec) - 2, n + 1)  # Calculate spacing between points
+			return [i for i in (step+1):step:(step*(n))]
+		end
+	end
+end
 
 """
 	pick_points(vec, n, interpolants)
@@ -109,7 +121,7 @@ multiple criteria including extrema, inflection points, and areas of high variab
 # Returns
 - Vector of selected indices
 """
-function pick_points(vec, n, interpolants)
+function pick_points_old(vec, n, interpolants)
 	println("\nDEBUG [pick_points]: Starting point selection...")
 	println("DEBUG [pick_points]: Number of points to pick: $n")
 	println("DEBUG [pick_points]: Total points available: $(length(vec))")

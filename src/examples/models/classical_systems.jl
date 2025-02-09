@@ -19,7 +19,7 @@ function lotka_volterra()
 	model, mq = create_ordered_ode_system("Lotka_Volterra", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
-		"Lotka_Volterra",
+		"lotka_volterra",
 		model,
 		mq,
 		nothing,
@@ -83,5 +83,42 @@ function brusselator()
 		OrderedDict(parameters .=> p_true),
 		OrderedDict(states .=> ic_true),
 		0,
+	)
+end
+
+
+
+function harmonic()
+
+	parameters = @parameters a b
+	states = @variables x1(t) x2(t)
+	observables = @variables y1(t) y2(t)
+
+	# Example parameter values and initial conditions
+	p_true  = [1.0, 1.0]       # e.g., a = 1.0, b = 1.0
+	ic_true = [1.0, 0.0]       # e.g., x1(0) = 1.0, x2(0) = 0.0
+
+	equations = [
+		D(x1) ~ -a * x2,
+		D(x2) ~ x1 / b,
+	]
+
+	# Define measured quantities (here, we simply measure the states)
+	measured_quantities = [y1 ~ x1, y2 ~ x2]
+
+	# Create the ODE system model
+	model, mq = create_ordered_ode_system("harmonic", states, parameters, equations, measured_quantities)
+
+	# Return a ParameterEstimationProblem with a recommended timespan.
+	return ParameterEstimationProblem(
+		"harmonic",
+		model,
+		mq,
+		nothing,          # no noise model specified
+		[0.0, 10.0],      # recommended timescale (adjust as needed)
+		nothing,          # no custom solver specified
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,                 # model ID or additional flags
 	)
 end

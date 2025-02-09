@@ -51,4 +51,5 @@ function run_first_example()
 	#display(analysis_result[1])
 end
 
-run_first_example()
+temp = run_first_example()
+0

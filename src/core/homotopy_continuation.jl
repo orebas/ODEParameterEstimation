@@ -108,7 +108,7 @@ function squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
 	trash_system = [poly_system[i] for i in trashlist]
 
 	#println("we trash these: (line 708)")
-	#display(trash_system)
+	#println(trash_system)
 
 	return new_system, varlist, trash_system
 end
@@ -138,7 +138,7 @@ function find_start_solutions(system, tracking_system, param_final; max_attempts
 	attempt_count = 0
 	start_pairs = []
 
-	#display(system)
+	#println(system)
 
 	while (attempt_count < max_attempts && (attempt_count < min_attempts || isempty(start_pairs)))
 		test_point, test_params = HomotopyContinuation.find_start_pair(tracking_system)
@@ -501,9 +501,9 @@ based on system complexity.
 function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = true, polish_solutions = true)
 	if display_system
 		println("Starting solve_with_hc with system:")
-		display(input_poly_system)
+		println(input_poly_system)
 		println("Variables:")
-		display(input_varlist)
+		println(input_varlist)
 	end
 
 	# Store original ordering for consistency
@@ -776,4 +776,126 @@ function solve_with_nlopt(poly_system, varlist;
 		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
+end
+
+
+
+
+
+
+"""
+	exprs_to_AA_polys(exprs, vars)
+
+Convert each symbolic expression in `exprs` into a polynomial in an
+AbstractAlgebra polynomial ring in the variables `vars`. This returns
+both the ring `R` and the vector of polynomials in `R`.
+"""
+function exprs_to_AA_polys(exprs, vars)
+	# Create a polynomial ring over QQ, using the variable names
+
+	M = Module()
+	Base.eval(M, :(using AbstractAlgebra))
+	#Base.eval(M, :(using Nemo))
+	#	Base.eval(M, :(using RationalUnivariateRepresentation))
+	#	Base.eval(M, :(using RS))
+
+	var_names = string.(vars)
+	ring_command = "R = @polynomial_ring(QQ, $var_names)"
+	#approximation_command = "R(expr::Float64) = R(Nemo.rational_approx(expr, 1e-4))"
+	ring_object = Base.eval(M, Meta.parse(ring_command))
+	#println(temp)
+	#Base.eval(M, Meta.parse(approximation_command))
+
+
+	a = string.(exprs)
+	AA_polys = []
+	for expr in exprs
+		push!(AA_polys, Base.eval(M, Meta.parse(string(expr))))
+	end
+	return ring_object, AA_polys
+
+end
+
+
+
+
+
+function solve_with_rs(poly_system, varlist;
+	start_point = nothing,  # Not used but kept for interface consistency
+	polish_solutions = true)
+
+	#try
+	# Convert symbolic expressions to AA polynomials using existing infrastructure
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
+
+	println("aa_system")
+	println(aa_system)
+	println("R")
+	println(R)
+	# Compute RUR and get separating element
+	rur, sep = zdim_parameterization(aa_system, get_separating_element = true)
+
+	# Find solutions
+	output_precision = Int32(20)
+	sol = RS.rs_isolate(rur, sep, output_precision = output_precision)
+
+	# Convert solutions back to our format
+	solutions = []
+	println(sol)
+	for s in sol
+		# Extract real solutions
+		#println(s)
+		real_sol = [convert(Float64, real((v[1] + v[2]) / 2)) for v in s]
+		push!(solutions, real_sol)
+	end
+
+	# Print solutions and residuals before polishing
+	println("\nSolutions and residuals before polishing:")
+	for (i, sol) in enumerate(solutions)
+		println("\nSolution $i: ")
+		for j in sol
+			println(j)
+		end
+		# Calculate residuals by evaluating each polynomial at the solution point
+		residuals = Float64[]
+		for poly in poly_system
+			# Create substitution mapping from variables to solution values
+			subs = Dict(var => val for (var, val) in zip(varlist, sol))
+			# Evaluate polynomial at solution point
+			res = Symbolics.substitute(poly, subs)
+			# Convert to float and add to residuals
+			push!(residuals, Symbolics.symbolic_to_float(res))
+		end
+		println("Residuals: ")
+		for j in residuals
+			println(j)
+		end
+	end
+
+
+
+	# Polish solutions if requested
+	if polish_solutions && !isempty(solutions)
+		polished_solutions = []
+		for sol in solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, use polished solution, otherwise keep original
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			else
+				push!(polished_solutions, sol)
+			end
+		end
+		solutions = polished_solutions
+	end
+
+
+	#return solutions, varlist, Dict(), varlist
+	return solutions, varlist, Dict(), varlist
 end

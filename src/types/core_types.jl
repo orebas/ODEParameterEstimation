@@ -21,7 +21,7 @@ struct ParameterEstimationProblem
 end
 
 # Constants for analysis and clustering
-const CLUSTERING_THRESHOLD = 0.01  # 1% relative difference threshold
+const CLUSTERING_THRESHOLD = 0.00001  # 1% relative difference threshold
 const MAX_ERROR_THRESHOLD = 0.5    # Maximum acceptable error
 const IMAG_THRESHOLD = 1e-8        # Threshold for ignoring imaginary components
 const MAX_SOLUTIONS = 20           # Maximum number of solutions to consider if no good ones found

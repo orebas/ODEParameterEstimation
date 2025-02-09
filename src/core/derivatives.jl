@@ -374,14 +374,15 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	jitter = 1e-8
 	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
 
-	# 2. Do GPR approximation on normalized data
+	# 2. Do GPR approximation on normalized data with suppressed warnings
 	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
-	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+	redirect_stderr(devnull) do
+		GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+	end
 
 	noise_level = exp(gp.logNoise.value)
-	if (noise_level < 1e-5)
+	if (false && noise_level < 1e-5)
 		println("Noise level is too low, using  AAA")
-
 		return aaad(xs, ys)
 	else
 		function denormalized_gpr(x)
@@ -390,5 +391,4 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 		end
 		return denormalized_gpr
 	end
-
 end

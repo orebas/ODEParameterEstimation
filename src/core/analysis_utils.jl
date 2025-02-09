@@ -1,4 +1,3 @@
-
 """
 	get_solution_vector(solution)
 
@@ -241,6 +240,11 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 
 	# Calculate and return best error (excluding unidentifiable parameters)
 	besterror = Inf
+	best_min_error = Inf
+	best_mean_error = Inf
+	best_median_error = Inf
+	best_max_error = Inf
+
 	for each in result
 		# Get all parameter names
 		param_names = collect(keys(each.parameters))
@@ -286,28 +290,41 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 				end
 			end
 			besterror = min(besterror, maximum(errorvec))
+
+			# Calculate additional statistics
+			best_min_error = min(best_min_error, minimum(errorvec))
+			best_mean_error = min(best_mean_error, mean(errorvec))
+			best_median_error = min(best_median_error, median(errorvec))
+			best_max_error = min(best_max_error, maximum(errorvec))
 		end
 	end
 	if !nooutput
 		println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")
+		println("Best minimum relative error: $(round(best_min_error, digits=6))")
+		println("Best mean relative error: $(round(best_mean_error, digits=6))")
+		println("Best median relative error: $(round(best_median_error, digits=6))")
+		println("Best maximum relative error: $(round(best_max_error, digits=6))")
 	end
 	# Return a tuple containing:
-	# - besterror: The minimum maximum relative error across all results
-	# - estimates: Vector of estimated values for identifiable parameters/states
-	# - true_values: Vector of true values for identifiable parameters/states 
-	# - identifiable_names: Vector of names of identifiable parameters/states
-	# - unidentifiable_names: Vector of names of unidentifiable parameters/states
+	# - Vector of best solutions from each cluster
+	# - Best maximum relative error across all results
+	# - Best minimum relative error across all results
+	# - Best mean relative error across all results
+	# - Best median relative error across all results
+	# - Best maximum relative error across all results
 	return (
-		[last(cluster) for cluster in clusters], besterror,
+		[last(cluster) for cluster in clusters],
+		besterror,
+		best_min_error,
+		best_mean_error,
+		best_median_error,
+		best_max_error,
 	)
 end
 
-
-
-
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
-	max_num_points = 1, nooutput = false, system_solver = solve_with_hc, abstol = 1e-14, reltol = 1e-14,
-	trap_debug = false, diagnostics = false, diagnostic_data = nothing)
+	max_num_points = 1, nooutput = false, system_solver = solve_with_rs, abstol = 1e-14, reltol = 1e-14,
+	trap_debug = false, diagnostics = true)
 	#if trap_debug
 	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
 	#	filename = "PEP_debug_$(timestamp).log"
@@ -315,7 +332,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 	#		redirect_stdout(log_file) do
 	#	println("Trap debug enabled. Saving diagnostic output to: ", filename)
 	# Prepare diagnostic_data: merge true parameter values and initial conditions
-	diag_data = Dict(:true_solution => merge(PEP.p_true, PEP.ic), :true_derivatives => Dict())
 
 
 	if !nooutput
@@ -327,7 +343,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 		system_solver = system_solver,
 		max_num_points = max_num_points,
 		interpolator = interpolator,
-		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = diagnostic_data)
+		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP)
 
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 
@@ -341,8 +357,8 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 
 
 
-	besterror = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
-	return solved_res
+	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
+	return results_tuple_to_return
 
 end
 
