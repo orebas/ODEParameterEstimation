@@ -1,0 +1,3814 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+================================================================
+File Summary
+================================================================
+
+Purpose:
+--------
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+
+File Format:
+------------
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Multiple file entries, each consisting of:
+  a. A separator line (================)
+  b. The file path (File: path/to/file)
+  c. Another separator line
+  d. The full contents of the file
+  e. A blank line
+
+Usage Guidelines:
+-----------------
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+
+Notes:
+------
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+
+Additional Info:
+----------------
+
+================================================================
+Directory Structure
+================================================================
+analysis_utils.jl
+derivatives.jl
+homotopy_continuation.jl
+math_utils.jl
+model_utils.jl
+parameter_estimation.jl
+pointpicker.jl
+sampling.jl
+
+================================================================
+Files
+================================================================
+
+================
+File: analysis_utils.jl
+================
+"""
+	get_solution_vector(solution)
+
+Extract a vector of values from a solution object.
+
+# Arguments
+- `solution`: Solution object containing states and parameters
+
+# Returns
+- Vector containing concatenated state and parameter values
+"""
+function get_solution_vector(solution)
+	return vcat(collect(values(solution.states)), collect(values(solution.parameters)))
+end
+
+"""
+	solution_distance(sol1, sol2)
+
+Calculate the relative distance between two solutions.
+
+# Arguments
+- `sol1`: First solution
+- `sol2`: Second solution
+
+# Returns
+- Maximum relative difference between corresponding components
+"""
+function solution_distance(sol1, sol2)
+	v1 = get_solution_vector(sol1)
+	v2 = get_solution_vector(sol2)
+	# Use relative distance for each component with better handling of near-zero values
+	rel_diffs = map(zip(v1, v2)) do (x, y)
+		denom = max(abs(x) + abs(y), 1.0)  # Avoid division by zero
+		return abs(x - y) / denom
+	end
+	return maximum(rel_diffs)
+end
+
+"""
+	cluster_solutions(sorted_results)
+
+Group similar solutions into clusters based on relative distances.
+
+# Arguments
+- `sorted_results`: Vector of solutions sorted by error
+
+# Returns
+- Vector of solution clusters
+"""
+function cluster_solutions(sorted_results)
+	clusters = Vector{Vector{Any}}()
+
+	for sol in sorted_results
+		# Try to find a cluster for this solution
+		cluster_idx = findfirst(cluster ->
+				solution_distance(sol, cluster[1]) < CLUSTERING_THRESHOLD,
+			clusters)
+
+		if isnothing(cluster_idx)
+			# Start new cluster
+			push!(clusters, [sol])
+		else
+			# Add to existing cluster
+			push!(clusters[cluster_idx], sol)
+		end
+	end
+
+	return clusters
+end
+
+"""
+	print_stats_table(io, name, stats)
+
+Print a formatted table of statistics.
+
+# Arguments
+- `io`: IO stream to print to
+- `name`: Name of the statistics group
+- `stats`: Dictionary of statistics to print
+"""
+function print_stats_table(io, name, stats)
+	println(io, "\n$name Statistics:")
+	println(io, "-"^50)
+	println(io, "Variable      | Mean        | Std         | Min         | Max         | Range       | Turns")
+	println(io, "-"^50)
+	for (var, stat) in stats
+		@printf(io, "%-12s | %10.6f | %10.6f | %10.6f | %10.6f | %10.6f | %10d\n",
+			var, stat.mean, stat.std, stat.min, stat.max, stat.range, stat.turns)
+	end
+end
+
+"""
+	analyze_estimation_result(problem::ParameterEstimationProblem, result)
+
+Analyze the results of parameter estimation, including clustering solutions and printing statistics.
+
+# Arguments
+- `problem`: The parameter estimation problem
+- `result`: Vector of solution results
+"""
+function analyze_estimation_result(problem::ParameterEstimationProblem, result; nooutput = false)
+	# Merge dictionaries into a single OrderedDict
+	all_params = merge(OrderedDict(), problem.ic, problem.p_true)
+
+	# Print header
+	if !nooutput
+		println("\n=== Model: $(problem.name) ===")
+	end
+
+	# Filter out solutions with no error or error > threshold
+	valid_results = filter(x -> !isnothing(x.err) && x.err < MAX_ERROR_THRESHOLD, result)
+
+	# If no good solutions found, take top solutions
+	if isempty(valid_results)
+		valid_results = sort(result, by = x -> isnothing(x.err) ? Inf : x.err)[1:min(MAX_SOLUTIONS, length(result))]
+	end
+
+	# Sort results by error
+	sorted_results = sort(valid_results, by = x -> x.err, rev = true)
+
+	# Cluster solutions
+	clusters = cluster_solutions(sorted_results)
+
+	# Show unidentifiable parameters if any
+	if !isempty(sorted_results)
+		first_result = last(sorted_results)
+
+		# First show all structurally unidentifiable parameters
+		if hasfield(typeof(first_result), :all_unidentifiable) && !isempty(first_result.all_unidentifiable)
+			if !nooutput
+				println("\nAll structurally unidentifiable parameters:")
+				println("-"^50)
+				println("These parameters cannot be uniquely determined from the data:")
+				for param in first_result.all_unidentifiable
+					println("  • $param")
+				end
+				println()
+			end
+		end
+
+		# Then show the minimal set of fixed values
+		if !isnothing(first_result.unident_dict) && !isempty(first_result.unident_dict)
+			if !nooutput
+				println("\nMinimal set of fixed values to make remaining parameters identifiable:")
+				println("-"^50)
+				println("These parameters were fixed to make the system identifiable:")
+				for (param, value) in first_result.unident_dict
+					# Format the value - handle complex numbers
+					val_str = if value isa Complex
+						abs(imag(value)) < 1e-10 ?
+						@sprintf("%.6f", real(value)) :
+						@sprintf("%.3f%+.3fi", real(value), imag(value))
+					else
+						@sprintf("%.6f", value)
+					end
+					println("  • $param = $val_str")
+				end
+				println()
+			end
+		end
+	end
+
+	# Print best solution from each cluster
+	if !nooutput
+		println("\nFound $(length(clusters)) distinct solution clusters:")
+	end
+	for (i, cluster) in enumerate(clusters)
+		best_solution = last(cluster)  # cluster is sorted by error
+		if !nooutput
+			println("\nCluster $i: $(length(cluster)) similar solutions")
+			println("Best solution (Error: $(round(best_solution.err, digits=6))):")
+			println("-"^50)
+		end
+
+		# Get parameters in original order from the model
+		param_names = problem.model.original_parameters
+
+		# Filter out init_ parameters from the parameter list since they're already in states
+		non_init_params = filter(p -> !startswith(string(p), "init_"), param_names)
+
+		# First get the state names in the order they appear in the model
+		state_names = problem.model.original_states
+
+		# Collect values in matching order
+		estimates = vcat(
+			[best_solution.states[s] for s in state_names],
+			[best_solution.parameters[p] for p in non_init_params],
+		)
+		true_values = vcat(
+			[problem.ic[s] for s in state_names],
+			[problem.p_true[p] for p in non_init_params],
+		)
+		var_names = vcat(state_names, non_init_params)
+
+		# Calculate relative errors with proper handling of near-zero values
+		rel_errors = map(zip(estimates, true_values)) do (est, true_val)
+			if abs(true_val) < 1e-6
+				abs(est - true_val) # Use absolute error when true value is near zero
+			else
+				abs((est - true_val) / true_val) # Use relative error otherwise
+			end
+		end
+
+		# Find maximum lengths for alignment
+		max_var_len = maximum(length(string(var)) for var in var_names)
+		max_var_len = max(max_var_len, 12) # minimum width for "Variable" header
+
+		# Print table header with dynamic width
+		header = @sprintf("%-*s | True Value  | Estimated   | Rel. Error", max_var_len, "Variable")
+		if !nooutput
+			println(header)
+			println("-"^(length(header)))
+		end
+
+		# Print states and parameters
+		for (var, true_val, est_val, rel_err) in zip(var_names, true_values, estimates, rel_errors)
+			# Format the estimated value - handle complex numbers
+			est_str = if est_val isa Complex
+				abs(imag(est_val)) < 1e-10 ?
+				@sprintf("%.6f", real(est_val)) :
+				@sprintf("%.3f%+.3fi", real(est_val), imag(est_val))
+			else
+				@sprintf("%.6f", est_val)
+			end
+
+			# Print the row with dynamic width
+			if !nooutput
+				@printf("%-*s | %10.6f | %10s | %10.6f\n",
+					max_var_len, var, true_val, est_str, rel_err)
+			end
+		end
+		println()
+	end
+
+	# Print best approximation error summary line
+	best_approximation_error = isempty(sorted_results) ? Inf : last(sorted_results).err
+	if !nooutput
+		println("\nBest approximation error for $(problem.name): $(round(best_approximation_error, digits=6))")
+	end
+
+	# Calculate and return best error (excluding unidentifiable parameters)
+	besterror = Inf
+	best_min_error = Inf
+	best_mean_error = Inf
+	best_median_error = Inf
+	best_max_error = Inf
+	best_rms_error = Inf
+
+	for each in result
+		# Get all parameter names
+		param_names = collect(keys(each.parameters))
+
+		# Filter out init_ parameters from the parameter list since they're already in states
+		non_init_params = filter(p -> !startswith(string(p), "init_"), param_names)
+
+		# Get ALL unidentifiable parameters from the analysis
+		unident_params = if hasfield(typeof(each), :all_unidentifiable)
+			Set(each.all_unidentifiable)
+		else
+			Set()
+		end
+
+		# Collect values, excluding init_ parameters and unidentifiable parameters
+		estimates = Float64[]
+		true_values = Float64[]
+
+		# Add states that aren't unidentifiable
+		for (state, value) in each.states
+			if !(state in unident_params)
+				push!(estimates, value)
+				push!(true_values, problem.ic[state])
+			end
+		end
+
+		# Add parameters that aren't unidentifiable
+		for p in non_init_params
+			if !(p in unident_params)
+				push!(estimates, each.parameters[p])
+				push!(true_values, problem.p_true[p])
+			end
+		end
+
+		# Calculate relative errors only for identifiable parameters
+		if !isempty(estimates)
+			# Calculate errors, using absolute error when true value is near zero
+			errorvec = map(zip(estimates, true_values)) do (est, true_val)
+				if abs(true_val) < 1e-6
+					abs(est - true_val)  # Use absolute error when true value is near zero
+				else
+					abs((est - true_val) / true_val)  # Use relative error otherwise
+				end
+			end
+			besterror = min(besterror, maximum(errorvec))
+
+			# Calculate additional statistics
+			best_min_error = min(best_min_error, minimum(errorvec))
+			best_mean_error = min(best_mean_error, mean(errorvec))
+			best_median_error = min(best_median_error, median(errorvec))
+			best_max_error = min(best_max_error, maximum(errorvec))
+			best_rms_error = min(best_rms_error, sqrt(mean(errorvec .^ 2)))
+		end
+	end
+	if !nooutput
+		println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")
+		println("Best minimum relative error: $(round(best_min_error, digits=6))")
+		println("Best mean relative error: $(round(best_mean_error, digits=6))")
+		println("Best median relative error: $(round(best_median_error, digits=6))")
+		println("Best maximum relative error: $(round(best_max_error, digits=6))")
+		println("Best RMS relative error: $(round(best_rms_error, digits=6))")
+	end
+	# Return a tuple containing:
+	# - Vector of best solutions from each cluster
+	# - Best maximum relative error across all results
+	# - Best minimum relative error across all results
+	# - Best mean relative error across all results
+	# - Best median relative error across all results
+	# - Best maximum relative error across all results
+	# - Best approximation error across all results
+	# - Best RMS relative error across all results
+	return (
+		[last(cluster) for cluster in clusters],
+		besterror,
+		best_min_error,
+		best_mean_error,
+		best_median_error,
+		best_max_error,
+		best_approximation_error,
+		best_rms_error,
+	)
+end
+
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
+	max_num_points = 1, nooutput = false, system_solver = solve_with_rs, abstol = 1e-14, reltol = 1e-14,
+	trap_debug = false, diagnostics = true, polish_method = NewtonTrustRegion, polish_maxiters = 10, try_more_methods = true)  #try_more_methods = true
+	#if trap_debug
+	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
+	#	filename = "PEP_debug_$(timestamp).log"
+	#	open(filename, "w") do log_file
+	#		redirect_stdout(log_file) do
+	#	println("Trap debug enabled. Saving diagnostic output to: ", filename)
+	# Prepare diagnostic_data: merge true parameter values and initial conditions
+
+
+	if !nooutput
+		println("Starting model: ", PEP.name)
+	end
+
+	if system_solver == nothing
+		system_solver = solve_with_rs
+	end
+	if interpolator == nothing
+		interpolator = aaad_gpr_pivot
+	end
+
+	# Initialize variables outside try blocks
+	solved_res = []
+	unident_dict = Dict()
+	trivial_dict = Dict()
+	all_unidentifiable = []
+	results_tuple_aaad = ([], Dict(), Dict(), [])
+	results_tuple_multi = ([], Dict(), Dict(), [])
+
+	# Try first estimation with default interpolator
+	#try
+	results_tuple = multishot_parameter_estimation(PEP,
+		system_solver = system_solver,
+		max_num_points = max_num_points,
+		interpolator = interpolator,
+		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+		polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+	)
+	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+
+	#catch e
+	#@warn "First estimation failed: $e"
+	#results_tuple = ([], Dict(), Dict(), [])
+	#solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+	#end
+	if try_more_methods
+		# Try second estimation with aaad interpolator
+		try
+			results_tuple_aaad = multishot_parameter_estimation(PEP,
+				system_solver = system_solver,
+				max_num_points = max_num_points,
+				interpolator = aaad,
+				nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+				polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+			)
+		catch e
+			@warn "Second estimation failed: $e"
+			results_tuple_aaad = ([], Dict(), Dict(), [])
+		end
+
+		# Try third estimation with multiple points
+		try
+			results_tuple_multi = multishot_parameter_estimation(PEP,
+				system_solver = system_solver,
+				max_num_points = 2,
+				interpolator = interpolator,
+				nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+				polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+			)
+		catch e
+			@warn "Third estimation failed: $e"
+			results_tuple_multi = ([], Dict(), Dict(), [])
+		end
+	end
+
+	# Merge solutions from all attempts
+	solved_res = vcat(solved_res, first(results_tuple_aaad), first(results_tuple_multi))
+	unident_dict = merge(unident_dict, results_tuple_aaad[2], results_tuple_multi[2])
+	trivial_dict = merge(trivial_dict, results_tuple_aaad[3], results_tuple_multi[3])
+	all_unidentifiable = union(all_unidentifiable, results_tuple_aaad[4], results_tuple_multi[4])
+
+
+	if !nooutput
+		println("\nUnidentifiability Analysis from multipoint_parameter_estimation:")
+		println("All unidentifiable variables: ", all_unidentifiable)
+		println("Unidentifiable variables substitution dictionary: ", unident_dict)
+		println("Trivially solvable variables: ", trivial_dict)
+	end
+
+
+
+	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
+	return results_tuple_to_return
+
+end
+
+================
+File: derivatives.jl
+================
+"""
+	rational_interpolation_coefficients(x, y, n)
+CODE COPIED FROM previous version of ParameterEstimation.jl
+Perform a rational interpolation of the data `y` at the points `x` with numerator degree `n`.
+This function only returns the coefficients of the numerator and denominator polynomials.
+
+# Arguments
+- `x`: the points where the data is sampled (e.g. time points).
+- `y`: the data sample.
+- `n`: the degree of the numerator.
+
+# Returns
+- `c`: the coefficients of the numerator polynomial.
+- `d`: the coefficients of the denominator polynomial.
+"""
+function rational_interpolation_coefficients(x, y, n)
+	N = length(x)
+	m = N - n - 1
+	A = zeros(N, N)
+	if m > 0
+		A_left_submatrix = reduce(hcat, [x .^ (i) for i in 0:(n)])
+		A_right_submatrix = reduce(hcat, [x .^ (i) for i in 0:(m-1)])
+		A = hcat(A_left_submatrix, -y .* A_right_submatrix)
+		b = y .* (x .^ m)
+		try
+			prob = LinearSolve.LinearProblem(A, b)
+			c = LinearSolve.solve(prob)
+			return c[1:(n+1)], [c[(n+2):end]; 1]
+		catch SingularException
+			lu_res = lu(A)
+			y = lu_res.L \ lu_res.P * b
+			c = lu_res.U \ y
+			return c[1:(n+1)], [c[(n+2):end]; 1]
+		end
+
+	else
+		A = reduce(hcat, [x .^ i for i in 0:n])
+		b = y
+		prob = LinearSolve.LinearProblem(A, b)
+		c = LinearSolve.solve(prob)
+		return c, [1]
+	end
+end
+
+
+
+
+
+######### TODO(orebas)  REFACTOR into bary_derivs or something similiar
+#to use the below, you can just pass vectors of xvalues and yvalues like so:
+#F = aaad(xdata, ydata)
+#and then F will be a callable, i.e. F(0.5) should work.  Let's please restrict to real xdata, and if so it should be sorted.  F is only defined in the range of the xvalues.
+
+#To construct a derivative, you can do
+#derivf(z) = ForwardDiff.derivative(F, z)
+#I hope and suspect that other AD frameworks should work as well.
+
+function baryEval(z, f::Vector{T}, x::Vector{T}, w::Vector{T}, tol = 1e-13) where {T}
+	@assert(length(f) == length(x) == length(w))
+	num = zero(T)
+	den = zero(T)
+	breakflag = false
+	breakindex = -1
+	for j in eachindex(f)
+		t = w[j] / (z - x[j])
+		num += t * f[j]
+		den += t
+		if ((z - x[j])^2 < sqrt(tol))
+			breakflag = true
+			breakindex = j
+		end
+	end
+	fz = num / den
+	if (breakflag)
+		num = zero(T)
+		den = zero(T)
+		for j in eachindex(f)
+			if (j != breakindex)
+				t = w[j] / (z - x[j])
+				num += t * f[j]
+				den += t
+			end
+		end
+		m = z - x[breakindex]
+		fz = (w[breakindex] * f[breakindex] + m * num) / (w[breakindex] + m * den)
+	end
+	return fz
+end
+
+struct AAADapprox{T}
+	internalAAA::T
+end
+
+struct FHDapprox{T}
+	internalFHD::T
+end
+
+(y::FHDapprox)(z) = baryEval(z, y.internalFHD.f, y.internalFHD.x, y.internalFHD.w)
+(y::AAADapprox)(z) = baryEval(z, y.internalAAA.f, y.internalAAA.x, y.internalAAA.w)
+
+function nth_deriv_at(f, n::Int, t)  #todo(orebas) make this more efficient.
+	if (n == 0)
+		return f(t)
+	elseif (n == 1)
+		return ForwardDiff.derivative(f, t)
+	else
+		g(t) = nth_deriv_at(f, n - 1, t)
+		return ForwardDiff.derivative(g, t)
+	end
+end
+
+
+function nth_deriv(f, n::Int, t)
+	if (n == 0)
+		return f(t)
+	else
+		return TaylorDiff.derivative(f, t, n)
+	end
+end
+
+
+function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+	#@suppress begin
+	@assert length(xs) == length(ys)
+	internalApprox = BaryRational.aaa(xs, ys, verbose = false)
+	return AAADapprox(internalApprox)
+	#end
+end
+
+function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool = false) where {T}
+	return aaad_old_reliable(xs, ys)
+end
+
+
+#=
+function aaad_in_testing(xs::AbstractArray{T}, ys::AbstractArray{T}; save_plot::Union{String, Nothing} = "plot.png") where {T}
+	@assert length(xs) == length(ys)
+
+	# First smooth with GP
+	# Use shorter lengthscale for more local fitting
+	ll = log(std(xs) / 8)  # Changed from /4 to /8 for shorter lengthscale
+	lσ = 1.0  # Increased signal variance (was 0.0)
+	kernel = SEIso(ll, lσ)
+	mZero = MeanZero()
+
+	# Start with smaller noise for tighter fit
+	log_noise = -2.0  # Decreased from 0.0 for less noise/smoother fit
+	gp = GP(xs, ys, mZero, kernel, log_noise)
+
+	try
+		optimize!(gp, method = BFGS(linesearch = LineSearches.BackTracking()))
+	catch e
+		@warn "GP optimization failed, using unoptimized GP" exception = e
+	end
+
+	# Get smoothed predictions at original points
+	ys_smooth, _ = predict_y(gp, xs)
+
+	# Save plot if requested
+	if !isnothing(save_plot)
+		# Create dense grid for smooth plotting
+		x_plot = range(minimum(xs), maximum(xs), length = 200)
+		y_plot, var_plot = predict_y(gp, x_plot)
+
+		# Plot GP fit with confidence intervals
+		p = Plots.plot(x_plot, y_plot, ribbon = 2 * sqrt.(var_plot),
+			label = "GP fit", fillalpha = 0.2)
+		# Add original data points
+		scatter!(xs, ys, label = "Data", markersize = 3)
+
+		# Save plot
+		savefig(p, save_plot)
+	end
+
+	# Fit AAA to smoothed data
+	internalApprox = BaryRational.aaa(xs, ys_smooth, verbose = false)
+	return AAADapprox(internalApprox)
+end=#
+
+
+
+
+function fhd(xs::AbstractArray{T}, ys::AbstractArray{T}, N::Int) where {T}
+	#@suppress begin
+	@assert length(xs) == length(ys)
+	internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
+	return FHDapprox(internalApprox)
+	#end
+end
+
+function fhdn(n)
+	fh(xs, ys) = fhd(xs, ys, n)
+	return fh
+end
+
+
+####################
+
+struct FourierSeries
+	m::Any
+	b::Any
+	K::Any
+	cosines::Any
+	sines::Any
+end
+
+
+function fourierEval(x, FS)
+	z = FS.m * x + FS.b
+	sum = 0.0
+	for k in eachindex(FS.cosines)
+		sum += FS.cosines[k] * cos((k) * z)
+	end
+	for k in eachindex(FS.sines)
+		sum += FS.sines[k] * sin((k) * z)
+	end
+	sum += FS.K
+	return sum
+end
+
+(y::FourierSeries)(z) = fourierEval(z, y)
+
+
+
+function FourierInterp(xs, ys)
+	@assert length(xs) == length(ys)
+	N = length(xs)
+	width = xs[end] - xs[begin]
+	m = pi / width
+	b = -pi * (xs[begin] / width + 0.5)
+	f(t) = m * t + b
+	scaledxs = f.(xs)
+	sinescount = (N - 1) ÷ 2
+	cosinescount = N - 1 - sinescount
+	A = zeros(Float64, N, N)
+	for i ∈ 1:N, j ∈ 1:N
+		if (j == 1)
+			A[i, 1] = 1
+		elseif (j <= (cosinescount + 1))
+			A[i, j] = cos((j - 1) * scaledxs[i])
+		else
+			temp = (j - cosinescount - 1)
+			A[i, j] = sin(temp * scaledxs[i])
+		end
+	end
+
+	prob = LinearProblem(A, ys, LinearSolve.OperatorCondition.VeryIllConditioned)
+	sol = LinearSolve.solve(prob)
+	X = sol.u
+	temp = FourierSeries(m, b, X[begin], X[2:(cosinescount+1)], X[(cosinescount+2):end])
+	return temp
+end
+
+
+
+struct BaryLagrange{T <: AbstractArray}
+	x::T
+	f::T
+	w::T
+end
+
+function BarycentricLagrange(xs, ys)
+	@assert length(xs) == length(ys)
+	N = length(xs)
+	w = ones(Float64, N)
+	for k in eachindex(xs)
+		for j in eachindex(xs)
+			if (k != j)
+				w[k] *= (xs[k] - xs[j])
+			end
+		end
+		w[k] = 1 / w[k]
+	end
+	return BaryLagrange(xs, ys, w)
+end
+
+(y::BaryLagrange)(z) = baryEval(z, y.f, y.x, y.w)
+
+struct RationalFunction{T <: AbstractArray}
+	a::T
+	b::T
+end
+
+(y::RationalFunction)(z) = rationaleval(z, y.a, y.b)
+rationaleval(z, a, b) = evalpoly(z, a) / evalpoly(z, b)
+
+
+
+function simpleratinterp(xs, ys, d1::Int)
+	@assert length(xs) == length(ys)
+	N = length(xs)
+	d2 = N - d1 - 1
+	A = zeros(Float64, N, N)
+	for j in 1:N
+		A[j, 1] = 1
+		for k in 1:d1
+			A[j, k+1] = xs[j]^k
+		end
+		for k in 1:d2
+			A[j, d1+1+k] = -1.0 * ys[j] * xs[j]^k
+		end
+	end
+	prob = LinearProblem(A, ys, LinearSolve.OperatorCondition.VeryIllConditioned)
+	sol = LinearSolve.solve(prob)
+	X = sol.u
+	return RationalFunction(
+		X[1:(d1+1)],
+		[1; X[(d1+2):end]])
+end
+
+
+
+
+
+
+function betterratinterp(xs, ys, d1::Int)
+	@assert length(xs) == length(ys)
+	N = length(xs)
+	(c, d) = rational_interpolation_coefficients(xs, ys, d1)
+	return RationalFunction(c, d)
+end
+
+
+
+function SimpleRationalInterp(numerator_degree::Int)
+	f(xs, ys) = simpleratinterp(xs, ys, numerator_degree)
+	return f
+end
+
+function SimpleRationalInterpOld(numerator_degree::Int)
+	f(xs, ys) = betterratinterp(xs, ys, numerator_degree)
+	return f
+end
+
+
+function default_interpolator(datasize)
+	interpolators = Dict(
+		"AAA" => aaad,
+		"FHD3" => fhdn(3),
+		#			"Fourier" => FourierInterp,
+		#			"BaryLagrange" => BarycentricLagrange,
+	)
+	if (datasize > 10)
+		interpolators["FHD8"] = fhdn(8)
+		#			interpolators["FHD6"] = fhdn(6)
+		#stepsize = max(1, datasize ÷ 4)
+		#for i in range(1, (datasize - 2), step = stepsize)
+		#	interpolators["RatOld($i)"] = SimpleRationalInterpOld(i)
+		#end
+	end
+	return interpolators
+end
+
+
+
+
+
+
+
+
+function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+	@assert length(xs) == length(ys)
+
+	# 1. Normalize y values
+	y_mean = mean(ys)
+	y_std = std(ys)
+	ys_normalized = (ys .- y_mean) ./ y_std
+
+	initial_lengthscale = log(std(xs) / 8)
+	initial_variance = 0.0
+	initial_noise = -2.0
+
+	kernel = SEIso(initial_lengthscale, initial_variance)
+	jitter = 1e-8
+	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+
+	# 2. Do GPR approximation on normalized data with suppressed warnings
+	local gp
+	@suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	@suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+	noise_level = exp(gp.logNoise.value)
+	if (false && noise_level < 1e-5)
+		println("Noise level is too low, using  AAA")
+		return aaad(xs, ys)
+	else
+		function denormalized_gpr(x)
+			pred, _ = predict_f(gp, [x])
+			return y_std * (pred[1]) + y_mean
+		end
+		return denormalized_gpr
+	end
+end
+
+================
+File: homotopy_continuation.jl
+================
+"""
+	handle_simple_substitutions(eqns, varlist)
+
+Look for equations like a-5.5 and replace a with 5.5.
+
+# Arguments
+- `eqns`: Equations to process
+- `varlist`: List of variables
+
+# Returns
+- Tuple containing filtered equations, reduced variable list, trivial variables, and trivial dictionary
+"""
+function handle_simple_substitutions(eqns, varlist)
+	trivial_dict = Dict()
+	filtered_eqns = typeof(eqns)()
+	trivial_vars = []
+	for i in eqns
+		g = Symbolics.get_variables(i)
+		if (length(g) == 1 && Symbolics.degree(i) == 1)
+			thisvar = g[1]
+			td = (polynomial_coeffs(i, (thisvar,)))[1]
+			if (1 in Set(keys(td)))
+				thisvarvalue = (-td[1] / td[thisvar])
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			else
+				thisvarvalue = 0
+				trivial_dict[thisvar] = thisvarvalue
+				push!(trivial_vars, thisvar)
+			end
+		else
+			push!(filtered_eqns, i)
+		end
+	end
+	reduced_varlist = filter(x -> !(x in Set(trivial_vars)), varlist)
+	filtered_eqns = Symbolics.substitute.(filtered_eqns, Ref(trivial_dict))
+	return filtered_eqns, reduced_varlist, trivial_vars, trivial_dict
+end
+
+
+
+
+
+########Below code is largely untested and hard to test.
+"""
+	add_random_linear_equation(F::System)
+
+Returns a new system which is F plus a random linear equation in F's variables.
+This tries to lower the dimension by 1, hopefully making the solution set finite.
+
+# Arguments
+- `F`: The HomotopyContinuation.System to augment
+
+# Returns
+- A new System with an additional random linear equation
+"""
+function add_random_linear_equation(F::HomotopyContinuation.System)
+	vars = HomotopyContinuation.variables(F)
+	coeffs = randn(length(vars))
+	c = randn()
+	eq = sum(coeffs[i] * vars[i] for i in 1:length(vars)) + c
+	return HomotopyContinuation.System(
+		vcat(expressions(F), eq),
+		vars,
+		parameters = HomotopyContinuation.parameters(F),
+	)
+end
+
+
+"""
+	squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
+
+Make a polynomial system square by removing equations.
+
+# Arguments
+- `poly_system`: Polynomial system to squarify
+- `varlist`: List of variables
+- `rtol`: Relative tolerance (default: 1e-12)
+
+# Returns
+- Tuple containing the new system, variable list, and trashed equations
+"""
+function squarify_by_trashing(poly_system, varlist, rtol = 1e-12)
+	mat = ModelingToolkit.jacobian(poly_system, varlist)
+	vsubst = Dict([p => rand(Float64) for p in varlist])
+	numerical_mat = Matrix{Float64}(Symbolics.value.((substitute.(mat, Ref(vsubst)))))
+	target_rank = rank(numerical_mat, rtol = rtol)
+	currentlist = 1:length(poly_system)
+	trashlist = []
+	keep_looking = true
+	while (keep_looking)
+		improvement_found = false
+		for j in currentlist
+			newlist = filter(x -> x != j, currentlist)
+			jac_view = view(numerical_mat, newlist, :)
+			rank2 = rank(jac_view, rtol = rtol)
+			if (rank2 == target_rank)
+				improvement_found = true
+				currentlist = newlist
+				push!(trashlist, j)
+				break
+			end
+		end
+		keep_looking = improvement_found
+	end
+	new_system = [poly_system[i] for i in currentlist]
+	trash_system = [poly_system[i] for i in trashlist]
+
+	#println("we trash these: (line 708)")
+	#println(trash_system)
+
+	return new_system, varlist, trash_system
+end
+
+
+
+
+
+
+
+"""
+	find_start_solutions(system, tracking_system, param_final; max_attempts=500, min_attempts=10)
+
+Finds starting solutions for monodromy solving by attempting to find and track solution pairs.
+
+# Arguments
+- `system`: The system to find start pairs for
+- `tracking_system`: The system to solve with
+- `param_final`: Final parameter values
+- `max_attempts`: Maximum number of attempts to find start pairs
+- `min_attempts`: Minimum number of attempts before giving up
+
+# Returns
+- `start_pairs`: Array of starting solutions
+"""
+function find_start_solutions(system, tracking_system, param_final; max_attempts = 50, min_attempts = 10)
+	attempt_count = 0
+	start_pairs = []
+
+	#println(system)
+
+	while (attempt_count < max_attempts && (attempt_count < min_attempts || isempty(start_pairs)))
+		test_point, test_params = HomotopyContinuation.find_start_pair(tracking_system)
+		#println("\n=== Start Pair Information ===")
+		#println("Test point: ", test_point)
+		#println("Test parameters: ", test_params)
+
+		# Verify that test_point, test_params form a valid start pair
+		#try
+		#	residual = HomotopyContinuation.evaluate(tracking_system, test_point, test_params)
+		#	println("Residual norm at start pair: ", norm(residual))
+
+		# Add Jacobian condition number check
+		#	J = HomotopyContinuation.jacobian(tracking_system, test_point, test_params)
+		#	cond_num = try
+		#		LinearAlgebra.cond(J)
+		#	catch
+		#		Inf
+		#	end
+		#	println("Jacobian condition number at start: ", cond_num)
+
+		#	if norm(residual) > 1e-8
+		#		@warn "Found start pair may not be valid - residual norm: $(norm(residual))"
+		#	elseif cond_num > 1e8
+		#		@warn "System may be ill-conditioned at start point - condition number: $(cond_num)"
+		#	else
+		#		println("✓ Valid start pair found (residual norm < 1e-8, condition number: $(cond_num))")
+		#	end
+
+		# Check for zero/infinite components
+		if any(isnan.(test_point)) || any(isinf.(test_point))
+			@warn "Start point contains NaN or Inf values"
+		end
+		if any(abs.(test_point) .< 1e-8) || any(abs.(test_point) .> 1e8)
+			@warn "Start point contains very small or very large values"
+		end
+		#catch e
+		#	@warn "Error evaluating start pair:" exception = e
+		#end
+
+
+
+		try
+			tracked_solutions = HomotopyContinuation.solve(system, test_point,
+				start_parameters = test_params,
+				target_parameters = param_final,
+				show_progress = true,
+				tracker_options = HomotopyContinuation.TrackerOptions(
+					automatic_differentiation = 3,
+					max_steps = 10000,
+					min_step_size = 1e-14,
+					max_step_size = 0.1,
+					extended_precision = true,
+					max_initial_step_size = 0.01,
+				))
+
+			#	println("\n=== System Analysis ===")
+			#			println("System dimensions: ", HomotopyContinuation.nequations(system), " equations, ",
+			#				length(HomotopyContinuation.variables(system)), " variables")
+
+			# Analyze coefficient magnitudes
+			#	coeffs = filter(x -> x ≠ 0, HomotopyContinuation.coefficients(system))
+			#	println("Coefficient magnitude range: [", minimum(abs.(coeffs)), ", ", maximum(abs.(coeffs)), "]")
+			#	println("Coefficient magnitude histogram:")
+			#	mags = floor.(Int, log10.(abs.(coeffs)))
+			#	for mag in minimum(mags):maximum(mags)
+			#		count = count(x -> x == mag, mags)
+			#		if count > 0
+			#			println("  1e", mag, ": ", count, " coefficients")
+			#		end
+			#	end
+
+			# Analyze variable scaling
+			#	println("\nVariable magnitudes in start point:")
+			#	for (i, v) in enumerate(test_point)
+			#		if abs(v) < 1e-6 || abs(v) > 1e6
+			#			println("  Variable ", i, ": ", abs(v))
+			#		end
+			#	end
+
+			#	println("\n=== Tracking Details ===")
+			#println("System size: ", HomotopyContinuation.nequations(system), " equations, ", length(HomotopyContinuation.variables(system)), " variables")
+			#	println("Parameter count: ", length(HomotopyContinuation.parameters(system)))
+			#	println("Coefficient range: [", minimum(abs.(filter(x -> x ≠ 0, test_point))), ", ", maximum(abs.(test_point)), "]")
+			#	println("Parameter range: [", minimum(abs.(filter(x -> x ≠ 0, test_params))), ", ", maximum(abs.(test_params)), "]")
+			#	println("Target parameter range: [", minimum(abs.(filter(x -> x ≠ 0, param_final))), ", ", maximum(abs.(param_final)), "]")
+
+			#	println("tracked_solutions: ", tracked_solutions)
+			if !isempty(solutions(tracked_solutions))
+				push!(start_pairs, solutions(tracked_solutions))
+			else
+				#		println("\n=== Debug Information for Empty Solution Set ===")
+				#		println("Number of results: ", nresults(tracked_solutions))
+				#		println("Number of solutions: ", nsolutions(tracked_solutions))
+				#		println("Number of real solutions: ", nreal(tracked_solutions))
+				#		println("Number of nonsingular solutions: ", nnonsingular(tracked_solutions))
+				#		println("Number of singular solutions: ", nsingular(tracked_solutions))
+				#		println("Number of solutions at infinity: ", nat_infinity(tracked_solutions))
+				#		println("Number of failed paths: ", nfailed(tracked_solutions))
+				#		println("Number of excess solutions: ", nexcess_solutions(tracked_solutions))
+
+				#		println("\n=== Detailed Path Results ===")
+				#		for (i, result) in enumerate(path_results(tracked_solutions))
+				#			println("\nPath $i:")
+				#			println("  Return code: ", result.return_code)
+				#			println("  Residual: ", result.residual)
+				#			println("  Accuracy: ", result.accuracy)
+				#			println("  Condition number: ", result.condition_jacobian)
+				#			println("  Is singular: ", result.singular)
+				#			println("  Winding number: ", result.winding_number)
+				#			println("  Steps taken: ", steps(result))
+				#			println("    Accepted: ", accepted_steps(result))
+				#			println("    Rejected: ", rejected_steps(result))
+				#			println("  Extended precision used: ", result.extended_precision_used)
+				#		end
+				#		println("\n=== End Debug Information ===\n")
+				#		println("Found $(length(solutions(tracked_solutions))) solutions")
+				#		println("Singular solutions: ", singular(tracked_solutions))
+
+			end
+		catch e
+			if e isa FiniteException
+				@warn "Caught FiniteException. The solution set is positive-dimensional."
+				@warn "Attempting to reduce dimension by adding a random linear equation."
+				system = add_random_linear_equation(system)
+			else
+				rethrow(e)
+			end
+		end
+		#println("attempt_count: ", attempt_count)
+		attempt_count += 1
+	end
+
+
+
+	return start_pairs
+end
+
+
+
+"""
+	mangle_variables(varlist)
+
+Convert variable names to a format compatible with HomotopyContinuation.jl.
+Adds prefixes and suffixes to avoid naming conflicts.
+
+# Arguments
+- `varlist`: List of variables to mangle
+
+# Returns
+- `mangled_varlist`: List of mangled variables
+- `variable_mapping`: Dictionary mapping original variables to mangled ones
+"""
+function mangle_variables(varlist)
+	mangled_varlist = deepcopy(varlist)
+	variable_mapping = OrderedDict()
+
+	for i in eachindex(varlist)
+		# Convert variable name to HC-compatible format
+		# _z_ prefix avoids conflicts, _d suffix indicates it's a "derived" variable
+		mangled_name = Symbol("_z_" * replace(string(varlist[i]), "(t)" => "_t") * "_d")
+		mangled_var = (@variables $mangled_name)[1]
+		mangled_varlist[i] = mangled_var
+		variable_mapping[Symbolics.unwrap(varlist[i])] = mangled_var
+	end
+
+	return mangled_varlist, variable_mapping
+end
+
+"""
+	convert_to_hc_format(poly_system, varlist; parameterize=false)
+
+Convert a polynomial system to HomotopyContinuation.jl format.
+Can optionally create a parameterized system for monodromy solving.
+
+# Arguments
+- `poly_system`: System of polynomial equations
+- `varlist`: List of variables
+- `parameterize`: Whether to create a parameterized system for monodromy
+
+# Returns
+If parameterize=false:
+- `hc_system`: System in HomotopyContinuation format
+- `hc_variables`: Variables in HomotopyContinuation format
+
+If parameterize=true:
+- `system`: The parameterized system
+- `tracking_system`: Copy of system for tracking
+- `param_final`: Final parameter values
+- `hc_variables`: Variables in HomotopyContinuation format
+"""
+function convert_to_hc_format(poly_system, varlist; parameterize = false)
+	# Convert polynomials to strings for HC parsing
+	string_target = string.(poly_system)
+	variable_string_mapping = Dict()  # Maps variable strings to HC format
+	var_name_mapping = Dict()         # Maps variables to their string names
+	var_dict = Dict()                 # Maps variables to HC variables
+	hc_variables = Vector{HomotopyContinuation.ModelKit.Variable}()
+
+	for var in varlist
+		var_name = string(var)
+		hc_var_string = "hmcs(\"" * var_name * "\")"  # HC's string format for variables
+		var_name_mapping[var] = var_name
+		hc_var = HomotopyContinuation.ModelKit.Variable(Symbol(var_name))
+		var_dict[var] = hc_var
+		variable_string_mapping[string(var)] = hc_var_string
+		push!(hc_variables, hc_var)
+	end
+
+	# Replace variable strings with HC format
+	for i in eachindex(string_target)
+		string_target[i] = replace(string_target[i], variable_string_mapping...)
+	end
+
+	# Parse the system
+	parsed = eval.(Meta.parse.(string_target))
+	HomotopyContinuation.set_default_compile(:all)
+
+	if !parameterize
+		hc_system = HomotopyContinuation.System(parsed, variables = hc_variables)
+		return hc_system, hc_variables
+	else
+		num_equations = length(poly_system)
+		system, tracking_system, param_final = create_parameterized_system(parsed, hc_variables, num_equations)
+		return system, tracking_system, param_final, hc_variables
+	end
+end
+
+"""
+	create_parameterized_system(parsed_system, hc_variables, num_equations)
+
+Creates a parameterized system for monodromy solving.
+The system is parameterized as: m_i * eq_i - c_i = 0
+where m_i and c_i are parameters for each equation i.
+
+# Arguments
+- `parsed_system`: The parsed polynomial system
+- `hc_variables`: List of variables in HC format
+- `num_equations`: Number of equations in the system
+
+# Returns
+- `system`: The parameterized system
+- `tracking_system`: Copy of system for tracking
+- `param_final`: Final parameter values
+"""
+function create_parameterized_system(parsed_system, hc_variables, num_equations)
+	# Create parameters for each equation:
+	# monodromy_multipliers: coefficients that multiply each equation
+	# monodromy_constants: constants subtracted from each equation
+	@var monodromy_multipliers[1:num_equations] monodromy_constants[1:num_equations]
+
+	parameters = Vector{HomotopyContinuation.ModelKit.Variable}()
+	#append!(parameters, monodromy_multipliers)
+	append!(parameters, monodromy_constants)
+
+	# Create parameterized system: m_i * eq_i - c_i = 0
+	parameterized = deepcopy(parsed_system)
+	for i in eachindex(parameterized)
+		parameterized[i] = parameterized[i] - monodromy_constants[i]
+		#    parameterized[i] = monodromy_multipliers[i] * parameterized[i] - monodromy_constants[i]
+	end
+
+	HomotopyContinuation.set_default_compile(:all)
+	system = HomotopyContinuation.System(parameterized, variables = hc_variables, parameters = parameters)
+	tracking_system = HomotopyContinuation.System(parameterized, variables = hc_variables, parameters = parameters)
+
+	# Final parameters: all multipliers = 1, all constants = 0
+	#param_final = vcat(repeat([1.0], outer = num_equations), repeat([0.0], outer = num_equations))
+	param_final = vcat(repeat([0.0], outer = num_equations))
+
+	return system, tracking_system, param_final
+end
+
+"""
+	solve_with_fallback(system; show_progress=false)
+
+Solve a system with fallback for finite-dimensional cases.
+First tries to find real solutions, then falls back to complex solutions if none found.
+
+# Arguments
+- `system`: HomotopyContinuation.System to solve
+- `show_progress`: Whether to show progress during solving
+
+# Returns
+- `solutions`: Array of solutions found
+"""
+function solve_with_fallback(system; show_progress = false)
+	tryagain = true
+	while (tryagain)
+		try
+			result = HomotopyContinuation.solve(system, show_progress = show_progress)
+
+			# Try real solutions first with reasonable tolerance
+			solutions = HomotopyContinuation.solutions(result, only_real = true, real_tol = 1e-4)
+
+			# If no real solutions found, try complex ones
+			if isempty(solutions)
+				solutions = HomotopyContinuation.solutions(result, real_tol = 1e-4)
+			end
+
+			return solutions
+		catch e
+			if e isa FiniteException
+				@warn "Caught FiniteException. The solution set is positive-dimensional."
+				@warn "Attempting to reduce dimension by adding a random linear equation."
+				system = add_random_linear_equation(system)
+
+			else
+				rethrow(e)
+			end
+		end
+	end
+end
+
+"""
+	prepare_system_for_hc(poly_system, varlist)
+
+Prepares a polynomial system for HomotopyContinuation by mangling variables and applying substitutions.
+
+# Arguments
+- `poly_system`: System of polynomial equations to prepare
+- `varlist`: List of variables in the system
+
+# Returns
+- `prepared_system`: System after mangling and substitution
+- `mangled_varlist`: List of mangled variables
+"""
+function prepare_system_for_hc(poly_system, varlist)
+	mangled_varlist, variable_mapping = mangle_variables(varlist)
+
+	# Apply substitutions
+	prepared_system = deepcopy(poly_system)
+	for i in eachindex(prepared_system)
+		prepared_system[i] = Symbolics.substitute(Symbolics.unwrap(prepared_system[i]), variable_mapping)
+	end
+
+	return prepared_system, mangled_varlist
+end
+
+"""
+	solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = false, polish_solutions = true)
+
+Main entry point for solving polynomial systems using HomotopyContinuation.jl.
+Automatically chooses between standard solving methods and monodromy-based methods
+based on system complexity.
+
+# Arguments
+- `input_poly_system`: System of polynomial equations to solve
+- `input_varlist`: List of variables in the system
+- `use_monodromy`: Whether to allow using monodromy method for high-degree systems
+- `display_system`: Whether to display debug information about the system
+- `polish_solutions`: Whether to polish solutions using solve_with_nlopt
+
+# Returns
+- `solutions`: Array of solutions found
+- `hc_variables`: Variables in HomotopyContinuation format
+- `trivial_dict`: Dictionary of trivial substitutions found
+- `symbolic_variables`: Original variable list in Julia Symbolics format
+"""
+function solve_with_hc(input_poly_system, input_varlist, use_monodromy = true, display_system = true, polish_solutions = true)
+	if display_system
+		println("Starting solve_with_hc with system:")
+		println(input_poly_system)
+		println("Variables:")
+		println(input_varlist)
+	end
+
+	# Store original ordering for consistency
+	original_order = Dict(v => i for (i, v) in enumerate(input_varlist))
+
+	# Handle substitutions and squarification
+	(poly_system, varlist, trivial_vars, trivial_dict) = handle_simple_substitutions(input_poly_system, input_varlist)
+	poly_system, varlist, trash = squarify_by_trashing(poly_system, varlist)
+	println("DEBUG [solve_with_hc]: Poly system:")
+	for term in poly_system
+		println("\t$term")
+	end
+	println("DEBUG [solve_with_hc]: Varlist: $varlist")
+	println("DEBUG [solve_with_hc]: Trivial vars: $trivial_vars")
+	println("DEBUG [solve_with_hc]: Trivial dict: $trivial_dict")
+
+	# Preserve original ordering after squarifying
+	varlist = sort(varlist, by = v -> get(original_order, v, length(input_varlist) + 1))
+	symbolic_variables = deepcopy(varlist)
+
+	# Calculate total degree to decide on solution method
+	total_degree = 1
+	for poly in poly_system
+		total_degree *= Symbolics.degree(poly)
+	end
+
+	if display_system
+		println("Total degree: ", total_degree)
+	end
+
+	symbolic_solutions = []
+	hc_variables = []
+	if total_degree > 50 && use_monodromy
+		symbolic_solutions, hc_variables = solve_with_monodromy(poly_system, varlist)
+		#return solutions, hc_variables, trivial_dict, symbolic_variables
+	end
+	if (isempty(symbolic_solutions))
+
+		# Standard solving method
+		prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
+
+		# Convert to HomotopyContinuation format
+		hc_system, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist)
+
+		# Solve the system
+		solutions = solve_with_fallback(hc_system)
+
+		if isempty(solutions)
+			@warn "No solutions found."
+			return ([], [], [], [])
+		end
+
+		# Convert HC solutions back to JuliaSymbolics format
+		symbolic_solutions = []
+		for sol in solutions
+			symbolic_sol = [convert(ComplexF64, s) for s in sol]  # Convert to standard Julia complex numbers
+			push!(symbolic_solutions, symbolic_sol)
+		end
+	end
+
+	# Polish solutions if requested
+	if polish_solutions && !isempty(symbolic_solutions)
+		polished_solutions = []
+		for sol in symbolic_solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, use polished solution, otherwise keep original
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			else
+				push!(polished_solutions, sol)
+			end
+		end
+		symbolic_solutions = polished_solutions
+	end
+
+	return symbolic_solutions, hc_variables, trivial_dict, symbolic_variables
+end
+
+"""
+	solve_with_monodromy(poly_system, varlist)
+
+Solves a polynomial system using monodromy-based methods from HomotopyContinuation.jl.
+This method is more efficient for systems with high total degree.
+
+# Arguments
+- `poly_system`: System of polynomial equations to solve
+- `varlist`: List of variables in the system
+
+# Returns
+- `solutions`: Array of solutions found
+- `hc_variables`: Variables in HomotopyContinuation format
+"""
+function solve_with_monodromy(poly_system, varlist)
+	# Prepare system for HC
+	prepared_system, mangled_varlist = prepare_system_for_hc(poly_system, varlist)
+
+	# Convert to HC format with parameterization
+	system, tracking_system, param_final, hc_variables = convert_to_hc_format(prepared_system, mangled_varlist, parameterize = true)
+
+	# Find start solutions
+	start_pairs = find_start_solutions(system, tracking_system, param_final)
+
+	if isempty(start_pairs)
+		@warn "No start solutions found."
+		return [], hc_variables
+	else
+		println("DEBUG [solve_with_monodromy]: Start pairs: $start_pairs")
+	end
+
+	# Solve using monodromy
+	println("DEBUG [solve_with_monodromy]: Solving with monodromy tracking.")
+	solutions = solve_with_monodromy_tracking(system, start_pairs, param_final)
+
+	if isempty(solutions)
+		@warn "No solutions found."
+		return [], hc_variables
+	end
+
+	return solutions, hc_variables
+end
+
+# Rename the original solve_with_monodromy to solve_with_monodromy_tracking to avoid naming conflict
+"""
+	solve_with_monodromy_tracking(system, start_pairs, param_final)
+
+Solves a system using monodromy tracking.
+
+# Arguments
+- `system`: The system to solve
+- `start_pairs`: Starting solutions
+- `param_final`: Final parameter values
+
+# Returns
+- `solutions`: Array of solutions found
+"""
+function solve_with_monodromy_tracking(system, start_pairs, param_final)
+	flattened_start_pairs = length(start_pairs) > 0 ? vcat(start_pairs...) : Vector{eltype(start_pairs)}()
+	tryagain = true
+	result = nothing
+
+	while (tryagain)
+		try
+			println("DEBUG [solve_with_monodromy_tracking]: starting monodromy solve.")
+			result = HomotopyContinuation.monodromy_solve(system, flattened_start_pairs, param_final,
+				show_progress = true,
+				target_solutions_count = 10000,
+				timeout = 20.0,
+				max_loops_no_progress = 100,
+				unique_points_rtol = 1e-4,
+				unique_points_atol = 1e-4,
+				trace_test = true,
+				trace_test_tol = 1e-6,
+				min_solutions = 100000,
+				tracker_options = TrackerOptions(automatic_differentiation = 3))
+			tryagain = false
+		catch e
+			if e isa FiniteException
+				@warn "Caught FiniteException. The solution set is positive-dimensional."
+				@warn "Attempting to reduce dimension by adding a random linear equation."
+				system = add_random_linear_equation(system)
+			else
+				rethrow(e)
+			end
+		end
+	end
+
+	return HomotopyContinuation.solutions(result)
+end
+
+"""
+	solve_with_nlopt(poly_system, varlist; 
+					start_point=nothing,
+					optimizer=BFGS(),
+					polish_only=false,
+					options=Dict())
+
+Solves a polynomial system using traditional nonlinear optimization methods.
+Can be used either as a standalone solver or to polish solutions from other methods.
+
+# Arguments
+- `poly_system`: System of polynomial equations to solve
+- `varlist`: List of variables in the system
+- `start_point`: Optional starting point. If not provided, random initialization is used
+- `optimizer`: The optimization algorithm to use (default: BFGS)
+- `polish_only`: If true, assumes start_point is close to solution and uses more local methods
+- `options`: Dictionary of additional options for the optimizer
+
+# Returns
+- `solutions`: Array of solutions found
+- `hc_variables`: Variables in HomotopyContinuation format
+"""
+function solve_with_nlopt(poly_system, varlist;
+	start_point = nothing,
+	optimizer = NonlinearSolve.LevenbergMarquardt(),
+	polish_only = false,
+	options = Dict())
+
+	# Prepare system for optimization
+	prepared_system, mangled_varlist = (poly_system, varlist)
+
+	# Define residual function for NonlinearLeastSquares
+	function residual!(res, u, p)
+		for (i, eq) in enumerate(prepared_system)
+			res[i] = real(Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, u)))))
+		end
+	end
+
+	# Set up optimization problem
+	n = length(varlist)
+	m = length(prepared_system)  # Number of equations
+	x0 = if isnothing(start_point)
+		randn(n)  # Random initialization if no start point provided
+	else
+		start_point
+	end
+
+	# Calculate initial residual
+	initial_residual = zeros(m)
+	residual!(initial_residual, x0, nothing)
+	initial_norm = norm(initial_residual)
+
+	# Create NonlinearLeastSquaresProblem
+	prob = NonlinearLeastSquaresProblem(
+		NonlinearFunction(residual!, resid_prototype = zeros(m)),
+		x0,
+		nothing;  # no parameters needed
+	)
+
+	# Set solver options based on polish_only
+	solver_opts = if polish_only
+		(abstol = 1e-12, reltol = 1e-12, maxiters = 1000)
+	else
+		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
+	end
+
+	# Merge with user options
+	solver_opts = merge(solver_opts, options)
+
+	# Solve the problem with exception handling
+	sol = try
+		NonlinearSolve.solve(prob, optimizer; solver_opts...)
+	catch e
+		@warn "Error during optimization: $(e)"
+		return [], mangled_varlist, Dict(), mangled_varlist
+	end
+
+	# Check if solution is valid
+	if SciMLBase.successful_retcode(sol)
+		# Calculate final residual
+		final_residual = zeros(m)
+		residual!(final_residual, sol.u, nothing)
+		final_norm = norm(final_residual)
+
+		improvement = initial_norm - final_norm
+		if improvement > 0
+			println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
+		else
+			println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
+		end
+
+		# Return all four expected values: solutions, variables, trivial_dict, trimmed_varlist
+		return [sol.u], mangled_varlist, Dict(), mangled_varlist
+	else
+		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
+		return [], mangled_varlist, Dict(), mangled_varlist
+	end
+end
+
+
+
+
+
+
+"""
+	exprs_to_AA_polys(exprs, vars)
+
+Convert each symbolic expression in `exprs` into a polynomial in an
+AbstractAlgebra polynomial ring in the variables `vars`. This returns
+both the ring `R` and the vector of polynomials in `R`.
+"""
+function exprs_to_AA_polys(exprs, vars)
+	# Create a polynomial ring over QQ, using the variable names
+
+	M = Module()
+	Base.eval(M, :(using AbstractAlgebra))
+	#Base.eval(M, :(using Nemo))
+	#	Base.eval(M, :(using RationalUnivariateRepresentation))
+	#	Base.eval(M, :(using RS))
+
+	var_names = string.(vars)
+	ring_command = "R = @polynomial_ring(QQ, $var_names)"
+	#approximation_command = "R(expr::Float64) = R(Nemo.rational_approx(expr, 1e-4))"
+	ring_object = Base.eval(M, Meta.parse(ring_command))
+	#println(temp)
+	#Base.eval(M, Meta.parse(approximation_command))
+
+
+	a = string.(exprs)
+	AA_polys = []
+	for expr in exprs
+		push!(AA_polys, Base.eval(M, Meta.parse(string(expr))))
+	end
+	return ring_object, AA_polys
+
+end
+
+
+
+
+
+function poly_evaluate(poly, x)
+	if poly isa AbstractVector
+		value = 0.0 + 0.0im
+		for (i, coeff) in enumerate(poly)
+			value += Float64(coeff) * x^(i - 1)
+		end
+		return value
+	else
+		return evaluate(poly, x)
+	end
+end
+
+function evaluate_rur_subs(rur, v_val, vars)
+	println("\nDEBUG [evaluate_rur_subs]: Processing RUR substitutions")
+	println("Input root value: $v_val")
+
+	# Get the first polynomial (f₁) and compute its derivative coefficients
+	f1 = rur[1]
+	if f1 isa AbstractVector
+		f1_derivative_coeffs = [(i - 1) * f1[i] for i in 2:length(f1)]
+	else
+		error("Unsupported polynomial type for derivative")
+	end
+
+	# Evaluate derivative at root
+	normalization = poly_evaluate(f1_derivative_coeffs, v_val)
+	println("Normalization factor (f₁'(x₀)): $normalization")
+
+	# Create solution dictionary
+	sol_dict = Dict{Symbol, Any}()
+
+	# Instead of splitting vars into parameters and states by name, preserve the original order
+	ordered_vars = vars  # FIX: Use the original ordering rather than reordering by filtering
+
+	println("\nDEBUG [evaluate_rur_subs]: Variable ordering:")
+	for (i, v) in enumerate(ordered_vars)
+		println("$i: $v")
+	end
+
+	# Process RUR substitutions (skip first polynomial which was used to find roots)
+	for (i, u_poly) in enumerate(rur[2:end])
+		if i <= length(ordered_vars)
+			var = ordered_vars[i]
+			u_val = poly_evaluate(u_poly, v_val)
+			computed_val = u_val / normalization
+			sol_dict[var] = computed_val
+		end
+	end
+
+	println("\nDEBUG [evaluate_rur_subs]: Solution verification:")
+	for (var, val) in sol_dict
+		println("$var => $val")
+	end
+
+	return sol_dict
+end
+
+function solve_rur_complex(poly)
+	coeffs = isa(poly, AbstractVector) ? poly : coefficients(poly)
+	# Make polynomial square-free first
+	# This is a simplified version - ideally we'd use gcd with derivative like in your colleague's code
+	complex_coeffs = Complex{Float64}[Float64(c) for c in coeffs]
+	roots_found = PolynomialRoots.roots(complex_coeffs)
+	return roots_found
+end
+
+function solve_with_rs(poly_system, varlist;
+	start_point = nothing,
+	polish_solutions = true)
+
+	# Convert symbolic expressions to AA polynomials using existing infrastructure
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
+
+	sys_toround = deepcopy(aa_system)
+	sys_rounded = map(f -> map_coefficients(c -> rationalize(BigInt, round(BigFloat(c), digits = 8)), f), sys_toround)
+	#println("\nDEBUG [solve_with_rs]: Original system:")
+	#for (i, eq) in enumerate(poly_system)
+	#	println("$i: $eq")
+	#end
+
+	#println("\nDEBUG [solve_with_rs]: AA system:")
+	#for (i, eq) in enumerate(aa_system)
+	#	println("$i: $eq")
+	#end
+
+	# Compute RUR and get separating element
+	rur, sep = zdim_parameterization(sys_rounded, get_separating_element = true)
+
+	# Find solutions using PolynomialRoots instead of RS
+	tosolve = rur[1]
+	roots_found = solve_rur_complex(tosolve)
+
+	#println("\nDEBUG [solve_with_rs]: Found $(length(roots_found)) roots")
+	#for (i, root) in enumerate(roots_found)
+	#	println("Root $i: $root")
+	#end
+
+	# Convert variables to symbols for RUR substitution
+	var_symbols = [Symbol(v) for v in varlist]
+
+	# Process solutions with more careful handling of the root
+	solutions = []
+	for v_val in roots_found
+		#println("\nProcessing root: $v_val")
+		sol_dict = evaluate_rur_subs(rur, v_val, var_symbols)
+
+		# Extract solution values in original variable order, with special handling for the root variable
+		sol_vector = []
+		for v in varlist
+			val = get(sol_dict, Symbol(v), nothing)
+			if isnothing(val)
+				# If this variable isn't in the RUR substitutions, check if it's the root variable
+				if v == sep # Compare against the separating element found during RUR computation
+					val = v_val
+				else
+					# For any other missing variables, use 0.0 as fallback
+					val = 0.0
+				end
+			end
+			push!(sol_vector, val)
+		end
+		push!(solutions, sol_vector)
+	end
+
+	# Calculate and print residuals for each solution
+	if !isempty(solutions)
+		println("\nDEBUG: Variable list (varlist):")
+		for (i, v) in enumerate(varlist)
+			println("$i: $v")
+		end
+
+		#println("\nDEBUG: RUR structure:")
+		#println("Number of components: $(length(rur))")
+		#println("First polynomial (to solve): $(rur[1])")
+		#println("Denominator polynomial: $(rur[2])")
+		#for i in 3:length(rur)
+		#	println("Substitution $i: $(rur[i])")
+		#end
+
+		println("\nResiduals for each solution:")
+		for (i, sol) in enumerate(solutions)
+			println("\nDEBUG: Solution $i values:")
+			for (var, val) in zip(varlist, sol)
+				println("$var = $val")
+			end
+
+			# Create substitution dictionary
+			subst_dict = Dict(v => s for (v, s) in zip(varlist, sol))
+			#	println("\nDEBUG: Substitution dictionary:")
+			#	for (k, v) in subst_dict
+			#		println("$k => $v")
+			#	end
+
+			println("\nSolution $i residuals:")
+			# Calculate residual for each equation
+			for (j, eq) in enumerate(poly_system)
+				#		println("\nDEBUG: Original equation $j: $eq")
+				substituted = Symbolics.substitute(eq, subst_dict)
+				#		println("DEBUG: After substitution: $substituted")
+				residual = abs(substituted)
+				println("Equation $j residual: $residual")
+			end
+		end
+	end
+	# Polish solutions if requested
+	if polish_solutions && !isempty(solutions)
+		println("DEBUG [solve_with_rs]: Polishing solutions")
+		println("SOLNS before polishing:")
+		for i in eachindex(solutions)
+			a = solutions[i]
+			println("SOLN $i: $a")
+		end
+		polished_solutions = copy(solutions) # Keep original solutions
+		for sol in solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, add polished solution to list
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			end
+		end
+		solutions = polished_solutions
+		println("SOLNS after polishing:")
+		for i in eachindex(solutions)
+			a = solutions[i]
+			println("SOLN $i: $a")
+		end
+	end
+
+	println("SOLNS before return: $solutions")
+	for i in eachindex(solutions)
+		a = solutions[i]
+		println("SOLN $i: $a")
+	end
+	return solutions, varlist, Dict(), varlist
+end
+
+
+
+function solve_with_rs_old(poly_system, varlist;
+	start_point = nothing,  # Not used but kept for interface consistency
+	polish_solutions = true)
+
+	#try
+	# Convert symbolic expressions to AA polynomials using existing infrastructure
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
+
+	println("aa_system")
+	println(aa_system)
+	println("R")
+	println(R)
+	# Compute RUR and get separating element
+	rur, sep = zdim_parameterization(aa_system, get_separating_element = true)
+
+	# Find solutions
+	output_precision = Int32(20)
+	sol = RS.rs_isolate(rur, sep, output_precision = output_precision)
+
+	# Convert solutions back to our format
+	solutions = []
+	println(sol)
+	for s in sol
+		# Extract real solutions
+		#println(s)
+		real_sol = [convert(Float64, real(v[1])) for v in s]
+		push!(solutions, real_sol)
+	end
+
+
+
+
+	# Polish solutions if requested
+	if polish_solutions && !isempty(solutions)
+		polished_solutions = []
+		for sol in solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, use polished solution, otherwise keep original
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			else
+				push!(polished_solutions, sol)
+			end
+		end
+		solutions = polished_solutions
+	end
+
+
+	#return solutions, varlist, Dict(), varlist
+	return solutions, varlist, Dict(), varlist
+end
+
+================
+File: math_utils.jl
+================
+using Symbolics
+using HomotopyContinuation
+using Statistics
+
+"""
+	clear_denoms(eq)
+
+Clear denominators from both sides of an equation containing rational expressions.
+For example, converts x/y = z to x = y*z.
+
+# Arguments
+- `eq`: Equation to process
+
+# Returns
+- Modified equation with cleared denominators
+"""
+function clear_denoms(eq)
+	@variables _temp_num _temp_denom
+	division_expr = Symbolics.value(simplify_fractions(_temp_num / _temp_denom))
+	division_op = Symbolics.operation(division_expr)
+
+	result = eq
+	if (!isequal(eq.rhs, 0))
+		rhs_expr = eq.rhs
+		lhs_expr = eq.lhs
+		simplified_rhs = Symbolics.value(simplify_fractions(rhs_expr))
+
+		# Check if RHS is a fraction
+		if (istree(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op)
+			numerator, denominator = Symbolics.arguments(simplified_rhs)
+			result = lhs_expr * denominator ~ numerator
+		end
+	end
+	return result
+end
+
+"""
+	hmcs(x)
+
+Convert a string to a HomotopyContinuation ModelKit Variable.
+Helper function used when converting symbolic expressions to HC format.
+
+# Arguments
+- `x`: String to convert
+
+# Returns
+- HomotopyContinuation ModelKit Variable
+"""
+function hmcs(x)
+	return HomotopyContinuation.ModelKit.Variable(Symbol(x))
+end
+
+"""
+	count_turns(values)
+
+Calculate the number of "turns" in a time series using sign changes in divided differences.
+
+# Arguments
+- `values`: Vector of numerical values
+
+# Returns
+- Number of turns (sign changes) in the series
+"""
+function count_turns(values)
+	if length(values) < 3
+		return 0
+	end
+	diffs = diff(values)
+	sign_changes = sum(abs.(sign.(diffs[2:end]) - sign.(diffs[1:end-1])) .> 1)
+	return sign_changes
+end
+
+"""
+	calculate_timeseries_stats(values)
+
+Calculate basic statistics for a time series.
+
+# Arguments
+- `values`: Vector of numerical values
+
+# Returns
+- Named tuple containing mean, std, min, max, range, and number of turns
+"""
+function calculate_timeseries_stats(values)
+	return (
+		mean = mean(values),
+		std = std(values),
+		min = minimum(values),
+		max = maximum(values),
+		range = maximum(values) - minimum(values),
+		turns = count_turns(values),
+	)
+end
+
+
+"""
+	calculate_error_stats(predicted, actual)
+
+Calculate error statistics between predicted and actual values.
+
+# Arguments
+- `predicted`: Vector of predicted values
+- `actual`: Vector of actual values
+
+# Returns
+- Named tuple containing absolute and relative error statistics
+"""
+function calculate_error_stats(predicted, actual)
+	abs_error = abs.(predicted - actual)
+	rel_error = abs_error ./ (abs.(actual) .+ 1e-10)  # Add small constant to avoid division by zero
+
+	return (
+		absolute = calculate_timeseries_stats(abs_error),
+		relative = calculate_timeseries_stats(rel_error),
+	)
+end
+
+================
+File: model_utils.jl
+================
+"""
+	unpack_ODE(model::ODESystem)
+
+Extract the core components of an ODESystem.
+
+# Arguments
+- `model::ODESystem`: The ODE system to unpack
+
+# Returns
+- Tuple containing (independent variable, equations, state variables, parameters)
+"""
+function unpack_ODE(model::ODESystem)
+	return ModelingToolkit.get_iv(model), deepcopy(ModelingToolkit.equations(model)), ModelingToolkit.unknowns(model), ModelingToolkit.parameters(model)
+end
+
+"""
+	tag_symbol(symbol, prefix, suffix)
+
+Add prefix and suffix tags to a symbol, handling special cases like time-dependent variables.
+For example: tag_symbol(x(t), "pre_", "_post") -> pre_x_t_post
+
+# Arguments
+- `symbol`: Symbol to modify
+- `prefix`: String to add before the symbol
+- `suffix`: String to add after the symbol
+
+# Returns
+- New tagged symbolic variable
+"""
+function tag_symbol(symbol, prefix, suffix)
+	new_name = Symbol(prefix * replace(string(symbol), "(t)" => "_t") * suffix)
+	return (@variables $new_name)[1]
+end
+
+"""
+	create_ordered_ode_system(name, states, parameters, equations, measured_quantities)
+
+Create an OrderedODESystem with completed equations and ordered variables.
+
+# Arguments
+- `name`: Name for the system
+- `states`: State variables
+- `parameters`: System parameters
+- `equations`: System equations
+- `measured_quantities`: Equations for measured quantities
+
+# Returns
+- Tuple of (OrderedODESystem, measured_quantities)
+"""
+function create_ordered_ode_system(name, states, parameters, equations, measured_quantities)
+	@named model = ODESystem(equations, t, states, parameters)
+	model = complete(model)
+	ordered_system = OrderedODESystem(model, parameters, states)
+	return ordered_system, measured_quantities
+end
+
+"""
+	unident_subst!(model_eq, measured_quantities, unident_dict)
+
+Substitute values for unidentifiable parameters in model equations and measured quantities.
+Modifies the input equations in place.
+
+# Arguments
+- `model_eq`: Model equations to modify
+- `measured_quantities`: Measured quantities to modify
+- `unident_dict`: Dictionary mapping unidentifiable parameters to their values
+"""
+function unident_subst!(model_eq, measured_quantities, unident_dict)
+	for i in eachindex(model_eq)
+		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+	end
+	for i in eachindex(measured_quantities)
+		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+	end
+end
+
+================
+File: parameter_estimation.jl
+================
+"""
+	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+
+Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
+diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
+
+# Arguments
+- `model::ODESystem`: The ODE system
+- `measured_quantities_in`: Input measured quantities
+- `max_deriv_level`: Maximum derivative level
+- `unident_dict`: Dictionary of unidentifiable variables
+
+# Returns
+- DerivativeData object
+"""
+function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+
+	#First, we fully substitute values we have chosen for an unidentifiable variables.
+	unident_subst!(model_eq, measured_quantities, unident_dict)
+
+	model_eq_cleared = clear_denoms.(model_eq)
+	measured_quantities_cleared = clear_denoms.(measured_quantities)
+
+	DD.states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
+	DD.states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
+	DD.obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+	DD.obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+
+	DD.states_lhs_cleared = [[eq.lhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.lhs for eq in model_eq_cleared]))]
+	DD.states_rhs_cleared = [[eq.rhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.rhs for eq in model_eq_cleared]))]
+	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
+	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
+
+	for i in 1:(max_deriv_level-2)
+		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
+		temp = DD.states_rhs[end]
+		temp2 = D.(temp)
+		temp3 = deepcopy(temp2)
+		temp4 = []
+		for j in 1:length(temp3)
+			temptemp = expand_derivatives(temp3[j])
+			push!(temp4, deepcopy(temptemp))
+		end
+		push!(DD.states_rhs, temp4)
+		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
+		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
+	end
+
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
+		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
+		DD.states_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs_cleared[i][j]))
+		DD.states_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs_cleared[i][j]))
+	end
+
+	for i in 1:(max_deriv_level-1)
+		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
+		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
+		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
+		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
+	end
+
+	for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
+		DD.obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs[i][j]))
+		DD.obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs[i][j]))
+		DD.obs_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs_cleared[i][j]))
+		DD.obs_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs_cleared[i][j]))
+	end
+	return DD
+end
+
+
+function convert_to_real_or_complex_array(values)
+	newvalues = Base.convert(Array{ComplexF64, 1}, values)
+	if isreal(newvalues)
+		return Base.convert(Array{Float64, 1}, newvalues)
+	else
+		return newvalues
+	end
+end
+
+
+
+
+
+function create_interpolants(measured_quantities, data_sample, t_vector, interpolator)
+	interpolants = Dict()
+	for j in measured_quantities
+		r = j.rhs
+		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
+		y_vector = data_sample[key]
+		interpolants[r] = interpolator(t_vector, y_vector)
+	end
+	return interpolants
+end
+
+
+
+
+function determine_optimal_points_count(model, measured_quantities, max_num_points, t_vector, nooutput)
+	(t, eqns, states, params) = unpack_ODE(model)
+	time_interval = extrema(t_vector)
+	large_num_points = min(length(params), max_num_points, length(t_vector))
+	good_num_points = large_num_points
+	println("DEBUG [determine_optimal_points_count]: Large num points: $large_num_points")
+	println("DEBUG [determine_optimal_points_count]: Good num points: $good_num_points")
+
+	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
+		[[] for _ in 1:7]
+	good_DD = nothing
+
+	if !nooutput
+		println("\nDEBUG [multipoint_parameter_estimation]: Starting parameter estimation...")
+	end
+	if good_num_points > 1
+		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
+
+		while (good_num_points > 1)
+			good_num_points = good_num_points - 1
+			(test_deriv_level, test_udict, test_varlist, test_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+			if !(test_deriv_level == target_deriv_level)
+				good_num_points = good_num_points + 1
+				break
+			end
+		end
+	end
+
+	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
+
+	if !nooutput
+		println("DEBUG [determine_optimal_points_count]: Final analysis with ", good_num_points, " points")
+		println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
+		println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
+		println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
+	end
+
+	return good_num_points, good_deriv_level, good_udict, good_varlist, good_DD
+
+end
+
+
+
+function construct_multipoint_equation_system!(time_index_set,
+	model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
+	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing)
+	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
+
+	for k in time_index_set
+		(target_k, varlist_k) = construct_equation_system(
+			model,
+			measured_quantities,
+			data_sample,
+			good_deriv_level,
+			good_udict,
+			good_varlist,
+			good_DD;
+			interpolator = interpolator,
+			time_index_set = [k],
+			precomputed_interpolants = precomputed_interpolants,
+			diagnostics = diagnostics,
+			diagnostic_data = diagnostic_data,
+			ideal = ideal,
+			sol = sol)
+
+		local_subst_dict = OrderedDict{Num, Any}()
+		local_subst_dict_reverse = OrderedDict()
+		subst_var_list = []
+
+		append!(subst_var_list, vcat(good_DD.states_lhs...))
+		append!(subst_var_list, states)
+		append!(subst_var_list, vcat(good_DD.obs_lhs...))
+
+		for i in subst_var_list
+			newname = tag_symbol(i, "_t" * string(k) * "_", "_")
+			j = Symbolics.wrap(i)
+			local_subst_dict[j] = newname
+			local_subst_dict_reverse[newname] = j
+		end
+
+		for i in params
+			newname = tag_symbol(i, "_t" * string("p"), "_")
+			j = Symbolics.wrap(i)
+			local_subst_dict[j] = newname
+			local_subst_dict_reverse[newname] = j
+		end
+
+		target_k_subst = substitute.(target_k, Ref(local_subst_dict))
+		varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict))
+		push!(full_target, target_k_subst)
+		push!(full_varlist, varlist_k_subst)
+		push!(forward_subst_dict, local_subst_dict)
+		push!(reverse_subst_dict, local_subst_dict_reverse)
+	end  #this is the end of the loop over the time points which just constructs the System
+	return full_target, full_varlist, forward_subst_dict, reverse_subst_dict
+end
+
+function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode_solver; abstol = 1e-12, reltol = 1e-12)
+	# Create ordered collections for states and parameters
+	ordered_states = OrderedDict()
+	ordered_params = OrderedDict()
+
+	# Get current ordering from ModelingToolkit
+	current_states = ModelingToolkit.unknowns(model.system)
+	current_params = ModelingToolkit.parameters(model.system)
+
+
+	# Reorder states according to original ordering
+	for (i, state) in enumerate(model.original_states)
+		idx = findfirst(s -> isequal(s, state), current_states)
+		if isnothing(idx)
+			@warn "State $state not found in current states, using original index $i"
+			idx = i
+		end
+		ordered_states[state] = raw_sol[idx]
+	end
+
+	# Reorder parameters according to original ordering
+	param_offset = length(current_states)
+	for (i, param) in enumerate(model.original_parameters)
+		ordered_params[param] = raw_sol[param_offset+i]
+	end
+
+	ic = collect(values(ordered_states))
+	ps = collect(values(ordered_params))
+
+
+	# Solve ODE problem
+	tspan = (data_sample["t"][begin], data_sample["t"][end])
+
+	prob = ODEProblem(complete(model.system), ic, tspan, ps)
+	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+
+	# Calculate error
+	err = 0
+	if ode_solution.retcode == ReturnCode.Success
+		err = 0
+		for (key, sample) in data_sample
+			if isequal(key, "t")
+				continue
+			end
+			err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
+		end
+		err /= length(data_sample)
+	else
+		err = 1e+15
+	end
+
+
+	# Reorder parameters according to original ordering
+	param_offset = length(current_states)
+	for (i, param) in enumerate(model.original_parameters)
+		# Find the index of this parameter in the current parameters
+		idx = findfirst(p -> isequal(p, param), current_params)
+		if isnothing(idx)
+			@warn "Parameter $param not found in current parameters, using original index $i"
+			idx = i
+		end
+		ordered_params[param] = raw_sol[param_offset+idx]
+	end
+
+
+	return ordered_states, ordered_params, ode_solution, err
+end
+
+
+
+
+function multishot_parameter_estimation(
+	PEP::ParameterEstimationProblem;
+	system_solver = solve_with_rs,
+	max_num_points = 1,
+	interpolator = interpolator,
+	nooutput = false,
+	diagnostics = false,
+	diagnostic_data = nothing,
+	polish_solutions = false,
+	polish_maxiters = 20,
+	polish_method = NewtonTrustRegion,
+	shooting_points = 10)
+
+	# Initialize empty arrays to store all solutions and metadata
+	all_solutions = []
+	all_udict = nothing
+	all_trivial_dict = nothing
+	all_unidentifiable = nothing
+
+	# Run parameter estimation at each point hint
+	for i in 0:(shooting_points+1)
+		point_hint = i / (shooting_points + 1)
+
+		solutions, udict, trivial_dict, unidentifiable = multipoint_parameter_estimation(
+			PEP;
+			system_solver = system_solver,
+			max_num_points = max_num_points,
+			interpolator = interpolator,
+			nooutput = nooutput,
+			diagnostics = diagnostics,
+			diagnostic_data = diagnostic_data,
+			polish_solutions = polish_solutions,
+			polish_maxiters = polish_maxiters,
+			polish_method = polish_method,
+			point_hint = point_hint,
+		)
+
+		# Store metadata from first run
+		if isnothing(all_udict)
+			all_udict = udict
+			all_trivial_dict = trivial_dict
+			all_unidentifiable = unidentifiable
+		end
+
+		# Add solutions from this run
+		append!(all_solutions, solutions)
+	end
+
+	return all_solutions, all_udict, all_trivial_dict, all_unidentifiable
+end
+
+
+
+"""
+	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_rs, display_points = true, max_num_points = 4)
+
+Perform Multi-point Homotopy Continuation Parameter Estimation.
+
+# Arguments
+- `model::ODESystem`: The ODE system
+- `measured_quantities`: Measured quantities
+- `data_sample`: Sample data
+- `ode_solver`: ODE solver to use
+- `system_solver`: System solver function (optional, default: solve_with_rs)
+- `display_points`: Whether to display points (optional, default: true)
+- `max_num_points`: Maximum number of points to use (optional, default: 4)
+
+# Returns
+- Vector of result vectors
+"""
+function multipoint_parameter_estimation(
+	PEP::ParameterEstimationProblem;
+	system_solver = solve_with_rs,
+	max_num_points = 1,
+	interpolator = interpolator,
+	nooutput = false,
+	diagnostics = false,
+	diagnostic_data = nothing,
+	polish_solutions = false,
+	polish_maxiters = 20,
+	polish_method = NewtonTrustRegion,
+	point_hint = 0.5,
+)
+
+	t, eqns, states, params = unpack_ODE(PEP.model.system)
+
+	t_vector = PEP.data_sample["t"]
+	time_interval = extrema(t_vector)
+	found_any_solutions = false
+	num_points_cap = min(length(params), max_num_points, length(t_vector))
+	good_num_points = num_points_cap
+
+	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist = [[] for _ in 1:7]
+	good_DD = nothing
+	attempt_count = 0
+	interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interpolator)
+
+	while (!found_any_solutions)  #Todo: improve this
+		attempt_count += 1
+		if attempt_count > 10
+			break
+		end
+		good_num_points, good_deriv_level, good_udict, good_varlist, good_DD = determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
+		println("DEBUG [multipoint_parameter_estimation]: Parameter estimation using this many points: $good_num_points")
+
+		#####################################################################################
+		time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
+		if !nooutput
+			println("We are trying these points:", time_index_set)
+			println("Using these observations and their derivatives:", good_deriv_level)
+		end
+
+		@variables testing
+
+		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = construct_multipoint_equation_system!(time_index_set,
+			PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
+			interpolator, interpolants, diagnostics, diagnostic_data, states, params)
+
+		final_target = reduce(vcat, full_target)
+
+
+		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+		#final_varlist = collect(values(forward_subst_dict[1]))
+		#trimmed_varlist = final_varlist
+
+		if !isnothing(diagnostic_data)
+			# Compute ideal_sol externally and pass to construct_multipoint_equation_system!
+			max_deriv = max(7, 1 + maximum(collect(values(good_deriv_level))))
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(PEP.model.system), PEP.measured_quantities, max_deriv)
+			@named new_sys = ODESystem(equations(PEP.model.system), t; observed = expanded_mq)
+			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			ideal_sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
+
+			ideal_full_target, ideal_full_varlist, ideal_forward_subst_dict, ideal_reverse_subst_dict = construct_multipoint_equation_system!(time_index_set,
+				PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
+				interpolator, interpolants, diagnostics, diagnostic_data, states, params; ideal = true, sol = ideal_sol)
+
+			ideal_final_target = reduce(vcat, ideal_full_target)
+			ideal_final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+
+
+			println("DEBUG [multipoint_parameter_estimation]: Ideal final target: ")
+			for eq in ideal_final_target
+				println(eq)
+			end
+			println("DEBUG [but we are actually solving this: ")
+			for eq in final_target
+				println(eq)
+			end
+			println("As a reminder the true parameter values are: ")
+			println(PEP.p_true)
+			println("And the true states are: ")
+			println(PEP.ic)
+			println("The forward substitution dictionary is: ")
+			println(forward_subst_dict)
+			println("The reverse substitution dictionary is: ")
+			println(reverse_subst_dict)
+		end
+
+		# New: Evaluate the polynomial system using exact state and parameter values.
+		# For state values, if diagnostic_data is provided and ideal_sol is computed, use the ODE solver output at the lowest time index.
+		if !isnothing(diagnostic_data)
+			lowest_time = min(time_index_set...)
+			exact_state_vals = OrderedDict{Any, Any}()
+			for s in states
+				exact_state_vals[s] = ideal_sol(t_vector[lowest_time], idxs = s)
+			end
+		else
+			exact_state_vals = PEP.ic
+		end
+
+		exact_system = evaluate_poly_system(ideal_final_target, ideal_forward_subst_dict[1], ideal_reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
+		inexact_system = evaluate_poly_system(final_target, forward_subst_dict[1], reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
+		println("DEBUG [multipoint_parameter_estimation]: Evaluated ideal polynomial system with exact state and parameter values:")
+		for eq in exact_system
+			println(eq)
+		end
+		println("DEBUG [multipoint_parameter_estimation]: Evaluated interpolated polynomial system with exact state and parameter values:")
+		for eq in inexact_system
+			println(eq)
+		end
+		println("and by the way the exact state values are: (at the time index $lowest_time)")
+		println(exact_state_vals)
+		println("and by the way the exact parameter values are:")
+		println(PEP.p_true)
+		if !nooutput
+			println("DEBUG [multipoint_parameter_estimation]: Solving system...")
+			println("DEBUG [multipoint_parameter_estimation]: Final target: $final_target")
+		end
+		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
+		solns = solve_result
+		if (!isempty(solns))  #TODO(orebas) this should probably be moved to after the backsolving step
+			found_any_solutions = true
+		end
+	end
+
+
+	println(typeof(solns))
+	println("SOLNS: $solns")
+	for i in eachindex(solns)
+		println(typeof(solns[i]))
+		a = solns[i]
+		println("SOLN $i: $a")
+	end
+
+	# The following debug prints the raw solver output -- I will comment these out
+	# println("DEBUG [multipoint_parameter_estimation]: Raw solutions from solver before backsolving:")
+	# for (i, soln) in enumerate(solns)
+	# 	println("\nSolution $i:")
+	# 	var_value_dict = Dict(var => val for (var, val) in zip(final_varlist, soln))
+	# 	println(var_value_dict)
+	# end
+
+	@named new_model = ODESystem(eqns, t, states, params)
+	new_model = complete(new_model)
+	lowest_time_index = min(time_index_set...)
+
+	results_vec = []
+
+	for soln_index in eachindex(solns)
+		initial_conditions = [1e10 for s in states]
+		parameter_values = [1e10 for p in params]
+
+		for i in eachindex(params)
+			param_search = forward_subst_dict[1][(params[i])]
+			parameter_values[i] = lookup_value(
+				params[i], param_search,
+				soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
+		end
+
+		for i in eachindex(states)
+			model_state_search = forward_subst_dict[1][(states[i])]
+			initial_conditions[i] = lookup_value(
+				states[i], model_state_search,
+				soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
+		end
+
+		initial_conditions = convert_to_real_or_complex_array(initial_conditions)
+		parameter_values = convert_to_real_or_complex_array(parameter_values)
+
+		# Added new debug statements to output the precise initial conditions and parameter vectors
+		println("DEBUG: Processing solution $soln_index")
+		println("DEBUG: Constructed initial conditions: ", initial_conditions)
+		println("DEBUG: Constructed parameter values: ", parameter_values)
+		println("DEBUG: Parameter/IC mapping:")
+		println(Dict(
+			[string(s) => v for (s, v) in zip(states, initial_conditions)]...,
+			[string(p) => v for (p, v) in zip(params, parameter_values)]...,
+		))
+
+		tspan = (t_vector[lowest_time_index], t_vector[1])
+
+		new_model = complete(new_model)
+		ic_dict = Dict(states .=> initial_conditions)
+
+		ordered_params = [parameter_values[i] for i in eachindex(params)]
+		ordered_ic = [initial_conditions[i] for i in eachindex(states)]
+
+		prob = ODEProblem(new_model, ordered_ic, tspan, ordered_params)
+
+		ode_solution = ModelingToolkit.solve(prob, PEP.solver, abstol = 1e-14, reltol = 1e-14)
+
+		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
+								for x in ModelingToolkit.unknowns(PEP.model.system)))
+
+		newstates = OrderedDict()
+		for s in states
+
+			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
+
+			#newstates[s] = getp(ode_solution, Symbol(state_param_map[s]))[end]
+		end
+
+		push!(results_vec, [collect(values(newstates)); parameter_values])
+	end
+
+
+	# Get current ordering from ModelingToolkit
+	current_states = ModelingToolkit.unknowns(PEP.model.system)
+	current_params = ModelingToolkit.parameters(PEP.model.system)
+
+	# Create ordered dictionaries to preserve parameter order
+	param_dict = OrderedDict(current_params .=> ones(length(current_params)))
+	states_dict = OrderedDict(current_states .=> ones(length(current_states)))
+
+	#return (results_vec, good_udict, trivial_dict, good_DD.all_unidentifiable)
+	solved_res = []
+	tspan = (PEP.data_sample["t"][begin], PEP.data_sample["t"][end])
+
+
+
+	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(PEP.data_sample["t"]), tspan[1], good_udict, good_DD.all_unidentifiable, nothing)
+
+	for (i, raw_sol) in enumerate(results_vec)
+		if !nooutput
+			println("\nDEBUG [multipoint_parameter_estimation]: Processing solution ", i)
+		end
+		push!(solved_res, deepcopy(newres))
+
+		ordered_states, ordered_params, ode_solution, err = process_raw_solution(raw_sol, PEP.model, PEP.data_sample, PEP.solver, abstol = 1e-14, reltol = 1e-14)  #TODO extract these constants
+
+		# Update result with processed data
+		solved_res[end].states = ordered_states
+		solved_res[end].parameters = ordered_params
+		solved_res[end].solution = ode_solution
+		solved_res[end].err = err
+	end
+	# Polish solutions if requested
+	if polish_solutions
+		polished_solved_res = []
+		for (i, candidate) in enumerate(solved_res)
+			if !nooutput
+				println("\nDEBUG [multipoint_parameter_estimation]: Polishing solution ", i)
+			end
+			try
+				polished_result, opt_result = polish_solution_using_optimization(
+					candidate,
+					PEP,
+					solver = PEP.solver,
+					opt_method = polish_method,
+					opt_maxiters = polish_maxiters,
+					abstol = 1e-14,
+					reltol = 1e-14,
+				)
+				# Keep both the original and polished result if polishing improved the error
+				if polished_result.err < candidate.err
+					push!(polished_solved_res, candidate)
+					push!(polished_solved_res, polished_result)
+				else
+					push!(polished_solved_res, candidate)
+				end
+			catch e
+				println("Warning: Failed to polish solution ", i, ": ", e)
+				push!(polished_solved_res, candidate)
+			end
+		end
+		solved_res = polished_solved_res
+	end
+
+	return (solved_res, good_udict, trivial_dict, good_DD.all_unidentifiable)
+
+
+end
+
+
+
+"""
+	multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
+								varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
+
+Compute the numerical Jacobian at multiple points.
+The multiple points have different values for states, but the same parameters.
+
+# Arguments
+- `model`: The ODE model
+- `measured_quantities_in`: Input measured quantities
+- `max_deriv_level::Int`: Maximum derivative level
+- `max_num_points`: Maximum number of points
+- `unident_dict`: Dictionary of unidentifiable variables
+- `varlist`: List of variables
+- `param_dict`: Dictionary of parameters
+- `ic_dict_vector`: Vector of initial condition dictionaries
+- `values_dict`: Dictionary of values; we just use this to copy its shape
+- `DD`: DerivativeData object (optional)
+
+# Returns
+- Tuple containing the Jacobian matrix and DerivativeData object
+"""
+function multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
+	varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	measured_quantities = deepcopy(measured_quantities_in)
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+	subst_dict = Dict()
+
+	num_real_params = length(keys(param_dict))
+	num_real_states = length(keys(ic_dict_vector[1]))
+
+	if (DD == :nothing)
+		DD = populate_derivatives(model, measured_quantities, max_deriv_level, unident_dict)
+	end
+
+	function f(param_and_ic_values_vec)
+		obs_deriv_vals = []
+		for k in eachindex(ic_dict_vector)
+			evaluated_subst_dict = OrderedDict{Any, Any}(deepcopy(values_dict))
+			thekeys = collect(keys(evaluated_subst_dict))
+			for i in 1:num_real_params
+				evaluated_subst_dict[thekeys[i]] = param_and_ic_values_vec[i]
+			end
+			for i in 1:num_real_states
+				evaluated_subst_dict[thekeys[i+num_real_params]] =
+					param_and_ic_values_vec[(k-1)*num_real_states+num_real_params+i]
+			end
+
+			for i in eachindex(DD.states_rhs)
+				for j in eachindex(DD.states_rhs[i])
+					evaluated_subst_dict[DD.states_lhs[i][j]] = substitute(DD.states_rhs[i][j], evaluated_subst_dict)
+				end
+			end
+			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
+				push!(obs_deriv_vals, (substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
+			end
+		end
+		return obs_deriv_vals
+	end
+
+	full_values = collect(values(param_dict))
+	for k in eachindex(ic_dict_vector)
+		append!(full_values, collect(values(ic_dict_vector[k])))
+	end
+	matrix = ForwardDiff.jacobian(f, full_values)
+	return Matrix{Float64}(matrix), DD
+end
+
+"""
+	multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_num_points, deriv_count, num_points_used)
+
+Create a view of the Jacobian matrix for specific derivative levels and points.
+
+# Arguments
+- `evaluated_jac`: Evaluated Jacobian matrix
+- `deriv_level`: Dictionary of derivative levels for each observable
+- `num_obs`: Number of observables
+- `max_num_points`: Maximum number of points
+- `deriv_count`: Total number of derivatives
+- `num_points_used`: Number of points actually used
+
+# Returns
+- View of the Jacobian matrix
+"""
+function multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_num_points, deriv_count, num_points_used)
+	function linear_index(which_obs, this_deriv_level, this_point)
+		return this_deriv_level * num_obs + which_obs + (this_point - 1) * num_obs * (deriv_count + 1)
+	end
+	view_array = []
+	for k in 1:num_points_used
+		for (which_observable, max_deriv_level_this) in deriv_level
+			for j in 0:max_deriv_level_this
+				push!(view_array, linear_index(which_observable, j, k))
+			end
+		end
+	end
+	return view(evaluated_jac, view_array, :)
+end
+
+"""
+	multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
+
+Perform local identifiability analysis at multiple points.
+
+# Arguments
+- `model::ODESystem`: The ODE system
+- `measured_quantities`: Measured quantities
+- `max_num_points`: Maximum number of points to use
+- `rtol`: Relative tolerance (default: 1e-12)
+- `atol`: Absolute tolerance (default: 1e-12)
+
+# Returns
+- Tuple containing derivative levels, unidentifiable dictionary, variable list, and DerivativeData object
+"""
+function multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	varlist = Vector{Num}(vcat(model_ps, model_states))
+
+	#println("DEBUG [multipoint_local_identifiability_analysis]: Starting analysis with ", max_num_points, " points")
+
+	states_count = length(model_states)
+	ps_count = length(model_ps)
+	D = Differential(t)
+
+	parameter_values = Dict([p => rand(Float64) for p in ModelingToolkit.parameters(model)])
+	points_ics = []
+	test_points = []
+	ordered_test_points = []
+
+	for i in 1:max_num_points
+		initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
+		test_point = merge(parameter_values, initial_conditions)
+		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+		for i in model_ps
+			ordered_test_point[i] = parameter_values[i]
+		end
+		for i in model_states
+			ordered_test_point[i] = initial_conditions[i]
+		end
+		push!(points_ics, deepcopy(initial_conditions))
+		push!(test_points, deepcopy(test_point))
+		push!(ordered_test_points, deepcopy(ordered_test_point))
+	end
+
+	# Determine derivative order 'n'
+	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)
+	n = max(n, 3)
+	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
+	unident_dict = Dict()
+
+	jac = nothing
+	evaluated_jac = nothing
+	DD = nothing
+	unident_set = Set{Any}()
+
+	all_identified = false
+	while (!all_identified)
+
+		temp = ordered_test_points[1]
+		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
+			parameter_values, points_ics, temp))
+		ns = nullspace(evaluated_jac)
+
+		if (!isempty(ns))
+			candidate_plugins_for_unidentified = OrderedDict()
+			for i in eachindex(varlist)
+				if (!isapprox(norm(ns[i, :]), 0.0, atol = atol))
+					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
+					push!(unident_set, varlist[i])
+				end
+			end
+			if (!isempty(candidate_plugins_for_unidentified))
+				p = first(candidate_plugins_for_unidentified)
+				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
+				for k in eachindex(points_ics)
+					delete!(points_ics[k], p.first)
+					delete!(ordered_test_points[k], p.first)
+					delete!(parameter_values, p.first)
+				end
+				unident_dict[p.first] = p.second
+			else
+				all_identified = true
+			end
+		else
+			all_identified = true
+		end
+	end
+
+	max_rank = rank(evaluated_jac, rtol = rtol)
+	maxn = n
+	while (n > 0)
+		n = n - 1
+		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
+		reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
+		r = rank(reduced_evaluated_jac, rtol = rtol)
+		if (r < max_rank)
+			n = n + 1
+			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
+			break
+		end
+	end
+
+	keep_looking = true
+	while (keep_looking)
+		improvement_found = false
+		sorting = collect(deriv_level)
+		sorting = sort(sorting, by = (x -> x[2]), rev = true)
+		for i in keys(deriv_level)
+			if (deriv_level[i] > 0)
+				deriv_level[i] = deriv_level[i] - 1
+				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
+
+				r = rank(reduced_evaluated_jac, rtol = rtol)
+				if (r < max_rank)
+					deriv_level[i] = deriv_level[i] + 1
+				else
+					improvement_found = true
+					break
+				end
+			else
+				temp = pop!(deriv_level, i)
+				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
+
+				r = rank(reduced_evaluated_jac, rtol = rtol)
+				if (r < max_rank)
+					deriv_level[i] = temp
+				else
+					improvement_found = true
+					break
+				end
+			end
+		end
+		keep_looking = improvement_found
+	end
+	DD.all_unidentifiable = unident_set
+	return (deriv_level, unident_dict, varlist, DD)
+end
+
+
+
+
+
+
+
+"""
+	calculate_observable_derivatives(equations, measured_quantities, nderivs=5)
+
+Calculate symbolic derivatives of observables up to the specified order using ModelingToolkit.
+Returns the expanded measured quantities with derivatives and the derivative variables.
+"""
+function calculate_observable_derivatives(equations, measured_quantities, nderivs = 5)
+	# Create equation dictionary for substitution
+	equation_dict = Dict(eq.lhs => eq.rhs for eq in equations)
+
+	n_observables = length(measured_quantities)
+
+	# Create symbolic variables for derivatives
+	ObservableDerivatives = Symbolics.variables(:d_obs, 1:n_observables, 1:nderivs)
+
+	# Initialize vector to store derivative equations
+	SymbolicDerivs = Vector{Vector{Equation}}(undef, nderivs)
+
+	# Calculate first derivatives
+	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
+
+	# Calculate higher order derivatives
+	for j in 2:nderivs
+		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
+	end
+
+	# Create new measured quantities with derivatives
+	expanded_measured_quantities = copy(measured_quantities)
+	append!(expanded_measured_quantities, vcat(SymbolicDerivs...))
+
+	return expanded_measured_quantities, ObservableDerivatives
+end
+
+
+
+"""
+	construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+							deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false)
+
+Construct an equation system for parameter estimation.
+
+# Arguments
+- `model::ODESystem`: The ODE system
+- `measured_quantities_in`: Input measured quantities
+- `data_sample`: Sample data
+- `deriv_level`: Dictionary of derivative levels
+- `unident_dict`: Dictionary of unidentifiable variables
+- `varlist`: List of variables
+- `DD`: DerivativeData object
+- `time_index_set`: Set of time indices (optional)
+- `return_parameterized_system`: Whether to return a parameterized system (optional, default: false)
+
+# Returns
+- Tuple containing the target equations and variable list
+"""
+function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false,
+	precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing, ideal = false, sol = nothing)
+
+	measured_quantities = deepcopy(measured_quantities_in)
+	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+	D = Differential(t)
+
+	t_vector = data_sample["t"]
+	time_interval = (minimum(t_vector), maximum(t_vector))
+	if (isnothing(time_index_set))
+		time_index_set = [fld(length(t_vector), 2)]
+	end
+	time_index = time_index_set[1]
+
+	if isnothing(precomputed_interpolants)
+		interpolants = create_interpolants(measured_quantities, data_sample, t_vector, interpolator)
+	else
+		interpolants = precomputed_interpolants
+	end
+
+	unident_subst!(model_eq, measured_quantities, unident_dict)
+
+	max_deriv = max(4, 1 + maximum(collect(values(deriv_level))))
+
+	target = []
+	for (key, value) in deriv_level
+		push!(target, DD.obs_rhs_cleared[1][key] - DD.obs_lhs_cleared[1][key])
+		for i in 1:value
+			push!(target, DD.obs_rhs_cleared[i+1][key] - DD.obs_lhs_cleared[i+1][key])
+		end
+	end
+	interpolated_values_dict = Dict()
+	if (!ideal)
+		for (key, value) in deriv_level
+			interpolated_values_dict[DD.obs_lhs[1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
+			for i in 1:value
+				interpolated_values_dict[DD.obs_lhs[i+1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
+			end
+		end
+	else
+		if sol === nothing
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
+			@named new_sys = ODESystem(equations(model), t; observed = expanded_mq)
+			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
+		else
+			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
+		end
+		for (key, value) in deriv_level
+
+			temp1 = DD.obs_lhs[1][key]
+			newidx = measured_quantities[key].lhs
+			tempt = t_vector[time_index]
+			#			println("DEBUG BEFORE ERROR")
+			#			println(tempt)
+			#			println(newidx)
+
+			temp2 = sol(tempt, idxs = newidx)
+			interpolated_values_dict[temp1] = temp2
+			for i in 1:value
+				interpolated_values_dict[DD.obs_lhs[i+1][key]] = sol(t_vector[time_index], idxs = obs_derivs[key, i])
+			end
+		end
+	end
+
+	for i in eachindex(target)
+		target[i] = substitute(target[i], interpolated_values_dict)
+	end
+
+
+	vars_needed = OrderedSet()
+	vars_added = OrderedSet()
+
+	vars_needed = union(vars_needed, model_ps)
+	vars_needed = union(vars_needed, model_states)
+	vars_needed = setdiff(vars_needed, keys(unident_dict))
+
+	keep_adding = true
+	while (keep_adding)
+		added = false
+		for i in target
+			for j in Symbolics.get_variables(i)
+				push!(vars_needed, j)
+			end
+		end
+
+		for i in setdiff(vars_needed, vars_added)
+			for j in eachindex(DD.states_lhs), k in eachindex(DD.states_lhs[j])
+				if (isequal(DD.states_lhs[j][k], i))
+					push!(target, DD.states_lhs_cleared[j][k] - DD.states_rhs_cleared[j][k])
+					added = true
+					push!(vars_added, i)
+				end
+			end
+		end
+		diff_set = setdiff(vars_needed, vars_added)
+		keep_adding = !isempty(diff_set) && added
+	end
+
+	push!(data_sample, ("t" => t_vector))
+
+	return_var = collect(vars_needed)
+
+	return target, return_var
+end
+
+# Extract only the lookup logic into a helper function, maintaining exact same order
+function lookup_value(var, var_search, soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
+	if var in keys(good_udict)
+		return good_udict[var]
+	end
+	if (var_search in keys(trivial_dict))
+		return trivial_dict[var_search]
+	end
+	index = findfirst(isequal(var_search), final_varlist)
+	if isnothing(index)
+		index = findfirst(isequal(var_search), trimmed_varlist)
+	end
+	return real(solns[soln_index][index])
+end
+
+# New helper function to evaluate a polynomial system by substituting exact state and parameter values
+function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_subst::OrderedDict, true_states::OrderedDict, true_params::OrderedDict, eqns)
+	sub_dict = Dict()
+
+	#println("starting evaluate_poly_system")
+	#println(poly_system)
+	poly_system = substitute(poly_system, reverse_subst)
+	#println("poly_system after substitution:")
+	#println(poly_system)
+
+	#println("break")
+
+
+	# Create DD structure to compute derivatives
+	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+	DD.states_lhs = [[eq.lhs for eq in eqns], expand_derivatives.(D.([eq.lhs for eq in eqns]))]
+	DD.states_rhs = [[eq.rhs for eq in eqns], expand_derivatives.(D.([eq.rhs for eq in eqns]))]
+
+	# Compute higher derivatives
+	for i in 1:7
+		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
+		temp = DD.states_rhs[end]
+		temp2 = D.(temp)
+		temp3 = deepcopy(temp2)
+		temp4 = []
+		for j in 1:length(temp3)
+			temptemp = expand_derivatives(temp3[j])
+			push!(temp4, deepcopy(temptemp))
+		end
+		push!(DD.states_rhs, temp4)
+	end
+
+	# Convert all derivatives to terms
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
+		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
+	end
+
+
+	# First pass: substitute known parameters and states (0th derivatives)
+	for (temp_var, base_var) in forward_subst
+		if haskey(true_params, temp_var)
+			sub_dict[temp_var] = true_params[temp_var]
+		elseif haskey(true_states, temp_var)
+			sub_dict[temp_var] = true_states[temp_var]
+		end
+	end
+	#println("after first pass")
+	#println(sub_dict)
+
+	# Create a dictionary of derivative values
+	deriv_values = Dict()
+
+	# For each state (V and R)
+
+	# Second pass: map derivative values to temporary variables
+	#for (temp_var, base_var) in reverse_subst
+	#	if !haskey(sub_dict, temp_var)
+	#		if haskey(deriv_values, base_var)
+	#			sub_dict[temp_var] = deriv_values[base_var]
+	#		end
+	#	end
+	#end
+	#println("DD.states_rhs:")
+	#println(DD.states_rhs)
+	#println("DD.states_lhs:")
+	#println(DD.states_lhs)
+
+
+	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
+		sub_dict[DD.states_lhs[i][j]] = simplify(substitute(DD.states_rhs[i][j], sub_dict))
+	end
+
+
+	#println("deriv_values:")
+	#println(deriv_values)
+	#println("sub_dict after computing derivatives:")
+	#println(sub_dict)
+
+	# Apply all substitutions to the polynomial system
+	for i in 1:7
+		evaluated = [simplify(substitute(expr, sub_dict)) for expr in poly_system]
+		#println(evaluated)
+	end
+
+	# Final pass: convert any remaining derivatives to terms
+	evaluated = [ModelingToolkit.diff2term(expand_derivatives(expr)) for expr in evaluated]
+
+
+
+	return evaluated
+end
+
+"""
+	polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+										 solver = Vern9(),
+										 opt_method = BFGS,
+										 opt_maxiters = 200000,
+										 abstol = 1e-13,
+										 reltol = 1e-13,
+										 lb = nothing,
+										 ub = nothing)
+
+Using a local-optimization approach, polish a candidate solution obtained from multi-point analysis.
+This function assumes that `PEP` contains the original model, measured quantities, and data_sample,
+and that the candidate_solution (of type ParameterEstimationResult) includes guessed values for states
+and parameters in OrderedDicts. We form an ODEProblem from these values, define a loss function that sums
+squared errors between simulated trajectories with the data stored in `PEP.data_sample.
+On success, the returned `polished_result` is a new ParameterEstimationResult whose fields (states, parameters,
+solution, err) have been updated with the optimized values.
+
+An example call is provided below.
+"""
+function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+	solver = Vern9(),
+	opt_method = LBFGS,
+	opt_maxiters = 20,
+	abstol = 1e-13,
+	reltol = 1e-13,
+	lb = nothing,
+	ub = nothing)
+	# Extract the time vector from the data sample
+	t_vector = PEP.data_sample["t"]
+
+	# Candidate solution contains states and parameters as OrderedDicts.
+	# For the optimization we form a single vector: [state_values; parameter_values]
+	state_keys = collect(keys(candidate_solution.states))
+	param_keys = collect(keys(candidate_solution.parameters))
+	n_ic = length(state_keys)
+	n_param = length(param_keys)
+
+	# Convert to Float64 explicitly
+	initial_states = Float64[v for v in values(candidate_solution.states)]
+	initial_params = Float64[v for v in values(candidate_solution.parameters)]
+	p0 = vcat(initial_states, initial_params)
+
+	# Set default bounds if not provided
+	if lb === nothing
+		lb = -3.0 * ones(Float64, length(p0))
+	end
+	if ub === nothing
+		ub = 3.0 * ones(Float64, length(p0))
+	end
+
+	# Build the ODE problem using the model stored in PEP.
+	# (We call complete() to ensure the system is fully defined.)
+	new_model = complete(PEP.model.system)
+	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
+
+	prob = ODEProblem(new_model, initial_states, tspan, initial_params)
+
+	# Create a mapping from state variables to their index in the solution vector.
+	state_index = Dict{Any, Int}()
+	for (i, s) in enumerate(state_keys)
+		state_index[s] = i
+	end
+
+	# The loss function:
+	# Given a vector p_vec (with the candidate's state and parameter guesses),
+	# re-simulate the ODE and compute the sum of squared differences between
+	# simulated measurements and the data stored in PEP.data_sample.
+	# Here we assume that each measured quantity equation is of the form `LHS ~ rhs`,
+	# where the source of the measurement is the state corresponding to `rhs`.
+	function loss(p_vec)
+		# Validate input vector for complex numbers
+		if any(abs.(imag.(p_vec)) .> complex_threshold)
+			return Inf
+		end
+
+		ic_guess = real.(p_vec[1:n_ic])
+		param_guess = real.(p_vec[n_ic+1:end])
+
+		prob_opt = remake(prob, u0 = ic_guess, p = param_guess)
+		sol_opt = try
+			ModelingToolkit.solve(prob_opt, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+		catch e
+			println("WARNING: ODE solver failed with error: $e")
+			return Inf
+		end
+
+		if sol_opt.retcode != ReturnCode.Success
+			return Inf
+		end
+
+		total_error = 0.0
+		# Loop over each measured quantity
+		for eq in PEP.measured_quantities
+			sim_vals = []
+			for i in 1:length(sol_opt.u)
+				# Create substitution dictionary for current timepoint
+				time_subst = Dict(s => sol_opt.u[i][state_index[s]] for s in state_keys)
+				# Evaluate the formula with current state values and extract value from possible Dual type
+				val = substitute(eq.rhs, time_subst)
+				push!(sim_vals, val)
+			end
+			# Determine which key to use from the data sample
+			key = eq.rhs
+			data_true = PEP.data_sample[key]
+			total_error += sum((sim_vals .- data_true) .^ 2)
+		end
+		return total_error
+	end
+
+	# Print initial loss value for debugging
+	initial_loss = loss(p0)
+	println("Initial parameter vector: ", p0)
+	println("Initial loss value: ", initial_loss)
+
+
+	# Set up the Optimization problem using auto-differentiation via ForwardDiff
+	adtype = Optimization.AutoForwardDiff()
+	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
+	optprob = Optimization.OptimizationProblem(optf, p0)  #lb = lb, ub = ub
+
+	# Solve the optimization problem with a timeout
+	result = Optimization.solve(optprob, opt_method(), callback = (p, l) -> false, maxiters = opt_maxiters)
+
+	# Extract the optimized initial conditions and parameters.
+	p_opt = result.u
+	ic_opt = real.(p_opt[1:n_ic])
+	param_opt = real.(p_opt[n_ic+1:end])
+
+	# Re-simulate the ODE using the optimized values.
+	prob_polished = remake(prob, u0 = ic_opt, p = param_opt)
+	sol_polished = ModelingToolkit.solve(prob_polished, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+
+	# Update a copy of the candidate solution with the polished values.
+	polished_result = deepcopy(candidate_solution)
+	polished_result.states = OrderedDict(zip(state_keys, ic_opt))
+	polished_result.parameters = OrderedDict(zip(param_keys, param_opt))
+	polished_result.solution = sol_polished
+	polished_result.err = loss(p_opt)
+
+	return polished_result, result
+end
+
+================
+File: pointpicker.jl
+================
+"""
+	compute_derivative_score(interpolant, t, max_deriv=3)
+
+Compute a score based on the magnitudes of derivatives at a point.
+Higher derivatives with significant values indicate more dynamic behavior.
+"""
+function compute_derivative_score(interpolant, t, max_deriv = 3)
+	score = 0.0
+	for i in 1:max_deriv
+		deriv = abs(nth_deriv_at(interpolant, i, t))
+		# Weight higher derivatives less
+		score += deriv / (2^i)
+	end
+	return score
+end
+
+"""
+	find_local_extrema_score(interpolant, t, Δt=1e-3)
+
+Compute a score indicating proximity to local extrema.
+Returns higher scores for points closer to extrema.
+"""
+function find_local_extrema_score(interpolant, t, Δt = 1e-3)
+	first_deriv = nth_deriv_at(interpolant, 1, t)
+	if abs(first_deriv) < 1e-10  # Potential extremum
+		second_deriv = nth_deriv_at(interpolant, 2, t)
+		if abs(second_deriv) > 1e-10  # Confirm it's an extremum
+			return 1.0
+		end
+	end
+	return 0.0
+end
+
+"""
+	compute_inflection_score(interpolant, t, Δt=1e-3)
+
+Compute a score indicating proximity to inflection points.
+Returns higher scores for points closer to inflection points.
+"""
+function compute_inflection_score(interpolant, t, Δt = 1e-3)
+	second_deriv = nth_deriv_at(interpolant, 2, t)
+	if abs(second_deriv) < 1e-10  # Potential inflection point
+		third_deriv = nth_deriv_at(interpolant, 3, t)
+		if abs(third_deriv) > 1e-10  # Confirm it's an inflection point
+			return 1.0
+		end
+	end
+	return 0.0
+end
+
+"""
+	compute_variability_score(interpolant, t, window=0.1)
+
+Compute a score based on the local variability around a point.
+Higher scores indicate more variable regions.
+"""
+function compute_variability_score(interpolant, t, window = 0.1)
+	try
+		derivatives = [nth_deriv_at(interpolant, 1, t + δ) for δ in -window:window/10:window]
+		return std(derivatives)
+	catch
+		return 0.0
+	end
+end
+
+"""
+	compute_point_interestingness(interpolants, t)
+
+Compute an overall interestingness score for a point based on multiple criteria
+across all interpolants.
+"""
+function compute_point_interestingness(interpolants, t)
+	total_score = 0.0
+
+	for interpolant in values(interpolants)
+		# Combine different scoring components
+		deriv_score = compute_derivative_score(interpolant, t)
+		extrema_score = find_local_extrema_score(interpolant, t)
+		inflection_score = compute_inflection_score(interpolant, t)
+		variability_score = compute_variability_score(interpolant, t)
+
+		# Weight and combine the scores
+		point_score = deriv_score +
+					  2.0 * extrema_score +
+					  1.5 * inflection_score +
+					  variability_score
+
+		total_score += point_score
+	end
+
+	return total_score
+end
+
+
+function pick_points(vec, n, interpolants, point_hint = 0.5)
+	if n == 1
+		return min(max(1, round(Int, point_hint * length(vec))), length(vec))
+	else
+		if n == 2
+			return [min(max(1, round(Int, point_hint * length(vec))), length(vec)), min(max(1, round(Int, (point_hint + 1 / 3) * length(vec))), length(vec))]
+		else
+			# For n>2 points, return n equispaced points (excluding start and end)
+			step = fld(length(vec) - 2, n + 1)  # Calculate spacing between points
+			return [i for i in (step+1):step:(step*(n))]
+		end
+	end
+end
+
+"""
+	pick_points(vec, n, interpolants)
+
+Select n points from a vector, trying to pick the most interesting points based on
+multiple criteria including extrema, inflection points, and areas of high variability.
+
+# Arguments
+- `vec`: Vector of time points
+- `n`: Number of points to pick
+- `interpolants`: Dictionary of interpolant functions for different variables
+
+# Returns
+- Vector of selected indices
+"""
+function pick_points_old(vec, n, interpolants)
+	println("\nDEBUG [pick_points]: Starting point selection...")
+	println("DEBUG [pick_points]: Number of points to pick: $n")
+	println("DEBUG [pick_points]: Total points available: $(length(vec))")
+	println("DEBUG [pick_points]: Number of interpolants: $(length(interpolants))")
+
+	if n >= length(vec) - 2
+		# Handle edge cases as before
+		if (n == length(vec))
+			println("DEBUG [pick_points]: Edge case - returning all points")
+			return 1:n
+		elseif (n == length(vec) - 1)
+			println("DEBUG [pick_points]: Edge case - returning all but last point")
+			return 1:(n-1)
+		elseif (n == length(vec) - 2)
+			println("DEBUG [pick_points]: Edge case - returning middle points")
+			return 2:(n-1)
+		end
+	end
+
+	# Compute interestingness scores for all points (except endpoints)
+	scores = Float64[]
+	println("\nDEBUG [pick_points]: Computing interestingness scores...")
+	for i in 2:(length(vec)-1)
+		score = compute_point_interestingness(interpolants, vec[i])
+		push!(scores, score)
+		if i % 100 == 0
+			println("DEBUG [pick_points]: Processed $i points")
+		end
+	end
+
+	println("\nDEBUG [pick_points]: Score statistics:")
+	println("DEBUG [pick_points]: Min score: $(minimum(scores))")
+	println("DEBUG [pick_points]: Max score: $(maximum(scores))")
+	println("DEBUG [pick_points]: Mean score: $(mean(scores))")
+
+	# Normalize scores
+	max_score = maximum(scores)
+	if max_score > 0
+		scores ./= max_score
+		println("DEBUG [pick_points]: Normalized scores")
+	else
+		println("DEBUG [pick_points]: Warning: All scores are zero")
+	end
+
+	# Find indices of n highest scoring points
+	sorted_indices = sortperm(scores, rev = true)
+	selected_indices = sorted_indices[1:min(n, length(sorted_indices))]
+
+	# Add 1 to account for skipping first point in scoring
+	final_indices = sort!(selected_indices .+ 1)
+	println("\nDEBUG [pick_points]: Selected $(length(final_indices)) points")
+	println("DEBUG [pick_points]: Selected time points: $(vec[final_indices])")
+
+	return final_indices
+end
+
+================
+File: sampling.jl
+================
+"""
+	add_relative_noise(data::OrderedDict, noise_level::Float64)
+
+Add relative Gaussian noise to data values while preserving time points.
+
+# Arguments
+- `data`: OrderedDict containing time series data
+- `noise_level`: Standard deviation of the relative noise to add
+
+# Returns
+- New OrderedDict with noisy data
+"""
+function add_relative_noise(data::OrderedDict, noise_level::Float64)
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+
+	# Copy time points unchanged
+	noisy_data["t"] = data["t"]
+
+	# Add noise to each measurement
+	for (key, values) in data
+		if key != "t"  # Skip time points
+			noise = 1.0 .+ noise_level .* randn(length(values))
+			noisy_data[key] = values .* noise
+		end
+	end
+
+	return noisy_data
+end
+
+function add_additive_noise(data::OrderedDict, noise_level::Float64)
+	noisy_data = OrderedDict{Any, Vector{Float64}}()
+
+	# Copy time points unchanged
+	noisy_data["t"] = data["t"]
+
+	# Add noise to each measurement
+	for (key, values) in data
+		if key != "t"  # Skip time points
+			mean_val = mean(values)
+			noise = mean_val .* noise_level .* randn(length(values))
+			noisy_data[key] = values .+ noise
+		end
+	end
+
+	return noisy_data
+end
+
+
+#This is a utility function which fills in observed data by solving an ODE.
+
+function sample_data(model::ModelingToolkit.ODESystem,
+	measured_data::Vector{ModelingToolkit.Equation},
+	time_interval::Vector{T},
+	p_true,
+	u0,
+	num_points::Int;
+	uneven_sampling = false,
+	uneven_sampling_times = Vector{T}(),
+	solver = package_wide_default_ode_solver, inject_noise = false, mean_noise = 0,
+	stddev_noise = 1, abstol = 1e-14, reltol = 1e-14) where {T <: Number}
+	if uneven_sampling
+		if length(uneven_sampling_times) == 0
+			error("No uneven sampling times provided")
+		end
+		if length(uneven_sampling_times) != num_points
+			error("Uneven sampling times must be of length num_points")
+		end
+		sampling_times = uneven_sampling_times
+	else
+		sampling_times = range(time_interval[1], time_interval[2], length = num_points)
+	end
+	# Get parameters in the correct order from the model
+	ordered_params = [p_true[p] for p in ModelingToolkit.parameters(model)]
+	ordered_u0 = [u0[s] for s in ModelingToolkit.unknowns(model)]
+
+	problem = ODEProblem(ModelingToolkit.complete(model), ordered_u0, time_interval, ordered_params)
+	solution_true = ModelingToolkit.solve(problem, solver,
+		saveat = sampling_times;
+		abstol, reltol)
+
+	#if false # Plot state variables
+	#	states = ModelingToolkit.unknowns(model)
+	#	for state in states
+	#		plot(solution_true.t, solution_true[state],
+	#			label = string(state),
+	#			xlabel = "Time",
+	#			ylabel = "Value")
+	#		savefig("state_$(state)_plot.png")
+	#	end
+	#end
+
+	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
+											  for v in measured_data)
+	if inject_noise
+		for (key, sample) in data_sample
+			data_sample[key] = sample + randn(num_points) .* stddev_noise .+ mean_noise
+		end
+	end
+	data_sample["t"] = sampling_times
+	return data_sample
+end
+
+
+"""
+	sample_problem_data(problem::ParameterEstimationProblem;
+					   datasize = 21,
+					   time_interval = [-0.5, 0.5],
+					   solver = package_wide_default_ode_solver,
+					   uneven_sampling = false,
+					   uneven_sampling_times = Vector{Float64}(),
+					   noise_level = 0.0)
+
+Generate sample data for a parameter estimation problem.
+
+# Arguments
+- `problem`: The parameter estimation problem
+- `datasize`: Number of data points to generate
+- `time_interval`: Time interval for sampling
+- `solver`: ODE solver to use
+- `uneven_sampling`: Whether to use uneven time sampling
+- `uneven_sampling_times`: Custom sampling times (if uneven_sampling is true)
+- `noise_level`: Level of noise to add to the data
+
+# Returns
+- New ParameterEstimationProblem with generated data
+"""
+function sample_problem_data(problem::ParameterEstimationProblem;
+	datasize = 21,
+	time_interval = [-0.5, 0.5],
+	solver = package_wide_default_ode_solver,
+	uneven_sampling = false,
+	uneven_sampling_times = Vector{Float64}(),
+	noise_level = 0.0)
+
+	# Create new OrderedODESystem with completed system
+	ordered_system = OrderedODESystem(
+		complete(problem.model.system),
+		problem.model.original_parameters,
+		problem.model.original_states,
+	)
+
+	# Generate clean data
+	clean_data = ODEParameterEstimation.sample_data(
+		ordered_system.system,
+		problem.measured_quantities,
+		time_interval,
+		problem.p_true,
+		problem.ic,
+		datasize,
+		solver = solver,
+		uneven_sampling = uneven_sampling,
+		uneven_sampling_times = uneven_sampling_times)
+
+	# Add noise if requested
+	data = noise_level > 0 ? add_relative_noise(clean_data, noise_level) : clean_data
+
+	return ParameterEstimationProblem(
+		problem.name,
+		ordered_system,
+		problem.measured_quantities,
+		data,
+		problem.recommended_time_interval,
+		solver,
+		problem.p_true,
+		problem.ic,
+		problem.unident_count,
+	)
+end
+
+
+
+================================================================
+End of Codebase
+================================================================

@@ -233,9 +233,9 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	end
 
 	# Print best approximation error summary line
-	best_error = isempty(sorted_results) ? Inf : last(sorted_results).err
+	best_approximation_error = isempty(sorted_results) ? Inf : last(sorted_results).err
 	if !nooutput
-		println("\nBest approximation error for $(problem.name): $(round(best_error, digits=6))")
+		println("\nBest approximation error for $(problem.name): $(round(best_approximation_error, digits=6))")
 	end
 
 	# Calculate and return best error (excluding unidentifiable parameters)
@@ -244,6 +244,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	best_mean_error = Inf
 	best_median_error = Inf
 	best_max_error = Inf
+	best_rms_error = Inf
 
 	for each in result
 		# Get all parameter names
@@ -296,6 +297,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 			best_mean_error = min(best_mean_error, mean(errorvec))
 			best_median_error = min(best_median_error, median(errorvec))
 			best_max_error = min(best_max_error, maximum(errorvec))
+			best_rms_error = min(best_rms_error, sqrt(mean(errorvec .^ 2)))
 		end
 	end
 	if !nooutput
@@ -304,6 +306,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		println("Best mean relative error: $(round(best_mean_error, digits=6))")
 		println("Best median relative error: $(round(best_median_error, digits=6))")
 		println("Best maximum relative error: $(round(best_max_error, digits=6))")
+		println("Best RMS relative error: $(round(best_rms_error, digits=6))")
 	end
 	# Return a tuple containing:
 	# - Vector of best solutions from each cluster
@@ -312,6 +315,8 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	# - Best mean relative error across all results
 	# - Best median relative error across all results
 	# - Best maximum relative error across all results
+	# - Best approximation error across all results
+	# - Best RMS relative error across all results
 	return (
 		[last(cluster) for cluster in clusters],
 		besterror,
@@ -319,12 +324,14 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		best_mean_error,
 		best_median_error,
 		best_max_error,
+		best_approximation_error,
+		best_rms_error,
 	)
 end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
 	max_num_points = 1, nooutput = false, system_solver = solve_with_rs, abstol = 1e-14, reltol = 1e-14,
-	trap_debug = false, diagnostics = true)
+	trap_debug = false, diagnostics = true, polish_method = NewtonTrustRegion, polish_maxiters = 10, try_more_methods = true)  #try_more_methods = true
 	#if trap_debug
 	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
 	#	filename = "PEP_debug_$(timestamp).log"
@@ -338,14 +345,72 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 		println("Starting model: ", PEP.name)
 	end
 
+	if system_solver == nothing
+		system_solver = solve_with_rs
+	end
+	if interpolator == nothing
+		interpolator = aaad_gpr_pivot
+	end
 
-	results_tuple = multipoint_parameter_estimation(PEP,
+	# Initialize variables outside try blocks
+	solved_res = []
+	unident_dict = Dict()
+	trivial_dict = Dict()
+	all_unidentifiable = []
+	results_tuple_aaad = ([], Dict(), Dict(), [])
+	results_tuple_multi = ([], Dict(), Dict(), [])
+
+	# Try first estimation with default interpolator
+	#try
+	results_tuple = multishot_parameter_estimation(PEP,
 		system_solver = system_solver,
 		max_num_points = max_num_points,
 		interpolator = interpolator,
-		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP)
-
+		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+		polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+	)
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+
+	#catch e
+	#@warn "First estimation failed: $e"
+	#results_tuple = ([], Dict(), Dict(), [])
+	#solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
+	#end
+	if try_more_methods
+		# Try second estimation with aaad interpolator
+		try
+			results_tuple_aaad = multishot_parameter_estimation(PEP,
+				system_solver = system_solver,
+				max_num_points = max_num_points,
+				interpolator = aaad,
+				nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+				polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+			)
+		catch e
+			@warn "Second estimation failed: $e"
+			results_tuple_aaad = ([], Dict(), Dict(), [])
+		end
+
+		# Try third estimation with multiple points
+		try
+			results_tuple_multi = multishot_parameter_estimation(PEP,
+				system_solver = system_solver,
+				max_num_points = 2,
+				interpolator = interpolator,
+				nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
+				polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = 8,
+			)
+		catch e
+			@warn "Third estimation failed: $e"
+			results_tuple_multi = ([], Dict(), Dict(), [])
+		end
+	end
+
+	# Merge solutions from all attempts
+	solved_res = vcat(solved_res, first(results_tuple_aaad), first(results_tuple_multi))
+	unident_dict = merge(unident_dict, results_tuple_aaad[2], results_tuple_multi[2])
+	trivial_dict = merge(trivial_dict, results_tuple_aaad[3], results_tuple_multi[3])
+	all_unidentifiable = union(all_unidentifiable, results_tuple_aaad[4], results_tuple_multi[4])
 
 
 	if !nooutput

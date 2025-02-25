@@ -1,4 +1,3 @@
-
 """
 	handle_simple_substitutions(eqns, varlist)
 
@@ -820,7 +819,211 @@ end
 
 
 
+function poly_evaluate(poly, x)
+	if poly isa AbstractVector
+		value = 0.0 + 0.0im
+		for (i, coeff) in enumerate(poly)
+			value += Float64(coeff) * x^(i - 1)
+		end
+		return value
+	else
+		return evaluate(poly, x)
+	end
+end
+
+function evaluate_rur_subs(rur, v_val, vars)
+	println("\nDEBUG [evaluate_rur_subs]: Processing RUR substitutions")
+	println("Input root value: $v_val")
+
+	# Get the first polynomial (f₁) and compute its derivative coefficients
+	f1 = rur[1]
+	if f1 isa AbstractVector
+		f1_derivative_coeffs = [(i - 1) * f1[i] for i in 2:length(f1)]
+	else
+		error("Unsupported polynomial type for derivative")
+	end
+
+	# Evaluate derivative at root
+	normalization = poly_evaluate(f1_derivative_coeffs, v_val)
+	println("Normalization factor (f₁'(x₀)): $normalization")
+
+	# Create solution dictionary
+	sol_dict = Dict{Symbol, Any}()
+
+	# Instead of splitting vars into parameters and states by name, preserve the original order
+	ordered_vars = vars  # FIX: Use the original ordering rather than reordering by filtering
+
+	println("\nDEBUG [evaluate_rur_subs]: Variable ordering:")
+	for (i, v) in enumerate(ordered_vars)
+		println("$i: $v")
+	end
+
+	# Process RUR substitutions (skip first polynomial which was used to find roots)
+	for (i, u_poly) in enumerate(rur[2:end])
+		if i <= length(ordered_vars)
+			var = ordered_vars[i]
+			u_val = poly_evaluate(u_poly, v_val)
+			computed_val = u_val / normalization
+			sol_dict[var] = computed_val
+		end
+	end
+
+	println("\nDEBUG [evaluate_rur_subs]: Solution verification:")
+	for (var, val) in sol_dict
+		println("$var => $val")
+	end
+
+	return sol_dict
+end
+
+function solve_rur_complex(poly)
+	coeffs = isa(poly, AbstractVector) ? poly : coefficients(poly)
+	# Make polynomial square-free first
+	# This is a simplified version - ideally we'd use gcd with derivative like in your colleague's code
+	complex_coeffs = Complex{Float64}[Float64(c) for c in coeffs]
+	roots_found = PolynomialRoots.roots(complex_coeffs)
+	return roots_found
+end
+
 function solve_with_rs(poly_system, varlist;
+	start_point = nothing,
+	polish_solutions = true)
+
+	# Convert symbolic expressions to AA polynomials using existing infrastructure
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
+
+	sys_toround = deepcopy(aa_system)
+	sys_rounded = map(f -> map_coefficients(c -> rationalize(BigInt, round(BigFloat(c), digits = 8)), f), sys_toround)
+	#println("\nDEBUG [solve_with_rs]: Original system:")
+	#for (i, eq) in enumerate(poly_system)
+	#	println("$i: $eq")
+	#end
+
+	#println("\nDEBUG [solve_with_rs]: AA system:")
+	#for (i, eq) in enumerate(aa_system)
+	#	println("$i: $eq")
+	#end
+
+	# Compute RUR and get separating element
+	rur, sep = zdim_parameterization(sys_rounded, get_separating_element = true)
+
+	# Find solutions using PolynomialRoots instead of RS
+	tosolve = rur[1]
+	roots_found = solve_rur_complex(tosolve)
+
+	#println("\nDEBUG [solve_with_rs]: Found $(length(roots_found)) roots")
+	#for (i, root) in enumerate(roots_found)
+	#	println("Root $i: $root")
+	#end
+
+	# Convert variables to symbols for RUR substitution
+	var_symbols = [Symbol(v) for v in varlist]
+
+	# Process solutions with more careful handling of the root
+	solutions = []
+	for v_val in roots_found
+		#println("\nProcessing root: $v_val")
+		sol_dict = evaluate_rur_subs(rur, v_val, var_symbols)
+
+		# Extract solution values in original variable order, with special handling for the root variable
+		sol_vector = []
+		for v in varlist
+			val = get(sol_dict, Symbol(v), nothing)
+			if isnothing(val)
+				# If this variable isn't in the RUR substitutions, check if it's the root variable
+				if v == sep # Compare against the separating element found during RUR computation
+					val = v_val
+				else
+					# For any other missing variables, use 0.0 as fallback
+					val = 0.0
+				end
+			end
+			push!(sol_vector, val)
+		end
+		push!(solutions, sol_vector)
+	end
+
+	# Calculate and print residuals for each solution
+	if !isempty(solutions)
+		println("\nDEBUG: Variable list (varlist):")
+		for (i, v) in enumerate(varlist)
+			println("$i: $v")
+		end
+
+		#println("\nDEBUG: RUR structure:")
+		#println("Number of components: $(length(rur))")
+		#println("First polynomial (to solve): $(rur[1])")
+		#println("Denominator polynomial: $(rur[2])")
+		#for i in 3:length(rur)
+		#	println("Substitution $i: $(rur[i])")
+		#end
+
+		println("\nResiduals for each solution:")
+		for (i, sol) in enumerate(solutions)
+			println("\nDEBUG: Solution $i values:")
+			for (var, val) in zip(varlist, sol)
+				println("$var = $val")
+			end
+
+			# Create substitution dictionary
+			subst_dict = Dict(v => s for (v, s) in zip(varlist, sol))
+			#	println("\nDEBUG: Substitution dictionary:")
+			#	for (k, v) in subst_dict
+			#		println("$k => $v")
+			#	end
+
+			println("\nSolution $i residuals:")
+			# Calculate residual for each equation
+			for (j, eq) in enumerate(poly_system)
+				#		println("\nDEBUG: Original equation $j: $eq")
+				substituted = Symbolics.substitute(eq, subst_dict)
+				#		println("DEBUG: After substitution: $substituted")
+				residual = abs(substituted)
+				println("Equation $j residual: $residual")
+			end
+		end
+	end
+	# Polish solutions if requested
+	if polish_solutions && !isempty(solutions)
+		println("DEBUG [solve_with_rs]: Polishing solutions")
+		println("SOLNS before polishing:")
+		for i in eachindex(solutions)
+			a = solutions[i]
+			println("SOLN $i: $a")
+		end
+		polished_solutions = copy(solutions) # Keep original solutions
+		for sol in solutions
+			# Extract real part as starting point for polishing
+			start_point = real.(sol)
+			# Polish the solution
+			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
+				start_point = start_point,
+				polish_only = true,
+				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			# If polishing succeeded, add polished solution to list
+			if !isempty(polished_sol)
+				push!(polished_solutions, polished_sol[1])
+			end
+		end
+		solutions = polished_solutions
+		println("SOLNS after polishing:")
+		for i in eachindex(solutions)
+			a = solutions[i]
+			println("SOLN $i: $a")
+		end
+	end
+
+	println("SOLNS before return: $solutions")
+	for i in eachindex(solutions)
+		a = solutions[i]
+		println("SOLN $i: $a")
+	end
+	return solutions, varlist, Dict(), varlist
+end
+
+
+
+function solve_with_rs_old(poly_system, varlist;
 	start_point = nothing,  # Not used but kept for interface consistency
 	polish_solutions = true)
 
@@ -845,32 +1048,10 @@ function solve_with_rs(poly_system, varlist;
 	for s in sol
 		# Extract real solutions
 		#println(s)
-		real_sol = [convert(Float64, real((v[1] + v[2]) / 2)) for v in s]
+		real_sol = [convert(Float64, real(v[1])) for v in s]
 		push!(solutions, real_sol)
 	end
 
-	# Print solutions and residuals before polishing
-	println("\nSolutions and residuals before polishing:")
-	for (i, sol) in enumerate(solutions)
-		println("\nSolution $i: ")
-		for j in sol
-			println(j)
-		end
-		# Calculate residuals by evaluating each polynomial at the solution point
-		residuals = Float64[]
-		for poly in poly_system
-			# Create substitution mapping from variables to solution values
-			subs = Dict(var => val for (var, val) in zip(varlist, sol))
-			# Evaluate polynomial at solution point
-			res = Symbolics.substitute(poly, subs)
-			# Convert to float and add to residuals
-			push!(residuals, Symbolics.symbolic_to_float(res))
-		end
-		println("Residuals: ")
-		for j in residuals
-			println(j)
-		end
-	end
 
 
 

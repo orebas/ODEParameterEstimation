@@ -3,7 +3,68 @@ using ModelingToolkit
 using ModelingToolkit: t_nounits as t, D_nounits as D
 using OrderedCollections
 
+#this is the  crauste model copied from some old code
 function crauste()
+	parameters = @parameters mu_N mu_EE mu_LE mu_LL mu_M mu_P mu_PE mu_PL delta_NE delta_EL delta_LM rho_E rho_P
+	parameters = @parameters muN muEE muLE muLL muM muP muPE muPL deltaNE deltaEL deltaLM rhoE rhoP
+
+	states = @variables n(t) e(t) s(t) m(t) p(t)
+	observables = @variables y1(t) y2(t) y3(t) y4(t)
+	p_true = [
+		0.75,            # mu_N
+		0.0000216,       # mu_EE
+		0.000000036,     # mu_LE
+		0.0000075,       # mu_LL
+		0.0,             # mu_M
+		0.055,           # mu_P
+		0.00000018,      # mu_PE
+		0.000018,        # mu_PL
+		0.009,           # delta_NE
+		0.59,            # delta_EL
+		0.025,           # delta_LM
+		0.64,            # rho_E
+		0.15,             # rho_P
+	]
+	ic_true = [8090.0, 0.0, 0.0, 0.0, 1.0]
+	#CORRECT
+	#equations = [
+	#	D(N) ~ -N * mu_N - N * P * delta_NE,
+	#	D(E) ~ N * P * delta_NE + E * (rho_E * P - mu_EE * E - delta_EL),
+	#	D(L) ~ delta_EL * E - L * (mu_LL * L + mu_LE * E + delta_LM),
+	# same as 
+	#delta_EL * E  -mu_LL * s * s - mu_LE * E * s - delta_LM * s
+	#	D(M) ~ L * delta_LM - mu_M * M,
+	#	D(P) ~ P * (rho_P * P - mu_PE * E - mu_PL * L - mu_P),
+	#]
+	#WRONG
+	equations = [
+		D(n) ~ -1 * n * muN - n * p * deltaNE,
+		D(e) ~ n * p * deltaNE - e * e * muEE - e * deltaEL + e * p * rhoE,
+		D(s) ~ s * deltaEL - s * deltaLM - s * s * muLL - e * s * muLE,
+		D(m) ~ s * deltaLM - muM * m,
+		D(p) ~ p * p * rhoP - p * muP - e * p * muPE - s * p * muPL,
+	]
+
+
+	measured_quantities = [y1 ~ n, y2 ~ e, y3 ~ s + m, y4 ~ p]
+
+	model, mq = create_ordered_ode_system("crauste", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"crauste",
+		model,
+		mq,
+		nothing,
+		[0.0, 25.0],  # recommended timescale: 100 days for cell population dynamics
+		nothing,  # solver
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+
+function crauste_corrected()
 	parameters = @parameters mu_N mu_EE mu_LE mu_LL mu_M mu_P mu_PE mu_PL delta_NE delta_EL delta_LM rho_E rho_P
 	states = @variables N(t) E(t) L(t) M(t) P(t)
 	observables = @variables y1(t) y2(t) y3(t) y4(t)
@@ -36,7 +97,7 @@ function crauste()
 	model, mq = create_ordered_ode_system("crauste", states, parameters, equations, measured_quantities)
 
 	return ParameterEstimationProblem(
-		"crauste",
+		"crauste_corrected",
 		model,
 		mq,
 		nothing,
@@ -246,10 +307,10 @@ end
 
 function slowfast()
 	parameters = @parameters k1 k2 eB
-	states = @variables xA(t) xB(t) xC(t) eA(t) eC(t)
+	states = @variables xA(t) xB(t) xC(t) eA(t) eC(t) eB(t)
 	observables = @variables y1(t) y2(t) y3(t) y4(t)
 	p_true = [0.25, 0.5, 0.75]
-	ic_true = [0.166, 0.333, 0.5, 0.666, 0.833]
+	ic_true = [0.166, 0.333, 0.5, 0.666, 0.833, 0.75]
 
 	equations = [
 		D(xA) ~ -k1 * xA,
@@ -257,6 +318,7 @@ function slowfast()
 		D(xC) ~ k2 * xB,
 		D(eA) ~ 0,
 		D(eC) ~ 0,
+		D(eB) ~ 0,  # Add trivial equation for eB
 	]
 	measured_quantities = [y1 ~ xC, y2 ~ eA * xA + eB * xB + eC * xC, y3 ~ eA, y4 ~ eC]
 

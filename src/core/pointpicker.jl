@@ -93,12 +93,12 @@ function compute_point_interestingness(interpolants, t)
 end
 
 
-function pick_points(vec, n, interpolants)
+function pick_points(vec, n, interpolants, point_hint = 0.5)
 	if n == 1
-		return fld(length(vec), 3)
+		return min(max(1, round(Int, point_hint * length(vec))), length(vec))
 	else
 		if n == 2
-			return [fld(length(vec), 3), fld(length(vec), 2) + 1]
+			return [min(max(1, round(Int, point_hint * length(vec))), length(vec)), min(max(1, round(Int, (point_hint + 1 / 3) * length(vec))), length(vec))]
 		else
 			# For n>2 points, return n equispaced points (excluding start and end)
 			step = fld(length(vec) - 2, n + 1)  # Calculate spacing between points

@@ -97,8 +97,8 @@ function run_parameter_estimation_examples(;
 	models = :all,
 	datasize = 1501,
 	noise_level = 1e-2,
-	interpolator = aaad_gpr_pivot,
-	system_solver = solve_with_hc)
+	interpolator = nothing,
+	system_solver = nothing)
 
 	# Dictionary mapping model names to their constructor functions
 	model_dict = Dict(

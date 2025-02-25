@@ -210,9 +210,9 @@ varlist = [a, b]
 
 display(solve_with_rs(poly_system, varlist))
 
-println("Running parameter estimation examples, no noise, maximum")
-run_parameter_estimation_examples(datasize = 2001, noise_level = 0.000, system_solver = solve_with_rs)
-run_parameter_estimation_examples(datasize = 2001, noise_level = 0.000, models = :hard, system_solver = solve_with_rs)
+#println("Running parameter estimation examples, no noise, maximum")
+#run_parameter_estimation_examples(datasize = 501, noise_level = 0.000)
+#run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = :hard)
 
 #=
 println("ez Running parameter estimation examples with  GPR, no noise, maximum")

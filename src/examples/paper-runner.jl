@@ -5,8 +5,10 @@ using Optim
 using Statistics
 using OrderedCollections
 using Dates  # for timestamping the output file name
-
+using Printf
 using Random
+using DataFrames
+
 Random.seed!(42)
 
 
@@ -115,6 +117,8 @@ function save_debug_script(pep::ParameterEstimationProblem,
 	println("Debug script saved as: $filename")
 end
 
+fixed_time_interval = [-1.0, 1.0]
+datasize = 1001
 
 
 function run_paper_runner()
@@ -135,12 +139,10 @@ function run_paper_runner()
 	# Structure: results[noise_level][model_symbol][run_number] = pep
 	results = OrderedDict{Float64, OrderedDict{Symbol, OrderedDict{Int, ParameterEstimationProblem}}}()
 
-	fixed_time_interval = [-1.0, 1.0]
 	parameter_interval = [0.1, 0.9]
-	datasize = 1001
-	noise_levels = [0.0, 1e-6] # 1e-8, 1e-6, 1e-4, 1e-2]
+	noise_levels = [0.0] # 1e-6] # 1e-8, 1e-6, 1e-4, 1e-2]
 	search_bounds = [-3.0, 3.0]  #not used, but could be used to set bounds on the search
-	num_runs = 2
+	num_runs = 1
 	for noise_level in noise_levels
 		# Initialize dictionary for this noise level
 		results[noise_level] = OrderedDict{Symbol, OrderedDict{Int, ParameterEstimationProblem}}()
@@ -215,7 +217,6 @@ end
 results = run_paper_runner()
 
 # Create a data structure to store results
-using DataFrames
 results_df = DataFrame(
 	noise_level = Float64[],
 	model = String[],
@@ -224,6 +225,8 @@ results_df = DataFrame(
 	mean_error = Union{Float64, Missing}[],
 	median_error = Union{Float64, Missing}[],
 	max_error = Union{Float64, Missing}[],
+	approximation_error = Union{Float64, Missing}[],
+	rms_error = Union{Float64, Missing}[],
 )
 
 # Collect results
@@ -231,7 +234,9 @@ for (noise_level, noise_dict) in results
 	for (model_name, model_runs) in noise_dict
 		for (run_num, pep) in model_runs
 			#try
-			sol, besterror, best_min_error, best_mean_error, best_median_error, best_max_error = analyze_parameter_estimation_problem(pep, nooutput = true)
+
+			save_debug_script(pep, datasize, fixed_time_interval, noise_level)
+			sol, besterror, best_min_error, best_mean_error, best_median_error, best_max_error, best_approximation_error, best_rms_error = analyze_parameter_estimation_problem(pep, nooutput = true)
 
 			# Add row to dataframe, replacing any Inf/NaN with missing
 			push!(
@@ -244,12 +249,14 @@ for (noise_level, noise_dict) in results
 					isfinite(best_mean_error) ? best_mean_error : missing,
 					isfinite(best_median_error) ? best_median_error : missing,
 					isfinite(best_max_error) ? best_max_error : missing,
+					isfinite(best_approximation_error) ? best_approximation_error : missing,
+					isfinite(best_rms_error) ? best_rms_error : missing,
 				],
 			)
 			#catch e
 			#println("Warning: Analysis failed for model $model_name run $run_num: $e")
 			# Add row with missing values for failed runs
-			push!(results_df, [noise_level, string(model_name), run_num, missing, missing, missing, missing])
+			push!(results_df, [noise_level, string(model_name), run_num, missing, missing, missing, missing, missing, missing])
 			#end
 		end
 	end
@@ -270,18 +277,22 @@ for noise_level in unique(results_df.noise_level)
 		:mean_error => (x -> mean(skipmissing(x))) => :mean_error,
 		:median_error => (x -> mean(skipmissing(x))) => :median_error,
 		:max_error => (x -> mean(skipmissing(x))) => :max_error,
+		:approximation_error => (x -> mean(skipmissing(x))) => :approximation_error,
+		:rms_error => (x -> mean(skipmissing(x))) => :rms_error,
 	)
 
 	# Print formatted table
-	println("Model                Min Error    Mean Error   Median Error  Max Error")
-	println("-"^80)
+	println("Model                Min Error    Mean Error   Median Error  Max Error    Approx Error  RMS Error")
+	println("-"^100)
 	for row in eachrow(summary)
-		@printf("%-20s %10.6f %12.6f %12.6f %12.6f\n",
+		@printf("%-20s %10.6f %12.6f %12.6f %12.6f %12.6f %12.6f\n",
 			row.model,
 			something(row.min_error, NaN),
 			something(row.mean_error, NaN),
 			something(row.median_error, NaN),
-			something(row.max_error, NaN)
+			something(row.max_error, NaN),
+			something(row.approximation_error, NaN),
+			something(row.rms_error, NaN)
 		)
 	end
 end

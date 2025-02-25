@@ -5,7 +5,7 @@ using Optim
 using Statistics
 using OrderedCollections
 using Dates  # for timestamping the output file name
-
+using Printf
 using Random
 Random.seed!(42)
 
@@ -231,6 +231,8 @@ for (noise_level, noise_dict) in results
 	for (model_name, model_runs) in noise_dict
 		for (run_num, pep) in model_runs
 			#try
+			save_debug_script(pep, datasize, fixed_time_interval, noise_level)
+
 			sol, besterror, best_min_error, best_mean_error, best_median_error, best_max_error = analyze_parameter_estimation_problem(pep, nooutput = true)
 
 			# Add row to dataframe, replacing any Inf/NaN with missing

@@ -1,0 +1,95 @@
+               _
+   _       _ _(_)_     |  Documentation: https://docs.julialang.org
+  (_)     | (_) (_)    |
+   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 1.11.3 (2025-01-21)
+ _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+|__/                   |
+
+[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Crun_parameter_estimation_examples(datasize=3001, noise_level=0.00000, models = [:hiv], interpolator=aaad)[32C[0K[1A[0Kjulia> [7Crun_parameter_estimation_examples(datasize=3001, noise_level=0.00000, models = [:hiv], interpolator=aaad)[32C[0K[1A[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C[0K[0Kjulia> [7Cinclude("run_examples.jl")[33C[0Kjulia> [7Cinclude("run_examples.jl")[33C
+[?2004lPrecompiling ODEParameterEstimation...
+  29885.9 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 34 seconds. 581 already precompiled.
+aa_system
+Any[a^2 + b^2 - 5, a - 2*b]
+R
+Multivariate polynomial ring in 2 variables over rationals
+primes of bitsize 28
+G-Q-Pt-FG-LT-LP(C)
+Dimension of the quotient :2
+Degree of the radical :2
+Use last variable as separating element
+Run Groebner learn
+Test cyclic optimization
+Apply cyclic optimization 
+Multi-modular computation (1 threads): G-Q-Pt-FG-LT-LP(C)
+5-
+check-G-Q-Pt-FG-LT-LP(C)
+Nb Primes used :5
+2-element Vector{Vector{Vector{BigFloat}}}:
+ [[-2.0, -2.0], [-1.0, -1.0]]
+ [[2.0, 2.0], [1.0, 1.0]]
+(Any[[-2.0, -1.0], [2.0, 1.0]], Num[a, b], Dict{Any, Any}(), Num[a, b])
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+DEBUG [determine_optimal_points_count]: Large num points: 1
+DEBUG [determine_optimal_points_count]: Good num points: 1
+
+DEBUG [multipoint_parameter_estimation]: Starting parameter estimation...
+DEBUG [determine_optimal_points_count]: Final analysis with 1 points
+DEBUG [multipoint_parameter_estimation]: Final analysis with 1 points
+DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: Dict{Any, Any}()
+DEBUG [multipoint_parameter_estimation]: Final varlist: Num[a, b, x1(t), x2(t)]
+DEBUG [multipoint_parameter_estimation]: Parameter estimation using this many points: 1
+ERROR: LoadError: MethodError: no method matching pick_points(::Vector{Float64}, ::Int64, ::Dict{Any, Any}, ::Float64)
+The function `pick_points` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  pick_points(::Any, ::Any, ::Any)
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/pointpicker.jl:96
+
+Stacktrace:
+ [1] 
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:378
+ [2] #multishot_parameter_estimation#114
+   @ ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:295 [inlined]
+ [3] multishot_parameter_estimation
+   @ ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:272 [inlined]
+ [4] 
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:365
+ [5] 
+   @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:174
+ [6] top-level scope
+   @ ~/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+ [7] include(fname::String)
+   @ Main ./sysimg.jl:38
+ [8] top-level scope
+   @ REPL[1]:1
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+Some type information was truncated. Use `show(err)` to see complete types.
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C@wh[0K[0Kjulia> [7C@wh[10Cich[3Di[0K[0Kjulia> [7C@whi[11Cch[2Dc[0K[0Kjulia> [7C@whic[12Ch[1Dh[0K[0Kjulia> [7C@which[13C poi[0K[0Kjulia> [7C@which poi[17Cnter[4Dn[0K[0Kjulia> [7C@which poin[18Cter[3Dt[0K[0Kjulia> [7C@which point[19Cer[2D_[0K[0Kjulia> [7C@which point_[20Cpoints[0Kjulia> [7C@which point_points[26C
+[?2004lERROR: "point_points" is not defined in module Main
+Stacktrace:
+ [1] error(s::String)
+   @ Base ./error.jl:35
+ [2] which(m::Module, s::Symbol)
+   @ Base ./reflection.jl:2249
+ [3] top-level scope
+   @ REPL[1]:1
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C@which point_points[26C[0Kjulia> [7C@which point_points[26C[0K[0Kjulia> [7C@which point_points[26C[0Kjulia> [7C@which point_points[25C[0Kjulia> [7C@which point_points[24C[0Kjulia> [7C@which point_points[23C[0Kjulia> [7C@which point_points[22C[0Kjulia> [7C@which point_points[21C[0Kjulia> [7C@which point_points[20C[0Kjulia> [7C@which point_points[19C[0Kjulia> [7C@which point_points[18C[0Kjulia> [7C@which point_points[17C[0Kjulia> [7C@which point_points[16C[0Kjulia> [7C@which point_points[15C[0Kjulia> [7C@which point_points[14C[0Kjulia> [7C@which Opoint_points[15C[0Kjulia> [7C@which ODpoint_points[16C[0Kjulia> [7C@which ODEpoint_points[17C[0Kjulia> [7C@which ODEPpoint_points[18C[0Kjulia> [7C@which ODEPpoint_points[18C[0Kjulia> [7C@which ODEPapoint_points[19C[0Kjulia> [7C@which ODEParpoint_points[20C[0Kjulia> [7C@which ODEParapoint_points[21C[0Kjulia> [7C@which ODEParampoint_points[22C[0Kjulia> [7C@which ODEParamepoint_points[23C[0Kjulia> [7C@which ODEParametpoint_points[24C[0Kjulia> [7C@which ODEParametepoint_points[25C[0Kjulia> [7C@which ODEParameterpoint_points[26C[0Kjulia> [7C@which ODEParameterEpoint_points[27C[0Kjulia> [7C@which ODEParameterEspoint_points[28C[0Kjulia> [7C@which ODEParameterEstpoint_points[29C[0Kjulia> [7C@which ODEParameterEstipoint_points[30C[0Kjulia> [7C@which ODEParameterEstimpoint_points[31C[0Kjulia> [7C@which ODEParameterEstimapoint_points[32C[0Kjulia> [7C@which ODEParameterEstimatpoint_points[33C[0Kjulia> [7C@which ODEParameterEstimatipoint_points[34C[0Kjulia> [7C@which ODEParameterEstimatiopoint_points[35C[0Kjulia> [7C@which ODEParameterEstimationpoint_points[36C[0Kjulia> [7C@which ODEParameterEstimation.point_points[37C[0Kjulia> [7C@which ODEParameterEstimation.point_points[49C
+[?2004lERROR: "point_points" is not defined in module ODEParameterEstimation
+Stacktrace:
+ [1] error(s::String)
+   @ Base ./error.jl:35
+ [2] which(m::Module, s::Symbol)
+   @ Base ./reflection.jl:2249
+ [3] macro expansion
+   @ ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/InteractiveUtils/src/macros.jl:86 [inlined]
+ [4] top-level scope
+   @ REPL[2]:1
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C
+[?2004l

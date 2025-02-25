@@ -268,6 +268,60 @@ end
 
 
 
+
+function multishot_parameter_estimation(
+	PEP::ParameterEstimationProblem;
+	system_solver = solve_with_rs,
+	max_num_points = 1,
+	interpolator = interpolator,
+	nooutput = false,
+	diagnostics = false,
+	diagnostic_data = nothing,
+	polish_solutions = false,
+	polish_maxiters = 20,
+	polish_method = NewtonTrustRegion,
+	shooting_points = 10)
+
+	# Initialize empty arrays to store all solutions and metadata
+	all_solutions = []
+	all_udict = nothing
+	all_trivial_dict = nothing
+	all_unidentifiable = nothing
+
+	# Run parameter estimation at each point hint
+	for i in 0:(shooting_points+1)
+		point_hint = i / (shooting_points + 1)
+
+		solutions, udict, trivial_dict, unidentifiable = multipoint_parameter_estimation(
+			PEP;
+			system_solver = system_solver,
+			max_num_points = max_num_points,
+			interpolator = interpolator,
+			nooutput = nooutput,
+			diagnostics = diagnostics,
+			diagnostic_data = diagnostic_data,
+			polish_solutions = polish_solutions,
+			polish_maxiters = polish_maxiters,
+			polish_method = polish_method,
+			point_hint = point_hint,
+		)
+
+		# Store metadata from first run
+		if isnothing(all_udict)
+			all_udict = udict
+			all_trivial_dict = trivial_dict
+			all_unidentifiable = unidentifiable
+		end
+
+		# Add solutions from this run
+		append!(all_solutions, solutions)
+	end
+
+	return all_solutions, all_udict, all_trivial_dict, all_unidentifiable
+end
+
+
+
 """
 	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_rs, display_points = true, max_num_points = 4)
 
@@ -293,7 +347,10 @@ function multipoint_parameter_estimation(
 	nooutput = false,
 	diagnostics = false,
 	diagnostic_data = nothing,
-	polish_solutions = true,
+	polish_solutions = false,
+	polish_maxiters = 20,
+	polish_method = NewtonTrustRegion,
+	point_hint = 0.5,
 )
 
 	t, eqns, states, params = unpack_ODE(PEP.model.system)
@@ -318,7 +375,7 @@ function multipoint_parameter_estimation(
 		println("DEBUG [multipoint_parameter_estimation]: Parameter estimation using this many points: $good_num_points")
 
 		#####################################################################################
-		time_index_set = pick_points(t_vector, good_num_points, interpolants)
+		time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
 		if !nooutput
 			println("We are trying these points:", time_index_set)
 			println("Using these observations and their derivatives:", good_deriv_level)
@@ -331,8 +388,11 @@ function multipoint_parameter_estimation(
 			interpolator, interpolants, diagnostics, diagnostic_data, states, params)
 
 		final_target = reduce(vcat, full_target)
-		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
 
+
+		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+		#final_varlist = collect(values(forward_subst_dict[1]))
+		#trimmed_varlist = final_varlist
 
 		if !isnothing(diagnostic_data)
 			# Compute ideal_sol externally and pass to construct_multipoint_equation_system!
@@ -404,12 +464,23 @@ function multipoint_parameter_estimation(
 			found_any_solutions = true
 		end
 	end
-	println("DEBUG [multipoint_parameter_estimation]: Raw solutions from solver before backsolving:")
-	for (i, soln) in enumerate(solns)
-		println("\nSolution $i:")
-		var_value_dict = Dict(var => val for (var, val) in zip(final_varlist, soln))
-		println(var_value_dict)
+
+
+	println(typeof(solns))
+	println("SOLNS: $solns")
+	for i in eachindex(solns)
+		println(typeof(solns[i]))
+		a = solns[i]
+		println("SOLN $i: $a")
 	end
+
+	# The following debug prints the raw solver output -- I will comment these out
+	# println("DEBUG [multipoint_parameter_estimation]: Raw solutions from solver before backsolving:")
+	# for (i, soln) in enumerate(solns)
+	# 	println("\nSolution $i:")
+	# 	var_value_dict = Dict(var => val for (var, val) in zip(final_varlist, soln))
+	# 	println(var_value_dict)
+	# end
 
 	@named new_model = ODESystem(eqns, t, states, params)
 	new_model = complete(new_model)
@@ -435,9 +506,18 @@ function multipoint_parameter_estimation(
 				soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
 		end
 
-
 		initial_conditions = convert_to_real_or_complex_array(initial_conditions)
 		parameter_values = convert_to_real_or_complex_array(parameter_values)
+
+		# Added new debug statements to output the precise initial conditions and parameter vectors
+		println("DEBUG: Processing solution $soln_index")
+		println("DEBUG: Constructed initial conditions: ", initial_conditions)
+		println("DEBUG: Constructed parameter values: ", parameter_values)
+		println("DEBUG: Parameter/IC mapping:")
+		println(Dict(
+			[string(s) => v for (s, v) in zip(states, initial_conditions)]...,
+			[string(p) => v for (p, v) in zip(params, parameter_values)]...,
+		))
 
 		tspan = (t_vector[lowest_time_index], t_vector[1])
 
@@ -456,7 +536,10 @@ function multipoint_parameter_estimation(
 
 		newstates = OrderedDict()
 		for s in states
+
 			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
+
+			#newstates[s] = getp(ode_solution, Symbol(state_param_map[s]))[end]
 		end
 
 		push!(results_vec, [collect(values(newstates)); parameter_values])
@@ -505,11 +588,14 @@ function multipoint_parameter_estimation(
 					candidate,
 					PEP,
 					solver = PEP.solver,
+					opt_method = polish_method,
+					opt_maxiters = polish_maxiters,
 					abstol = 1e-14,
 					reltol = 1e-14,
 				)
-				# Only keep the polished result if it improved the error
+				# Keep both the original and polished result if polishing improved the error
 				if polished_result.err < candidate.err
+					push!(polished_solved_res, candidate)
 					push!(polished_solved_res, polished_result)
 				else
 					push!(polished_solved_res, candidate)
@@ -882,7 +968,16 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
 		end
 		for (key, value) in deriv_level
-			interpolated_values_dict[DD.obs_lhs[1][key]] = sol(t_vector[time_index], idxs = measured_quantities[key].lhs)
+
+			temp1 = DD.obs_lhs[1][key]
+			newidx = measured_quantities[key].lhs
+			tempt = t_vector[time_index]
+			#			println("DEBUG BEFORE ERROR")
+			#			println(tempt)
+			#			println(newidx)
+
+			temp2 = sol(tempt, idxs = newidx)
+			interpolated_values_dict[temp1] = temp2
 			for i in 1:value
 				interpolated_values_dict[DD.obs_lhs[i+1][key]] = sol(t_vector[time_index], idxs = obs_derivs[key, i])
 			end
@@ -1060,8 +1155,8 @@ An example call is provided below.
 """
 function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
 	solver = Vern9(),
-	opt_method = BFGS,
-	opt_maxiters = 200000,
+	opt_method = LBFGS,
+	opt_maxiters = 20,
 	abstol = 1e-13,
 	reltol = 1e-13,
 	lb = nothing,
@@ -1109,26 +1204,40 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	# Here we assume that each measured quantity equation is of the form `LHS ~ rhs`,
 	# where the source of the measurement is the state corresponding to `rhs`.
 	function loss(p_vec)
-		ic_guess = p_vec[1:n_ic]
-		param_guess = p_vec[n_ic+1:end]
+		# Validate input vector for complex numbers
+		if any(abs.(imag.(p_vec)) .> complex_threshold)
+			return Inf
+		end
+
+		ic_guess = real.(p_vec[1:n_ic])
+		param_guess = real.(p_vec[n_ic+1:end])
+
 		prob_opt = remake(prob, u0 = ic_guess, p = param_guess)
-		sol_opt = ModelingToolkit.solve(prob_opt, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+		sol_opt = try
+			ModelingToolkit.solve(prob_opt, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
+		catch e
+			println("WARNING: ODE solver failed with error: $e")
+			return Inf
+		end
+
 		if sol_opt.retcode != ReturnCode.Success
 			return Inf
 		end
+
 		total_error = 0.0
 		# Loop over each measured quantity
 		for eq in PEP.measured_quantities
-			# Assume that the measured value is generated from a state variable given as eq.rhs.
-			measured_var = eq.rhs
-			idx = state_index[measured_var]  # ensure that the measured state occurs in candidate_solution.states
-			# Extract simulated values (one per time point)
-			sim_vals = [sol_opt.u[i][idx] for i in 1:length(sol_opt.u)]
-			# Determine which key to use from the data sample.
-			# Try using string(measured_var) and fallback to string(eq.lhs).
-			key1 = measured_var
-			key2 = string(eq.lhs)
-			data_true = haskey(PEP.data_sample, key1) ? PEP.data_sample[key1] : PEP.data_sample[key2]
+			sim_vals = []
+			for i in 1:length(sol_opt.u)
+				# Create substitution dictionary for current timepoint
+				time_subst = Dict(s => sol_opt.u[i][state_index[s]] for s in state_keys)
+				# Evaluate the formula with current state values and extract value from possible Dual type
+				val = substitute(eq.rhs, time_subst)
+				push!(sim_vals, val)
+			end
+			# Determine which key to use from the data sample
+			key = eq.rhs
+			data_true = PEP.data_sample[key]
 			total_error += sum((sim_vals .- data_true) .^ 2)
 		end
 		return total_error
@@ -1145,13 +1254,13 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
 	optprob = Optimization.OptimizationProblem(optf, p0)  #lb = lb, ub = ub
 
-	# Solve the optimization problem.
+	# Solve the optimization problem with a timeout
 	result = Optimization.solve(optprob, opt_method(), callback = (p, l) -> false, maxiters = opt_maxiters)
 
 	# Extract the optimized initial conditions and parameters.
 	p_opt = result.u
-	ic_opt = p_opt[1:n_ic]
-	param_opt = p_opt[n_ic+1:end]
+	ic_opt = real.(p_opt[1:n_ic])
+	param_opt = real.(p_opt[n_ic+1:end])
 
 	# Re-simulate the ODE using the optimized values.
 	prob_polished = remake(prob, u0 = ic_opt, p = param_opt)
