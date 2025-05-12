@@ -66,7 +66,7 @@ using LeastSquaresOptim
 
 
 
-function solve_with_nlopt(poly_system, varlist;
+#=function solve_with_nlopt(poly_system, varlist;
 	start_point = nothing,
 	optimizer = GaussNewton(),
 	polish_only = false,
@@ -203,7 +203,7 @@ function solve_with_rs(poly_system, varlist;
 	#return solutions, varlist, Dict(), varlist
 	return solutions, varlist, Dict(), varlist
 end
-
+=#
 @variables a b
 poly_system = [(a^2 + b^2 - 5), (a - 2 * b)]
 varlist = [a, b]
@@ -211,8 +211,8 @@ varlist = [a, b]
 display(solve_with_rs(poly_system, varlist))
 
 #println("Running parameter estimation examples, no noise, maximum")
-#run_parameter_estimation_examples(datasize = 501, noise_level = 0.000)
-#run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = :hard)
+run_parameter_estimation_examples(datasize = 501, noise_level = 0.000)
+run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = :hard)
 
 #=
 println("ez Running parameter estimation examples with  GPR, no noise, maximum")

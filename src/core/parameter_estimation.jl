@@ -1,3 +1,9 @@
+# REFACTORING NOTE:
+# Several functions have been moved out of this file to improve organization:
+# - multipoint_parameter_estimation -> moved to multipoint_estimation.jl
+# - multishot_parameter_estimation -> moved to multipoint_estimation.jl
+# - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
+
 """
 	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
 
@@ -74,28 +80,72 @@ function populate_derivatives(model::ODESystem, measured_quantities_in, max_deri
 end
 
 
-function convert_to_real_or_complex_array(values)
-	newvalues = Base.convert(Array{ComplexF64, 1}, values)
-	if isreal(newvalues)
-		return Base.convert(Array{Float64, 1}, newvalues)
-	else
-		return newvalues
-	end
+"""
+    convert_to_real_or_complex_array(values) -> Union{Array{Float64,1}, Array{ComplexF64,1}}
+
+Converts input values to either real or complex array based on the values' properties.
+
+# Arguments
+- `values`: Input values to convert
+
+# Returns
+- `Array{Float64,1}` if all values are real (within numerical precision)
+- `Array{ComplexF64,1}` if any values have non-negligible imaginary components
+"""
+function convert_to_real_or_complex_array(values)::Union{Array{Float64,1}, Array{ComplexF64,1}}
+    # First convert to complex to handle mixed inputs
+    newvalues = Base.convert(Array{ComplexF64, 1}, values)
+    
+    # If all values are real (within tolerance), convert to real array
+    if isreal(newvalues)
+        return Base.convert(Array{Float64, 1}, newvalues)
+    else
+        return newvalues
+    end
 end
 
 
 
 
 
-function create_interpolants(measured_quantities, data_sample, t_vector, interpolator)
-	interpolants = Dict()
-	for j in measured_quantities
-		r = j.rhs
-		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
-		y_vector = data_sample[key]
-		interpolants[r] = interpolator(t_vector, y_vector)
-	end
-	return interpolants
+"""
+    create_interpolants(
+        measured_quantities::Vector{Equation},
+        data_sample::OrderedDict,
+        t_vector::Vector{Float64},
+        interp_func::Function
+    ) -> Dict{Any, AbstractInterpolator}
+
+Creates interpolant functions for measured quantities using the provided interpolation function.
+
+# Arguments
+- `measured_quantities::Vector{Equation}`: Equations for measured quantities
+- `data_sample::OrderedDict`: Sample data for measured quantities
+- `t_vector::Vector{Float64}`: Time points at which measurements were taken
+- `interp_func::Function`: Function to use for interpolation (e.g., aaad, aaad_gpr_pivot)
+
+# Returns
+- Dictionary mapping each quantity to its corresponding interpolant function
+"""
+function create_interpolants(
+    measured_quantities::Vector{Equation},
+    data_sample::OrderedDict,
+    t_vector::Vector{Float64},
+    interp_func::Function
+)::Dict{Any, AbstractInterpolator}
+    interpolants = Dict{Any, AbstractInterpolator}()
+    
+    for j in measured_quantities
+        r = j.rhs
+        # Look up data in data_sample - use rhs if available, otherwise use lhs
+        key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
+        y_vector = data_sample[key]
+        
+        # Create interpolant and store in dictionary
+        interpolants[r] = interp_func(t_vector, y_vector)
+    end
+    
+    return interpolants
 end
 
 
@@ -106,16 +156,14 @@ function determine_optimal_points_count(model, measured_quantities, max_num_poin
 	time_interval = extrema(t_vector)
 	large_num_points = min(length(params), max_num_points, length(t_vector))
 	good_num_points = large_num_points
-	println("DEBUG [determine_optimal_points_count]: Large num points: $large_num_points")
-	println("DEBUG [determine_optimal_points_count]: Good num points: $good_num_points")
+	@debug "Large num points: $large_num_points"
+	@debug "Good num points: $good_num_points"
 
 	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist =
 		[[] for _ in 1:7]
 	good_DD = nothing
 
-	if !nooutput
-		println("\nDEBUG [multipoint_parameter_estimation]: Starting parameter estimation...")
-	end
+	@debug "Starting parameter estimation..."
 	if good_num_points > 1
 		(target_deriv_level, target_udict, target_varlist, target_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, large_num_points)
 
@@ -131,12 +179,9 @@ function determine_optimal_points_count(model, measured_quantities, max_num_poin
 
 	(good_deriv_level, good_udict, good_varlist, good_DD) = multipoint_local_identifiability_analysis(model, measured_quantities, good_num_points)
 
-	if !nooutput
-		println("DEBUG [determine_optimal_points_count]: Final analysis with ", good_num_points, " points")
-		println("DEBUG [multipoint_parameter_estimation]: Final analysis with ", good_num_points, " points")
-		println("DEBUG [multipoint_parameter_estimation]: Final unidentifiable dict: ", good_udict)
-		println("DEBUG [multipoint_parameter_estimation]: Final varlist: ", good_varlist)
-	end
+	@debug "Final analysis with $(good_num_points) points"
+	@debug "Final unidentifiable dict: $(good_udict)"
+	@debug "Final varlist: $(good_varlist)"
 
 	return good_num_points, good_deriv_level, good_udict, good_varlist, good_DD
 
@@ -269,378 +314,60 @@ end
 
 
 
-function multishot_parameter_estimation(
-	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_rs,
-	max_num_points = 1,
-	interpolator = interpolator,
-	nooutput = false,
-	diagnostics = false,
-	diagnostic_data = nothing,
-	polish_solutions = false,
-	polish_maxiters = 20,
-	polish_method = NewtonTrustRegion,
-	shooting_points = 10)
+# multishot_parameter_estimation has been moved to multipoint_estimation.jl
 
-	# Initialize empty arrays to store all solutions and metadata
-	all_solutions = []
-	all_udict = nothing
-	all_trivial_dict = nothing
-	all_unidentifiable = nothing
 
-	# Run parameter estimation at each point hint
-	for i in 0:(shooting_points+1)
-		point_hint = i / (shooting_points + 1)
 
-		solutions, udict, trivial_dict, unidentifiable = multipoint_parameter_estimation(
-			PEP;
-			system_solver = system_solver,
-			max_num_points = max_num_points,
-			interpolator = interpolator,
-			nooutput = nooutput,
-			diagnostics = diagnostics,
-			diagnostic_data = diagnostic_data,
-			polish_solutions = polish_solutions,
-			polish_maxiters = polish_maxiters,
-			polish_method = polish_method,
-			point_hint = point_hint,
-		)
-
-		# Store metadata from first run
-		if isnothing(all_udict)
-			all_udict = udict
-			all_trivial_dict = trivial_dict
-			all_unidentifiable = unidentifiable
-		end
-
-		# Add solutions from this run
-		append!(all_solutions, solutions)
-	end
-
-	return all_solutions, all_udict, all_trivial_dict, all_unidentifiable
-end
+# The implementation has been moved to multipoint_estimation.jl
 
 
 
 """
-	multipoint_parameter_estimation(model::ODESystem, measured_quantities, data_sample, ode_solver; system_solver = solve_with_rs, display_points = true, max_num_points = 4)
+    multipoint_numerical_jacobian(
+        model::ODESystem,
+        measured_quantities::Vector{Equation},
+        max_deriv_level::Int,
+        max_num_points::Int,
+        unident_dict::Dict,
+        varlist::Vector{Num},
+        param_dict,
+        ic_dict_vector,
+        values_dict,
+        DD::Union{DerivativeData,Symbol} = :nothing
+    ) -> Tuple{Matrix{Float64}, DerivativeData}
 
-Perform Multi-point Homotopy Continuation Parameter Estimation.
-
-# Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities`: Measured quantities
-- `data_sample`: Sample data
-- `ode_solver`: ODE solver to use
-- `system_solver`: System solver function (optional, default: solve_with_rs)
-- `display_points`: Whether to display points (optional, default: true)
-- `max_num_points`: Maximum number of points to use (optional, default: 4)
-
-# Returns
-- Vector of result vectors
-"""
-function multipoint_parameter_estimation(
-	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_rs,
-	max_num_points = 1,
-	interpolator = interpolator,
-	nooutput = false,
-	diagnostics = false,
-	diagnostic_data = nothing,
-	polish_solutions = false,
-	polish_maxiters = 20,
-	polish_method = NewtonTrustRegion,
-	point_hint = 0.5,
-)
-
-	t, eqns, states, params = unpack_ODE(PEP.model.system)
-
-	t_vector = PEP.data_sample["t"]
-	time_interval = extrema(t_vector)
-	found_any_solutions = false
-	num_points_cap = min(length(params), max_num_points, length(t_vector))
-	good_num_points = num_points_cap
-
-	time_index_set, solns, good_udict, forward_subst_dict, trivial_dict, final_varlist, trimmed_varlist = [[] for _ in 1:7]
-	good_DD = nothing
-	attempt_count = 0
-	interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interpolator)
-
-	while (!found_any_solutions)  #Todo: improve this
-		attempt_count += 1
-		if attempt_count > 10
-			break
-		end
-		good_num_points, good_deriv_level, good_udict, good_varlist, good_DD = determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
-		println("DEBUG [multipoint_parameter_estimation]: Parameter estimation using this many points: $good_num_points")
-
-		#####################################################################################
-		time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
-		if !nooutput
-			println("We are trying these points:", time_index_set)
-			println("Using these observations and their derivatives:", good_deriv_level)
-		end
-
-		@variables testing
-
-		full_target, full_varlist, forward_subst_dict, reverse_subst_dict = construct_multipoint_equation_system!(time_index_set,
-			PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
-			interpolator, interpolants, diagnostics, diagnostic_data, states, params)
-
-		final_target = reduce(vcat, full_target)
-
-
-		final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-		#final_varlist = collect(values(forward_subst_dict[1]))
-		#trimmed_varlist = final_varlist
-
-		if !isnothing(diagnostic_data)
-			# Compute ideal_sol externally and pass to construct_multipoint_equation_system!
-			max_deriv = max(7, 1 + maximum(collect(values(good_deriv_level))))
-			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(PEP.model.system), PEP.measured_quantities, max_deriv)
-			@named new_sys = ODESystem(equations(PEP.model.system), t; observed = expanded_mq)
-			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
-			ideal_sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
-
-			ideal_full_target, ideal_full_varlist, ideal_forward_subst_dict, ideal_reverse_subst_dict = construct_multipoint_equation_system!(time_index_set,
-				PEP.model.system, PEP.measured_quantities, PEP.data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
-				interpolator, interpolants, diagnostics, diagnostic_data, states, params; ideal = true, sol = ideal_sol)
-
-			ideal_final_target = reduce(vcat, ideal_full_target)
-			ideal_final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-
-
-			println("DEBUG [multipoint_parameter_estimation]: Ideal final target: ")
-			for eq in ideal_final_target
-				println(eq)
-			end
-			println("DEBUG [but we are actually solving this: ")
-			for eq in final_target
-				println(eq)
-			end
-			println("As a reminder the true parameter values are: ")
-			println(PEP.p_true)
-			println("And the true states are: ")
-			println(PEP.ic)
-			println("The forward substitution dictionary is: ")
-			println(forward_subst_dict)
-			println("The reverse substitution dictionary is: ")
-			println(reverse_subst_dict)
-		end
-
-		# New: Evaluate the polynomial system using exact state and parameter values.
-		# For state values, if diagnostic_data is provided and ideal_sol is computed, use the ODE solver output at the lowest time index.
-		if !isnothing(diagnostic_data)
-			lowest_time = min(time_index_set...)
-			exact_state_vals = OrderedDict{Any, Any}()
-			for s in states
-				exact_state_vals[s] = ideal_sol(t_vector[lowest_time], idxs = s)
-			end
-		else
-			exact_state_vals = PEP.ic
-		end
-
-		exact_system = evaluate_poly_system(ideal_final_target, ideal_forward_subst_dict[1], ideal_reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
-		inexact_system = evaluate_poly_system(final_target, forward_subst_dict[1], reverse_subst_dict[1], exact_state_vals, PEP.p_true, eqns)
-		println("DEBUG [multipoint_parameter_estimation]: Evaluated ideal polynomial system with exact state and parameter values:")
-		for eq in exact_system
-			println(eq)
-		end
-		println("DEBUG [multipoint_parameter_estimation]: Evaluated interpolated polynomial system with exact state and parameter values:")
-		for eq in inexact_system
-			println(eq)
-		end
-		println("and by the way the exact state values are: (at the time index $lowest_time)")
-		println(exact_state_vals)
-		println("and by the way the exact parameter values are:")
-		println(PEP.p_true)
-		if !nooutput
-			println("DEBUG [multipoint_parameter_estimation]: Solving system...")
-			println("DEBUG [multipoint_parameter_estimation]: Final target: $final_target")
-		end
-		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
-		solns = solve_result
-		if (!isempty(solns))  #TODO(orebas) this should probably be moved to after the backsolving step
-			found_any_solutions = true
-		end
-	end
-
-
-	println(typeof(solns))
-	println("SOLNS: $solns")
-	for i in eachindex(solns)
-		println(typeof(solns[i]))
-		a = solns[i]
-		println("SOLN $i: $a")
-	end
-
-	# The following debug prints the raw solver output -- I will comment these out
-	# println("DEBUG [multipoint_parameter_estimation]: Raw solutions from solver before backsolving:")
-	# for (i, soln) in enumerate(solns)
-	# 	println("\nSolution $i:")
-	# 	var_value_dict = Dict(var => val for (var, val) in zip(final_varlist, soln))
-	# 	println(var_value_dict)
-	# end
-
-	@named new_model = ODESystem(eqns, t, states, params)
-	new_model = complete(new_model)
-	lowest_time_index = min(time_index_set...)
-
-	results_vec = []
-
-	for soln_index in eachindex(solns)
-		initial_conditions = [1e10 for s in states]
-		parameter_values = [1e10 for p in params]
-
-		for i in eachindex(params)
-			param_search = forward_subst_dict[1][(params[i])]
-			parameter_values[i] = lookup_value(
-				params[i], param_search,
-				soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
-		end
-
-		for i in eachindex(states)
-			model_state_search = forward_subst_dict[1][(states[i])]
-			initial_conditions[i] = lookup_value(
-				states[i], model_state_search,
-				soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
-		end
-
-		initial_conditions = convert_to_real_or_complex_array(initial_conditions)
-		parameter_values = convert_to_real_or_complex_array(parameter_values)
-
-		# Added new debug statements to output the precise initial conditions and parameter vectors
-		println("DEBUG: Processing solution $soln_index")
-		println("DEBUG: Constructed initial conditions: ", initial_conditions)
-		println("DEBUG: Constructed parameter values: ", parameter_values)
-		println("DEBUG: Parameter/IC mapping:")
-		println(Dict(
-			[string(s) => v for (s, v) in zip(states, initial_conditions)]...,
-			[string(p) => v for (p, v) in zip(params, parameter_values)]...,
-		))
-
-		tspan = (t_vector[lowest_time_index], t_vector[1])
-
-		new_model = complete(new_model)
-		ic_dict = Dict(states .=> initial_conditions)
-
-		ordered_params = [parameter_values[i] for i in eachindex(params)]
-		ordered_ic = [initial_conditions[i] for i in eachindex(states)]
-
-		prob = ODEProblem(new_model, ordered_ic, tspan, ordered_params)
-
-		ode_solution = ModelingToolkit.solve(prob, PEP.solver, abstol = 1e-14, reltol = 1e-14)
-
-		state_param_map = (Dict(x => replace(string(x), "(t)" => "")
-								for x in ModelingToolkit.unknowns(PEP.model.system)))
-
-		newstates = OrderedDict()
-		for s in states
-
-			newstates[s] = ode_solution[Symbol(state_param_map[s])][end]
-
-			#newstates[s] = getp(ode_solution, Symbol(state_param_map[s]))[end]
-		end
-
-		push!(results_vec, [collect(values(newstates)); parameter_values])
-	end
-
-
-	# Get current ordering from ModelingToolkit
-	current_states = ModelingToolkit.unknowns(PEP.model.system)
-	current_params = ModelingToolkit.parameters(PEP.model.system)
-
-	# Create ordered dictionaries to preserve parameter order
-	param_dict = OrderedDict(current_params .=> ones(length(current_params)))
-	states_dict = OrderedDict(current_states .=> ones(length(current_states)))
-
-	#return (results_vec, good_udict, trivial_dict, good_DD.all_unidentifiable)
-	solved_res = []
-	tspan = (PEP.data_sample["t"][begin], PEP.data_sample["t"][end])
-
-
-
-	newres = ParameterEstimationResult(param_dict, states_dict, tspan[1], nothing, nothing, length(PEP.data_sample["t"]), tspan[1], good_udict, good_DD.all_unidentifiable, nothing)
-
-	for (i, raw_sol) in enumerate(results_vec)
-		if !nooutput
-			println("\nDEBUG [multipoint_parameter_estimation]: Processing solution ", i)
-		end
-		push!(solved_res, deepcopy(newres))
-
-		ordered_states, ordered_params, ode_solution, err = process_raw_solution(raw_sol, PEP.model, PEP.data_sample, PEP.solver, abstol = 1e-14, reltol = 1e-14)  #TODO extract these constants
-
-		# Update result with processed data
-		solved_res[end].states = ordered_states
-		solved_res[end].parameters = ordered_params
-		solved_res[end].solution = ode_solution
-		solved_res[end].err = err
-	end
-	# Polish solutions if requested
-	if polish_solutions
-		polished_solved_res = []
-		for (i, candidate) in enumerate(solved_res)
-			if !nooutput
-				println("\nDEBUG [multipoint_parameter_estimation]: Polishing solution ", i)
-			end
-			try
-				polished_result, opt_result = polish_solution_using_optimization(
-					candidate,
-					PEP,
-					solver = PEP.solver,
-					opt_method = polish_method,
-					opt_maxiters = polish_maxiters,
-					abstol = 1e-14,
-					reltol = 1e-14,
-				)
-				# Keep both the original and polished result if polishing improved the error
-				if polished_result.err < candidate.err
-					push!(polished_solved_res, candidate)
-					push!(polished_solved_res, polished_result)
-				else
-					push!(polished_solved_res, candidate)
-				end
-			catch e
-				println("Warning: Failed to polish solution ", i, ": ", e)
-				push!(polished_solved_res, candidate)
-			end
-		end
-		solved_res = polished_solved_res
-	end
-
-	return (solved_res, good_udict, trivial_dict, good_DD.all_unidentifiable)
-
-
-end
-
-
-
-"""
-	multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
-								varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
-
-Compute the numerical Jacobian at multiple points.
+Computes the numerical Jacobian at multiple points.
 The multiple points have different values for states, but the same parameters.
 
 # Arguments
-- `model`: The ODE model
-- `measured_quantities_in`: Input measured quantities
-- `max_deriv_level::Int`: Maximum derivative level
-- `max_num_points`: Maximum number of points
-- `unident_dict`: Dictionary of unidentifiable variables
-- `varlist`: List of variables
-- `param_dict`: Dictionary of parameters
-- `ic_dict_vector`: Vector of initial condition dictionaries
-- `values_dict`: Dictionary of values; we just use this to copy its shape
-- `DD`: DerivativeData object (optional)
+- `model::ODESystem`: The ODE system model
+- `measured_quantities::Vector{Equation}`: Input measured quantities
+- `max_deriv_level::Int`: Maximum derivative level to compute
+- `max_num_points::Int`: Maximum number of points to use
+- `unident_dict::Dict`: Dictionary of unidentifiable variables
+- `varlist::Vector{Num}`: List of variables
+- `param_dict::OrderedDict{Num,Float64}`: Dictionary of parameters
+- `ic_dict_vector::Vector{OrderedDict{Num,Float64}}`: Vector of initial condition dictionaries
+- `values_dict::OrderedDict{Num,Float64}`: Dictionary of values; used for dictionary structure
+- `DD::Union{DerivativeData,Symbol}`: DerivativeData object (optional, default: :nothing)
 
 # Returns
 - Tuple containing the Jacobian matrix and DerivativeData object
 """
-function multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_level::Int, max_num_points, unident_dict,
-	varlist, param_dict, ic_dict_vector, values_dict, DD = :nothing)
+function multipoint_numerical_jacobian(
+    model::ODESystem,
+    measured_quantities::Vector{Equation},
+    max_deriv_level::Int,
+    max_num_points::Int,
+    unident_dict::Dict,
+    varlist::Vector{Num},
+    param_dict,
+    ic_dict_vector,
+    values_dict,
+    DD::Union{DerivativeData,Symbol} = :nothing
+)::Tuple{Matrix{Float64}, DerivativeData}
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
-	measured_quantities = deepcopy(measured_quantities_in)
+	measured_quantities_local = deepcopy(measured_quantities)
 
 	states_count = length(model_states)
 	ps_count = length(model_ps)
@@ -651,7 +378,7 @@ function multipoint_numerical_jacobian(model, measured_quantities_in, max_deriv_
 	num_real_states = length(keys(ic_dict_vector[1]))
 
 	if (DD == :nothing)
-		DD = populate_derivatives(model, measured_quantities, max_deriv_level, unident_dict)
+		DD = populate_derivatives(model, measured_quantities_local, max_deriv_level, unident_dict)
 	end
 
 	function f(param_and_ic_values_vec)
@@ -719,21 +446,37 @@ function multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_nu
 end
 
 """
-	multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
+    multipoint_local_identifiability_analysis(
+        model::ODESystem,
+        measured_quantities::Vector{Equation},
+        max_num_points::Int,
+        reltol::Float64 = 1e-12,
+        abstol::Float64 = 1e-12
+    ) -> Tuple{Dict{Int,Int}, Dict, Vector{Num}, DerivativeData}
 
-Perform local identifiability analysis at multiple points.
+Performs local identifiability analysis at multiple points.
 
 # Arguments
 - `model::ODESystem`: The ODE system
-- `measured_quantities`: Measured quantities
-- `max_num_points`: Maximum number of points to use
-- `rtol`: Relative tolerance (default: 1e-12)
-- `atol`: Absolute tolerance (default: 1e-12)
+- `measured_quantities::Vector{Equation}`: Measured quantities
+- `max_num_points::Int`: Maximum number of points to use
+- `reltol::Float64`: Relative tolerance (default: 1e-12)
+- `abstol::Float64`: Absolute tolerance (default: 1e-12)
 
 # Returns
-- Tuple containing derivative levels, unidentifiable dictionary, variable list, and DerivativeData object
+- Tuple containing:
+  1. Dictionary mapping observables to their required derivative levels
+  2. Dictionary of unidentifiable parameters and their values
+  3. List of identifiable variables
+  4. DerivativeData object containing all computed derivatives
 """
-function multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities, max_num_points, rtol = 1e-12, atol = 1e-12)
+function multipoint_local_identifiability_analysis(
+    model::ODESystem,
+    measured_quantities,
+    max_num_points::Int,
+    reltol::Float64 = 1e-12,
+    abstol::Float64 = 1e-12
+)::Tuple{Dict, Dict, Vector, DerivativeData}
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
 
@@ -785,7 +528,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 		if (!isempty(ns))
 			candidate_plugins_for_unidentified = OrderedDict()
 			for i in eachindex(varlist)
-				if (!isapprox(norm(ns[i, :]), 0.0, atol = atol))
+				if (!isapprox(norm(ns[i, :]), 0.0, atol = abstol))
 					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
 					push!(unident_set, varlist[i])
 				end
@@ -807,13 +550,13 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 		end
 	end
 
-	max_rank = rank(evaluated_jac, rtol = rtol)
+	max_rank = rank(evaluated_jac, rtol = reltol)
 	maxn = n
 	while (n > 0)
 		n = n - 1
 		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 		reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
-		r = rank(reduced_evaluated_jac, rtol = rtol)
+		r = rank(reduced_evaluated_jac, rtol = reltol)
 		if (r < max_rank)
 			n = n + 1
 			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
@@ -831,7 +574,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 				deriv_level[i] = deriv_level[i] - 1
 				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 
-				r = rank(reduced_evaluated_jac, rtol = rtol)
+				r = rank(reduced_evaluated_jac, rtol = reltol)
 				if (r < max_rank)
 					deriv_level[i] = deriv_level[i] + 1
 				else
@@ -842,7 +585,7 @@ function multipoint_local_identifiability_analysis(model::ODESystem, measured_qu
 				temp = pop!(deriv_level, i)
 				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 
-				r = rank(reduced_evaluated_jac, rtol = rtol)
+				r = rank(reduced_evaluated_jac, rtol = reltol)
 				if (r < max_rank)
 					deriv_level[i] = temp
 				else
@@ -1025,19 +768,50 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	return target, return_var
 end
 
-# Extract only the lookup logic into a helper function, maintaining exact same order
-function lookup_value(var, var_search, soln_index, good_udict, trivial_dict, final_varlist, trimmed_varlist, solns)
-	if var in keys(good_udict)
-		return good_udict[var]
-	end
-	if (var_search in keys(trivial_dict))
-		return trivial_dict[var_search]
-	end
-	index = findfirst(isequal(var_search), final_varlist)
-	if isnothing(index)
-		index = findfirst(isequal(var_search), trimmed_varlist)
-	end
-	return real(solns[soln_index][index])
+"""
+    lookup_value(var, var_search, soln_index::Int, 
+                good_udict::Dict, trivial_dict::Dict, 
+                final_varlist::Vector, trimmed_varlist::Vector, 
+                solns::Vector) -> Float64
+
+Look up a variable's value from various dictionaries and solution vectors.
+This is a helper function for parameter estimation.
+
+# Arguments
+- `var`: Original variable to look up (Num or SymbolicUtils.BasicSymbolic{Real})
+- `var_search`: Symbolic variable to search for
+- `soln_index::Int`: Index in the solutions array
+- `good_udict::Dict`: Dictionary of unidentifiable parameters
+- `trivial_dict::Dict`: Dictionary of trivially determined values
+- `final_varlist::Vector`: Full list of variables
+- `trimmed_varlist::Vector`: Reduced list of variables
+- `solns::Vector`: Solutions array
+
+# Returns
+- `Float64`: Value of the variable
+"""
+function lookup_value(var, var_search, soln_index::Int, 
+                     good_udict::Dict, trivial_dict::Dict, 
+                     final_varlist::Vector, trimmed_varlist::Vector, 
+                     solns::Vector)::Float64
+    # First check if it's in the unidentifiable dictionary
+    if var in keys(good_udict)
+        return Float64(good_udict[var])
+    end
+    
+    # Then check if it's in the trivial dictionary
+    if var_search in keys(trivial_dict)
+        return Float64(trivial_dict[var_search])
+    end
+    
+    # Finally, look it up in the solution vectors
+    index = findfirst(isequal(var_search), final_varlist)
+    if isnothing(index)
+        index = findfirst(isequal(var_search), trimmed_varlist)
+    end
+    
+    # Return the real part of the solution as a Float64
+    return Float64(real(solns[soln_index][index]))
 end
 
 # New helper function to evaluate a polynomial system by substituting exact state and parameter values

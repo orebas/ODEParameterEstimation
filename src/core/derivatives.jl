@@ -1,4 +1,12 @@
 """
+    AbstractInterpolator
+
+Abstract type for interpolation function objects.
+All interpolators should be callable with a single argument and return the interpolated value.
+"""
+abstract type AbstractInterpolator end
+
+"""
 	rational_interpolation_coefficients(x, y, n)
 CODE COPIED FROM previous version of ParameterEstimation.jl
 Perform a rational interpolation of the data `y` at the points `x` with numerator degree `n`.
@@ -87,48 +95,131 @@ function baryEval(z, f::Vector{T}, x::Vector{T}, w::Vector{T}, tol = 1e-13) wher
 	return fz
 end
 
-struct AAADapprox{T}
-	internalAAA::T
+"""
+    AAADapprox{T} <: AbstractInterpolator
+
+Interpolator using AAA algorithm from BaryRational package.
+
+# Fields
+- `internalAAA::T`: Internal AAA representation from BaryRational
+"""
+struct AAADapprox{T} <: AbstractInterpolator
+    internalAAA::T
 end
 
-struct FHDapprox{T}
-	internalFHD::T
+"""
+    FHDapprox{T} <: AbstractInterpolator
+
+Interpolator using Floater-Hormann algorithm from BaryRational package.
+
+# Fields
+- `internalFHD::T`: Internal Floater-Hormann representation from BaryRational
+"""
+struct FHDapprox{T} <: AbstractInterpolator
+    internalFHD::T
 end
 
+"""
+    GPRapprox <: AbstractInterpolator
+
+Interpolator using Gaussian Process Regression.
+
+# Fields
+- `gp_function::Function`: Callable function for evaluating the GPR prediction
+"""
+struct GPRapprox <: AbstractInterpolator
+    gp_function::Function
+end
+
+# Define call methods for each interpolator type
 (y::FHDapprox)(z) = baryEval(z, y.internalFHD.f, y.internalFHD.x, y.internalFHD.w)
 (y::AAADapprox)(z) = baryEval(z, y.internalAAA.f, y.internalAAA.x, y.internalAAA.w)
+(y::GPRapprox)(z) = y.gp_function(z)
 
-function nth_deriv_at(f, n::Int, t)  #todo(orebas) make this more efficient.
-	if (n == 0)
-		return f(t)
-	elseif (n == 1)
-		return ForwardDiff.derivative(f, t)
-	else
-		g(t) = nth_deriv_at(f, n - 1, t)
-		return ForwardDiff.derivative(g, t)
-	end
+# AbstractInterpolator is defined at the top of the file
+
+"""
+    nth_deriv_at(f, n::Int, t::Real) -> Real
+
+Computes the nth derivative of function f at point t.
+
+# Arguments
+- `f`: Function or interpolator to differentiate
+- `n::Int`: Derivative order
+- `t::Real`: Point at which to compute the derivative
+
+# Returns
+- Value of the nth derivative of f at t
+"""
+function nth_deriv_at(f, n::Int, t::Real)::Real
+    if n == 0
+        return f(t)
+    elseif n == 1
+        return ForwardDiff.derivative(f, t)
+    else
+        g(t) = nth_deriv_at(f, n - 1, t)
+        return ForwardDiff.derivative(g, t)
+    end
 end
 
+# Add specific methods for interpolators
+nth_deriv_at(f::AbstractInterpolator, n::Int, t::Real)::Real = nth_deriv_at(x -> f(x), n, t)
 
-function nth_deriv(f, n::Int, t)
-	if (n == 0)
-		return f(t)
-	else
-		return TaylorDiff.derivative(f, t, n)
-	end
+"""
+    nth_deriv(f::Function, n::Int, t::Real) -> Real
+
+Computes the nth derivative of function f at point t using TaylorDiff.
+
+# Arguments
+- `f::Function`: Function to differentiate
+- `n::Int`: Derivative order
+- `t::Real`: Point at which to compute the derivative
+
+# Returns
+- Value of the nth derivative of f at t
+"""
+function nth_deriv(f::Function, n::Int, t::Real)::Real
+    if n == 0
+        return f(t)
+    else
+        return TaylorDiff.derivative(f, t, n)
+    end
 end
 
+"""
+    aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) -> AAADapprox
 
-function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-	#@suppress begin
-	@assert length(xs) == length(ys)
-	internalApprox = BaryRational.aaa(xs, ys, verbose = false)
-	return AAADapprox(internalApprox)
-	#end
+Creates an interpolation function using AAA algorithm from BaryRational.
+
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates
+- `ys::AbstractArray{T}`: Y coordinates (function values)
+
+# Returns
+- AAADapprox interpolator object that can be called as a function
+"""
+function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T})::AAADapprox where {T}
+    @assert length(xs) == length(ys) "Input arrays must have same length"
+    internalApprox = BaryRational.aaa(xs, ys, verbose = false)
+    return AAADapprox(internalApprox)
 end
 
-function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool = false) where {T}
-	return aaad_old_reliable(xs, ys)
+"""
+    aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool=false) -> AAADapprox
+
+Standard interpolation function using AAA algorithm.
+The force_gpr parameter is kept for backward compatibility but is not used.
+
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates
+- `ys::AbstractArray{T}`: Y coordinates (function values)
+- `force_gpr::Bool`: Unused parameter (for backward compatibility)
+
+# Returns
+- AAADapprox interpolator object that can be called as a function
+"""
+function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool = false)::AAADapprox where {T}
+    return aaad_old_reliable(xs, ys)
 end
 
 
@@ -196,28 +287,56 @@ end
 
 ####################
 
-struct FourierSeries
-	m::Any
-	b::Any
-	K::Any
-	cosines::Any
-	sines::Any
+"""
+    FourierSeries <: AbstractInterpolator
+
+Interpolator using Fourier series.
+
+# Fields
+- `m::Float64`: Scaling factor
+- `b::Float64`: Offset factor
+- `K::Float64`: Constant term
+- `cosines::Vector{Float64}`: Coefficients for cosine terms
+- `sines::Vector{Float64}`: Coefficients for sine terms
+"""
+struct FourierSeries <: AbstractInterpolator
+    m::Float64
+    b::Float64
+    K::Float64
+    cosines::Vector{Float64}
+    sines::Vector{Float64}
 end
 
+"""
+    fourierEval(x::Real, FS::FourierSeries) -> Float64
 
-function fourierEval(x, FS)
-	z = FS.m * x + FS.b
-	sum = 0.0
-	for k in eachindex(FS.cosines)
-		sum += FS.cosines[k] * cos((k) * z)
-	end
-	for k in eachindex(FS.sines)
-		sum += FS.sines[k] * sin((k) * z)
-	end
-	sum += FS.K
-	return sum
+Evaluates a Fourier series at a given point.
+
+# Arguments
+- `x::Real`: Point at which to evaluate
+- `FS::FourierSeries`: Fourier series object
+
+# Returns
+- Interpolated value at x
+"""
+function fourierEval(x::Real, FS::FourierSeries)::Float64
+    z = FS.m * x + FS.b
+    result = FS.K
+    
+    # Sum cosine terms
+    for k in eachindex(FS.cosines)
+        result += FS.cosines[k] * cos((k) * z)
+    end
+    
+    # Sum sine terms
+    for k in eachindex(FS.sines)
+        result += FS.sines[k] * sin((k) * z)
+    end
+    
+    return result
 end
 
+# Define call method for FourierSeries
 (y::FourierSeries)(z) = fourierEval(z, y)
 
 
@@ -333,22 +452,36 @@ function SimpleRationalInterpOld(numerator_degree::Int)
 end
 
 
-function default_interpolator(datasize)
-	interpolators = Dict(
-		"AAA" => aaad,
-		"FHD3" => fhdn(3),
-		#			"Fourier" => FourierInterp,
-		#			"BaryLagrange" => BarycentricLagrange,
-	)
-	if (datasize > 10)
-		interpolators["FHD8"] = fhdn(8)
-		#			interpolators["FHD6"] = fhdn(6)
-		#stepsize = max(1, datasize ÷ 4)
-		#for i in range(1, (datasize - 2), step = stepsize)
-		#	interpolators["RatOld($i)"] = SimpleRationalInterpOld(i)
-		#end
-	end
-	return interpolators
+"""
+    default_interpolator(datasize::Int) -> Dict{String, Function}
+
+Returns a dictionary of default interpolation functions based on data size.
+
+# Arguments
+- `datasize::Int`: Number of data points available
+
+# Returns
+- Dictionary mapping interpolator names to interpolation functions
+"""
+function default_interpolator(datasize::Int)::Dict{String, Function}
+    # Create dictionary with basic interpolators
+    interpolators = Dict{String, Function}(
+        "AAA" => aaad,
+        "GPR" => aaad_gpr_pivot,
+        "FHD3" => fhdn(3)
+    )
+    
+    # Add additional interpolators for larger datasets
+    if datasize > 10
+        interpolators["FHD8"] = fhdn(8)
+        
+        # Add Fourier interpolation for periodic data with enough points
+        if datasize > 20
+            interpolators["Fourier"] = FourierInterp
+        end
+    end
+    
+    return interpolators
 end
 
 
@@ -358,36 +491,48 @@ end
 
 
 
-function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-	@assert length(xs) == length(ys)
+"""
+    aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) -> GPRapprox
 
-	# 1. Normalize y values
-	y_mean = mean(ys)
-	y_std = std(ys)
-	ys_normalized = (ys .- y_mean) ./ y_std
+Creates an interpolation function using Gaussian Process Regression.
+Normalizes input data, applies GPR with optimized hyperparameters,
+and returns a callable interpolator.
 
-	initial_lengthscale = log(std(xs) / 8)
-	initial_variance = 0.0
-	initial_noise = -2.0
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates
+- `ys::AbstractArray{T}`: Y coordinates (function values)
 
-	kernel = SEIso(initial_lengthscale, initial_variance)
-	jitter = 1e-8
-	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+# Returns
+- GPRapprox interpolator object that can be called as a function
+"""
+function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox where {T}
+    @assert length(xs) == length(ys) "Input arrays must have same length"
 
-	# 2. Do GPR approximation on normalized data with suppressed warnings
-	local gp
-	@suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
-	@suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+    # 1. Normalize y values
+    y_mean = mean(ys)
+    y_std = std(ys)
+    ys_normalized = (ys .- y_mean) ./ max(y_std, 1e-8)  # Avoid division by very small numbers
 
-	noise_level = exp(gp.logNoise.value)
-	if (false && noise_level < 1e-5)
-		println("Noise level is too low, using  AAA")
-		return aaad(xs, ys)
-	else
-		function denormalized_gpr(x)
-			pred, _ = predict_f(gp, [x])
-			return y_std * (pred[1]) + y_mean
-		end
-		return denormalized_gpr
-	end
+    # Configure initial GP hyperparameters
+    initial_lengthscale = log(std(xs) / 8)
+    initial_variance = 0.0
+    initial_noise = -2.0
+
+    # Add small amount of jitter to avoid numerical issues
+    kernel = SEIso(initial_lengthscale, initial_variance)
+    jitter = 1e-8
+    ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+
+    # 2. Do GPR approximation on normalized data with suppressed warnings
+    local gp
+    @suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+    @suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+
+    # Create a function that evaluates the GPR prediction and denormalizes the output
+    function denormalized_gpr(x)
+        pred, _ = predict_f(gp, [x])
+        return y_std * (pred[1]) + y_mean
+    end
+
+    return GPRapprox(denormalized_gpr)
 end

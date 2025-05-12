@@ -27,6 +27,7 @@ using SymbolicIndexingInterface
 using NonlinearSolve
 using PolynomialRoots
 using Suppressor
+using Logging
 
 using AbstractAlgebra
 using RationalUnivariateRepresentation
@@ -43,15 +44,19 @@ include("untestedlinter.jl")
 include("types/core_types.jl")
 
 # Include utility modules
+include("core/logging_utils.jl")
 include("core/math_utils.jl")
 include("core/model_utils.jl")
 include("core/analysis_utils.jl")
+include("core/derivative_utils.jl")
 
 # Include core functionality
 include("core/homotopy_continuation.jl")
 include("core/pointpicker.jl")
 
+include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
+include("core/multipoint_estimation.jl")
 include("core/derivatives.jl")
 include("core/sampling.jl")
 include("examples/load_examples.jl")
@@ -63,15 +68,21 @@ export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, 
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
 
 # Export core functions
-export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation
+export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation, multishot_parameter_estimation
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
-export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, nth_deriv_at, aaad_gpr_pivot
-export calculate_observable_derivatives, solve_with_rs
+export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
+export calculate_observable_derivatives, solve_with_rs, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt
+
+# Export logging functions
+export configure_logging, log_matrix, log_equations, log_dict
+
+# Export derivative utilities
+export calculate_higher_derivatives, calculate_higher_derivative_terms
 
 # Export example models
 # Simple models
@@ -87,7 +98,10 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 #=
 @recompile_invalidations begin
 	@compile_workload begin
+		using ModelingToolkit
 		using ModelingToolkit: t_nounits as t, D_nounits as D
+		using OrdinaryDiffEq: Vern9
+		using OrderedCollections: OrderedDict
 
 		solver = Vern9()
 
@@ -115,7 +129,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		# data_sample = load("/home/ad7760/parameter_estimation_tests/data/julia/lotka-volterra_0.jld2", "data")
 
 		estimation_problem = sample_problem_data(pep, datasize = datasize, time_interval = time_interval, noise_level = 0.0)
-		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true)
+		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true, system_solver = solve_with_nlopt)
 		analysis_result, besterror = analyze_estimation_result(estimation_problem, res, nooutput = true)
 
 

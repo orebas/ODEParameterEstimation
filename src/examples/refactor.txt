@@ -1,0 +1,160 @@
+               _
+   _       _ _(_)_     |  Documentation: https://docs.julialang.org
+  (_)     | (_) (_)    |
+   _ _   _| |_  __ _   |  Type "?" for help, "]?" for Pkg help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 1.11.3 (2025-01-21)
+ _/ |\__'_|_|_|\__'_|  |  Official https://julialang.org/ release
+|__/                   |
+
+[?2004h[0Kjulia> [7C[7Cinc[0K[0Kjulia> [7Cinc[10Clude[4Dl[0K[0Kjulia> [7Cincl[11Cude[3Du[0K[0Kjulia> [7Cinclu[12Cde[2Dd[0K[0Kjulia> [7Cinclud[13Ce[1De[0K[0Kjulia> [7Cinclude[14C("ru[0K[0Kjulia> [7Cinclude("ru[18Cn_examples.jl"[14D[0K[0Kjulia> [7Cinclude("run_examples.jl"[32Cn)[0Kjulia> [7Cinclude("run_examples.jl"n[33C[0Kjulia> [7Cinclude("run_examples.jl"[32C)[0Kjulia> [7Cinclude("run_examples.jl")[32C[0Kjulia> [7Cinclude("run_examples.jl")[31C[0Kjulia> [7Cinclude("run_examples.jl")[30C[0Kjulia> [7Cinclude("run_examples.jl")[29C[0Kjulia> [7Cinclude("run_examples.jl")[28C[0Kjulia> [7Cinclude("run_examples.jl")[27C[0Kjulia> [7Cinclude("run_examples.jl")[26C[0Kjulia> [7Cinclude("run_examples.jl")[25C[0Kjulia> [7Cinclude("run_examples.jl")[24C[0Kjulia> [7Cinclude("run_examples.jl")[23C[0Kjulia> [7Cinclude("run_examples.jl")[22C[0Kjulia> [7Cinclude("run_examples.jl")[21C[0Kjulia> [7Cinclude("run_examples.jl")[20C[0Kjulia> [7Cinclude("run_examples.jl")[19C[0Kjulia> [7Cinclude("run_examples.jl")[18C[0Kjulia> [7Cinclude("run_examples.jl")[17C[0Kjulia> [7Cinclude("run_examples.jl")[16C[0Kjulia> [7Cinclude("run_examples.jl")[15C[0Kjulia> [7Cinclude("run_examples.jl")[14C[0Kjulia> [7Cinclude("run_examples.jl")[13C[0Kjulia> [7Cinclude("run_examples.jl")[12C[0Kjulia> [7Cinclude("run_examples.jl")[11C[0Kjulia> [7Cinclude("run_examples.jl")[10C[0Kjulia> [7Cinclude("run_examples.jl")[9C[0Kjulia> [7Cinclude("run_examples.jl")[8C[0Kjulia> [7Cinclude("run_examples.jl")[7C[0Kjulia> [7C@include("run_examples.jl")[8C[0Kjulia> [7C@tinclude("run_examples.jl")[9C[0Kjulia> [7C@tiinclude("run_examples.jl")[10C[0Kjulia> [7C@timinclude("run_examples.jl")[11C[0Kjulia> [7C@timeinclude("run_examples.jl")[12C[0Kjulia> [7C@time include("run_examples.jl")[13C[0Kjulia> [7C@time include("run_examples.jl")[39C
+[?2004lPrecompiling ODEParameterEstimation...
+  37275.7 ms  ✓ ODEParameterEstimation
+  1 dependency successfully precompiled in 44 seconds. 586 already precompiled.
+aa_system
+Any[a^2 + b^2 - 5, a - 2*b]
+R
+Multivariate polynomial ring in 2 variables over rationals
+primes of bitsize 28
+G-Q-Pt-FG-LT-LP(C)
+Dimension of the quotient :2
+Degree of the radical :2
+Use last variable as separating element
+Run Groebner learn
+Test cyclic optimization
+Apply cyclic optimization 
+Multi-modular computation (1 threads): G-Q-Pt-FG-LT-LP(C)
+5-
+check-G-Q-Pt-FG-LT-LP(C)
+Nb Primes used :5
+2-element Vector{Vector{Vector{BigFloat}}}:
+ [[-2.0, -2.0], [-1.0, -1.0]]
+ [[2.0, 2.0], [1.0, 1.0]]
+(Any[[-2.0, -1.0], [2.0, 1.0]], Num[a, b], Dict{Any, Any}(), Num[a, b])
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+ERROR: LoadError: MethodError: no method matching multipoint_numerical_jacobian(::ODESystem, ::Vector{…}, ::Int64, ::Int64, ::Dict{…}, ::Vector{…}, ::Dict{…}, ::Vector{…}, ::OrderedDict{…})
+The function `multipoint_numerical_jacobian` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  multipoint_numerical_jacobian(::ODESystem, ::Vector{Equation}, ::Int64, ::Int64, ::Dict, ::Vector{Num}, !Matched::OrderedDict{Num, Float64}, !Matched::Vector{OrderedDict{Num, Float64}}, !Matched::OrderedDict{Num, Float64}, !Matched::Union{Symbol, DerivativeData})
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:357
+  multipoint_numerical_jacobian(::ODESystem, ::Vector{Equation}, ::Int64, ::Int64, ::Dict, ::Vector{Num}, !Matched::OrderedDict{Num, Float64}, !Matched::Vector{OrderedDict{Num, Float64}}, !Matched::OrderedDict{Num, Float64})
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:357
+
+Stacktrace:
+  [1] multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64, reltol::Float64, abstol::Float64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:524
+  [2] multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:480
+  [3] determine_optimal_points_count(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64, t_vector::Vector{…}, nooutput::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:180
+  [4] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:46
+  [5] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:50
+  [6] #multishot_parameter_estimation#184
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:131 [inlined]
+  [7] multishot_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:107 [inlined]
+  [8] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:365
+  [9] 
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:174
+ [10] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+ [11] include
+    @ ./sysimg.jl:38 [inlined]
+ [12] macro expansion
+    @ ./timing.jl:581 [inlined]
+ [13] top-level scope
+    @ ./REPL[1]:1
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+Some type information was truncated. Use `show(err)` to see complete types.
+
+[0K[0Kjulia> [7C[7C[?2004h[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C[7C[0K[0Kjulia> [7C@time include("run_examples.jl")[39C[0Kjulia> [7C@time include("run_examples.jl")[39C[0K[0Kjulia> [7C@time include("run_examples.jl")[39C[0Kjulia> [7C@time include("run_examples.jl")[39C
+[?2004l┌ Error: Failed to revise /home/orebas/.julia/dev/ODEParameterEstimation/src/types/core_types.jl
+│   exception =
+│    invalid redefinition of type DerivativeData
+│    Stacktrace:
+│     [1] top-level scope
+│       @ none:0
+│    Revise evaluation error at /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/none:0
+│    
+└ @ Revise ~/.julia/packages/Revise/tTIBp/src/packagedef.jl:776
+┌ Warning: The running code does not match the saved version for the following files:
+│ 
+│   /home/orebas/.julia/dev/ODEParameterEstimation/src/types/core_types.jl
+│ 
+│ If the error was due to evaluation order, it can sometimes be resolved by calling `Revise.retry()`.
+│ Use Revise.errors() to report errors again. Only the first error in each file is shown.
+│ Your prompt color may be yellow until the errors are resolved.
+└ @ Revise ~/.julia/packages/Revise/tTIBp/src/packagedef.jl:893
+aa_system
+Any[a^2 + b^2 - 5, a - 2*b]
+R
+Multivariate polynomial ring in 2 variables over rationals
+primes of bitsize 28
+G-Q-Pt-FG-LT-LP(C)
+Dimension of the quotient :2
+Degree of the radical :2
+Use last variable as separating element
+Run Groebner learn
+Test cyclic optimization
+Apply cyclic optimization 
+Multi-modular computation (1 threads): G-Q-Pt-FG-LT-LP(C)
+5-
+check-G-Q-Pt-FG-LT-LP(C)
+Nb Primes used :5
+2-element Vector{Vector{Vector{BigFloat}}}:
+ [[-2.0, -2.0], [-1.0, -1.0]]
+ [[2.0, 2.0], [1.0, 1.0]]
+(Any[[-2.0, -1.0], [2.0, 1.0]], Num[a, b], Dict{Any, Any}(), Num[a, b])
+[ Info: Running model: vanderpol
+Starting model: vanderpol
+ERROR: LoadError: MethodError: no method matching DerivativeData(::Vector{…}, ::Vector{…}, ::Vector{…}, ::Vector{…}, ::Vector{…}, ::Vector{…}, ::Vector{…}, ::Vector{…}, ::Set{…})
+The type `DerivativeData` exists, but no method is defined for this combination of argument types when trying to construct it.
+Stacktrace:
+  [1] populate_derivatives(model::ODESystem, measured_quantities_in::Vector{…}, max_deriv_level::Int64, unident_dict::Dict{…})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:26
+  [2] multipoint_numerical_jacobian(model::ODESystem, measured_quantities::Vector{…}, max_deriv_level::Int64, max_num_points::Int64, unident_dict::Dict{…}, varlist::Vector{…}, param_dict::Dict{…}, ic_dict_vector::Vector{…}, values_dict::OrderedDict{…}, DD::Symbol)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:381
+  [3] multipoint_numerical_jacobian(model::ODESystem, measured_quantities::Vector{…}, max_deriv_level::Int64, max_num_points::Int64, unident_dict::Dict{…}, varlist::Vector{…}, param_dict::Dict{…}, ic_dict_vector::Vector{…}, values_dict::OrderedDict{…})
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:369
+  [4] multipoint_local_identifiability_analysis(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64, reltol::Float64, abstol::Float64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:524
+  [5] multipoint_local_identifiability_analysis
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:480 [inlined]
+  [6] determine_optimal_points_count(model::ODESystem, measured_quantities::Vector{…}, max_num_points::Int64, t_vector::Vector{…}, nooutput::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:180
+  [7] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:46
+  [8] setup_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:27 [inlined]
+  [9] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:50
+ [10] multipoint_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:25 [inlined]
+ [11] #multishot_parameter_estimation#184
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:131 [inlined]
+ [12] multishot_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:107 [inlined]
+ [13] 
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:365
+ [14] analyze_parameter_estimation_problem
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:332 [inlined]
+ [15] 
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:174
+ [16] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+ [17] include
+    @ ./sysimg.jl:38 [inlined]
+ [18] macro expansion
+    @ ./timing.jl:581 [inlined]
+ [19] top-level scope
+    @ ./REPL[1]:1
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:214
+Some type information was truncated. Use `show(err)` to see complete types.
+
+[0K[0K[33mjulia> [7C[7C[?2004h[0K[33mjulia> [7C[7C
+[?2004l

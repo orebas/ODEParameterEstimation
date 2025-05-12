@@ -4,6 +4,24 @@ using ModelingToolkit
 using HomotopyContinuation
 using DifferentialEquations
 using OrderedCollections
+
+# Define the test suite organization
+@testset "ODEParameterEstimation.jl" begin
+    # Basic utility tests
+    include("test_model_utils.jl")
+    include("test_math_utils.jl")
+    include("test_core_types.jl")
+    include("test_derivative_utils.jl")
+    
+    # Polynomial solver tests
+    include("test_solve_with_rs.jl")
+    
+    # More complex functional tests will be added later
+    # include("test_parameter_estimation.jl") 
+    # include("test_derivatives.jl")
+    # include("test_sampling.jl")
+    # include("test_example_models.jl")
+end
 #using ParameterEstimation
 
 
