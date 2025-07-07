@@ -50,7 +50,7 @@ end
 
 #This is a utility function which fills in observed data by solving an ODE.
 
-function sample_data(model::ModelingToolkit.System,
+function sample_data(model::ModelingToolkit.AbstractSystem,
 	measured_data::Vector{ModelingToolkit.Equation},
 	time_interval::Vector{T},
 	p_true,

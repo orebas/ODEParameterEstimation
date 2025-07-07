@@ -259,10 +259,10 @@ function process_estimation_results(
         
         # Solve the ODE with the estimated parameters
         tspan = (t_vector[lowest_time_index], t_vector[1])
-        ordered_params = [parameter_values[i] for i in eachindex(params)]
-        ordered_ic = [initial_conditions[i] for i in eachindex(states)]
+        u0_map = Dict(states .=> initial_conditions)
+        p_map = Dict(params .=> parameter_values)
         
-        prob = ODEProblem(new_model, ordered_ic, tspan, ordered_params)
+        prob = ODEProblem(new_model, u0_map, tspan, p_map)
         ode_solution = ModelingToolkit.solve(prob, PEP.solver, abstol = 1e-14, reltol = 1e-14)
         
         # Extract state values at the end of the solution
@@ -362,7 +362,8 @@ function log_diagnostic_info(
     forward_subst_dict,
     reverse_subst_dict
 )
-    # Calculate maximum derivative level
+if(false)   
+# Calculate maximum derivative level
     max_deriv = max(7, 1 + maximum(collect(values(good_deriv_level))))
     
     # Calculate observable derivatives
@@ -450,4 +451,5 @@ function log_diagnostic_info(
     
     @info "Exact state values at time index $lowest_time: $(exact_state_vals)"
     @info "Exact parameter values: $(PEP.p_true)"
+end
 end

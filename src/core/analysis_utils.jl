@@ -423,7 +423,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 
 
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
-	return results_tuple_to_return
+	return results_tuple, results_tuple_to_return
 
 end
 
