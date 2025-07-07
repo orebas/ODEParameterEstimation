@@ -59,7 +59,7 @@ function biohydrogenation()
 	states = [x4, x5, x6, x7]
 	parameters = [k5, k6, k7, k8, k9, k10]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x4) ~ -k5 * x4 / (k6 + x4),
 			D(x5) ~ k5 * x4 / (k6 + x4) - k7 * x5 / (k8 + x5 + x6),
 			D(x6) ~ k7 * x5 / (k8 + x5 + x6) - k9 * x6 * (k10 - x6) / k10,
@@ -96,7 +96,7 @@ function crauste()
 		rho_E,
 		rho_P,
 	]
-	@named model = ODESystem(
+	@named model = ModelingToolkit.System(
 		[
 			D(N) ~ -N * mu_N - N * P * delta_NE,
 			D(E) ~ N * P * delta_NE - E^2 * mu_EE -
@@ -136,7 +136,7 @@ function daisy_ex3()
 	D = Differential(t)
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -1.0 * p1 * x1 + x2 + u0,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
@@ -163,7 +163,7 @@ function daisy_ex3_v2()
 	D = Differential(t)
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -1.0 * p1 * x1 + x2 + u0,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
@@ -191,7 +191,7 @@ function daisy_ex3_v3()
 	D = Differential(t)
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7, pd]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ x2 + u0 - p1 * x1,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
@@ -217,7 +217,7 @@ function daisy_ex3_v4()
 	D = Differential(t)
 	states = [x1, x2, x3, u0]
 	parameters = [p1, p3, p4, p6, p7, pd]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ x2 + u0 - p1 * x1,
 			D(x2) ~ p3 * x1 - p4 * x2 + x3,
 			D(x3) ~ p6 * x1 - p7 * x3,
@@ -249,7 +249,7 @@ function daisy_mamil3(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9
 
 	states = [x1, x2, x3]
 	parameters = [a12, a13, a21, a31, a01]
-	@named model = ODESystem([D(x1) ~ -(a21 + a31 + a01) * x1 + a12 * x2 + a13 * x3,
+	@named model = ModelingToolkit.System([D(x1) ~ -(a21 + a31 + a01) * x1 + a12 * x2 + a13 * x3,
 			D(x2) ~ a21 * x1 - a12 * x2,
 			D(x3) ~ a31 * x1 - a13 * x3],
 		t, states, parameters)
@@ -271,7 +271,7 @@ function daisy_mamil4(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9
 
 	states = [x1, x2, x3, x4]
 	parameters = [k01, k12, k13, k14, k21, k31, k41]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -k01 * x1 + k12 * x2 + k13 * x3 + k14 * x4 - k21 * x1 - k31 * x1 -
 					k41 * x1,
 			D(x2) ~ -k12 * x2 + k21 * x1,
@@ -297,7 +297,7 @@ function fitzhugh_nagumo()
 	p_true = [0.25, 0.5, 0.75] # True Parameters
 	measured_quantities = [y1 ~ V]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(V) ~ g * (V - V^3 / 3 + R),
 			D(R) ~ 1 / g * (V - a + b * R),
 		], t, states, parameters)
@@ -313,7 +313,7 @@ function hiv_local()
 	states = [x1, x2, x3, x4]
 	parameters = [b, c, d, k1, k2, mu1, mu2, q1, q2, s]
 
-	@named model = ODESystem([	D(x1) ~ -b * x1 * x4 - d * x1 + s,	D(x2) ~ b * q1 * x1 * x4 - k1 * x2 - mu1 * x2,D(x3) ~ b * q2 * x1 * x4 + k1 * x2 - mu2 * x3,D(x4) ~ -c * x4 + k2 * x3,], t, states, parameters)
+	@named model = ModelingToolkit.System([	D(x1) ~ -b * x1 * x4 - d * x1 + s,	D(x2) ~ b * q1 * x1 * x4 - k1 * x2 - mu1 * x2,D(x3) ~ b * q2 * x1 * x4 + k1 * x2 - mu2 * x3,D(x4) ~ -c * x4 + k2 * x3,], t, states, parameters)
 	measured_quantities = [ y1 ~ x1,  y2 ~ x4]
 
 	ic = [0.2, 0.4, 0.6, 0.8]
@@ -332,7 +332,7 @@ function hiv()
 	states = [x, y, v, w, z]
 	parameters = [lm, d, beta, a, k, u, c, q, b, h]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x) ~ lm - d * x - beta * x * v,
 			D(y) ~ beta * x * v - a * y,
 			D(v) ~ k * y - u * v,
@@ -359,7 +359,7 @@ function lotka_volterra()
 	states = [r, w]
 	parameters = [k1, k2, k3]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(r) ~ k1 * r - k2 * r * w,
 			D(w) ~ k2 * r * w - k3 * w], t,
 		states, parameters)
@@ -375,7 +375,7 @@ function seir()
 	states = [S, E, In, N]
 	parameters = [a, b, nu]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(S) ~ -b * S * In / N,
 			D(E) ~ b * S * In / N - nu * E,
 			D(In) ~ nu * E - a * In,
@@ -400,7 +400,7 @@ function simple()
 	states = [x1, x2]
 	parameters = [a, b]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -a * x2,
 			D(x2) ~ b * x1,  #edited from 1/b
 		], t, states, parameters)
@@ -422,7 +422,7 @@ function sirsforced()
 	states = [i, r, s, x1, x2]
 	parameters = [b0, b1, g, M, mu, nu]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(i) ~ b0 * (1.0 + b1 * x1) * i * s - (nu + mu) * i,
 			D(r) ~ nu * i - (mu + g) * r,
 			D(s) ~ mu - mu * s - b0 * (1.0 + b1 * x1) * i * s + g * r,
@@ -448,7 +448,7 @@ function slowfast()  # TODO(orebas):in the old code it was CVODE_BDF.  should we
 	D = Differential(t)
 	states = [xA, xB, xC, eA, eC]
 	parameters = [k1, k2, eB]
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(xA) ~ -k1 * xA,
 			D(xB) ~ k1 * xA - k2 * xB,
 			D(xC) ~ k2 * xB,
@@ -472,7 +472,7 @@ function substr_test()
 	states = [x1, x2, x3]
 	parameters = [a, b, beta]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -a * x2,
 			D(x2) ~ b * (x1),
 			D(x3) ~ a * b * beta * b * a * x3,
@@ -498,7 +498,7 @@ function global_unident_test()
 	states = [x1, x2, x3]
 	parameters = [a, b, c, d]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -a * x1,
 			D(x2) ~ (b + c) * (x1),
 			D(x3) ~ d * x1,
@@ -524,7 +524,7 @@ function sum_test()
 	states = [x1, x2, x3]
 	parameters = [a, b, c]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ -a * x1,
 			D(x2) ~ b * (x2),
 			D(x3) ~ c * (x1 + x2),
@@ -552,7 +552,7 @@ function treatment(datasize = 21, time_interval = [-0.5, 0.5], solver = Vern9())
 	states = [In, N, S, Tr]
 	parameters = [a, b, d, g, nu]
 
-	@named model = ODESystem([D(In) ~ b * S * In / N + d * b * S * Tr / N - (a + g) * In,
+	@named model = ModelingToolkit.System([D(In) ~ b * S * In / N + d * b * S * Tr / N - (a + g) * In,
 			D(N) ~ 0,
 			D(S) ~ -b * S * In / N - d * b * S * Tr / N,
 			D(Tr) ~ g * In - nu * Tr], t, states, parameters)
@@ -575,7 +575,7 @@ function vanderpol()
 	states = [x1, x2]
 	parameters = [a, b]
 
-	@named model = ODESystem([
+	@named model = ModelingToolkit.System([
 			D(x1) ~ a * x2,
 			D(x2) ~ -(x1) - b * (x1^2 - 1) * (x2),
 		], t, states, parameters)

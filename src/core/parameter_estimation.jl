@@ -5,13 +5,13 @@
 # - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
 
 """
-	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+	populate_derivatives(model::ModelingToolkit.System, measured_quantities_in, max_deriv_level, unident_dict)
 
 Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
 diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
 
 # Arguments
-- `model::ODESystem`: The ODE system
+- `model::ModelingToolkit.System`: The ODE system
 - `measured_quantities_in`: Input measured quantities
 - `max_deriv_level`: Maximum derivative level
 - `unident_dict`: Dictionary of unidentifiable variables
@@ -19,7 +19,7 @@ diff2term is applied everywhere, so we will be left with variables like x_tttt e
 # Returns
 - DerivativeData object
 """
-function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+function populate_derivatives(model::ModelingToolkit.System, measured_quantities_in, max_deriv_level, unident_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -110,7 +110,7 @@ end
 
 """
     create_interpolants(
-        measured_quantities::Vector{Equation},
+        measured_quantities::Vector{ModelingToolkit.Equation},
         data_sample::OrderedDict,
         t_vector::Vector{Float64},
         interp_func::Function
@@ -119,7 +119,7 @@ end
 Creates interpolant functions for measured quantities using the provided interpolation function.
 
 # Arguments
-- `measured_quantities::Vector{Equation}`: Equations for measured quantities
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Equations for measured quantities
 - `data_sample::OrderedDict`: Sample data for measured quantities
 - `t_vector::Vector{Float64}`: Time points at which measurements were taken
 - `interp_func::Function`: Function to use for interpolation (e.g., aaad, aaad_gpr_pivot)
@@ -128,7 +128,7 @@ Creates interpolant functions for measured quantities using the provided interpo
 - Dictionary mapping each quantity to its corresponding interpolant function
 """
 function create_interpolants(
-    measured_quantities::Vector{Equation},
+    measured_quantities::Vector{ModelingToolkit.Equation},
     data_sample::OrderedDict,
     t_vector::Vector{Float64},
     interp_func::Function
@@ -324,8 +324,8 @@ end
 
 """
     multipoint_numerical_jacobian(
-        model::ODESystem,
-        measured_quantities::Vector{Equation},
+        model::ModelingToolkit.System,
+        measured_quantities::Vector{ModelingToolkit.Equation},
         max_deriv_level::Int,
         max_num_points::Int,
         unident_dict::Dict,
@@ -340,8 +340,8 @@ Computes the numerical Jacobian at multiple points.
 The multiple points have different values for states, but the same parameters.
 
 # Arguments
-- `model::ODESystem`: The ODE system model
-- `measured_quantities::Vector{Equation}`: Input measured quantities
+- `model::ModelingToolkit.System`: The ODE system model
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Input measured quantities
 - `max_deriv_level::Int`: Maximum derivative level to compute
 - `max_num_points::Int`: Maximum number of points to use
 - `unident_dict::Dict`: Dictionary of unidentifiable variables
@@ -355,8 +355,8 @@ The multiple points have different values for states, but the same parameters.
 - Tuple containing the Jacobian matrix and DerivativeData object
 """
 function multipoint_numerical_jacobian(
-    model::ODESystem,
-    measured_quantities::Vector{Equation},
+    model::ModelingToolkit.System,
+    measured_quantities::Vector{ModelingToolkit.Equation},
     max_deriv_level::Int,
     max_num_points::Int,
     unident_dict::Dict,
@@ -447,8 +447,8 @@ end
 
 """
     multipoint_local_identifiability_analysis(
-        model::ODESystem,
-        measured_quantities::Vector{Equation},
+        model::ModelingToolkit.System,
+        measured_quantities::Vector{ModelingToolkit.Equation},
         max_num_points::Int,
         reltol::Float64 = 1e-12,
         abstol::Float64 = 1e-12
@@ -457,8 +457,8 @@ end
 Performs local identifiability analysis at multiple points.
 
 # Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities::Vector{Equation}`: Measured quantities
+- `model::ModelingToolkit.System`: The ODE system
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Measured quantities
 - `max_num_points::Int`: Maximum number of points to use
 - `reltol::Float64`: Relative tolerance (default: 1e-12)
 - `abstol::Float64`: Absolute tolerance (default: 1e-12)
@@ -471,7 +471,7 @@ Performs local identifiability analysis at multiple points.
   4. DerivativeData object containing all computed derivatives
 """
 function multipoint_local_identifiability_analysis(
-    model::ODESystem,
+    model::ModelingToolkit.System,
     measured_quantities,
     max_num_points::Int,
     reltol::Float64 = 1e-12,
@@ -642,13 +642,13 @@ end
 
 
 """
-	construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+	construct_equation_system(model::ModelingToolkit.System, measured_quantities_in, data_sample,
 							deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false)
 
 Construct an equation system for parameter estimation.
 
 # Arguments
-- `model::ODESystem`: The ODE system
+- `model::ModelingToolkit.System`: The ODE system
 - `measured_quantities_in`: Input measured quantities
 - `data_sample`: Sample data
 - `deriv_level`: Dictionary of derivative levels
@@ -661,7 +661,7 @@ Construct an equation system for parameter estimation.
 # Returns
 - Tuple containing the target equations and variable list
 """
-function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+function construct_equation_system(model::ModelingToolkit.System, measured_quantities_in, data_sample,
 	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false,
 	precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing, ideal = false, sol = nothing)
 
@@ -704,8 +704,8 @@ function construct_equation_system(model::ODESystem, measured_quantities_in, dat
 	else
 		if sol === nothing
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
-			@named new_sys = ODESystem(equations(model), t; observed = expanded_mq)
-			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			@named new_sys = ModelingToolkit.System(equations(model), t; observed = expanded_mq)
+			local_prob = ODEProblem(mtkcompile(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
 			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
 		else
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)

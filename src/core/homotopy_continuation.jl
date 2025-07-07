@@ -458,7 +458,7 @@ function solve_with_rs_old(poly_system, varlist;
 
 	# Find solutions
 	output_precision = Int32(20)
-	sol = RS.rs_isolate(rur, sep, output_precision = output_precision)
+	sol = # RS.rs_isolate(rur, sep, output_precision = output_precision)
 
 	# Convert solutions back to our format
 	solutions = []

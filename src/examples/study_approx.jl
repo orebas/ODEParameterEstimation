@@ -1,9 +1,10 @@
 using ODEParameterEstimation
-using PEtab
+#using PEtab
 using Statistics
 using Plots
 using ModelingToolkit
 using ModelingToolkit: t_nounits as t, D_nounits as D
+using Symbolics
 using DataFrames
 using OrderedCollections
 using OrdinaryDiffEq
@@ -12,11 +13,69 @@ using Loess
 using BaryRational
 using Printf
 using Dierckx
+using LinearSolve
+using LinearAlgebra
+using LineSearches
+using Optim
+using ForwardDiff
+using Suppressor
+using TaylorDiff
+using Random
 
 
 
 
 include("load_examples.jl")
+
+"""
+    test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+
+Creates a Gaussian Process Regression interpolator for testing purposes.
+This is a simple wrapper around GPR functionality for use in approximation studies.
+
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates
+- `ys::AbstractArray{T}`: Y coordinates (function values)
+
+# Returns
+- Callable function that evaluates the GPR prediction at a given point
+"""
+function test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
+    @assert length(xs) == length(ys) "Input arrays must have same length"
+    
+    # Normalize y values
+    y_mean = mean(ys)
+    y_std = std(ys)
+    ys_normalized = (ys .- y_mean) ./ max(y_std, 1e-8)
+    
+    # Add small noise to avoid conditioning issues
+    ys_std = std(ys_normalized)
+    noise_level = 1e-6 * max(ys_std, 1.0)
+    ys_noisy = ys_normalized .+ noise_level * randn(length(ys))
+    
+    # Initial kernel parameters
+    initial_lengthscale = log(std(xs) / 8)
+    initial_variance = 0.0
+    initial_noise = -2.0
+    
+    kernel = SEIso(initial_lengthscale, initial_variance)
+    gp = GP(xs, ys_noisy, MeanZero(), kernel, initial_noise)
+    
+    # Optimize hyperparameters
+    try
+        GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+    catch e
+        @warn "GP optimization failed, using unoptimized GP" exception = e
+    end
+    
+    # Create callable function that denormalizes output
+    gpr_func = x -> begin
+        pred, _ = predict_f(gp, [x])
+        return y_std * pred[1] + y_mean
+    end
+    
+    return gpr_func
+end
 
 """
 	auto_aaa_bic(Z, F; mmax=50, do_sort=true)

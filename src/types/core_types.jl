@@ -9,14 +9,14 @@ using OrdinaryDiffEq
 Struct representing an ODESystem with ordered parameters and states.
 
 # Fields
-- `system::ODESystem`: ModelingToolkit ODESystem
+- `system::System`: ModelingToolkit System
 - `original_parameters::Vector{Num}`: Vector of original parameters in specific order
 - `original_states::Vector{Num}`: Vector of original state variables in specific order
 """
 struct OrderedODESystem
-    system::ODESystem
-    original_parameters::Vector{Num}
-    original_states::Vector{Num}
+    system::ModelingToolkit.System
+    original_parameters::Vector{Symbolics.Num}
+    original_states::Vector{Symbolics.Num}
 end
 
 """
@@ -38,12 +38,12 @@ Struct representing a parameter estimation problem.
 struct ParameterEstimationProblem
     name::String
     model::OrderedODESystem
-    measured_quantities::Vector{Equation}
+    measured_quantities::Vector{ModelingToolkit.Equation}
     data_sample::Union{Nothing, OrderedDict{Any, Vector{Float64}}}
     recommended_time_interval::Union{Nothing, Vector{Float64}}
     solver::Any  # Use Any for now since the exact type hierarchy can be complex
-    p_true::OrderedDict{Num, Float64}
-    ic::OrderedDict{Num, Float64}
+    p_true::OrderedDict{Symbolics.Num, Float64}
+    ic::OrderedDict{Symbolics.Num, Float64}
     unident_count::Int
 end
 

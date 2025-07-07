@@ -19,19 +19,27 @@ function clear_denoms(eq)
 	division_expr = Symbolics.value(simplify_fractions(_temp_num / _temp_denom))
 	division_op = Symbolics.operation(division_expr)
 
-	result = eq
-	if (!isequal(eq.rhs, 0))
-		rhs_expr = eq.rhs
-		lhs_expr = eq.lhs
-		simplified_rhs = Symbolics.value(simplify_fractions(rhs_expr))
-
-		# Check if RHS is a fraction
-		if (istree(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op)
-			numerator, denominator = Symbolics.arguments(simplified_rhs)
-			result = lhs_expr * denominator ~ numerator
-		end
+	lhs_expr = eq.lhs
+	rhs_expr = eq.rhs
+	
+	# Simplify both sides
+	simplified_lhs = Symbolics.value(simplify_fractions(lhs_expr))
+	simplified_rhs = Symbolics.value(simplify_fractions(rhs_expr))
+	
+	# Check if LHS is a fraction
+	if (iscall(simplified_lhs) && Symbolics.operation(simplified_lhs) == division_op)
+		lhs_num, lhs_denom = Symbolics.arguments(simplified_lhs)
+		# Clear denominator by multiplying both sides
+		return lhs_num ~ rhs_expr * lhs_denom
 	end
-	return result
+	
+	# Check if RHS is a fraction (original behavior)
+	if (!isequal(rhs_expr, 0) && iscall(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op)
+		rhs_num, rhs_denom = Symbolics.arguments(simplified_rhs)
+		return lhs_expr * rhs_denom ~ rhs_num
+	end
+	
+	return eq
 end
 
 """
@@ -66,7 +74,14 @@ function count_turns(values)
 		return 0
 	end
 	diffs = diff(values)
-	sign_changes = sum(abs.(sign.(diffs[2:end]) - sign.(diffs[1:end-1])) .> 1)
+	# Count sign changes in consecutive differences
+	signs = sign.(diffs)
+	sign_changes = 0
+	for i in 1:(length(signs)-1)
+		if signs[i] != 0 && signs[i+1] != 0 && signs[i] != signs[i+1]
+			sign_changes += 1
+		end
+	end
 	return sign_changes
 end
 

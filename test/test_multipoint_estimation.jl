@@ -1,6 +1,7 @@
 using ODEParameterEstimation
 using Test
 using ModelingToolkit
+using ModelingToolkit: System
 using OrderedCollections
 using OrdinaryDiffEq
 
@@ -19,7 +20,7 @@ using OrdinaryDiffEq
         params = [a, b]
         measured_quantities = [y1 ~ x1, y2 ~ x2]
         
-        @named model = ODESystem(eqs, t, states, params)
+        @named model = System(eqs, t, states, params)
         model = complete(model)
         ordered_system = ODEParameterEstimation.OrderedODESystem(model, params, states)
         

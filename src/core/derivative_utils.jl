@@ -17,7 +17,10 @@ calculating derivatives throughout the codebase.
 """
 function calculate_higher_derivatives(equations, max_level)
     derivatives = [deepcopy(equations)]
-    D = Differential(ModelingToolkit.get_iv(equations[1].lhs))
+    # Extract the time variable from the first differential equation
+    # Use the global t variable from ODEParameterEstimation
+    t = ODEParameterEstimation.t
+    D = Differential(t)
     
     for i in 1:max_level
         # Calculate next level of derivatives

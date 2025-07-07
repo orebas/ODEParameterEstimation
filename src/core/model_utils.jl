@@ -1,15 +1,15 @@
 """
-	unpack_ODE(model::ODESystem)
+	unpack_ODE(model::ModelingToolkit.System)
 
 Extract the core components of an ODESystem.
 
 # Arguments
-- `model::ODESystem`: The ODE system to unpack
+- `model::ModelingToolkit.System`: The ODE system to unpack
 
 # Returns
 - Tuple containing (independent variable, equations, state variables, parameters)
 """
-function unpack_ODE(model::ODESystem)
+function unpack_ODE(model::ModelingToolkit.System)
 	return ModelingToolkit.get_iv(model), deepcopy(ModelingToolkit.equations(model)), ModelingToolkit.unknowns(model), ModelingToolkit.parameters(model)
 end
 
@@ -48,7 +48,7 @@ Create an OrderedODESystem with completed equations and ordered variables.
 - Tuple of (OrderedODESystem, measured_quantities)
 """
 function create_ordered_ode_system(name, states, parameters, equations, measured_quantities)
-	@named model = ODESystem(equations, t, states, parameters)
+	@named model = ModelingToolkit.System(equations, t, states, parameters)
 	model = complete(model)
 	ordered_system = OrderedODESystem(model, parameters, states)
 	return ordered_system, measured_quantities

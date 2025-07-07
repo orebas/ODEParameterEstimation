@@ -205,7 +205,7 @@ function process_estimation_results(
     lowest_time_index = min(setup_data.time_index_set...)
     
     # Create a new model for solving ODEs
-    @named new_model = ODESystem(eqns, t, states, params)
+    @named new_model = ModelingToolkit.System(eqns, t, states, params)
     new_model = complete(new_model)
     
     # Get current ordering from ModelingToolkit
@@ -371,12 +371,12 @@ function log_diagnostic_info(
     )
     
     # Create a new system with the expanded measured quantities
-    @named new_sys = ODESystem(equations(PEP.model.system), t; observed = expanded_mq)
+    @named new_sys = ModelingToolkit.System(equations(PEP.model.system), t; observed = expanded_mq)
     
     # Create and solve the problem with true parameters
     time_interval = extrema(PEP.data_sample["t"])
     local_prob = ODEProblem(
-        structural_simplify(new_sys), 
+        mtkcompile(new_sys), 
         diagnostic_data.ic, 
         time_interval, 
         diagnostic_data.p_true
