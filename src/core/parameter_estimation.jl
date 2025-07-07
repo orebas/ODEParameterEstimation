@@ -19,7 +19,7 @@ diff2term is applied everywhere, so we will be left with variables like x_tttt e
 # Returns
 - DerivativeData object
 """
-function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -276,7 +276,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	# Solve ODE problem
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	prob = ODEProblem(complete(model.system), ic, tspan, ps)
+	prob = ODEProblem(complete(model.system), ordered_states, tspan, ordered_params)
 	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 
 	# Calculate error
@@ -355,7 +355,7 @@ The multiple points have different values for states, but the same parameters.
 - Tuple containing the Jacobian matrix and DerivativeData object
 """
 function multipoint_numerical_jacobian(
-    model::ODESystem,
+    model::ModelingToolkit.AbstractSystem,
     measured_quantities::Vector{Equation},
     max_deriv_level::Int,
     max_num_points::Int,
@@ -471,7 +471,7 @@ Performs local identifiability analysis at multiple points.
   4. DerivativeData object containing all computed derivatives
 """
 function multipoint_local_identifiability_analysis(
-    model::ODESystem,
+    model::ModelingToolkit.AbstractSystem,
     measured_quantities,
     max_num_points::Int,
     reltol::Float64 = 1e-12,
@@ -661,7 +661,7 @@ Construct an equation system for parameter estimation.
 # Returns
 - Tuple containing the target equations and variable list
 """
-function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+function construct_equation_system(model::ModelingToolkit.AbstractSystem, measured_quantities_in, data_sample,
 	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false,
 	precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing, ideal = false, sol = nothing)
 
