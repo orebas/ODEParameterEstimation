@@ -31,7 +31,7 @@ using Logging
 
 using AbstractAlgebra
 using RationalUnivariateRepresentation
-#using RS
+using RS
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits

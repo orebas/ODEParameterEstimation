@@ -61,7 +61,7 @@ using NonlinearSolve
 using LeastSquaresOptim
 using CSV
 using DataFrames
-using OrdinaryDiffEq
+using OrdinaryDiffEq#= Central configuration for the analysis =#
 #using AbstractAlgebra, RationalUnivariateRepresentation, RS
 #using Symbolics
 #using DynamicPolynomials
@@ -69,9 +69,9 @@ using OrdinaryDiffEq
 
 
 
-#= Central configuration for the analysis =#
+
 const MODELS_TO_RUN = [:lv_periodic, :vanderpol]
-const NOISE_LEVELS = [0.0,0.01, 0.05] # 0.001, 0.01, 0.05]
+const NOISE_LEVELS = [0.0, 0.01, 0.05] # 0.001, 0.01, 0.05]
 const DATASIZE = 201
 
 
@@ -223,32 +223,32 @@ varlist = [a, b]
 display(solve_with_rs(poly_system, varlist))
 
 triv_model_list = [:simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :substr_test, :global_unident_test, :sum_test, :trivial_unident]
-short_model_list = [:lotka_volterra, :lv_periodic, :vanderpol, :brusselator,  :fitzhugh_nagumo, :seir, :treatment, :biohydrogenation, :repressilator]
+short_model_list = [:lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :fitzhugh_nagumo, :seir, :treatment, :biohydrogenation, :repressilator]
 
-shortest_model_list = [ :lv_periodic]
+shortest_model_list = [:lv_periodic]
 
 function run_and_save_analysis()
-    # Use the global configuration
-    models_to_run = MODELS_TO_RUN
-    noise_levels = NOISE_LEVELS
-    interpolators_to_run = Dict("GPR" => aaad_gpr_pivot, "aaad" => aaad)
+	# Use the global configuration
+	models_to_run = MODELS_TO_RUN
+	noise_levels = NOISE_LEVELS
+	interpolators_to_run = Dict("GPR" => aaad_gpr_pivot, "aaad" => aaad)
 
-    results_df = DataFrame(
-        model_name = String[],
-        noise_level = Float64[],
-        interpolator_method = String[],
-        estimator = String[],
-        variable_name = String[],
-        variable_type = String[],
-        true_value = Float64[],
-        estimated_value = Float64[],
-        rel_error = Float64[],
-        cluster_id = Int[],
-        solution_in_cluster = Int[],
-        overall_problem_error = Float64[],
-    )
+	results_df = DataFrame(
+		model_name = String[],
+		noise_level = Float64[],
+		interpolator_method = String[],
+		estimator = String[],
+		variable_name = String[],
+		variable_type = String[],
+		true_value = Float64[],
+		estimated_value = Float64[],
+		rel_error = Float64[],
+		cluster_id = Int[],
+		solution_in_cluster = Int[],
+		overall_problem_error = Float64[],
+	)
 
-    model_dict = Dict(
+	model_dict = Dict(
 		# Simple models
 		:simple => simple,
 		:simple_linear_combination => simple_linear_combination,
@@ -293,210 +293,222 @@ function run_and_save_analysis()
 	)
 
 
-    for (interpolator_name, interpolator_func) in interpolators_to_run
-        for model_name in models_to_run
-            for noise in noise_levels
-                @info "Running analysis for $model_name with noise $noise and interpolator $interpolator_name"
-                
-                if model_name in keys(hard_model_dict)
-                    model_fn = hard_model_dict[model_name]
-                else
-                    model_fn = model_dict[model_name]
-                end
-                pep = model_fn()
-                time_interval = isnothing(pep.recommended_time_interval) ? [0.0, 5.0] : pep.recommended_time_interval
-                
-                data_sample = sample_problem_data(pep; datasize = DATASIZE, time_interval = time_interval, noise_level = noise).data_sample
-                
-                # Get true parameters and initial conditions
-                true_params = pep.p_true
+	for (interpolator_name, interpolator_func) in interpolators_to_run
+		for model_name in models_to_run
+			for noise in noise_levels
+				@info "Running analysis for $model_name with noise $noise and interpolator $interpolator_name"
 
-                kwargs = Dict{Symbol, Any}(:nooutput => true)
-                if !isnothing(interpolator_func)
-                    kwargs[:interpolator] = interpolator_func
-                end
+				if model_name in keys(hard_model_dict)
+					model_fn = hard_model_dict[model_name]
+				else
+					model_fn = model_dict[model_name]
+				end
+				pep = model_fn()
+				time_interval = isnothing(pep.recommended_time_interval) ? [0.0, 5.0] : pep.recommended_time_interval
 
-                raw_results, processed_results = analyze_parameter_estimation_problem(
-                    sample_problem_data(pep, datasize=DATASIZE, time_interval=time_interval, noise_level=noise),
-                    ;kwargs... 
-                )
+				data_sample = sample_problem_data(pep; datasize = DATASIZE, time_interval = time_interval, noise_level = noise).data_sample
 
-                # process raw_results[1] which is a vector of solutions
-                for (cluster_idx, cluster) in enumerate(cluster_solutions(raw_results[1]))
-                     for (sol_idx, solution) in enumerate(cluster)
-                        # process states
-                        for (var, est_val) in solution.states
-                            true_val = pep.ic[var]
-                            rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
-                            push!(results_df, (
-                                model_name = String(model_name),
-                                noise_level = noise,
-                                interpolator_method = interpolator_name,
-                                estimator = "PE",
-                                variable_name = string(var),
-                                variable_type = "state",
-                                true_value = true_val,
-                                estimated_value = est_val,
-                                rel_error = rel_err,
-                                cluster_id = cluster_idx,
-                                solution_in_cluster = sol_idx,
-                                overall_problem_error = solution.err
-                            ))
-                        end
-                        # process parameters
-                        for (var, est_val) in solution.parameters
-                             if haskey(pep.p_true, var)
-                                true_val = pep.p_true[var]
-                                rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
-                                push!(results_df, (
-                                    model_name = String(model_name),
-                                    noise_level = noise,
-                                    interpolator_method = interpolator_name,
-                                    estimator = "PE",
-                                    variable_name = string(var),
-                                    variable_type = "parameter",
-                                    true_value = true_val,
-                                    estimated_value = est_val,
-                                    rel_error = rel_err,
-                                    cluster_id = cluster_idx,
-                                    solution_in_cluster = sol_idx,
-                                    overall_problem_error = solution.err
-                                ))
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    CSV.write("ifac_analysis_results.csv", results_df)
+				# Get true parameters and initial conditions
+				true_params = pep.p_true
+
+				kwargs = Dict{Symbol, Any}(:nooutput => true)
+				if !isnothing(interpolator_func)
+					kwargs[:interpolator] = interpolator_func
+				end
+
+				raw_results, processed_results = analyze_parameter_estimation_problem(
+					sample_problem_data(pep, datasize = DATASIZE, time_interval = time_interval, noise_level = noise),
+					; kwargs...,
+				)
+
+				# process raw_results[1] which is a vector of solutions
+				for (cluster_idx, cluster) in enumerate(cluster_solutions(raw_results[1]))
+					for (sol_idx, solution) in enumerate(cluster)
+						# process states
+						for (var, est_val) in solution.states
+							true_val = pep.ic[var]
+							rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
+							push!(
+								results_df,
+								(
+									model_name = String(model_name),
+									noise_level = noise,
+									interpolator_method = interpolator_name,
+									estimator = "PE",
+									variable_name = string(var),
+									variable_type = "state",
+									true_value = true_val,
+									estimated_value = est_val,
+									rel_error = rel_err,
+									cluster_id = cluster_idx,
+									solution_in_cluster = sol_idx,
+									overall_problem_error = solution.err,
+								),
+							)
+						end
+						# process parameters
+						for (var, est_val) in solution.parameters
+							if haskey(pep.p_true, var)
+								true_val = pep.p_true[var]
+								rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
+								push!(
+									results_df,
+									(
+										model_name = String(model_name),
+										noise_level = noise,
+										interpolator_method = interpolator_name,
+										estimator = "PE",
+										variable_name = string(var),
+										variable_type = "parameter",
+										true_value = true_val,
+										estimated_value = est_val,
+										rel_error = rel_err,
+										cluster_id = cluster_idx,
+										solution_in_cluster = sol_idx,
+										overall_problem_error = solution.err,
+									),
+								)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	CSV.write("ifac_analysis_results.csv", results_df)
 end
 
 
 function run_optimization_analysis()
-    # Use the global configuration
-    models_to_run = MODELS_TO_RUN
-    noise_levels = NOISE_LEVELS
+	# Use the global configuration
+	models_to_run = MODELS_TO_RUN
+	noise_levels = NOISE_LEVELS
 
-    # Load existing results (created by run_and_save_analysis)
-    results_df = if isfile("ifac_analysis_results.csv")
-        CSV.read("ifac_analysis_results.csv", DataFrame)
-    else
-        println("Warning: Starting with an empty DataFrame for optimization results.")
-        DataFrame(
-            model_name = String[],
-            noise_level = Float64[],
-            interpolator_method = String[],
-            estimator = String[],
-            variable_name = String[],
-            variable_type = String[],
-            true_value = Float64[],
-            estimated_value = Float64[],
-            rel_error = Float64[],
-            cluster_id = Int[],
-            solution_in_cluster = Int[],
-            overall_problem_error = Float64[],
-        )
-    end
+	# Load existing results (created by run_and_save_analysis)
+	results_df = if isfile("ifac_analysis_results.csv")
+		CSV.read("ifac_analysis_results.csv", DataFrame)
+	else
+		println("Warning: Starting with an empty DataFrame for optimization results.")
+		DataFrame(
+			model_name = String[],
+			noise_level = Float64[],
+			interpolator_method = String[],
+			estimator = String[],
+			variable_name = String[],
+			variable_type = String[],
+			true_value = Float64[],
+			estimated_value = Float64[],
+			rel_error = Float64[],
+			cluster_id = Int[],
+			solution_in_cluster = Int[],
+			overall_problem_error = Float64[],
+		)
+	end
 
-    model_dict = Dict(:vanderpol => vanderpol, :lv_periodic => lv_periodic)
+	model_dict = Dict(:vanderpol => vanderpol, :lv_periodic => lv_periodic)
 
-    for model_name in models_to_run
-        for noise in noise_levels
-            @info "Running OPTIMIZATION for $model_name with noise $noise"
+	for model_name in models_to_run
+		for noise in noise_levels
+			@info "Running OPTIMIZATION for $model_name with noise $noise"
 
-            pep = model_dict[model_name]()
-            time_interval = isnothing(pep.recommended_time_interval) ? [0.0, 5.0] : pep.recommended_time_interval
+			pep = model_dict[model_name]()
+			time_interval = isnothing(pep.recommended_time_interval) ? [0.0, 5.0] : pep.recommended_time_interval
 
-            # Prepare a noisy (or noise-free) data sample that will be used as the target signal
-            data_sample = sample_problem_data(pep; datasize = DATASIZE, time_interval = time_interval, noise_level = noise).data_sample
-            
-            # Get true parameters and initial conditions
-            true_params = pep.p_true
-            true_ic = pep.ic
-            
-            # Extract ordered state and parameter symbols
-            state_syms = ModelingToolkit.unknowns(pep.model.system)
-            param_syms = ModelingToolkit.parameters(pep.model.system)
+			# Prepare a noisy (or noise-free) data sample that will be used as the target signal
+			data_sample = sample_problem_data(pep; datasize = DATASIZE, time_interval = time_interval, noise_level = noise).data_sample
 
-            # Build ordered vectors for the initial condition and the true parameters
-            u0_vec = [pep.ic[sym] for sym in state_syms]
-            p_true_vec = [pep.p_true[sym] for sym in param_syms]
+			# Get true parameters and initial conditions
+			true_params = pep.p_true
+			true_ic = pep.ic
 
-            # Create a base ODEProblem that we will remake inside the loss function
-            prob0 = ODEProblem(ModelingToolkit.complete(pep.model.system), u0_vec, (time_interval[1], time_interval[2]), p_true_vec)
+			# Extract ordered state and parameter symbols
+			state_syms = ModelingToolkit.unknowns(pep.model.system)
+			param_syms = ModelingToolkit.parameters(pep.model.system)
 
-            # ------------------------------------------------------------
-            # Loss function: sum of squared errors w.r.t. data_sample
-            # ------------------------------------------------------------
-            function loss_function(p_vec, _)
-                # Create a new problem with the current parameter vector
-                prob = ODEProblem(ModelingToolkit.complete(pep.model.system), u0_vec, (time_interval[1], time_interval[2]), p_vec)
-                
-                # Solve with a robust default solver
-                sol = solve(prob, AutoVern9(Rodas4P()), saveat = data_sample["t"])
+			# Build ordered vectors for the initial condition and the true parameters
+			u0_vec = [pep.ic[sym] for sym in state_syms]
+			p_true_vec = [pep.p_true[sym] for sym in param_syms]
 
-                # If the solver failed, return Inf so that the optimizer steers away
-                sol.retcode == :Success || return Inf
+			# Create a base ODEProblem that we will remake inside the loss function
+			prob0 = ODEProblem(ModelingToolkit.complete(pep.model.system), u0_vec, (time_interval[1], time_interval[2]), p_true_vec)
 
-                loss = 0.0
-                for (obs, measured) in data_sample
-                    obs == "t" && continue
-                    loss += sum((sol[obs] .- measured) .^ 2)
-                end
-                return loss
-            end
+			# ------------------------------------------------------------
+			# Loss function: sum of squared errors w.r.t. data_sample
+			# ------------------------------------------------------------
+			function loss_function(p_vec, _)
+				# Create a new problem with the current parameter vector
+				prob = ODEProblem(ModelingToolkit.complete(pep.model.system), u0_vec, (time_interval[1], time_interval[2]), p_vec)
 
-            # ------------------------------------------------------------
-            # Set up and run the optimization
-            # ------------------------------------------------------------
-            p_guess = p_true_vec .* (1 .+ 0.1 .* randn(length(p_true_vec)))
-            opt_func = OptimizationFunction(loss_function, Optimization.AutoForwardDiff())
-            opt_prob = OptimizationProblem(opt_func, p_guess)
-            opt_sol = solve(opt_prob, BFGS())
-            estimated_params_vec = opt_sol.u
+				# Solve with a robust default solver
+				sol = solve(prob, AutoVern9(Rodas4P()), saveat = data_sample["t"])
 
-            # Final loss with the best parameters found
-            final_loss = loss_function(estimated_params_vec, nothing)
+				# If the solver failed, return Inf so that the optimizer steers away
+				sol.retcode == :Success || return Inf
 
-            # ------------------------------------------------------------
-            # Persist results
-            # ------------------------------------------------------------
-            # States (initial conditions) – assumed to be known
-            for (var, true_val) in pep.ic
-                push!(results_df, (
-                    model_name = String(model_name), noise_level = noise, interpolator_method = "N/A",
-                    estimator = "Opt", variable_name = string(var), variable_type = "state",
-                    true_value = true_val, estimated_value = true_val, rel_error = 0.0,
-                    cluster_id = 1, solution_in_cluster = 1, overall_problem_error = final_loss,
-                ))
-            end
+				loss = 0.0
+				for (obs, measured) in data_sample
+					obs == "t" && continue
+					loss += sum((sol[obs] .- measured) .^ 2)
+				end
+				return loss
+			end
 
-            # Parameters
-            for (idx, sym) in enumerate(param_syms)
-                true_val = pep.p_true[sym]
-                est_val = estimated_params_vec[idx]
-                rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
-                push!(results_df, (
-                    model_name = String(model_name), noise_level = noise, interpolator_method = "N/A",
-                    estimator = "Opt", variable_name = string(sym), variable_type = "parameter",
-                    true_value = true_val, estimated_value = est_val, rel_error = rel_err,
-                    cluster_id = 1, solution_in_cluster = 1, overall_problem_error = final_loss,
-                ))
-            end
-        end
-    end
+			# ------------------------------------------------------------
+			# Set up and run the optimization
+			# ------------------------------------------------------------
+			p_guess = p_true_vec .* (1 .+ 0.1 .* randn(length(p_true_vec)))
+			opt_func = OptimizationFunction(loss_function, Optimization.AutoForwardDiff())
+			opt_prob = OptimizationProblem(opt_func, p_guess)
+			opt_sol = solve(opt_prob, BFGS())
+			estimated_params_vec = opt_sol.u
 
-    CSV.write("ifac_analysis_results.csv", results_df)
+			# Final loss with the best parameters found
+			final_loss = loss_function(estimated_params_vec, nothing)
+
+			# ------------------------------------------------------------
+			# Persist results
+			# ------------------------------------------------------------
+			# States (initial conditions) – assumed to be known
+			for (var, true_val) in pep.ic
+				push!(
+					results_df,
+					(
+						model_name = String(model_name), noise_level = noise, interpolator_method = "N/A",
+						estimator = "Opt", variable_name = string(var), variable_type = "state",
+						true_value = true_val, estimated_value = true_val, rel_error = 0.0,
+						cluster_id = 1, solution_in_cluster = 1, overall_problem_error = final_loss,
+					),
+				)
+			end
+
+			# Parameters
+			for (idx, sym) in enumerate(param_syms)
+				true_val = pep.p_true[sym]
+				est_val = estimated_params_vec[idx]
+				rel_err = abs(est_val - true_val) / (abs(true_val) < 1e-6 ? 1.0 : abs(true_val))
+				push!(
+					results_df,
+					(
+						model_name = String(model_name), noise_level = noise, interpolator_method = "N/A",
+						estimator = "Opt", variable_name = string(sym), variable_type = "parameter",
+						true_value = true_val, estimated_value = est_val, rel_error = rel_err,
+						cluster_id = 1, solution_in_cluster = 1, overall_problem_error = final_loss,
+					),
+				)
+			end
+		end
+	end
+
+	CSV.write("ifac_analysis_results.csv", results_df)
 end
 
 
 #println("Running parameter estimation examples, no noise, maximum")
 #run_parameter_estimation_examples(datasize = 301, noise_level = 0.000, models = [:lv_periodic, :vanderpol, :brusselator, :fitzhugh_nagumo, :seir])
- run_and_save_analysis()
- run_optimization_analysis()
+run_and_save_analysis()
+run_optimization_analysis()
 
- #run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = :hard)
+#run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = :hard)
 
 
 #=

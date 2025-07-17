@@ -75,7 +75,19 @@ function sample_data(model::ModelingToolkit.AbstractSystem,
 	ordered_params = [p_true[p] for p in ModelingToolkit.parameters(model)]
 	ordered_u0 = [u0[s] for s in ModelingToolkit.unknowns(model)]
 
-	problem = ODEProblem(ModelingToolkit.complete(model), ordered_u0, time_interval, ordered_params)
+	sys = ModelingToolkit.complete(model)
+
+	problem = ODEProblem(sys, merge(if isempty(ordered_u0)
+				Dict()
+			else
+				Dict(unknowns(sys) .=> ordered_u0)
+			end, if isempty(ordered_params)
+				Dict()
+			else
+				Dict(ModelingToolkit.parameters(sys) .=> ordered_params)
+			end), time_interval)
+
+
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)
