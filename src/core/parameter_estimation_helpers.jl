@@ -10,7 +10,7 @@ using Statistics
 using ..ODEParameterEstimation
 
 """
-    setup_parameter_estimation(PEP::ParameterEstimationProblem; max_num_points, point_hint)
+	setup_parameter_estimation(PEP::ParameterEstimationProblem; max_num_points, point_hint)
 
 Setup phase for parameter estimation. This extracts the necessary data from the problem,
 determines the optimal number of points to use, analyzes identifiability, and selects
@@ -25,51 +25,51 @@ time indices for sampling.
 - Named tuple with all settings needed for the solution phase
 """
 function setup_parameter_estimation(
-    PEP::ParameterEstimationProblem;
-    max_num_points = 1,
-    point_hint = 0.5,
-    nooutput = false,
-    interpolator = nothing
+	PEP::ParameterEstimationProblem;
+	max_num_points = 1,
+	point_hint = 0.5,
+	nooutput = false,
+	interpolator = nothing,
 )
-    # Extract components from the problem
-    t, eqns, states, params = unpack_ODE(PEP.model.system)
-    t_vector = PEP.data_sample["t"]
-    time_interval = extrema(t_vector)
-    
-    # Set up initial parameters
-    num_points_cap = min(length(params), max_num_points, length(t_vector))
-    
-    # Create interpolants for measurement data
-    interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interpolator)
-    
-    # Determine optimal number of points and analyze identifiability
-    good_num_points, good_deriv_level, good_udict, good_varlist, good_DD = 
-        determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
-    
-    @debug "Parameter estimation using $(good_num_points) points"
-    
-    # Pick time points for estimation
-    time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
-    @debug "Using these points: $(time_index_set)"
-    @debug "Using these observations and their derivatives: $(good_deriv_level)"
-    
-    return (
-        states = states,
-        params = params,
-        t_vector = t_vector,
-        interpolants = interpolants,
-        good_num_points = good_num_points,
-        good_deriv_level = good_deriv_level,
-        good_udict = good_udict,
-        good_varlist = good_varlist,
-        good_DD = good_DD,
-        time_index_set = time_index_set,
-        all_unidentifiable = good_DD.all_unidentifiable
-    )
+	# Extract components from the problem
+	t, eqns, states, params = unpack_ODE(PEP.model.system)
+	t_vector = PEP.data_sample["t"]
+	time_interval = extrema(t_vector)
+
+	# Set up initial parameters
+	num_points_cap = min(length(params), max_num_points, length(t_vector))
+
+	# Create interpolants for measurement data
+	interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interpolator)
+
+	# Determine optimal number of points and analyze identifiability
+	good_num_points, good_deriv_level, good_udict, good_varlist, good_DD =
+		determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
+
+	@debug "Parameter estimation using $(good_num_points) points"
+
+	# Pick time points for estimation
+	time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
+	@debug "Using these points: $(time_index_set)"
+	@debug "Using these observations and their derivatives: $(good_deriv_level)"
+
+	return (
+		states = states,
+		params = params,
+		t_vector = t_vector,
+		interpolants = interpolants,
+		good_num_points = good_num_points,
+		good_deriv_level = good_deriv_level,
+		good_udict = good_udict,
+		good_varlist = good_varlist,
+		good_DD = good_DD,
+		time_index_set = time_index_set,
+		all_unidentifiable = good_DD.all_unidentifiable,
+	)
 end
 
 """
-    solve_parameter_estimation(PEP, setup_data; system_solver, diagnostics, diagnostic_data)
+	solve_parameter_estimation(PEP, setup_data; system_solver, diagnostics, diagnostic_data)
 
 Solution phase for parameter estimation. Using the settings from the setup phase,
 this constructs and solves the system of equations to estimate parameters.
@@ -85,87 +85,136 @@ this constructs and solves the system of equations to estimate parameters.
 - Results from the solver (system solutions and metadata)
 """
 function solve_parameter_estimation(
-    PEP::ParameterEstimationProblem,
-    setup_data;
-    system_solver = solve_with_rs,
-    interpolator = nothing,
-    diagnostics = false,
-    diagnostic_data = nothing
+	PEP::ParameterEstimationProblem,
+	setup_data;
+	system_solver = solve_with_rs,
+	interpolator = nothing,
+	diagnostics = false,
+	diagnostic_data = nothing,
 )
-    # Extract settings from setup data
-    states = setup_data.states
-    params = setup_data.params
-    t_vector = setup_data.t_vector
-    interpolants = setup_data.interpolants
-    good_deriv_level = setup_data.good_deriv_level
-    good_udict = setup_data.good_udict
-    good_varlist = setup_data.good_varlist
-    good_DD = setup_data.good_DD
-    time_index_set = setup_data.time_index_set
-    
-    # Construct the multipoint equation system
-    full_target, full_varlist, forward_subst_dict, reverse_subst_dict = 
-        construct_multipoint_equation_system!(
-            time_index_set,
-            PEP.model.system, 
-            PEP.measured_quantities, 
-            PEP.data_sample, 
-            good_deriv_level, 
-            good_udict, 
-            good_varlist, 
-            good_DD,
-            interpolator, 
-            interpolants, 
-            diagnostics, 
-            diagnostic_data, 
-            states, 
-            params
-        )
-    
-    # Combine all equations into a single target
-    final_target = reduce(vcat, full_target)
-    
-    # Create the final list of variables to solve for
-    final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-    
-    # Print diagnostic information if requested
-    if diagnostics && !isnothing(diagnostic_data)
-        log_diagnostic_info(
-            PEP, 
-            time_index_set, 
-            good_deriv_level, 
-            good_udict, 
-            good_varlist, 
-            good_DD, 
-            interpolator, 
-            interpolants, 
-            diagnostic_data,
-            states,
-            params,
-            final_target,
-            forward_subst_dict,
-            reverse_subst_dict
-        )
-    end
-    
-    # Solve the system
-    @debug "Solving system..."
-    solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
-    
-    return (
-        solns = solve_result,
-        hcvarlist = hcvarlist,
-        trivial_dict = trivial_dict,
-        trimmed_varlist = trimmed_varlist,
-        forward_subst_dict = forward_subst_dict,
-        reverse_subst_dict = reverse_subst_dict,
-        final_varlist = final_varlist,
-        good_udict = good_udict
-    )
+	# Extract settings from setup data
+	states = setup_data.states
+	params = setup_data.params
+	t_vector = setup_data.t_vector
+	interpolants = setup_data.interpolants
+	good_deriv_level = setup_data.good_deriv_level
+	good_udict = setup_data.good_udict
+	good_varlist = setup_data.good_varlist
+	good_DD = setup_data.good_DD
+	time_index_set = setup_data.time_index_set
+
+	# Construct the multipoint equation system
+	full_target, full_varlist, forward_subst_dict, reverse_subst_dict =
+		construct_multipoint_equation_system!(
+			time_index_set,
+			PEP.model.system,
+			PEP.measured_quantities,
+			PEP.data_sample,
+			good_deriv_level,
+			good_udict,
+			good_varlist,
+			good_DD,
+			interpolator,
+			interpolants,
+			diagnostics,
+			diagnostic_data,
+			states,
+			params,
+		)
+
+	# Combine all equations into a single target
+	final_target = reduce(vcat, full_target)
+
+	# Create the final list of variables to solve for
+	final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
+
+	# Print diagnostic information if requested
+	if diagnostics && !isnothing(diagnostic_data)
+		log_diagnostic_info(
+			PEP,
+			time_index_set,
+			good_deriv_level,
+			good_udict,
+			good_varlist,
+			good_DD,
+			interpolator,
+			interpolants,
+			diagnostic_data,
+			states,
+			params,
+			final_target,
+			forward_subst_dict,
+			reverse_subst_dict,
+		)
+	end
+
+	# Solve the system
+	@debug "Solving system..."
+
+	# Define a container for the results
+	solve_result, hcvarlist, trivial_dict, trimmed_varlist = nothing, nothing, nothing, nothing
+
+	try
+		# Attempt to solve the original system
+		solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(final_target, final_varlist)
+	catch e
+		if isa(e, DomainError)
+			@warn "The system is not zero-dimensional. Intersecting with random hyperplanes to find a solution."
+
+			# Create a copy of the system to modify
+			temp_target = deepcopy(final_target)
+			max_iterations = length(final_varlist) * 2 # Heuristic limit
+
+			for i in 1:max_iterations
+				# Add a random linear equation (hyperplane)
+				random_eq = sum(rand(-10:10) * v for v in final_varlist) - rand(-10:10)
+				push!(temp_target, random_eq)
+
+				try
+					# Retry solving the augmented system
+					solve_result, hcvarlist, trivial_dict, trimmed_varlist = system_solver(temp_target, final_varlist)
+					@info "Successfully found a solution after intersecting with $i hyperplane(s)."
+					# If successful, break the loop
+					break
+				catch inner_e
+					if isa(inner_e, DomainError)
+						# If still not zero-dimensional, continue to the next iteration
+						if i == max_iterations
+							@error "Failed to find a zero-dimensional system after $max_iterations iterations."
+							rethrow(inner_e)
+						end
+						continue
+					else
+						# Rethrow other errors
+						rethrow(inner_e)
+					end
+				end
+			end
+		else
+			# Rethrow other errors
+			rethrow(e)
+		end
+	end
+
+	# Check if a solution was found
+	if isnothing(solve_result)
+		error("Failed to solve the system, even after modifications.")
+	end
+
+	return (
+		solns = solve_result,
+		hcvarlist = hcvarlist,
+		trivial_dict = trivial_dict,
+		trimmed_varlist = trimmed_varlist,
+		forward_subst_dict = forward_subst_dict,
+		reverse_subst_dict = reverse_subst_dict,
+		final_varlist = final_varlist,
+		good_udict = good_udict,
+	)
 end
 
 """
-    process_estimation_results(PEP, solution_data, lowest_time_index; polish_solutions, polish_maxiters, polish_method)
+	process_estimation_results(PEP, solution_data, lowest_time_index; polish_solutions, polish_maxiters, polish_method)
 
 Process the raw results from the solver into a format suitable for analysis.
 Backsolves for the original model parameters and creates ParameterEstimationResult objects.
@@ -182,13 +231,13 @@ Backsolves for the original model parameters and creates ParameterEstimationResu
 - Vector of ParameterEstimationResult objects
 """
 function process_estimation_results(
-    PEP::ParameterEstimationProblem,
-    solution_data,
-    setup_data;
-    nooutput = false,
-    polish_solutions = false,
-    polish_maxiters = 20,
-    polish_method = NewtonTrustRegion
+	PEP::ParameterEstimationProblem,
+	solution_data,
+	setup_data;
+	nooutput = false,
+	polish_solutions = false,
+	polish_maxiters = 20,
+	polish_method = NewtonTrustRegion,
 )
     # Extract components from the solution data
     solns = solution_data.solns
@@ -338,7 +387,7 @@ function process_estimation_results(
 end
 
 """
-    log_diagnostic_info(PEP, time_index_set, good_deriv_level, good_udict, good_varlist, good_DD, interpolator, interpolants, diagnostic_data, states, params, final_target, forward_subst_dict, reverse_subst_dict)
+	log_diagnostic_info(PEP, time_index_set, good_deriv_level, good_udict, good_varlist, good_DD, interpolator, interpolants, diagnostic_data, states, params, final_target, forward_subst_dict, reverse_subst_dict)
 
 Log diagnostic information about the system being solved.
 This is a helper function for debugging and understanding the system.
@@ -347,20 +396,20 @@ This is a helper function for debugging and understanding the system.
 - Various parameters from the parameter estimation problem and setup
 """
 function log_diagnostic_info(
-    PEP, 
-    time_index_set, 
-    good_deriv_level, 
-    good_udict, 
-    good_varlist, 
-    good_DD, 
-    interpolator, 
-    interpolants, 
-    diagnostic_data,
-    states,
-    params,
-    final_target,
-    forward_subst_dict,
-    reverse_subst_dict
+	PEP,
+	time_index_set,
+	good_deriv_level,
+	good_udict,
+	good_varlist,
+	good_DD,
+	interpolator,
+	interpolants,
+	diagnostic_data,
+	states,
+	params,
+	final_target,
+	forward_subst_dict,
+	reverse_subst_dict,
 )
 if(false)   
 # Calculate maximum derivative level

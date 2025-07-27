@@ -1,14 +1,16 @@
 using ODEParameterEstimation
 using Test
 using ModelingToolkit
+using ModelingToolkit: System
 using OrderedCollections
 using Symbolics
 
 @testset "Core Types" begin
     @testset "OrderedODESystem" begin
         # Create a simple test ODE system
+        @independent_variables t
         @parameters a b
-        @variables t x1(t) x2(t)
+        @variables x1(t) x2(t)
         D = Differential(t)
         
         eqs = [
@@ -18,7 +20,7 @@ using Symbolics
         states = [x1, x2]
         params = [a, b]
         
-        @named model = ODESystem(eqs, t, states, params)
+        @named model = System(eqs, t, states, params)
         
         # Create OrderedODESystem
         ordered_sys = ODEParameterEstimation.OrderedODESystem(model, params, states)
@@ -26,14 +28,15 @@ using Symbolics
         # Test type and property access
         @test typeof(ordered_sys) == ODEParameterEstimation.OrderedODESystem
         @test ordered_sys.system === model
-        @test ordered_sys.original_parameters == params
-        @test ordered_sys.original_states == states
+        @test isequal(ordered_sys.original_parameters, params)
+        @test isequal(ordered_sys.original_states, states)
     end
     
     @testset "ParameterEstimationProblem" begin
         # Create a simple test ODE system
+        @independent_variables t
         @parameters a b
-        @variables t x1(t) x2(t) y1(t)
+        @variables x1(t) x2(t) y1(t)
         D = Differential(t)
         
         eqs = [
@@ -44,7 +47,7 @@ using Symbolics
         params = [a, b]
         measured_quantities = [y1 ~ x1]
         
-        @named model = ODESystem(eqs, t, states, params)
+        @named model = System(eqs, t, states, params)
         ordered_sys = ODEParameterEstimation.OrderedODESystem(model, params, states)
         
         # Basic PEP with no data
@@ -55,8 +58,8 @@ using Symbolics
             nothing,
             nothing,
             ODEParameterEstimation.package_wide_default_ode_solver,
-            [0.5, 1.0],  # p_true
-            [1.0, 2.0],  # ic
+            OrderedDict(a => 0.5, b => 1.0),  # p_true
+            OrderedDict(x1 => 1.0, x2 => 2.0),  # ic
             0            # unident_count
         )
         
@@ -66,8 +69,8 @@ using Symbolics
         @test pep.measured_quantities == measured_quantities
         @test isnothing(pep.data_sample)
         @test isnothing(pep.recommended_time_interval)
-        @test isequal(pep.p_true, [0.5, 1.0])
-        @test isequal(pep.ic, [1.0, 2.0])
+        @test isequal(pep.p_true, OrderedDict(a => 0.5, b => 1.0))
+        @test isequal(pep.ic, OrderedDict(x1 => 1.0, x2 => 2.0))
         @test pep.unident_count == 0
         
         # PEP with data sample
@@ -83,8 +86,8 @@ using Symbolics
             data_dict,
             [-0.5, 0.5],
             ODEParameterEstimation.package_wide_default_ode_solver,
-            [0.5, 1.0],
-            [1.0, 2.0],
+            OrderedDict(a => 0.5, b => 1.0),
+            OrderedDict(x1 => 1.0, x2 => 2.0),
             0
         )
         
@@ -99,7 +102,7 @@ using Symbolics
         states_rhs = [[Symbolics.wrap(Symbol("y1"))] ]
         obs_lhs = [[Symbolics.wrap(Symbol("obs1"))] ]
         obs_rhs = [[Symbolics.wrap(Symbol("val1"))] ]
-        all_unident = Set([Symbolics.wrap(Symbol("param1"))])
+        all_unident = Set{Any}([Symbolics.wrap(Symbol("param1"))])
         
         # Create DerivativeData object
         dd = ODEParameterEstimation.DerivativeData(

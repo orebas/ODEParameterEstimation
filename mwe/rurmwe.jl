@@ -1,7 +1,7 @@
 using ModelingToolkit
 using DifferentialEquations
 using RationalUnivariateRepresentation
-using RS
+# using RS
 using AbstractAlgebra
 using HomotopyContinuation
 #using ODEParameterEstimation

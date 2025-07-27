@@ -49,12 +49,12 @@ Struct representing a parameter estimation problem.
 struct ParameterEstimationProblem
     name::String
     model::OrderedODESystem
-    measured_quantities::Vector{Equation}
+    measured_quantities::Vector{ModelingToolkit.Equation}
     data_sample::Union{Nothing, OrderedDict{Any, Vector{Float64}}}
     recommended_time_interval::Union{Nothing, Vector{Float64}}
     solver::Any  # Use Any for now since the exact type hierarchy can be complex
-    p_true::OrderedDict{Num, Float64}
-    ic::OrderedDict{Num, Float64}
+    p_true::OrderedDict{Symbolics.Num, Float64}
+    ic::OrderedDict{Symbolics.Num, Float64}
     unident_count::Int
 end
 

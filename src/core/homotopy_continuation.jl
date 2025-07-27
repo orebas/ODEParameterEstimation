@@ -244,7 +244,7 @@ function add_random_linear_equation_direct(poly_system, varlist)
 	
 	return new_poly_system
 end
-137
+
 function solve_with_rs(poly_system, varlist;
 						start_point = nothing,  # Not used but kept for interface consistency
 						options = Dict(),

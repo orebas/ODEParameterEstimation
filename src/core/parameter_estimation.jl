@@ -5,13 +5,13 @@
 # - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
 
 """
-	populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+	populate_derivatives(model::ModelingToolkit.System, measured_quantities_in, max_deriv_level, unident_dict)
 
 Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
 diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
 
 # Arguments
-- `model::ODESystem`: The ODE system
+- `model::ModelingToolkit.System`: The ODE system
 - `measured_quantities_in`: Input measured quantities
 - `max_deriv_level`: Maximum derivative level
 - `unident_dict`: Dictionary of unidentifiable variables
@@ -81,7 +81,7 @@ end
 
 
 """
-    convert_to_real_or_complex_array(values) -> Union{Array{Float64,1}, Array{ComplexF64,1}}
+	convert_to_real_or_complex_array(values) -> Union{Array{Float64,1}, Array{ComplexF64,1}}
 
 Converts input values to either real or complex array based on the values' properties.
 
@@ -92,16 +92,16 @@ Converts input values to either real or complex array based on the values' prope
 - `Array{Float64,1}` if all values are real (within numerical precision)
 - `Array{ComplexF64,1}` if any values have non-negligible imaginary components
 """
-function convert_to_real_or_complex_array(values)::Union{Array{Float64,1}, Array{ComplexF64,1}}
-    # First convert to complex to handle mixed inputs
-    newvalues = Base.convert(Array{ComplexF64, 1}, values)
-    
-    # If all values are real (within tolerance), convert to real array
-    if isreal(newvalues)
-        return Base.convert(Array{Float64, 1}, newvalues)
-    else
-        return newvalues
-    end
+function convert_to_real_or_complex_array(values)::Union{Array{Float64, 1}, Array{ComplexF64, 1}}
+	# First convert to complex to handle mixed inputs
+	newvalues = Base.convert(Array{ComplexF64, 1}, values)
+
+	# If all values are real (within tolerance), convert to real array
+	if isreal(newvalues)
+		return Base.convert(Array{Float64, 1}, newvalues)
+	else
+		return newvalues
+	end
 end
 
 
@@ -109,17 +109,17 @@ end
 
 
 """
-    create_interpolants(
-        measured_quantities::Vector{Equation},
-        data_sample::OrderedDict,
-        t_vector::Vector{Float64},
-        interp_func::Function
-    ) -> Dict{Any, AbstractInterpolator}
+	create_interpolants(
+		measured_quantities::Vector{ModelingToolkit.Equation},
+		data_sample::OrderedDict,
+		t_vector::Vector{Float64},
+		interp_func::Function
+	) -> Dict{Any, AbstractInterpolator}
 
 Creates interpolant functions for measured quantities using the provided interpolation function.
 
 # Arguments
-- `measured_quantities::Vector{Equation}`: Equations for measured quantities
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Equations for measured quantities
 - `data_sample::OrderedDict`: Sample data for measured quantities
 - `t_vector::Vector{Float64}`: Time points at which measurements were taken
 - `interp_func::Function`: Function to use for interpolation (e.g., aaad, aaad_gpr_pivot)
@@ -128,24 +128,24 @@ Creates interpolant functions for measured quantities using the provided interpo
 - Dictionary mapping each quantity to its corresponding interpolant function
 """
 function create_interpolants(
-    measured_quantities::Vector{Equation},
-    data_sample::OrderedDict,
-    t_vector::Vector{Float64},
-    interp_func::Function
+	measured_quantities::Vector{ModelingToolkit.Equation},
+	data_sample::OrderedDict,
+	t_vector::Vector{Float64},
+	interp_func::Function,
 )::Dict{Any, AbstractInterpolator}
-    interpolants = Dict{Any, AbstractInterpolator}()
-    
-    for j in measured_quantities
-        r = j.rhs
-        # Look up data in data_sample - use rhs if available, otherwise use lhs
-        key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
-        y_vector = data_sample[key]
-        
-        # Create interpolant and store in dictionary
-        interpolants[r] = interp_func(t_vector, y_vector)
-    end
-    
-    return interpolants
+	interpolants = Dict{Any, AbstractInterpolator}()
+
+	for j in measured_quantities
+		r = j.rhs
+		# Look up data in data_sample - use rhs if available, otherwise use lhs
+		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
+		y_vector = data_sample[key]
+
+		# Create interpolant and store in dictionary
+		interpolants[r] = interp_func(t_vector, y_vector)
+	end
+
+	return interpolants
 end
 
 
@@ -323,25 +323,25 @@ end
 
 
 """
-    multipoint_numerical_jacobian(
-        model::ODESystem,
-        measured_quantities::Vector{Equation},
-        max_deriv_level::Int,
-        max_num_points::Int,
-        unident_dict::Dict,
-        varlist::Vector{Num},
-        param_dict,
-        ic_dict_vector,
-        values_dict,
-        DD::Union{DerivativeData,Symbol} = :nothing
-    ) -> Tuple{Matrix{Float64}, DerivativeData}
+	multipoint_numerical_jacobian(
+		model::ModelingToolkit.System,
+		measured_quantities::Vector{ModelingToolkit.Equation},
+		max_deriv_level::Int,
+		max_num_points::Int,
+		unident_dict::Dict,
+		varlist::Vector{Num},
+		param_dict,
+		ic_dict_vector,
+		values_dict,
+		DD::Union{DerivativeData,Symbol} = :nothing
+	) -> Tuple{Matrix{Float64}, DerivativeData}
 
 Computes the numerical Jacobian at multiple points.
 The multiple points have different values for states, but the same parameters.
 
 # Arguments
-- `model::ODESystem`: The ODE system model
-- `measured_quantities::Vector{Equation}`: Input measured quantities
+- `model::ModelingToolkit.System`: The ODE system model
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Input measured quantities
 - `max_deriv_level::Int`: Maximum derivative level to compute
 - `max_num_points::Int`: Maximum number of points to use
 - `unident_dict::Dict`: Dictionary of unidentifiable variables
@@ -396,7 +396,13 @@ function multipoint_numerical_jacobian(
 
 			for i in eachindex(DD.states_rhs)
 				for j in eachindex(DD.states_rhs[i])
-					evaluated_subst_dict[DD.states_lhs[i][j]] = substitute(DD.states_rhs[i][j], evaluated_subst_dict)
+					substituted_val = substitute(DD.states_rhs[i][j], evaluated_subst_dict)
+					# If the substituted value is a constant, unwrap it from the symbolic type.
+					if !Symbolics.iscall(substituted_val)
+						evaluated_subst_dict[DD.states_lhs[i][j]] = Symbolics.value(substituted_val)
+					else
+						evaluated_subst_dict[DD.states_lhs[i][j]] = substituted_val
+					end
 				end
 			end
 			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
@@ -458,19 +464,19 @@ function multipoint_deriv_level_view(evaluated_jac, deriv_level, num_obs, max_nu
 end
 
 """
-    multipoint_local_identifiability_analysis(
-        model::ODESystem,
-        measured_quantities::Vector{Equation},
-        max_num_points::Int,
-        reltol::Float64 = 1e-12,
-        abstol::Float64 = 1e-12
-    ) -> Tuple{Dict{Int,Int}, Dict, Vector{Num}, DerivativeData}
+	multipoint_local_identifiability_analysis(
+		model::ModelingToolkit.System,
+		measured_quantities::Vector{ModelingToolkit.Equation},
+		max_num_points::Int,
+		reltol::Float64 = 1e-12,
+		abstol::Float64 = 1e-12
+	) -> Tuple{Dict{Int,Int}, Dict, Vector{Num}, DerivativeData}
 
 Performs local identifiability analysis at multiple points.
 
 # Arguments
-- `model::ODESystem`: The ODE system
-- `measured_quantities::Vector{Equation}`: Measured quantities
+- `model::ModelingToolkit.System`: The ODE system
+- `measured_quantities::Vector{ModelingToolkit.Equation}`: Measured quantities
 - `max_num_points::Int`: Maximum number of points to use
 - `reltol::Float64`: Relative tolerance (default: 1e-12)
 - `abstol::Float64`: Absolute tolerance (default: 1e-12)
@@ -654,13 +660,13 @@ end
 
 
 """
-	construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+	construct_equation_system(model::ModelingToolkit.System, measured_quantities_in, data_sample,
 							deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false)
 
 Construct an equation system for parameter estimation.
 
 # Arguments
-- `model::ODESystem`: The ODE system
+- `model::ModelingToolkit.System`: The ODE system
 - `measured_quantities_in`: Input measured quantities
 - `data_sample`: Sample data
 - `deriv_level`: Dictionary of derivative levels
@@ -716,8 +722,8 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 	else
 		if sol === nothing
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
-			@named new_sys = ODESystem(equations(model), t; observed = expanded_mq)
-			local_prob = ODEProblem(structural_simplify(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
+			@named new_sys = ModelingToolkit.System(equations(model), t; observed = expanded_mq)
+			local_prob = ODEProblem(mtkcompile(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
 			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
 		else
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
@@ -781,10 +787,10 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 end
 
 """
-    lookup_value(var, var_search, soln_index::Int, 
-                good_udict::Dict, trivial_dict::Dict, 
-                final_varlist::Vector, trimmed_varlist::Vector, 
-                solns::Vector) -> Float64
+	lookup_value(var, var_search, soln_index::Int, 
+				good_udict::Dict, trivial_dict::Dict, 
+				final_varlist::Vector, trimmed_varlist::Vector, 
+				solns::Vector) -> Float64
 
 Look up a variable's value from various dictionaries and solution vectors.
 This is a helper function for parameter estimation.
@@ -802,28 +808,28 @@ This is a helper function for parameter estimation.
 # Returns
 - `Float64`: Value of the variable
 """
-function lookup_value(var, var_search, soln_index::Int, 
-                     good_udict::Dict, trivial_dict::Dict, 
-                     final_varlist::Vector, trimmed_varlist::Vector, 
-                     solns::Vector)::Float64
-    # First check if it's in the unidentifiable dictionary
-    if var in keys(good_udict)
-        return Float64(good_udict[var])
-    end
-    
-    # Then check if it's in the trivial dictionary
-    if var_search in keys(trivial_dict)
-        return Float64(trivial_dict[var_search])
-    end
-    
-    # Finally, look it up in the solution vectors
-    index = findfirst(isequal(var_search), final_varlist)
-    if isnothing(index)
-        index = findfirst(isequal(var_search), trimmed_varlist)
-    end
-    
-    # Return the real part of the solution as a Float64
-    return Float64(real(solns[soln_index][index]))
+function lookup_value(var, var_search, soln_index::Int,
+	good_udict::Dict, trivial_dict::Dict,
+	final_varlist::Vector, trimmed_varlist::Vector,
+	solns::Vector)::Float64
+	# First check if it's in the unidentifiable dictionary
+	if var in keys(good_udict)
+		return Float64(good_udict[var])
+	end
+
+	# Then check if it's in the trivial dictionary
+	if var_search in keys(trivial_dict)
+		return Float64(trivial_dict[var_search])
+	end
+
+	# Finally, look it up in the solution vectors
+	index = findfirst(isequal(var_search), final_varlist)
+	if isnothing(index)
+		index = findfirst(isequal(var_search), trimmed_varlist)
+	end
+
+	# Return the real part of the solution as a Float64
+	return Float64(real(solns[soln_index][index]))
 end
 
 # New helper function to evaluate a polynomial system by substituting exact state and parameter values
@@ -996,7 +1002,7 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 		end
 
 		ic_guess = real.(p_vec[1:n_ic])
-		param_guess = real.(p_vec[n_ic+1:end])
+		param_guess = real.(p_vec[(n_ic+1):end])
 
 		prob_opt = remake(prob, u0 = ic_guess, p = param_guess)
 		sol_opt = try
@@ -1046,7 +1052,7 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	# Extract the optimized initial conditions and parameters.
 	p_opt = result.u
 	ic_opt = real.(p_opt[1:n_ic])
-	param_opt = real.(p_opt[n_ic+1:end])
+	param_opt = real.(p_opt[(n_ic+1):end])
 
 	# Re-simulate the ODE using the optimized values.
 	prob_polished = remake(prob, u0 = ic_opt, p = param_opt)

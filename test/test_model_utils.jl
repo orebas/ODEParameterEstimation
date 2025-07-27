@@ -1,13 +1,15 @@
 using ODEParameterEstimation
 using Test
 using ModelingToolkit
+using ModelingToolkit: System
 using OrderedCollections
 
 @testset "Model Utils" begin
     @testset "unpack_ODE" begin
         # Create a simple test ODE model
+        @independent_variables t
         @parameters a b
-        @variables t x1(t) x2(t)
+        @variables x1(t) x2(t)
         D = Differential(t)
         
         eqs = [
@@ -17,16 +19,16 @@ using OrderedCollections
         states = [x1, x2]
         params = [a, b]
         
-        @named test_model = ODESystem(eqs, t, states, params)
+        @named test_model = System(eqs, t, states, params)
         
         # Test the unpack_ODE function
         time_var, equations, state_vars, parameters = ODEParameterEstimation.unpack_ODE(test_model)
         
         # Verify the results
-        @test time_var == t
+        @test isequal(time_var, t)
         @test length(equations) == 2
-        @test state_vars == states
-        @test parameters == params
+        @test isequal(state_vars, states)
+        @test isequal(parameters, params)
     end
     
     @testset "tag_symbol" begin
@@ -48,8 +50,9 @@ using OrderedCollections
     
     @testset "create_ordered_ode_system" begin
         # Create a simple ODE system
+        @independent_variables t
         @parameters a b
-        @variables t x1(t) x2(t) y1(t) y2(t)
+        @variables x1(t) x2(t) y1(t) y2(t)
         D = Differential(t)
         
         eqs = [
@@ -66,9 +69,9 @@ using OrderedCollections
         
         # Verify the results
         @test typeof(ordered_system) == ODEParameterEstimation.OrderedODESystem
-        @test ordered_system.original_parameters == params
-        @test ordered_system.original_states == states
-        @test mq == measured_quantities
+        @test isequal(ordered_system.original_parameters, params)
+        @test isequal(ordered_system.original_states, states)
+        @test isequal(mq, measured_quantities)
     end
     
     @testset "unident_subst!" begin
