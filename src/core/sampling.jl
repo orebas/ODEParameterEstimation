@@ -50,7 +50,7 @@ end
 
 #This is a utility function which fills in observed data by solving an ODE.
 
-function sample_data(model::ModelingToolkit.ODESystem,
+function sample_data(model::ModelingToolkit.AbstractSystem,
 	measured_data::Vector{ModelingToolkit.Equation},
 	time_interval::Vector{T},
 	p_true,
@@ -75,7 +75,7 @@ function sample_data(model::ModelingToolkit.ODESystem,
 	ordered_params = [p_true[p] for p in ModelingToolkit.parameters(model)]
 	ordered_u0 = [u0[s] for s in ModelingToolkit.unknowns(model)]
 
-	problem = ODEProblem(ModelingToolkit.complete(model), ordered_u0, time_interval, ordered_params)
+	problem = ODEProblem(ModelingToolkit.complete(model), merge(OrderedDict(ModelingToolkit.unknowns(model) .=> ordered_u0), OrderedDict(ModelingToolkit.parameters(model) .=> ordered_params)), time_interval)
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)

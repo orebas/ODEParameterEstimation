@@ -114,6 +114,12 @@ Convert each symbolic expression in `exprs` into a polynomial in an
 AbstractAlgebra polynomial ring in the variables `vars`. This returns
 both the ring `R` and the vector of polynomials in `R`.
 """
+function round_floats(expr, digits=10)
+    r = SymbolicUtils.Rewriters.Prewalk(x -> x isa Float64 ? round(x; digits=digits) : x)
+    return r(expr)
+end
+
+
 function exprs_to_AA_polys(exprs, vars)
 	# Create a polynomial ring over QQ, using the variable names
 
@@ -130,7 +136,7 @@ function exprs_to_AA_polys(exprs, vars)
 	#println(temp)
 	#Base.eval(M, Meta.parse(approximation_command))
 
-
+    exprs = round_floats.(exprs)
 	a = string.(exprs)
 	AA_polys = []
 	for expr in exprs
@@ -157,8 +163,8 @@ function poly_evaluate(poly, x)
 end
 
 function evaluate_rur_subs(rur, v_val, vars)
-	println("\nDEBUG [evaluate_rur_subs]: Processing RUR substitutions")
-	println("Input root value: $v_val")
+	#println("\nDEBUG [evaluate_rur_subs]: Processing RUR substitutions")
+	#println("Input root value: $v_val")
 
 	# Get the first polynomial (f₁) and compute its derivative coefficients
 	f1 = rur[1]
@@ -170,7 +176,7 @@ function evaluate_rur_subs(rur, v_val, vars)
 
 	# Evaluate derivative at root
 	normalization = poly_evaluate(f1_derivative_coeffs, v_val)
-	println("Normalization factor (f₁'(x₀)): $normalization")
+	#println("Normalization factor (f₁'(x₀)): $normalization")
 
 	# Create solution dictionary
 	sol_dict = Dict{Symbol, Any}()
@@ -178,10 +184,10 @@ function evaluate_rur_subs(rur, v_val, vars)
 	# Instead of splitting vars into parameters and states by name, preserve the original order
 	ordered_vars = vars  # FIX: Use the original ordering rather than reordering by filtering
 
-	println("\nDEBUG [evaluate_rur_subs]: Variable ordering:")
-	for (i, v) in enumerate(ordered_vars)
-		println("$i: $v")
-	end
+	#println("\nDEBUG [evaluate_rur_subs]: Variable ordering:")
+	#for (i, v) in enumerate(ordered_vars)
+	#	println("$i: $v")
+	#end
 
 	# Process RUR substitutions (skip first polynomial which was used to find roots)
 	for (i, u_poly) in enumerate(rur[2:end])
@@ -193,10 +199,10 @@ function evaluate_rur_subs(rur, v_val, vars)
 		end
 	end
 
-	println("\nDEBUG [evaluate_rur_subs]: Solution verification:")
-	for (var, val) in sol_dict
-		println("$var => $val")
-	end
+	#println("\nDEBUG [evaluate_rur_subs]: Solution verification:")
+	#for (var, val) in sol_dict
+	#	println("$var => $val")
+	#end
 
 	return sol_dict
 end
@@ -224,24 +230,76 @@ This tries to lower the dimension by 1, hopefully making the solution set finite
 - A new polynomial system with an additional random linear equation
 """
 function add_random_linear_equation_direct(poly_system, varlist)
-	# Generate random coefficients for each variable
-	coeffs = randn(length(varlist))
-	c = randn()
+	# Get the number of variables
+	n = length(varlist)
+	
+	# Generate random coefficients for the linear equation
+	coeffs = rand(Float64, n)
+	
+	# Create the linear equation
+	linear_equation = sum(coeffs[i] * varlist[i] for i in 1:n) - rand(Float64)
+	
+	# Add the new equation to the system
+	new_poly_system = [poly_system; linear_equation]
+	
+	return new_poly_system
+end
+137
+function solve_with_rs(poly_system, varlist;
+						start_point = nothing,  # Not used but kept for interface consistency
+						options = Dict(),
+						_recursion_depth=0)
+	
+	if _recursion_depth > 5
+		@warn "solve_with_rs: Maximum recursion depth exceeded. System may have no solutions."
+		return [], varlist, Dict(), varlist
+	end
 
-	# Create a linear equation: sum(coeffs[i] * varlist[i]) + c
-	eq = sum(coeffs[i] * varlist[i] for i in 1:length(varlist)) + c
+	try
+		# Convert symbolic expressions to AA polynomials using existing infrastructure
+		R, aa_system = exprs_to_AA_polys(poly_system, varlist)
 
-	# Return the original system with the new equation appended
-	return vcat(poly_system, [eq])
+		#println("aa_system")
+		#println(aa_system)
+		#println("R")
+		#println(R)
+		# Compute RUR and get separating element
+		rur, sep = zdim_parameterization(aa_system, get_separating_element = true)
+
+		# Find solutions
+		output_precision = get(options, :output_precision, Int32(20))
+		sol = RS.rs_isolate(rur, sep, output_precision = output_precision)
+
+		# Convert solutions back to our format
+		solutions = []
+		for s in sol
+			# Extract real solutions
+			#display(s)
+			real_sol = [convert(Float64, real(v[1])) for v in s]
+			push!(solutions, real_sol)
+		end
+		return solutions, varlist, Dict(), varlist
+	catch e
+		if isa(e, DomainError) && occursin("zerodimensional ideal", string(e))
+			@warn "System is not zero-dimensional, adding a random linear equation."
+			modified_poly_system = add_random_linear_equation_direct(poly_system, varlist)
+			return solve_with_rs(modified_poly_system, varlist, start_point=start_point, options=options, _recursion_depth=_recursion_depth+1)
+		else
+			@warn "solve_with_rs failed: $e"
+			return [], varlist, Dict(), varlist
+		end
+	end
 end
 
-function solve_with_rs(poly_system, varlist;
-	start_point = nothing,
-	polish_solutions = true,
-	debug = false,
-	verify_solutions = true,
-	is_augmented_system = false)  # New parameter to track if system was augmented
 
+#=
+function solve_with_rs_old(poly_system, varlist;
+						start_point = nothing,
+						polish_solutions = true,
+						debug = false,
+						verify_solutions = true,
+						is_augmented_system = false)  # New parameter to track if system was augmented
+	
 	if debug
 		println("DEBUG [solve_with_rs]: Starting with system:")
 		for eq in poly_system
@@ -249,7 +307,7 @@ function solve_with_rs(poly_system, varlist;
 		end
 		println("Variables: ", varlist)
 	end
-
+	
 	# Convert symbolic expressions to AA polynomials using existing infrastructure
 	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
 
@@ -262,7 +320,7 @@ function solve_with_rs(poly_system, varlist;
 
 	# Round coefficients to improve numerical stability
 	sys_toround = deepcopy(aa_system)
-	sys_rounded = map(f -> map_coefficients(c -> rationalize(BigInt, round(BigFloat(c), digits = 8)), f), sys_toround)
+	sys_rounded = map(f -> map_coefficients(c -> rationalize(BigInt, round(BigFloat(c), digits = 5)), f), sys_toround)
 
 	solutions = []
 
@@ -313,7 +371,7 @@ function solve_with_rs(poly_system, varlist;
 				end
 				push!(sol_vector, real(val)) # Store real part only
 			end
-
+			
 			if debug
 				println("DEBUG [solve_with_rs]: Solution vector: ", sol_vector)
 			end
@@ -329,21 +387,21 @@ function solve_with_rs(poly_system, varlist;
 			if debug
 				println("DEBUG [solve_with_rs]: Zero-dimensional ideal error, adding random linear equation")
 			end
-
+			
 			# Add a random linear equation directly to make the system zero-dimensional
 			modified_poly_system = add_random_linear_equation_direct(poly_system, varlist)
-
+			
 			if debug
 				println("DEBUG [solve_with_rs]: Added random linear equation, new system size: ", length(modified_poly_system))
 			end
 
 			# Recursive call with the modified system
 			return solve_with_rs(modified_poly_system, varlist,
-				start_point = start_point,
-				polish_solutions = polish_solutions,
-				debug = debug,
-				verify_solutions = verify_solutions,
-				is_augmented_system = true)  # Mark that this is an augmented system
+								 start_point = start_point,
+								 polish_solutions = polish_solutions,
+								 debug = debug,
+								 verify_solutions = verify_solutions,
+								 is_augmented_system = true)  # Mark that this is an augmented system
 		else
 			if debug
 				println("DEBUG [solve_with_rs]: Unhandled exception: ", e)
@@ -384,7 +442,7 @@ function solve_with_rs(poly_system, varlist;
 					break
 				end
 			end
-
+			
 			if all_valid
 				push!(verified_solutions, sol)
 			else
@@ -403,17 +461,17 @@ function solve_with_rs(poly_system, varlist;
 		for sol in solutions
 			# Extract real part as starting point for polishing
 			start_pt = real.(sol)
-
+			
 			if debug
 				println("DEBUG [solve_with_rs]: Polishing solution: ", start_pt)
 			end
-
+			
 			# Polish the solution
 			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
-				start_point = start_pt,
-				polish_only = true,
-				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
-
+													start_point = start_pt,
+													polish_only = true,
+													options = Dict(:abstol => 1e-12, :reltol => 1e-12))
+			
 			# If polishing succeeded, add polished solution to list
 			if !isempty(polished_sol)
 				push!(polished_solutions, polished_sol[1])
@@ -431,70 +489,11 @@ function solve_with_rs(poly_system, varlist;
 		end
 		solutions = polished_solutions
 	end
-
+	
 	if debug
 		println("DEBUG [solve_with_rs]: Final solutions: ", solutions)
 	end
-
+	
 	return solutions, varlist, Dict(), varlist
 end
-
-
-
-function solve_with_rs_old(poly_system, varlist;
-	start_point = nothing,  # Not used but kept for interface consistency
-	polish_solutions = true)
-
-	#try
-	# Convert symbolic expressions to AA polynomials using existing infrastructure
-	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
-
-	println("aa_system")
-	println(aa_system)
-	println("R")
-	println(R)
-	# Compute RUR and get separating element
-	rur, sep = zdim_parameterization(aa_system, get_separating_element = true)
-
-	# Find solutions
-	output_precision = Int32(20)
-	sol = RS.rs_isolate(rur, sep, output_precision = output_precision)
-
-	# Convert solutions back to our format
-	solutions = []
-	println(sol)
-	for s in sol
-		# Extract real solutions
-		#println(s)
-		real_sol = [convert(Float64, real(v[1])) for v in s]
-		push!(solutions, real_sol)
-	end
-
-
-
-
-	# Polish solutions if requested
-	if polish_solutions && !isempty(solutions)
-		polished_solutions = []
-		for sol in solutions
-			# Extract real part as starting point for polishing
-			start_point = real.(sol)
-			# Polish the solution
-			polished_sol, _, _, _ = solve_with_nlopt(poly_system, varlist,
-				start_point = start_point,
-				polish_only = true,
-				options = Dict(:abstol => 1e-12, :reltol => 1e-12))
-			# If polishing succeeded, use polished solution, otherwise keep original
-			if !isempty(polished_sol)
-				push!(polished_solutions, polished_sol[1])
-			else
-				push!(polished_solutions, sol)
-			end
-		end
-		solutions = polished_solutions
-	end
-
-
-	#return solutions, varlist, Dict(), varlist
-	return solutions, varlist, Dict(), varlist
-end
+=#

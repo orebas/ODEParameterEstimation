@@ -28,7 +28,7 @@ using OrdinaryDiffEq
         
         # Create data sample
         t_vector = collect(range(0.0, 1.0, length=21))
-        prob = ODEProblem(model, ic, (t_vector[1], t_vector[end]), p_true)
+        prob = ODEProblem(model, merge(Dict(states .=> ic), Dict(params .=> p_true)), (t_vector[1], t_vector[end]))
         sol = solve(prob, Tsit5(), saveat=t_vector)
         
         data_sample = OrderedDict(

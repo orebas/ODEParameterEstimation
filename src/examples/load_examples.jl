@@ -147,7 +147,7 @@ function run_parameter_estimation_examples(;
 
 	# Determine which models to run
 	models_to_run = if models == :all
-		collect(keys(model_dict))
+		collect(keys(merge(model_dict, hard_model_dict)))
 	elseif models == :hard
 		collect(keys(hard_model_dict))
 

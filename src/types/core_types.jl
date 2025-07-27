@@ -1,7 +1,7 @@
-using ModelingToolkit
 using OrderedCollections
 using Symbolics
 using OrdinaryDiffEq
+#using SciMLBase
 
 """
     OrderedODESystem
@@ -9,15 +9,26 @@ using OrdinaryDiffEq
 Struct representing an ODESystem with ordered parameters and states.
 
 # Fields
-- `system::ODESystem`: ModelingToolkit ODESystem
+- `system::ModelingToolkit.AbstractSystem`: ModelingToolkit ODESystem
 - `original_parameters::Vector{Num}`: Vector of original parameters in specific order
 - `original_states::Vector{Num}`: Vector of original state variables in specific order
 """
 struct OrderedODESystem
-    system::ODESystem
+    system::ModelingToolkit.AbstractSystem
     original_parameters::Vector{Num}
     original_states::Vector{Num}
 end
+
+#function remake(pep::OrderedODESystem; p=nothing, u0=nothing)
+#    sys = pep.system
+#    if !isnothing(p)
+#        sys = remake(sys, p=p)
+#    end
+#    if !isnothing(u0)
+#        sys = remake(sys, u0=u0)
+#    end
+#    return OrderedODESystem(sys, pep.original_parameters, pep.original_states)
+#end
 
 """
     ParameterEstimationProblem

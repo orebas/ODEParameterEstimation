@@ -1,15 +1,15 @@
 """
-	unpack_ODE(model::ODESystem)
+	unpack_ODE(model::ModelingToolkit.AbstractSystem)
 
 Extract the core components of an ODESystem.
 
 # Arguments
-- `model::ODESystem`: The ODE system to unpack
+- `model::ModelingToolkit.AbstractSystem`: The ODE system to unpack
 
 # Returns
 - Tuple containing (independent variable, equations, state variables, parameters)
 """
-function unpack_ODE(model::ODESystem)
+function unpack_ODE(model::ModelingToolkit.AbstractSystem)
 	return ModelingToolkit.get_iv(model), deepcopy(ModelingToolkit.equations(model)), ModelingToolkit.unknowns(model), ModelingToolkit.parameters(model)
 end
 

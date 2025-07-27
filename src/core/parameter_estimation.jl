@@ -19,7 +19,7 @@ diff2term is applied everywhere, so we will be left with variables like x_tttt e
 # Returns
 - DerivativeData object
 """
-function populate_derivatives(model::ODESystem, measured_quantities_in, max_deriv_level, unident_dict)
+function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -276,7 +276,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	# Solve ODE problem
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	prob = ODEProblem(complete(model.system), ic, tspan, ps)
+	prob = ODEProblem(complete(model.system), merge(ordered_states, ordered_params), tspan)
 	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 
 	# Calculate error
@@ -355,7 +355,7 @@ The multiple points have different values for states, but the same parameters.
 - Tuple containing the Jacobian matrix and DerivativeData object
 """
 function multipoint_numerical_jacobian(
-    model::ODESystem,
+    model::ModelingToolkit.AbstractSystem,
     measured_quantities::Vector{Equation},
     max_deriv_level::Int,
     max_num_points::Int,
@@ -400,7 +400,7 @@ function multipoint_numerical_jacobian(
 				end
 			end
 			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
-				push!(obs_deriv_vals, (substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
+				push!(obs_deriv_vals, Symbolics.value(substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
 			end
 		end
 		return obs_deriv_vals
@@ -410,8 +410,20 @@ function multipoint_numerical_jacobian(
 	for k in eachindex(ic_dict_vector)
 		append!(full_values, collect(values(ic_dict_vector[k])))
 	end
+
+	
+	
 	matrix = ForwardDiff.jacobian(f, full_values)
-	return Matrix{Float64}(matrix), DD
+	matrix_float = map(x -> Float64(Symbolics.value(x)), matrix)
+	
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix type before conversion: $(typeof(matrix))")
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix size: $(size(matrix))")
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix elements: $(matrix[1:5, 1:5])")
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix type after conversion: $(typeof(matrix_float))")
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix size after conversion: $(size(matrix_float))")
+	#println("DEBUG [multipoint_numerical_jacobian]: Matrix elements after conversion: $(matrix_float[1:5, 1:5])")
+	# Ensure every element is a Float64 by applying Symbolics.value before conversion
+	return matrix_float, DD
 end
 
 """
@@ -471,7 +483,7 @@ Performs local identifiability analysis at multiple points.
   4. DerivativeData object containing all computed derivatives
 """
 function multipoint_local_identifiability_analysis(
-    model::ODESystem,
+    model::ModelingToolkit.AbstractSystem,
     measured_quantities,
     max_num_points::Int,
     reltol::Float64 = 1e-12,
@@ -661,7 +673,7 @@ Construct an equation system for parameter estimation.
 # Returns
 - Tuple containing the target equations and variable list
 """
-function construct_equation_system(model::ODESystem, measured_quantities_in, data_sample,
+function construct_equation_system(model::ModelingToolkit.AbstractSystem, measured_quantities_in, data_sample,
 	deriv_level, unident_dict, varlist, DD; interpolator, time_index_set = nothing, return_parameterized_system = false,
 	precomputed_interpolants = nothing, diagnostics = false, diagnostic_data = nothing, ideal = false, sol = nothing)
 
@@ -963,7 +975,7 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	new_model = complete(PEP.model.system)
 	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
 
-	prob = ODEProblem(new_model, initial_states, tspan, initial_params)
+	prob = ODEProblem(new_model, merge(initial_states, initial_params), tspan)
 
 	# Create a mapping from state variables to their index in the solution vector.
 	state_index = Dict{Any, Int}()
