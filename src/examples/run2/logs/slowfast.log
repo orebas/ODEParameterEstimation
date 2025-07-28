@@ -1,0 +1,60 @@
+FAILURE
+Initialization incomplete. Not all of the state variables of the
+DAE system can be determined by the initialization. Missing
+variables:
+
+Any[eB(t)]
+
+Stacktrace:
+  [1] InitializationProblem{true, SciMLBase.FullSpecialize}(sys::System, t::Float64, op::Dict{Any, Any}; guesses::Dict{Any, Any}, check_length::Bool, warn_initialize_determined::Bool, initialization_eqs::Vector{Any}, fully_determined::Nothing, check_units::Bool, use_scc::Bool, allow_incomplete::Bool, algebraic_only::Bool, time_dependent_init::Bool, kwargs::@Kwargs{u0_constructor::typeof(identity), p_constructor::typeof(identity), eval_expression::Bool, eval_module::Module, warn_cyclic_dependency::Bool, circular_dependency_max_cycle_length::Int64, circular_dependency_max_cycles::Int64})
+    @ ModelingToolkit ~/.julia/packages/ModelingToolkit/weYw6/src/problems/initializationproblem.jl:87
+  [2] InitializationProblem
+    @ ~/.julia/packages/ModelingToolkit/weYw6/src/problems/initializationproblem.jl:20 [inlined]
+  [3] #_#1085
+    @ ./none:0 [inlined]
+  [4] maybe_build_initialization_problem(sys::System, iip::Bool, op::Dict{Any, Any}, t::Float64, defs::Dict{Any, Any}, guesses::Dict{Any, Any}, missing_unknowns::Set{Any}; implicit_dae::Bool, time_dependent_init::Bool, u0_constructor::Function, p_constructor::Function, floatT::Type, initialization_eqs::Vector{Any}, use_scc::Bool, kwargs::@Kwargs{warn_initialize_determined::Bool, eval_expression::Bool, eval_module::Module, fully_determined::Nothing, warn_cyclic_dependency::Bool, check_units::Bool, circular_dependency_max_cycle_length::Int64, circular_dependency_max_cycles::Int64, algebraic_only::Bool, allow_incomplete::Bool})
+    @ ModelingToolkit ~/.julia/packages/ModelingToolkit/weYw6/src/systems/problem_utils.jl:1118
+  [5] process_SciMLProblem(constructor::Type, sys::System, op::Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}; build_initializeprob::Bool, implicit_dae::Bool, t::Float64, guesses::Dict{Any, Any}, warn_initialize_determined::Bool, initialization_eqs::Vector{Any}, eval_expression::Bool, eval_module::Module, fully_determined::Nothing, check_initialization_units::Bool, u0_eltype::Nothing, tofloat::Bool, u0_constructor::typeof(identity), p_constructor::typeof(identity), check_length::Bool, symbolic_u0::Bool, warn_cyclic_dependency::Bool, circular_dependency_max_cycle_length::Int64, circular_dependency_max_cycles::Int64, substitution_limit::Int64, use_scc::Bool, time_dependent_init::Bool, algebraic_only::Bool, allow_incomplete::Bool, is_initializeprob::Bool, kwargs::@Kwargs{expression::DataType, check_compatibility::Bool})
+    @ ModelingToolkit ~/.julia/packages/ModelingToolkit/weYw6/src/systems/problem_utils.jl:1377
+  [6] (ODEProblem{true, SciMLBase.FullSpecialize})(sys::System, op::Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}, tspan::Vector{Float64}; callback::Nothing, check_length::Bool, eval_expression::Bool, expression::Type, eval_module::Module, check_compatibility::Bool, kwargs::@Kwargs{})
+    @ ModelingToolkit ~/.julia/packages/ModelingToolkit/weYw6/src/problems/odeproblem.jl:80
+  [7] ODEProblem
+    @ ~/.julia/packages/ModelingToolkit/weYw6/src/problems/odeproblem.jl:72 [inlined]
+  [8] ODEProblem
+    @ ./none:0 [inlined]
+  [9] ODEProblem(sys::System, op::Dict{SymbolicUtils.BasicSymbolic{Real}, Float64}, tspan::Vector{Float64})
+    @ ModelingToolkit ./none:0
+ [10] sample_data(model::System, measured_data::Vector{Equation}, time_interval::Vector{Float64}, p_true::OrderedDict{Num, Float64}, u0::OrderedDict{Num, Float64}, num_points::Int64; uneven_sampling::Bool, uneven_sampling_times::Vector{Float64}, solver::OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Static.False}, OrdinaryDiffEqRosenbrock.Rodas4P{0, AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.DEFAULT_PRECS), Val{:forward}(), true, nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!)}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Static.False}, OrdinaryDiffEqRosenbrock.Rodas4P{0, AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.DEFAULT_PRECS), Val{:forward}(), true, nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!)}, Rational{Int64}, Int64}}, inject_noise::Bool, mean_noise::Int64, stddev_noise::Int64, abstol::Float64, reltol::Float64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/sampling.jl:87
+ [11] sample_problem_data(problem::ParameterEstimationProblem; datasize::Int64, time_interval::Vector{Float64}, solver::OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Static.False}, OrdinaryDiffEqRosenbrock.Rodas4P{0, AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.DEFAULT_PRECS), Val{:forward}(), true, nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!)}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Static.False}, OrdinaryDiffEqRosenbrock.Rodas4P{0, AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.DEFAULT_PRECS), Val{:forward}(), true, nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!)}, Rational{Int64}, Int64}}, uneven_sampling::Bool, uneven_sampling_times::Vector{Float64}, noise_level::Float64)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/sampling.jl:155
+ [12] (::var"#5#9"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String})()
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:200
+ [13] (::Base.RedirectStdStream)(thunk::var"#5#9"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, stream::IOStream)
+    @ Base ./stream.jl:1464
+ [14] #4
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:186 [inlined]
+ [15] (::Base.RedirectStdStream)(thunk::var"#4#8"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, stream::IOStream)
+    @ Base ./stream.jl:1464
+ [16] #3
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:185 [inlined]
+ [17] with_logstate(f::var"#3#7"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, logstate::Base.CoreLogging.LogState)
+    @ Base.CoreLogging ./logging/logging.jl:524
+ [18] with_logger
+    @ ./logging/logging.jl:635 [inlined]
+ [19] #2
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:184 [inlined]
+ [20] open(::var"#2#6"{Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, ::String, ::Vararg{String}; kwargs::@Kwargs{})
+    @ Base ./io.jl:410
+ [21] open(::Function, ::String, ::String)
+    @ Base ./io.jl:407
+ [22] run_parameter_estimation_examples(; models::Vector{Symbol}, datasize::Int64, noise_level::Float64, interpolator::Nothing, system_solver::Nothing, log_dir::String)
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:183
+ [23] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:202
+ [24] include(mod::Module, _path::String)
+    @ Base ./Base.jl:562
+ [25] exec_options(opts::Base.JLOptions)
+    @ Base ./client.jl:323
+ [26] _start()
+    @ Base ./client.jl:531

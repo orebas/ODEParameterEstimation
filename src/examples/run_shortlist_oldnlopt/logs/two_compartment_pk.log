@@ -1,0 +1,348 @@
+Starting model: two_compartment_pk
+Optimization improved residual by 6.261393378402397 (from 6.261393380516902 to 2.114504964767733e-9)
+Optimization improved residual by 3.876696018957761 (from 3.8766960205351237 to 1.5773627945735778e-9)
+┌ Warning: Optimization did not converge. RetCode: MaxIters
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:95
+Optimization improved residual by 3.917651350008318 (from 3.9176542794783673 to 2.9294700490272894e-6)
+Optimization improved residual by 2.4266079333945054 (from 2.4266084899785456 to 5.565840400723861e-7)
+Optimization improved residual by 5.3120390689586845 (from 5.312039068986558 to 2.787388998825176e-11)
+Optimization improved residual by 2.4831429974968597 (from 2.4831429975065626 to 9.702803361498372e-12)
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/DbVzk/src/integrator_interface.jl:589
+Optimization improved residual by 3.355158453184008 (from 3.355158916242663 to 4.630586551271466e-7)
+┌ Warning: Optimization did not converge. RetCode: MaxIters
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:95
+Optimization improved residual by 6.875812632146907 (from 6.875812866799304 to 2.346523966738294e-7)
+┌ Warning: Error during optimization: ArgumentError("cannot set off-diagonal entry (2, 1) to a nonzero value (NaN)")
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:74
+Optimization improved residual by 8.670519269982474 (from 8.670522505706124 to 3.2357236495020046e-6)
+Optimization improved residual by 7.902388804289504 (from 7.917265220643792 to 0.014876416354288172)
+Optimization improved residual by 7.676465640493799 (from 7.676465641462709 to 9.689101661304535e-10)
+Optimization improved residual by 5.380693599360989 (from 5.3806971282986655 to 3.528937676208932e-6)
+Optimization improved residual by 4.112442279176751 (from 4.112442314550131 to 3.5373380783612597e-8)
+Optimization improved residual by 3.3010612212500696 (from 3.3010612217906066 to 5.405367402848616e-10)
+Optimization improved residual by 3.251851737107221 (from 3.251851737250535 to 1.4331407625435328e-10)
+Optimization improved residual by 7.610689535871128 (from 7.610689539712685 to 3.841557247892019e-9)
+Optimization improved residual by 6.48593459606343 (from 6.485934597002386 to 9.389554734785808e-10)
+Optimization improved residual by 8.894698875916449 (from 8.894698875988368 to 7.191925077960085e-11)
+Optimization improved residual by 5.451457408506235 (from 5.451457409213267 to 7.070329127328705e-10)
+Optimization improved residual by 8.362910854478644 (from 8.36310168482408 to 0.00019083034543658435)
+┌ Warning: Optimization did not converge. RetCode: MaxIters
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:95
+Optimization improved residual by 5.488666446492995 (from 5.488666446495493 to 2.498830019962838e-12)
+Optimization improved residual by 5.900698263239342 (from 5.900698325027339 to 6.178799694771811e-8)
+┌ Warning: Optimization did not converge. RetCode: MaxIters
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:95
+Optimization improved residual by 7.003243959059923 (from 7.003243960281189 to 1.2212661854626218e-9)
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/DbVzk/src/integrator_interface.jl:589
+Optimization improved residual by 982.0017923852582 (from 982.0017923871155 to 1.8572952626953519e-9)
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/DbVzk/src/integrator_interface.jl:589
+Optimization improved residual by 4.375375857200843 (from 4.375375857921546 to 7.207039320218305e-10)
+Optimization improved residual by 2.549801933681688 (from 2.5498019904394096 to 5.675772172522106e-8)
+Optimization improved residual by 2.689814435241056 (from 2.6898144356845357 to 4.434799448602696e-10)
+
+Unidentifiability Analysis from multipoint_parameter_estimation:
+All unidentifiable variables: Set(Any[k21, V1, C2(t), ke, k12, V2])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(k12 => 0.07883546113883, V1 => 0.3049773670124687, V2 => 0.4628238553745627)
+Trivially solvable variables: Dict{Any, Any}()
+
+=== Model: two_compartment_pk ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • k12
+  • k21
+  • V1
+  • C2(t)
+  • V2
+  • ke
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • k12 = 0.217117
+  • V1 = 0.280131
+  • V2 = 0.643984
+
+
+Found 19 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.022709):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   5.890441 |   0.410956
+C2(t)        |   0.000000 | -20456770601538573091402841521291001856.000000 | 20456770601538573091402841521291001856.000000
+k12          |   0.500000 |   0.386366 |   0.227268
+k21          |   0.250000 |  -0.000000 |   1.000000
+ke           |   0.150000 |   0.095450 |   0.363669
+V1           |   1.000000 |   0.546725 |   0.453275
+V2           |   2.000000 |   0.940572 |   0.529714
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538040 |   0.746196
+C2(t)        |   0.000000 | -120.502956 | 120.502956
+k12          |   0.500000 |   0.740766 |   0.481533
+k21          |   0.250000 |  -0.000000 |   1.000001
+ke           |   0.150000 |  -0.696968 |   5.646455
+V1           |   1.000000 |   0.459227 |   0.540773
+V2           |   2.000000 |   0.138356 |   0.930822
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538157 |   0.746184
+C2(t)        |   0.000000 | -46.100727 |  46.100727
+k12          |   0.500000 |   0.308463 |   0.383073
+k21          |   0.250000 |  -0.000000 |   1.000000
+ke           |   0.150000 |  -0.264665 |   2.764435
+V1           |   1.000000 |   0.571630 |   0.428370
+V2           |   2.000000 |   0.135228 |   0.932386
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538158 |   0.746184
+C2(t)        |   0.000000 |  -1.505772 |   1.505772
+k12          |   0.500000 |   0.356204 |   0.287593
+k21          |   0.250000 |  -0.000000 |   1.000000
+ke           |   0.150000 |  -0.312406 |   3.082704
+V1           |   1.000000 |   0.093079 |   0.906921
+V2           |   2.000000 |   0.859344 |   0.570328
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538161 |   0.746184
+C2(t)        |   0.000000 |  -0.000000 |   0.000000
+k12          |   0.500000 |   0.423341 |   0.153319
+k21          |   0.250000 | -362328960909938342008257396471642811935767689158940572291318165220726210552565361411967817509388737880452723900416.000000 | 1449315843639753368033029585886571247743070756635762289165272660882904842210261445647871270037554951521810895601664.000000
+ke           |   0.150000 |   0.043798 |   0.708013
+V1           |   1.000000 |   0.777953 |   0.222047
+V2           |   2.000000 |   0.050123 |   0.974938
+
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538175 |   0.746183
+C2(t)        |   0.000000 | -189.360487 | 189.360487
+k12          |   0.500000 |   0.442193 |   0.115615
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.398394 |   3.655963
+V1           |   1.000000 |   0.764696 |   0.235304
+V2           |   2.000000 |   0.088173 |   0.955914
+
+
+Cluster 7: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538193 |   0.746181
+C2(t)        |   0.000000 |  -2.497073 |   2.497073
+k12          |   0.500000 |   0.938509 |   0.877019
+k21          |   0.250000 |  -0.630750 |   3.523001
+ke           |   0.150000 |  -0.017139 |   1.114259
+V1           |   1.000000 |   0.472717 |   0.527283
+V2           |   2.000000 |   0.668527 |   0.665737
+
+
+Cluster 8: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538198 |   0.746180
+C2(t)        |   0.000000 | -43.055568 |  43.055568
+k12          |   0.500000 |   0.384411 |   0.231177
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.340613 |   3.270755
+V1           |   1.000000 |   0.435095 |   0.564905
+V2           |   2.000000 |   0.179835 |   0.910083
+
+
+Cluster 9: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538201 |   0.746180
+C2(t)        |   0.000000 |  -8.816953 |   8.816953
+k12          |   0.500000 |   0.761937 |   0.523874
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.718140 |   5.787598
+V1           |   1.000000 |   0.210197 |   0.789803
+V2           |   2.000000 |   0.767358 |   0.616321
+
+
+Cluster 10: 1 similar solutions
+Best solution (Error: 0.019127):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538212 |   0.746179
+C2(t)        |   0.000000 | 652661686259045.750000 | 652661686259045.750000
+k12          |   0.500000 |   0.606892 |   0.213784
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.563092 |   4.753944
+V1           |   1.000000 |   0.356757 |   0.643243
+V2           |   2.000000 |   0.680064 |   0.659968
+
+
+Cluster 11: 1 similar solutions
+Best solution (Error: 0.019126):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.538368 |   0.746163
+C2(t)        |   0.000000 | -39600043221089.937500 | 39600043221089.937500
+k12          |   0.500000 |   0.491702 |   0.016595
+k21          |   0.250000 |  -0.000000 |   1.000000
+ke           |   0.150000 |  -0.447901 |   3.986007
+V1           |   1.000000 |   0.522557 |   0.477443
+V2           |   2.000000 |   0.413396 |   0.793302
+
+
+Cluster 12: 1 similar solutions
+Best solution (Error: 0.01912):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.539684 |   0.746032
+C2(t)        |   0.000000 | 3409741899848655872.000000 | 3409741899848655872.000000
+k12          |   0.500000 |   0.243922 |   0.512155
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.200007 |   2.333380
+V1           |   1.000000 |   0.660293 |   0.339707
+V2           |   2.000000 |   0.770308 |   0.614846
+
+
+Cluster 13: 1 similar solutions
+Best solution (Error: 0.01912):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.539822 |   0.746018
+C2(t)        |   0.000000 | 12364862703742719176474624.000000 | 12364862703742719176474624.000000
+k12          |   0.500000 |   0.997507 |   0.995013
+k21          |   0.250000 |   0.000000 |   1.000000
+ke           |   0.150000 |  -0.953579 |   7.357195
+V1           |   1.000000 |   0.389950 |   0.610050
+V2           |   2.000000 |   0.358953 |   0.820523
+
+
+Cluster 14: 1 similar solutions
+Best solution (Error: 0.01896):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.588003 |   0.741200
+C2(t)        |   0.000000 | -1338155813851854336.000000 | 1338155813851854336.000000
+k12          |   0.500000 |   0.465420 |   0.069161
+k21          |   0.250000 |  -0.000000 |   1.000000
+ke           |   0.150000 |  -0.414629 |   3.764192
+V1           |   1.000000 |   0.838787 |   0.161213
+V2           |   2.000000 |   0.967183 |   0.516409
+
+
+Cluster 15: 1 similar solutions
+Best solution (Error: 0.01885):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   2.600083 |   0.739992
+C2(t)        |   0.000000 | -28.196978 |  28.196978
+k12          |   0.500000 |   0.619003 |   0.238006
+k21          |   0.250000 |   0.000054 |   0.999783
+ke           |   0.150000 |  -0.575103 |   4.834021
+V1           |   1.000000 |   0.472545 |   0.527455
+V2           |   2.000000 |   0.525401 |   0.737299
+
+
+Cluster 16: 1 similar solutions
+Best solution (Error: 0.007269):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   7.073607 |   0.292639
+C2(t)        |   0.000000 |  88.886146 |  88.886146
+k12          |   0.500000 |   0.213413 |   0.573174
+k21          |   0.250000 |   0.060955 |   0.756180
+ke           |   0.150000 |   0.588589 |   2.923926
+V1           |   1.000000 |   0.577540 |   0.422460
+V2           |   2.000000 |   0.196842 |   0.901579
+
+
+Cluster 17: 1 similar solutions
+Best solution (Error: 1.5e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |  10.006470 |   0.000647
+C2(t)        |   0.000000 |  -0.791622 |   0.791622
+k12          |   0.500000 |   0.242680 |   0.514640
+k21          |   0.250000 |   0.594522 |   1.378087
+ke           |   0.150000 |   0.063117 |   0.579220
+V1           |   1.000000 |   0.049095 |   0.950905
+V2           |   2.000000 |   0.359650 |   0.820175
+
+
+Cluster 18: 1 similar solutions
+Best solution (Error: 5.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   9.997882 |   0.000212
+C2(t)        |   0.000000 |  -4.455975 |   4.455975
+k12          |   0.500000 |   0.078835 |   0.842329
+k21          |   0.250000 |   0.772558 |   2.090233
+ke           |   0.150000 |   0.048536 |   0.676427
+V1           |   1.000000 |   0.304977 |   0.695023
+V2           |   2.000000 |   0.462824 |   0.768588
+
+
+Cluster 19: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+C1(t)        |  10.000000 |   9.999776 |   0.000022
+C2(t)        |   0.000000 |  -2.603337 |   2.603337
+k12          |   0.500000 |   0.217117 |   0.565766
+k21          |   0.250000 |   0.622654 |   1.490614
+ke           |   0.150000 |   0.060226 |   0.598494
+V1           |   1.000000 |   0.280131 |   0.719869
+V2           |   2.000000 |   0.643984 |   0.678008
+
+
+Best approximation error for two_compartment_pk: 1.0e-6
+
+Best maximum relative error for two_compartment_pk (excluding ALL unidentifiable parameters): 2.2e-5
+Best minimum relative error: 2.2e-5
+Best mean relative error: 2.2e-5
+Best median relative error: 2.2e-5
+Best maximum relative error: 2.2e-5
+Best RMS relative error: 2.2e-5
+SUCCESS

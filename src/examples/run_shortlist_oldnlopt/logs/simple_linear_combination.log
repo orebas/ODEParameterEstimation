@@ -1,0 +1,75 @@
+Starting model: simple_linear_combination
+Optimization improved residual by 9.79097547247195 (from 9.79097547429868 to 1.826728846188215e-9)
+Optimization improved residual by 4.638575771299902 (from 4.638575777361278 to 6.061376687878508e-9)
+Optimization improved residual by 5.687112627462541 (from 5.68711262749778 to 3.5238755018158797e-11)
+Optimization improved residual by 10.765181894898124 (from 10.765181894940993 to 4.286931821835824e-11)
+Optimization improved residual by 3.1196212569959494 (from 3.1196212597878112 to 2.7918619234982533e-9)
+Optimization improved residual by 6.981279913800967 (from 6.981279914386537 to 5.855698707381808e-10)
+Optimization improved residual by 5.685467812068649 (from 5.685467812116589 to 4.793996073629401e-11)
+Optimization improved residual by 4.867762688662056 (from 4.867762690481438 to 1.8193823113417028e-9)
+Optimization improved residual by 9.867479599312388 (from 9.867479603511537 to 4.199149233915601e-9)
+Optimization improved residual by 9.77620393763074 (from 9.776203938820961 to 1.1902217143206119e-9)
+Optimization improved residual by 10.575568121244453 (from 10.575568125211403 to 3.9669498275111485e-9)
+┌ Warning: Optimization did not converge. RetCode: MaxIters
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:95
+Optimization improved residual by 7.644378600014678 (from 7.6443786001817955 to 1.6711744070778217e-10)
+Optimization improved residual by 1.885957185579497 (from 1.8859571908073691 to 5.227872039214918e-9)
+Optimization improved residual by 6.81275023333941 (from 6.8127502334234995 to 8.408950637626221e-11)
+Optimization improved residual by 7.753055078816745 (from 7.753055078997438 to 1.806927436440854e-10)
+Optimization improved residual by 2.10959133359045 (from 2.109591334621953 to 1.0315027914578233e-9)
+Optimization improved residual by 9.86215716280831 (from 9.862157167902017 to 5.093706506776635e-9)
+Optimization improved residual by 4.959155902067154 (from 4.959155902256211 to 1.890565770012218e-10)
+Optimization improved residual by 4.493350617536316 (from 6.1529380280925965 to 1.659587410556281)
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/DbVzk/src/integrator_interface.jl:589
+┌ Warning: Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/DbVzk/src/integrator_interface.jl:589
+Optimization improved residual by 4.516754853149549 (from 4.516754853230761 to 8.121216564188759e-11)
+Optimization improved residual by 6.807447338293819 (from 6.807447344919515 to 6.625695552803597e-9)
+Optimization improved residual by 9.926445752503087 (from 9.92644575370667 to 1.2035825548213096e-9)
+Optimization improved residual by 12.583515142184925 (from 12.583515142328208 to 1.4328238654150013e-10)
+Optimization improved residual by 4.664846507213779 (from 4.6648465074377015 to 2.2392244263844035e-10)
+Optimization improved residual by 10.03634877371329 (from 10.036348776927753 to 3.2144634687688587e-9)
+Optimization improved residual by 8.227766158324567 (from 8.227766158578236 to 2.536695040021771e-10)
+Optimization improved residual by 2.969099010694309 (from 2.9690990111468447 to 4.525358974858651e-10)
+
+Unidentifiability Analysis from multipoint_parameter_estimation:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+=== Model: simple_linear_combination ===
+
+Found 2 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.155545):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   1.000000 |  -3.123298 |   4.123298
+x2(t)        |   2.000000 |  -6.487777 |   4.243889
+a            |   0.400000 |   0.095628 |   0.760929
+b            |   0.800000 |  -0.487710 |   1.609637
+
+
+Cluster 2: 25 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   1.000000 |   1.000000 |   0.000000
+x2(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.400000 |   0.400000 |   0.000000
+b            |   0.800000 |   0.800000 |   0.000000
+
+
+Best approximation error for simple_linear_combination: 0.0
+
+Best maximum relative error for simple_linear_combination (excluding ALL unidentifiable parameters): 0.0
+Best minimum relative error: 0.0
+Best mean relative error: 0.0
+Best median relative error: 0.0
+Best maximum relative error: 0.0
+Best RMS relative error: 0.0
+SUCCESS

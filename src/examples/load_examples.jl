@@ -1,4 +1,5 @@
 using ODEParameterEstimation
+using Logging
 
 # Include all model files
 include("models/advanced_systems.jl")
@@ -98,7 +99,11 @@ function run_parameter_estimation_examples(;
 	datasize = 1501,
 	noise_level = 1e-2,
 	interpolator = nothing,
-	system_solver = nothing)
+	system_solver = nothing,
+	log_dir = "logs",
+)
+	# Create log directory if it doesn't exist
+	!isdir(log_dir) && mkpath(log_dir)
 
 	# Dictionary mapping model names to their constructor functions
 	model_dict = Dict(
@@ -113,6 +118,7 @@ function run_parameter_estimation_examples(;
 		:lv_periodic => lv_periodic,
 		:vanderpol => vanderpol,
 		:brusselator => brusselator,
+		:harmonic => harmonic,
 
 		# Biological systems
 
@@ -120,6 +126,7 @@ function run_parameter_estimation_examples(;
 		:treatment => treatment,
 		:biohydrogenation => biohydrogenation,
 		:repressilator => repressilator,
+		:hiv_old_wrong => hiv_old_wrong,
 
 
 		# Test models
@@ -141,6 +148,8 @@ function run_parameter_estimation_examples(;
 	hard_model_dict = Dict(
 		:hiv => hiv,
 		:crauste => crauste,
+		:crauste_corrected => crauste_corrected,
+		:crauste_revised => crauste_revised,
 		:allee_competition => allee_competition,
 		:sirsforced => sirsforced,
 	)
@@ -158,28 +167,60 @@ function run_parameter_estimation_examples(;
 	end
 
 	# Run each selected model
+	original_stdout = stdout
+	original_stderr = stderr
 	for model_name in models_to_run
-		@info "Running model: $model_name"
-		#	try
-		if model_name in keys(hard_model_dict)
-			model_fn = hard_model_dict[model_name]
-		else
-			model_fn = model_dict[model_name]
+		log_file_path = joinpath(log_dir, "$(model_name).log")
+		if isfile(log_file_path)
+			log_content = read(log_file_path, String)
+			if occursin("SUCCESS", log_content)
+				println(original_stdout, "Skipping completed model: $model_name")
+				continue
+			end
 		end
-		pep = model_fn()
 
-		# Use the model's recommended timescale if available, otherwise default to [0.0, 5.0]
-		time_interval = isnothing(pep.recommended_time_interval) ? [0.0, 5.0] : pep.recommended_time_interval
+		println(original_stdout, "Running model: $model_name")
+		open(log_file_path, "w") do log_stream
+			with_logger(ConsoleLogger(log_stream)) do
+				redirect_stdout(log_stream) do
+					redirect_stderr(log_stream) do
+						try
+							if model_name in keys(hard_model_dict)
+								model_fn = hard_model_dict[model_name]
+							else
+								model_fn = model_dict[model_name]
+							end
+							pep = model_fn()
 
-		analyze_parameter_estimation_problem(
-			sample_problem_data(pep,
-				datasize = datasize,
-				time_interval = time_interval,
-				noise_level = noise_level),
-			interpolator = interpolator, system_solver = system_solver)
-		#	catch e
-		#		@warn "Failed to run model $model_name" exception = e
-		#	end
+							# Use the model's recommended timescale if available, otherwise default to [0.0, 5.0]
+							time_interval =
+								isnothing(pep.recommended_time_interval) ? [0.0, 5.0] :
+								pep.recommended_time_interval
+
+							analyze_parameter_estimation_problem(
+								sample_problem_data(
+									pep,
+									datasize = datasize,
+									time_interval = time_interval,
+									noise_level = noise_level,
+								),
+								interpolator = interpolator,
+								system_solver = system_solver,
+							)
+							println("SUCCESS")
+							println(original_stdout, "Model $model_name ran successfully.")
+						catch e
+							println("FAILURE")
+							println(
+								original_stderr,
+								"Model $model_name failed. See $(log_file_path) for details.",
+							)
+							showerror(log_stream, e, catch_backtrace())
+						end
+					end
+				end
+			end
+		end
 	end
 end
 

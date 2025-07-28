@@ -1,0 +1,47 @@
+Starting model: biohydrogenation
+FAILURE
+UndefVarError: `setup_parameter_estimation` not defined in `ODEParameterEstimation`
+Suggestion: check for spelling errors or missing imports.
+Stacktrace:
+  [1] multipoint_parameter_estimation(PEP::ParameterEstimationProblem; system_solver::Function, max_num_points::Int64, interpolator::Function, nooutput::Bool, diagnostics::Bool, diagnostic_data::ParameterEstimationProblem, polish_solutions::Bool, polish_maxiters::Int64, polish_method::Type, point_hint::Float64, poly_save_path::String, only_save_poly_system::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:52
+  [2] multipoint_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:25 [inlined]
+  [3] multishot_parameter_estimation(PEP::ParameterEstimationProblem; system_solver::Function, max_num_points::Int64, interpolator::Function, nooutput::Bool, diagnostics::Bool, diagnostic_data::ParameterEstimationProblem, polish_solutions::Bool, polish_maxiters::Int64, polish_method::Type, shooting_points::Int64, poly_save_path::String, only_save_poly_system::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:144
+  [4] multishot_parameter_estimation
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/multipoint_estimation.jl:118 [inlined]
+  [5] analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator::Nothing, max_num_points::Int64, nooutput::Bool, system_solver::Nothing, abstol::Float64, reltol::Float64, trap_debug::Bool, diagnostics::Bool, polish_method::Type, polish_maxiters::Int64, try_more_methods::Bool, shooting_points::Int64, poly_save_path::String, only_save_poly_system::Bool)
+    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:379
+  [6] analyze_parameter_estimation_problem
+    @ ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:332 [inlined]
+  [7] (::var"#5#9"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String})()
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:200
+  [8] (::Base.RedirectStdStream)(thunk::var"#5#9"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, stream::IOStream)
+    @ Base ./stream.jl:1464
+  [9] #4
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:186 [inlined]
+ [10] (::Base.RedirectStdStream)(thunk::var"#4#8"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, stream::IOStream)
+    @ Base ./stream.jl:1464
+ [11] #3
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:185 [inlined]
+ [12] with_logstate(f::var"#3#7"{IOStream, Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, logstate::Base.CoreLogging.LogState)
+    @ Base.CoreLogging ./logging/logging.jl:524
+ [13] with_logger
+    @ ./logging/logging.jl:635 [inlined]
+ [14] #2
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:184 [inlined]
+ [15] open(::var"#2#6"{Int64, Float64, Nothing, Nothing, Base.TTY, Base.TTY, Dict{Symbol, Function}, Dict{Symbol, Function}, Symbol, String}, ::String, ::Vararg{String}; kwargs::@Kwargs{})
+    @ Base ./io.jl:410
+ [16] open(::Function, ::String, ::String)
+    @ Base ./io.jl:407
+ [17] run_parameter_estimation_examples(; models::Vector{Symbol}, datasize::Int64, noise_level::Float64, interpolator::Nothing, system_solver::Nothing, log_dir::String)
+    @ Main ~/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl:183
+ [18] top-level scope
+    @ ~/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl:202
+ [19] include(mod::Module, _path::String)
+    @ Base ./Base.jl:562
+ [20] exec_options(opts::Base.JLOptions)
+    @ Base ./client.jl:323
+ [21] _start()
+    @ Base ./client.jl:531

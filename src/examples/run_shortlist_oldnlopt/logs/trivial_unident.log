@@ -1,0 +1,332 @@
+Starting model: trivial_unident
+Optimization improved residual by 6.279874081515313 (from 6.279874082619222 to 1.103909045334877e-9)
+Optimization improved residual by 12.483968493932945 (from 12.48396849527745 to 1.3445054085027404e-9)
+┌ Warning: Error during optimization: ArgumentError("cannot set off-diagonal entry (2, 1) to a nonzero value (NaN)")
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:74
+Optimization improved residual by 23.663104416065938 (from 23.663104416189725 to 1.2378606449958467e-10)
+Optimization improved residual by 44.47121672142272 (from 44.47121672933493 to 7.91220848291107e-9)
+Optimization improved residual by 86.26996462500435 (from 86.26996462504123 to 3.688162537966113e-11)
+Optimization improved residual by 168.47785253369378 (from 168.47785253382966 to 1.358824361104544e-10)
+Optimization improved residual by 332.2582836376868 (from 332.25828363786394 to 1.7712945180368952e-10)
+Optimization improved residual by 641.5142111102678 (from 641.5142111129013 to 2.633582592319319e-9)
+Optimization improved residual by 1262.687510369 (from 1262.6875103690206 to 2.060274013839942e-11)
+Optimization improved residual by 6.094386032368291 (from 6.094386034549606 to 2.1813150763781116e-9)
+Optimization improved residual by 10.09449152196695 (from 10.094491522150975 to 1.840255367908659e-10)
+Optimization improved residual by 21.725502561022942 (from 21.72550256116778 to 1.4483609850141977e-10)
+Optimization improved residual by 45.54138666574991 (from 45.54138666965462 to 3.904708951526233e-9)
+Optimization improved residual by 84.96923236219513 (from 84.9692323673125 to 5.11737083762744e-9)
+Optimization improved residual by 170.24476460007347 (from 170.24476460145107 to 1.3775929601456677e-9)
+Optimization improved residual by 333.7544290367664 (from 333.7544290367796 to 1.3164468240650501e-11)
+Optimization improved residual by 644.0743572475035 (from 644.0743572475255 to 2.2016021909877354e-11)
+Optimization improved residual by 1259.6495416222995 (from 1259.6495416223204 to 2.101116079275405e-11)
+Optimization improved residual by 5.788418802008569 (from 5.788418802689335 to 6.807658275403387e-10)
+Optimization improved residual by 11.506754717382593 (from 11.506754717431477 to 4.8882978591394896e-11)
+Optimization improved residual by 22.105733306572848 (from 22.105733306603216 to 3.03688147257293e-11)
+Optimization improved residual by 45.526679955741606 (from 45.52667995606415 to 3.2254719036998836e-10)
+Optimization improved residual by 88.6034611132623 (from 88.60346111903829 to 5.775989863441516e-9)
+Optimization improved residual by 170.9979657782891 (from 170.99796578706665 to 8.77753225315933e-9)
+Optimization improved residual by 331.6593403693061 (from 331.6593403784847 to 9.178602666289296e-9)
+Optimization improved residual by 644.6303011221078 (from 644.6303011252212 to 3.1134045554773466e-9)
+Optimization improved residual by 1258.8850368609326 (from 1258.8850368629676 to 2.034886993252785e-9)
+
+Unidentifiability Analysis from multipoint_parameter_estimation:
+All unidentifiable variables: Set(Any[a, b])
+Unidentifiable variables substitution dictionary: Dict{Any, Any}(a => 0.5058966491780033)
+Trivially solvable variables: Dict{Any, Any}()
+
+=== Model: trivial_unident ===
+
+All structurally unidentifiable parameters:
+--------------------------------------------------
+These parameters cannot be uniquely determined from the data:
+  • a
+  • b
+
+
+Minimal set of fixed values to make remaining parameters identifiable:
+--------------------------------------------------
+These parameters were fixed to make the system identifiable:
+  • a = 0.251367
+
+
+Found 27 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 0.00016):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999996 |   0.000002
+a            |   0.600000 |   0.258516 |   0.569139
+b            |   0.600000 |   0.941491 |   0.569151
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 5.0e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000002 |   0.000001
+a            |   0.600000 |   0.498789 |   0.168685
+b            |   0.600000 |   0.701209 |   0.168681
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 4.1e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000017 |   0.000008
+a            |   0.600000 |   0.086251 |   0.856249
+b            |   0.600000 |   1.113746 |   0.856243
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 3.7e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000009 |   0.000004
+a            |   0.600000 |   0.974689 |   0.624481
+b            |   0.600000 |   0.225309 |   0.624485
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 3.3e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000002 |   0.000001
+a            |   0.600000 |   0.505897 |   0.156839
+b            |   0.600000 |   0.694102 |   0.156836
+
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 3.0e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000100 |   0.000050
+a            |   0.600000 |   0.705504 |   0.175840
+b            |   0.600000 |   0.494486 |   0.175857
+
+
+Cluster 7: 1 similar solutions
+Best solution (Error: 1.4e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000047 |   0.000023
+a            |   0.600000 |   0.723478 |   0.205796
+b            |   0.600000 |   0.476518 |   0.205804
+
+
+Cluster 8: 1 similar solutions
+Best solution (Error: 1.3e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999992 |   0.000004
+a            |   0.600000 |   0.613590 |   0.022650
+b            |   0.600000 |   0.586411 |   0.022648
+
+
+Cluster 9: 1 similar solutions
+Best solution (Error: 1.1e-5):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999998 |   0.000001
+a            |   0.600000 |   0.053805 |   0.910326
+b            |   0.600000 |   1.146196 |   0.910327
+
+
+Cluster 10: 1 similar solutions
+Best solution (Error: 3.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000002 |   0.000001
+a            |   0.600000 |   0.390917 |   0.348472
+b            |   0.600000 |   0.809083 |   0.348471
+
+
+Cluster 11: 1 similar solutions
+Best solution (Error: 3.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999996 |   0.000002
+a            |   0.600000 |   0.518790 |   0.135350
+b            |   0.600000 |   0.681211 |   0.135351
+
+
+Cluster 12: 1 similar solutions
+Best solution (Error: 2.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000001 |   0.000001
+a            |   0.600000 |   0.130247 |   0.782921
+b            |   0.600000 |   1.069752 |   0.782921
+
+
+Cluster 13: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999999 |   0.000001
+a            |   0.600000 |   0.643450 |   0.072416
+b            |   0.600000 |   0.556551 |   0.072416
+
+
+Cluster 14: 1 similar solutions
+Best solution (Error: 1.0e-6):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999998 |   0.000001
+a            |   0.600000 |   0.458797 |   0.235338
+b            |   0.600000 |   0.741203 |   0.235338
+
+
+Cluster 15: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   1.999999 |   0.000000
+a            |   0.600000 |   0.224138 |   0.626437
+b            |   0.600000 |   0.975862 |   0.626437
+
+
+Cluster 16: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.513958 |   0.143403
+b            |   0.600000 |   0.686042 |   0.143403
+
+
+Cluster 17: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000001 |   0.000001
+a            |   0.600000 |   0.852608 |   0.421013
+b            |   0.600000 |   0.347392 |   0.421013
+
+
+Cluster 18: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.987701 |   0.646168
+b            |   0.600000 |   0.212299 |   0.646168
+
+
+Cluster 19: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.629734 |   0.049556
+b            |   0.600000 |   0.570266 |   0.049556
+
+
+Cluster 20: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.968135 |   0.613559
+b            |   0.600000 |   0.231865 |   0.613559
+
+
+Cluster 21: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.922039 |   0.536731
+b            |   0.600000 |   0.277961 |   0.536731
+
+
+Cluster 22: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.184032 |   0.693280
+b            |   0.600000 |   1.015968 |   0.693280
+
+
+Cluster 23: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.380057 |   0.366572
+b            |   0.600000 |   0.819943 |   0.366572
+
+
+Cluster 24: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.382977 |   0.361705
+b            |   0.600000 |   0.817023 |   0.361705
+
+
+Cluster 25: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.414158 |   0.309737
+b            |   0.600000 |   0.785842 |   0.309737
+
+
+Cluster 26: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.296392 |   0.506013
+b            |   0.600000 |   0.903608 |   0.506013
+
+
+Cluster 27: 1 similar solutions
+Best solution (Error: 0.0):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+x1(t)        |   2.000000 |   2.000000 |   0.000000
+a            |   0.600000 |   0.251367 |   0.581055
+b            |   0.600000 |   0.948633 |   0.581055
+
+
+Best approximation error for trivial_unident: 0.0
+
+Best maximum relative error for trivial_unident (excluding ALL unidentifiable parameters): 0.0
+Best minimum relative error: 0.0
+Best mean relative error: 0.0
+Best median relative error: 0.0
+Best maximum relative error: 0.0
+Best RMS relative error: 0.0
+SUCCESS

@@ -77,7 +77,7 @@ export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
-export calculate_observable_derivatives, solve_with_rs, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt
+export calculate_observable_derivatives, solve_with_rs, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict
@@ -96,7 +96,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 
 
-#=
+
 @recompile_invalidations begin
 	@compile_workload begin
 		using ModelingToolkit
@@ -107,19 +107,18 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		solver = Vern9()
 
 		name = "lotka-volterra_0"
-		@parameters k1 k2 k3
-		@variables r(t) w(t) y1(t)
-		states = [r, w]
-		parameters = [k1, k2, k3]
+		@parameters k1
+		@variables x(t) y1(t)
+		states = [x]
+		parameters = [k1]
 		state_equations = [
-			D(r) ~ k1 * r - k2 * r * w,
-			D(w) ~ k2 * r * w - k3 * w,
+			D(x) ~ k1 * x,
 		]
 		measured_quantities = [
-			y1 ~ r,
+			y1 ~ x,
 		]
-		ic = [0.536, 0.439]
-		p_true = [0.539, 0.672, 0.582]
+		ic = [0.536]
+		p_true = [0.539]
 
 
 		time_interval = [-0.5, 0.5]
@@ -131,12 +130,13 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 		estimation_problem = sample_problem_data(pep, datasize = datasize, time_interval = time_interval, noise_level = 0.0)
 		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true, system_solver = solve_with_nlopt)
-		analysis_result, besterror = analyze_estimation_result(estimation_problem, res, nooutput = true)
+		#analysis_result, besterror = 
+		#	analyze_estimation_result(estimation_problem, res, nooutput = true)
 
 
 	end
 end
-=#
+
 
 
 end # module
