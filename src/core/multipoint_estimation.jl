@@ -43,7 +43,7 @@ function multipoint_parameter_estimation(
 	found_any_solutions = false
 	attempt_count = 0
 
-	while (!found_any_solutions && attempt_count < 10)
+	while (!found_any_solutions && attempt_count < 1)
 		attempt_count += 1
 
 		# Phase 1: Setup - Determine optimal points and analyze identifiability
