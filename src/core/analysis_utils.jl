@@ -331,7 +331,7 @@ end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
 	max_num_points = 1, nooutput = false, system_solver = solve_with_rs, abstol = 1e-14, reltol = 1e-14,
-	trap_debug = false, diagnostics = true, polish_method = NewtonTrustRegion, polish_maxiters = 10, try_more_methods = true, shooting_points = 8)  #try_more_methods = true
+	trap_debug = false, diagnostics = true, polish_method = NewtonTrustRegion, polish_maxiters = 10, try_more_methods = false, shooting_points = 8)  #try_more_methods = true
 	#if trap_debug
 	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
 	#	filename = "PEP_debug_$(timestamp).log"
