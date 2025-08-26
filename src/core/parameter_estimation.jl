@@ -504,14 +504,23 @@ function multipoint_local_identifiability_analysis(
 	ps_count = length(model_ps)
 	D = Differential(t)
 
-	parameter_values = Dict([p => rand(Float64) for p in ModelingToolkit.parameters(model)])
+	# FIX: Use OrderedDict to ensure consistent ordering with varlist for Jacobian columns
+	parameter_values = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+	for p in ModelingToolkit.parameters(model)
+		parameter_values[p] = rand(Float64)
+	end
+	
 	points_ics = []
 	test_points = []
 	ordered_test_points = []
 
 	for i in 1:max_num_points
-		initial_conditions = Dict([p => rand(Float64) for p in ModelingToolkit.unknowns(model)])
-		test_point = merge(parameter_values, initial_conditions)
+		# FIX: Use OrderedDict for initial conditions too
+		initial_conditions = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+		for s in ModelingToolkit.unknowns(model)
+			initial_conditions[s] = rand(Float64)
+		end
+		
 		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
 		for i in model_ps
 			ordered_test_point[i] = parameter_values[i]
@@ -519,6 +528,10 @@ function multipoint_local_identifiability_analysis(
 		for i in model_states
 			ordered_test_point[i] = initial_conditions[i]
 		end
+		
+		# test_point now uses the ordered version
+		test_point = ordered_test_point
+		
 		push!(points_ics, deepcopy(initial_conditions))
 		push!(test_points, deepcopy(test_point))
 		push!(ordered_test_points, deepcopy(ordered_test_point))
