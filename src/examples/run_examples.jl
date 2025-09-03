@@ -202,7 +202,7 @@ models_to_run = [:simple, :simple_linear_combination, :onesp_cubed, :threesp_cub
 using Random
 models_to_run = shuffle(models_to_run)
 
-run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = models_to_run, system_solver = solve_with_nlopt_quick)
+run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = models_to_run)
 #run_parameter_estimation_examples(datasize = 501, noise_level = 0.000, models = [:simple])
 
 

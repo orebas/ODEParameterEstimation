@@ -233,8 +233,8 @@ function construct_multipoint_equation_system!(time_index_set,
 			local_subst_dict_reverse[newname] = j
 		end
 
-		target_k_subst = substitute.(target_k, Ref(local_subst_dict))
-		varlist_k_subst = substitute.(varlist_k, Ref(local_subst_dict))
+		target_k_subst = Symbolics.substitute.(target_k, Ref(local_subst_dict))
+		varlist_k_subst = Symbolics.substitute.(varlist_k, Ref(local_subst_dict))
 		push!(full_target, target_k_subst)
 		push!(full_varlist, varlist_k_subst)
 		push!(forward_subst_dict, local_subst_dict)
@@ -355,16 +355,16 @@ The multiple points have different values for states, but the same parameters.
 - Tuple containing the Jacobian matrix and DerivativeData object
 """
 function multipoint_numerical_jacobian(
-    model::ModelingToolkit.AbstractSystem,
-    measured_quantities::Vector{Equation},
-    max_deriv_level::Int,
-    max_num_points::Int,
-    unident_dict::Dict,
-    varlist::Vector{Num},
-    param_dict,
-    ic_dict_vector,
-    values_dict,
-    DD::Union{DerivativeData,Symbol} = :nothing
+	model::ModelingToolkit.AbstractSystem,
+	measured_quantities::Vector{Equation},
+	max_deriv_level::Int,
+	max_num_points::Int,
+	unident_dict::Dict,
+	varlist::Vector{Num},
+	param_dict,
+	ic_dict_vector,
+	values_dict,
+	DD::Union{DerivativeData, Symbol} = :nothing,
 )::Tuple{Matrix{Float64}, DerivativeData}
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities_local = deepcopy(measured_quantities)
@@ -396,7 +396,7 @@ function multipoint_numerical_jacobian(
 
 			for i in eachindex(DD.states_rhs)
 				for j in eachindex(DD.states_rhs[i])
-					substituted_val = substitute(DD.states_rhs[i][j], evaluated_subst_dict)
+					substituted_val = Symbolics.substitute(DD.states_rhs[i][j], evaluated_subst_dict)
 					# If the substituted value is a constant, unwrap it from the symbolic type.
 					if !Symbolics.iscall(substituted_val)
 						evaluated_subst_dict[DD.states_lhs[i][j]] = Symbolics.value(substituted_val)
@@ -406,7 +406,7 @@ function multipoint_numerical_jacobian(
 				end
 			end
 			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
-				push!(obs_deriv_vals, Symbolics.value(substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
+				push!(obs_deriv_vals, Symbolics.value(Symbolics.substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
 			end
 		end
 		return obs_deriv_vals
@@ -417,11 +417,11 @@ function multipoint_numerical_jacobian(
 		append!(full_values, collect(values(ic_dict_vector[k])))
 	end
 
-	
-	
+
+
 	matrix = ForwardDiff.jacobian(f, full_values)
 	matrix_float = map(x -> Float64(Symbolics.value(x)), matrix)
-	
+
 	#println("DEBUG [multipoint_numerical_jacobian]: Matrix type before conversion: $(typeof(matrix))")
 	#println("DEBUG [multipoint_numerical_jacobian]: Matrix size: $(size(matrix))")
 	#println("DEBUG [multipoint_numerical_jacobian]: Matrix elements: $(matrix[1:5, 1:5])")
@@ -489,11 +489,11 @@ Performs local identifiability analysis at multiple points.
   4. DerivativeData object containing all computed derivatives
 """
 function multipoint_local_identifiability_analysis(
-    model::ModelingToolkit.AbstractSystem,
-    measured_quantities,
-    max_num_points::Int,
-    reltol::Float64 = 1e-12,
-    abstol::Float64 = 1e-12
+	model::ModelingToolkit.AbstractSystem,
+	measured_quantities,
+	max_num_points::Int,
+	reltol::Float64 = 1e-12,
+	abstol::Float64 = 1e-12,
 )::Tuple{Dict, Dict, Vector, DerivativeData}
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	varlist = Vector{Num}(vcat(model_ps, model_states))
@@ -504,23 +504,27 @@ function multipoint_local_identifiability_analysis(
 	ps_count = length(model_ps)
 	D = Differential(t)
 
-	# FIX: Use OrderedDict to ensure consistent ordering with varlist for Jacobian columns
+	# UNTESTED FIX: Use OrderedDict to ensure consistent ordering with varlist for Jacobian columns
+	# This change was made to address potential Dict ordering issues in the Jacobian construction
+	# but has NOT been verified to fix the k7=0 issue in biohydrogenation
+	# TODO: Test if this actually improves parameter estimation accuracy
 	parameter_values = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
 	for p in ModelingToolkit.parameters(model)
 		parameter_values[p] = rand(Float64)
 	end
-	
+
 	points_ics = []
 	test_points = []
 	ordered_test_points = []
 
 	for i in 1:max_num_points
-		# FIX: Use OrderedDict for initial conditions too
+		# UNTESTED FIX: Use OrderedDict for initial conditions too
+		# See comment above - this is part of the same untested fix
 		initial_conditions = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
 		for s in ModelingToolkit.unknowns(model)
 			initial_conditions[s] = rand(Float64)
 		end
-		
+
 		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
 		for i in model_ps
 			ordered_test_point[i] = parameter_values[i]
@@ -528,18 +532,24 @@ function multipoint_local_identifiability_analysis(
 		for i in model_states
 			ordered_test_point[i] = initial_conditions[i]
 		end
-		
+
 		# test_point now uses the ordered version
 		test_point = ordered_test_point
-		
+
 		push!(points_ics, deepcopy(initial_conditions))
 		push!(test_points, deepcopy(test_point))
 		push!(ordered_test_points, deepcopy(ordered_test_point))
 	end
 
 	# Determine derivative order 'n'
-	n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)
-	n = max(n, 3)
+	# EXPERIMENTAL FIX: Match PE.jl's derivative order formula to handle biohydrogenation correctly
+	# Original heuristic: n = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)
+	# PE.jl formula: diff_order = num_parameters + 1 where num_parameters = params + states
+	# Using PE's formula ensures sufficient equations for zero-dimensional polynomial system
+	n_pe_formula = states_count + ps_count + 1
+	n_heuristic = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)
+	n = max(n_pe_formula, n_heuristic, 3)  # Use maximum of both approaches
+	println("[DEBUG-ODEPE] Derivative order: PE formula=$n_pe_formula, heuristic=$n_heuristic, using n=$n")
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 	unident_dict = Dict()
 
@@ -548,23 +558,38 @@ function multipoint_local_identifiability_analysis(
 	DD = nothing
 	unident_set = Set{Any}()
 
+	println("[DEBUG-ODEPE] Starting identifiability analysis with:")
+	println(" deriv_level: ", deriv_level)
+
 	all_identified = false
 	while (!all_identified)
 
 		temp = ordered_test_points[1]
+
+		# DEBUG: Check ordering before Jacobian
+		println("\n[DEBUG-ODEPE] Before Jacobian computation:")
+		println("  varlist: ", varlist)
+		println("  parameter_values keys: ", collect(keys(parameter_values)))
+		println("  ordered_test_points[1] keys: ", collect(keys(temp)))
+
 		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
 			parameter_values, points_ics, temp))
 		ns = nullspace(evaluated_jac)
 
 		if (!isempty(ns))
+			println("\n[DEBUG-ODEPE] Nullspace analysis:")
+			println("  Nullspace size: ", size(ns))
 			candidate_plugins_for_unidentified = OrderedDict()
 			for i in eachindex(varlist)
-				if (!isapprox(norm(ns[i, :]), 0.0, atol = abstol))
+				ns_norm = norm(ns[i, :])
+				if (!isapprox(ns_norm, 0.0, atol = abstol))
+					println("  Variable $(varlist[i]) has nullspace norm $ns_norm > $abstol, marking as unidentifiable")
 					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
 					push!(unident_set, varlist[i])
 				end
 			end
 			if (!isempty(candidate_plugins_for_unidentified))
+				println("  Unidentifiable candidates: ", keys(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
 				for k in eachindex(points_ics)
@@ -583,25 +608,39 @@ function multipoint_local_identifiability_analysis(
 
 	max_rank = rank(evaluated_jac, rtol = reltol)
 	maxn = n
+	println("[DEBUG-ODEPE] Initial max_rank with n=$n: $max_rank")
+	println("[DEBUG-ODEPE] Jacobian size: ", size(evaluated_jac))
+
+	# Track what PE would use
+	n_pe = states_count + ps_count + 1
+	println("[DEBUG-ODEPE] PE would use n=$n_pe derivatives")
+
 	while (n > 0)
 		n = n - 1
 		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 		reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 		r = rank(reduced_evaluated_jac, rtol = reltol)
+		println("[DEBUG-ODEPE] Testing n=$n: rank=$r (vs max_rank=$max_rank)")
 		if (r < max_rank)
 			n = n + 1
 			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
+			println("[DEBUG-ODEPE] Rank dropped! Reverting to n=$n")
 			break
 		end
 	end
+	println("[DEBUG-ODEPE] Final derivative order after rank reduction: n=$n")
 
 	keep_looking = true
+	println("[DEBUG-ODEPE] Starting per-measurement refinement...")
+	refinement_round = 0
 	while (keep_looking)
+		refinement_round += 1
 		improvement_found = false
 		sorting = collect(deriv_level)
 		sorting = sort(sorting, by = (x -> x[2]), rev = true)
 		for i in keys(deriv_level)
 			if (deriv_level[i] > 0)
+				old_level = deriv_level[i]
 				deriv_level[i] = deriv_level[i] - 1
 				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 
@@ -610,6 +649,7 @@ function multipoint_local_identifiability_analysis(
 					deriv_level[i] = deriv_level[i] + 1
 				else
 					improvement_found = true
+					println("[DEBUG-ODEPE] Round $refinement_round: Reduced deriv_level[$i] from $old_level to $(deriv_level[i]), rank preserved at $r")
 					break
 				end
 			else
@@ -621,12 +661,26 @@ function multipoint_local_identifiability_analysis(
 					deriv_level[i] = temp
 				else
 					improvement_found = true
+					println("[DEBUG-ODEPE] Round $refinement_round: Removed deriv_level[$i], rank preserved at $r")
 					break
 				end
 			end
 		end
 		keep_looking = improvement_found
 	end
+	println("[DEBUG-ODEPE] Final deriv_level after refinement: $deriv_level")
+
+	# Debug: Check what's in DD structure
+	println("\n[DEBUG-ODEPE] DD structure analysis:")
+	println("[DEBUG-ODEPE]   DD.obs_lhs dimensions: ", size(DD.obs_lhs))
+	println("[DEBUG-ODEPE]   DD.states_lhs dimensions: ", size(DD.states_lhs))
+	if !isempty(DD.obs_lhs) && !isempty(DD.obs_lhs[1])
+		println("[DEBUG-ODEPE]   Sample DD.obs_lhs[1][1:min(3,end)]: ", DD.obs_lhs[1][1:min(3, end)])
+	end
+	if !isempty(DD.states_lhs) && !isempty(DD.states_lhs[1])
+		println("[DEBUG-ODEPE]   Sample DD.states_lhs[1][1:min(3,end)]: ", DD.states_lhs[1][1:min(3, end)])
+	end
+
 	DD.all_unidentifiable = unident_set
 	return (deriv_level, unident_dict, varlist, DD)
 end
@@ -656,11 +710,11 @@ function calculate_observable_derivatives(equations, measured_quantities, nderiv
 	SymbolicDerivs = Vector{Vector{Equation}}(undef, nderivs)
 
 	# Calculate first derivatives
-	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
+	SymbolicDerivs[1] = [ObservableDerivatives[i, 1] ~ Symbolics.substitute(expand_derivatives(D(measured_quantities[i].rhs)), equation_dict) for i in 1:n_observables]
 
 	# Calculate higher order derivatives
 	for j in 2:nderivs
-		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
+		SymbolicDerivs[j] = [ObservableDerivatives[i, j] ~ Symbolics.substitute(expand_derivatives(D(SymbolicDerivs[j-1][i].rhs)), equation_dict) for i in 1:n_observables]
 	end
 
 	# Create new measured quantities with derivatives
@@ -759,7 +813,7 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 	end
 
 	for i in eachindex(target)
-		target[i] = substitute(target[i], interpolated_values_dict)
+		target[i] = Symbolics.substitute(target[i], interpolated_values_dict)
 	end
 
 
@@ -770,9 +824,14 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 	vars_needed = union(vars_needed, model_states)
 	vars_needed = setdiff(vars_needed, keys(unident_dict))
 
+	# Simplified scanning loop with less verbose output
 	keep_adding = true
+	iteration_count = 0
+
 	while (keep_adding)
+		iteration_count += 1
 		added = false
+
 		for i in target
 			for j in Symbolics.get_variables(i)
 				push!(vars_needed, j)
@@ -785,12 +844,91 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 					push!(target, DD.states_lhs_cleared[j][k] - DD.states_rhs_cleared[j][k])
 					added = true
 					push!(vars_added, i)
+					break
 				end
 			end
 		end
+
 		diff_set = setdiff(vars_needed, vars_added)
 		keep_adding = !isempty(diff_set) && added
 	end
+
+	println("\n[DEBUG-ODEPE] Scanning complete after $iteration_count iterations")
+	println("[DEBUG-ODEPE] Final target has $(length(target)) equations")
+	println("[DEBUG-ODEPE] Final vars_needed has $(length(vars_needed)) variables")
+	println("[DEBUG-ODEPE] Final vars_added has $(length(vars_added)) variables")
+
+	# Output FULL polynomial system for debugging
+	println("\n[DEBUG-ODEPE] ========== FULL POLYNOMIAL SYSTEM ==========")
+	println("[DEBUG-ODEPE] Variables ($(length(vars_needed))): ")
+	for (i, v) in enumerate(collect(vars_needed))
+		println("[DEBUG-ODEPE]   Var $i: $v")
+	end
+
+	println("[DEBUG-ODEPE] Equations ($(length(target))): ")
+	for (i, eq) in enumerate(target)
+		println("[DEBUG-ODEPE]   Eq $i: $eq")
+		# Try to analyze coefficient ranges
+		eq_str = string(eq)
+		# Count terms as a rough complexity measure
+		num_terms = length(split(eq_str, r"[+-]")) - 1
+		println("[DEBUG-ODEPE]     Complexity: ~$num_terms terms")
+	end
+
+	# Check for equation/variable imbalance
+	if length(target) != length(vars_needed)
+		println("[DEBUG-ODEPE] WARNING: Equation/variable count mismatch!")
+		println("[DEBUG-ODEPE]   Variables without equations: ", setdiff(vars_needed, vars_added))
+
+		# Count equations by type
+		obs_eq_count = 0
+		for (key, value) in deriv_level
+			obs_eq_count += value + 1  # value is max derivative, so we have 0..value equations
+		end
+		println("[DEBUG-ODEPE]   Observable equations: $obs_eq_count")
+		println("[DEBUG-ODEPE]   Additional ODE equations: $(length(target) - obs_eq_count)")
+	end
+
+	# Analyze linear vs nonlinear structure
+	println("\n[DEBUG-ODEPE] Equation structure analysis:")
+	linear_count = 0
+	for (i, eq) in enumerate(target)
+		eq_str = string(eq)
+		# Check if equation is linear (no products of variables)
+		if !occursin(r"[a-zA-Z_ˍ]\([^)]*\)\s*\*\s*[a-zA-Z_ˍ]\([^)]*\)", eq_str) &&
+		   !occursin(r"k\d+\s*\*\s*k\d+", eq_str) &&
+		   !occursin(r"\([^)]*\)\^2", eq_str)
+			linear_count += 1
+			if i <= 10  # Only show first few
+				println("[DEBUG-ODEPE]   Eq $i is LINEAR")
+			end
+		elseif i <= 10
+			println("[DEBUG-ODEPE]   Eq $i is NONLINEAR")
+		end
+	end
+	println("[DEBUG-ODEPE] Total: $linear_count linear equations, $(length(target) - linear_count) nonlinear")
+
+	# Check which parameters appear in which equations
+	param_appearance = Dict()
+	for p in [k for k in collect(vars_needed) if occursin("k", string(k))]
+		param_appearance[p] = []
+		for (i, eq) in enumerate(target)
+			if occursin(string(p), string(eq))
+				push!(param_appearance[p], i)
+			end
+		end
+	end
+
+	println("\n[DEBUG-ODEPE] Parameter coupling analysis:")
+	for (param, eqs) in param_appearance
+		if length(eqs) == 0
+			println("[DEBUG-ODEPE]   $param appears in NO equations - FREE PARAMETER?")
+		elseif length(eqs) <= 3
+			println("[DEBUG-ODEPE]   $param appears in equations: $eqs")
+		end
+	end
+
+	println("[DEBUG-ODEPE] =========================================")
 
 	push!(data_sample, ("t" => t_vector))
 
@@ -851,7 +989,7 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 
 	#println("starting evaluate_poly_system")
 	#println(poly_system)
-	poly_system = substitute(poly_system, reverse_subst)
+	poly_system = Symbolics.substitute(poly_system, reverse_subst)
 	#println("poly_system after substitution:")
 	#println(poly_system)
 
@@ -915,7 +1053,7 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 
 
 	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
-		sub_dict[DD.states_lhs[i][j]] = simplify(substitute(DD.states_rhs[i][j], sub_dict))
+		sub_dict[DD.states_lhs[i][j]] = simplify(Symbolics.substitute(DD.states_rhs[i][j], sub_dict))
 	end
 
 
@@ -926,7 +1064,7 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 
 	# Apply all substitutions to the polynomial system
 	for i in 1:7
-		evaluated = [simplify(substitute(expr, sub_dict)) for expr in poly_system]
+		evaluated = [simplify(Symbolics.substitute(expr, sub_dict)) for expr in poly_system]
 		#println(evaluated)
 	end
 
@@ -1037,7 +1175,7 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 				# Create substitution dictionary for current timepoint
 				time_subst = Dict(s => sol_opt.u[i][state_index[s]] for s in state_keys)
 				# Evaluate the formula with current state values and extract value from possible Dual type
-				val = substitute(eq.rhs, time_subst)
+				val = Symbolics.substitute(eq.rhs, time_subst)
 				push!(sim_vals, val)
 			end
 			# Determine which key to use from the data sample

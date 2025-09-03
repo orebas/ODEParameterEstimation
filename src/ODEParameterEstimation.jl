@@ -28,6 +28,11 @@ using NonlinearSolve
 using PolynomialRoots
 using Suppressor
 using Logging
+using Singular
+using Groebner
+using DynamicPolynomials
+using Nemo#using GLPK
+using Oscar
 
 using AbstractAlgebra
 using RationalUnivariateRepresentation
@@ -129,7 +134,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		# data_sample = load("/home/ad7760/parameter_estimation_tests/data/julia/lotka-volterra_0.jld2", "data")
 
 		estimation_problem = sample_problem_data(pep, datasize = datasize, time_interval = time_interval, noise_level = 0.0)
-		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true, system_solver = solve_with_nlopt)
+		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true, system_solver = solve_with_nlopt, shooting_points = 1)
 		#analysis_result, besterror = 
 		#	analyze_estimation_result(estimation_problem, res, nooutput = true)
 
