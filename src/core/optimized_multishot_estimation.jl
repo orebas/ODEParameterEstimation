@@ -480,7 +480,7 @@ function analyze_identifiability(
 	println("Step 1: Getting baseline from OLD identifiability analysis...")
 
 	deriv_levels_old, unident_dict, ident_vars, DD =
-		ODEParameterEstimation.multipoint_local_identifiability_analysis(
+		multipoint_local_identifiability_analysis(
 			model.system,
 			measured_quantities,
 			3, 1e-12, 1e-12,
@@ -489,8 +489,8 @@ function analyze_identifiability(
 	# Store all unidentifiable parameters from the analysis
 	all_unidentifiable = DD.all_unidentifiable
 
-	deriv_levels = copy(deriv_levels_old)
-	fixed_params = Dict{Any, Float64}()
+	deriv_levels = OrderedDict(deriv_levels_old)
+	fixed_params = OrderedDict{Any, Float64}()
 	for (param, value) in unident_dict
 		fixed_params[param] = Float64(value)
 	end
