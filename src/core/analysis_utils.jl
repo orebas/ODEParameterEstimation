@@ -365,9 +365,9 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 		if !nooutput
 			println("Using NEW optimized parameter estimation flow")
 		end
-		# Use the new optimized flow
+		# Use the new optimized flow with the new solver
 		results_tuple = optimized_multishot_parameter_estimation(PEP,
-			system_solver = system_solver,
+			system_solver = solve_with_rs_new,  # Always use new solver with new flow
 			max_num_points = max_num_points,
 			interpolator = interpolator,
 			nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
@@ -398,7 +398,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 		try
 			if use_new_flow
 				results_tuple_aaad = optimized_multishot_parameter_estimation(PEP,
-					system_solver = system_solver,
+					system_solver = solve_with_rs_new,  # Always use new solver with new flow
 					max_num_points = max_num_points,
 					interpolator = aaad,
 					nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,

@@ -19,26 +19,39 @@ function clear_denoms(eq)
 	division_expr = Symbolics.value(simplify_fractions(_temp_num / _temp_denom))
 	division_op = Symbolics.operation(division_expr)
 
-	lhs_expr = eq.lhs
-	rhs_expr = eq.rhs
-	
+	is_equation = hasproperty(eq, :lhs)
+
+	local lhs_expr, rhs_expr
+	if is_equation
+		lhs_expr = eq.lhs
+		rhs_expr = eq.rhs
+	else
+		# It's an expression, treat as expr ~ 0
+		lhs_expr = eq
+		rhs_expr = 0
+	end
+
 	# Simplify both sides
 	simplified_lhs = Symbolics.value(simplify_fractions(lhs_expr))
 	simplified_rhs = Symbolics.value(simplify_fractions(rhs_expr))
-	
+
 	# Check if LHS is a fraction
 	if (iscall(simplified_lhs) && Symbolics.operation(simplified_lhs) == division_op)
 		lhs_num, lhs_denom = Symbolics.arguments(simplified_lhs)
 		# Clear denominator by multiplying both sides
-		return lhs_num ~ rhs_expr * lhs_denom
+		new_lhs = lhs_num
+		new_rhs = rhs_expr * lhs_denom
+		return is_equation ? (new_lhs ~ new_rhs) : (new_lhs - new_rhs)
 	end
-	
+
 	# Check if RHS is a fraction (original behavior)
 	if (!isequal(rhs_expr, 0) && iscall(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op)
 		rhs_num, rhs_denom = Symbolics.arguments(simplified_rhs)
-		return lhs_expr * rhs_denom ~ rhs_num
+		new_lhs = lhs_expr * rhs_denom
+		new_rhs = rhs_num
+		return is_equation ? (new_lhs ~ new_rhs) : (new_lhs - new_rhs)
 	end
-	
+
 	return eq
 end
 

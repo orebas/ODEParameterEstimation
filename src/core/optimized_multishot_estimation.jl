@@ -284,7 +284,7 @@ Returns: (:success, solutions), (:no_solutions, []), or (:not_zero_dim, [])
 function try_rur_solve(equations, variables)
 	try
 		# Clear denominators from all equations first
-		cleared_equations = clear_denoms(equations, variables)
+		cleared_equations = clear_denoms.(equations)
 
 		# Use robust conversion from robust_conversion.jl
 		R, aa_system, var_map = robust_exprs_to_AA_polys(cleared_equations, variables)
@@ -329,6 +329,11 @@ function try_rur_solve(equations, variables)
 			return (:no_solutions, [])
 		else
 			@warn "RUR solve failed with unexpected error: $e"
+			@warn "Stacktrace:"
+			for (exc, bt) in Base.catch_stack()
+				showerror(stderr, exc, bt)
+				println(stderr)
+			end
 			return (:error, [])
 		end
 	end
@@ -786,26 +791,26 @@ function create_equation_template(
 
 	if debug_cas_diagnostics
 		println("\nDEBUG: Final template summary:")
-	end
-	println("  Observation equations: $(length(obs_equations))")
-	if !isempty(obs_equations)
-		for (i, eq) in enumerate(obs_equations)
-			println("    Obs eq $i: $eq")
+		println("  Observation equations: $(length(obs_equations))")
+		if !isempty(obs_equations)
+			for (i, eq) in enumerate(obs_equations)
+				println("    Obs eq $i: $eq")
+			end
 		end
-	end
-	println("  State equations: $(length(state_equations))")
-	if !isempty(state_equations)
-		for (i, (lhs, rhs)) in enumerate(state_equations)
-			println("    State eq $i: $lhs = $rhs")
+		println("  State equations: $(length(state_equations))")
+		if !isempty(state_equations)
+			for (i, (lhs, rhs)) in enumerate(state_equations)
+				println("    State eq $i: $lhs = $rhs")
+			end
 		end
+		println("  Fixed parameter equations: $(length(fixed_param_equations))")
+		for (param, val) in fixed_param_equations
+			println("    Fixed: $param = $val")
+		end
+		println("  Total equations: $num_equations")
+		println("  Solve variables: $num_variables")
+		println("  Variables are: $(solve_variables)")
 	end
-	println("  Fixed parameter equations: $(length(fixed_param_equations))")
-	for (param, val) in fixed_param_equations
-		println("    Fixed: $param = $val")
-	end
-	println("  Total equations: $num_equations")
-	println("  Solve variables: $num_variables")
-	println("  Variables are: $(solve_variables)")
 
 	@debug "Created template with $num_equations equations and $num_variables variables"
 
@@ -880,10 +885,19 @@ function build_equations_at_time_point(
 	# Debug output showing the complete instantiated system
 	if debug_cas_diagnostics
 		println("\nDEBUG: Complete instantiated equation system at t=$time_point:")
-	end
-	println("  Total equations: $(length(equations))")
-	for (i, eq) in enumerate(equations)
-		println("    Equation $i: $eq")
+		println("  Total equations: $(length(equations))")
+		for (i, eq) in enumerate(equations)
+			println("    Equation $i: $eq")
+			# Check for NaN/Inf in equation
+			try
+				eq_str = string(eq)
+				if occursin("NaN", eq_str) || occursin("Inf", eq_str)
+					println("      WARNING: Equation contains NaN or Inf!")
+				end
+			catch
+				# Ignore string conversion errors
+			end
+		end
 	end
 
 	return equations
@@ -917,18 +931,76 @@ function solve_at_shooting_point(
 
 	# Solve the system
 	try
-		solutions, hc_vars, trivial_dict, trimmed_vars = solver_func(equations, template.solve_variables)
-		if debug_cas_diagnostics
-			println("  DEBUG: Solver returned $(length(solutions)) solution(s)")
-		end
-		if !isempty(solutions) && !isempty(solutions[1])
-			if debug_cas_diagnostics
-				println("  DEBUG: First solution sample: $(solutions[1][1:min(3, length(solutions[1]))])")
+		println("\nDEBUG: Calling solver with:")
+		println("  Solver function: $(nameof(solver_func))")
+		println("  Number of equations: $(length(equations))")
+		println("  Number of variables: $(length(template.solve_variables))")
+		
+		# Check equations for NaN/Inf before solving
+		for (i, eq) in enumerate(equations)
+			try
+				# Try to evaluate the equation symbolically to detect issues
+				eq_val = Symbolics.value(eq)
+				if eq_val isa Number && (isnan(eq_val) || isinf(eq_val))
+					println("  ERROR: Equation $i evaluates to $(eq_val)")
+				end
+			catch
+				# Equation might contain variables, that's ok
 			end
 		end
+		
+		# Pass debug flag if solver supports it
+		solutions, hc_vars, trivial_dict, trimmed_vars = if solver_func == solve_with_rs_new
+			solver_func(equations, template.solve_variables; debug = debug_cas_diagnostics)
+		else
+			solver_func(equations, template.solve_variables)
+		end
+		
+		if debug_cas_diagnostics
+			println("  Solver returned $(length(solutions)) solution(s)")
+			if !isempty(solutions)
+				for (sol_idx, sol) in enumerate(solutions)
+					println("  Solution $sol_idx (length=$(length(sol))):")
+					for (var_idx, val) in enumerate(sol)
+						if var_idx <= length(template.solve_variables)
+							var_name = template.solve_variables[var_idx]
+							if isnan(val) || isinf(val)
+								println("    WARNING: $var_name = $val (NaN or Inf!)")
+							else
+								println("    $var_name = $val")
+							end
+						else
+							println("    Index $var_idx = $val")
+						end
+					end
+				end
+			end
+		end
+		
 		return solutions, trivial_dict
 	catch e
-		@warn "Failed to solve at time point $time_point: $e"
+		if debug_cas_diagnostics
+			println("\nERROR: Failed to solve at time point $time_point")
+			println("  Exception type: $(typeof(e))")
+			println("  Exception message: $e")
+			
+			# Print detailed stack trace
+			println("\nDetailed stack trace:")
+			for (exc, bt) in Base.catch_stack()
+				showerror(stdout, exc, bt)
+				println()
+			end
+			
+			# Print the equations that failed
+			println("\nFailed equations:")
+			for (i, eq) in enumerate(equations)
+				println("  Equation $i: $eq")
+			end
+			println("\nVariables to solve: $(template.solve_variables)")
+		else
+			@warn "Failed to solve at time point $time_point: $e"
+		end
+		
 		return [], OrderedDict()
 	end
 end
@@ -972,19 +1044,21 @@ function optimized_multishot_parameter_estimation(
 	# DEBUG: Show the original ODE system
 	if debug_cas_diagnostics
 		println("\nDEBUG: Original ODE System:")
+		t, eqns, states, params = unpack_ODE(PEP.model.system)
+		println("  Parameters: ", params)
+		println("  State variables: ", states)
+		println("  ODE equations:")
+		for (i, eq) in enumerate(eqns)
+			println("    $i. $eq")
+		end
+		println("  Measured quantities:")
+		for (i, mq) in enumerate(PEP.measured_quantities)
+			println("    $i. $(mq.lhs) = $(mq.rhs)")
+		end
+		println()
+	else
+		t, eqns, states, params = unpack_ODE(PEP.model.system)
 	end
-	t, eqns, states, params = unpack_ODE(PEP.model.system)
-	println("  Parameters: ", params)
-	println("  State variables: ", states)
-	println("  ODE equations:")
-	for (i, eq) in enumerate(eqns)
-		println("    $i. $eq")
-	end
-	println("  Measured quantities:")
-	for (i, mq) in enumerate(PEP.measured_quantities)
-		println("    $i. $(mq.lhs) = $(mq.rhs)")
-	end
-	println()
 
 	# PHASE 1: Precompute all derivatives once
 	if !nooutput
@@ -1135,7 +1209,7 @@ end
 Convert a raw solution into a ParameterEstimationResult.
 """
 function process_single_solution(
-	sol::Dict,
+	sol::AbstractDict,  # Can be Dict or OrderedDict
 	template::EquationTemplate,
 	PEP::ParameterEstimationProblem,
 	time_point::Float64,
@@ -1192,8 +1266,8 @@ function process_single_solution(
 
 		# Extract initial conditions
 		# Create mapping to handle state variable names
-		state_param_map = OrderedDict(x => replace(string(x), "(t)" => ""
-															  for x in states))
+		state_param_map = OrderedDict(x => replace(string(x), "(t)" => "")
+															  for x in states)
 
 		initial_states = OrderedDict()
 		for s in states

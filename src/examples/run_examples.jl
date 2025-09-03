@@ -199,6 +199,8 @@ models_to_run = filter(x -> x != :sirsforced, collect(keys(merge(model_dict, har
 
 models_to_run = [:simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
 
+#models_to_run = [:simple]
+
 using Random
 models_to_run = shuffle(models_to_run)
 

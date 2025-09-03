@@ -174,8 +174,97 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	end
 end
 
+"""
+	solve_with_fast_nlopt(poly_system, varlist; kwargs...)
 
+Fast NonlinearLeastSquares solver using compiled symbolic functions.
+Uses Symbolics.build_function to compile the system into efficient Julia code.
+Falls back to substitute/value method if compilation fails.
+"""
+function solve_with_fast_nlopt(poly_system, varlist;
+	start_point = nothing,
+	optimizer = NonlinearSolve.LevenbergMarquardt(),
+	polish_only = false,
+	options = Dict())
 
+	# Prepare system for optimization
+	prepared_system, mangled_varlist = (poly_system, varlist)
+	m = length(prepared_system)
+	n = length(mangled_varlist)
+
+	# --- NEW: Fast, compiled residual function using build_function ---
+	f_ip = try
+		# This compiles the symbolic system into a highly efficient Julia function
+		_, ip = Symbolics.build_function(prepared_system, mangled_varlist; expression = Val(false))
+		ip
+	catch err
+		@warn "Symbolics.build_function failed; falling back to slower substitute/value method." err
+		nothing
+	end
+
+	function residual!(res, u, p)
+		if !isnothing(f_ip)
+			# Fast Path: Use the pre-compiled function
+			f_ip(res, u...)
+			res .= real.(res) # Safeguard against spurious complex numbers
+		else
+			# Fallback Path: The original, allocation-heavy method
+			d = Dict(zip(mangled_varlist, u))
+			for i in 1:m
+				res[i] = real(Symbolics.value(Symbolics.substitute(prepared_system[i], d)))
+			end
+		end
+	end
+	# --- END NEW SECTION ---
+
+	# Set up optimization problem
+	x0 = isnothing(start_point) ? randn(n) : copy(start_point)
+
+	initial_residual = zeros(m)
+	residual!(initial_residual, x0, nothing)
+	initial_norm = LinearAlgebra.norm(initial_residual)
+
+	prob = NonlinearLeastSquaresProblem(
+		NonlinearFunction(residual!, resid_prototype = zeros(m)),
+		x0,
+		nothing;
+	)
+
+	# Set solver options
+	solver_opts = if polish_only
+		(abstol = 1e-12, reltol = 1e-12, maxiters = 1000)
+	else
+		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
+	end
+	solver_opts = merge(solver_opts, options)
+
+	# Solve the problem
+	sol = try
+		NonlinearSolve.solve(prob, optimizer; solver_opts...)
+	catch e
+		@warn "Error during optimization: $(e)"
+		return [], mangled_varlist, Dict(), mangled_varlist
+	end
+
+	# Check if solution is valid
+	if SciMLBase.successful_retcode(sol)
+		final_residual = zeros(m)
+		residual!(final_residual, sol.u, nothing)
+		final_norm = LinearAlgebra.norm(final_residual)
+
+		improvement = initial_norm - final_norm
+		if improvement > 0
+			@debug "Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))"
+		else
+			@debug "Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))"
+		end
+
+		return [sol.u], mangled_varlist, Dict(), mangled_varlist
+	else
+		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
+		return [], mangled_varlist, Dict(), mangled_varlist
+	end
+end
 
 function solve_with_nlopt_testing(poly_system, varlist;
 	start_point = nothing,
@@ -201,7 +290,10 @@ function solve_with_nlopt_testing(poly_system, varlist;
 			# We use the in-place version f!(res, x1, x2, ...).
 			f_oop, f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
 				expression = Val(false))
-			compiled_residual! = (res, u, p) -> (f_ip(res, u...); nothing)
+			#compiled_residual! = (res, u, p) -> (f_ip(res, u...); nothing)
+			# Unpack `u` into a tuple of arguments for `f_ip`.
+			# This is now compatible with the splatting (`...`) that `build_function` expects.
+			compiled_residual! = (res, u, p) -> (f_ip(res, u); nothing)
 		catch err
 			@warn "Symbolics.build_function failed; falling back to substitute/value" err
 			compiled_residual! = nothing
@@ -565,7 +657,7 @@ function solve_with_rs(poly_system, varlist;
 	debug_solver = get(options, :debug_solver, false)
 	debug_cas_diagnostics = get(options, :debug_cas_diagnostics, false)
 	debug_dimensional_analysis = get(options, :debug_dimensional_analysis, false)
-	
+
 	@debug "solve_with_rs: Starting with system:" equations=length(poly_system) variables=length(varlist) recursion_depth=_recursion_depth digits=digits start_point=start_point options=options
 	if debug_solver || get(ENV, "ODEPE_DEEP_DEBUG", "false") == "true"
 		println("solve_with_rs: System equations:")
@@ -735,28 +827,28 @@ function solve_with_rs(poly_system, varlist;
 	if debug_cas_diagnostics
 		try
 			println("\n[DEBUG-SOLVER] --- Groebner.jl Diagnostics ---")
-		# Create a temporary module to define the polynomial variables in
-		dp_mod = Module()
-		Core.eval(dp_mod, :(using DynamicPolynomials))
-		polyvar_expr = Meta.parse("@polyvar " * join(sanitized, " "))
-		Core.eval(dp_mod, polyvar_expr)
+			# Create a temporary module to define the polynomial variables in
+			dp_mod = Module()
+			Core.eval(dp_mod, :(using DynamicPolynomials))
+			polyvar_expr = Meta.parse("@polyvar " * join(sanitized, " "))
+			Core.eval(dp_mod, polyvar_expr)
 
-		sub_dict_dp = Core.eval(dp_mod, :(Dict($(varlist[1]) => $(Symbol(sanitized[1])))))
-		for i in 2:length(varlist)
-			sub_dict_dp[varlist[i]] = Core.eval(dp_mod, Symbol(sanitized[i]))
-		end
+			sub_dict_dp = Core.eval(dp_mod, :(Dict($(varlist[1]) => $(Symbol(sanitized[1])))))
+			for i in 2:length(varlist)
+				sub_dict_dp[varlist[i]] = Core.eval(dp_mod, Symbol(sanitized[i]))
+			end
 
-		dpolys_any = [Symbolics.value(Symbolics.substitute(p, sub_dict_dp)) for p in rationalized_system]
+			dpolys_any = [Symbolics.value(Symbolics.substitute(p, sub_dict_dp)) for p in rationalized_system]
 
-		# Ensure the vector has a concrete type for Groebner.jl
-		if !isempty(dpolys_any)
-			T = typeof(dpolys_any[1])
-			dpolys = Vector{T}(dpolys_any)
-			gb = Groebner.groebner(dpolys)
-			println("[DEBUG-SOLVER] Groebner.jl GB computed, length: ", length(gb))
-		else
-			println("[DEBUG-SOLVER] Groebner.jl: No polynomials to process.")
-		end
+			# Ensure the vector has a concrete type for Groebner.jl
+			if !isempty(dpolys_any)
+				T = typeof(dpolys_any[1])
+				dpolys = Vector{T}(dpolys_any)
+				gb = Groebner.groebner(dpolys)
+				println("[DEBUG-SOLVER] Groebner.jl GB computed, length: ", length(gb))
+			else
+				println("[DEBUG-SOLVER] Groebner.jl: No polynomials to process.")
+			end
 		catch e
 			println("[WARN-SOLVER] Groebner.jl diagnostics failed: ", e)
 		end
