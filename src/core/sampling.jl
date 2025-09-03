@@ -80,7 +80,7 @@ function sample_data(model::ModelingToolkit.AbstractSystem,
 	problem = ODEProblem(sys, merge(if isempty(ordered_u0)
 				Dict()
 			else
-				Dict(unknowns(sys) .=> ordered_u0)
+				Dict(ModelingToolkit.unknowns(sys) .=> ordered_u0)
 			end, if isempty(ordered_params)
 				Dict()
 			else

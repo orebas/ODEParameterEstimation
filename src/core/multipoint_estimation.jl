@@ -34,6 +34,10 @@ function multipoint_parameter_estimation(
 	polish_maxiters = 20,
 	polish_method = NewtonTrustRegion,
 	point_hint = 0.5,
+	save_system = true,
+	debug_solver = false,
+	debug_cas_diagnostics = false,
+	debug_dimensional_analysis = false,
 )
 	# Check input validity
 	if isnothing(PEP.data_sample)
@@ -63,6 +67,10 @@ function multipoint_parameter_estimation(
 			interpolator = interpolator,
 			diagnostics = diagnostics,
 			diagnostic_data = diagnostic_data,
+			save_system = save_system,
+			debug_solver = debug_solver,
+			debug_cas_diagnostics = debug_cas_diagnostics,
+			debug_dimensional_analysis = debug_dimensional_analysis,
 		)
 
 		# Check if we found any solutions
@@ -125,7 +133,13 @@ function multishot_parameter_estimation(
 
 	# Run parameter estimation at each point hint
 	for i in 1:(shooting_points+1)
-		point_hint = i / (shooting_points + 1)
+		# Special case: when shooting_points = 0, use slightly offset midpoint to avoid potential issues
+		if shooting_points == 0
+			point_hint = 0.499  # Use slightly offset midpoint (matching PE's behavior)
+		else
+			point_hint = i / (shooting_points + 1)
+		end
+		println("\n[DEBUG-ODEPE] Shooting point $i/$(shooting_points+1), point_hint=$point_hint")
 
 		# Call multipoint_parameter_estimation
 		solutions, udict, trivial_dict, unidentifiable = multipoint_parameter_estimation(

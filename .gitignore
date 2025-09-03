@@ -23,4 +23,27 @@ docs/site/
 # committed for packages, but should be committed for applications that require a static
 # environment.
 Manifest.toml
->>>>>>> 66aeadf69bcc3d13c14e927d06e56afda8382e97
+
+# Temporary test files and output
+*.log
+test_*.jl
+!test_debug_options.jl
+!test_option_passing.jl
+
+# Generated system saves
+saved_systems/
+scripts/saved_systems/
+
+# Temporary examples
+src/examples/logs/
+src/examples/saved_systems/
+src/examples/biohydrogenation/
+src/examples/bioh-ex.txt
+
+# Temporary debug scripts
+scripts/diagnostics_debug.jl
+quick_rs_test.jl
+
+# Working notes
+fix_summary.md
+full_test_output.log

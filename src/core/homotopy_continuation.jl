@@ -32,7 +32,7 @@ function solve_with_nlopt(poly_system, varlist;
 	# Define residual function for NonlinearLeastSquares
 	function residual!(res, u, p)
 		for (i, eq) in enumerate(prepared_system)
-			res[i] = real(Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, u)))))
+			res[i] = real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u)))))
 		end
 	end
 
@@ -113,7 +113,7 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	# Define residual function for NonlinearLeastSquares
 	function residual!(res, u, p)
 		for (i, eq) in enumerate(prepared_system)
-			res[i] = real(Symbolics.value(substitute(eq, Dict(zip(mangled_varlist, u)))))
+			res[i] = real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u)))))
 		end
 	end
 
@@ -216,7 +216,7 @@ function solve_with_nlopt_testing(poly_system, varlist;
 			d = Dict(zip(mangled_varlist, u))
 			@inbounds for i in 1:m
 				# Avoid `real(...)` so autodiff can work; assume expressions are real-valued.
-				res[i] = Symbolics.value(substitute(prepared_system[i], d))
+				res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
 			end
 			nothing
 		end
@@ -295,33 +295,164 @@ AbstractAlgebra polynomial ring in the variables `vars`. This returns
 both the ring `R` and the vector of polynomials in `R`.
 """
 function round_floats(expr, digits)
-	r = SymbolicUtils.Rewriters.Prewalk(x -> x isa Float64 ? round(x; digits = digits) : x)
+	r = SymbolicUtils.Rewriters.Prewalk(x -> x isa Float64 ? rationalize(x, tol = 1.0/(10^digits)) : x)
 	return r(expr)
 end
 
+function sanitize_vars(varlist)
+	var_names = string.(varlist)
+	sanitize = name -> begin
+		s = replace(name, r"[^A-Za-z0-9_]" => "_")
+		startswith(s, r"[0-9]") ? "v_" * s : s
+	end
+	sanitized = sanitize.(var_names)
+	return sanitized
+end
 
-function exprs_to_AA_polys(exprs, vars, digits)
+
+function exprs_to_AA_polys(exprs, vars, digits; debug_aa = false)
 	# Create a polynomial ring over QQ, using the variable names
 
 	M = Module()
 	Base.eval(M, :(using AbstractAlgebra))
 	#Base.eval(M, :(using Nemo))
-	#	Base.eval(M, :(using RationalUnivariateRepresentation))
-	#	Base.eval(M, :(using RS))
+	Base.eval(M, :(using RationalUnivariateRepresentation))
+	Base.eval(M, :(using RS))
 
 	var_names = string.(vars)
-	ring_command = "R = @polynomial_ring(QQ, $var_names)"
+	# Create the polynomial ring with polynomial_ring function
+	ring_command = "R, poly_vars = polynomial_ring(QQ, $var_names)"
 	#approximation_command = "R(expr::Float64) = R(Nemo.rational_approx(expr, 1e-4))"
-	ring_object = Base.eval(M, Meta.parse(ring_command))
-	#println(temp)
-	#Base.eval(M, Meta.parse(approximation_command))
+	result = Base.eval(M, Meta.parse(ring_command))
+	ring_object = result[1]  # The ring is the first element
+	poly_vars = result[2]  # The polynomial variables
+
+	# Assign each polynomial variable to its name in the module
+	for (name, var) in zip(var_names, poly_vars)
+		sym = Symbol(name)
+		Base.eval(M, :($sym = $var))
+	end
+
+	# Debug: verify variables were created
+	if debug_aa
+		println("[DEBUG-AA] Ring created: ", ring_object)
+		println("[DEBUG-AA] Created $(length(poly_vars)) polynomial variables")
+		# Test if first variable is accessible
+		if length(var_names) > 0
+			test_var = Base.eval(M, Meta.parse(var_names[1]))
+			println("[DEBUG-AA] First variable $(var_names[1]) type: ", typeof(test_var))
+		end
+	end
 
 	exprs = round_floats.(exprs, digits)
 	a = string.(exprs)
-	AA_polys = []
-	for expr in exprs
-		push!(AA_polys, Base.eval(M, Meta.parse(string(expr))))
+
+	# Debug: check what we're trying to parse
+	if debug_aa
+		println("[DEBUG-AA] Converting $(length(exprs)) expressions to AbstractAlgebra polynomials")
+		println("[DEBUG-AA] Ring type: ", typeof(ring_object))
 	end
+
+	# Initialize AA_polys as a properly typed array after we know the ring type
+	# We'll start with an empty Any array and convert later
+	AA_polys_temp = []
+
+	for (i, expr) in enumerate(exprs)
+		expr_str = string(expr)
+
+		# Debug: show what we're parsing for problematic expressions
+		if debug_aa && (i <= 3 || length(expr_str) > 100)  # Show first few or complex ones
+			println("[DEBUG-AA] Expression $i string length: $(length(expr_str))")
+			if length(expr_str) < 200
+				println("[DEBUG-AA]   Content: $expr_str")
+			else
+				println("[DEBUG-AA]   Content (truncated): $(expr_str[1:100])...$(expr_str[end-50:end])")
+			end
+
+			# Check for large rationals that might cause issues
+			if occursin("//", expr_str)
+				# Extract and check the size of rationals
+				rational_matches = eachmatch(r"(\d+)//(\d+)", expr_str)
+				for m in rational_matches
+					num_str, den_str = m.captures
+					if length(num_str) > 10 || length(den_str) > 10
+						println("[DEBUG-AA]   Large rational detected: $(length(num_str)) digit numerator, $(length(den_str)) digit denominator")
+					end
+				end
+			end
+		end
+
+		try
+			parsed_poly = Base.eval(M, Meta.parse(expr_str))
+			if debug_aa
+				println("[DEBUG-AA]   Parsed type: ", typeof(parsed_poly))
+			end
+			push!(AA_polys_temp, parsed_poly)
+		catch e
+			if debug_aa
+				println("[DEBUG-AA] ERROR parsing expression $i: ", e)
+				println("[DEBUG-AA]   Failed expression: ", expr_str[1:min(200, length(expr_str))])
+
+				# Try to understand what went wrong
+				if occursin("//", expr_str)
+					println("[DEBUG-AA]   Expression contains rationals - checking if this is the issue")
+					# Try evaluating just a simple rational to see if QQ is available
+					try
+						test_rational = Base.eval(M, Meta.parse("QQ(1,2)"))
+						println("[DEBUG-AA]   QQ is available, type: ", typeof(test_rational))
+					catch e2
+						println("[DEBUG-AA]   QQ is NOT available: ", e2)
+					end
+				end
+			end
+
+			rethrow(e)
+		end
+	end
+
+	if debug_aa
+		println("[DEBUG-AA] Successfully converted $(length(AA_polys_temp)) polynomials")
+	end
+
+	# Now convert the AA_polys_temp array to the proper type
+	if !isempty(AA_polys_temp)
+		if debug_aa
+			println("[DEBUG-AA] First polynomial type before conversion: ", typeof(AA_polys_temp[1]))
+		end
+
+		# Get the element type of the ring
+		elem_t = elem_type(ring_object)
+		if debug_aa
+			println("[DEBUG-AA] Expected element type: ", elem_t)
+			println("[DEBUG-AA] Checking if polynomials are already correct type...")
+			println("[DEBUG-AA]   First poly isa elem_t? ", AA_polys_temp[1] isa elem_t)
+		end
+
+		# Try to create a properly typed array
+		try
+			# Convert to the proper type
+			AA_polys = elem_t[p for p in AA_polys_temp]
+			if debug_aa
+				println("[DEBUG-AA] Successfully created typed array of type: ", typeof(AA_polys))
+			end
+		catch e
+			if debug_aa
+				println("[DEBUG-AA] WARNING: Could not create typed array: ", e)
+				println("[DEBUG-AA] Falling back to untyped array")
+			end
+			AA_polys = AA_polys_temp
+		end
+	else
+		AA_polys = AA_polys_temp
+	end
+
+	if debug_aa
+		println("[DEBUG-AA] Final AA_polys type: ", typeof(AA_polys))
+		if !isempty(AA_polys)
+			println("[DEBUG-AA] First polynomial type after conversion: ", typeof(AA_polys[1]))
+		end
+	end
+
 	return ring_object, AA_polys
 
 end
@@ -430,20 +561,212 @@ function solve_with_rs(poly_system, varlist;
 	options = Dict(),
 	_recursion_depth = 0, digits = 10)
 
+	# Extract debug options with defaults
+	debug_solver = get(options, :debug_solver, false)
+	debug_cas_diagnostics = get(options, :debug_cas_diagnostics, false)
+	debug_dimensional_analysis = get(options, :debug_dimensional_analysis, false)
+	
+	@debug "solve_with_rs: Starting with system:" equations=length(poly_system) variables=length(varlist) recursion_depth=_recursion_depth digits=digits start_point=start_point options=options
+	if debug_solver || get(ENV, "ODEPE_DEEP_DEBUG", "false") == "true"
+		println("solve_with_rs: System equations:")
+		for eq in poly_system
+			println("\t", eq)
+		end
+		println("Variables: ", varlist)
+	end
+
 	if _recursion_depth > 5
 		@warn "solve_with_rs: Maximum recursion depth exceeded. System may have no solutions."
 		return [], varlist, Dict(), varlist
 	end
 
-	try
-		# Convert symbolic expressions to AA polynomials using existing infrastructure
-		R, aa_system = exprs_to_AA_polys(poly_system, varlist, digits)
+	# Add comprehensive dimensional analysis for debugging
+	if debug_dimensional_analysis && length(poly_system) == length(varlist) && length(poly_system) >= 20
+		@warn "[DEBUG-ODEPE] === DIMENSIONAL ANALYSIS ($(length(poly_system))x$(length(varlist)) system) ==="
+		try
+			# Analyze variable participation
+			var_participation = Dict()
+			for v in varlist
+				count = 0
+				for eq in poly_system
+					if occursin(string(v), string(eq))
+						count += 1
+					end
+				end
+				var_participation[v] = count
+			end
 
-		#println("aa_system")
-		#println(aa_system)
-		#println("R")
-		#println(R)
-		# Compute RUR and get separating element
+			# Find weakly constrained variables
+			weakly_constrained = []
+			for (v, count) in var_participation
+				if count <= 3
+					push!(weakly_constrained, (v, count))
+				end
+			end
+
+			if !isempty(weakly_constrained)
+				@warn "[DEBUG-ODEPE] Potentially unconstrained variables:"
+				for (v, count) in sort(weakly_constrained, by = x->x[2])
+					@warn "[DEBUG-ODEPE]   $v appears in $count equations"
+				end
+			end
+
+			# Count equation patterns
+			unique_var_sets = Set()
+			for eq in poly_system
+				vars_in_eq = Set()
+				for v in varlist
+					if occursin(string(v), string(eq))
+						push!(vars_in_eq, v)
+					end
+				end
+				push!(unique_var_sets, vars_in_eq)
+			end
+			@warn "[DEBUG-ODEPE] Unique variable patterns in equations: $(length(unique_var_sets))"
+
+			# Check for decoupled subsystems
+			coupled_groups = []
+			for v1 in varlist
+				group = Set([v1])
+				for eq in poly_system
+					if occursin(string(v1), string(eq))
+						for v2 in varlist
+							if v2 != v1 && occursin(string(v2), string(eq))
+								push!(group, v2)
+							end
+						end
+					end
+				end
+				push!(coupled_groups, group)
+			end
+
+			# Find minimal coupled groups
+			unique_groups = unique(coupled_groups)
+			if length(unique_groups) > 1
+				@warn "[DEBUG-ODEPE] Found $(length(unique_groups)) potentially decoupled variable groups"
+			end
+
+		catch e
+			@warn "[DEBUG-ODEPE] Dimensional analysis error: $e"
+		end
+		@warn "[DEBUG-ODEPE] ================================"
+	end
+
+	# Convert symbolic expressions to AA polynomials using existing infrastructure
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist, digits; debug_aa = debug_cas_diagnostics)
+
+	if debug_solver
+		println("\n[DEBUG-SOLVER] Polynomial ring and system created")
+		println("[DEBUG-SOLVER] Ring: ", R)
+		println("[DEBUG-SOLVER] Ring type: ", typeof(R))
+		println("[DEBUG-SOLVER] Number of generators: ", length(gens(R)))
+		println("[DEBUG-SOLVER] AA system has ", length(aa_system), " polynomials")
+		println("[DEBUG-SOLVER] AA system type: ", typeof(aa_system))
+		if !isempty(aa_system)
+			println("[DEBUG-SOLVER] First poly in aa_system type: ", typeof(aa_system[1]))
+			# Check if it's the right type
+			if !(aa_system[1] isa elem_type(R))
+				println("[DEBUG-SOLVER] WARNING: Polynomial type mismatch!")
+				println("[DEBUG-SOLVER]   Expected: ", elem_type(R))
+				println("[DEBUG-SOLVER]   Got: ", typeof(aa_system[1]))
+			end
+		end
+	end
+
+	# --- Algebraic Diagnostics ---
+	if debug_cas_diagnostics
+		println("[DEBUG-SOLVER] Running algebraic diagnostics...")
+	end
+
+	# Step 1: Unwrap Num wrappers to get raw symbolic expressions
+	unwrapped_system = Symbolics.value.(poly_system)
+
+	# Step 2: Convert all floats in the unwrapped expressions to Rationals
+	rationalized_system = [round_floats(p, digits) for p in unwrapped_system]
+
+	# Step 3: Sanitize variable names for the CAS
+	sanitized = sanitize_vars(varlist)
+
+	# Oscar diagnostics
+	if debug_cas_diagnostics
+		try
+			println("\n[DEBUG-SOLVER] --- Oscar Diagnostics ---")
+			Rosc, ovars = Oscar.polynomial_ring(Oscar.QQ, sanitized)
+			sub_dict_osc = Dict(varlist[i] => ovars[i] for i in eachindex(varlist))
+			opolys = [Symbolics.value(Symbolics.substitute(p, sub_dict_osc)) for p in rationalized_system]
+			Iosc = Oscar.ideal(Rosc, opolys...)
+			Gosc = Oscar.groebner_basis(Iosc)
+			println("[DEBUG-SOLVER] Oscar GB computed, length: ", length(Oscar.gens(Gosc)))
+			is_inconsistent_osc = (length(Oscar.gens(Gosc)) == 1 && string(Oscar.gens(Gosc)[1]) == "1")
+			if is_inconsistent_osc
+				println("[DEBUG-SOLVER] *** Oscar: Groebner basis is {1} - system inconsistent ***")
+			else
+				dim_val_osc = Oscar.dim(Iosc)
+				println("[DEBUG-SOLVER] Oscar reported dimension: ", dim_val_osc)
+			end
+		catch e
+			println("[WARN-SOLVER] Oscar diagnostics failed: ", e)
+		end
+	end
+
+	# Singular diagnostics
+	if debug_cas_diagnostics
+		try
+			println("\n[DEBUG-SOLVER] --- Singular Diagnostics ---")
+			Rsing, svars = Singular.polynomial_ring(Nemo.QQ, sanitized)
+			sub_dict_sing = Dict(varlist[i] => svars[i] for i in eachindex(varlist))
+			spolys = [Symbolics.value(Symbolics.substitute(p, sub_dict_sing)) for p in rationalized_system]
+			Ising = Singular.Ideal(Rsing, spolys...)
+			Gsing = Singular.std(Ising)
+			println("[DEBUG-SOLVER] Singular GB computed, length: ", length(Singular.gens(Gsing)))
+			is_inconsistent_sing = (length(Singular.gens(Gsing)) == 1 && string(Singular.gens(Gsing)[1]) == "1")
+			if is_inconsistent_sing
+				println("[DEBUG-SOLVER] *** Singular: Groebner basis is {1} - system inconsistent ***")
+			else
+				dim_val_sing = Singular.dimension(Gsing)
+				println("[DEBUG-SOLVER] Singular reported dimension: ", dim_val_sing)
+			end
+		catch e
+			println("[WARN-SOLVER] Singular diagnostics failed: ", e)
+		end
+	end
+
+	# Groebner.jl diagnostics
+	if debug_cas_diagnostics
+		try
+			println("\n[DEBUG-SOLVER] --- Groebner.jl Diagnostics ---")
+		# Create a temporary module to define the polynomial variables in
+		dp_mod = Module()
+		Core.eval(dp_mod, :(using DynamicPolynomials))
+		polyvar_expr = Meta.parse("@polyvar " * join(sanitized, " "))
+		Core.eval(dp_mod, polyvar_expr)
+
+		sub_dict_dp = Core.eval(dp_mod, :(Dict($(varlist[1]) => $(Symbol(sanitized[1])))))
+		for i in 2:length(varlist)
+			sub_dict_dp[varlist[i]] = Core.eval(dp_mod, Symbol(sanitized[i]))
+		end
+
+		dpolys_any = [Symbolics.value(Symbolics.substitute(p, sub_dict_dp)) for p in rationalized_system]
+
+		# Ensure the vector has a concrete type for Groebner.jl
+		if !isempty(dpolys_any)
+			T = typeof(dpolys_any[1])
+			dpolys = Vector{T}(dpolys_any)
+			gb = Groebner.groebner(dpolys)
+			println("[DEBUG-SOLVER] Groebner.jl GB computed, length: ", length(gb))
+		else
+			println("[DEBUG-SOLVER] Groebner.jl: No polynomials to process.")
+		end
+		catch e
+			println("[WARN-SOLVER] Groebner.jl diagnostics failed: ", e)
+		end
+	end
+
+	# Compute RUR and get separating element
+	if debug_solver
+		println("\n[DEBUG-SOLVER] Computing RUR (Rational Univariate Representation)...")
+	end
+	try
 		rur, sep = zdim_parameterization(aa_system, get_separating_element = true)
 
 		# Find solutions
@@ -458,12 +781,58 @@ function solve_with_rs(poly_system, varlist;
 			real_sol = [convert(Float64, real(v[1])) for v in s]
 			push!(solutions, real_sol)
 		end
+		@debug "RAW SOLVER SOLUTIONS from solve_with_rs" num_solutions=length(solutions) varlist=varlist solutions=solutions
+
 		return solutions, varlist, Dict(), varlist
 	catch e
 		if isa(e, DomainError) && occursin("zerodimensional ideal", string(e))
-			@warn "System is not zero-dimensional, adding a random linear equation."
-			modified_poly_system = add_random_linear_equation_direct(poly_system, varlist)
-			return solve_with_rs(modified_poly_system, varlist, start_point = start_point, options = options, _recursion_depth = _recursion_depth+1)
+			@warn "System is not zero-dimensional, needs reconstruction with higher derivative levels."
+
+			# Try to extract dimension information from error message
+			error_msg = string(e)
+			dim_match = match(r"(\d+)-dimensional", error_msg)
+			if dim_match !== nothing
+				dim = parse(Int, dim_match[1])
+				@warn "[DEBUG-ODEPE] System has dimension $dim (expected 0)"
+
+				# Analyze which variables might be unconstrained
+				if length(poly_system) == length(varlist)
+					@warn "[DEBUG-ODEPE] Square system ($(length(poly_system))x$(length(varlist))) but $dim-dimensional"
+					@warn "[DEBUG-ODEPE] This suggests $dim variables are algebraically unconstrained"
+
+					# Try to identify which variables are likely free
+					if dim <= 5  # Only for small dimensions
+						@warn "[DEBUG-ODEPE] Analyzing variable constraints to identify free parameters..."
+
+						# Count how many equations each variable appears in
+						var_counts = Dict()
+						for v in varlist
+							count = 0
+							for eq in poly_system
+								if occursin(string(v), string(eq))
+									count += 1
+								end
+							end
+							var_counts[v] = count
+						end
+
+						# Sort by participation count
+						sorted_vars = sort(collect(var_counts), by = x->x[2])
+						@warn "[DEBUG-ODEPE] Variables by equation participation (lowest first):"
+						for (v, count) in sorted_vars[1:min(dim+2, length(sorted_vars))]
+							@warn "[DEBUG-ODEPE]   $v: appears in $count equations"
+						end
+
+						# The variables with lowest participation are likely free
+						likely_free = [v for (v, c) in sorted_vars[1:min(dim, length(sorted_vars))]]
+						@warn "[DEBUG-ODEPE] Most likely free variables: $likely_free"
+					end
+				end
+			end
+
+			# Return special status indicating reconstruction is needed
+			# Format: (status_symbol, empty_solutions, empty_dict, varlist)
+			return :needs_reconstruction, varlist, Dict(), varlist
 		else
 			@warn "solve_with_rs failed: $e"
 			return [], varlist, Dict(), varlist
@@ -594,7 +963,7 @@ function solve_with_rs_old(poly_system, varlist;
 	end
 
 	# Convert symbolic expressions to AA polynomials using existing infrastructure
-	R, aa_system = exprs_to_AA_polys(poly_system, varlist)
+	R, aa_system = exprs_to_AA_polys(poly_system, varlist, 10)  # Use default digits=10
 
 	if debug
 		println("DEBUG [solve_with_rs]: Abstract Algebra system:")
@@ -670,23 +1039,12 @@ function solve_with_rs_old(poly_system, varlist;
 
 		if isa(e, DomainError) && occursin("zerodimensional ideal", string(e))
 			if debug
-				println("DEBUG [solve_with_rs]: Zero-dimensional ideal error, adding random linear equation")
+				println("DEBUG [solve_with_rs_old]: System is not zero-dimensional, needs reconstruction")
 			end
 
-			# Add a random linear equation directly to make the system zero-dimensional
-			modified_poly_system = add_random_linear_equation_direct(poly_system, varlist)
-
-			if debug
-				println("DEBUG [solve_with_rs]: Added random linear equation, new system size: ", length(modified_poly_system))
-			end
-
-			# Recursive call with the modified system
-			return solve_with_rs(modified_poly_system, varlist,
-								 start_point = start_point,
-								 polish_solutions = polish_solutions,
-								 debug = debug,
-								 verify_solutions = verify_solutions,
-								 is_augmented_system = true)  # Mark that this is an augmented system
+			# Return special status indicating reconstruction is needed
+			# Random hyperplane addition has been disabled in favor of systematic derivative level increases
+			return :needs_reconstruction, varlist, Dict(), varlist
 		else
 			if debug
 				println("DEBUG [solve_with_rs]: Unhandled exception: ", e)
@@ -714,7 +1072,7 @@ function solve_with_rs_old(poly_system, varlist;
 
 			for eq in verification_system
 				subst_dict = Dict([v => sol[i] for (i, v) in enumerate(varlist)])
-				residual = abs(Symbolics.value(substitute(eq, subst_dict)))
+				residual = abs(Symbolics.value(Symbolics.substitute(eq, subst_dict)))
 
 				if debug
 					println("DEBUG [solve_with_rs]: For solution ", sol)

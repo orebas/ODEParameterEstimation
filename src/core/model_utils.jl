@@ -67,9 +67,9 @@ Modifies the input equations in place.
 """
 function unident_subst!(model_eq, measured_quantities, unident_dict)
 	for i in eachindex(model_eq)
-		model_eq[i] = substitute(model_eq[i].lhs, unident_dict) ~ substitute(model_eq[i].rhs, unident_dict)
+		model_eq[i] = Symbolics.substitute(model_eq[i].lhs, unident_dict) ~ Symbolics.substitute(model_eq[i].rhs, unident_dict)
 	end
 	for i in eachindex(measured_quantities)
-		measured_quantities[i] = substitute(measured_quantities[i].lhs, unident_dict) ~ substitute(measured_quantities[i].rhs, unident_dict)
+		measured_quantities[i] = Symbolics.substitute(measured_quantities[i].lhs, unident_dict) ~ Symbolics.substitute(measured_quantities[i].rhs, unident_dict)
 	end
 end
