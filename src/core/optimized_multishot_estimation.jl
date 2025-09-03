@@ -450,6 +450,7 @@ function analyze_identifiability(
 	data_sample::Union{OrderedDict, Nothing} = nothing;
 	use_adaptive::Bool = true,
 	max_iterations::Int = 20,
+	debug_cas_diagnostics::Bool = false,
 )
 	t, eqns, states, params = unpack_ODE(model.system)
 
@@ -640,7 +641,8 @@ function create_equation_template(
 	ident_vars::Vector,  # Identifiable variables from analysis
 	all_unidentifiable::Set{Any},  # All unidentifiable parameters
 	model::OrderedODESystem,
-	measured_quantities::Vector,
+	measured_quantities::Vector;
+	debug_cas_diagnostics::Bool = false,
 )
 	t, eqns, states, params = unpack_ODE(model.system)
 
@@ -832,7 +834,8 @@ function build_equations_at_time_point(
 	template::EquationTemplate,
 	time_point::Float64,
 	interpolants::Dict,
-	measured_quantities::Vector,
+	measured_quantities::Vector;
+	debug_cas_diagnostics::Bool = false,
 )
 	equations = Any[]
 
@@ -899,9 +902,11 @@ function solve_at_shooting_point(
 	time_index::Int,
 	solver_func::Function;
 	measured_quantities::Vector = Vector(),
+	debug_cas_diagnostics::Bool = false,
 )
 	# Build the actual equation system with denominators cleared
-	equations = build_equations_at_time_point(template, time_point, interpolants, measured_quantities)
+	equations = build_equations_at_time_point(template, time_point, interpolants, measured_quantities;
+		debug_cas_diagnostics = debug_cas_diagnostics)
 
 	if debug_cas_diagnostics
 		println("\nDEBUG: Solving system at time point $time_point:")
@@ -992,11 +997,13 @@ function optimized_multishot_parameter_estimation(
 		println("Phase 2: Analyzing identifiability...")
 	end
 	deriv_levels, fixed_params, ident_vars, all_unidentifiable = analyze_identifiability(
-		precomputed, PEP.model, PEP.measured_quantities, PEP.data_sample,
+		precomputed, PEP.model, PEP.measured_quantities, PEP.data_sample;
+		debug_cas_diagnostics = debug_cas_diagnostics,
 	)
 
 	template = create_equation_template(
-		precomputed, deriv_levels, fixed_params, ident_vars, all_unidentifiable, PEP.model, PEP.measured_quantities,
+		precomputed, deriv_levels, fixed_params, ident_vars, all_unidentifiable, PEP.model, PEP.measured_quantities;
+		debug_cas_diagnostics = debug_cas_diagnostics,
 	)
 
 	if !nooutput
@@ -1046,6 +1053,7 @@ function optimized_multishot_parameter_estimation(
 			template, precomputed, interpolants,
 			time_point, idx, system_solver,
 			measured_quantities = PEP.measured_quantities,
+			debug_cas_diagnostics = debug_cas_diagnostics,
 		)
 
 		# Process each solution
