@@ -34,6 +34,16 @@ using DynamicPolynomials
 using Nemo#using GLPK
 using Oscar
 
+using ModelingToolkit
+using OrderedCollections
+using LinearAlgebra
+using Logging
+using Symbolics
+using OrdinaryDiffEq
+using PolynomialRoots
+
+
+
 using AbstractAlgebra
 using RationalUnivariateRepresentation
 using RS

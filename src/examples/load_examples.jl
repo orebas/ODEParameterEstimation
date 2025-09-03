@@ -101,6 +101,10 @@ function run_parameter_estimation_examples(;
 	interpolator = nothing,
 	system_solver = nothing,
 	log_dir = "logs",
+	doskip = true,
+	shooting_points = 8,
+	try_more_methods = true,
+	use_new_flow = false,
 )
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
@@ -171,7 +175,7 @@ function run_parameter_estimation_examples(;
 	original_stderr = stderr
 	for model_name in models_to_run
 		log_file_path = joinpath(log_dir, "$(model_name).log")
-		if isfile(log_file_path)
+		if isfile(log_file_path) && doskip
 			log_content = read(log_file_path, String)
 			if occursin("SUCCESS", log_content)
 				println(original_stdout, "Skipping completed model: $model_name")
@@ -197,6 +201,12 @@ function run_parameter_estimation_examples(;
 								isnothing(pep.recommended_time_interval) ? [0.0, 5.0] :
 								pep.recommended_time_interval
 
+							if use_new_flow
+								println("Using NEW optimized workflow")
+							else
+								println("Using standard workflow")
+							end
+							
 							analyze_parameter_estimation_problem(
 								sample_problem_data(
 									pep,
@@ -206,6 +216,9 @@ function run_parameter_estimation_examples(;
 								),
 								interpolator = interpolator,
 								system_solver = system_solver,
+								shooting_points = shooting_points,
+								try_more_methods = try_more_methods,
+								use_new_flow = use_new_flow,
 							)
 							println("SUCCESS")
 							println(original_stdout, "Model $model_name ran successfully.")
