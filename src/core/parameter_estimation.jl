@@ -191,25 +191,71 @@ end
 
 function construct_multipoint_equation_system!(time_index_set,
 	model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
-	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing)
+	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
+	
+	# Get SI.jl template once (if using SI.jl)
+	si_template = nothing
+	if use_si_template
+		# Create the template on first use
+		ordered_model = if isa(model, OrderedODESystem)
+			model
+		else
+			OrderedODESystem(model, states, params)
+		end
+		
+		template_equations, derivative_dict, unidentifiable = get_si_equation_system(
+			ordered_model,
+			measured_quantities,
+			data_sample;
+			infolevel = diagnostics ? 1 : 0
+		)
+		
+		si_template = (
+			equations = template_equations,
+			deriv_dict = derivative_dict,
+			unidentifiable = unidentifiable
+		)
+		
+		if diagnostics
+			println("[DEBUG-SI] Created SI.jl template with $(length(template_equations)) equations")
+		end
+	end
 
 	for k in time_index_set
-		(target_k, varlist_k) = construct_equation_system(
-			model,
-			measured_quantities,
-			data_sample,
-			good_deriv_level,
-			good_udict,
-			good_varlist,
-			good_DD;
-			interpolator = interpolator,
-			time_index_set = [k],
-			precomputed_interpolants = precomputed_interpolants,
-			diagnostics = diagnostics,
-			diagnostic_data = diagnostic_data,
-			ideal = ideal,
-			sol = sol)
+		if use_si_template
+			# Use SI.jl template-based construction
+			(target_k, varlist_k) = construct_equation_system_from_si_template(
+				model,
+				measured_quantities,
+				data_sample,
+				good_deriv_level,
+				good_udict,
+				good_varlist,
+				good_DD;
+				interpolator = interpolator,
+				time_index_set = [k],
+				precomputed_interpolants = precomputed_interpolants,
+				diagnostics = diagnostics,
+				si_template = si_template)
+		else
+			# Fall back to iterative construction (optional path)
+			(target_k, varlist_k) = construct_equation_system(
+				model,
+				measured_quantities,
+				data_sample,
+				good_deriv_level,
+				good_udict,
+				good_varlist,
+				good_DD;
+				interpolator = interpolator,
+				time_index_set = [k],
+				precomputed_interpolants = precomputed_interpolants,
+				diagnostics = diagnostics,
+				diagnostic_data = diagnostic_data,
+				ideal = ideal,
+				sol = sol)
+		end
 
 		local_subst_dict = OrderedDict{Num, Any}()
 		local_subst_dict_reverse = OrderedDict()

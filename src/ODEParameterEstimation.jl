@@ -69,6 +69,7 @@ include("core/derivative_utils.jl")
 # Include core functionality
 using SymbolicUtils
 include("core/si_equation_builder.jl")  # StructuralIdentifiability integration
+include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
 include("core/robust_conversion.jl")  # New robust conversion utilities
 include("core/pointpicker.jl")

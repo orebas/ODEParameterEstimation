@@ -17,7 +17,7 @@ using LinearAlgebra
 import StructuralIdentifiability: ODE
 
 """
-    convert_to_si_ode(ode::OrderedODESystem, measured_quantities::Vector{ModelingToolkit.Equation}, inputs::Vector{Num} = Vector{Num}())
+    convert_to_si_ode(ode, measured_quantities::Vector{ModelingToolkit.Equation}, inputs::Vector{Num} = Vector{Num}())
 
 Convert ModelingToolkit ODESystem to StructuralIdentifiability.jl ODE format.
 Based on ParameterEstimation.jl's preprocess_ode function.
@@ -28,9 +28,9 @@ Returns:
 - gens: Nemo polynomial ring generators
 """
 function convert_to_si_ode(
-    ode::OrderedODESystem,
+    ode,  # Will be OrderedODESystem but can't reference type here
     measured_quantities::Vector{ModelingToolkit.Equation},
-    inputs::Vector{Num} = Vector{Num}()
+    inputs = []  # Vector{Num}
 )
     @info "Converting ODESystem to SI.jl format"
     
@@ -113,18 +113,18 @@ function eval_at_nemo(expr, subs_dict)
 end
 
 """
-    get_si_equation_system(ode::OrderedODESystem, measured_quantities::Vector{ModelingToolkit.Equation}, data_sample::OrderedDict; kwargs...)
+    get_si_equation_system(ode, measured_quantities::Vector{ModelingToolkit.Equation}, data_sample::OrderedDict; kwargs...)
 
 Get polynomial equation system from StructuralIdentifiability.jl.
 This replaces the iterative equation construction in ODEPE.
 
 Returns:
-- equations: Polynomial equations in Symbolics format
+- equations: Polynomial equations in Symbolics format (template)
+- derivative_vars: Dictionary mapping derivative variables to their orders
 - unidentifiable: Set of unidentifiable parameters
-- id_result: Full identifiability result from SI.jl
 """
 function get_si_equation_system(
-    ode::OrderedODESystem,
+    ode,  # Will be OrderedODESystem
     measured_quantities::Vector{ModelingToolkit.Equation},
     data_sample::OrderedDict;
     p = 0.99,
@@ -134,35 +134,85 @@ function get_si_equation_system(
 )
     @info "Getting equation system from StructuralIdentifiability.jl"
     
-    # Use StructuralIdentifiability's check_identifiability function
-    # This is the high-level API that handles the conversion
-    model = ode.system
+    # Convert to SI.jl format
+    si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
     
-    # Call SI.jl's check_identifiability
-    id_data = StructuralIdentifiability.check_identifiability(
-        model;
-        measured_quantities = measured_quantities,
-        prob_threshold = p
+    # Get parameters for identifiability analysis
+    params_to_assess = StructuralIdentifiability.get_parameters(si_ode)
+    
+    # Create mapping from Nemo to MTK types
+    nemo2mtk = Dict(gens .=> symbol_map)
+    
+    # Run the full identifiability analysis to get polynomial system
+    @info "Running SI.jl identifiability analysis"
+    result = identifiability_ode(
+        si_ode, 
+        params_to_assess;
+        p = p,
+        p_mod = p_mod,
+        infolevel = infolevel,
+        weighted_ordering = false,
+        local_only = false
     )
     
-    # Extract identifiability information
-    globally_id = get(id_data.ident_dict, :globally, Set())
-    locally_id = get(id_data.ident_dict, :locally, Set())
-    non_id = get(id_data.ident_dict, :nonidentifiable, Set())
+    # Extract the polynomial system (this is our template!)
+    poly_system = result["polynomial_system"]
+    y_derivative_dict = result["Y_eq"]  # Maps derivative variables to their orders
     
-    @info "Identifiability results:"
-    @info "  Globally identifiable: $globally_id"
-    @info "  Locally identifiable: $locally_id"  
-    @info "  Non-identifiable: $non_id"
+    # Extract identifiability results
+    unidentifiable = result["identifiability"]["nonidentifiable"]
     
-    # For now, return empty equations since SI.jl's polynomial system
-    # needs more work to integrate properly
-    equations = []
+    @info "SI.jl found $(length(poly_system)) template equations"
+    @info "Derivative variables: $(keys(y_derivative_dict))"
+    @info "Non-identifiable parameters: $unidentifiable"
     
-    # Return all non-identifiable parameters
-    all_unidentifiable = non_id
+    # Convert polynomial system to Symbolics format
+    # These equations are the template with derivative variables
+    template_equations = []
+    for poly in poly_system
+        # Convert Nemo polynomial to Symbolics
+        sym_eq = nemo_to_symbolics(poly, nemo2mtk)
+        push!(template_equations, sym_eq)
+    end
     
-    return equations, all_unidentifiable, id_data
+    return template_equations, y_derivative_dict, unidentifiable
+end
+
+"""
+    identifiability_ode(ode, params_to_assess; kwargs...)
+
+Wrapper for StructuralIdentifiability's identifiability analysis.
+This is based on ParameterEstimation.jl's implementation.
+"""
+function identifiability_ode(ode, params_to_assess; p = 0.99, p_mod = 0, infolevel = 0,
+                             weighted_ordering = false, local_only = false)
+    # Try to use StructuralIdentifiability's function if available
+    if isdefined(StructuralIdentifiability, :identifiability_ode)
+        return StructuralIdentifiability.identifiability_ode(
+            ode, params_to_assess;
+            p = p, p_mod = p_mod, infolevel = infolevel,
+            weighted_ordering = weighted_ordering, local_only = local_only
+        )
+    else
+        # Fallback: use assess_identifiability if available
+        result = StructuralIdentifiability.assess_identifiability(
+            ode;
+            funcs_to_check = params_to_assess,
+            prob_threshold = p,
+            loglevel = infolevel > 0 ? Logging.Info : Logging.Warn
+        )
+        
+        # Convert to expected format
+        return Dict(
+            "polynomial_system" => [],  # Not available in this API
+            "Y_eq" => Dict(),
+            "identifiability" => Dict(
+                "globally" => Set(k for (k,v) in result if v == :globally),
+                "locally" => Set(k for (k,v) in result if v == :locally),
+                "nonidentifiable" => Set(k for (k,v) in result if v == :nonidentifiable)
+            )
+        )
+    end
 end
 
 """
