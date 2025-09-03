@@ -58,11 +58,13 @@ include("core/derivative_utils.jl")
 # Include core functionality
 using SymbolicUtils
 include("core/homotopy_continuation.jl")
+include("core/robust_conversion.jl")  # New robust conversion utilities
 include("core/pointpicker.jl")
 
 include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
 include("core/multipoint_estimation.jl")
+include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("core/derivatives.jl")
 include("core/sampling.jl")
 include("examples/load_examples.jl")
@@ -75,6 +77,7 @@ export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOL
 
 # Export core functions
 export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation, multishot_parameter_estimation
+export optimized_multishot_parameter_estimation, solve_with_rs_new, robust_exprs_to_AA_polys
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
