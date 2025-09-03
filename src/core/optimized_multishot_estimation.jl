@@ -284,7 +284,7 @@ Returns: (:success, solutions), (:no_solutions, []), or (:not_zero_dim, [])
 function try_rur_solve(equations, variables)
 	try
 		# Clear denominators from all equations first
-		cleared_equations = clear_all_denominators(equations, variables)
+		cleared_equations = clear_denoms(equations, variables)
 
 		# Use robust conversion from robust_conversion.jl
 		R, aa_system, var_map = robust_exprs_to_AA_polys(cleared_equations, variables)

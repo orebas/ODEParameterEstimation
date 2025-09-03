@@ -252,7 +252,7 @@ function solve_with_rs_new(poly_system, varlist;
     
     try
         # Clear all denominators before converting to AA polynomials
-        cleared_system = clear_all_denominators(poly_system, varlist)
+        cleared_system = clear_denoms(poly_system, varlist)
         
         # Use the robust conversion method that handles special characters
         R, aa_system, var_map = robust_exprs_to_AA_polys(cleared_system, varlist)
