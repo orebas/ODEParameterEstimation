@@ -306,14 +306,25 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
         # Use the proper API: coefficients and exponent_vectors
         for (i, c) in enumerate(Nemo.coefficients(nemo_expr))
             if !iszero(c)
-                # Convert coefficient
+                # Convert coefficient - handle different Nemo types
                 coeff_val = if c isa Nemo.QQFieldElem
                     # Need to convert Nemo.ZZRingElem to Julia integers
                     num = BigInt(Nemo.numerator(c))
                     den = BigInt(Nemo.denominator(c))
                     Rational(num, den)
-                else
+                elseif c isa Nemo.ZZRingElem
+                    # Integer coefficient
+                    BigInt(c)
+                elseif c isa Integer
                     c
+                else
+                    # Try to convert to a number
+                    try
+                        BigInt(c)
+                    catch
+                        @error "Unknown coefficient type in nemo_to_symbolics" typeof(c) c
+                        c
+                    end
                 end
                 
                 # Get exponent vector for this term
