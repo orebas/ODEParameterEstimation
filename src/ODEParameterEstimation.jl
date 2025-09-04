@@ -48,6 +48,7 @@ using AbstractAlgebra
 using RationalUnivariateRepresentation
 using RS
 using StructuralIdentifiability
+using SIAN
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits

@@ -6,6 +6,7 @@ for equation system construction instead of iterative scanning.
 """
 
 using StructuralIdentifiability
+using SIAN
 using ModelingToolkit
 using Symbolics
 using Nemo
@@ -73,7 +74,7 @@ function convert_to_si_ode(
     
     # Convert state equations
     for i in eachindex(diff_eqs)
-        lhs_nemo = substitute(state_vars[i], input_symbols .=> gens_)
+        lhs_nemo = Symbolics.substitute(state_vars[i], input_symbols .=> gens_)
         if !(typeof(diff_eqs[i].rhs) <: Number)
             rhs_nemo = eval_at_nemo(diff_eqs[i].rhs, Dict(input_symbols .=> gens_))
         else
@@ -84,13 +85,13 @@ function convert_to_si_ode(
     
     # Convert output equations
     for i in 1:length(measured_quantities)
-        lhs_nemo = substitute(y_functions[i], input_symbols .=> gens_)
+        lhs_nemo = Symbolics.substitute(y_functions[i], input_symbols .=> gens_)
         rhs_nemo = eval_at_nemo(measured_quantities[i].rhs, Dict(input_symbols .=> gens_))
         out_eqn_dict[lhs_nemo] = rhs_nemo
     end
     
     # Convert inputs
-    inputs_ = [substitute(each, input_symbols .=> gens_) for each in inputs]
+    inputs_ = [Symbolics.substitute(each, input_symbols .=> gens_) for each in inputs]
     if isempty(inputs_)
         inputs_ = Vector{Nemo.QQMPolyRingElem}()
     end
@@ -137,82 +138,96 @@ function get_si_equation_system(
     # Convert to SI.jl format
     si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
     
-    # Get parameters for identifiability analysis
-    params_to_assess = StructuralIdentifiability.get_parameters(si_ode)
+    # Get parameters for identifiability analysis using SIAN
+    params_to_assess = SIAN.get_parameters(si_ode)
     
     # Create mapping from Nemo to MTK types
     nemo2mtk = Dict(gens .=> symbol_map)
     
-    # Run the full identifiability analysis to get polynomial system
-    @info "Running SI.jl identifiability analysis"
-    result = identifiability_ode(
+    # Get polynomial system using SIAN
+    @info "Getting polynomial system from SIAN"
+    result = get_polynomial_system_from_sian(
         si_ode, 
         params_to_assess;
         p = p,
-        p_mod = p_mod,
-        infolevel = infolevel,
-        weighted_ordering = false,
-        local_only = false
+        infolevel = infolevel
     )
     
-    # Extract the polynomial system (this is our template!)
+    # Extract the polynomial system and derivative info
     poly_system = result["polynomial_system"]
-    y_derivative_dict = result["Y_eq"]  # Maps derivative variables to their orders
+    y_derivative_dict = result["Y_eq"]
     
-    # Extract identifiability results
-    unidentifiable = result["identifiability"]["nonidentifiable"]
+    # Also run identifiability check
+    @info "Checking identifiability"
+    id_result = StructuralIdentifiability.assess_identifiability(
+        si_ode;
+        funcs_to_check = params_to_assess,
+        prob_threshold = p,
+        loglevel = infolevel > 0 ? Logging.Info : Logging.Warn
+    )
+    
+    # Extract non-identifiable parameters
+    unidentifiable = Set()
+    for (param, status) in id_result
+        if status == :nonidentifiable
+            # Need to map Nemo param back to MTK
+            push!(unidentifiable, param)
+        end
+    end
     
     @info "SI.jl found $(length(poly_system)) template equations"
     @info "Derivative variables: $(keys(y_derivative_dict))"
     @info "Non-identifiable parameters: $unidentifiable"
     
     # Convert polynomial system to Symbolics format
-    # These equations are the template with derivative variables
+    # These equations are pairs [variable, polynomial]
     template_equations = []
-    for poly in poly_system
-        # Convert Nemo polynomial to Symbolics
-        sym_eq = nemo_to_symbolics(poly, nemo2mtk)
-        push!(template_equations, sym_eq)
+    for (var, poly) in poly_system
+        # Convert both the variable and polynomial to Symbolics
+        var_sym = nemo_to_symbolics(var, nemo2mtk)
+        poly_sym = nemo_to_symbolics(poly, nemo2mtk)
+        # Create equation: poly_sym = 0 (or var_sym - poly_sym = 0)
+        push!(template_equations, var_sym - poly_sym)
     end
     
     return template_equations, y_derivative_dict, unidentifiable
 end
 
 """
-    identifiability_ode(ode, params_to_assess; kwargs...)
+    get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0)
 
-Wrapper for StructuralIdentifiability's identifiability analysis.
-This is based on ParameterEstimation.jl's implementation.
+Get polynomial system using SIAN functions, adapted from PE.jl's implementation.
+Returns a simplified version focused on what we need.
 """
-function identifiability_ode(ode, params_to_assess; p = 0.99, p_mod = 0, infolevel = 0,
-                             weighted_ordering = false, local_only = false)
-    # Try to use StructuralIdentifiability's function if available
-    if isdefined(StructuralIdentifiability, :identifiability_ode)
-        return StructuralIdentifiability.identifiability_ode(
-            ode, params_to_assess;
-            p = p, p_mod = p_mod, infolevel = infolevel,
-            weighted_ordering = weighted_ordering, local_only = local_only
-        )
-    else
-        # Fallback: use assess_identifiability if available
-        result = StructuralIdentifiability.assess_identifiability(
-            ode;
-            funcs_to_check = params_to_assess,
-            prob_threshold = p,
-            loglevel = infolevel > 0 ? Logging.Info : Logging.Warn
-        )
-        
-        # Convert to expected format
-        return Dict(
-            "polynomial_system" => [],  # Not available in this API
-            "Y_eq" => Dict(),
-            "identifiability" => Dict(
-                "globally" => Set(k for (k,v) in result if v == :globally),
-                "locally" => Set(k for (k,v) in result if v == :locally),
-                "nonidentifiable" => Set(k for (k,v) in result if v == :nonidentifiable)
-            )
-        )
+function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0)
+    # Get equations using SIAN
+    eqs, Q, x_eqs, y_eqs, x_vars, y_vars, u_vars, mu, all_indets, gens_Rjet = SIAN.get_equations(si_ode)
+    
+    non_jet_ring = si_ode.poly_ring
+    n = length(x_vars)
+    m = length(y_vars)
+    u = length(u_vars)
+    s = length(mu) + n
+    
+    # Get X and Y equations
+    X, X_eq = SIAN.get_x_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
+    Y, Y_eq = SIAN.get_y_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
+    
+    # For now, return the Y equations as our polynomial system
+    # These contain the derivatives we need
+    y_derivative_dict = Dict()
+    for each in Y_eq
+        name, order = SIAN.get_order_var(each[1], non_jet_ring)
+        y_derivative_dict[each[1]] = order
     end
+    
+    # Return simplified result
+    return Dict(
+        "polynomial_system" => Y_eq,  # The polynomial equations with derivatives
+        "Y_eq" => y_derivative_dict,  # Maps derivative variables to orders
+        "X_eq" => X_eq,
+        "non_jet_ring" => non_jet_ring
+    )
 end
 
 """
@@ -236,7 +251,7 @@ function convert_si_polys_to_symbolics(
     for poly in polys
         # Apply transcendence substitutions if provided
         if !isempty(transcendence_subs)
-            poly = substitute(poly, transcendence_subs)
+            poly = Symbolics.substitute(poly, transcendence_subs)
         end
         
         # Convert Nemo polynomial to Symbolics

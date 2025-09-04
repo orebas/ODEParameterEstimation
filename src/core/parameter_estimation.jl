@@ -191,7 +191,7 @@ end
 
 function construct_multipoint_equation_system!(time_index_set,
 	model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
-	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)
+	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)  # SI.jl is now the default
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 	
 	# Get SI.jl template once (if using SI.jl)
