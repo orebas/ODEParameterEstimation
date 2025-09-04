@@ -276,7 +276,10 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
     
     # Handle Nemo QQ field elements
     if nemo_expr isa Nemo.QQFieldElem
-        return Rational(Nemo.numerator(nemo_expr), Nemo.denominator(nemo_expr))
+        # Convert Nemo.ZZRingElem to Julia integers
+        num = BigInt(Nemo.numerator(nemo_expr))
+        den = BigInt(Nemo.denominator(nemo_expr))
+        return Rational(num, den)
     end
     
     # Handle fraction field elements
@@ -305,7 +308,10 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
             if !iszero(c)
                 # Convert coefficient
                 coeff_val = if c isa Nemo.QQFieldElem
-                    Rational(Nemo.numerator(c), Nemo.denominator(c))
+                    # Need to convert Nemo.ZZRingElem to Julia integers
+                    num = BigInt(Nemo.numerator(c))
+                    den = BigInt(Nemo.denominator(c))
+                    Rational(num, den)
                 else
                     c
                 end
