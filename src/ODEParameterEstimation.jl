@@ -33,6 +33,7 @@ using Groebner
 using DynamicPolynomials
 using Nemo#using GLPK
 using Oscar
+using Dates
 
 using ModelingToolkit
 using OrderedCollections
@@ -41,6 +42,25 @@ using Logging
 using Symbolics
 using OrdinaryDiffEq
 using PolynomialRoots
+
+
+using StructuralIdentifiability
+using ModelingToolkit
+using Symbolics
+using OrderedCollections
+
+
+using StructuralIdentifiability
+using SIAN
+using ModelingToolkit
+using Symbolics
+using Nemo
+using AbstractAlgebra
+using OrderedCollections
+using LinearAlgebra
+
+# Import SI's ODE type
+import StructuralIdentifiability: ODE
 
 
 
@@ -117,7 +137,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 
 
-
+#=
 
 @recompile_invalidations begin
 	@compile_workload begin
@@ -159,7 +179,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 	end
 end
 
-
+=#
 
 end # module
 

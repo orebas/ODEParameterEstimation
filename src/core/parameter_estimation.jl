@@ -193,7 +193,7 @@ function construct_multipoint_equation_system!(time_index_set,
 	model, measured_quantities, data_sample, good_deriv_level, good_udict, good_varlist, good_DD,
 	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)  # SI.jl is now the default
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
-	
+
 	# Get SI.jl template once (if using SI.jl)
 	si_template = nothing
 	if use_si_template
@@ -203,22 +203,60 @@ function construct_multipoint_equation_system!(time_index_set,
 		else
 			OrderedODESystem(model, states, params)
 		end
-		
-		template_equations, derivative_dict, unidentifiable = get_si_equation_system(
+
+		template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
 			ordered_model,
 			measured_quantities,
 			data_sample;
-			infolevel = diagnostics ? 1 : 0
+			DD = good_DD,
+			infolevel = diagnostics ? 1 : 0,
 		)
-		
+
 		si_template = (
 			equations = template_equations,
 			deriv_dict = derivative_dict,
-			unidentifiable = unidentifiable
+			unidentifiable = unidentifiable,
+			identifiable_funcs = identifiable_funcs,
 		)
-		
+
+		# Handle unidentifiability using the new, more robust logic
+		template_equations, si_template =
+			handle_unidentifiability(si_template, diagnostics; states = states)
+
 		if diagnostics
 			println("[DEBUG-SI] Created SI.jl template with $(length(template_equations)) equations")
+
+			# Output the SI.jl polynomial system for debugging
+			println("\n[DEBUG-SI] ========== SI.jl POLYNOMIAL SYSTEM ==========")
+			println("[DEBUG-SI] Variables in derivative_dict: $(length(derivative_dict))")
+			println("[DEBUG-SI] Equations ($(length(template_equations))): ")
+			for (i, eq) in enumerate(template_equations)
+				println("[DEBUG-SI]   Eq $i: $eq")
+				# Try to analyze coefficient ranges
+				eq_str = string(eq)
+				# Count terms as a rough complexity measure
+				num_terms = length(split(eq_str, r"[+-]")) - 1
+				println("[DEBUG-SI]     Complexity: ~$num_terms terms")
+			end
+			println("[DEBUG-SI] =========================================\n")
+
+			# Save SI.jl template to file
+			timestamp_str = Dates.format(now(), "yyyy-mm-dd'T'HH:MM:SS.sss")
+			save_filepath = joinpath("saved_systems", "si_template_$(timestamp_str).jl")
+			mkpath(dirname(save_filepath))
+			open(save_filepath, "w") do io
+				println(io, "# SI.jl Template Polynomial System")
+				println(io, "# Generated: $(timestamp_str)")
+				println(io, "# Number of equations: $(length(template_equations))")
+				println(io, "# Variables: $(keys(derivative_dict))")
+				println(io, "")
+				for (i, eq) in enumerate(template_equations)
+					println(io, "# Equation $i:")
+					println(io, "$eq")
+					println(io, "")
+				end
+			end
+			@info "Saved SI.jl template to $save_filepath"
 		end
 	end
 
@@ -231,7 +269,7 @@ function construct_multipoint_equation_system!(time_index_set,
 				data_sample,
 				good_deriv_level,
 				good_udict,
-				good_varlist,
+				good_varlist, # Pass the original good_varlist, it will be filtered inside
 				good_DD;
 				interpolator = interpolator,
 				time_index_set = [k],
@@ -259,34 +297,180 @@ function construct_multipoint_equation_system!(time_index_set,
 
 		local_subst_dict = OrderedDict{Num, Any}()
 		local_subst_dict_reverse = OrderedDict()
-		subst_var_list = []
-
-		append!(subst_var_list, vcat(good_DD.states_lhs...))
-		append!(subst_var_list, states)
-		append!(subst_var_list, vcat(good_DD.obs_lhs...))
-
-		for i in subst_var_list
-			newname = tag_symbol(i, "_t" * string(k) * "_", "_")
-			j = Symbolics.wrap(i)
-			local_subst_dict[j] = newname
-			local_subst_dict_reverse[newname] = j
-		end
-
-		for i in params
-			newname = tag_symbol(i, "_t" * string("p"), "_")
-			j = Symbolics.wrap(i)
-			local_subst_dict[j] = newname
-			local_subst_dict_reverse[newname] = j
-		end
-
-		target_k_subst = Symbolics.substitute.(target_k, Ref(local_subst_dict))
-		varlist_k_subst = Symbolics.substitute.(varlist_k, Ref(local_subst_dict))
-		push!(full_target, target_k_subst)
-		push!(full_varlist, varlist_k_subst)
-		push!(forward_subst_dict, local_subst_dict)
-		push!(reverse_subst_dict, local_subst_dict_reverse)
+		# With the SI template providing a single system, the old per-point tagging is no longer needed.
+		# We just push the results directly.
+		push!(full_target, target_k)
+		push!(full_varlist, varlist_k)
+		# Substitution dictionaries are not used in this path but are kept for API compatibility.
+		push!(forward_subst_dict, OrderedDict{Num, Any}())
+		push!(reverse_subst_dict, OrderedDict{Any, Num}())
 	end  #this is the end of the loop over the time points which just constructs the System
 	return full_target, full_varlist, forward_subst_dict, reverse_subst_dict
+end
+
+"""
+	handle_unidentifiability(si_template, diagnostics)
+
+Apply substitutions to the SI template to handle unidentifiable parameters.
+The number of parameters to fix is determined by the difference between the
+number of unidentifiable parameters and the number of independent identifiable functions.
+"""
+function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
+	template_equations = si_template.equations
+	unidentifiable_params = si_template.unidentifiable
+	identifiable_funcs = si_template.identifiable_funcs
+
+	# Use SI.jl internals to reduce identifiable functions to an independent set
+	id_funcs_indep_nemo = identifiable_funcs
+	try
+		# Prefer nested module if present; otherwise use top-level bindings
+		if hasproperty(StructuralIdentifiability, :RationalFunctionFields)
+			SIRFF = getproperty(StructuralIdentifiability, :RationalFunctionFields)
+			rff = SIRFF.RationalFunctionField(identifiable_funcs)
+			id_funcs_indep_nemo = SIRFF.beautiful_generators(rff)
+		else
+			# In some SI versions, RFF types/functions are defined at the top level
+			rff = StructuralIdentifiability.RationalFunctionField(identifiable_funcs)
+			id_funcs_indep_nemo = StructuralIdentifiability.beautiful_generators(rff)
+		end
+	catch e
+		if diagnostics
+			@warn "[DEBUG-SI] Failed to compute independent identifiable functions via RFF; using raw list" error = e
+		end
+	end
+
+	# Convert identifiable funcs (independent set) from Nemo to Symbolics for easier processing
+	nemo_to_mtk_map = Dict() # We don't have the full map here, so we'll build it as needed
+	symbolic_identifiable_funcs = []
+	for f in id_funcs_indep_nemo
+		push!(symbolic_identifiable_funcs, nemo_to_symbolics(f, nemo_to_mtk_map))
+	end
+
+	# Prepare state name hints if provided
+	state_base_names = Set{String}()
+	if states !== nothing
+		for s in states
+			name_str = string(s)
+			if endswith(name_str, "(t)")
+				name_str = name_str[1:(end-3)]
+			end
+			push!(state_base_names, name_str)
+		end
+	end
+
+	num_unidentifiable = length(unidentifiable_params)
+	if !isempty(unidentifiable_params)
+		if diagnostics
+			println("[DEBUG-SI] SI.jl found $num_unidentifiable unidentifiable params: $unidentifiable_params")
+			println("[DEBUG-SI] Using $(length(symbolic_identifiable_funcs)) independent identifiable functions for DOF analysis")
+		end
+		# Ensure we enter selection; we will refine the actual number to fix below
+		num_to_fix = length(unidentifiable_params)
+
+		if true
+			# Prefer fixing MODEL PARAMETERS over state initial conditions.
+			# Partition unidentifiable into parameter-like vs state-like using state name hints if available.
+			unident_params_only = Any[]
+			for p in unidentifiable_params
+				pstr = string(p)
+				if (states !== nothing) && (pstr in state_base_names)
+					continue
+				end
+				push!(unident_params_only, p)
+			end
+
+			# If no parameter remains to fix, return unchanged template
+			if isempty(unident_params_only)
+				return template_equations, (
+					equations = template_equations,
+					deriv_dict = si_template.deriv_dict,
+					unidentifiable = si_template.unidentifiable,
+					identifiable_funcs = si_template.identifiable_funcs,
+				)
+			end
+
+			# Build Symbolics variables for parameters (base names, no _0) for Jacobian
+			param_syms = [Symbolics.variable(Symbol(string(p))) for p in unident_params_only]
+
+			# Keep only identifiable functions that depend on at least one candidate param
+			funcs_filtered = [f for f in symbolic_identifiable_funcs if any(string(v) in Set(string.(unident_params_only)) for v in Symbolics.get_variables(f))]
+
+			# Determine number of DOFs to fix via Jacobian rank; fallback to one scaling DOF
+			params_to_fix = Any[]
+			if isempty(funcs_filtered)
+				num_to_fix = min(1, length(unident_params_only))
+				params_to_fix = unident_params_only[1:num_to_fix]
+			else
+				J_sym = Symbolics.jacobian(funcs_filtered, param_syms)
+				# Gather all variables in funcs to assign generic nonzero numeric values
+				all_vars = OrderedSet{Any}()
+				for f in funcs_filtered
+					union!(all_vars, Symbolics.get_variables(f))
+				end
+				val_dict = Dict{Any, Float64}()
+				for v in all_vars
+					val_dict[v] = 0.5 + rand()
+				end
+				J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
+				for i in 1:size(J_sym, 1)
+					for j in 1:size(J_sym, 2)
+						entry = Symbolics.substitute(J_sym[i, j], val_dict)
+						J_num[i, j] = Float64(Symbolics.value(entry))
+					end
+				end
+				F = LinearAlgebra.qr(J_num, LinearAlgebra.ColumnNorm())
+				R = Array(F.R)
+				tol = 1e-10 * maximum(size(J_num)) * (isempty(R) ? 0.0 : maximum(abs, diag(R)))
+				rnk = sum(abs.(diag(R)) .> tol)
+				num_to_fix = max(length(unident_params_only) - rnk, 0)
+				if num_to_fix > 0
+					cols_ordered = collect(F.p)
+					pivot_cols = Set(cols_ordered[1:rnk])
+					dof_cols = [j for j in 1:length(param_syms) if !(j in pivot_cols)]
+					for j in dof_cols
+						push!(params_to_fix, unident_params_only[j])
+						if length(params_to_fix) >= num_to_fix
+							break
+						end
+					end
+				end
+			end
+
+			if diagnostics
+				println("[DEBUG-SI] Independent identifiable funcs used: ", id_funcs_indep_nemo)
+				println("[DEBUG-SI] Choosing to fix $(length(params_to_fix)) parameter(s): ", params_to_fix)
+			end
+
+			# Apply substitutions for selected parameters (SI format uses _0 suffix)
+			if !isempty(params_to_fix)
+				fix_dict = Dict()
+				for param in params_to_fix
+					si_name = string(param) * "_0"
+					si_param = Symbolics.variable(Symbol(si_name))
+					fix_value = 1.0
+					fix_dict[si_param] = fix_value
+				end
+
+				if diagnostics
+					println("[DEBUG-SI] Applying substitutions to fix parameters: $fix_dict")
+				end
+
+				# Create a new template with the substituted equations
+				template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
+			end
+		end
+	end
+
+	# Return the (potentially modified) template_equations and the original si_template
+	# We update the equations in the template for consistency
+	new_si_template = (
+		equations = template_equations,
+		deriv_dict = si_template.deriv_dict, # old
+		unidentifiable = si_template.unidentifiable, # old
+		identifiable_funcs = si_template.identifiable_funcs, # old
+	)
+
+	return template_equations, new_si_template
 end
 
 function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode_solver; abstol = 1e-12, reltol = 1e-12)
@@ -827,9 +1011,11 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 	interpolated_values_dict = Dict()
 	if (!ideal)
 		for (key, value) in deriv_level
-			interpolated_values_dict[DD.obs_lhs[1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], 0, t_vector[time_index])
+			# Use TaylorDiff-based nth_deriv instead of recursive ForwardDiff
+			obs_interp = interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)]
+			interpolated_values_dict[DD.obs_lhs[1][key]] = nth_deriv(x -> obs_interp(x), 0, t_vector[time_index])
 			for i in 1:value
-				interpolated_values_dict[DD.obs_lhs[i+1][key]] = nth_deriv_at(interpolants[ModelingToolkit.diff2term(measured_quantities[key].rhs)], i, t_vector[time_index])
+				interpolated_values_dict[DD.obs_lhs[i+1][key]] = nth_deriv(x -> obs_interp(x), i, t_vector[time_index])
 			end
 		end
 	else
@@ -1024,6 +1210,101 @@ function lookup_value(var, var_search, soln_index::Int,
 	if isnothing(index)
 		index = findfirst(isequal(var_search), trimmed_varlist)
 	end
+
+	# Heuristic fallback: map model-style names to SI template names
+	if isnothing(index)
+		# Convert x(t) -> x_0, k5 -> k5_0, xˍt -> x_1, xˍtt -> x_2, etc.
+		try
+			# Unwrap Num or other wrappers to get the core symbol/expression
+			core = try
+				Symbolics.value(var_search)
+			catch
+				var_search
+			end
+			name_str = string(core)
+
+			# Strip special tags if present:
+			# - parameter tag: _tp<name>_
+			# - timepoint tag: _t<idx>_<name>_
+			while true
+				m = match(r"^_tp(.+)_$", name_str)
+				if !isnothing(m)
+					name_str = m.captures[1]
+					continue
+				end
+				m2 = match(r"^_t\d+_(.+)_$", name_str)
+				if !isnothing(m2)
+					name_str = m2.captures[1]
+					continue
+				end
+				break
+			end
+
+			# Remove trailing _t token introduced by tagging x(t) -> x_t
+			if endswith(name_str, "_t")
+				name_str = name_str[1:(end-2)]
+			end
+
+			# Strip (t)
+			if endswith(name_str, "(t)")
+				name_str = name_str[1:(end-3)]
+			end
+			# Count occurrences of the derivative marker "ˍt"
+			deriv_count = 0
+			while occursin("ˍt", name_str)
+				name_str = replace(name_str, "ˍt" => "")
+				deriv_count += 1
+			end
+			# If already has a _n suffix, keep it; otherwise append _n (parameters get _0)
+			has_suffix = occursin(r"_[0-9]+$", name_str)
+			suffix = has_suffix ? "" : string("_", deriv_count)
+			fallback_sym = Symbolics.variable(Symbol(name_str * suffix))
+			fallback_str = string(fallback_sym)
+
+			index = findfirst(isequal(fallback_sym), final_varlist)
+			if isnothing(index)
+				index = findfirst(isequal(fallback_sym), trimmed_varlist)
+			end
+
+			# Final string-based search as last resort
+			if isnothing(index)
+				idx_str = findfirst(i -> string(final_varlist[i]) == fallback_str, eachindex(final_varlist))
+				if !isnothing(idx_str)
+					index = idx_str
+				else
+					idx_str = findfirst(i -> string(trimmed_varlist[i]) == fallback_str, eachindex(trimmed_varlist))
+					if !isnothing(idx_str)
+						index = idx_str
+					end
+				end
+			end
+
+			# Extra base-name fallback: prefer `_0`, then any `_n`
+			if isnothing(index)
+				base_name = has_suffix ? replace(name_str, r"_[0-9]+$" => "") : name_str
+				preferred = base_name * "_0"
+				idx0 = findfirst(i -> string(final_varlist[i]) == preferred, eachindex(final_varlist))
+				if isnothing(idx0)
+					idx0 = findfirst(i -> string(trimmed_varlist[i]) == preferred, eachindex(trimmed_varlist))
+				end
+				if !isnothing(idx0)
+					index = idx0
+				else
+					idx_any = findfirst(i -> startswith(string(final_varlist[i]), base_name * "_"), eachindex(final_varlist))
+					if isnothing(idx_any)
+						idx_any = findfirst(i -> startswith(string(trimmed_varlist[i]), base_name * "_"), eachindex(trimmed_varlist))
+					end
+					if !isnothing(idx_any)
+						index = idx_any
+					end
+				end
+			end
+		catch
+			# Ignore fallback errors
+		end
+	end
+
+	# quiet: remove verbose debug prints
 
 	# Return the real part of the solution as a Float64
 	return Float64(real(solns[soln_index][index]))

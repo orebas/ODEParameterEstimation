@@ -26,13 +26,30 @@ function solve_with_nlopt(poly_system, varlist;
 	polish_only = false,
 	options = Dict())
 
+	# Check if we received Nemo polynomials instead of Symbolics expressions
+	if !isempty(poly_system) && poly_system[1] isa Nemo.QQMPolyRingElem
+		error("solve_with_nlopt received Nemo polynomials instead of Symbolics expressions. This suggests a conversion issue in SI.jl integration.")
+	end
+
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
 
 	# Define residual function for NonlinearLeastSquares
 	function residual!(res, u, p)
 		for (i, eq) in enumerate(prepared_system)
-			res[i] = real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u)))))
+			ddict = Dict(zip(mangled_varlist, u))
+
+			println("eq: $eq")
+			println("type of eq: $(typeof(eq))")
+			println("ddict: $ddict")
+			println("type of ddict: $(typeof(ddict))")
+
+			substres = Symbolics.substitute(eq, ddict)
+			symbval = Symbolics.value(substres)
+			realval = real(symbval)
+			println("realval: $realval")
+			println("type of realval: $(typeof(realval))")
+			res[i] = Float64(realval)
 		end
 	end
 
@@ -113,7 +130,7 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	# Define residual function for NonlinearLeastSquares
 	function residual!(res, u, p)
 		for (i, eq) in enumerate(prepared_system)
-			res[i] = real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u)))))
+			res[i] = Float64(real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u))))))
 		end
 	end
 
@@ -211,7 +228,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 			# Fallback Path: The original, allocation-heavy method
 			d = Dict(zip(mangled_varlist, u))
 			for i in 1:m
-				res[i] = real(Symbolics.value(Symbolics.substitute(prepared_system[i], d)))
+				res[i] = Float64(real(Symbolics.value(Symbolics.substitute(prepared_system[i], d))))
 			end
 		end
 	end
@@ -232,7 +249,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 
 	# Set solver options
 	solver_opts = if polish_only
-		(abstol = 1e-12, reltol = 1e-12, maxiters = 1000)
+		(abstol = 1e-13, reltol = 1e-13, maxiters = 1000)
 	else
 		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
 	end
@@ -308,7 +325,7 @@ function solve_with_nlopt_testing(poly_system, varlist;
 			d = Dict(zip(mangled_varlist, u))
 			@inbounds for i in 1:m
 				# Avoid `real(...)` so autodiff can work; assume expressions are real-valued.
-				res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
+				res[i] = Float64(Symbolics.value(Symbolics.substitute(prepared_system[i], d)))
 			end
 			nothing
 		end
@@ -646,6 +663,89 @@ function add_random_linear_equation_direct(poly_system, varlist)
 	new_poly_system = [poly_system; linear_equation]
 
 	return new_poly_system
+end
+
+
+"""
+	convert_to_hc_format(poly_system, varlist)
+
+Convert a polynomial system (as Symbolics expressions) to a HomotopyContinuation.System
+along with its variable list. This uses a lightweight string replacement strategy
+via `hmcs(::String)` to construct ModelKit variables deterministically.
+"""
+function convert_to_hc_format(poly_system, varlist)
+	# Convert expressions to strings and replace variable names with hmcs("name")
+	string_target = string.(poly_system)
+
+	# Sanitize variable names to be HC-friendly (alphanumeric and underscores)
+	sanitized = sanitize_vars(varlist)
+
+	# Build mapping from original variable string to hmcs("sanitized_name") placeholder
+	variable_string_mapping = Dict{String, String}()
+	for (i, v) in enumerate(varlist)
+		orig_name = string(v)
+		sanitized_name = sanitized[i]
+		variable_string_mapping[orig_name] = "hmcs(\"" * sanitized_name * "\")"
+	end
+
+	# Apply textual replacement so parsed expressions call hmcs(...) for variables
+	for i in eachindex(string_target)
+		string_target[i] = replace(string_target[i], variable_string_mapping...)
+	end
+
+	# Parse and eval into HC expressions; hmcs returns ModelKit.Variable
+	parsed = eval.(Meta.parse.(string_target))
+	HomotopyContinuation.set_default_compile(:all)
+
+	# Build variables list in the same order as varlist for consistent output
+	hc_variables = [HomotopyContinuation.ModelKit.Variable(Symbol(sanitized[i])) for i in eachindex(varlist)]
+
+	# Construct the system (variables are provided to preserve ordering)
+	hc_system = HomotopyContinuation.System(parsed, variables = hc_variables)
+
+	return hc_system, hc_variables
+end
+
+
+"""
+	solve_with_hc(poly_system, varlist; options=Dict(), use_monodromy=false, display_system=false)
+
+Solve a square polynomial system using HomotopyContinuation.jl. Returns the same
+tuple layout as other solvers: (solutions, hcvarlist, trivial_dict, trimmed_varlist).
+Solutions are vectors of Float64 in the order of `varlist`.
+"""
+function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = false, display_system = false)
+	try
+		# Convert to HC format
+		hc_system, hc_variables = convert_to_hc_format(poly_system, varlist)
+
+		if display_system
+			println("[HC] Solving system with $(length(poly_system)) equations and $(length(varlist)) variables")
+			println("[HC] System to be solved:")
+			println(hc_system)
+		end
+
+		# Solve (prefer real solutions first)
+		res = HomotopyContinuation.solve(hc_system, show_progress = false)
+		sols = HomotopyContinuation.solutions(res, only_real = true, real_tol = 1e-9)
+
+		# If no real solutions, allow complex and project to real parts
+		if isempty(sols)
+			sols = HomotopyContinuation.solutions(res)
+		end
+
+		# Map solutions to plain Float64 vectors in the same order as varlist
+		solutions = Vector{Vector{Float64}}()
+		for s in sols
+			vals = Float64[real(s[j]) for j in 1:length(hc_variables)]
+			push!(solutions, vals)
+		end
+
+		return solutions, varlist, Dict(), varlist
+	catch e
+		@warn "solve_with_hc failed: $e"
+		return [], varlist, Dict(), varlist
+	end
 end
 
 function solve_with_rs(poly_system, varlist;

@@ -1,5 +1,5 @@
 """
-    AbstractInterpolator
+	AbstractInterpolator
 
 Abstract type for interpolation function objects.
 All interpolators should be callable with a single argument and return the interpolated value.
@@ -96,7 +96,7 @@ function baryEval(z, f::Vector{T}, x::Vector{T}, w::Vector{T}, tol = 1e-13) wher
 end
 
 """
-    AAADapprox{T} <: AbstractInterpolator
+	AAADapprox{T} <: AbstractInterpolator
 
 Interpolator using AAA algorithm from BaryRational package.
 
@@ -104,11 +104,11 @@ Interpolator using AAA algorithm from BaryRational package.
 - `internalAAA::T`: Internal AAA representation from BaryRational
 """
 struct AAADapprox{T} <: AbstractInterpolator
-    internalAAA::T
+	internalAAA::T
 end
 
 """
-    FHDapprox{T} <: AbstractInterpolator
+	FHDapprox{T} <: AbstractInterpolator
 
 Interpolator using Floater-Hormann algorithm from BaryRational package.
 
@@ -116,11 +116,11 @@ Interpolator using Floater-Hormann algorithm from BaryRational package.
 - `internalFHD::T`: Internal Floater-Hormann representation from BaryRational
 """
 struct FHDapprox{T} <: AbstractInterpolator
-    internalFHD::T
+	internalFHD::T
 end
 
 """
-    GPRapprox <: AbstractInterpolator
+	GPRapprox <: AbstractInterpolator
 
 Interpolator using Gaussian Process Regression.
 
@@ -128,7 +128,7 @@ Interpolator using Gaussian Process Regression.
 - `gp_function::Function`: Callable function for evaluating the GPR prediction
 """
 struct GPRapprox <: AbstractInterpolator
-    gp_function::Function
+	gp_function::Function
 end
 
 # Define call methods for each interpolator type
@@ -139,9 +139,13 @@ end
 # AbstractInterpolator is defined at the top of the file
 
 """
-    nth_deriv_at(f, n::Int, t::Real) -> Real
+	nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n::Int, t::Real) -> Real
 
-Computes the nth derivative of function f at point t.
+DEPRECATED: This function uses recursive ForwardDiff which is inefficient for high-order derivatives.
+Use nth_deriv() instead, which uses TaylorDiff.
+
+Computes the nth derivative of function f at point t using recursive ForwardDiff.
+This becomes exponentially slow for n > 5 and may hang for n > 8.
 
 # Arguments
 - `f`: Function or interpolator to differentiate
@@ -151,22 +155,30 @@ Computes the nth derivative of function f at point t.
 # Returns
 - Value of the nth derivative of f at t
 """
-function nth_deriv_at(f, n::Int, t::Real)::Real
-    if n == 0
-        return f(t)
-    elseif n == 1
-        return ForwardDiff.derivative(f, t)
-    else
-        g(t) = nth_deriv_at(f, n - 1, t)
-        return ForwardDiff.derivative(g, t)
-    end
+function nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n::Int, t::Real)::Real
+	if n == 0
+		return f(t)
+	elseif n == 1
+		return ForwardDiff.derivative(f, t)
+	else
+		g(t) = nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n - 1, t)
+		return ForwardDiff.derivative(g, t)
+	end
 end
 
-# Add specific methods for interpolators
+# Deprecated: Add specific methods for interpolators
+nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f::AbstractInterpolator, n::Int, t::Real)::Real = nth_deriv_at_DEPRECATED_USE_NTH_DERIV(x -> f(x), n, t)
+
+# Keep nth_deriv_at as an alias to nth_deriv for backward compatibility but with a warning
+function nth_deriv_at(f, n::Int, t::Real)::Real
+	@warn "nth_deriv_at is deprecated due to inefficient recursive ForwardDiff. Using nth_deriv (TaylorDiff) instead." maxlog=1
+	return nth_deriv(f isa AbstractInterpolator ? (x -> f(x)) : f, n, t)
+end
+
 nth_deriv_at(f::AbstractInterpolator, n::Int, t::Real)::Real = nth_deriv_at(x -> f(x), n, t)
 
 """
-    nth_deriv(f::Function, n::Int, t::Real) -> Real
+	nth_deriv(f::Function, n::Int, t::Real) -> Real
 
 Computes the nth derivative of function f at point t using TaylorDiff.
 
@@ -179,15 +191,25 @@ Computes the nth derivative of function f at point t using TaylorDiff.
 - Value of the nth derivative of f at t
 """
 function nth_deriv(f::Function, n::Int, t::Real)::Real
-    if n == 0
-        return f(t)
-    else
-        return TaylorDiff.derivative(f, t, n)
-    end
+	if n == 0
+		return f(t)
+	end
+
+	# Prefer TaylorDiff for moderate orders; fall back for very high orders
+	if n <= 20
+		try
+			return TaylorDiff.derivative(f, t, Val(n))
+		catch e
+			# Fall through to robust fallback below
+		end
+	end
+
+	# Fallback: recursive ForwardDiff (slower, but avoids factorial overflow limits)
+	return nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n, t)
 end
 
 """
-    aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) -> AAADapprox
+	aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) -> AAADapprox
 
 Creates an interpolation function using AAA algorithm from BaryRational.
 
@@ -199,13 +221,13 @@ Creates an interpolation function using AAA algorithm from BaryRational.
 - AAADapprox interpolator object that can be called as a function
 """
 function aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T})::AAADapprox where {T}
-    @assert length(xs) == length(ys) "Input arrays must have same length"
-    internalApprox = BaryRational.aaa(xs, ys, verbose = false)
-    return AAADapprox(internalApprox)
+	@assert length(xs) == length(ys) "Input arrays must have same length"
+	internalApprox = BaryRational.aaa(xs, ys, verbose = false)
+	return AAADapprox(internalApprox)
 end
 
 """
-    aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool=false) -> AAADapprox
+	aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool=false) -> AAADapprox
 
 Standard interpolation function using AAA algorithm.
 The force_gpr parameter is kept for backward compatibility but is not used.
@@ -219,7 +241,7 @@ The force_gpr parameter is kept for backward compatibility but is not used.
 - AAADapprox interpolator object that can be called as a function
 """
 function aaad(xs::AbstractArray{T}, ys::AbstractArray{T}, force_gpr::Bool = false)::AAADapprox where {T}
-    return aaad_old_reliable(xs, ys)
+	return aaad_old_reliable(xs, ys)
 end
 
 
@@ -288,7 +310,7 @@ end
 ####################
 
 """
-    FourierSeries <: AbstractInterpolator
+	FourierSeries <: AbstractInterpolator
 
 Interpolator using Fourier series.
 
@@ -300,15 +322,15 @@ Interpolator using Fourier series.
 - `sines::Vector{Float64}`: Coefficients for sine terms
 """
 struct FourierSeries <: AbstractInterpolator
-    m::Float64
-    b::Float64
-    K::Float64
-    cosines::Vector{Float64}
-    sines::Vector{Float64}
+	m::Float64
+	b::Float64
+	K::Float64
+	cosines::Vector{Float64}
+	sines::Vector{Float64}
 end
 
 """
-    fourierEval(x::Real, FS::FourierSeries) -> Float64
+	fourierEval(x::Real, FS::FourierSeries) -> Float64
 
 Evaluates a Fourier series at a given point.
 
@@ -320,20 +342,20 @@ Evaluates a Fourier series at a given point.
 - Interpolated value at x
 """
 function fourierEval(x::Real, FS::FourierSeries)::Float64
-    z = FS.m * x + FS.b
-    result = FS.K
-    
-    # Sum cosine terms
-    for k in eachindex(FS.cosines)
-        result += FS.cosines[k] * cos((k) * z)
-    end
-    
-    # Sum sine terms
-    for k in eachindex(FS.sines)
-        result += FS.sines[k] * sin((k) * z)
-    end
-    
-    return result
+	z = FS.m * x + FS.b
+	result = FS.K
+
+	# Sum cosine terms
+	for k in eachindex(FS.cosines)
+		result += FS.cosines[k] * cos((k) * z)
+	end
+
+	# Sum sine terms
+	for k in eachindex(FS.sines)
+		result += FS.sines[k] * sin((k) * z)
+	end
+
+	return result
 end
 
 # Define call method for FourierSeries
@@ -453,7 +475,7 @@ end
 
 
 """
-    default_interpolator(datasize::Int) -> Dict{String, Function}
+	default_interpolator(datasize::Int) -> Dict{String, Function}
 
 Returns a dictionary of default interpolation functions based on data size.
 
@@ -464,24 +486,24 @@ Returns a dictionary of default interpolation functions based on data size.
 - Dictionary mapping interpolator names to interpolation functions
 """
 function default_interpolator(datasize::Int)::Dict{String, Function}
-    # Create dictionary with basic interpolators
-    interpolators = Dict{String, Function}(
-        "AAA" => aaad,
-        "GPR" => aaad_gpr_pivot,
-        "FHD3" => fhdn(3)
-    )
-    
-    # Add additional interpolators for larger datasets
-    if datasize > 10
-        interpolators["FHD8"] = fhdn(8)
-        
-        # Add Fourier interpolation for periodic data with enough points
-        if datasize > 20
-            interpolators["Fourier"] = FourierInterp
-        end
-    end
-    
-    return interpolators
+	# Create dictionary with basic interpolators
+	interpolators = Dict{String, Function}(
+		"AAA" => aaad,
+		"GPR" => aaad_gpr_pivot,
+		"FHD3" => fhdn(3),
+	)
+
+	# Add additional interpolators for larger datasets
+	if datasize > 10
+		interpolators["FHD8"] = fhdn(8)
+
+		# Add Fourier interpolation for periodic data with enough points
+		if datasize > 20
+			interpolators["Fourier"] = FourierInterp
+		end
+	end
+
+	return interpolators
 end
 
 
@@ -492,7 +514,7 @@ end
 
 
 """
-    aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) -> GPRapprox
+	aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) -> GPRapprox
 
 Creates an interpolation function using Gaussian Process Regression.
 Normalizes input data, applies GPR with optimized hyperparameters,
@@ -506,33 +528,33 @@ and returns a callable interpolator.
 - GPRapprox interpolator object that can be called as a function
 """
 function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox where {T}
-    @assert length(xs) == length(ys) "Input arrays must have same length"
+	@assert length(xs) == length(ys) "Input arrays must have same length"
 
-    # 1. Normalize y values
-    y_mean = mean(ys)
-    y_std = std(ys)
-    ys_normalized = (ys .- y_mean) ./ max(y_std, 1e-8)  # Avoid division by very small numbers
+	# 1. Normalize y values
+	y_mean = mean(ys)
+	y_std = std(ys)
+	ys_normalized = (ys .- y_mean) ./ max(y_std, 1e-8)  # Avoid division by very small numbers
 
-    # Configure initial GP hyperparameters
-    initial_lengthscale = log(std(xs) / 8)
-    initial_variance = 0.0
-    initial_noise = -2.0
+	# Configure initial GP hyperparameters
+	initial_lengthscale = log(std(xs) / 8)
+	initial_variance = 0.0
+	initial_noise = -2.0
 
-    # Add small amount of jitter to avoid numerical issues
-    kernel = SEIso(initial_lengthscale, initial_variance)
-    jitter = 1e-8
-    ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+	# Add small amount of jitter to avoid numerical issues
+	kernel = SEIso(initial_lengthscale, initial_variance)
+	jitter = 1e-8
+	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
 
-    # 2. Do GPR approximation on normalized data with suppressed warnings
-    local gp
-    @suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
-    @suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+	# 2. Do GPR approximation on normalized data with suppressed warnings
+	local gp
+	@suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	@suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
-    # Create a function that evaluates the GPR prediction and denormalizes the output
-    function denormalized_gpr(x)
-        pred, _ = predict_f(gp, [x])
-        return y_std * (pred[1]) + y_mean
-    end
+	# Create a function that evaluates the GPR prediction and denormalizes the output
+	function denormalized_gpr(x)
+		pred, _ = predict_f(gp, [x])
+		return y_std * (pred[1]) + y_mean
+	end
 
-    return GPRapprox(denormalized_gpr)
+	return GPRapprox(denormalized_gpr)
 end

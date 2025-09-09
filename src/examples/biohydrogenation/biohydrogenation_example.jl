@@ -62,10 +62,55 @@ pep = ParameterEstimationProblem(
 	0,
 )
 
+
+#println("\n" * "="^40)
+#println("RUNNING WITH OLD ParameterEstimation.jl")
+#println("="^40 * "\n")
+
+# --- Code adapted from user for ParameterEstimation.jl ---
+pe_solver = Vern9()
+
+@named pe_model = ODESystem([
+		D(x4) ~ - k5 * x4 / (k6 + x4),
+		D(x5) ~ k5 * x4 / (k6 + x4) - k7 * x5/(k8 + x5 + x6),
+		D(x6) ~ k7 * x5 / (k8 + x5 + x6) - k9 * x6 * (k10 - x6) / k10,
+		D(x7) ~ k9 * x6 * (k10 - x6) / k10,
+	], t, states, parameters)
+
+p_constraints = Dict((k5=>(0.0, 1.0)), (k6=>(0.0, 1.0)), (k7=>(0.0, 1.0)), (k8=>(0.0, 1.0)), (k9=>(0.0, 1.0)), (k10=>(0.0, 1.0)))
+ic_constraints = Dict((x4=>(0.0, 1.0)), (x5=>(0.0, 1.0)), (x6=>(0.0, 1.0)), (x7=>(0.0, 1.0)))
+
+#=
+@time pe_res = ParameterEstimation.estimate(pe_model, measured_quantities, data_sample;
+	solver = pe_solver, interpolators = Dict("AAA" => ParameterEstimation.aaad), parameter_constraints = p_constraints, ic_constraints = ic_constraints)
+
+if !isempty(pe_res)
+	pe_table = merge(
+		Dict((string(x) => [each.states[x] for each in pe_res] for x in states)),
+		Dict((string(x) => [each.parameters[x] for each in pe_res] for x in parameters)),
+	)
+
+	pe_result_file = joinpath(@__DIR__, "result_pe.csv")
+	CSV.write(pe_result_file, pe_table, header = string.(collect(keys(pe_table))))
+
+	println("\nParameterEstimation.jl complete!")
+	println("Results saved to: ", pe_result_file)
+	println("Number of solutions found: ", length(pe_res))
+	println("\nBest solution from PE:")
+	best_pe_sol = pe_res[1]
+	println("  States: ", best_pe_sol.states)
+	println("  Parameters: ", best_pe_sol.parameters)
+else
+	println("\nParameterEstimation.jl found no solutions.")
+end
+=#
+
+
 meta, results = analyze_parameter_estimation_problem(
 	pep,
-	nooutput = true,
-	shooting_points = 0,  # Use single point at 0.5 (midpoint)
+	nooutput = false,
+	  # Use single point at 0.5 (midpoint)
+	system_solver = solve_with_hc
 )
 
 (solutions_vector, besterror,
@@ -94,44 +139,4 @@ if !isempty(solutions_vector)
 	println("  States: ", best_sol.states)
 	println("  Parameters: ", best_sol.parameters)
 	println("  Error: ", besterror)
-end
-
-println("\n" * "="^40)
-println("RUNNING WITH OLD ParameterEstimation.jl")
-println("="^40 * "\n")
-
-# --- Code adapted from user for ParameterEstimation.jl ---
-pe_solver = Tsit5()
-
-@named pe_model = ODESystem([
-		D(x4) ~ - k5 * x4 / (k6 + x4),
-		D(x5) ~ k5 * x4 / (k6 + x4) - k7 * x5/(k8 + x5 + x6),
-		D(x6) ~ k7 * x5 / (k8 + x5 + x6) - k9 * x6 * (k10 - x6) / k10,
-		D(x7) ~ k9 * x6 * (k10 - x6) / k10,
-	], t, states, parameters)
-
-p_constraints = Dict((k5=>(0.0, 1.0)), (k6=>(0.0, 1.0)), (k7=>(0.0, 1.0)), (k8=>(0.0, 1.0)), (k9=>(0.0, 1.0)), (k10=>(0.0, 1.0)))
-ic_constraints = Dict((x4=>(0.0, 1.0)), (x5=>(0.0, 1.0)), (x6=>(0.0, 1.0)), (x7=>(0.0, 1.0)))
-
-@time pe_res = ParameterEstimation.estimate(pe_model, measured_quantities, data_sample;
-	solver = pe_solver, interpolators = Dict("AAA" => ParameterEstimation.aaad), parameter_constraints = p_constraints, ic_constraints = ic_constraints)
-
-if !isempty(pe_res)
-	pe_table = merge(
-		Dict((string(x) => [each.states[x] for each in pe_res] for x in states)),
-		Dict((string(x) => [each.parameters[x] for each in pe_res] for x in parameters)),
-	)
-
-	pe_result_file = joinpath(@__DIR__, "result_pe.csv")
-	CSV.write(pe_result_file, pe_table, header = string.(collect(keys(pe_table))))
-
-	println("\nParameterEstimation.jl complete!")
-	println("Results saved to: ", pe_result_file)
-	println("Number of solutions found: ", length(pe_res))
-	println("\nBest solution from PE:")
-	best_pe_sol = pe_res[1]
-	println("  States: ", best_pe_sol.states)
-	println("  Parameters: ", best_pe_sol.parameters)
-else
-	println("\nParameterEstimation.jl found no solutions.")
 end

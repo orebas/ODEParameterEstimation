@@ -8,7 +8,8 @@ Higher derivatives with significant values indicate more dynamic behavior.
 function compute_derivative_score(interpolant, t, max_deriv = 3)
 	score = 0.0
 	for i in 1:max_deriv
-		deriv = abs(nth_deriv_at(interpolant, i, t))
+		# Use TaylorDiff-based nth_deriv instead of recursive ForwardDiff
+		deriv = abs(ODEParameterEstimation.nth_deriv(x -> interpolant(x), i, t))
 		# Weight higher derivatives less
 		score += deriv / (2^i)
 	end
@@ -22,9 +23,9 @@ Compute a score indicating proximity to local extrema.
 Returns higher scores for points closer to extrema.
 """
 function find_local_extrema_score(interpolant, t, Δt = 1e-3)
-	first_deriv = nth_deriv_at(interpolant, 1, t)
+	first_deriv = ODEParameterEstimation.nth_deriv(x -> interpolant(x), 1, t)
 	if abs(first_deriv) < 1e-10  # Potential extremum
-		second_deriv = nth_deriv_at(interpolant, 2, t)
+		second_deriv = ODEParameterEstimation.nth_deriv(x -> interpolant(x), 2, t)
 		if abs(second_deriv) > 1e-10  # Confirm it's an extremum
 			return 1.0
 		end
@@ -39,9 +40,9 @@ Compute a score indicating proximity to inflection points.
 Returns higher scores for points closer to inflection points.
 """
 function compute_inflection_score(interpolant, t, Δt = 1e-3)
-	second_deriv = nth_deriv_at(interpolant, 2, t)
+	second_deriv = ODEParameterEstimation.nth_deriv(x -> interpolant(x), 2, t)
 	if abs(second_deriv) < 1e-10  # Potential inflection point
-		third_deriv = nth_deriv_at(interpolant, 3, t)
+		third_deriv = ODEParameterEstimation.nth_deriv(x -> interpolant(x), 3, t)
 		if abs(third_deriv) > 1e-10  # Confirm it's an inflection point
 			return 1.0
 		end
@@ -57,7 +58,7 @@ Higher scores indicate more variable regions.
 """
 function compute_variability_score(interpolant, t, window = 0.1)
 	try
-		derivatives = [nth_deriv_at(interpolant, 1, t + δ) for δ in -window:window/10:window]
+		derivatives = [ODEParameterEstimation.nth_deriv(x -> interpolant(x), 1, t + δ) for δ in -window:window/10:window]
 		return std(derivatives)
 	catch
 		return 0.0

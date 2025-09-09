@@ -854,14 +854,16 @@ function build_equations_at_time_point(
 			if !isempty(interpolants)
 				if haskey(interpolants, obs_rhs)
 					interp_func = interpolants[obs_rhs]
-					interp_value = nth_deriv_at(interp_func, deriv_level, time_point)
+					# Use TaylorDiff-based nth_deriv instead of recursive ForwardDiff
+					interp_value = ODEParameterEstimation.nth_deriv(x -> interp_func(x), deriv_level, time_point)
 					push!(equations, rhs_expr - interp_value)
 				else
 					# Try with the LHS wrapped
 					obs_lhs_wrapped = Symbolics.wrap(measured_quantities[obs_idx].lhs)
 					if haskey(interpolants, obs_lhs_wrapped)
 						interp_func = interpolants[obs_lhs_wrapped]
-						interp_value = nth_deriv_at(interp_func, deriv_level, time_point)
+						# Use TaylorDiff-based nth_deriv instead of recursive ForwardDiff
+						interp_value = ODEParameterEstimation.nth_deriv(x -> interp_func(x), deriv_level, time_point)
 						push!(equations, rhs_expr - interp_value)
 					else
 						# No interpolant - just use the equation as is for testing
@@ -935,7 +937,7 @@ function solve_at_shooting_point(
 		println("  Solver function: $(nameof(solver_func))")
 		println("  Number of equations: $(length(equations))")
 		println("  Number of variables: $(length(template.solve_variables))")
-		
+
 		# Check equations for NaN/Inf before solving
 		for (i, eq) in enumerate(equations)
 			try
@@ -948,14 +950,14 @@ function solve_at_shooting_point(
 				# Equation might contain variables, that's ok
 			end
 		end
-		
+
 		# Pass debug flag if solver supports it
 		solutions, hc_vars, trivial_dict, trimmed_vars = if solver_func == solve_with_rs_new
 			solver_func(equations, template.solve_variables; debug = debug_cas_diagnostics)
 		else
 			solver_func(equations, template.solve_variables)
 		end
-		
+
 		if debug_cas_diagnostics
 			println("  Solver returned $(length(solutions)) solution(s)")
 			if !isempty(solutions)
@@ -976,21 +978,21 @@ function solve_at_shooting_point(
 				end
 			end
 		end
-		
+
 		return solutions, trivial_dict
 	catch e
 		if debug_cas_diagnostics
 			println("\nERROR: Failed to solve at time point $time_point")
 			println("  Exception type: $(typeof(e))")
 			println("  Exception message: $e")
-			
+
 			# Print detailed stack trace
 			println("\nDetailed stack trace:")
 			for (exc, bt) in Base.catch_stack()
 				showerror(stdout, exc, bt)
 				println()
 			end
-			
+
 			# Print the equations that failed
 			println("\nFailed equations:")
 			for (i, eq) in enumerate(equations)
@@ -1000,7 +1002,7 @@ function solve_at_shooting_point(
 		else
 			@warn "Failed to solve at time point $time_point: $e"
 		end
-		
+
 		return [], OrderedDict()
 	end
 end
@@ -1017,7 +1019,7 @@ Drop-in replacement for multishot_parameter_estimation.
 """
 function optimized_multishot_parameter_estimation(
 	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_rs_new,
+	system_solver = nothing,
 	max_num_points = 1,  # Ignored - we don't do multipoint
 	interpolator = nothing,  # Will use default if not specified
 	nooutput = false,
@@ -1030,6 +1032,8 @@ function optimized_multishot_parameter_estimation(
 	debug_solver = false,
 	debug_cas_diagnostics = false,
 	debug_dimensional_analysis = false,
+	use_adaptive_id = nothing,
+	use_si_template = true,
 )
 	# Check input validity
 	if isnothing(PEP.data_sample)
@@ -1041,7 +1045,231 @@ function optimized_multishot_parameter_estimation(
 		interpolator = aaad_gpr_pivot
 	end
 
-	# DEBUG: Show the original ODE system
+	# Fast path: Use SI template exactly like the standard flow, but reuse it for all selected
+	# shooting points in this run. This mirrors PE.jl construction.
+	if use_si_template
+		# Get common setup (derivative levels, udict, varlist, DD, interpolants)
+		setup_data = setup_parameter_estimation(
+			PEP,
+			max_num_points = 1,
+			point_hint = 0.5,
+			nooutput = nooutput,
+			interpolator = interpolator,
+		)
+
+		states = setup_data.states
+		params = setup_data.params
+		t_vector = setup_data.t_vector
+		interpolants = setup_data.interpolants
+		good_deriv_level = setup_data.good_deriv_level
+		good_udict = setup_data.good_udict
+		good_varlist = setup_data.good_varlist
+		good_DD = setup_data.good_DD
+
+		# Build the SI template ONCE and reuse
+		ordered_model = isa(PEP.model.system, OrderedODESystem) ? PEP.model.system : OrderedODESystem(PEP.model.system, states, params)
+		template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
+			ordered_model,
+			PEP.measured_quantities,
+			PEP.data_sample;
+			DD = good_DD,
+			infolevel = diagnostics ? 1 : 0,
+		)
+		si_template = (
+			equations = template_equations,
+			deriv_dict = derivative_dict,
+			unidentifiable = unidentifiable,
+			identifiable_funcs = identifiable_funcs,
+		)
+		# Handle unidentifiability once
+		template_equations, si_template = handle_unidentifiability(si_template, diagnostics)
+
+		# Enable default system saving for SI-template path and save template once
+		save_system = true
+		if save_system
+			vars_in_template = Symbolics.get_variables.(template_equations)
+			varset = Set{Any}()
+			for vs in vars_in_template
+				for v in vs
+					push!(varset, v)
+				end
+			end
+			varlist_template = collect(varset)
+			save_filepath_tpl = joinpath("saved_systems", "si_template_$(now()).jl")
+			mkpath(dirname(save_filepath_tpl))
+			save_poly_system(save_filepath_tpl, template_equations, varlist_template,
+				metadata = Dict(
+					"timestamp" => string(now()),
+					"num_equations" => length(template_equations),
+					"num_variables" => length(varlist_template),
+					"description" => "StructuralIdentifiability template polynomial system",
+				),
+			)
+			if !nooutput
+				@info "Saved SI template to $(save_filepath_tpl)"
+			end
+		end
+
+		# Select shooting points (reuse non-SI logic)
+		if shooting_points == 0
+			# Single midpoint
+			mid = max(1, min(length(t_vector), round(Int, 0.499 * length(t_vector))))
+			point_indices = [mid]
+			n_points = 1
+		else
+			n_points = min(shooting_points, length(t_vector))
+			if length(t_vector) <= 2
+				point_indices = [1]
+			elseif n_points == 1
+				point_indices = [1]
+			elseif n_points == 2
+				point_indices = [1, length(t_vector)]
+			else
+				point_indices = round.(Int, range(1, length(t_vector), length = n_points))
+			end
+		end
+
+		if !nooutput
+			if n_points == 1
+				println("Phase 3: Solving system using SI template at a single shooting point (t=$(t_vector[point_indices[1]]))...")
+			else
+				println("Phase 3: Solving at $n_points shooting points using a reused SI template...")
+			end
+		end
+
+		# Iterate through shooting points, instantiating the template and solving independently at each
+		# Enable default system saving for SI-template path (matches classic flow behavior)
+		save_system = true
+		all_solutions = []
+		all_hc_vars = []
+		all_trivial_dicts = []
+		all_trimmed_vars = []
+		all_forward_subst_dicts = []
+		all_reverse_subst_dicts = []
+		all_final_varlists = []
+		solution_time_indices = Int[]
+
+		for point_idx in point_indices
+			if diagnostics
+				println("\n--- Solving at shooting point index: $point_idx (t=$(t_vector[point_idx])) ---")
+			end
+
+			# Instantiate the SI template at this time point
+			target_k, varlist_k = construct_equation_system_from_si_template(
+				PEP.model.system,
+				PEP.measured_quantities,
+				PEP.data_sample,
+				good_deriv_level,
+				good_udict,
+				good_varlist,
+				good_DD;
+				interpolator = interpolator,
+				time_index_set = [point_idx],
+				precomputed_interpolants = interpolants,
+				diagnostics = diagnostics,
+				si_template = si_template,
+			)
+
+			final_target = target_k
+			final_varlist_point = varlist_k
+
+			# Optional: save system for debugging (mirror classic flow behavior)
+			if save_system
+				# Save the instantiated polynomial system for this shooting point
+				save_filepath = "saved_systems/system_point_$(point_idx)_$(now()).jl"
+				mkpath(dirname(save_filepath))
+				save_poly_system(
+					save_filepath,
+					final_target,
+					final_varlist_point,
+					metadata = Dict(
+						"timestamp" => string(now()),
+						"num_equations" => length(final_target),
+						"num_variables" => length(final_varlist_point),
+						"shooting_point_index" => point_idx,
+						"time" => t_vector[point_idx],
+						"deriv_level" => good_deriv_level,
+						"description" => "SI-template instantiated system",
+					),
+				)
+				# Also save a simple text version
+				txt_filepath = replace(save_filepath, ".jl" => ".txt")
+				open(txt_filepath, "w") do f
+					println(f, "# Polynomial System (SI template)")
+					println(f, "# Shooting point index: ", point_idx, ", t=", t_vector[point_idx])
+					println(f, "# Equations: ", length(final_target))
+					println(f, "# Variables: ", length(final_varlist_point))
+					println(f, "# Variables list: ", final_varlist_point)
+					println(f, "\n# Equations:")
+					for (i, eq) in enumerate(final_target)
+						println(f, "Eq", i, ": ", eq)
+					end
+				end
+				@info "Saved SI-template system to $save_filepath"
+			end
+
+			# Solve for this point
+			solver_options = Dict(
+				:debug_solver => debug_solver,
+				:debug_cas_diagnostics => debug_cas_diagnostics,
+				:debug_dimensional_analysis => debug_dimensional_analysis,
+			)
+			solutions, hc_vars, trivial_dict, trimmed_vars = system_solver(final_target, final_varlist_point; options = solver_options)
+
+			append!(all_solutions, solutions)
+			for _ in 1:length(solutions)
+				push!(solution_time_indices, point_idx)
+			end
+			all_hc_vars = hc_vars
+			push!(all_trivial_dicts, trivial_dict)
+			push!(all_forward_subst_dicts, OrderedDict{Num, Any}())
+			push!(all_reverse_subst_dicts, OrderedDict{Any, Num}())
+			all_trimmed_vars = trimmed_vars
+			all_final_varlists = final_varlist_point
+		end
+
+		# Merge and finalize
+		solutions = all_solutions
+		hc_vars = all_hc_vars
+		trivial_dict = merge(all_trivial_dicts...)
+		trimmed_vars = all_trimmed_vars
+		forward_subst_dict = isempty(all_forward_subst_dicts) ? [OrderedDict{Num, Any}()] : [all_forward_subst_dicts[1]]
+		reverse_subst_dict = isempty(all_reverse_subst_dicts) ? [OrderedDict{Any, Num}()] : [all_reverse_subst_dicts[1]]
+		final_varlist = all_final_varlists
+
+		if !nooutput
+			println("Found $(length(solutions)) solutions total")
+		end
+
+		# Package as solution_data compatible with process_estimation_results
+		solution_data = (
+			solns = solutions,
+			hcvarlist = hc_vars,
+			trivial_dict = trivial_dict,
+			trimmed_varlist = trimmed_vars,
+			forward_subst_dict = forward_subst_dict,
+			reverse_subst_dict = reverse_subst_dict,
+			final_varlist = final_varlist,
+			good_udict = good_udict,
+			solution_time_indices = solution_time_indices,
+		)
+
+		# Reuse existing processing pipeline
+		solved_res = process_estimation_results(
+			PEP,
+			solution_data,
+			setup_data;
+			nooutput = nooutput,
+			polish_solutions = polish_solutions,
+			polish_maxiters = polish_maxiters,
+			polish_method = polish_method,
+		)
+
+		# The return signature is designed for compatibility with other workflows
+		return (solved_res, good_udict, trivial_dict, setup_data.all_unidentifiable)
+	end
+
+	# DEBUG: Show the original ODE System
 	if debug_cas_diagnostics
 		println("\nDEBUG: Original ODE System:")
 		t, eqns, states, params = unpack_ODE(PEP.model.system)
@@ -1070,10 +1298,20 @@ function optimized_multishot_parameter_estimation(
 	if !nooutput
 		println("Phase 2: Analyzing identifiability...")
 	end
+	# Determine whether to use adaptive (RUR-based) identifiability. By default,
+	# enable only for the RS-based solver and disable for homotopy to avoid Groebner.
+	if isnothing(use_adaptive_id)
+		use_adaptive_id = (system_solver == solve_with_rs_new)
+	end
+
 	deriv_levels, fixed_params, ident_vars, all_unidentifiable = analyze_identifiability(
 		precomputed, PEP.model, PEP.measured_quantities, PEP.data_sample;
+		use_adaptive = use_adaptive_id,
 		debug_cas_diagnostics = debug_cas_diagnostics,
 	)
+
+	# Ensure OrderedDict type for create_equation_template signature
+	deriv_levels = OrderedDict(deriv_levels)
 
 	template = create_equation_template(
 		precomputed, deriv_levels, fixed_params, ident_vars, all_unidentifiable, PEP.model, PEP.measured_quantities;
@@ -1098,17 +1336,24 @@ function optimized_multishot_parameter_estimation(
 	all_trivial_dicts = []
 
 	# Create shooting points across time interval
-	n_points = min(shooting_points, length(t_vector))
-	# Handle edge case when t_vector has only 2 points
-	if length(t_vector) <= 2
-		point_indices = [1]  # Just use the first point
-	elseif n_points == 1
-		point_indices = [1]  # Use first point (t=0)
-	elseif n_points == 2
-		point_indices = [1, length(t_vector)]  # Use both endpoints
+	if shooting_points == 0
+		# Special case: single shooting point near the midpoint (match old flow intent)
+		mid = max(1, min(length(t_vector), round(Int, 0.499 * length(t_vector))))
+		point_indices = [mid]
+		n_points = 1
 	else
-		# Include both endpoints and distribute remaining points evenly
-		point_indices = round.(Int, range(1, length(t_vector), length = n_points))
+		n_points = min(shooting_points, length(t_vector))
+		# Handle edge case when t_vector has only 2 points
+		if length(t_vector) <= 2
+			point_indices = [1]  # Just use the first point
+		elseif n_points == 1
+			point_indices = [1]  # Use first point (t=0)
+		elseif n_points == 2
+			point_indices = [1, length(t_vector)]  # Use both endpoints
+		else
+			# Include both endpoints and distribute remaining points evenly
+			point_indices = round.(Int, range(1, length(t_vector), length = n_points))
+		end
 	end
 
 	if !nooutput
@@ -1197,136 +1442,6 @@ function optimized_multishot_parameter_estimation(
 	# Return in the expected format
 	# IMPORTANT: Return all_unidentifiable from the identifiability analysis, not just fixed_params keys
 	return (all_solutions, fixed_params, merged_trivial, all_unidentifiable)
-end
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
-
-"""
-	process_single_solution(sol, template, PEP, time_point, time_index, trivial_dict)
-
-Convert a raw solution into a ParameterEstimationResult.
-"""
-function process_single_solution(
-	sol::AbstractDict,  # Can be Dict or OrderedDict
-	template::EquationTemplate,
-	PEP::ParameterEstimationProblem,
-	time_point::Float64,
-	time_index::Int,
-	trivial_dict::Dict,
-)
-	t, eqns, states, params = unpack_ODE(PEP.model.system)
-
-	# Extract parameters and states from solution
-	param_values = OrderedDict()
-	state_values = OrderedDict()
-
-	# Get parameters
-	for p in params
-		if haskey(template.fixed_params, p)
-			param_values[p] = template.fixed_params[p]
-		elseif haskey(sol, p)
-			param_values[p] = real(sol[p])
-		elseif haskey(trivial_dict, p)
-			param_values[p] = real(trivial_dict[p])
-		else
-			@debug "Parameter $p not found in solution"
-			return nothing
-		end
-	end
-
-	# Get states at the time point
-	for s in states
-		if haskey(sol, s)
-			state_values[s] = real(sol[s])
-		elseif haskey(trivial_dict, s)
-			state_values[s] = real(trivial_dict[s])
-		elseif haskey(template.fixed_params, s)
-			# Some states may be fixed due to unidentifiability
-			state_values[s] = template.fixed_params[s]
-		else
-			@debug "State $s not found in solution"
-			return nothing
-		end
-	end
-
-	# Backward integrate to get initial conditions
-	try
-		# Use the existing model from PEP
-		t_vector = PEP.data_sample["t"]
-		tspan = (time_point, t_vector[1])
-
-		u0_map = OrderedDict(states .=> collect(values(state_values)))
-		p_map = OrderedDict(params .=> collect(values(param_values)))
-
-		# Use the existing completed model from PEP
-		prob = ModelingToolkit.ODEProblem(PEP.model.system, merge(u0_map, p_map), tspan)
-		ode_solution = ModelingToolkit.solve(prob, PEP.solver, abstol = 1e-14, reltol = 1e-14)
-
-		# Extract initial conditions
-		# Create mapping to handle state variable names
-		state_param_map = OrderedDict(x => replace(string(x), "(t)" => "")
-															  for x in states)
-
-		initial_states = OrderedDict()
-		for s in states
-			initial_states[s] = ode_solution[Symbol(state_param_map[s])][end]
-		end
-
-		# Calculate error by forward solving and comparing to data
-		forward_tspan = (t_vector[1], t_vector[end])
-		forward_u0 = OrderedDict(states .=> collect(values(initial_states)))
-		forward_prob = ModelingToolkit.ODEProblem(PEP.model.system, merge(forward_u0, p_map), forward_tspan)
-		forward_sol = ModelingToolkit.solve(forward_prob, PEP.solver, abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
-
-		# Calculate error by comparing with data
-		total_error = 0.0
-
-		# Use the same approach as the OLD workflow in process_raw_solution
-		# IMPORTANT: Use forward_sol(t_vector)[key] syntax which allows ModelingToolkit
-		# to handle the mapping from measured quantities to state variables
-		if forward_sol.retcode == ReturnCode.Success
-			total_error = 0.0
-			for (key, sample) in PEP.data_sample
-				if isequal(key, "t")
-					continue
-				end
-				# Use the same syntax as OLD workflow: ode_solution(data_sample["t"])[key]
-				# This allows ModelingToolkit to handle the mapping from measured quantities to states
-				total_error += norm((forward_sol(PEP.data_sample["t"])[key]) .- sample) / length(PEP.data_sample["t"])
-			end
-			# Normalize by total number of data entries (excluding "t")
-			total_error /= length(PEP.data_sample)
-		else
-			total_error = 1e15  # Large error for failed solutions
-		end
-
-		# Create result
-		result = ParameterEstimationResult(
-			param_values,
-			initial_states,
-			time_point,
-			total_error,
-			:success,
-			length(t_vector),
-			time_point,
-			template.fixed_params,
-			template.all_unidentifiable,
-			forward_sol,
-		)
-
-		return result
-
-	catch e
-		@warn "Failed to process solution: $e"
-		@warn "Stacktrace:"
-		for (exc, bt) in Base.catch_stack()
-			showerror(stderr, exc, bt)
-			println(stderr)
-		end
-		return nothing
-	end
 end
 
 # Export the main function

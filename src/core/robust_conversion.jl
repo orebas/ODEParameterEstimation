@@ -2,8 +2,8 @@ using Symbolics
 using SymbolicUtils
 using AbstractAlgebra
 using RationalUnivariateRepresentation
-import RS
-import PolynomialRoots
+using RS: RS
+using PolynomialRoots: PolynomialRoots
 
 # The parent module functions will be available when this file is included
 
@@ -253,7 +253,7 @@ function solve_with_rs_new(poly_system, varlist;
 			println("  Input system has $(length(poly_system)) equations")
 			println("  Solving for $(length(varlist)) variables: $varlist")
 		end
-		
+
 		# Clear all denominators before converting to AA polynomials
 		cleared_system = [clear_denoms(eq) for eq in poly_system]
 		if debug
@@ -314,7 +314,7 @@ function solve_with_rs_new(poly_system, varlist;
 				# Compute derivative of f1 at root for reconstruction
 				f1 = univariate_poly
 				f1_deriv = sum((i-1) * f1[i] * root^(i-2) for i in 2:length(f1))
-				
+
 				if debug
 					println("    Root $root_idx: $root, f1_deriv = $f1_deriv")
 				end
@@ -336,16 +336,16 @@ function solve_with_rs_new(poly_system, varlist;
 						poly = rur[idx+1]
 						value = sum(poly[i] * root^(i-1) for i in 1:length(poly))
 						reconstructed = value / f1_deriv
-						
+
 						if debug
 							println("      Variable $(var): value=$value, reconstructed=$reconstructed")
 						end
-						
+
 						# Check for NaN or Inf
 						if isnan(reconstructed) || isinf(reconstructed)
 							if debug
 								println("      WARNING: NaN or Inf in reconstruction, skipping this root")
-						end
+							end
 							solution = Float64[]  # Clear solution array
 							break  # Skip this entire root
 						end
@@ -372,7 +372,7 @@ function solve_with_rs_new(poly_system, varlist;
 					end
 				end
 			end
-			
+
 			if debug
 				println("  Total valid solutions: $valid_solutions")
 			end

@@ -124,6 +124,7 @@ function multishot_parameter_estimation(
 	polish_maxiters = 20,
 	polish_method = NewtonTrustRegion,
 	shooting_points = 10,
+	max_reconstruction_attempts = 10,
 )
 	# Initialize empty arrays to store all solutions and metadata
 	all_solutions = []
