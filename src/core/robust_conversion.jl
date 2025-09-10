@@ -1,9 +1,9 @@
-using Symbolics
-using SymbolicUtils
-using AbstractAlgebra
-using RationalUnivariateRepresentation
-using RS: RS
-using PolynomialRoots: PolynomialRoots
+#using Symbolics
+#using SymbolicUtils
+#using AbstractAlgebra
+#using RationalUnivariateRepresentation
+#using RS: RS
+#using PolynomialRoots: PolynomialRoots
 
 # The parent module functions will be available when this file is included
 

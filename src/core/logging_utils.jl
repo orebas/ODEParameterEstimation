@@ -1,4 +1,3 @@
-using Logging
 
 """
     configure_logging(level=Logging.Info)

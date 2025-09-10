@@ -55,7 +55,7 @@ function crauste()
 		model,
 		mq,
 		nothing,
-		[0.0, 25.0],  # recommended timescale: 100 days for cell population dynamics
+		[0.0, 1.0],  # recommended timescale: 100 days for cell population dynamics
 		nothing,  # solver
 		OrderedDict(parameters .=> p_true),
 		OrderedDict(states .=> ic_true),
@@ -306,10 +306,10 @@ function lv_periodic()
 end
 
 function slowfast()
-	parameters = @parameters k1 k2 eB
+	parameters = @parameters k1 k2 # eB
 	states = @variables xA(t) xB(t) xC(t) eA(t) eC(t) eB(t)
 	observables = @variables y1(t) y2(t) y3(t) y4(t)
-	p_true = [0.25, 0.5, 0.75]
+	p_true = [0.25, 0.5] #, 0.75]
 	ic_true = [0.166, 0.333, 0.5, 0.666, 0.833, 0.75]
 
 	equations = [

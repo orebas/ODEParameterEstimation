@@ -329,28 +329,14 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	)
 end
 
-function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; interpolator = aaad_gpr_pivot,
-	max_num_points = 1, nooutput = false, system_solver = solve_with_rs, abstol = 1e-14, reltol = 1e-14,
-	trap_debug = false, diagnostics = true, polish_method = NewtonTrustRegion, polish_maxiters = 10, try_more_methods = true, shooting_points = 8, use_new_flow = true,
-	max_reconstruction_attempts = 10, use_si_template = true)  #try_more_methods = true
-	#if trap_debug
-	#	timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-	#	filename = "PEP_debug_$(timestamp).log"
-	#	open(filename, "w") do log_file
-	#		redirect_stdout(log_file) do
-	#	println("Trap debug enabled. Saving diagnostic output to: ", filename)
-	# Prepare diagnostic_data: merge true parameter values and initial conditions
-
-
-	if !nooutput
+function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Extract needed values from opts
+	system_solver = get_solver_function(opts.system_solver)
+	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+	polish_method = get_polish_optimizer(opts.polish_method)
+	
+	if !opts.nooutput
 		println("Starting model: ", PEP.name)
-	end
-
-	if system_solver == nothing
-		system_solver = solve_with_rs
-	end
-	if interpolator == nothing
-		interpolator = aaad_gpr_pivot
 	end
 
 	# Initialize variables outside try blocks
@@ -362,80 +348,38 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 	results_tuple_multi = ([], Dict(), Dict(), [])
 
 	# Choose between old and new flow
-	if use_new_flow
-		if !nooutput
+	if opts.use_new_flow
+		if !opts.nooutput
 			println("Using NEW optimized parameter estimation flow")
 		end
 		# Use the new optimized flow with the new solver
-		results_tuple = optimized_multishot_parameter_estimation(PEP,
-			system_solver = system_solver,  # Always use new solver with new flow
-			max_num_points = max_num_points,
-			interpolator = interpolator,
-			nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
-			polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = shooting_points,
-			use_si_template = use_si_template,
-		)
+		results_tuple = optimized_multishot_parameter_estimation(PEP, opts)
 	else
-		# Use the original flow
-		if !nooutput
+		if !opts.nooutput
 			println("Using standard parameter estimation flow")
 		end
-		results_tuple = multishot_parameter_estimation(PEP,
-			system_solver = system_solver,
-			max_num_points = max_num_points,
-			interpolator = interpolator,
-			nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
-			polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = shooting_points,
-			max_reconstruction_attempts = max_reconstruction_attempts,
-			use_si_template = use_si_template,
-		)
+		# Use the original flow
+		results_tuple = multishot_parameter_estimation(PEP, opts)
 	end
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 
-	#catch e
-	#@warn "First estimation failed: $e"
-	#results_tuple = ([], Dict(), Dict(), [])
-	#solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
-	#end
-	if try_more_methods
+	if opts.try_more_methods
 		# Try second estimation with aaad interpolator
 		try
-			if use_new_flow
-				results_tuple_aaad = optimized_multishot_parameter_estimation(PEP,
-					system_solver = system_solver,  # Always use new solver with new flow
-					max_num_points = max_num_points,
-					interpolator = aaad,
-					nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
-					polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = shooting_points,
-					use_si_template = use_si_template,
-				)
+			# Create modified options with AAAD interpolator
+			opts_aaad = merge_options(opts, interpolator = InterpolatorAAAD)
+			if opts.use_new_flow
+				results_tuple_aaad = optimized_multishot_parameter_estimation(PEP, opts_aaad)
 			else
-				results_tuple_aaad = multishot_parameter_estimation(PEP,
-					system_solver = system_solver,
-					max_num_points = max_num_points,
-					interpolator = aaad,
-					nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
-					polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = shooting_points,
-				)
+				results_tuple_aaad = multishot_parameter_estimation(PEP, opts_aaad)
 			end
 		catch e
 			@warn "Second estimation failed: $e"
 			results_tuple_aaad = ([], Dict(), Dict(), [])
 		end
 
-		# Try third estimation with multiple points
-		#try
-		#	results_tuple_multi = multishot_parameter_estimation(PEP,
-		#		system_solver = system_solver,
-		#		max_num_points = 2,
-		#		interpolator = interpolator,
-		#		nooutput = nooutput, diagnostics = diagnostics, diagnostic_data = PEP,
-		#		polish_method = polish_method, polish_maxiters = polish_maxiters, shooting_points = shooting_points,
-		#	)
-		#catch e
-		#	@warn "Third estimation failed: $e"
+		# Try third estimation with multiple points (commented out in original)
 		results_tuple_multi = ([], Dict(), Dict(), [])
-		#end
 	end
 
 	# Merge solutions from all attempts
@@ -444,17 +388,14 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem; i
 	trivial_dict = merge(trivial_dict, results_tuple_aaad[3], results_tuple_multi[3])
 	all_unidentifiable = union(all_unidentifiable, results_tuple_aaad[4], results_tuple_multi[4])
 
-
-	if !nooutput
+	if !opts.nooutput
 		println("\nUnidentifiability Analysis from multipoint_parameter_estimation:")
 		println("All unidentifiable variables: ", all_unidentifiable)
 		println("Unidentifiable variables substitution dictionary: ", unident_dict)
 		println("Trivially solvable variables: ", trivial_dict)
 	end
 
-
-
-	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = nooutput)
+	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput)
 	return results_tuple, results_tuple_to_return
 
 end

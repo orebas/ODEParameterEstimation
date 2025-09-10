@@ -1,74 +1,43 @@
 module ODEParameterEstimation
 
 using ModelingToolkit
-using OrdinaryDiffEq
-using LinearAlgebra
-using OrderedCollections
+using SIAN
+import StructuralIdentifiability: ODE
+using AbstractAlgebra
 using BaryRational
-using HomotopyContinuation
-using TaylorDiff
-using PrecompileTools
+using Dates
+using DynamicPolynomials
 using ForwardDiff
-using Random
-using DelimitedFiles
-using DataFrames
-using CSV
-using Printf
 using GaussianProcesses
-using Statistics
+using Groebner
+using HomotopyContinuation
+using LinearAlgebra
+using Logging
+using StructuralIdentifiability
+using Nemo#using GLPK
+using NonlinearSolve
 using Optim, LineSearches
 using Optimization, OptimizationOptimJL
-using Plots
-using Dates
-using ModelingToolkit
-using Random
-using Statistics
-using SymbolicIndexingInterface
-using NonlinearSolve
-using PolynomialRoots
-using Suppressor
-using Logging
-using Singular
-using Groebner
-using DynamicPolynomials
-using Nemo#using GLPK
-using Oscar
-using Dates
-
-using ModelingToolkit
 using OrderedCollections
-using LinearAlgebra
-using Logging
-using Symbolics
 using OrdinaryDiffEq
 using PolynomialRoots
-
-
-using StructuralIdentifiability
-using ModelingToolkit
-using Symbolics
-using OrderedCollections
-
-
-using StructuralIdentifiability
-using SIAN
-using ModelingToolkit
-using Symbolics
-using Nemo
-using AbstractAlgebra
-using OrderedCollections
-using LinearAlgebra
-
-# Import SI's ODE type
-import StructuralIdentifiability: ODE
-
-
-
-using AbstractAlgebra
+using PrecompileTools
+using Printf
+using Random
 using RationalUnivariateRepresentation
 using RS
-using StructuralIdentifiability
-using SIAN
+using Statistics
+using Suppressor
+using Symbolics
+using TaylorDiff
+#using CSV
+#using DataFrames
+#using DelimitedFiles
+#using Oscar
+#using Plots
+#using Singular
+#using SymbolicIndexingInterface
+
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
@@ -79,6 +48,7 @@ const package_wide_default_ode_solver = AutoVern9(Rodas4P())
 # Include core types first
 include("untestedlinter.jl")
 include("types/core_types.jl")
+include("types/estimation_options.jl")  # New options struct
 
 # Include utility modules
 include("core/logging_utils.jl")
@@ -137,8 +107,6 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 
 
-#=
-
 @recompile_invalidations begin
 	@compile_workload begin
 		using ModelingToolkit
@@ -162,24 +130,24 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		ic = [0.536]
 		p_true = [0.539]
 
-
 		time_interval = [-0.5, 0.5]
-		datasize = 21
 
 		model, mq = create_ordered_ode_system(name, states, parameters, state_equations, measured_quantities)
 		pep = ParameterEstimationProblem(name, model, mq, nothing, time_interval, nothing, OrderedDict(parameters .=> p_true), OrderedDict(states .=> ic), 0)
-		# data_sample = load("/home/ad7760/parameter_estimation_tests/data/julia/lotka-volterra_0.jld2", "data")
 
-		estimation_problem = sample_problem_data(pep, datasize = datasize, time_interval = time_interval, noise_level = 0.0)
-		res = analyze_parameter_estimation_problem(estimation_problem, nooutput = true, system_solver = solve_with_nlopt, shooting_points = 1)
-		#analysis_result, besterror = 
-		#	analyze_estimation_result(estimation_problem, res, nooutput = true)
+		# Create EstimationOptions with desired settings
+		opts = EstimationOptions(
+			datasize = 21,
+			noise_level = 0.0,
+			system_solver = SolverNLOpt,
+			shooting_points = 1,
+		)
 
-
+		estimation_problem = sample_problem_data(pep, opts)
+		res = analyze_parameter_estimation_problem(estimation_problem, opts)
 	end
 end
 
-=#
 
 end # module
 

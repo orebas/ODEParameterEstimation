@@ -136,13 +136,7 @@ Generate sample data for a parameter estimation problem.
 # Returns
 - New ParameterEstimationProblem with generated data
 """
-function sample_problem_data(problem::ParameterEstimationProblem;
-	datasize = 21,
-	time_interval = [-0.5, 0.5],
-	solver = package_wide_default_ode_solver,
-	uneven_sampling = false,
-	uneven_sampling_times = Vector{Float64}(),
-	noise_level = 0.0)
+function sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 
 	# Create new OrderedODESystem with completed system
 	ordered_system = OrderedODESystem(
@@ -155,16 +149,16 @@ function sample_problem_data(problem::ParameterEstimationProblem;
 	clean_data = ODEParameterEstimation.sample_data(
 		ordered_system.system,
 		problem.measured_quantities,
-		time_interval,
+		opts.time_interval,
 		problem.p_true,
 		problem.ic,
-		datasize,
-		solver = solver,
-		uneven_sampling = uneven_sampling,
-		uneven_sampling_times = uneven_sampling_times)
+		opts.datasize,
+		solver = opts.ode_solver,
+		uneven_sampling = opts.uneven_sampling,
+		uneven_sampling_times = opts.uneven_sampling_times)
 
 	# Add noise if requested
-	data = noise_level > 0 ? add_relative_noise(clean_data, noise_level) : clean_data
+	data = opts.noise_level > 0 ? add_relative_noise(clean_data, opts.noise_level) : clean_data
 
 	return ParameterEstimationProblem(
 		problem.name,
@@ -172,7 +166,7 @@ function sample_problem_data(problem::ParameterEstimationProblem;
 		problem.measured_quantities,
 		data,
 		problem.recommended_time_interval,
-		solver,
+		opts.ode_solver,
 		problem.p_true,
 		problem.ic,
 		problem.unident_count,

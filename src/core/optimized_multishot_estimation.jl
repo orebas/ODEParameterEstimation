@@ -1017,43 +1017,26 @@ end
 Optimized parameter estimation using precomputed derivatives.
 Drop-in replacement for multishot_parameter_estimation.
 """
-function optimized_multishot_parameter_estimation(
-	PEP::ParameterEstimationProblem;
-	system_solver = nothing,
-	max_num_points = 1,  # Ignored - we don't do multipoint
-	interpolator = nothing,  # Will use default if not specified
-	nooutput = false,
-	diagnostics = false,
-	diagnostic_data = nothing,
-	polish_solutions = false,
-	polish_maxiters = 20,
-	polish_method = NewtonTrustRegion,
-	shooting_points = 10,
-	debug_solver = false,
-	debug_cas_diagnostics = false,
-	debug_dimensional_analysis = false,
-	use_adaptive_id = nothing,
-	use_si_template = true,
-)
+function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	# Check input validity
 	if isnothing(PEP.data_sample)
 		error("No data sample provided in the ParameterEstimationProblem")
 	end
 
-	# Set default interpolator if not provided
-	if isnothing(interpolator)
-		interpolator = aaad_gpr_pivot
-	end
+	# Extract function references from options
+	system_solver = get_solver_function(opts.system_solver)
+	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+	polish_method = get_polish_optimizer(opts.polish_method)
 
 	# Fast path: Use SI template exactly like the standard flow, but reuse it for all selected
 	# shooting points in this run. This mirrors PE.jl construction.
-	if use_si_template
+	if opts.use_si_template
 		# Get common setup (derivative levels, udict, varlist, DD, interpolants)
 		setup_data = setup_parameter_estimation(
 			PEP,
 			max_num_points = 1,
 			point_hint = 0.5,
-			nooutput = nooutput,
+			nooutput = opts.nooutput,
 			interpolator = interpolator,
 		)
 
@@ -1073,7 +1056,7 @@ function optimized_multishot_parameter_estimation(
 			PEP.measured_quantities,
 			PEP.data_sample;
 			DD = good_DD,
-			infolevel = diagnostics ? 1 : 0,
+			infolevel = opts.diagnostics ? 1 : 0,
 		)
 		si_template = (
 			equations = template_equations,
@@ -1082,11 +1065,10 @@ function optimized_multishot_parameter_estimation(
 			identifiable_funcs = identifiable_funcs,
 		)
 		# Handle unidentifiability once
-		template_equations, si_template = handle_unidentifiability(si_template, diagnostics)
+		template_equations, si_template = handle_unidentifiability(si_template, opts.diagnostics)
 
 		# Enable default system saving for SI-template path and save template once
-		save_system = true
-		if save_system
+		if opts.save_system
 			vars_in_template = Symbolics.get_variables.(template_equations)
 			varset = Set{Any}()
 			for vs in vars_in_template
@@ -1105,19 +1087,19 @@ function optimized_multishot_parameter_estimation(
 					"description" => "StructuralIdentifiability template polynomial system",
 				),
 			)
-			if !nooutput
+			if !opts.nooutput
 				@info "Saved SI template to $(save_filepath_tpl)"
 			end
 		end
 
 		# Select shooting points (reuse non-SI logic)
-		if shooting_points == 0
+		if opts.shooting_points == 0
 			# Single midpoint
 			mid = max(1, min(length(t_vector), round(Int, 0.499 * length(t_vector))))
 			point_indices = [mid]
 			n_points = 1
 		else
-			n_points = min(shooting_points, length(t_vector))
+			n_points = min(opts.shooting_points, length(t_vector))
 			if length(t_vector) <= 2
 				point_indices = [1]
 			elseif n_points == 1
@@ -1129,7 +1111,7 @@ function optimized_multishot_parameter_estimation(
 			end
 		end
 
-		if !nooutput
+		if !opts.nooutput
 			if n_points == 1
 				println("Phase 3: Solving system using SI template at a single shooting point (t=$(t_vector[point_indices[1]]))...")
 			else
@@ -1139,7 +1121,6 @@ function optimized_multishot_parameter_estimation(
 
 		# Iterate through shooting points, instantiating the template and solving independently at each
 		# Enable default system saving for SI-template path (matches classic flow behavior)
-		save_system = true
 		all_solutions = []
 		all_hc_vars = []
 		all_trivial_dicts = []
@@ -1150,7 +1131,7 @@ function optimized_multishot_parameter_estimation(
 		solution_time_indices = Int[]
 
 		for point_idx in point_indices
-			if diagnostics
+			if opts.diagnostics
 				println("\n--- Solving at shooting point index: $point_idx (t=$(t_vector[point_idx])) ---")
 			end
 
@@ -1166,7 +1147,7 @@ function optimized_multishot_parameter_estimation(
 				interpolator = interpolator,
 				time_index_set = [point_idx],
 				precomputed_interpolants = interpolants,
-				diagnostics = diagnostics,
+				diagnostics = opts.diagnostics,
 				si_template = si_template,
 			)
 
@@ -1174,7 +1155,7 @@ function optimized_multishot_parameter_estimation(
 			final_varlist_point = varlist_k
 
 			# Optional: save system for debugging (mirror classic flow behavior)
-			if save_system
+			if opts.save_system
 				# Save the instantiated polynomial system for this shooting point
 				save_filepath = "saved_systems/system_point_$(point_idx)_$(now()).jl"
 				mkpath(dirname(save_filepath))
@@ -1210,11 +1191,26 @@ function optimized_multishot_parameter_estimation(
 
 			# Solve for this point
 			solver_options = Dict(
-				:debug_solver => debug_solver,
-				:debug_cas_diagnostics => debug_cas_diagnostics,
-				:debug_dimensional_analysis => debug_dimensional_analysis,
+				:debug_solver => opts.debug_solver,
+				:debug_cas_diagnostics => opts.debug_cas_diagnostics,
+				:debug_dimensional_analysis => opts.debug_dimensional_analysis,
 			)
 			solutions, hc_vars, trivial_dict, trimmed_vars = system_solver(final_target, final_varlist_point; options = solver_options)
+
+			# Optional: polish each raw solver solution using fast NLLS if requested
+			if opts.polish_solver_solutions && !isempty(solutions)
+				polished_point = Vector{Vector{Float64}}()
+				for sol in solutions
+					start_pt = real.(sol)
+					p_solutions, _, _, _ = solve_with_fast_nlopt(final_target, final_varlist_point; start_point = start_pt, polish_only = true, options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug_solver => opts.diagnostics, :log_every => 5))
+					if !isempty(p_solutions)
+						push!(polished_point, p_solutions[1])
+					else
+						push!(polished_point, sol)
+					end
+				end
+				solutions = polished_point
+			end
 
 			append!(all_solutions, solutions)
 			for _ in 1:length(solutions)
@@ -1237,7 +1233,7 @@ function optimized_multishot_parameter_estimation(
 		reverse_subst_dict = isempty(all_reverse_subst_dicts) ? [OrderedDict{Any, Num}()] : [all_reverse_subst_dicts[1]]
 		final_varlist = all_final_varlists
 
-		if !nooutput
+		if !opts.nooutput
 			println("Found $(length(solutions)) solutions total")
 		end
 
@@ -1259,9 +1255,9 @@ function optimized_multishot_parameter_estimation(
 			PEP,
 			solution_data,
 			setup_data;
-			nooutput = nooutput,
-			polish_solutions = polish_solutions,
-			polish_maxiters = polish_maxiters,
+			nooutput = opts.nooutput,
+			polish_solutions = opts.polish_solutions,
+			polish_maxiters = opts.polish_maxiters,
 			polish_method = polish_method,
 		)
 
@@ -1270,7 +1266,7 @@ function optimized_multishot_parameter_estimation(
 	end
 
 	# DEBUG: Show the original ODE System
-	if debug_cas_diagnostics
+	if opts.debug_cas_diagnostics
 		println("\nDEBUG: Original ODE System:")
 		t, eqns, states, params = unpack_ODE(PEP.model.system)
 		println("  Parameters: ", params)
@@ -1289,13 +1285,13 @@ function optimized_multishot_parameter_estimation(
 	end
 
 	# PHASE 1: Precompute all derivatives once
-	if !nooutput
+	if !opts.nooutput
 		println("Phase 1: Precomputing derivatives...")
 	end
 	precomputed = precompute_all_derivatives(PEP.model, PEP.measured_quantities)
 
 	# PHASE 2: Analyze identifiability and create template
-	if !nooutput
+	if !opts.nooutput
 		println("Phase 2: Analyzing identifiability...")
 	end
 	# Determine whether to use adaptive (RUR-based) identifiability. By default,
@@ -1307,7 +1303,7 @@ function optimized_multishot_parameter_estimation(
 	deriv_levels, fixed_params, ident_vars, all_unidentifiable = analyze_identifiability(
 		precomputed, PEP.model, PEP.measured_quantities, PEP.data_sample;
 		use_adaptive = use_adaptive_id,
-		debug_cas_diagnostics = debug_cas_diagnostics,
+		debug_cas_diagnostics = opts.debug_cas_diagnostics,
 	)
 
 	# Ensure OrderedDict type for create_equation_template signature
@@ -1315,10 +1311,10 @@ function optimized_multishot_parameter_estimation(
 
 	template = create_equation_template(
 		precomputed, deriv_levels, fixed_params, ident_vars, all_unidentifiable, PEP.model, PEP.measured_quantities;
-		debug_cas_diagnostics = debug_cas_diagnostics,
+		debug_cas_diagnostics = opts.debug_cas_diagnostics,
 	)
 
-	if !nooutput
+	if !opts.nooutput
 		println("Created template with $(template.num_equations) equations, $(template.num_variables) variables")
 		if !isempty(fixed_params)
 			println("Fixed parameters: $(fixed_params)")
@@ -1336,13 +1332,13 @@ function optimized_multishot_parameter_estimation(
 	all_trivial_dicts = []
 
 	# Create shooting points across time interval
-	if shooting_points == 0
+	if opts.shooting_points == 0
 		# Special case: single shooting point near the midpoint (match old flow intent)
 		mid = max(1, min(length(t_vector), round(Int, 0.499 * length(t_vector))))
 		point_indices = [mid]
 		n_points = 1
 	else
-		n_points = min(shooting_points, length(t_vector))
+		n_points = min(opts.shooting_points, length(t_vector))
 		# Handle edge case when t_vector has only 2 points
 		if length(t_vector) <= 2
 			point_indices = [1]  # Just use the first point
@@ -1356,14 +1352,14 @@ function optimized_multishot_parameter_estimation(
 		end
 	end
 
-	if !nooutput
+	if !opts.nooutput
 		println("Phase 3: Solving at $n_points shooting points...")
 	end
 
 	for (i, idx) in enumerate(point_indices)
 		time_point = t_vector[idx]
 
-		if !nooutput && diagnostics
+		if !opts.nooutput && opts.diagnostics
 			println("  Solving at point $i/$n_points (t = $time_point)")
 		end
 
@@ -1372,7 +1368,7 @@ function optimized_multishot_parameter_estimation(
 			template, precomputed, interpolants,
 			time_point, idx, system_solver,
 			measured_quantities = PEP.measured_quantities,
-			debug_cas_diagnostics = debug_cas_diagnostics,
+			debug_cas_diagnostics = opts.debug_cas_diagnostics,
 		)
 
 		# Process each solution
@@ -1400,7 +1396,7 @@ function optimized_multishot_parameter_estimation(
 		end
 	end
 
-	if !nooutput
+	if !opts.nooutput
 		println("Found $(length(all_solutions)) solutions total")
 	end
 
@@ -1411,8 +1407,8 @@ function optimized_multishot_parameter_estimation(
 	end
 
 	# PHASE 4: Polish if requested
-	if polish_solutions && !isempty(all_solutions)
-		if !nooutput
+	if opts.polish_solutions && !isempty(all_solutions)
+		if !opts.nooutput
 			println("Phase 4: Polishing solutions...")
 		end
 
@@ -1423,7 +1419,7 @@ function optimized_multishot_parameter_estimation(
 					candidate, PEP,
 					solver = PEP.solver,
 					opt_method = polish_method,
-					opt_maxiters = polish_maxiters,
+					opt_maxiters = opts.polish_maxiters,
 				)
 
 				if polished_result.err < candidate.err

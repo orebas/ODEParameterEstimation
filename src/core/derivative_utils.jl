@@ -1,5 +1,3 @@
-using ModelingToolkit
-using Symbolics
 
 """
     calculate_higher_derivatives(equations, max_level)

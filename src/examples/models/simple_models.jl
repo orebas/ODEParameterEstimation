@@ -111,3 +111,31 @@ function threesp_cubed()
 		0,
 	)
 end
+
+
+function onevar_exp()
+	parameters = @parameters a
+	states = @variables x1(t)
+	observables = @variables y1(t)
+	p_true = [0.1]
+	ic_true = [2.0]
+
+	equations = [
+		D(x1) ~ -a * x1,
+	]
+	measured_quantities = [y1 ~ x1]
+
+	model, mq = create_ordered_ode_system("onevar_exp", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"onevar_exp",
+		model,
+		mq,
+		nothing, nothing,
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+

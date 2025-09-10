@@ -1,3 +1,6 @@
+# NOTE: This file needs to be updated to use the new EstimationOptions interface
+# See run_examples.jl for the new API usage pattern
+
 include("load_examples.jl")
 
 

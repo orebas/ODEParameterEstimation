@@ -7,6 +7,7 @@ include("models/biological_systems.jl")
 include("models/classical_systems.jl")
 include("models/simple_models.jl")
 include("models/test_models.jl")
+include("models/debug_models.jl")
 
 
 
@@ -15,53 +16,6 @@ using LineSearches
 using Optim
 using Statistics
 
-
-
-#=
-function test_gpr_function(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
-	# For 1D input data, we need a matrix of size 1 × (degree+1)
-	# The +1 is because we include the constant term (degree 0)
-	#degree = 2
-	#β = zeros(1, degree + 1)  # Initialize coefficients matrix
-	#poly_mean = MeanPoly(β)
-
-	# Add small noise proportional to y standard deviation to avoid conditioning issues
-	ys_std = Statistics.std(ys)
-	noise_level = 1e-6 * ys_std
-	ys_noisy = ys .+ noise_level * randn(length(ys))
-
-	# Initial kernel parameters
-	initial_lengthscale = log(std(xs) / 8)
-	initial_variance = 0.0
-	initial_noise = -2.0
-
-	println("\nGPR Hyperparameters:")
-	println("  Initial lengthscale: $(exp(initial_lengthscale))")
-	println("  Initial variance: $(exp(initial_variance))")
-	println("  Initial noise: $(exp(initial_noise))")
-
-	kernel = SEIso(initial_lengthscale, initial_variance)
-	gp = GP(xs, ys_noisy, MeanZero(), kernel, initial_noise)
-	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-
-	# Print optimized parameters
-	println("\nOptimized GPR Hyperparameters:")
-	println(fieldnames(typeof(gp)))
-	println(fieldnames(typeof(gp.kernel)))
-
-	noise_level = exp(gp.logNoise.value)
-
-	println("  Lengthscale: $(exp(gp.kernel.ℓ2/2))")
-	println("  Variance: $(exp(gp.kernel.σ2))")
-	println("  Noise: $(noise_level)")
-
-	# Create callable function
-	gpr_func = x -> begin
-		pred, _ = predict_f(gp, [x])
-		return pred[1]
-	end
-	return gpr_func
-end=#
 
 
 
@@ -75,16 +29,15 @@ end=#
 
 
 """
-	run_parameter_estimation_examples(; models=:all, datasize=501, noise_level=0.01, showplot=true)
+	run_parameter_estimation_examples(; models=:all, opts=EstimationOptions(), ...)
 
 Run parameter estimation examples on the specified models.
 
 # Arguments
 - `models`: Symbol or Vector{Symbol} specifying which models to run. 
 		   Use :all for all models, or specify individual models like [:simple, :hiv]
-- `datasize`: Number of data points to generate for each model
-- `noise_level`: Level of noise to add to the synthetic data
-- `showplot`: Whether to show plots of the results
+- `opts`: EstimationOptions struct containing all estimation parameters
+- Additional keyword arguments for backward compatibility (will be merged into opts)
 
 # Available models
 Simple models: :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed
@@ -96,16 +49,57 @@ Specialized models: :slowfast, :allee_competition, :two_compartment_pk, :fitzhug
 """
 function run_parameter_estimation_examples(;
 	models = :all,
-	datasize = 1501,
-	noise_level = 1e-2,
+	opts::EstimationOptions = EstimationOptions(),
+	datasize = nothing,
+	noise_level = nothing,
 	interpolator = nothing,
 	system_solver = nothing,
 	log_dir = "logs",
 	doskip = true,
-	shooting_points = 8,
-	try_more_methods = true,
-	use_new_flow = false,
+	shooting_points = nothing,
+	try_more_methods = nothing,
+	use_new_flow = nothing,
+	use_si_template = nothing,
 )
+	# Merge any provided keyword arguments with EstimationOptions
+	if !isnothing(datasize) || !isnothing(noise_level) || !isnothing(interpolator) || 
+	   !isnothing(system_solver) || !isnothing(shooting_points) || !isnothing(try_more_methods) || 
+	   !isnothing(use_new_flow) || !isnothing(use_si_template)
+		# Build keyword dict for merging
+		merge_kwargs = Dict{Symbol, Any}()
+		!isnothing(datasize) && (merge_kwargs[:datasize] = datasize)
+		!isnothing(noise_level) && (merge_kwargs[:noise_level] = noise_level)
+		!isnothing(shooting_points) && (merge_kwargs[:shooting_points] = shooting_points)
+		!isnothing(try_more_methods) && (merge_kwargs[:try_more_methods] = try_more_methods)
+		!isnothing(use_new_flow) && (merge_kwargs[:use_new_flow] = use_new_flow)
+		!isnothing(use_si_template) && (merge_kwargs[:use_si_template] = use_si_template)
+		
+		# Handle special cases for interpolator and system_solver
+		if !isnothing(interpolator)
+			if interpolator == aaad_gpr_pivot
+				merge_kwargs[:interpolator] = InterpolatorAAADGPR
+			elseif interpolator == aaad
+				merge_kwargs[:interpolator] = InterpolatorAAAD
+			else
+				merge_kwargs[:custom_interpolator] = interpolator
+			end
+		end
+		
+		if !isnothing(system_solver)
+			if system_solver == solve_with_rs || system_solver == solve_with_rs_new
+				merge_kwargs[:system_solver] = SolverRS
+			elseif system_solver == solve_with_hc
+				merge_kwargs[:system_solver] = SolverHC
+			elseif system_solver == solve_with_nlopt
+				merge_kwargs[:system_solver] = SolverNLOpt
+			elseif system_solver == solve_with_fast_nlopt
+				merge_kwargs[:system_solver] = SolverFastNLOpt
+			end
+		end
+		
+		opts = merge_options(opts; merge_kwargs...)
+	end
+	
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
 
@@ -116,6 +110,7 @@ function run_parameter_estimation_examples(;
 		:simple_linear_combination => simple_linear_combination,
 		:onesp_cubed => onesp_cubed,
 		:threesp_cubed => threesp_cubed,
+		:onevar_exp => onevar_exp,
 
 		# Classical systems
 		:lotka_volterra => lotka_volterra,
@@ -201,24 +196,18 @@ function run_parameter_estimation_examples(;
 								isnothing(pep.recommended_time_interval) ? [0.0, 5.0] :
 								pep.recommended_time_interval
 
-							if use_new_flow
+							if opts.use_new_flow
 								println("Using NEW optimized workflow")
 							else
 								println("Using standard workflow")
 							end
 							
+							# Create options for this specific model with the correct time interval
+							model_opts = merge_options(opts, time_interval = time_interval)
+
 							analyze_parameter_estimation_problem(
-								sample_problem_data(
-									pep,
-									datasize = datasize,
-									time_interval = time_interval,
-									noise_level = noise_level,
-								),
-								interpolator = interpolator,
-								system_solver = system_solver,
-								shooting_points = shooting_points,
-								try_more_methods = try_more_methods,
-								use_new_flow = use_new_flow,
+								sample_problem_data(pep, model_opts),
+								model_opts
 							)
 							println("SUCCESS")
 							println(original_stdout, "Model $model_name ran successfully.")

@@ -1,6 +1,3 @@
-using Symbolics
-using HomotopyContinuation
-using Statistics
 
 """
 	clear_denoms(eq)

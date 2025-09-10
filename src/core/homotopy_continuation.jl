@@ -204,78 +204,113 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	polish_only = false,
 	options = Dict())
 
+
+	println("solving in NLOPT_fast")
+
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
 	m = length(prepared_system)
 	n = length(mangled_varlist)
 
-	# --- NEW: Fast, compiled residual function using build_function ---
-	f_ip = try
-		# This compiles the symbolic system into a highly efficient Julia function
-		_, ip = Symbolics.build_function(prepared_system, mangled_varlist; expression = Val(false))
-		ip
-	catch err
-		@warn "Symbolics.build_function failed; falling back to slower substitute/value method." err
-		nothing
-	end
-
+	# Always use fallback residual via Symbolics substitution (Dual-safe)
+	eval_count = Ref(0)
 	function residual!(res, u, p)
-		if !isnothing(f_ip)
-			# Fast Path: Use the pre-compiled function
-			f_ip(res, u...)
-			res .= real.(res) # Safeguard against spurious complex numbers
-		else
-			# Fallback Path: The original, allocation-heavy method
-			d = Dict(zip(mangled_varlist, u))
-			for i in 1:m
-				res[i] = Float64(real(Symbolics.value(Symbolics.substitute(prepared_system[i], d))))
-			end
+		eval_count[] += 1
+		d = Dict(zip(mangled_varlist, u))
+		for i in 1:m
+			res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
 		end
+		return nothing
 	end
-	# --- END NEW SECTION ---
 
-	# Set up optimization problem
+	# Initial guess and initial residual norm
 	x0 = isnothing(start_point) ? randn(n) : copy(start_point)
-
 	initial_residual = zeros(m)
 	residual!(initial_residual, x0, nothing)
 	initial_norm = LinearAlgebra.norm(initial_residual)
 
-	prob = NonlinearLeastSquaresProblem(
-		NonlinearFunction(residual!, resid_prototype = zeros(m)),
-		x0,
-		nothing;
-	)
+	# Jacobian via ForwardDiff over the residual (Dual-safe)
+	function jacobian!(J, u, p)
+		g(u_) = begin
+			r = Vector{eltype(u_)}(undef, m)
+			residual!(r, u_, nothing)
+			r
+		end
+		ForwardDiff.jacobian!(J, g, u)
+		return nothing
+	end
 
-	# Set solver options
+	nf = NonlinearFunction(residual!; resid_prototype = zeros(m), jac = jacobian!)
+	prob = NonlinearLeastSquaresProblem(nf, x0, nothing)
+
+	# Solver options (filter to recognized keywords)
 	solver_opts = if polish_only
-		(abstol = 1e-13, reltol = 1e-13, maxiters = 1000)
+		(abstol = 1e-10, reltol = 1e-10, maxiters = 2000)
 	else
 		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
 	end
-	solver_opts = merge(solver_opts, options)
+	user_opts = Dict{Symbol, Any}()
+	for (k, v) in options
+		if k in (:abstol, :reltol, :maxiters)
+			user_opts[k] = v
+		end
+	end
+	solver_opts = merge(solver_opts, user_opts)
 
-	# Solve the problem
+	# Solve (measure wall time)
+	solve_ms = 0.0
 	sol = try
-		NonlinearSolve.solve(prob, optimizer; solver_opts...)
+		local t0 = time()
+		local out = NonlinearSolve.solve(prob, optimizer; solver_opts...)
+		solve_ms = (time() - t0) * 1000
+		out
 	catch e
 		@warn "Error during optimization: $(e)"
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
-	# Check if solution is valid
-	if SciMLBase.successful_retcode(sol)
-		final_residual = zeros(m)
-		residual!(final_residual, sol.u, nothing)
-		final_norm = LinearAlgebra.norm(final_residual)
-
-		improvement = initial_norm - final_norm
-		if improvement > 0
-			@debug "Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))"
-		else
-			@debug "Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))"
+	# Retry on MaxIters with a robust polyalgorithm
+	if (!SciMLBase.successful_retcode(sol)) && (sol.retcode == SciMLBase.ReturnCode.MaxIters)
+		@info "Fast NLLS hit MaxIters; retrying with FastShortcutNLLSPolyalg()"
+		retry_opts = (abstol = 1e-10, reltol = 1e-10, maxiters = 5000)
+		for (k, v) in options
+			if k in (:abstol, :reltol, :maxiters)
+				retry_opts = merge(retry_opts, (k => v,))
+			end
 		end
+		try
+			local t0 = time()
+			sol = NonlinearSolve.solve(prob, NonlinearSolve.FastShortcutNLLSPolyalg(); retry_opts...)
+			solve_ms += (time() - t0) * 1000
+		catch e
+			@warn "Retry optimization failed: $(e)"
+		end
+	end
 
+	# Compute final residual norm regardless of convergence
+	final_residual = zeros(m)
+	try
+		residual!(final_residual, sol.u, nothing)
+	catch
+		final_residual .= initial_residual
+	end
+	final_norm = LinearAlgebra.norm(final_residual)
+	improvement = initial_norm - final_norm
+	println("[NLOPT_fast] residual_norm initial=", initial_norm,
+		" final=", final_norm,
+		" improvement=", improvement,
+		" (compiled=", false,
+		" compile_ms=", 0.0,
+		" solve_ms=", solve_ms,
+		" evals=", eval_count[], ")")
+
+	# If solver failed but improved significantly, accept the improvement as a polished point
+	if (!SciMLBase.successful_retcode(sol)) && (improvement > 0)
+		@warn "Optimization did not fully converge (RetCode=$(sol.retcode)) but improved residual by $(improvement). Returning best-so-far iterate."
+		return [sol.u], mangled_varlist, Dict(), mangled_varlist
+	end
+
+	if SciMLBase.successful_retcode(sol)
 		return [sol.u], mangled_varlist, Dict(), mangled_varlist
 	else
 		@warn "Optimization did not converge. RetCode: $(sol.retcode)"

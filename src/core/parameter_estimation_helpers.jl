@@ -133,6 +133,7 @@ function solve_parameter_estimation(
 	debug_solver = false,
 	debug_cas_diagnostics = false,
 	debug_dimensional_analysis = false,
+	polish_solver_solutions::Bool = false,
 )
 	# Extract settings from setup data
 	states = setup_data.states
@@ -380,15 +381,14 @@ function solve_parameter_estimation(
 			@info "Successfully solved system" * (reconstruction_attempts > 0 ? " after $reconstruction_attempts reconstruction attempt(s)" : "")
 
 			# Optional local polish pass using fast NL least-squares if enabled
-			local_polish = true
-			if local_polish && !isempty(solve_result)
+			if polish_solver_solutions && !isempty(solve_result)
 				polished = Vector{Vector{Float64}}()
 				for sol in solve_result
 					start_pt = real.(sol)
 					p_solutions, _, _, _ = solve_with_fast_nlopt(final_target, final_varlist;
 						start_point = start_pt,
 						polish_only = true,
-						options = Dict(:abstol => 1e-12, :reltol => 1e-12),
+						options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug_solver => diagnostics, :log_every => 5),
 					)
 					if !isempty(p_solutions)
 						push!(polished, p_solutions[1])

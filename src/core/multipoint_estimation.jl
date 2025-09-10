@@ -22,23 +22,11 @@ Perform Multi-point Parameter Estimation using a three-phase approach:
 # Returns
 - Tuple containing (solutions, unidentifiable_dict, trivial_dict, all_unidentifiable)
 """
-function multipoint_parameter_estimation(
-	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_rs,
-	max_num_points = 1,
-	interpolator = interpolator,
-	nooutput = false,
-	diagnostics = false,
-	diagnostic_data = nothing,
-	polish_solutions = false,
-	polish_maxiters = 20,
-	polish_method = NewtonTrustRegion,
-	point_hint = 0.5,
-	save_system = true,
-	debug_solver = false,
-	debug_cas_diagnostics = false,
-	debug_dimensional_analysis = false,
-)
+function multipoint_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Extract function references from enums
+	system_solver = get_solver_function(opts.system_solver)
+	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+	polish_method = get_polish_optimizer(opts.polish_method)
 	# Check input validity
 	if isnothing(PEP.data_sample)
 		error("No data sample provided in the ParameterEstimationProblem")
@@ -53,9 +41,9 @@ function multipoint_parameter_estimation(
 		# Phase 1: Setup - Determine optimal points and analyze identifiability
 		setup_data = setup_parameter_estimation(
 			PEP,
-			max_num_points = max_num_points,
-			point_hint = point_hint,
-			nooutput = nooutput,
+			max_num_points = opts.max_num_points,
+			point_hint = opts.point_hint,
+			nooutput = opts.nooutput,
 			interpolator = interpolator,
 		)
 
@@ -65,12 +53,13 @@ function multipoint_parameter_estimation(
 			setup_data,
 			system_solver = system_solver,
 			interpolator = interpolator,
-			diagnostics = diagnostics,
-			diagnostic_data = diagnostic_data,
-			save_system = save_system,
-			debug_solver = debug_solver,
-			debug_cas_diagnostics = debug_cas_diagnostics,
-			debug_dimensional_analysis = debug_dimensional_analysis,
+			diagnostics = opts.diagnostics,
+			diagnostic_data = opts.diagnostic_data,
+			save_system = opts.save_system,
+			debug_solver = opts.debug_solver,
+			debug_cas_diagnostics = opts.debug_cas_diagnostics,
+			debug_dimensional_analysis = opts.debug_dimensional_analysis,
+			polish_solver_solutions = opts.polish_solver_solutions,
 		)
 
 		# Check if we found any solutions
@@ -82,9 +71,9 @@ function multipoint_parameter_estimation(
 				PEP,
 				solution_data,
 				setup_data,
-				nooutput = nooutput,
-				polish_solutions = polish_solutions,
-				polish_maxiters = polish_maxiters,
+				nooutput = opts.nooutput,
+				polish_solutions = opts.polish_solutions,
+				polish_maxiters = opts.polish_maxiters,
 				polish_method = polish_method,
 			)
 
@@ -112,20 +101,7 @@ and combines the results.
 # Returns
 - Tuple containing (all_solutions, all_udict, all_trivial_dict, all_unidentifiable)
 """
-function multishot_parameter_estimation(
-	PEP::ParameterEstimationProblem;
-	system_solver = solve_with_rs,
-	max_num_points = 1,
-	interpolator = interpolator,
-	nooutput = false,
-	diagnostics = false,
-	diagnostic_data = nothing,
-	polish_solutions = false,
-	polish_maxiters = 20,
-	polish_method = NewtonTrustRegion,
-	shooting_points = 10,
-	max_reconstruction_attempts = 10,
-)
+function multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	# Initialize empty arrays to store all solutions and metadata
 	all_solutions = []
 	all_udict = nothing
@@ -133,28 +109,22 @@ function multishot_parameter_estimation(
 	all_unidentifiable = nothing
 
 	# Run parameter estimation at each point hint
-	for i in 1:(shooting_points+1)
+	for i in 1:(opts.shooting_points+1)
 		# Special case: when shooting_points = 0, use slightly offset midpoint to avoid potential issues
-		if shooting_points == 0
+		if opts.shooting_points == 0
 			point_hint = 0.499  # Use slightly offset midpoint (matching PE's behavior)
 		else
-			point_hint = i / (shooting_points + 1)
+			point_hint = i / (opts.shooting_points + 1)
 		end
-		println("\n[DEBUG-ODEPE] Shooting point $i/$(shooting_points+1), point_hint=$point_hint")
+		println("\n[DEBUG-ODEPE] Shooting point $i/$(opts.shooting_points+1), point_hint=$point_hint")
+
+		# Create modified options with the current point_hint
+		opts_with_hint = merge_options(opts, point_hint = point_hint)
 
 		# Call multipoint_parameter_estimation
 		solutions, udict, trivial_dict, unidentifiable = multipoint_parameter_estimation(
-			PEP;
-			system_solver = system_solver,
-			max_num_points = max_num_points,
-			interpolator = interpolator,
-			nooutput = nooutput,
-			diagnostics = diagnostics,
-			diagnostic_data = diagnostic_data,
-			polish_solutions = polish_solutions,
-			polish_maxiters = polish_maxiters,
-			polish_method = polish_method,
-			point_hint = point_hint,
+			PEP,
+			opts_with_hint,
 		)
 
 		# Store metadata from first run
