@@ -1,0 +1,127 @@
+[Info] Loading saved system from: /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/benchmarks/saved_systems/system_point_1_2025-09-11T00:02:53.925.jl
+[Info] Loaded system with 4 equations and 4 variables.
+
+System equations:
+  1: 0.536 - x_0
+  2: x_1 - k1_0*x_0
+  3: 0.28890399999993677 - x_1
+  4: x_2 - k1_0*x_1
+
+Variables: Num[x_0, x_1, k1_0, x_2]
+
+================================================================================
+RUNNING PACKAGE SOLVER BENCHMARKS
+================================================================================
+Running solve_with_rs...
+primes of bitsize 28
+G-Q-Pt-FG-LT-LP(C)
+Dimension of the quotient :1
+Degree of the radical :1
+Use last variable as separating element
+Separating form: [0, 0, 0, 1]
+Run Groebner learn
+Test cyclic optimization
+Apply cyclic optimization 
+Multi-modular computation (1 threads): G-Q-Pt-FG-LT-LP(C)
+5-9-
+check-G-Q-Pt-FG-LT-LP(C)
+Nb Primes used :9
+Running solve_with_hc...
+Running solve_with_nlopt...
+[NLOPT] equations=4 variables=4
+[NLOPT] optimizer=GeneralizedFirstOrderAlgorithm{Missing, NonlinearSolveFirstOrder.LevenbergMarquardtTrustRegion{Float64}, GeodesicAcceleration{DampedNewtonDescent{Nothing, Float64, NonlinearSolveFirstOrder.LevenbergMarquardtDampingFunction{Float64, Float64, Float64}}, Float64, Float64}, Nothing, Nothing, Nothing, Val{true}}
+[NLOPT] jacobian_mode=none
+[NLOPT] eltype(x0)=Float64
+Optimization improved residual by 2.8279063884429623 (from 2.8279063901605563 to 1.7175941015105548e-9)
+Running solve_with_fast_nlopt...
+solving in NLOPT_fast
+[NLOPT_fast] residual_norm initial=2.7231569498360053 final=7.94343798665697e-9 improvement=2.7231569418925674 (compiled=false compile_ms=0.0 solve_ms=3180.5479526519775 evals=32)
+Running solve_with_nlopt_quick...
+[NLOPT_quick] equations=4 variables=4
+[NLOPT_quick] optimizer=GeneralizedFirstOrderAlgorithm{Missing, NonlinearSolveFirstOrder.LevenbergMarquardtTrustRegion{Float64}, GeodesicAcceleration{DampedNewtonDescent{Nothing, Float64, NonlinearSolveFirstOrder.LevenbergMarquardtDampingFunction{Float64, Float64, Float64}}, Float64, Float64}, Nothing, Nothing, Nothing, Val{true}}
+[NLOPT_quick] jacobian_mode=none
+[NLOPT_quick] eltype(x0)=Float64
+[NLOPT_quick] residual_norm initial=2.7245239607573666 final=4.8726406306183354e-5 improvement=2.7244752343510603 res_evals=27
+Running solve_with_nlopt_testing...
+Optimization improved residual by 1.1013785581901905 (from 1.1013785581901905 to 2.7755575615628914e-17)
+
+=== Package Solver Benchmark ===
+Solver                     |    Time (ms) | Solutions
+------------------------------------------------------------
+solve_with_rs              |     8116.731 | 1
+solve_with_hc              |    64645.748 | 1
+solve_with_nlopt           |     3935.296 | 1
+solve_with_fast_nlopt      |     3411.780 | 1
+solve_with_nlopt_quick     |     3731.579 | 1
+solve_with_nlopt_testing   |     6700.409 | 1
+
+================================================================================
+RUNNING NONLINEARSOLVE OPTIMIZER BENCHMARKS WITH MULTIPLE JACOBIAN METHODS
+================================================================================
+Building symbolic Jacobian...
+  ✓ Symbolic Jacobian built successfully
+┌ Warning: `threshold` is larger than the size of the state, which may cause numerical instability. Consider reducing `threshold`.
+└ @ NonlinearSolveQuasiNewton ~/.julia/packages/NonlinearSolveQuasiNewton/aC2cy/src/initialization.jl:171
+
+Testing second-order methods...
+
+=== NonlinearSolve Optimizer Benchmark (All Jacobian Methods) ===
+Optimizer            | Jacobian           |  Time (ms) | Success | ResEvals | JacEvals | Final Norm     
+--------------------------------------------------------------------------------------------------------------
+NewtonRaphson        | forwarddiff        |   1753.760 | ✓       |        5 |        2 |    0.000000e+00
+                     | finitediff         |     55.645 | ✓       |        5 |        2 |    6.112565e-12
+                     | symbolic           |     52.070 | ✓       |        5 |        2 |    0.000000e+00
+                     | sparse_forwarddiff |   1867.531 | ✓       |        5 |        2 |    0.000000e+00
+.-------------------------------------------------------------------------------------------------------------
+TrustRegion          | forwarddiff        |    169.079 | ✓       |        8 |        5 |    0.000000e+00
+                     | finitediff         |    144.090 | ✓       |        8 |        5 |    8.682374e-12
+                     | symbolic           |    139.914 | ✓       |        8 |        5 |    0.000000e+00
+                     | sparse_forwarddiff |    148.636 | ✓       |        8 |        5 |    0.000000e+00
+.-------------------------------------------------------------------------------------------------------------
+Broyden              | none               |    286.768 | ✓       |       18 |        0 |    5.036228e-08
+.-------------------------------------------------------------------------------------------------------------
+Klement              | none               |      3.963 | ✗       |     1667 |        0 |    5.900839e-02
+.-------------------------------------------------------------------------------------------------------------
+DFSane               | none               |     17.536 | ✓       |      397 |        0 |    1.649914e-07
+.-------------------------------------------------------------------------------------------------------------
+LimitedMemoryBroyden | none               |    345.208 | ✓       |       13 |        0 |    4.859069e-07
+.-------------------------------------------------------------------------------------------------------------
+SimpleNewtonRaphson  | forwarddiff        |      0.473 | ✓       |        3 |        3 |    0.000000e+00
+                     | finitediff         |     65.765 | ✓       |        3 |        3 |    5.551115e-17
+                     | symbolic           |      0.262 | ✓       |        3 |        3 |    0.000000e+00
+                     | sparse_forwarddiff |      0.668 | ✓       |        3 |        3 |    0.000000e+00
+.-------------------------------------------------------------------------------------------------------------
+SimpleTrustRegion    | forwarddiff        |      0.764 | ✓       |       10 |        5 |    0.000000e+00
+                     | finitediff         |      1.139 | ✓       |       10 |        5 |    8.682374e-12
+                     | symbolic           |      0.555 | ✓       |       10 |        5 |    0.000000e+00
+                     | sparse_forwarddiff |      0.770 | ✓       |       10 |        5 |    0.000000e+00
+.-------------------------------------------------------------------------------------------------------------
+SimpleBroyden        | none               |      0.712 | ✓       |       16 |        0 |    5.036228e-08
+.-------------------------------------------------------------------------------------------------------------
+SimpleKlement        | none               |    119.325 | ✗       |    10005 |        0 |   5.969373e+270
+.-------------------------------------------------------------------------------------------------------------
+SimpleDFSane         | none               |      1.454 | ✓       |       47 |        0 |    9.401927e-07
+.-------------------------------------------------------------------------------------------------------------
+SimpleLimitedMemoryBroyden | none               |      0.585 | ✓       |       16 |        0 |    5.036228e-08
+.-------------------------------------------------------------------------------------------------------------
+PseudoTransient      | none               |    158.592 | ✗       |    20015 |        0 |    1.469552e-01
+.-------------------------------------------------------------------------------------------------------------
+SimpleHalley         | forwarddiff        |        NaN | ✗       |    10005 |     5005 |             Inf
+                     | finitediff         |        NaN | ✗       |    10005 |     5005 |             Inf
+                     | symbolic           |        NaN | ✗       |    10005 |     5005 |             Inf
+                     | sparse_forwarddiff |        NaN | ✗       |    10005 |     5005 |             Inf
+
+22 out of 29 optimizer-jacobian combinations successfully solved the system
+
+=== Success Rate by Jacobian Method ===
+forwarddiff       : 4/5 (80.0%)
+finitediff        : 4/5 (80.0%)
+symbolic          : 4/5 (80.0%)
+sparse_forwarddiff: 4/5 (80.0%)
+none              : 6/9 (66.7%)
+
+Fastest successful solve: SimpleNewtonRaphson with symbolic jacobian (0.26 ms)
+
+================================================================================
+BENCHMARK COMPLETE
+================================================================================

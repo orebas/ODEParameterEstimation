@@ -329,12 +329,16 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	)
 end
 
+
+
+
+
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	# Extract needed values from opts
 	system_solver = get_solver_function(opts.system_solver)
 	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
 	polish_method = get_polish_optimizer(opts.polish_method)
-	
+
 	if !opts.nooutput
 		println("Starting model: ", PEP.name)
 	end
@@ -347,19 +351,32 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	results_tuple_aaad = ([], Dict(), Dict(), [])
 	results_tuple_multi = ([], Dict(), Dict(), [])
 
-	# Choose between old and new flow
-	if opts.use_new_flow
+	# Choose workflow based on opts.flow
+	if opts.flow == FlowStandard
 		if !opts.nooutput
 			println("Using NEW optimized parameter estimation flow")
 		end
-		# Use the new optimized flow with the new solver
 		results_tuple = optimized_multishot_parameter_estimation(PEP, opts)
-	else
+	elseif opts.flow == FlowDeprecated
 		if !opts.nooutput
 			println("Using standard parameter estimation flow")
 		end
-		# Use the original flow
 		results_tuple = multishot_parameter_estimation(PEP, opts)
+	elseif opts.flow == FlowDirectOpt
+		if !opts.nooutput
+			println("Using direct optimization workflow (BFGS)")
+		end
+		# Align return signature with other workflows: (solutions, unident_dict, trivial_dict, all_unidentifiable)
+		local direct_results
+		try
+			direct_results = direct_optimization_parameter_estimation(PEP; opts = opts)
+		catch e
+			@warn "Direct optimization failed: $e"
+			direct_results = []
+		end
+		results_tuple = (direct_results, Dict(), Dict(), [])
+	else
+		error("Unknown EstimationFlow: $(opts.flow)")
 	end
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 
@@ -368,10 +385,16 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		try
 			# Create modified options with AAAD interpolator
 			opts_aaad = merge_options(opts, interpolator = InterpolatorAAAD)
-			if opts.use_new_flow
+			if opts.flow == FlowStandard
 				results_tuple_aaad = optimized_multishot_parameter_estimation(PEP, opts_aaad)
-			else
+			elseif opts.flow == FlowDeprecated
 				results_tuple_aaad = multishot_parameter_estimation(PEP, opts_aaad)
+			elseif opts.flow == FlowDirectOpt
+				# For direct optimization, AAAD interpolator is irrelevant; rerun direct path
+				local direct_results_aaad = direct_optimization_parameter_estimation(PEP; opts = opts_aaad)
+				results_tuple_aaad = (direct_results_aaad, Dict(), Dict(), [])
+			else
+				error("Unknown EstimationFlow: $(opts.flow)")
 			end
 		catch e
 			@warn "Second estimation failed: $e"

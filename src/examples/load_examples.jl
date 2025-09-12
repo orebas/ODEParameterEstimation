@@ -62,8 +62,8 @@ function run_parameter_estimation_examples(;
 	use_si_template = nothing,
 )
 	# Merge any provided keyword arguments with EstimationOptions
-	if !isnothing(datasize) || !isnothing(noise_level) || !isnothing(interpolator) || 
-	   !isnothing(system_solver) || !isnothing(shooting_points) || !isnothing(try_more_methods) || 
+	if !isnothing(datasize) || !isnothing(noise_level) || !isnothing(interpolator) ||
+	   !isnothing(system_solver) || !isnothing(shooting_points) || !isnothing(try_more_methods) ||
 	   !isnothing(use_new_flow) || !isnothing(use_si_template)
 		# Build keyword dict for merging
 		merge_kwargs = Dict{Symbol, Any}()
@@ -73,7 +73,7 @@ function run_parameter_estimation_examples(;
 		!isnothing(try_more_methods) && (merge_kwargs[:try_more_methods] = try_more_methods)
 		!isnothing(use_new_flow) && (merge_kwargs[:use_new_flow] = use_new_flow)
 		!isnothing(use_si_template) && (merge_kwargs[:use_si_template] = use_si_template)
-		
+
 		# Handle special cases for interpolator and system_solver
 		if !isnothing(interpolator)
 			if interpolator == aaad_gpr_pivot
@@ -84,7 +84,7 @@ function run_parameter_estimation_examples(;
 				merge_kwargs[:custom_interpolator] = interpolator
 			end
 		end
-		
+
 		if !isnothing(system_solver)
 			if system_solver == solve_with_rs || system_solver == solve_with_rs_new
 				merge_kwargs[:system_solver] = SolverRS
@@ -96,10 +96,16 @@ function run_parameter_estimation_examples(;
 				merge_kwargs[:system_solver] = SolverFastNLOpt
 			end
 		end
-		
+
+		# Backward-compat: map legacy boolean to new flow enum
+		if haskey(merge_kwargs, :use_new_flow)
+			merge_kwargs[:flow] = merge_kwargs[:use_new_flow] ? FlowStandard : FlowDeprecated
+			delete!(merge_kwargs, :use_new_flow)
+		end
+
 		opts = merge_options(opts; merge_kwargs...)
 	end
-	
+
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
 
@@ -196,18 +202,20 @@ function run_parameter_estimation_examples(;
 								isnothing(pep.recommended_time_interval) ? [0.0, 5.0] :
 								pep.recommended_time_interval
 
-							if opts.use_new_flow
+							if opts.flow == FlowStandard
 								println("Using NEW optimized workflow")
-							else
+							elseif opts.flow == FlowDeprecated
 								println("Using standard workflow")
+							elseif opts.flow == FlowDirectOpt
+								println("Using direct optimization workflow")
 							end
-							
+
 							# Create options for this specific model with the correct time interval
 							model_opts = merge_options(opts, time_interval = time_interval)
 
-							analyze_parameter_estimation_problem(
+							@time analyze_parameter_estimation_problem(
 								sample_problem_data(pep, model_opts),
-								model_opts
+								model_opts,
 							)
 							println("SUCCESS")
 							println(original_stdout, "Model $model_name ran successfully.")

@@ -1196,13 +1196,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				:debug_dimensional_analysis => opts.debug_dimensional_analysis,
 			)
 			solutions, hc_vars, trivial_dict, trimmed_vars = system_solver(final_target, final_varlist_point; options = solver_options)
+			println("solutions: $solutions")
+			println("hc_vars: $hc_vars")
+			println("trivial_dict: $trivial_dict")
+			println("trimmed_vars: $trimmed_vars")
 
 			# Optional: polish each raw solver solution using fast NLLS if requested
 			if opts.polish_solver_solutions && !isempty(solutions)
 				polished_point = Vector{Vector{Float64}}()
 				for sol in solutions
 					start_pt = real.(sol)
-					p_solutions, _, _, _ = solve_with_fast_nlopt(final_target, final_varlist_point; start_point = start_pt, polish_only = true, options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug_solver => opts.diagnostics, :log_every => 5))
+					p_solutions, _, _, _ = solve_with_robust(final_target, final_varlist_point; start_point = start_pt, polish_only = true, options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => opts.diagnostics))
 					if !isempty(p_solutions)
 						push!(polished_point, p_solutions[1])
 					else
@@ -1441,4 +1445,3 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 end
 
 # Export the main function
-export optimized_multishot_parameter_estimation

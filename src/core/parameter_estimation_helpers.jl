@@ -527,9 +527,11 @@ function process_estimation_results(
 			else
 				states[i]
 			end
+			# Convert trivial_dict to Dict{Symbol, Any} to ensure type stability
+			safe_trivial_dict = Dict{Symbol, Any}(solution_data.trivial_dict)
 			initial_conditions[i] = lookup_value(
 				states[i], model_state_search,
-				soln_index, solution_data.good_udict, trivial_dict, final_varlist, trimmed_varlist, solns,
+				soln_index, solution_data.good_udict, safe_trivial_dict, final_varlist, trimmed_varlist, solns,
 			)
 		end
 

@@ -1448,10 +1448,10 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 
 	# Set default bounds if not provided
 	if lb === nothing
-		lb = -3.0 * ones(Float64, length(p0))
+		lb = -10.0 * ones(Float64, length(p0))
 	end
 	if ub === nothing
-		ub = 3.0 * ones(Float64, length(p0))
+		ub = 10.0 * ones(Float64, length(p0))
 	end
 
 	# Build the ODE problem using the model stored in PEP.
@@ -1522,7 +1522,7 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	# Set up the Optimization problem using auto-differentiation via ForwardDiff
 	adtype = Optimization.AutoForwardDiff()
 	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
-	optprob = Optimization.OptimizationProblem(optf, p0)  #lb = lb, ub = ub
+	optprob = Optimization.OptimizationProblem(optf, p0; lb = lb, ub = ub)
 
 	# Solve the optimization problem with a timeout
 	result = Optimization.solve(optprob, opt_method(), callback = (p, l) -> false, maxiters = opt_maxiters)
@@ -1544,6 +1544,141 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 	polished_result.err = loss(p_opt)
 
 	return polished_result, result
+end
+
+
+"""
+	direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
+										   opts::EstimationOptions = EstimationOptions())
+
+Performs parameter estimation using a direct local optimization approach,
+starting from a random initial guess. This is an alternative to the
+symbolic-numeric methods like `optimized_multishot_parameter_estimation`.
+
+It replicates the behavior of a standalone optimization script by:
+- Starting from a single random parameter guess.
+- Using a gradient-based local optimizer (`BFGS`) to minimize the squared error.
+- Using bounds `[0,1]` by default, configurable via `opts.opt_lb` and `opts.opt_ub`.
+
+This function is useful for problems where symbolic methods may struggle,
+but it is not guaranteed to find a global optimum. For better results,
+multiple runs may be required.
+
+Returns a `Vector{ParameterEstimationResult}` containing a single result.
+"""
+function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
+	opts::EstimationOptions = EstimationOptions())
+	# Extract problem information
+	t_vector = PEP.data_sample["t"]
+	state_syms = collect(keys(PEP.ic))
+	param_syms_out = collect(keys(PEP.p_true))
+
+	# Use system ordering for problem construction and evaluation
+	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+	param_syms = ModelingToolkit.parameters(PEP.model.system)
+	n_ic = length(unknown_syms)
+	n_param = length(param_syms)
+	p_size = n_ic + n_param
+
+	# Set up initial guess and bounds: if user provides valid bounds, use them; otherwise run unconstrained
+	use_bounds = (!isnothing(opts.opt_lb)) && (!isnothing(opts.opt_ub)) &&
+				 (length(opts.opt_lb) == p_size) && (length(opts.opt_ub) == p_size)
+	lb = use_bounds ? opts.opt_lb : nothing
+	ub = use_bounds ? opts.opt_ub : nothing
+	p0 = use_bounds ? (lb .+ rand(p_size) .* (ub .- lb)) : rand(p_size)
+
+	if !opts.nooutput
+		println("Starting direct optimization with initial guess: ", p0)
+	end
+
+	# Build the ODE problem template once (dictionary form to avoid deprecation)
+	new_model = complete(PEP.model.system)
+	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
+	u0_map = Dict(unknown_syms .=> p0[1:n_ic])
+	p_map = Dict(param_syms .=> p0[(n_ic+1):end])
+	prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
+
+	# Precompute data target arrays and compiled measurement functions
+	data_targets = [PEP.data_sample[eq.rhs] for eq in PEP.measured_quantities]
+	obs_funcs = begin
+		[
+			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
+				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
+				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
+			end for eq in PEP.measured_quantities
+		]
+	end
+
+	# Reverse-mode adjoint for low allocations
+	adtype = Optimization.AutoForwardDiff()
+
+	# Loss function using views and ODEProblem reconstruction to avoid deprecated vector API
+	function loss(p_all)
+		ic_guess = @view p_all[1:n_ic]
+		param_guess = @view p_all[(n_ic+1):end]
+
+		prob_opt = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_guess), Dict(param_syms .=> param_guess)), tspan)
+		sol_opt = try
+			ModelingToolkit.solve(prob_opt, PEP.solver; saveat = t_vector, abstol = opts.abstol, reltol = opts.reltol)
+		catch e
+			!opts.nooutput && println("WARNING: ODE solver failed with error: $e")
+			return Inf
+		end
+		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
+
+		# Accumulate squared error directly, AD-friendly (no Float64 arrays)
+		total_error = zero(eltype(param_guess))
+		for (j, f) in enumerate(obs_funcs)
+			data_true = data_targets[j]
+			local_err = zero(eltype(param_guess))
+			@inbounds for i in eachindex(t_vector)
+				val = f(sol_opt.u[i], param_guess)
+				diff = val - data_true[i]
+				local_err += diff * diff
+			end
+			total_error += local_err
+		end
+		return total_error
+	end
+
+	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
+	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0; lb = lb, ub = ub) :
+			  Optimization.OptimizationProblem(optf, p0)
+
+	# Prefer LBFGS for lower memory footprint
+	result = Optimization.solve(optprob, LBFGS(); maxiters = opts.opt_maxiters)
+
+	# Extract final values
+	p_opt = result.u
+	ic_opt = p_opt[1:n_ic]
+	param_opt = p_opt[(n_ic+1):end]
+
+	prob_final = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_opt), Dict(param_syms .=> param_opt)), tspan)
+	sol_final = ModelingToolkit.solve(prob_final, PEP.solver; saveat = t_vector, abstol = opts.abstol, reltol = opts.reltol)
+
+	# Map back to original output symbol order (PEP.ic/p_true order) for result tables
+	states_out = OrderedDict(zip(state_syms, [sol_final.u[1][i] for i in 1:length(state_syms)]))
+	params_out = OrderedDict(zip(param_syms_out, param_opt[1:length(param_syms_out)]))
+
+	final_result = ParameterEstimationResult(
+		params_out,
+		states_out,
+		t_vector[1],
+		result.objective,
+		nothing,
+		length(t_vector),
+		t_vector[1],
+		Dict{Any, Any}(),
+		Set{Any}(),
+		sol_final,
+	)
+
+	if !opts.nooutput
+		println("Direct optimization finished with final loss: ", result.objective)
+		println("Found solution: ", merge(final_result.states, final_result.parameters))
+	end
+
+	return [final_result]
 end
 
 

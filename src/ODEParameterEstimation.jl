@@ -30,6 +30,16 @@ using Statistics
 using Suppressor
 using Symbolics
 using TaylorDiff
+
+
+using NonlinearSolve, Symbolics, ForwardDiff, FiniteDiff, LinearAlgebra
+using NLopt, Optim, NLsolve
+using SciMLSensitivity
+using Zygote
+using SymbolicUtils
+
+
+
 #using CSV
 #using DataFrames
 #using DelimitedFiles
@@ -58,11 +68,11 @@ include("core/analysis_utils.jl")
 include("core/derivative_utils.jl")
 
 # Include core functionality
-using SymbolicUtils
 include("core/si_equation_builder.jl")  # StructuralIdentifiability integration
 include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
 include("core/robust_conversion.jl")  # New robust conversion utilities
+include("core/solve_with_robust.jl")  # Robust solver with multiple fallbacks
 include("core/pointpicker.jl")
 
 include("core/parameter_estimation_helpers.jl")
@@ -81,7 +91,9 @@ export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOL
 
 # Export core functions
 export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation, multishot_parameter_estimation
-export optimized_multishot_parameter_estimation, solve_with_rs_new, robust_exprs_to_AA_polys
+export optimized_multishot_parameter_estimation, solve_with_rs_new, robust_exprs_to_AA_polys, solve_with_robust
+export direct_optimization_parameter_estimation
+export estimate
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
@@ -106,6 +118,18 @@ export crauste, seir, daisy_mamil3, daisy_mamil4, hiv
 export substr_test, global_unident_test, sum_test, trivial_unident
 
 
+# Export the main types and functions
+export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
+export FlowDeprecated, FlowStandard, FlowDirectOpt
+export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
+export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorCustom
+export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
+export get_solver_function, get_interpolator_function, get_polish_optimizer
+export merge_options, validate_options, print_options, get_solver_options_dict
+export optimized_multishot_parameter_estimation
+
+
+#=
 
 @recompile_invalidations begin
 	@compile_workload begin
@@ -139,7 +163,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		opts = EstimationOptions(
 			datasize = 21,
 			noise_level = 0.0,
-			system_solver = SolverNLOpt,
+			system_solver = SolverRobust,
 			shooting_points = 1,
 		)
 
@@ -147,7 +171,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 		res = analyze_parameter_estimation_problem(estimation_problem, opts)
 	end
 end
-
+=#
 
 end # module
 

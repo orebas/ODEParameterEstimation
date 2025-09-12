@@ -34,23 +34,20 @@ function solve_with_nlopt(poly_system, varlist;
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
 
-	# Define residual function for NonlinearLeastSquares
+	# Debug controls
+	debug = get(options, :debug, false)
+	jac_mode = get(options, :jacobian, :none)
+
+	# Define residual function for NonlinearLeastSquares (AD-safe; no Float64 forcing)
+	res_evals_nlopt = Ref(0)
 	function residual!(res, u, p)
+		res_evals_nlopt[] += 1
+		d = Dict(zip(mangled_varlist, u))
 		for (i, eq) in enumerate(prepared_system)
-			ddict = Dict(zip(mangled_varlist, u))
-
-			println("eq: $eq")
-			println("type of eq: $(typeof(eq))")
-			println("ddict: $ddict")
-			println("type of ddict: $(typeof(ddict))")
-
-			substres = Symbolics.substitute(eq, ddict)
-			symbval = Symbolics.value(substres)
-			realval = real(symbval)
-			println("realval: $realval")
-			println("type of realval: $(typeof(realval))")
-			res[i] = Float64(realval)
+			val = Symbolics.value(Symbolics.substitute(eq, d))
+			res[i] = convert(eltype(u), val)
 		end
+		return nothing
 	end
 
 	# Set up optimization problem
@@ -62,6 +59,14 @@ function solve_with_nlopt(poly_system, varlist;
 		start_point
 	end
 
+	# Debug pre-solve
+	if debug
+		println("[NLOPT] equations=", m, " variables=", n)
+		println("[NLOPT] optimizer=", typeof(optimizer))
+		println("[NLOPT] jacobian_mode=", jac_mode)
+		println("[NLOPT] eltype(x0)=", eltype(x0))
+	end
+
 	# Calculate initial residual
 	initial_residual = zeros(m)
 	residual!(initial_residual, x0, nothing)
@@ -69,9 +74,9 @@ function solve_with_nlopt(poly_system, varlist;
 
 	# Create NonlinearLeastSquaresProblem
 	prob = NonlinearLeastSquaresProblem(
-		NonlinearFunction(residual!, resid_prototype = zeros(m)),
+		NonlinearFunction(residual!),
 		x0,
-		nothing;  # no parameters needed
+		nothing,
 	)
 
 	# Set solver options based on polish_only
@@ -81,8 +86,14 @@ function solve_with_nlopt(poly_system, varlist;
 		(abstol = 1e-8, reltol = 1e-8, maxiters = 10000)
 	end
 
-	# Merge with user options
-	solver_opts = merge(solver_opts, options)
+	# Merge with user options (only recognized keywords)
+	user_opts = Dict{Symbol, Any}()
+	for (k, v) in options
+		if k in (:abstol, :reltol, :maxiters)
+			user_opts[k] = v
+		end
+	end
+	solver_opts = merge(solver_opts, user_opts)
 
 	# Solve the problem with exception handling
 	sol = try
@@ -125,13 +136,20 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
 
+	# Debug and Jacobian configuration
+	debug = get(options, :debug, false)
+	jac_mode = get(options, :jacobian, :none)
 
-
-	# Define residual function for NonlinearLeastSquares
+	# Define residual function for NonlinearLeastSquares (AD-safe)
+	res_evals_nlopt_quick = Ref(0)
 	function residual!(res, u, p)
+		res_evals_nlopt_quick[] += 1
+		d = Dict(zip(mangled_varlist, u))
 		for (i, eq) in enumerate(prepared_system)
-			res[i] = Float64(real(Symbolics.value(Symbolics.substitute(eq, Dict(zip(mangled_varlist, u))))))
+			val = Symbolics.value(Symbolics.substitute(eq, d))
+			res[i] = convert(eltype(u), val)
 		end
+		return nothing
 	end
 
 	# Set up optimization problem
@@ -149,25 +167,39 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	initial_norm = norm(initial_residual)
 
 	# Create NonlinearLeastSquaresProblem
-	prob = NonlinearLeastSquaresProblem(
-		NonlinearFunction(residual!, resid_prototype = zeros(m)),
-		x0,
-		nothing;  # no parameters needed
-	)
+	nf = NonlinearFunction(residual!)
+	prob = NonlinearLeastSquaresProblem(nf, x0, nothing)
 
 	# Set solver options based on polish_only
 	solver_opts = (abstol = 1e-3, reltol = 1e-3, maxiters = 50)
 
-	# Merge with user options
-	solver_opts = merge(solver_opts, options)
-
-	# Solve the problem with exception handling
-	sol = try
-		NonlinearSolve.solve(prob, optimizer; solver_opts...)
-	catch e
-		@warn "Error during optimization: $(e)"
-		return [], mangled_varlist, Dict(), mangled_varlist
+	# Merge with user options (only recognized keywords)
+	user_opts = Dict{Symbol, Any}()
+	for (k, v) in options
+		if k in (:abstol, :reltol, :maxiters)
+			user_opts[k] = v
+		end
 	end
+	solver_opts = merge(solver_opts, user_opts)
+
+	# Pre-solve debug
+	if debug
+		println("[NLOPT_quick] equations=", m, " variables=", n)
+		println("[NLOPT_quick] optimizer=", typeof(optimizer))
+		println("[NLOPT_quick] jacobian_mode=", jac_mode)
+		println("[NLOPT_quick] eltype(x0)=", eltype(x0))
+	end
+
+	# Solve the problem (no additional fallbacks)
+	callback = if debug
+		(state, res) -> begin
+			println("[NLOPT_quick Iter $(state.iter)] res_norm=$(state.fu_norm)")
+			return false
+		end
+	else
+		nothing
+	end
+	sol = NonlinearSolve.solve(prob, optimizer; callback = callback, solver_opts...)
 
 	# Check if solution is valid
 	if SciMLBase.successful_retcode(sol)
@@ -177,16 +209,19 @@ function solve_with_nlopt_quick(poly_system, varlist;
 		final_norm = norm(final_residual)
 
 		improvement = initial_norm - final_norm
-		if improvement > 0
-			println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
-		else
-			println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
+		if debug
+			println("[NLOPT_quick] residual_norm initial=", initial_norm,
+				" final=", final_norm,
+				" improvement=", improvement,
+				" res_evals=", res_evals_nlopt_quick[])
 		end
 
 		# Return all four expected values: solutions, variables, trivial_dict, trimmed_varlist
 		return [sol.u], mangled_varlist, Dict(), mangled_varlist
 	else
-		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
+		if debug
+			@warn "[NLOPT_quick] Optimization did not converge" retcode=sol.retcode res_evals=res_evals_nlopt_quick[]
+		end
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 end
@@ -359,8 +394,8 @@ function solve_with_nlopt_testing(poly_system, varlist;
 			# Slow but robust fallback; keeps your original semantics.
 			d = Dict(zip(mangled_varlist, u))
 			@inbounds for i in 1:m
-				# Avoid `real(...)` so autodiff can work; assume expressions are real-valued.
-				res[i] = Float64(Symbolics.value(Symbolics.substitute(prepared_system[i], d)))
+				val = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
+				res[i] = convert(eltype(u), val)
 			end
 			nothing
 		end
@@ -384,9 +419,8 @@ function solve_with_nlopt_testing(poly_system, varlist;
 				  (abstol = 1e-8, reltol = 1e-8, maxiters = 10_000)
 
 	# Merge user options (convert Dict -> NamedTuple for keyword splatting)
-	# Strip any keys we handle explicitly.
-	user_pairs = collect(pairs(options))
-	# nothing to strip currently
+	# Strip any keys we don't want to pass to the solver.
+	user_pairs = filter(p -> first(p) in (:abstol, :reltol, :maxiters), collect(pairs(options)))
 	user_named = (; user_pairs...)
 	solver_opts = merge(solver_opts, user_named)
 
@@ -395,11 +429,17 @@ function solve_with_nlopt_testing(poly_system, varlist;
 	alg = isnothing(optimizer) ? NonlinearSolve.FastShortcutNLLSPolyalg() : optimizer
 
 	# Dense forward-mode AD is the safest default for problems of this size. :contentReference[oaicite:4]{index=4}
-	ad_backend = AutoForwardDiff()
-
-	# Solve
+	# Solve (let NonlinearSolve pick AD default compatible with function)
+	callback = if get(options, :debug, false)
+		(state, res) -> begin
+			println("[NLOPT_testing Iter $(state.iter)] res_norm=$(state.fu_norm)")
+			return false
+		end
+	else
+		nothing
+	end
 	sol = try
-		NonlinearSolve.solve(prob, alg; autodiff = ad_backend, solver_opts...)
+		NonlinearSolve.solve(prob, alg; callback = callback, solver_opts...)
 	catch e
 		@warn "Error during optimization: $(e)"
 		return [], mangled_varlist, Dict(), mangled_varlist
@@ -1113,7 +1153,8 @@ function save_poly_system(filepath, poly_system, varlist;
 			end
 		end
 		write(f, "\n")
-		write(f, "varlist = [$([Symbol(v) for v in varlist]...)]\n\n")
+		vars_str = join(string.(varlist), ", ")
+		write(f, "varlist = [" * vars_str * "]\n\n")
 
 
 		# Write polynomial system

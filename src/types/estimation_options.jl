@@ -12,6 +12,7 @@ Enum for selecting the polynomial system solver method.
 	SolverHC           # solve_with_hc - HomotopyContinuation solver
 	SolverNLOpt        # solve_with_nlopt - NonlinearSolve optimization
 	SolverFastNLOpt    # solve_with_fast_nlopt - Fast compiled NLOpt
+	SolverRobust       # solve_with_robust - Robust solver with multiple fallbacks
 end
 
 """
@@ -39,6 +40,21 @@ Note: These correspond to NonlinearSolve.jl and Optim.jl methods.
 	PolishGaussNewton      # GaussNewton
 	PolishBFGS             # BFGS from Optim.jl
 	PolishLBFGS            # LBFGS from Optim.jl
+end
+
+"""
+	EstimationFlow
+
+Enum selecting the high-level workflow used during estimation.
+
+- `FlowDeprecated`: Old/standard workflow
+- `FlowStandard`: New optimized multishot workflow (default)
+- `FlowDirectOpt`: Direct local optimization workflow (BFGS from random start)
+"""
+@enum EstimationFlow begin
+	FlowDeprecated   # old workflow
+	FlowStandard     # optimized_multishot_parameter_estimation
+	FlowDirectOpt    # direct_optimization_parameter_estimation
 end
 
 """
@@ -104,7 +120,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `trap_debug::Bool`: Enable debug trapping with file output (default: false)
 
 ## Feature Flags
-- `use_new_flow::Bool`: Use optimized parameter estimation workflow (default: true)
+- `flow::EstimationFlow`: Which workflow to run (default: `FlowStandard`)
 - `use_si_template::Bool`: Use StructuralIdentifiability.jl templates (default: true)
 - `try_more_methods::Bool`: Try additional estimation methods on failure (default: true)
 - `save_system::Bool`: Save polynomial systems to files (default: true)
@@ -162,7 +178,7 @@ opts = EstimationOptions(
 """
 Base.@kwdef struct EstimationOptions
 	# Solver and Algorithm Selection
-	system_solver::SystemSolverMethod = SolverRS
+	system_solver::SystemSolverMethod = SolverHC
 	ode_solver::Any = AutoVern9(Rodas4P())  # Any type due to ODE solver type complexity
 	interpolator::InterpolatorMethod = InterpolatorAAADGPR
 	custom_interpolator::Union{Nothing, Function} = nothing
@@ -192,9 +208,9 @@ Base.@kwdef struct EstimationOptions
 
 	# Optimization Parameters
 	polish_solutions::Bool = false
-	polish_solver_solutions::Bool = false
+	polish_solver_solutions::Bool = true
 	polish_method::PolishMethod = PolishNewtonTrust
-	polish_maxiters::Int = 10
+	polish_maxiters::Int = 100
 	opt_maxiters::Int = 10000
 	opt_lb::Union{Nothing, Vector{Float64}} = nothing
 	opt_ub::Union{Nothing, Vector{Float64}} = nothing
@@ -215,7 +231,7 @@ Base.@kwdef struct EstimationOptions
 	trap_debug::Bool = false
 
 	# Feature Flags
-	use_new_flow::Bool = true
+	flow::EstimationFlow = FlowStandard
 	use_si_template::Bool = true
 	try_more_methods::Bool = true
 	save_system::Bool = true
@@ -238,7 +254,7 @@ Base.@kwdef struct EstimationOptions
 	save_filepath::String = ""
 
 	# Solution Limits
-	max_solutions::Int = 20
+	max_solutions::Int = 100
 end
 
 """
@@ -255,6 +271,8 @@ function get_solver_function(method::SystemSolverMethod)
 		return solve_with_nlopt
 	elseif method == SolverFastNLOpt
 		return solve_with_fast_nlopt
+	elseif method == SolverRobust
+		return solve_with_robust
 	else
 		error("Unknown solver method: $method")
 	end
@@ -468,7 +486,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 			:uneven_sampling_times]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :trap_debug]),
-		("Feature Flags", [:use_new_flow, :use_si_template, :try_more_methods, :save_system,
+		("Feature Flags", [:flow, :use_si_template, :try_more_methods, :save_system,
 			:display_system, :polish_only, :ideal]),
 		("HomotopyContinuation", [:use_monodromy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
@@ -531,11 +549,3 @@ function get_solver_options_dict(opts::EstimationOptions)
 		:maxiters => opts.opt_maxiters,
 	)
 end
-
-# Export the main types and functions
-export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod
-export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorCustom
-export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
-export get_solver_function, get_interpolator_function, get_polish_optimizer
-export merge_options, validate_options, print_options, get_solver_options_dict

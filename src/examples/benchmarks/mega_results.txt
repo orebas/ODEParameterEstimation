@@ -1,0 +1,213 @@
+✓ Loaded NLsolve
+✓ Loaded Optim
+✗ Could not load JuMP
+✗ Could not load Ipopt
+✓ Loaded NLopt
+✓ Loaded Metaheuristics
+✓ Loaded BlackBoxOptim
+✓ Loaded Evolutionary
+✗ Could not load IntervalRootFinding
+✗ Could not load IntervalArithmetic
+✗ Could not load BayesianOptimization
+✓ Loaded Optimization
+✗ Could not load OptimizationNLopt
+✓ Loaded OptimizationOptimJL
+✗ Could not load OptimizationBBO
+✗ Could not load BifurcationKit
+✗ Could not load Surrogates
+✗ Could not load QuasiMonteCarlo
+[Info] Loading saved system from: /home/orebas/.julia/dev/ODEParameterEstimation/src/examples/benchmarks/saved_systems/system_point_1_2025-09-11T00:02:53.925.jl
+[Info] Loaded system with 4 equations and 4 variables.
+
+================================================================================
+MEGA BENCHMARK - Testing All Available Solvers
+================================================================================
+
+Testing: NLsolve_newton
+  NLsolve_newton                :  1201.29 ms | Success: ✓ | Norm: 1.272949e-14
+
+Testing: NLsolve_trust_region
+  NLsolve_trust_region          :   138.88 ms | Success: ✓ | Norm: 1.272949e-14
+
+Testing: NLsolve_anderson
+  Error: NLsolve.IsFiniteException
+  NLsolve_anderson              :      NaN ms | Success: ✗ | Norm: Inf
+
+Testing: Optim_BFGS
+  Optim_BFGS                    :   219.37 ms | Success: ✓ | Norm: 2.613626e-11
+
+Testing: Optim_LBFGS
+  Optim_LBFGS                   :     8.96 ms | Success: ✓ | Norm: 2.548217e-09
+
+Testing: Optim_NelderMead
+  Optim_NelderMead              :    15.33 ms | Success: ✓ | Norm: 1.004769e-04
+
+Testing: Optim_SimulatedAnnealing
+  Optim_SimulatedAnnealing      :    44.00 ms | Success: ✗ | Norm: 3.035679e-01
+
+Testing: Optim_ParticleSwarm
+  Optim_ParticleSwarm           :   634.07 ms | Success: ✓ | Norm: 4.933714e-04
+
+Testing: Metaheuristics_DE
+  Metaheuristics_DE             :  1714.83 ms | Success: ✗ | Norm: Inf
+
+Testing: Metaheuristics_PSO
+  Metaheuristics_PSO            :  1865.04 ms | Success: ✗ | Norm: Inf
+
+Testing: Metaheuristics_SA
+  Metaheuristics_SA             :  1684.25 ms | Success: ✗ | Norm: Inf
+
+Testing: Metaheuristics_GA
+  Error: MethodError
+  Metaheuristics_GA             :      NaN ms | Success: ✗ | Norm: Inf
+
+Testing: Metaheuristics_ECA
+  Metaheuristics_ECA            :   832.08 ms | Success: ✗ | Norm: Inf
+
+Testing: Metaheuristics_WOA
+  Metaheuristics_WOA            :  1012.62 ms | Success: ✗ | Norm: Inf
+
+Testing: BlackBoxOptim_default
+Starting optimization with optimizer DiffEvoOpt{FitPopulation{Float64}, RadiusLimitedSelector, BlackBoxOptim.AdaptiveDiffEvoRandBin{3}, RandomBound{ContinuousRectSearchSpace}}
+0.00 secs, 0 evals, 0 steps
+0.70 secs, 2 evals, 1 steps, improv/step: 1.000 (last = 1.0000), fitness=467.137755089
+1.67 secs, 4 evals, 2 steps, improv/step: 0.500 (last = 0.0000), fitness=124.648038335
+2.17 secs, 14099 evals, 14003 steps, improv/step: 0.248 (last = 0.2479), fitness=0.000000000
+
+Optimization stopped after 28419 steps and 2.56 seconds
+Termination reason: Too many steps (101) without any function evaluations (probably search has converged)
+Steps per second = 11081.34
+Function evals per second = 10785.00
+Improvements/step = Inf
+Total function evaluations = 27659
+
+
+Best candidate found: [0.536, 0.288904, 0.539, 0.155719]
+
+Fitness: 0.000000000
+
+  BlackBoxOptim_default         :  6737.60 ms | Success: ✗ | Norm: Inf
+
+Testing: BlackBoxOptim_adaptive_de
+Starting optimization with optimizer DiffEvoOpt{FitPopulation{Float64}, SimpleSelector, BlackBoxOptim.AdaptiveDiffEvoRandBin{3}, RandomBound{ContinuousRectSearchSpace}}
+0.00 secs, 0 evals, 0 steps
+0.50 secs, 15199 evals, 15088 steps, improv/step: 0.219 (last = 0.2190), fitness=0.000000000
+
+Optimization stopped after 30350 steps and 0.98 seconds
+Termination reason: Too many steps (101) without any function evaluations (probably search has converged)
+Steps per second = 30901.12
+Function evals per second = 30374.73
+Improvements/step = Inf
+Total function evaluations = 29833
+
+
+Best candidate found: [0.536, 0.288904, 0.539, 0.155719]
+
+Fitness: 0.000000000
+
+  BlackBoxOptim_adaptive_de     :  1531.33 ms | Success: ✗ | Norm: Inf
+
+Testing: BlackBoxOptim_xnes
+Starting optimization with optimizer XNESOpt{Float64, RandomBound{ContinuousRectSearchSpace}}
+0.00 secs, 0 evals, 0 steps
+sigma=1.0 |trace(ln_B)|=0.0
+0.50 secs, 13657 evals, 1951 steps, fitness=0.000000000
+sigma=2.1726524839983106e-18 |trace(ln_B)|=-1.1102230246251565e-15
+1.00 secs, 29085 evals, 4155 steps, fitness=0.000000000
+sigma=2.0375856572965132e-19 |trace(ln_B)|=-2.886579864025407e-15
+1.50 secs, 46025 evals, 6575 steps, fitness=0.000000000
+sigma=4.8568841217645195e-20 |trace(ln_B)|=-1.2934098236883074e-14
+2.00 secs, 62797 evals, 8971 steps, fitness=0.000000000
+sigma=1.2930995932143775e-20 |trace(ln_B)|=-2.3092638912203256e-14
+2.50 secs, 79471 evals, 11353 steps, fitness=0.000000000
+sigma=5.713388113869384e-22 |trace(ln_B)|=-3.019806626980426e-14
+3.00 secs, 96614 evals, 13802 steps, fitness=0.000000000
+sigma=2.4882173561823e-22 |trace(ln_B)|=-6.417089082333405e-14
+3.50 secs, 113407 evals, 16201 steps, fitness=0.000000000
+sigma=2.9117953073956777e-23 |trace(ln_B)|=-7.72715225139109e-14
+4.00 secs, 130459 evals, 18637 steps, fitness=0.000000000
+sigma=1.1098247309633026e-23 |trace(ln_B)|=-7.283063041541027e-14
+4.50 secs, 146503 evals, 20929 steps, fitness=0.000000000
+sigma=5.93662702856517e-24 |trace(ln_B)|=-9.237055564881302e-14
+
+Optimization stopped after 23399 steps and 5.00 seconds
+Termination reason: Max time (5.0 s) reached
+Steps per second = 4679.74
+Function evals per second = 32758.15
+Improvements/step = NaN
+Total function evaluations = 163793
+
+
+Best candidate found: [0.536, 0.288904, 0.539, 0.155719]
+
+Fitness: 0.000000000
+
+  BlackBoxOptim_xnes            :  8682.72 ms | Success: ✗ | Norm: Inf
+
+Testing: Evolutionary_CMAES
+  Evolutionary_CMAES            :  3270.40 ms | Success: ✗ | Norm: 4.953455e-03
+
+Testing: Evolutionary_GA
+  Error: MethodError
+  Evolutionary_GA               :      NaN ms | Success: ✗ | Norm: Inf
+
+Testing: Evolutionary_DE
+  Error: MethodError
+  Evolutionary_DE               :      NaN ms | Success: ✗ | Norm: Inf
+
+Testing: NLopt_LN_COBYLA
+  NLopt_LN_COBYLA               :     9.31 ms | Success: ✓ | Norm: 4.017365e-05
+
+Testing: NLopt_LN_BOBYQA
+  NLopt_LN_BOBYQA               :     1.73 ms | Success: ✓ | Norm: 3.704744e-04
+
+Testing: NLopt_GN_DIRECT
+  NLopt_GN_DIRECT               :   144.37 ms | Success: ✓ | Norm: 1.136823e-04
+
+Testing: NLopt_GN_CRS2
+  NLopt_GN_CRS2                 :   122.09 ms | Success: ✗ | Norm: 4.223968e-03
+
+Testing: NLopt_GN_ISRES
+  NLopt_GN_ISRES                :   281.59 ms | Success: ✗ | Norm: 1.756239e-02
+
+================================================================================
+MEGA BENCHMARK SUMMARY
+================================================================================
+
+=== Successful Solvers (sorted by time) ===
+Solver                         |  Time (ms) |      Final Norm
+------------------------------------------------------------
+NLopt_LN_BOBYQA                |      1.728 |    3.704744e-04
+Optim_LBFGS                    |      8.957 |    2.548217e-09
+NLopt_LN_COBYLA                |      9.305 |    4.017365e-05
+Optim_NelderMead               |     15.332 |    1.004769e-04
+NLsolve_trust_region           |    138.877 |    1.272949e-14
+NLopt_GN_DIRECT                |    144.368 |    1.136823e-04
+Optim_BFGS                     |    219.368 |    2.613626e-11
+Optim_ParticleSwarm            |    634.074 |    4.933714e-04
+NLsolve_newton                 |   1201.290 |    1.272949e-14
+
+=== Failed Solvers ===
+NLsolve_anderson               |        NaN |             Inf
+Optim_SimulatedAnnealing       |     44.002 |    3.035679e-01
+Metaheuristics_DE              |   1714.830 |             Inf
+Metaheuristics_PSO             |   1865.044 |             Inf
+Metaheuristics_SA              |   1684.254 |             Inf
+Metaheuristics_GA              |        NaN |             Inf
+Metaheuristics_ECA             |    832.079 |             Inf
+Metaheuristics_WOA             |   1012.619 |             Inf
+BlackBoxOptim_default          |   6737.601 |             Inf
+BlackBoxOptim_adaptive_de      |   1531.331 |             Inf
+BlackBoxOptim_xnes             |   8682.717 |             Inf
+Evolutionary_CMAES             |   3270.404 |    4.953455e-03
+Evolutionary_GA                |        NaN |             Inf
+Evolutionary_DE                |        NaN |             Inf
+NLopt_GN_CRS2                  |    122.087 |    4.223968e-03
+NLopt_GN_ISRES                 |    281.592 |    1.756239e-02
+
+=== Statistics ===
+Total solvers tested: 25
+Successful: 9
+Failed: 16
+Fastest: NLopt_LN_BOBYQA (1.73 ms)
+Average time (successful): 263.7 ms

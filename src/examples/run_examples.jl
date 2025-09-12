@@ -94,7 +94,7 @@ models_to_run = filter(x -> x != :sirsforced && x != :treatment, collect(keys(me
 
 #models_to_run = filter(x -> true, collect(keys(merge(model_dict, hard_model_dict))))
 
-#models_to_run = [:onevar_exp, :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
+#models_to_run =[:onevar_exp, :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
 
 #models_to_run = [:simple, :onevar_exp]
 #models_to_run = [:onevar_exp]
@@ -103,15 +103,24 @@ using Random
 models_to_run = shuffle(models_to_run)
 
 # Create EstimationOptions with desired settings
-opts = EstimationOptions(
+standard_opts = EstimationOptions(
 	datasize = 501,
 	noise_level = 0.000,
 	system_solver = SolverHC,
-	use_new_flow = true,
+	flow = FlowStandard,
 	use_si_template = true,
-	polish_solver_solutions = true, diagnostics = true)
+	polish_solver_solutions = true,
+	diagnostics = true)
 
-run_parameter_estimation_examples(models = models_to_run, opts = opts)
+nlopts = EstimationOptions(
+	datasize = 501,
+	noise_level = 0.000,
+	flow = FlowDirectOpt,
+	opt_maxiters = 200000)
+
+
+
+run_parameter_estimation_examples(models = models_to_run, opts = nlopts)
 
 # Alternative usage examples:
 
