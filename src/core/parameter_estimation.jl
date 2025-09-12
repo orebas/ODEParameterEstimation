@@ -1681,4 +1681,186 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 	return [final_result]
 end
 
+# Shared internal helper: optimize ODE parameters against data
+function _optimize_against_data(
+	PEP::ParameterEstimationProblem,
+	p0_all::AbstractVector{<:Real};
+	solver,
+	abstol::Float64,
+	reltol::Float64,
+	optimizer,
+	opt_maxiters::Int,
+	lb::Union{Nothing, AbstractVector{<:Real}} = nothing,
+	ub::Union{Nothing, AbstractVector{<:Real}} = nothing,
+	adtype = Optimization.AutoForwardDiff(),
+)
+	# Stable variable ordering from the system
+	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+	param_syms = ModelingToolkit.parameters(PEP.model.system)
+	n_ic = length(unknown_syms)
+	n_param = length(param_syms)
+	@assert length(p0_all) == n_ic + n_param "p0 length does not match (n_states + n_params)"
+
+	# Problem template using dict (avoids deprecated vector API)
+	new_model = complete(PEP.model.system)
+	t_vector = PEP.data_sample["t"]
+	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
+	u0_map = Dict(unknown_syms .=> p0_all[1:n_ic])
+	p_map = Dict(param_syms .=> p0_all[(n_ic+1):end])
+	prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
+
+	# Compile observable functions and collect data targets once
+	obs_funcs = begin
+		[
+			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
+				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
+				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
+			end for eq in PEP.measured_quantities
+		]
+	end
+	data_targets = [PEP.data_sample[eq.rhs] for eq in PEP.measured_quantities]
+
+	# Loss compatible with ForwardDiff Duals
+	function loss(p_all)
+		ic_guess = @view p_all[1:n_ic]
+		param_guess = @view p_all[(n_ic+1):end]
+
+		prob_opt = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_guess), Dict(param_syms .=> param_guess)), tspan)
+		sol_opt = try
+			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
+		catch e
+			println("WARNING: ODE solver failed with error: $e")
+			return Inf
+		end
+		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
+
+		total_error = zero(eltype(param_guess))
+		for (j, f) in enumerate(obs_funcs)
+			data_true = data_targets[j]
+			local_err = zero(eltype(param_guess))
+			@inbounds for i in eachindex(t_vector)
+				val = f(sol_opt.u[i], param_guess)
+				diff = val - data_true[i]
+				local_err += diff * diff
+			end
+			total_error += local_err
+		end
+		return total_error
+	end
+
+	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
+	use_bounds = !isnothing(lb) && !isnothing(ub)
+	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0_all; lb = lb, ub = ub) :
+			  Optimization.OptimizationProblem(optf, p0_all)
+	result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters)
+
+	# Final simulate
+	p_opt = result.u
+	ic_opt = p_opt[1:n_ic]
+	param_opt = p_opt[(n_ic+1):end]
+	prob_final = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_opt), Dict(param_syms .=> param_opt)), tspan)
+	sol_final = ModelingToolkit.solve(prob_final, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
+
+	# Map back to user-facing order (PEP.ic, PEP.p_true)
+	state_syms_out = collect(keys(PEP.ic))
+	param_syms_out = collect(keys(PEP.p_true))
+	state_index = Dict(s => i for (i, s) in enumerate(unknown_syms))
+	param_index = Dict(p => i for (i, p) in enumerate(param_syms))
+	states_out = OrderedDict(s => ic_opt[state_index[s]] for s in state_syms_out if haskey(state_index, s))
+	params_out = OrderedDict(p => param_opt[param_index[p]] for p in param_syms_out if haskey(param_index, p))
+
+	final_result = ParameterEstimationResult(
+		params_out,
+		states_out,
+		t_vector[1],
+		result.objective,
+		nothing,
+		length(t_vector),
+		t_vector[1],
+		Dict{Any, Any}(),
+		Set{Any}(),
+		sol_final,
+	)
+	return final_result, result
+end
+
+# Refactor polishing to use shared helper
+function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+	solver = Vern9(),
+	opt_method = LBFGS,
+	opt_maxiters = 20,
+	abstol = 1e-13,
+	reltol = 1e-13,
+	lb = nothing,
+	ub = nothing)
+	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+	param_syms = ModelingToolkit.parameters(PEP.model.system)
+	n_ic = length(unknown_syms)
+	n_param = length(param_syms)
+
+	# Build p0 vector in system order from candidate
+	ic_vec = [candidate_solution.states[s] for s in unknown_syms]
+	param_vec = [candidate_solution.parameters[p] for p in param_syms]
+	p0 = vcat(ic_vec, param_vec)
+
+	# Bounds optional
+	use_bounds = (!isnothing(lb) && length(lb) == n_ic + n_param) && (!isnothing(ub) && length(ub) == n_ic + n_param)
+	lb_use = use_bounds ? lb : nothing
+	ub_use = use_bounds ? ub : nothing
+
+	final_result, opt_result = _optimize_against_data(
+		PEP, p0;
+		solver = solver,
+		abstol = abstol,
+		reltol = reltol,
+		optimizer = opt_method(),
+		opt_maxiters = opt_maxiters,
+		lb = lb_use,
+		ub = ub_use,
+		adtype = Optimization.AutoForwardDiff(),
+	)
+	return final_result, opt_result
+end
+
+# Refactor direct optimization to use shared helper
+function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
+	opts::EstimationOptions = EstimationOptions())
+	# Ordering from system
+	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+	param_syms = ModelingToolkit.parameters(PEP.model.system)
+	n_ic = length(unknown_syms)
+	n_param = length(param_syms)
+	p_size = n_ic + n_param
+
+	# Optional bounds
+	use_bounds = (!isnothing(opts.opt_lb)) && (!isnothing(opts.opt_ub)) &&
+				 (length(opts.opt_lb) == p_size) && (length(opts.opt_ub) == p_size)
+	lb = use_bounds ? opts.opt_lb : nothing
+	ub = use_bounds ? opts.opt_ub : nothing
+	p0 = use_bounds ? (lb .+ rand(p_size) .* (ub .- lb)) : rand(p_size)
+
+	if !opts.nooutput
+		println("Starting direct optimization with initial guess: ", p0)
+	end
+
+	final_result, opt_result = _optimize_against_data(
+		PEP, p0;
+		solver = PEP.solver,
+		abstol = opts.abstol,
+		reltol = opts.reltol,
+		optimizer = LBFGS(),
+		opt_maxiters = opts.opt_maxiters,
+		lb = lb,
+		ub = ub,
+		adtype = Optimization.AutoForwardDiff(),
+	)
+
+	if !opts.nooutput
+		println("Direct optimization finished with final loss: ", opt_result.objective)
+		println("Found solution: ", merge(final_result.states, final_result.parameters))
+	end
+
+	return [final_result]
+end
+
 
