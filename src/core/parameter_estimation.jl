@@ -1423,7 +1423,7 @@ solution, err) have been updated with the optimized values.
 
 An example call is provided below.
 """
-function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
+#=function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
 	solver = Vern9(),
 	opt_method = LBFGS,
 	opt_maxiters = 20,
@@ -1545,8 +1545,8 @@ function polish_solution_using_optimization(candidate_solution::ParameterEstimat
 
 	return polished_result, result
 end
-
-
+=#
+#=
 """
 	direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
 										   opts::EstimationOptions = EstimationOptions())
@@ -1680,7 +1680,7 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 
 	return [final_result]
 end
-
+=#
 # Shared internal helper: optimize ODE parameters against data
 function _optimize_against_data(
 	PEP::ParameterEstimationProblem,

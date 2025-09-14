@@ -110,6 +110,9 @@ standard_opts = EstimationOptions(
 	flow = FlowStandard,
 	use_si_template = true,
 	polish_solver_solutions = true,
+	polish_solutions = true,
+	polish_maxiters = 200,
+	polish_method=PolishLBFGS,
 	diagnostics = true)
 
 nlopts = EstimationOptions(
@@ -120,7 +123,7 @@ nlopts = EstimationOptions(
 
 
 
-run_parameter_estimation_examples(models = models_to_run, opts = nlopts)
+run_parameter_estimation_examples(models = models_to_run, opts = standard_opts)
 
 # Alternative usage examples:
 
