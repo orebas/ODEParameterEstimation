@@ -66,6 +66,10 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 # Fields
 
+## Meta-options
+
+- `seed`: global RNG seed to be passed to `Random.seed!` (default: `42`).
+
 ## Solver and Algorithm Selection
 - `system_solver::SystemSolverMethod`: Main polynomial system solver (default: `SolverRS`)
 - `ode_solver`: ODE solver for simulation (default: `AutoVern9(Rodas4P())`)
@@ -177,6 +181,9 @@ opts = EstimationOptions(
 - When debugging, enable relevant debug flags and set `nooutput=false`
 """
 Base.@kwdef struct EstimationOptions
+    # RNG seed
+    seed::Int = 42
+
 	# Solver and Algorithm Selection
 	system_solver::SystemSolverMethod = SolverHC
 	ode_solver::Any = AutoVern9(Rodas4P())  # Any type due to ODE solver type complexity

@@ -334,6 +334,11 @@ end
 
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+    if !opts.nooutput
+      println("RNG seed: ", opts.seed)
+    end
+    Random.seed!(opts.seed)
+
 	# Extract needed values from opts
 	system_solver = get_solver_function(opts.system_solver)
 	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
