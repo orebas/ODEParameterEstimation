@@ -618,15 +618,12 @@ function process_estimation_results(
 					opt_maxiters = polish_maxiters,
 					abstol = 1e-14,
 					reltol = 1e-14,
+					opt_ad_backend = :forward,
 				)
 
-				# Keep both the original and polished result if polishing improved the error
-				if polished_result.err < candidate.err
-					push!(polished_solved_res, candidate)
-					push!(polished_solved_res, polished_result)
-				else
-					push!(polished_solved_res, candidate)
-				end
+				# Always retain the original candidate and append the polished result
+				push!(polished_solved_res, candidate)
+				push!(polished_solved_res, polished_result)
 			catch e
 				@warn "Failed to polish solution $i: $e"
 				push!(polished_solved_res, candidate)

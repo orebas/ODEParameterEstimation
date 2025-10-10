@@ -103,6 +103,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
 - `opt_lb::Vector{Float64}`: Lower bounds for optimization (default: fill(-3.0, n_params))
 - `opt_ub::Vector{Float64}`: Upper bounds for optimization (default: fill(3.0, n_params))
+- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:zygote`, `:enzyme`, `:finite`
 
 ## Data Sampling Parameters
 - `datasize::Int`: Number of data points to generate (default: 21)
@@ -214,6 +215,7 @@ Base.@kwdef struct EstimationOptions
 	opt_maxiters::Int = 10000
 	opt_lb::Union{Nothing, Vector{Float64}} = nothing
 	opt_ub::Union{Nothing, Vector{Float64}} = nothing
+	opt_ad_backend::Symbol = :forward
 
 	# Data Sampling Parameters
 	datasize::Int = 21

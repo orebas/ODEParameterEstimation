@@ -36,6 +36,8 @@ using NonlinearSolve, Symbolics, ForwardDiff, FiniteDiff, LinearAlgebra
 using NLopt, Optim, NLsolve
 using SciMLSensitivity
 using Zygote
+using Enzyme
+#using OptimizationEnzyme
 using SymbolicUtils
 
 

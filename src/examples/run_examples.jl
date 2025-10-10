@@ -94,10 +94,14 @@ models_to_run = filter(x -> x != :sirsforced && x != :treatment, collect(keys(me
 
 #models_to_run = filter(x -> true, collect(keys(merge(model_dict, hard_model_dict))))
 
-#models_to_run =[:onevar_exp, :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
+#models_to_run =	[:onevar_exp, :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
+
+#models_to_run = [:lotka_volterra]
 
 #models_to_run = [:simple, :onevar_exp]
 #models_to_run = [:onevar_exp]
+
+models_to_run = [:treatment, :sirsforced]
 
 using Random
 models_to_run = shuffle(models_to_run)
@@ -110,9 +114,10 @@ standard_opts = EstimationOptions(
 	flow = FlowStandard,
 	use_si_template = true,
 	polish_solver_solutions = true,
-	polish_solutions = true,
-	polish_maxiters = 200,
-	polish_method=PolishLBFGS,
+	polish_solutions = false,
+	polish_maxiters = 50,
+	polish_method = PolishLBFGS,
+	opt_ad_backend = :enzyme,
 	diagnostics = true)
 
 nlopts = EstimationOptions(

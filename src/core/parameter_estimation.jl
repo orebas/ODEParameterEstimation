@@ -1752,7 +1752,29 @@ function _optimize_against_data(
 	use_bounds = !isnothing(lb) && !isnothing(ub)
 	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0_all; lb = lb, ub = ub) :
 			  Optimization.OptimizationProblem(optf, p0_all)
-	result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters)
+	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
+	if opt_verbose
+		println("[polish] Starting optimization with $(typeof(optimizer))")
+		println("[polish]  n_states=$(n_ic), n_params=$(n_param), data_points=$(length(t_vector))")
+		println("[polish]  solver=$(typeof(solver)), abstol=$(abstol), reltol=$(reltol), maxiters=$(opt_maxiters)")
+		iter_count = 0
+		best_obj = Inf
+		last_t = time()
+		callback = (x, l) -> begin
+			iter_count += 1
+			now = time()
+			dt = now - last_t
+			last_t = now
+			if (iter_count == 1) || (l < best_obj) || (iter_count % 5 == 0)
+				best_obj = min(best_obj, l)
+				println("[polish]  iter=$(iter_count) loss=$(l) dt=$(round(dt; digits=3))s")
+			end
+			false
+		end
+		result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters, callback = callback)
+	else
+		result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters)
+	end
 
 	# Final simulate
 	p_opt = result.u
@@ -1786,7 +1808,7 @@ end
 
 # Refactor polishing to use shared helper
 function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
-	solver = Vern9(),
+	solver = package_wide_default_ode_solver,
 	opt_method = LBFGS,
 	opt_maxiters = 20,
 	abstol = 1e-13,

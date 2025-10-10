@@ -1424,13 +1424,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					solver = PEP.solver,
 					opt_method = polish_method,
 					opt_maxiters = opts.polish_maxiters,
+					opt_ad_backend = opts.opt_ad_backend,
 				)
 
-				if polished_result.err < candidate.err
-					push!(polished, polished_result)
-				else
-					push!(polished, candidate)
-				end
+				# Always keep the original candidate
+				push!(polished, candidate)
+				# Also keep the polished result
+				push!(polished, polished_result)
 			catch e
 				@debug "Failed to polish solution $i: $e"
 				push!(polished, candidate)
