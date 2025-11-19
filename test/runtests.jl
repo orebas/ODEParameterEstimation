@@ -14,7 +14,14 @@ using OrderedCollections
     include("test_derivative_utils.jl")
     
     # Polynomial solver tests
-    include("test_solve_with_rs.jl")
+    # Only test RS solver if the extension is loaded
+    if isdefined(ODEParameterEstimation, :solve_with_rs)
+        @testset "RS Solver Extension" begin
+            include("test_solve_with_rs.jl")
+        end
+    else
+        @info "RS extension not loaded, skipping RS solver tests"
+    end
     
     # More complex functional tests will be added later
     # include("test_parameter_estimation.jl") 

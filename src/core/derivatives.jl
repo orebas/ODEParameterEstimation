@@ -545,10 +545,10 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 	jitter = 1e-8
 	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
 
-	# 2. Do GPR approximation on normalized data with suppressed warnings
+	# 2. Do GPR approximation on normalized data
 	local gp
-	@suppress gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
-	@suppress GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
+	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
 	# Create a function that evaluates the GPR prediction and denormalizes the output
 	function denormalized_gpr(x)

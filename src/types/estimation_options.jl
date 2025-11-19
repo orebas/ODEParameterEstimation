@@ -8,8 +8,8 @@
 Enum for selecting the polynomial system solver method.
 """
 @enum SystemSolverMethod begin
-	SolverRS           # solve_with_rs - RealSolutions/RUR based solver (default)
-	SolverHC           # solve_with_hc - HomotopyContinuation solver
+	SolverRS           # solve_with_rs - RealSolutions/RUR based solver (requires extension)
+	SolverHC           # solve_with_hc - HomotopyContinuation solver (default)
 	SolverNLOpt        # solve_with_nlopt - NonlinearSolve optimization
 	SolverFastNLOpt    # solve_with_fast_nlopt - Fast compiled NLOpt
 	SolverRobust       # solve_with_robust - Robust solver with multiple fallbacks
@@ -67,7 +67,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 # Fields
 
 ## Solver and Algorithm Selection
-- `system_solver::SystemSolverMethod`: Main polynomial system solver (default: `SolverRS`)
+- `system_solver::SystemSolverMethod`: Main polynomial system solver (default: `SolverHC`)
 - `ode_solver`: ODE solver for simulation (default: `AutoVern9(Rodas4P())`)
 - `interpolator::InterpolatorMethod`: Data interpolation method (default: `InterpolatorAAADGPR`)
 - `custom_interpolator::Union{Nothing, Function}`: Custom interpolation function when `interpolator=InterpolatorCustom`
@@ -266,6 +266,10 @@ Convert SystemSolverMethod enum to actual solver function.
 """
 function get_solver_function(method::SystemSolverMethod)
 	if method == SolverRS
+		# Check if RS extension is loaded
+		if !isdefined(@__MODULE__, :solve_with_rs)
+			error("RS solver requested but RS extension is not loaded. Install RS and RationalUnivariateRepresentation packages to use this solver.")
+		end
 		return solve_with_rs
 	elseif method == SolverHC
 		return solve_with_hc

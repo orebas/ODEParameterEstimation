@@ -320,24 +320,9 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 	unidentifiable_params = si_template.unidentifiable
 	identifiable_funcs = si_template.identifiable_funcs
 
-	# Use SI.jl internals to reduce identifiable functions to an independent set
+	# Use the identifiable functions directly
+	# The QR decomposition below (line ~407) will handle any redundancy correctly
 	id_funcs_indep_nemo = identifiable_funcs
-	try
-		# Prefer nested module if present; otherwise use top-level bindings
-		if hasproperty(StructuralIdentifiability, :RationalFunctionFields)
-			SIRFF = getproperty(StructuralIdentifiability, :RationalFunctionFields)
-			rff = SIRFF.RationalFunctionField(identifiable_funcs)
-			id_funcs_indep_nemo = SIRFF.beautiful_generators(rff)
-		else
-			# In some SI versions, RFF types/functions are defined at the top level
-			rff = StructuralIdentifiability.RationalFunctionField(identifiable_funcs)
-			id_funcs_indep_nemo = StructuralIdentifiability.beautiful_generators(rff)
-		end
-	catch e
-		if diagnostics
-			@warn "[DEBUG-SI] Failed to compute independent identifiable functions via RFF; using raw list" error = e
-		end
-	end
 
 	# Convert identifiable funcs (independent set) from Nemo to Symbolics for easier processing
 	nemo_to_mtk_map = Dict() # We don't have the full map here, so we'll build it as needed

@@ -86,7 +86,9 @@ function run_parameter_estimation_examples(;
 		end
 
 		if !isnothing(system_solver)
-			if system_solver == solve_with_rs || system_solver == solve_with_rs_new
+			# Check if RS extension is loaded for RS solver comparison
+			if isdefined(ODEParameterEstimation, :solve_with_rs) &&
+			   (system_solver == solve_with_rs || system_solver == solve_with_rs_new)
 				merge_kwargs[:system_solver] = SolverRS
 			elseif system_solver == solve_with_hc
 				merge_kwargs[:system_solver] = SolverHC

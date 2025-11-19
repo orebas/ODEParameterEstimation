@@ -21,7 +21,6 @@ using LinearAlgebra
 using LineSearches
 using Optim
 using ForwardDiff
-using Suppressor
 using TaylorDiff
 using Random
 

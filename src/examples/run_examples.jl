@@ -23,8 +23,9 @@ using LeastSquaresOptim
 
 
 using AbstractAlgebra
-using RationalUnivariateRepresentation
-using RS
+# RS and RationalUnivariateRepresentation are now optional extensions
+# To use RS solver, install:
+# using Pkg; Pkg.add(["RS", "RationalUnivariateRepresentation"])
 
 
 #display(solve_with_rs(poly_system, varlist))
@@ -101,7 +102,7 @@ models_to_run = filter(x -> x != :sirsforced && x != :treatment, collect(keys(me
 #models_to_run = [:simple, :onevar_exp]
 #models_to_run = [:onevar_exp]
 
-models_to_run = [:treatment, :sirsforced]
+#models_to_run = [:treatment, :sirsforced]
 
 using Random
 models_to_run = shuffle(models_to_run)

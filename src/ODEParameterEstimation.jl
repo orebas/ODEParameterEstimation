@@ -24,10 +24,7 @@ using PolynomialRoots
 using PrecompileTools
 using Printf
 using Random
-using RationalUnivariateRepresentation
-using RS
 using Statistics
-using Suppressor
 using Symbolics
 using TaylorDiff
 
@@ -93,7 +90,7 @@ export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOL
 
 # Export core functions
 export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation, multishot_parameter_estimation
-export optimized_multishot_parameter_estimation, solve_with_rs_new, robust_exprs_to_AA_polys, solve_with_robust
+export optimized_multishot_parameter_estimation, solve_with_robust
 export direct_optimization_parameter_estimation
 export estimate
 
@@ -103,7 +100,7 @@ export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
-export calculate_observable_derivatives, solve_with_rs, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
+export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict
