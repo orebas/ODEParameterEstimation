@@ -12,7 +12,7 @@ using OrderedCollections
     include("test_math_utils.jl")
     include("test_core_types.jl")
     include("test_derivative_utils.jl")
-    
+
     # Polynomial solver tests
     # Only test RS solver if the extension is loaded
     if isdefined(ODEParameterEstimation, :solve_with_rs)
@@ -22,9 +22,12 @@ using OrderedCollections
     else
         @info "RS extension not loaded, skipping RS solver tests"
     end
-    
+
+    # Uncertainty Quantification tests
+    include("test_uncertainty_quantification.jl")
+
     # More complex functional tests will be added later
-    # include("test_parameter_estimation.jl") 
+    # include("test_parameter_estimation.jl")
     # include("test_derivatives.jl")
     # include("test_sampling.jl")
     # include("test_example_models.jl")

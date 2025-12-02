@@ -25,6 +25,7 @@ Enum for selecting the data interpolation method.
 	InterpolatorAAADGPR        # aaad_gpr_pivot - GPR-based AAA (default)
 	InterpolatorAAADOld        # aaad_old_reliable - Conservative AAA
 	InterpolatorFHD            # Floater-Hormann interpolation
+	InterpolatorAGP            # agp_gpr - AbstractGPs.jl GP interpolation with uncertainty
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -128,6 +129,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `display_system::Bool`: Display system being solved (default: false)
 - `polish_only::Bool`: Only polish existing solutions (default: false)
 - `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
+- `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 
 ## HomotopyContinuation Specific
 - `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
@@ -240,6 +242,7 @@ Base.@kwdef struct EstimationOptions
 	display_system::Bool = false
 	polish_only::Bool = false
 	ideal::Bool = false
+	compute_uncertainty::Bool = false  # Compute parameter uncertainty via GP covariance + IFT
 
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
@@ -298,6 +301,8 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return aaad_old_reliable
 	elseif method == InterpolatorFHD
 		return fhd5  # Default to degree 5 FHD
+	elseif method == InterpolatorAGP
+		return agp_gpr
 	elseif method == InterpolatorCustom
 		if isnothing(custom)
 			error("InterpolatorCustom selected but no custom_interpolator provided")
@@ -493,7 +498,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :trap_debug]),
 		("Feature Flags", [:flow, :use_si_template, :try_more_methods, :save_system,
-			:display_system, :polish_only, :ideal]),
+			:display_system, :polish_only, :ideal, :compute_uncertainty]),
 		("HomotopyContinuation", [:use_monodromy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),

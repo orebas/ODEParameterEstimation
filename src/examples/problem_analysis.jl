@@ -168,7 +168,15 @@ function analyze_solution(model, solution, data_sample, p_true, ic_true, solver;
 	true_values = collect(values(all_params))
 
 	for (param, true_val, est_val) in zip(keys(all_params), true_values, estimates)
-		param_rel_errors[param] = abs((est_val - true_val) / true_val)
+		# Handle NaN/Inf estimated values
+		if !isfinite(est_val)
+			param_rel_errors[param] = NaN
+		# Handle near-zero true values (use absolute error instead of relative)
+		elseif abs(true_val) < 1e-6
+			param_rel_errors[param] = abs(est_val - true_val)
+		else
+			param_rel_errors[param] = abs((est_val - true_val) / true_val)
+		end
 	end
 
 	return Dict(

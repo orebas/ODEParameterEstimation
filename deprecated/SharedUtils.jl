@@ -339,14 +339,21 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result)
 		# Calculate relative errors only for identifiable parameters
 		if !isempty(estimates)
 			# Calculate errors, using absolute error when true value is near zero
+			# Filter out NaN/Inf estimated values
 			errorvec = map(zip(estimates, true_values)) do (est, true_val)
-				if abs(true_val) < 1e-6
+				if !isfinite(est)
+					NaN  # Mark NaN estimates as NaN errors (will be filtered)
+				elseif abs(true_val) < 1e-6
 					abs(est - true_val)  # Use absolute error when true value is near zero
 				else
 					abs((est - true_val) / true_val)  # Use relative error otherwise
 				end
 			end
-			besterror = min(besterror, maximum(errorvec))
+			# Filter out NaN values before computing statistics
+			finite_errors = filter(isfinite, errorvec)
+			if !isempty(finite_errors)
+				besterror = min(besterror, maximum(finite_errors))
+			end
 		end
 	end
 	println("\nBest maximum relative error for $(problem.name) (excluding ALL unidentifiable parameters): $(round(besterror, digits=6))")

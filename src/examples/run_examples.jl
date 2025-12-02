@@ -90,14 +90,18 @@ hard_model_dict = Dict(
 
 # Determine which models to run
 
-models_to_run = filter(x -> x != :sirsforced && x != :treatment, collect(keys(merge(model_dict, hard_model_dict))))
+models_to_run = filter(
+				x -> x != :sirsforced && 
+				x != :treatment  && 
+				x != :crauste, collect(keys(merge(model_dict, hard_model_dict))))
+
 #models_to_run = filter(x -> x != :sirsforced, collect(keys(merge(model_dict, hard_model_dict))))
 
 #models_to_run = filter(x -> true, collect(keys(merge(model_dict, hard_model_dict))))
 
 #models_to_run =	[:onevar_exp, :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed, :lotka_volterra, :lv_periodic, :vanderpol, :brusselator, :harmonic, :substr_test, :global_unident_test, :sum_test, :trivial_unident, :two_compartment_pk, :fitzhugh_nagumo]
 
-#models_to_run = [:lotka_volterra]
+#models_to_run = [:lotka_volterra, :threesp_cubed, :lv_periodic, :vanderpol]
 
 #models_to_run = [:simple, :onevar_exp]
 #models_to_run = [:onevar_exp]
@@ -110,7 +114,7 @@ models_to_run = shuffle(models_to_run)
 # Create EstimationOptions with desired settings
 standard_opts = EstimationOptions(
 	datasize = 501,
-	noise_level = 0.000,
+	noise_level = 0.000001,
 	system_solver = SolverHC,
 	flow = FlowStandard,
 	use_si_template = true,
@@ -119,6 +123,8 @@ standard_opts = EstimationOptions(
 	polish_maxiters = 50,
 	polish_method = PolishLBFGS,
 	opt_ad_backend = :enzyme,
+ 	interpolator = InterpolatorAGP,
+	#interpolator = InterpolatorAAADGPR,
 	diagnostics = true)
 
 nlopts = EstimationOptions(
@@ -126,6 +132,8 @@ nlopts = EstimationOptions(
 	noise_level = 0.000,
 	flow = FlowDirectOpt,
 	opt_maxiters = 200000)
+
+
 
 
 

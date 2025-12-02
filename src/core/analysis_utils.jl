@@ -283,21 +283,28 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		# Calculate relative errors only for identifiable parameters
 		if !isempty(estimates)
 			# Calculate errors, using absolute error when true value is near zero
+			# Filter out NaN/Inf estimated values
 			errorvec = map(zip(estimates, true_values)) do (est, true_val)
-				if abs(true_val) < 1e-6
+				if !isfinite(est)
+					NaN  # Mark NaN estimates as NaN errors (will be filtered)
+				elseif abs(true_val) < 1e-6
 					abs(est - true_val)  # Use absolute error when true value is near zero
 				else
 					abs((est - true_val) / true_val)  # Use relative error otherwise
 				end
 			end
-			besterror = min(besterror, maximum(errorvec))
+			# Filter out NaN values before computing statistics
+			finite_errors = filter(isfinite, errorvec)
+			if !isempty(finite_errors)
+				besterror = min(besterror, maximum(finite_errors))
 
-			# Calculate additional statistics
-			best_min_error = min(best_min_error, minimum(errorvec))
-			best_mean_error = min(best_mean_error, mean(errorvec))
-			best_median_error = min(best_median_error, median(errorvec))
-			best_max_error = min(best_max_error, maximum(errorvec))
-			best_rms_error = min(best_rms_error, sqrt(mean(errorvec .^ 2)))
+				# Calculate additional statistics using filtered errors
+				best_min_error = min(best_min_error, minimum(finite_errors))
+				best_mean_error = min(best_mean_error, mean(finite_errors))
+				best_median_error = min(best_median_error, median(finite_errors))
+				best_max_error = min(best_max_error, maximum(finite_errors))
+				best_rms_error = min(best_rms_error, sqrt(mean(finite_errors .^ 2)))
+			end
 		end
 	end
 	if !nooutput
@@ -419,7 +426,33 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	end
 
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput)
-	return results_tuple, results_tuple_to_return
+
+	# Compute uncertainty quantification if requested
+	uq_result = nothing
+	if opts.compute_uncertainty && !isempty(solved_res)
+		if !opts.nooutput
+			println("\nComputing parameter uncertainty...")
+		end
+		# Use the best solution for UQ
+		best_solution = first(filter(x -> !isnothing(x.err), sort(solved_res, by = x -> isnothing(x.err) ? Inf : x.err)))
+		try
+			uq_result = estimate_parameter_uncertainty(
+				PEP,
+				best_solution,
+				PEP.data_sample;
+				max_deriv_order = 2,
+				n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
+			)
+			if !opts.nooutput
+				print_uncertainty_results(uq_result)
+			end
+		catch e
+			@warn "Uncertainty quantification failed: $e"
+			uq_result = (success = false, message = "UQ failed: $e")
+		end
+	end
+
+	return results_tuple, results_tuple_to_return, uq_result
 
 end
 

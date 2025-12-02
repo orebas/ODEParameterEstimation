@@ -131,10 +131,39 @@ struct GPRapprox <: AbstractInterpolator
 	gp_function::Function
 end
 
+"""
+	AGPInterpolator <: AbstractInterpolator
+
+GP interpolator using AbstractGPs.jl with uncertainty quantification support.
+
+# Fields
+- `mean_function::Function`: Returns mean prediction (denormalized)
+- `std_function::Function`: Returns standard deviation (denormalized)
+- `posterior::Any`: AbstractGPs posterior GP object
+- `x_min::Float64`: Minimum x value (for normalization)
+- `x_range::Float64`: Range of x values (for normalization)
+- `y_mean::Float64`: Mean of y values (for denormalization)
+- `y_std::Float64`: Std of y values (for denormalization)
+
+# Usage
+When called as `interp(x)`, returns mean prediction only (drop-in compatible).
+For uncertainty, use `mean_and_var(interp, x)` to get (mean, variance) tuple.
+"""
+struct AGPInterpolator <: AbstractInterpolator
+	mean_function::Function
+	std_function::Function
+	posterior::Any
+	x_min::Float64
+	x_range::Float64
+	y_mean::Float64
+	y_std::Float64
+end
+
 # Define call methods for each interpolator type
 (y::FHDapprox)(z) = baryEval(z, y.internalFHD.f, y.internalFHD.x, y.internalFHD.w)
 (y::AAADapprox)(z) = baryEval(z, y.internalAAA.f, y.internalAAA.x, y.internalAAA.w)
 (y::GPRapprox)(z) = y.gp_function(z)
+(y::AGPInterpolator)(z) = y.mean_function(z)
 
 # AbstractInterpolator is defined at the top of the file
 
@@ -195,17 +224,8 @@ function nth_deriv(f::Function, n::Int, t::Real)::Real
 		return f(t)
 	end
 
-	# Prefer TaylorDiff for moderate orders; fall back for very high orders
-	if n <= 20
-		try
-			return TaylorDiff.derivative(f, t, Val(n))
-		catch e
-			# Fall through to robust fallback below
-		end
-	end
-
-	# Fallback: recursive ForwardDiff (slower, but avoids factorial overflow limits)
-	return nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n, t)
+	# Use TaylorDiff - no silent fallbacks, fail loudly if it doesn't work
+	return TaylorDiff.derivative(f, t, Val(n))
 end
 
 """
@@ -258,7 +278,7 @@ function aaad_in_testing(xs::AbstractArray{T}, ys::AbstractArray{T}; save_plot::
 
 	# Start with smaller noise for tighter fit
 	log_noise = -2.0  # Decreased from 0.0 for less noise/smoother fit
-	gp = GP(xs, ys, mZero, kernel, log_noise)
+	gp = GaussianProcesses.GP(xs, ys, mZero, kernel, log_noise)
 
 	try
 		optimize!(gp, method = BFGS(linesearch = LineSearches.BackTracking()))
@@ -547,7 +567,7 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 
 	# 2. Do GPR approximation on normalized data
 	local gp
-	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	gp = GaussianProcesses.GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
 	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
 	# Create a function that evaluates the GPR prediction and denormalizes the output
@@ -557,4 +577,325 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 	end
 
 	return GPRapprox(denormalized_gpr)
+end
+
+"""
+	agp_gpr_manual(xs, ys; kernel_type=:se) -> AGPInterpolator
+
+BACKUP: Manual GP implementation using direct kernel matrix computation.
+Kept as fallback in case Zygote-based optimization has issues.
+
+Creates GP interpolator using AbstractGPs.jl with manual hyperparameter optimization.
+Uses direct Cholesky factorization instead of AbstractGPs logpdf for performance.
+
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates (e.g., time points)
+- `ys::AbstractArray{T}`: Y coordinates (observations)
+- `kernel_type::Symbol`: `:se` (Squared Exponential) or `:matern52`
+
+# Returns
+- `AGPInterpolator` - callable as `interp(x)` for mean, or use `mean_and_var(interp, x)`
+"""
+function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
+                        kernel_type::Symbol = :se)::AGPInterpolator where {T}
+	@assert length(xs) == length(ys) "Input arrays must have same length"
+	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
+
+	# Handle constant data edge case
+	y_std_raw = std(ys)
+	if y_std_raw < 1e-10
+		constant_val = mean(ys)
+		return AGPInterpolator(
+			x -> constant_val,
+			x -> 0.0,
+			nothing,
+			0.0, 1.0, constant_val, 1.0
+		)
+	end
+
+	# Normalize X to [0, 1]
+	x_min, x_max = extrema(xs)
+	x_range = max(x_max - x_min, 1e-10)
+	xs_norm = (collect(xs) .- x_min) ./ x_range
+
+	# Standardize Y (zero mean, unit variance)
+	y_mean = mean(ys)
+	y_std = max(y_std_raw, 1e-8)
+	ys_norm = (collect(ys) .- y_mean) ./ y_std
+
+	# Initial hyperparameters (in normalized space)
+	# Match the default GPR implementation's approach
+	initial_lengthscale = std(xs_norm) / 8  # Data-dependent, like default
+	initial_variance = 1.0
+	initial_noise_var = exp(-2.0)  # ~0.135, same as default's initial_noise = -2.0
+
+	# Build kernel using KernelFunctions.jl
+	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+
+	# Create GP with AbstractGPs.jl
+	kernel = initial_variance * (base_kernel ∘ ScaleTransform(1.0 / initial_lengthscale))
+	f = AbstractGPs.GP(kernel)
+
+	# Add observation noise and condition on data
+	# In AbstractGPs, noise is passed as second argument to FiniteGP: f(x, noise_var)
+	f_posterior = AbstractGPs.posterior(f(xs_norm, initial_noise_var), ys_norm)
+
+	# Pre-compute fixed parts for optimization (PERFORMANCE: avoid GP object creation)
+	n = length(xs_norm)
+	I_n = Matrix{Float64}(I, n, n)
+	ys_norm_vec = collect(ys_norm)  # Ensure it's a Vector
+
+	# Optimize hyperparameters using direct kernel matrix computation
+	# This avoids creating new GP objects on every optimization iteration
+	function neg_logpdf(θ)
+		l = exp(θ[1])      # lengthscale
+		σ² = exp(θ[2])     # signal variance
+		σₙ² = exp(θ[3])    # noise variance
+
+		# Build kernel matrix directly (no GP object needed)
+		scaled_kernel = base_kernel ∘ ScaleTransform(1.0 / l)
+		K = σ² * kernelmatrix(scaled_kernel, xs_norm)
+		K_noisy = K + σₙ² * I_n
+
+		try
+			# Cholesky factorization for log-likelihood
+			C = cholesky(Symmetric(K_noisy))
+			α = C \ ys_norm_vec
+
+			# Log marginal likelihood: -0.5 * (y'α + logdet(K) + n*log(2π))
+			loglik = -0.5 * (dot(ys_norm_vec, α) + logdet(C) + n * log(2π))
+			return -loglik
+		catch
+			return Inf
+		end
+	end
+
+	# Initial values in log space (like GaussianProcesses.jl)
+	θ0 = [log(initial_lengthscale), log(initial_variance), log(initial_noise_var)]
+
+	# Bounds for log hyperparameters to ensure numerical stability
+	lower = [-5.0, -5.0, -10.0]  # exp(-5) ≈ 0.007, exp(-10) ≈ 4.5e-5
+	upper = [5.0, 5.0, 2.0]      # exp(5) ≈ 148, exp(2) ≈ 7.4
+
+	# Optimized hyperparameters (will be updated if optimization succeeds)
+	l_opt = initial_lengthscale
+	σ²_opt = initial_variance
+	σₙ²_opt = initial_noise_var
+
+	try
+		# Use bounded LBFGS with BackTracking line search for robustness
+		result = Optim.optimize(neg_logpdf, lower, upper, θ0,
+			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
+			Optim.Options(iterations = 100))
+		θ_opt = Optim.minimizer(result)
+		l_opt = exp(θ_opt[1])
+		σ²_opt = exp(θ_opt[2])
+		σₙ²_opt = exp(θ_opt[3])
+	catch e
+		@warn "AbstractGPs hyperparameter optimization failed, using defaults" exception = e
+	end
+
+	# Pre-compute cached values for fast predictions (PERFORMANCE: O(n) per prediction)
+	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
+	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_norm)
+	K_noisy = K_train + σₙ²_opt * I_n
+	C_opt = cholesky(Symmetric(K_noisy))
+	alpha = C_opt \ ys_norm_vec  # Pre-computed weights for mean prediction
+
+	# Also create posterior for variance computation (needed for std_pred)
+	kernel_opt = σ²_opt * scaled_kernel_opt
+	f_opt = AbstractGPs.GP(kernel_opt)
+	f_posterior = AbstractGPs.posterior(f_opt(xs_norm, σₙ²_opt), ys_norm)
+
+	# Prediction functions using cached alpha (PERFORMANCE: O(n) per prediction)
+	function mean_pred(x::Real)
+		x_n = (x - x_min) / x_range
+		# Compute k_star = kernel vector between x_n and training points
+		k_star = [σ²_opt * scaled_kernel_opt(x_n, xi) for xi in xs_norm]
+		# Mean = k_star' * alpha
+		return y_std * dot(k_star, alpha) + y_mean
+	end
+
+	function std_pred(x::Real)
+		x_n = (x - x_min) / x_range
+		# For variance, still use posterior (could optimize further if needed)
+		pred_dist = f_posterior([x_n])
+		return y_std * sqrt(AbstractGPs.var(pred_dist)[1])
+	end
+
+	return AGPInterpolator(mean_pred, std_pred, f_posterior, x_min, x_range, y_mean, y_std)
+end
+
+"""
+	agp_gpr(xs, ys; kernel_type=:se) -> AGPInterpolator
+
+Creates GP interpolator using AbstractGPs.jl with Zygote-based hyperparameter optimization.
+This is the recommended approach - uses automatic differentiation for efficient gradient
+computation, following the AbstractGPs.jl best practices.
+
+Normalizes both X (to [0,1]) and Y (standardize) for numerical stability.
+
+# Arguments
+- `xs::AbstractArray{T}`: X coordinates (e.g., time points)
+- `ys::AbstractArray{T}`: Y coordinates (observations)
+- `kernel_type::Symbol`: `:se` (Squared Exponential) or `:matern52`
+
+# Returns
+- `AGPInterpolator` - callable as `interp(x)` for mean, or use `mean_and_var(interp, x)`
+
+# Example
+```julia
+interp = agp_gpr(t_data, y_data)
+prediction = interp(1.5)                      # Mean only
+mean_val, variance = mean_and_var(interp, 1.5)  # With uncertainty
+```
+"""
+function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
+                 kernel_type::Symbol = :se)::AGPInterpolator where {T}
+	@assert length(xs) == length(ys) "Input arrays must have same length"
+	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
+
+	# Handle constant data edge case
+	y_std_raw = std(ys)
+	if y_std_raw < 1e-10
+		constant_val = mean(ys)
+		return AGPInterpolator(
+			x -> constant_val,
+			x -> 0.0,
+			nothing,
+			0.0, 1.0, constant_val, 1.0
+		)
+	end
+
+	# NO X normalization - use raw X values like GPR does
+	# This avoids chain rule complications when computing derivatives with TaylorDiff
+	xs_raw = collect(xs)
+
+	# Standardize Y only (zero mean, unit variance)
+	y_mean = mean(ys)
+	y_std = max(y_std_raw, 1e-8)
+	ys_norm = (collect(ys) .- y_mean) ./ y_std
+
+	# Add small jitter to avoid numerical issues (matching GPR)
+	jitter = 1e-8
+	ys_norm = ys_norm .+ jitter * randn(length(ys_norm))
+
+	# Initial hyperparameters (in log space for unconstrained optimization)
+	# Match GPR: use raw xs std (not normalized)
+	initial_log_lengthscale = log(std(xs_raw) / 8)
+	initial_log_variance = 0.0  # log(1.0)
+	initial_log_noise = -2.0    # ~0.135
+
+	# Build base kernel using KernelFunctions.jl
+	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+
+	# Loss function using AbstractGPs - Zygote can differentiate through this
+	# NO floors on exp() - this preserves gradients for optimization
+	# Handle numerical issues via try/catch like GaussianProcesses.jl does
+	function neg_logpdf_agp(θ)
+		l = exp(θ[1])      # lengthscale
+		σ² = exp(θ[2])     # signal variance - NO floor
+		σₙ² = exp(θ[3])    # noise variance - NO floor
+
+		# Build kernel with current hyperparameters
+		k = σ² * (base_kernel ∘ ScaleTransform(1.0 / l))
+		gp = AbstractGPs.GP(k)
+
+		# Compute negative log marginal likelihood (using raw X)
+		try
+			return -logpdf(gp(xs_raw, σₙ²), ys_norm)
+		catch
+			return Inf
+		end
+	end
+
+	# Gradient function using Zygote
+	function grad_neg_logpdf(θ)
+		g = Zygote.gradient(neg_logpdf_agp, θ)[1]
+		# Handle case where gradient is nothing or has NaN
+		if isnothing(g) || any(isnan, g) || any(isinf, g)
+			return zeros(3)
+		end
+		return g
+	end
+
+	# Initial values
+	θ0 = [initial_log_lengthscale, initial_log_variance, initial_log_noise]
+
+	# Optimized hyperparameters (defaults in case optimization fails)
+	l_opt = exp(initial_log_lengthscale)
+	σ²_opt = 1.0
+	σₙ²_opt = exp(initial_log_noise)
+
+	try
+		# Use unbounded LBFGS to match GPR behavior exactly
+		result = Optim.optimize(
+			neg_logpdf_agp,
+			grad_neg_logpdf,
+			θ0,
+			LBFGS(linesearch = LineSearches.BackTracking()),
+			Optim.Options();  # Default iterations (1000)
+			inplace = false
+		)
+		θ_opt = Optim.minimizer(result)
+		l_opt = exp(θ_opt[1])
+		σ²_opt = exp(θ_opt[2])   # NO floor - trust optimizer result
+		σₙ²_opt = exp(θ_opt[3]) # NO floor - trust optimizer result
+	catch e
+		@warn "AbstractGPs hyperparameter optimization failed, using defaults" exception = e
+	end
+
+	# Build final GP with optimized hyperparameters (using raw X)
+	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
+	kernel_opt = σ²_opt * scaled_kernel_opt
+	f_opt = AbstractGPs.GP(kernel_opt)
+	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, σₙ²_opt), ys_norm)
+
+	# Pre-compute cached alpha for TaylorDiff-compatible predictions
+	# This avoids going through AbstractGPs/KernelFunctions/Distances which don't support TaylorScalar
+	n = length(xs_raw)
+	I_n = Matrix{Float64}(I, n, n)
+	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_raw)
+	K_noisy = K_train + σₙ²_opt * I_n
+	C_opt = cholesky(Symmetric(K_noisy))
+	alpha = C_opt \ collect(ys_norm)  # Pre-computed weights for mean prediction
+
+	# Prediction using cached alpha - TaylorDiff compatible (only basic arithmetic)
+	# This is O(n) per prediction and works with TaylorScalar because kernel(x, xi)
+	# is just exp(-0.5 * (x - xi)^2 / l^2) - basic math operations
+	# NO X normalization - use raw x directly like GPR
+	function mean_pred(x::Real)
+		# Compute k_star = kernel vector between x and training points (raw X)
+		# Using manual evaluation instead of kernelmatrix to support TaylorScalar
+		k_star = [σ²_opt * scaled_kernel_opt(x, xi) for xi in xs_raw]
+		# Mean = k_star' * alpha
+		return y_std * dot(k_star, alpha) + y_mean
+	end
+
+	function std_pred(x::Real)
+		# For variance, still use posterior (not used in TaylorDiff path)
+		pred_var = AbstractGPs.var(f_posterior([x]))[1]
+		return y_std * sqrt(pred_var)
+	end
+
+	# Store dummy values for x_min/x_range since we're not using X normalization
+	return AGPInterpolator(mean_pred, std_pred, f_posterior, 0.0, 1.0, y_mean, y_std)
+end
+
+"""
+	mean_and_var(interp::AGPInterpolator, x::Real) -> (Float64, Float64)
+
+Returns both mean prediction and variance at point x.
+
+# Arguments
+- `interp::AGPInterpolator`: The GP interpolator
+- `x::Real`: Point at which to evaluate
+
+# Returns
+- Tuple of (mean, variance) - both denormalized to original data scale
+"""
+function mean_and_var(interp::AGPInterpolator, x::Real)
+	mean_val = interp.mean_function(x)
+	std_val = interp.std_function(x)
+	return (mean_val, std_val^2)
 end
