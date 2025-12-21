@@ -158,7 +158,7 @@ function hiv()
 		0.002,   # b: death rate of immune cells (per day)
 		0.1]     # h: death rate of activated cells (per day)
 	ic_true = [1000.0,  # x: initial uninfected CD4+ T cells (per μL)
-		0.0,     # y: initial infected cells
+		1.0,     # y: initial infected cells (non-zero for practical identifiability of c, q)
 		1e-3,    # v: initial virus (per mL)
 		1.0,     # w: initial immune response
 		0.0]     # z: initial activated immune cells

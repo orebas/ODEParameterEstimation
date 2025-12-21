@@ -8,13 +8,110 @@ include("models/classical_systems.jl")
 include("models/simple_models.jl")
 include("models/test_models.jl")
 include("models/debug_models.jl")
-
-
+include("models/control_systems.jl")  # Control theory examples for IEEE TAC
 
 using GaussianProcesses
 using LineSearches
 using Optim
 using Statistics
+
+#=============================================================================
+                    SINGLE SOURCE OF TRUTH: MODEL REGISTRIES
+
+All available models are registered here. run_examples.jl and the
+run_parameter_estimation_examples() function reference these dicts.
+=============================================================================#
+
+"""Standard models that typically work well with default settings."""
+const STANDARD_MODELS = Dict(
+	# Simple models
+	:simple => simple,
+	:simple_linear_combination => simple_linear_combination,
+	:onesp_cubed => onesp_cubed,
+	:threesp_cubed => threesp_cubed,
+	:onevar_exp => onevar_exp,
+
+	# Classical systems
+	:lotka_volterra => lotka_volterra,
+	:lv_periodic => lv_periodic,
+	:vanderpol => vanderpol,
+	:brusselator => brusselator,
+	:harmonic => harmonic,
+
+	# Biological systems
+	:seir => seir,
+	:treatment => treatment,
+	:biohydrogenation => biohydrogenation,
+	:repressilator => repressilator,
+	:hiv_old_wrong => hiv_old_wrong,
+
+	# Test models
+	:substr_test => substr_test,
+	:global_unident_test => global_unident_test,
+	:sum_test => sum_test,
+	:trivial_unident => trivial_unident,
+
+	# DAISY models
+	:daisy_ex3 => daisy_ex3,
+	:daisy_mamil3 => daisy_mamil3,
+	:daisy_mamil4 => daisy_mamil4,
+
+	# Specialized models
+	:slowfast => slowfast,
+	:two_compartment_pk => two_compartment_pk,
+	:fitzhugh_nagumo => fitzhugh_nagumo,
+
+	# Control systems (original, may have transcendental inputs)
+	:dc_motor => dc_motor,
+	:mass_spring_damper => mass_spring_damper,
+	:cart_pole => cart_pole,
+	:tank_level => tank_level,
+	:cstr => cstr,
+	:quadrotor_altitude => quadrotor_altitude,
+	:thermal_system => thermal_system,
+	:ball_beam => ball_beam,
+	:bicycle_model => bicycle_model,
+	:swing_equation => swing_equation,
+	:magnetic_levitation => magnetic_levitation,
+	:aircraft_pitch => aircraft_pitch,
+	:two_tank => two_tank,
+	:boost_converter => boost_converter,
+	:flexible_arm => flexible_arm,
+	:bilinear_system => bilinear_system,
+	:forced_lotka_volterra => forced_lotka_volterra,
+	:cart_pole_linear => cart_pole_linear,
+	:maglev_linear => maglev_linear,
+
+	# Polynomialized / identifiable control systems
+	:dc_motor_identifiable => dc_motor_identifiable,
+	:quadrotor_altitude_identifiable => quadrotor_altitude_identifiable,
+	:magnetic_levitation_identifiable => magnetic_levitation_identifiable,
+	:aircraft_pitch_identifiable => aircraft_pitch_identifiable,
+	:bicycle_model_identifiable => bicycle_model_identifiable,
+	:boost_converter_identifiable => boost_converter_identifiable,
+	:bilinear_system_identifiable => bilinear_system_identifiable,
+	:forced_lotka_volterra_identifiable => forced_lotka_volterra_identifiable,
+	:tank_level_poly => tank_level_poly,
+	:two_tank_poly => two_tank_poly,
+	:cstr_reparametrized => cstr_reparametrized,
+	:cstr_fixed_activation => cstr_fixed_activation,
+)
+
+"""Models that are more challenging (stiff, ill-conditioned, or computationally expensive)."""
+const HARD_MODELS = Dict(
+	:hiv => hiv,
+	:crauste => crauste,
+	:crauste_corrected => crauste_corrected,
+	:crauste_revised => crauste_revised,
+	:allee_competition => allee_competition,
+	:sirsforced => sirsforced,
+)
+
+"""All available models (standard + hard)."""
+const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS)
+
+"""Get list of all available model names."""
+available_models() = sort(collect(keys(ALL_MODELS)))
 
 
 
@@ -34,18 +131,16 @@ using Statistics
 Run parameter estimation examples on the specified models.
 
 # Arguments
-- `models`: Symbol or Vector{Symbol} specifying which models to run. 
-		   Use :all for all models, or specify individual models like [:simple, :hiv]
+- `models`: Symbol or Vector{Symbol} specifying which models to run.
+		   Use :all for all models, :hard for challenging models only,
+		   or specify individual models like [:simple, :hiv]
 - `opts`: EstimationOptions struct containing all estimation parameters
 - Additional keyword arguments for backward compatibility (will be merged into opts)
 
 # Available models
-Simple models: :simple, :simple_linear_combination, :onesp_cubed, :threesp_cubed
-Classical systems: :lotka_volterra, :lv_periodic, :vanderpol, :brusselator
-Biological systems: :hiv, :seir, :treatment, :biohydrogenation, :repressilator, :crauste, :sirsforced
-Test models: :substr_test, :global_unident_test, :sum_test, :trivial_unident
-DAISY models: :daisy_ex3, :daisy_mamil3, :daisy_mamil4
-Specialized models: :slowfast, :allee_competition, :two_compartment_pk, :fitzhugh_nagumo
+Use `available_models()` to get the full list. Models are defined in:
+- STANDARD_MODELS: typical models that work well with defaults
+- HARD_MODELS: challenging models (stiff, ill-conditioned, expensive)
 """
 function run_parameter_estimation_examples(;
 	models = :all,
@@ -111,62 +206,13 @@ function run_parameter_estimation_examples(;
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
 
-	# Dictionary mapping model names to their constructor functions
-	model_dict = Dict(
-		# Simple models
-		:simple => simple,
-		:simple_linear_combination => simple_linear_combination,
-		:onesp_cubed => onesp_cubed,
-		:threesp_cubed => threesp_cubed,
-		:onevar_exp => onevar_exp,
-
-		# Classical systems
-		:lotka_volterra => lotka_volterra,
-		:lv_periodic => lv_periodic,
-		:vanderpol => vanderpol,
-		:brusselator => brusselator,
-		:harmonic => harmonic,
-
-		# Biological systems
-
-		:seir => seir,
-		:treatment => treatment,
-		:biohydrogenation => biohydrogenation,
-		:repressilator => repressilator,
-		:hiv_old_wrong => hiv_old_wrong,
-
-
-		# Test models
-		:substr_test => substr_test,
-		:global_unident_test => global_unident_test,
-		:sum_test => sum_test,
-		:trivial_unident => trivial_unident,
-
-		# DAISY models
-		:daisy_ex3 => daisy_ex3,
-		:daisy_mamil3 => daisy_mamil3,
-		:daisy_mamil4 => daisy_mamil4,
-
-		# Specialized models
-		:slowfast => slowfast, :two_compartment_pk => two_compartment_pk,
-		:fitzhugh_nagumo => fitzhugh_nagumo,
-	)
-
-	hard_model_dict = Dict(
-		:hiv => hiv,
-		:crauste => crauste,
-		:crauste_corrected => crauste_corrected,
-		:crauste_revised => crauste_revised,
-		:allee_competition => allee_competition,
-		:sirsforced => sirsforced,
-	)
-
-	# Determine which models to run
+	# Determine which models to run (using module-level STANDARD_MODELS and HARD_MODELS)
 	models_to_run = if models == :all
-		collect(keys(merge(model_dict, hard_model_dict)))
+		collect(keys(ALL_MODELS))
 	elseif models == :hard
-		collect(keys(hard_model_dict))
-
+		collect(keys(HARD_MODELS))
+	elseif models == :standard
+		collect(keys(STANDARD_MODELS))
 	elseif models isa Symbol
 		[models]
 	else
@@ -192,11 +238,7 @@ function run_parameter_estimation_examples(;
 				redirect_stdout(log_stream) do
 					redirect_stderr(log_stream) do
 						try
-							if model_name in keys(hard_model_dict)
-								model_fn = hard_model_dict[model_name]
-							else
-								model_fn = model_dict[model_name]
-							end
+							model_fn = ALL_MODELS[model_name]
 							pep = model_fn()
 
 							# Use the model's recommended timescale if available, otherwise default to [0.0, 5.0]

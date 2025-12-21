@@ -164,14 +164,24 @@ function construct_equation_system_from_si_template(
 
 	# FINAL FIX: Extract variables from the system *after* substitution
 	final_vars = OrderedSet()
-	for eq in substituted_equations
-		union!(final_vars, Symbolics.get_variables(eq))
+	for (eq_idx, eq) in enumerate(substituted_equations)
+		vars_in_eq = Symbolics.get_variables(eq)
+		union!(final_vars, vars_in_eq)
+		@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
 	end
 
 	if diagnostics
 		println("[DEBUG-SI] Extracted $(length(final_vars)) variables from substituted system: $(collect(final_vars))")
 	end
 
+	# Log the final variables list
+	@info "[DEBUG-SI-VARS] Final variables list ($(length(final_vars))): $(collect(final_vars))"
+
+	# Always log this critical count info
+	@info "[DEBUG-EQ-VAR-COUNT] After template instantiation: $(length(substituted_equations)) equations, $(length(final_vars)) variables"
+	if length(substituted_equations) != length(final_vars)
+		@warn "[DEBUG-EQ-VAR-COUNT] MISMATCH! equations=$(length(substituted_equations)) != variables=$(length(final_vars))"
+	end
 
 	# Return the substituted equations and the correctly filtered variable list
 	return substituted_equations, collect(final_vars)

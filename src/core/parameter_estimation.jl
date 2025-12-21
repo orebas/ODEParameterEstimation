@@ -194,7 +194,7 @@ function construct_multipoint_equation_system!(time_index_set,
 	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)  # SI.jl is now the default
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 
-	# Get SI.jl template once (if using SI.jl)
+	# Get SI.jl template using iterative parameter fixing (if using SI.jl)
 	si_template = nothing
 	if use_si_template
 		# Create the template on first use
@@ -204,24 +204,99 @@ function construct_multipoint_equation_system!(time_index_set,
 			OrderedODESystem(model, states, params)
 		end
 
-		template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
-			ordered_model,
-			measured_quantities,
-			data_sample;
-			DD = good_DD,
-			infolevel = diagnostics ? 1 : 0,
-		)
+		# ITERATIVE PARAMETER FIXING:
+		# We fix ONE parameter at a time and re-run full SIAN analysis
+		# until the system is determined (equations == variables)
+		pre_fixed_params = OrderedDict{Any, Float64}()
+		max_fix_iterations = 10
+		iteration = 0
+		converged = false
 
-		si_template = (
-			equations = template_equations,
-			deriv_dict = derivative_dict,
-			unidentifiable = unidentifiable,
-			identifiable_funcs = identifiable_funcs,
-		)
+		while iteration < max_fix_iterations && !converged
+			iteration += 1
+			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
 
-		# Handle unidentifiability using the new, more robust logic
-		template_equations, si_template =
-			handle_unidentifiability(si_template, diagnostics; states = states)
+			# Run SIAN analysis with current pre-fixed parameters
+			template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
+				ordered_model,
+				measured_quantities,
+				data_sample;
+				DD = good_DD,
+				infolevel = diagnostics ? 1 : 0,
+				pre_fixed_params = pre_fixed_params,
+			)
+
+			si_template = (
+				equations = template_equations,
+				deriv_dict = derivative_dict,
+				unidentifiable = unidentifiable,
+				identifiable_funcs = identifiable_funcs,
+			)
+
+			# Count equations and variables in the current system
+			# Note: We need to count only UNKNOWN variables, not data values (y_i)
+			# Data variables are of the form y1_0, y2_0, y3_1, etc.
+			n_equations = length(template_equations)
+			vars_in_system = OrderedSet{Any}()
+			for eq in template_equations
+				union!(vars_in_system, Symbolics.get_variables(eq))
+			end
+
+			# Filter out data variables - these are known values, not unknowns
+			# Data variables can be in different formats:
+			#   - Nemo format: y1_0, y2_1 (y followed by digit, underscore, digit)
+			#   - Symbolics format: y1(t), y2(t) (y followed by digit and (t))
+			#   - Symbolics derivatives: y1ˍt(t), y1ˍtt(t) (with derivative markers)
+			unknown_vars = OrderedSet{Any}()
+			data_vars = OrderedSet{Any}()
+			for v in vars_in_system
+				v_name = string(v)
+				# Match y1_0, y2_1 (Nemo) OR y1(t), y2(t), y1ˍt(t), y1ˍtt(t) (Symbolics)
+				if occursin(r"^y\d+_\d+$", v_name) || occursin(r"^y\d+", v_name) && occursin("(t)", v_name)
+					push!(data_vars, v)
+				else
+					push!(unknown_vars, v)
+				end
+			end
+			n_variables = length(unknown_vars)
+			n_data_vars = length(data_vars)
+
+			@info "[ITERATIVE-FIX] System status: $n_equations equations, $n_variables unknowns (+ $n_data_vars data variables)"
+
+			if n_equations == n_variables
+				@info "[ITERATIVE-FIX] CONVERGED: Determined system achieved after $iteration iteration(s)"
+				converged = true
+			elseif n_equations < n_variables
+				# Underdetermined (more unknowns than equations) - fix ONE parameter to reduce unknowns
+				# This is the typical case: SIAN produces fewer equations than variables
+				already_fixed = Set(keys(pre_fixed_params))
+				param_to_fix, fix_value = select_one_parameter_to_fix(
+					si_template, already_fixed, diagnostics; states = states
+				)
+
+				if param_to_fix === nothing
+					@warn "[ITERATIVE-FIX] No parameter available to fix, stopping iteration (still underdetermined)"
+					break
+				end
+
+				@info "[ITERATIVE-FIX] Fixing parameter: $param_to_fix = $fix_value (to reduce unknowns)"
+				pre_fixed_params[param_to_fix] = fix_value
+				# Loop continues - will re-run SIAN with the new fixed param
+			else
+				# Overdetermined (more equations than unknowns) - unusual, cannot proceed
+				@warn "[ITERATIVE-FIX] Overdetermined system ($n_equations eqs > $n_variables vars), cannot fix by adding parameters"
+				break
+			end
+		end
+
+		if !converged && iteration >= max_fix_iterations
+			@warn "[ITERATIVE-FIX] Did not converge after $max_fix_iterations iterations"
+		end
+
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after iterative fixing"
+		template_equations = si_template.equations
+
+		# Note: We no longer call handle_unidentifiability here since iterative fixing handles it
 
 		if diagnostics
 			println("[DEBUG-SI] Created SI.jl template with $(length(template_equations)) equations")
@@ -315,6 +390,141 @@ Apply substitutions to the SI template to handle unidentifiable parameters.
 The number of parameters to fix is determined by the difference between the
 number of unidentifiable parameters and the number of independent identifiable functions.
 """
+
+"""
+	select_one_parameter_to_fix(si_template, already_fixed, diagnostics; states=nothing)
+
+Select ONE unidentifiable parameter to fix based on DOF analysis.
+This is used in iterative parameter fixing - we fix one parameter at a time
+and re-run the full SIAN analysis after each fix.
+
+# Arguments
+- `si_template`: The SI template containing equations, unidentifiable params, identifiable funcs
+- `already_fixed`: Set of parameters already fixed in previous iterations
+- `diagnostics`: Whether to print debug output
+- `states`: Optional state variables (to prefer fixing params over initial conditions)
+
+# Returns
+- `(param_to_fix, fix_value)` or `(nothing, nothing)` if no parameter needs fixing
+"""
+function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostics; states = nothing)
+	unidentifiable_params = si_template.unidentifiable
+	identifiable_funcs = si_template.identifiable_funcs
+
+	# Prepare state name hints if provided
+	state_base_names = Set{String}()
+	if states !== nothing
+		for s in states
+			name_str = string(s)
+			if endswith(name_str, "(t)")
+				name_str = name_str[1:(end-3)]
+			end
+			push!(state_base_names, name_str)
+		end
+	end
+
+	if isempty(unidentifiable_params)
+		if diagnostics
+			println("[SELECT-PARAM] No unidentifiable parameters")
+		end
+		return nothing, nothing
+	end
+
+	# Convert identifiable funcs from Nemo to Symbolics
+	nemo_to_mtk_map = Dict()
+	symbolic_identifiable_funcs = []
+	for f in identifiable_funcs
+		push!(symbolic_identifiable_funcs, nemo_to_symbolics(f, nemo_to_mtk_map))
+	end
+
+	# Prefer fixing MODEL PARAMETERS over state initial conditions
+	# Also filter out already-fixed parameters
+	unident_params_only = Any[]
+	for p in unidentifiable_params
+		pstr = string(p)
+		# Skip state initial conditions
+		if (states !== nothing) && (pstr in state_base_names)
+			continue
+		end
+		# Skip already-fixed parameters
+		if pstr in [string(f) for f in already_fixed]
+			continue
+		end
+		push!(unident_params_only, p)
+	end
+
+	if isempty(unident_params_only)
+		if diagnostics
+			println("[SELECT-PARAM] No unfixed unidentifiable parameters remaining")
+		end
+		return nothing, nothing
+	end
+
+	# Build Symbolics variables for parameters (base names, no _0) for Jacobian
+	param_syms = [Symbolics.variable(Symbol(string(p))) for p in unident_params_only]
+
+	# Keep only identifiable functions that depend on at least one candidate param
+	funcs_filtered = [f for f in symbolic_identifiable_funcs if any(string(v) in Set(string.(unident_params_only)) for v in Symbolics.get_variables(f))]
+
+	# Determine which parameter to fix using DOF analysis via Jacobian rank
+	param_to_fix = nothing
+	if isempty(funcs_filtered)
+		# No identifiable functions involving these params - just fix the first one
+		param_to_fix = unident_params_only[1]
+		if diagnostics
+			println("[SELECT-PARAM] No identifiable funcs for params, selecting first: $param_to_fix")
+		end
+	else
+		J_sym = Symbolics.jacobian(funcs_filtered, param_syms)
+		# Gather all variables in funcs to assign generic nonzero numeric values
+		all_vars = OrderedSet{Any}()
+		for f in funcs_filtered
+			union!(all_vars, Symbolics.get_variables(f))
+		end
+		val_dict = Dict{Any, Float64}()
+		for v in all_vars
+			val_dict[v] = 0.5 + rand()
+		end
+		J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
+		for i in 1:size(J_sym, 1)
+			for j in 1:size(J_sym, 2)
+				entry = Symbolics.substitute(J_sym[i, j], val_dict)
+				J_num[i, j] = Float64(Symbolics.value(entry))
+			end
+		end
+		F = LinearAlgebra.qr(J_num, LinearAlgebra.ColumnNorm())
+		R = Array(F.R)
+		tol = 1e-10 * maximum(size(J_num)) * (isempty(R) ? 0.0 : maximum(abs, diag(R)))
+		rnk = sum(abs.(diag(R)) .> tol)
+
+		# The DOF cols are parameters NOT in the pivot set - these are "free" to fix
+		cols_ordered = collect(F.p)
+		pivot_cols = rnk > 0 ? Set(cols_ordered[1:rnk]) : Set{Int}()
+		dof_cols = [j for j in 1:length(param_syms) if !(j in pivot_cols)]
+
+		if !isempty(dof_cols)
+			# Pick the first DOF column parameter to fix
+			param_to_fix = unident_params_only[dof_cols[1]]
+		elseif !isempty(unident_params_only)
+			# Fallback: if all params are in pivot cols, still need to fix one
+			param_to_fix = unident_params_only[1]
+		end
+
+		if diagnostics
+			println("[SELECT-PARAM] Jacobian rank: $rnk, DOF cols: $dof_cols")
+			println("[SELECT-PARAM] Selected parameter to fix: $param_to_fix")
+		end
+	end
+
+	if param_to_fix === nothing
+		return nothing, nothing
+	end
+
+	# Return the parameter and the value to fix it to
+	fix_value = 1.0
+	return param_to_fix, fix_value
+end
+
 function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
 	template_equations = si_template.equations
 	unidentifiable_params = si_template.unidentifiable
@@ -536,6 +746,43 @@ end
 # The implementation has been moved to multipoint_estimation.jl
 
 
+"""
+	equilibrate_jacobian(jac::Matrix{Float64}) -> Matrix{Float64}
+
+Apply full matrix equilibration (row and column scaling) to improve numerical stability.
+
+When Jacobian matrices have values spanning many orders of magnitude (e.g., 10^0 to 10^36),
+SVD-based nullspace computation can fail due to numerical precision issues. This function
+normalizes the matrix so all rows and columns have similar magnitudes.
+
+# Arguments
+- `jac::Matrix{Float64}`: The input Jacobian matrix
+
+# Returns
+- Equilibrated copy of the Jacobian matrix with normalized rows and columns
+"""
+function equilibrate_jacobian(jac::Matrix{Float64})
+	scaled_jac = copy(jac)
+
+	# Step 1: Row scaling - normalize each row by its L2 norm
+	row_norms = [norm(scaled_jac[i, :]) for i in 1:size(scaled_jac, 1)]
+	for i in 1:size(scaled_jac, 1)
+		if row_norms[i] > 1e-10
+			scaled_jac[i, :] ./= row_norms[i]
+		end
+	end
+
+	# Step 2: Column scaling - normalize each column by its L2 norm
+	col_norms = [norm(scaled_jac[:, j]) for j in 1:size(scaled_jac, 2)]
+	for j in 1:size(scaled_jac, 2)
+		if col_norms[j] > 1e-10
+			scaled_jac[:, j] ./= col_norms[j]
+		end
+	end
+
+	return scaled_jac
+end
+
 
 """
 	multipoint_numerical_jacobian(
@@ -636,14 +883,6 @@ function multipoint_numerical_jacobian(
 
 	matrix = ForwardDiff.jacobian(f, full_values)
 	matrix_float = map(x -> Float64(Symbolics.value(x)), matrix)
-
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix type before conversion: $(typeof(matrix))")
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix size: $(size(matrix))")
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix elements: $(matrix[1:5, 1:5])")
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix type after conversion: $(typeof(matrix_float))")
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix size after conversion: $(size(matrix_float))")
-	#println("DEBUG [multipoint_numerical_jacobian]: Matrix elements after conversion: $(matrix_float[1:5, 1:5])")
-	# Ensure every element is a Float64 by applying Symbolics.value before conversion
 	return matrix_float, DD
 end
 
@@ -764,7 +1003,6 @@ function multipoint_local_identifiability_analysis(
 	n_pe_formula = states_count + ps_count + 1
 	n_heuristic = Int64(ceil((states_count + ps_count) / length(measured_quantities)) + 2)
 	n = max(n_pe_formula, n_heuristic, 3)  # Use maximum of both approaches
-	println("[DEBUG-ODEPE] Derivative order: PE formula=$n_pe_formula, heuristic=$n_heuristic, using n=$n")
 	deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 	unident_dict = Dict()
 
@@ -773,38 +1011,29 @@ function multipoint_local_identifiability_analysis(
 	DD = nothing
 	unident_set = Set{Any}()
 
-	println("[DEBUG-ODEPE] Starting identifiability analysis with:")
-	println(" deriv_level: ", deriv_level)
-
 	all_identified = false
 	while (!all_identified)
 
 		temp = ordered_test_points[1]
 
-		# DEBUG: Check ordering before Jacobian
-		println("\n[DEBUG-ODEPE] Before Jacobian computation:")
-		println("  varlist: ", varlist)
-		println("  parameter_values keys: ", collect(keys(parameter_values)))
-		println("  ordered_test_points[1] keys: ", collect(keys(temp)))
-
 		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
 			parameter_values, points_ics, temp))
+
+		# Apply matrix equilibration for numerical stability in nullspace computation
+		evaluated_jac = equilibrate_jacobian(evaluated_jac)
+
 		ns = nullspace(evaluated_jac)
 
 		if (!isempty(ns))
-			println("\n[DEBUG-ODEPE] Nullspace analysis:")
-			println("  Nullspace size: ", size(ns))
 			candidate_plugins_for_unidentified = OrderedDict()
 			for i in eachindex(varlist)
 				ns_norm = norm(ns[i, :])
 				if (!isapprox(ns_norm, 0.0, atol = abstol))
-					println("  Variable $(varlist[i]) has nullspace norm $ns_norm > $abstol, marking as unidentifiable")
 					candidate_plugins_for_unidentified[varlist[i]] = test_points[1][varlist[i]]
 					push!(unident_set, varlist[i])
 				end
 			end
 			if (!isempty(candidate_plugins_for_unidentified))
-				println("  Unidentifiable candidates: ", keys(candidate_plugins_for_unidentified))
 				p = first(candidate_plugins_for_unidentified)
 				deleteat!(varlist, findall(x -> isequal(x, p.first), varlist))
 				for k in eachindex(points_ics)
@@ -823,39 +1052,26 @@ function multipoint_local_identifiability_analysis(
 
 	max_rank = rank(evaluated_jac, rtol = reltol)
 	maxn = n
-	println("[DEBUG-ODEPE] Initial max_rank with n=$n: $max_rank")
-	println("[DEBUG-ODEPE] Jacobian size: ", size(evaluated_jac))
-
-	# Track what PE would use
-	n_pe = states_count + ps_count + 1
-	println("[DEBUG-ODEPE] PE would use n=$n_pe derivatives")
 
 	while (n > 0)
 		n = n - 1
 		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 		reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 		r = rank(reduced_evaluated_jac, rtol = reltol)
-		println("[DEBUG-ODEPE] Testing n=$n: rank=$r (vs max_rank=$max_rank)")
 		if (r < max_rank)
 			n = n + 1
 			deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
-			println("[DEBUG-ODEPE] Rank dropped! Reverting to n=$n")
 			break
 		end
 	end
-	println("[DEBUG-ODEPE] Final derivative order after rank reduction: n=$n")
 
 	keep_looking = true
-	println("[DEBUG-ODEPE] Starting per-measurement refinement...")
-	refinement_round = 0
 	while (keep_looking)
-		refinement_round += 1
 		improvement_found = false
 		sorting = collect(deriv_level)
 		sorting = sort(sorting, by = (x -> x[2]), rev = true)
 		for i in keys(deriv_level)
 			if (deriv_level[i] > 0)
-				old_level = deriv_level[i]
 				deriv_level[i] = deriv_level[i] - 1
 				reduced_evaluated_jac = multipoint_deriv_level_view(evaluated_jac, deriv_level, length(measured_quantities), max_num_points, maxn, max_num_points)
 
@@ -864,7 +1080,6 @@ function multipoint_local_identifiability_analysis(
 					deriv_level[i] = deriv_level[i] + 1
 				else
 					improvement_found = true
-					println("[DEBUG-ODEPE] Round $refinement_round: Reduced deriv_level[$i] from $old_level to $(deriv_level[i]), rank preserved at $r")
 					break
 				end
 			else
@@ -876,24 +1091,11 @@ function multipoint_local_identifiability_analysis(
 					deriv_level[i] = temp
 				else
 					improvement_found = true
-					println("[DEBUG-ODEPE] Round $refinement_round: Removed deriv_level[$i], rank preserved at $r")
 					break
 				end
 			end
 		end
 		keep_looking = improvement_found
-	end
-	println("[DEBUG-ODEPE] Final deriv_level after refinement: $deriv_level")
-
-	# Debug: Check what's in DD structure
-	println("\n[DEBUG-ODEPE] DD structure analysis:")
-	println("[DEBUG-ODEPE]   DD.obs_lhs dimensions: ", size(DD.obs_lhs))
-	println("[DEBUG-ODEPE]   DD.states_lhs dimensions: ", size(DD.states_lhs))
-	if !isempty(DD.obs_lhs) && !isempty(DD.obs_lhs[1])
-		println("[DEBUG-ODEPE]   Sample DD.obs_lhs[1][1:min(3,end)]: ", DD.obs_lhs[1][1:min(3, end)])
-	end
-	if !isempty(DD.states_lhs) && !isempty(DD.states_lhs[1])
-		println("[DEBUG-ODEPE]   Sample DD.states_lhs[1][1:min(3,end)]: ", DD.states_lhs[1][1:min(3, end)])
 	end
 
 	DD.all_unidentifiable = unident_set

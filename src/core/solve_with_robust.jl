@@ -92,10 +92,11 @@ function solve_with_robust(poly_system, varlist;
 				println("[ROBUST] ✓ Symbolic Jacobian built successfully")
 			end
 		catch e
-			if debug
-				println("[ROBUST] ✗ Symbolic Jacobian failed: ", e)
-				println("[ROBUST] Falling back to ForwardDiff")
-			end
+			@error "[ROBUST] Symbolic Jacobian failed" exception=(e, catch_backtrace())
+			println("SOLVER_ERROR: solve_with_robust Jacobian build threw exception:")
+			println("  Type: ", typeof(e))
+			println("  Message: ", e)
+			println("[ROBUST] Falling back to ForwardDiff")
 			jac_mode = :forwarddiff
 		end
 	end
@@ -313,8 +314,14 @@ function solve_with_robust(poly_system, varlist;
 			end
 
 		catch e
-			if debug
-				println("[ROBUST] Algorithm failed: ", e)
+			@error "[ROBUST] Algorithm failed" exception=(e, catch_backtrace())
+			println("SOLVER_ERROR: solve_with_robust algorithm threw exception:")
+			println("  Type: ", typeof(e))
+			println("  Message: ", e)
+			bt = catch_backtrace()
+			st = stacktrace(bt)
+			for (i, frame) in enumerate(st[1:min(5, length(st))])
+				println("  [$i] ", frame)
 			end
 		end
 	end

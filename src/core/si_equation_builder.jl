@@ -7,6 +7,88 @@ for equation system construction instead of iterative scanning.
 
 
 """
+	apply_prefixed_params_to_model(ode, measured_quantities, pre_fixed_params)
+
+Apply pre-fixed parameter substitutions to the model before SIAN analysis.
+This is used for iterative parameter fixing - when we fix one parameter and
+want to re-run the full SIAN analysis with that parameter as a constant.
+
+# Arguments
+- `ode`: The ODE model (OrderedODESystem or ODESystem)
+- `measured_quantities`: Vector of measurement equations
+- `pre_fixed_params`: OrderedDict mapping parameter symbols to their fixed values
+
+# Returns
+- Modified ODE with substituted parameters
+- Modified measured_quantities with substituted parameters
+"""
+function apply_prefixed_params_to_model(ode, measured_quantities, pre_fixed_params::OrderedDict)
+	# Get the underlying system
+	model = isa(ode, OrderedODESystem) ? ode.system : ode
+
+	# Build substitution dictionary from MTK parameter symbols to values
+	t = ModelingToolkit.get_iv(model)
+	original_params = ModelingToolkit.parameters(model)
+	original_states = ModelingToolkit.unknowns(model)
+
+	# Create substitution dict matching parameter symbols
+	subst_dict = Dict()
+	params_to_remove = Set()
+	for (param_sym, fix_value) in pre_fixed_params
+		# Find matching parameter in model
+		param_str = string(param_sym)
+		for p in original_params
+			p_str = string(p)
+			# Handle both "param" and "param(t)" forms
+			p_base = replace(p_str, "(t)" => "")
+			if p_base == param_str || p_str == param_str
+				subst_dict[p] = fix_value
+				push!(params_to_remove, p)
+				@info "[PRE-FIX] Substituting $p => $fix_value"
+				break
+			end
+		end
+	end
+
+	if isempty(subst_dict)
+		@warn "[PRE-FIX] No matching parameters found for substitution"
+		return ode, measured_quantities
+	end
+
+	# Get the remaining parameters (those not being fixed)
+	remaining_params = [p for p in original_params if !(p in params_to_remove)]
+
+	# Substitute in the ODE equations
+	original_eqs = ModelingToolkit.equations(model)
+	new_eqs = [Symbolics.substitute(eq.lhs, subst_dict) ~ Symbolics.substitute(eq.rhs, subst_dict)
+	           for eq in original_eqs]
+
+	# Substitute in measured quantities
+	new_measured = [Symbolics.substitute(mq.lhs, subst_dict) ~ Symbolics.substitute(mq.rhs, subst_dict)
+	                for mq in measured_quantities]
+
+	# Create new ODESystem with remaining parameters
+	# Use a unique name to avoid conflicts
+	new_name = Symbol(string(ModelingToolkit.nameof(model)) * "_prefixed")
+	new_system = ModelingToolkit.ODESystem(
+		new_eqs, t, original_states, remaining_params;
+		name = new_name
+	)
+
+	# If original was OrderedODESystem, wrap the new system
+	if isa(ode, OrderedODESystem)
+		# Keep original state ordering, update parameter ordering
+		new_ode = OrderedODESystem(new_system, ode.original_states, remaining_params)
+	else
+		new_ode = new_system
+	end
+
+	@info "[PRE-FIX] Created modified model with $(length(remaining_params)) parameters (removed $(length(params_to_remove)))"
+
+	return new_ode, new_measured
+end
+
+"""
 	convert_to_si_ode(ode, measured_quantities::Vector{ModelingToolkit.Equation}, inputs::Vector{Num} = Vector{Num}())
 
 Convert ModelingToolkit ODESystem to StructuralIdentifiability.jl ODE format.
@@ -128,8 +210,14 @@ and the variables that form a transcendence basis.
 function algebraic_independence(Et::Vector{Nemo.QQMPolyRingElem},
 	indets::Vector{Nemo.QQMPolyRingElem},
 	vals)
+	@info "[DEBUG-ALG-INDEP] Input: $(length(Et)) equations, $(length(indets)) indeterminates"
+
 	pivots = Vector{Nemo.QQMPolyRingElem}()
 	Jacobian = SIAN.jacobi_matrix(Et, indets, vals)
+
+	@info "[DEBUG-ALG-INDEP] Jacobian size: $(size(Jacobian))"
+	@info "[DEBUG-ALG-INDEP] Jacobian rank: $(Nemo.rank(Jacobian))"
+
 	U = Nemo.lu(Jacobian)[end]
 	#find pivot columns in u
 	for row_idx in 1:size(U, 1)
@@ -139,6 +227,9 @@ function algebraic_independence(Et::Vector{Nemo.QQMPolyRingElem},
 			push!(pivots, indets[pivot_col])
 		end
 	end
+
+	@info "[DEBUG-ALG-INDEP] Found $(length(pivots)) pivot columns"
+
 	current_idx = 1
 	output_rows = Jacobian[[current_idx], :]
 	current_rank = 1
@@ -151,6 +242,10 @@ function algebraic_independence(Et::Vector{Nemo.QQMPolyRingElem},
 			current_rank += 1
 		end
 	end
+
+	@info "[DEBUG-ALG-INDEP] Selected $(length(output_ids)) equations (current_rank=$current_rank)"
+	@info "[DEBUG-ALG-INDEP] Returning: output_ids=$(output_ids), alg_indep has $(length(setdiff(indets, pivots))) vars"
+
 	return output_ids, setdiff(indets, pivots)
 end
 
@@ -184,11 +279,15 @@ function get_si_equation_system(
 	p = 0.99,
 	p_mod = 0,
 	infolevel = 0,
+	pre_fixed_params::OrderedDict = OrderedDict(),  # Parameters already fixed in previous iterations
 	kwargs...,
 )
 	@info "Getting equation system from StructuralIdentifiability.jl"
+	if !isempty(pre_fixed_params)
+		@info "[PRE-FIX] Will apply $(length(pre_fixed_params)) pre-fixed parameters after SIAN analysis"
+	end
 
-	# Convert to SI.jl format
+	# Convert to SI.jl format (pre-fixed params are applied after SIAN, at the polynomial level)
 	si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
 
 	# Get parameters for identifiability analysis 
@@ -360,6 +459,82 @@ function get_si_equation_system(
 		@debug "Final template_equations[1] type: $(typeof(template_equations[1]))"
 	end
 
+	# Apply pre-fixed parameter substitutions to the polynomial equations
+	# This is for iterative parameter fixing where we fix one parameter at a time
+	# and re-run the analysis. The substitution happens at the polynomial equation
+	# level, which handles both parameters and initial conditions (e.g., C_0, dH_rhoCP_0).
+	if !isempty(pre_fixed_params)
+		@info "[PRE-FIX] Substituting $(length(pre_fixed_params)) fixed parameters in polynomial equations"
+
+		# Build substitution dictionary
+		# The keys in pre_fixed_params should match variable names in template_equations
+		# e.g., :C_0 => 1.0 will substitute for variables named C_0
+
+		# First, collect all variables actually present in template_equations
+		all_vars_in_eqs = Set()
+		for eq in template_equations
+			union!(all_vars_in_eqs, Set(Symbolics.get_variables(eq)))
+		end
+
+		# Build a name-to-variable mapping
+		var_name_map = Dict{String, Any}()
+		for v in all_vars_in_eqs
+			v_name = string(v)
+			var_name_map[v_name] = v
+		end
+		@info "[PRE-FIX] Variables in equations: $(keys(var_name_map))"
+
+		# Build substitution dict using actual variable objects from equations
+		# Note: Parameters from select_one_parameter_to_fix come as base names (e.g., dH_rhoCP)
+		# but polynomial equations use _0 suffixed names (e.g., dH_rhoCP_0)
+		subst_dict = Dict()
+		for (param_name, fix_value) in pre_fixed_params
+			param_str = string(param_name)
+			# Try exact match first
+			if haskey(var_name_map, param_str)
+				actual_var = var_name_map[param_str]
+				subst_dict[actual_var] = fix_value
+				@info "[PRE-FIX] Will substitute $actual_var => $fix_value"
+			# Try with _0 suffix (initial condition naming convention)
+			elseif haskey(var_name_map, param_str * "_0")
+				actual_var = var_name_map[param_str * "_0"]
+				subst_dict[actual_var] = fix_value
+				@info "[PRE-FIX] Will substitute $actual_var => $fix_value (matched via _0 suffix)"
+			else
+				@warn "[PRE-FIX] Variable '$param_str' (or '$(param_str)_0') not found in equations. Available: $(keys(var_name_map))"
+			end
+		end
+
+		# Apply substitutions to all template equations
+		if !isempty(subst_dict)
+			new_template_equations = []
+			for eq in template_equations
+				new_eq = Symbolics.substitute(eq, subst_dict)
+				# Only keep non-trivial equations (not 0 = 0)
+				if !isequal(Symbolics.simplify(new_eq), 0)
+					push!(new_template_equations, new_eq)
+				else
+					@info "[PRE-FIX] Removed trivial equation after substitution"
+				end
+			end
+			template_equations = new_template_equations
+			@info "[PRE-FIX] After substitution: $(length(template_equations)) equations"
+
+			# Also update the unidentifiable set to remove fixed parameters
+			# The unidentifiable set contains Nemo symbols, we need to match by name
+			new_unidentifiable = Set()
+			for u in unidentifiable
+				u_str = string(u)
+				if !haskey(pre_fixed_params, Symbol(u_str)) && !haskey(pre_fixed_params, Symbol(u_str * "_0"))
+					push!(new_unidentifiable, u)
+				else
+					@info "[PRE-FIX] Removed $u from unidentifiable set (now fixed)"
+				end
+			end
+			unidentifiable = new_unidentifiable
+		end
+	end
+
 	# Return identifiable_funcs as well
 	return template_equations, y_derivative_dict, unidentifiable, identifiable_funcs
 end
@@ -484,6 +659,13 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	@info "Built polynomial system with $(length(Et)) equations"
+	@info "[DEBUG-EQ-COUNT] After iterative construction: $(length(Et)) equations, $(length(x_theta_vars)) variables in x_theta_vars"
+	@info "[DEBUG-EQ-COUNT] x_theta_vars list: $(x_theta_vars)"
+	# Log each equation for debugging
+	for (idx, eq) in enumerate(Et)
+		vars_in_eq = Nemo.vars(eq)
+		@info "[DEBUG-EQUATION] Eq$idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
+	end
 
 	# Assess local identifiability to find transcendence basis
 	theta_l = Array{Nemo.QQMPolyRingElem}(undef, 0)
@@ -503,13 +685,47 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 	x_theta_vars_reorder = vcat(theta_l,
 		reverse([x for x in x_theta_vars if !(x in theta_l)]))
+
+	@info "[DEBUG-EQ-COUNT] Before algebraic_independence: $(length(Et_eval_base)) equations, $(length(x_theta_vars_reorder)) variables"
+	@info "[DEBUG-EQ-COUNT] theta_l (locally identifiable): $(length(theta_l)) variables"
+	@info "[DEBUG-EQ-COUNT] theta_l variables: $(theta_l)"
+	@info "[DEBUG-EQ-COUNT] x_theta_vars_reorder: $(x_theta_vars_reorder)"
+
 	Et_ids, alg_indep = algebraic_independence(Et_eval_base, x_theta_vars_reorder,
 		all_x_theta_vars_subs)
+
+	@info "[DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with $(length(Et_ids)) indices: $Et_ids"
+	@info "[DEBUG-EQ-COUNT] alg_indep (transcendence basis): $(length(alg_indep)) variables"
+	@info "[DEBUG-EQ-COUNT] alg_indep list: $(alg_indep)"
+
+	# Log which equations are selected and which are dropped
+	@info "[DEBUG-EQ-COUNT] Selected equations indices: $Et_ids"
+	dropped_ids = setdiff(1:length(Et), Et_ids)
+	@info "[DEBUG-EQ-COUNT] Dropped equations indices: $dropped_ids"
+	for idx in dropped_ids
+		@info "[DEBUG-DROPPED-EQ] Dropped Eq$idx: $(Et[idx])"
+	end
 
 	# Reduce the system using the computed indices
 	reduced_Et = Et[Et_ids]
 
+	# Compute the actual variables present in the reduced system
+	reduced_vars = Set{Nemo.QQMPolyRingElem}()
+	for eq in reduced_Et
+		union!(reduced_vars, Set(Nemo.vars(eq)))
+	end
+
 	@info "Reduced polynomial system to $(length(reduced_Et)) equations"
+	@info "[DEBUG-EQ-COUNT] Final: $(length(reduced_Et)) equations for $(length(x_theta_vars)) variables in x_theta_vars"
+	@info "[DEBUG-EQ-COUNT] Actual variables in reduced system: $(length(reduced_vars))"
+	@info "[DEBUG-EQ-COUNT] Reduced system variables: $(reduced_vars)"
+
+	# Check for mismatch between equations and actual variables
+	if length(reduced_Et) != length(reduced_vars)
+		@warn "[DEBUG-EQ-COUNT] MISMATCH DETECTED: $(length(reduced_Et)) equations but $(length(reduced_vars)) actual variables!"
+		@warn "[DEBUG-EQ-COUNT] Variables in x_theta_vars but not in equations: $(setdiff(Set(x_theta_vars), reduced_vars))"
+		@warn "[DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars: $(setdiff(reduced_vars, Set(x_theta_vars)))"
+	end
 
 	# Build the derivative mapping dictionary
 	y_derivative_dict = Dict()

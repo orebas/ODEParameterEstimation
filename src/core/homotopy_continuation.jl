@@ -99,7 +99,15 @@ function solve_with_nlopt(poly_system, varlist;
 	sol = try
 		NonlinearSolve.solve(prob, optimizer; solver_opts...)
 	catch e
-		@warn "Error during optimization: $(e)"
+		@error "solve_with_nlopt failed" exception=(e, catch_backtrace())
+		println("SOLVER_ERROR: NonlinearSolve optimization threw exception:")
+		println("  Type: ", typeof(e))
+		println("  Message: ", e)
+		bt = catch_backtrace()
+		st = stacktrace(bt)
+		for (i, frame) in enumerate(st[1:min(5, length(st))])
+			println("  [$i] ", frame)
+		end
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
@@ -300,7 +308,15 @@ function solve_with_fast_nlopt(poly_system, varlist;
 		solve_ms = (time() - t0) * 1000
 		out
 	catch e
-		@warn "Error during optimization: $(e)"
+		@error "solve_with_fast_nlopt failed" exception=(e, catch_backtrace())
+		println("SOLVER_ERROR: solve_with_fast_nlopt threw exception:")
+		println("  Type: ", typeof(e))
+		println("  Message: ", e)
+		bt = catch_backtrace()
+		st = stacktrace(bt)
+		for (i, frame) in enumerate(st[1:min(5, length(st))])
+			println("  [$i] ", frame)
+		end
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
@@ -318,7 +334,15 @@ function solve_with_fast_nlopt(poly_system, varlist;
 			sol = NonlinearSolve.solve(prob, NonlinearSolve.FastShortcutNLLSPolyalg(); retry_opts...)
 			solve_ms += (time() - t0) * 1000
 		catch e
-			@warn "Retry optimization failed: $(e)"
+			@error "solve_with_fast_nlopt retry failed" exception=(e, catch_backtrace())
+			println("SOLVER_ERROR: solve_with_fast_nlopt retry threw exception:")
+			println("  Type: ", typeof(e))
+			println("  Message: ", e)
+			bt = catch_backtrace()
+			st = stacktrace(bt)
+			for (i, frame) in enumerate(st[1:min(5, length(st))])
+				println("  [$i] ", frame)
+			end
 		end
 	end
 
@@ -441,7 +465,15 @@ function solve_with_nlopt_testing(poly_system, varlist;
 	sol = try
 		NonlinearSolve.solve(prob, alg; callback = callback, solver_opts...)
 	catch e
-		@warn "Error during optimization: $(e)"
+		@error "solve_with_nlopt_testing failed" exception=(e, catch_backtrace())
+		println("SOLVER_ERROR: solve_with_nlopt_testing threw exception:")
+		println("  Type: ", typeof(e))
+		println("  Message: ", e)
+		bt = catch_backtrace()
+		st = stacktrace(bt)
+		for (i, frame) in enumerate(st[1:min(5, length(st))])
+			println("  [$i] ", frame)
+		end
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
@@ -609,7 +641,16 @@ function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = f
 
 		return solutions, varlist, Dict(), varlist
 	catch e
-		@warn "solve_with_hc failed: $e"
+		@error "solve_with_hc failed" exception=(e, catch_backtrace())
+		println("SOLVER_ERROR: HomotopyContinuation.solve threw exception:")
+		println("  Type: ", typeof(e))
+		println("  Message: ", e)
+		# Print abbreviated stacktrace (first 5 frames)
+		bt = catch_backtrace()
+		st = stacktrace(bt)
+		for (i, frame) in enumerate(st[1:min(5, length(st))])
+			println("  [$i] ", frame)
+		end
 		return [], varlist, Dict(), varlist
 	end
 end

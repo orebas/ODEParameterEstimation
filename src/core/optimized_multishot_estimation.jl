@@ -927,23 +927,99 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		good_varlist = setup_data.good_varlist
 		good_DD = setup_data.good_DD
 
-		# Build the SI template ONCE and reuse
+		# Build the SI template ONCE using ITERATIVE PARAMETER FIXING
+		# We fix ONE parameter at a time and re-run full SIAN analysis
+		# until the system is determined (equations == variables)
 		ordered_model = isa(PEP.model.system, OrderedODESystem) ? PEP.model.system : OrderedODESystem(PEP.model.system, states, params)
-		template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
-			ordered_model,
-			PEP.measured_quantities,
-			PEP.data_sample;
-			DD = good_DD,
-			infolevel = opts.diagnostics ? 1 : 0,
-		)
-		si_template = (
-			equations = template_equations,
-			deriv_dict = derivative_dict,
-			unidentifiable = unidentifiable,
-			identifiable_funcs = identifiable_funcs,
-		)
-		# Handle unidentifiability once
-		template_equations, si_template = handle_unidentifiability(si_template, opts.diagnostics)
+
+		pre_fixed_params = OrderedDict{Any, Float64}()
+		max_fix_iterations = 10
+		iteration = 0
+		converged = false
+		si_template = nothing
+
+		while iteration < max_fix_iterations && !converged
+			iteration += 1
+			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
+
+			# Run SIAN analysis with current pre-fixed parameters
+			template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
+				ordered_model,
+				PEP.measured_quantities,
+				PEP.data_sample;
+				DD = good_DD,
+				infolevel = opts.diagnostics ? 1 : 0,
+				pre_fixed_params = pre_fixed_params,
+			)
+
+			si_template = (
+				equations = template_equations,
+				deriv_dict = derivative_dict,
+				unidentifiable = unidentifiable,
+				identifiable_funcs = identifiable_funcs,
+			)
+
+			# Count equations and variables in the current system
+			# Note: We need to count only UNKNOWN variables, not data values (y_i)
+			n_equations = length(template_equations)
+			vars_in_system = OrderedSet{Any}()
+			for eq in template_equations
+				union!(vars_in_system, Symbolics.get_variables(eq))
+			end
+
+			# Filter out data variables - these are known values, not unknowns
+			# Data variables can be in different formats:
+			#   - Nemo format: y1_0, y2_1 (y followed by digit, underscore, digit)
+			#   - Symbolics format: y1(t), y2(t) (y followed by digit and (t))
+			#   - Symbolics derivatives: y1ˍt(t), y1ˍtt(t) (with derivative markers)
+			unknown_vars = OrderedSet{Any}()
+			data_vars = OrderedSet{Any}()
+			for v in vars_in_system
+				v_name = string(v)
+				# Match y1_0, y2_1 (Nemo) OR y1(t), y2(t), y1ˍt(t), y1ˍtt(t) (Symbolics)
+				if occursin(r"^y\d+_\d+$", v_name) || occursin(r"^y\d+", v_name) && occursin("(t)", v_name)
+					push!(data_vars, v)
+				else
+					push!(unknown_vars, v)
+				end
+			end
+			n_variables = length(unknown_vars)
+			n_data_vars = length(data_vars)
+
+			@info "[ITERATIVE-FIX] System status: $n_equations equations, $n_variables unknowns (+ $n_data_vars data variables)"
+
+			if n_equations == n_variables
+				@info "[ITERATIVE-FIX] CONVERGED: Determined system achieved after $iteration iteration(s)"
+				converged = true
+			elseif n_equations < n_variables
+				# Underdetermined (more unknowns than equations) - fix ONE parameter to reduce unknowns
+				already_fixed = Set(keys(pre_fixed_params))
+				param_to_fix, fix_value = select_one_parameter_to_fix(
+					si_template, already_fixed, opts.diagnostics; states = states
+				)
+
+				if param_to_fix === nothing
+					@warn "[ITERATIVE-FIX] No parameter available to fix, stopping iteration (still underdetermined)"
+					break
+				end
+
+				@info "[ITERATIVE-FIX] Fixing parameter: $param_to_fix = $fix_value (to reduce unknowns)"
+				pre_fixed_params[param_to_fix] = fix_value
+				# Loop continues - will re-run SIAN with the new fixed param
+			else
+				# Overdetermined (more equations than unknowns) - cannot proceed with fixing
+				@warn "[ITERATIVE-FIX] Overdetermined system ($n_equations eqs > $n_variables vars), cannot fix by adding parameters"
+				break
+			end
+		end
+
+		if !converged && iteration >= max_fix_iterations
+			@warn "[ITERATIVE-FIX] Did not converge after $max_fix_iterations iterations"
+		end
+
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after iterative fixing"
+		template_equations = si_template.equations
+		# Note: We no longer call handle_unidentifiability here since iterative fixing handles it
 
 		# Enable default system saving for SI-template path and save template once
 		if opts.save_system
