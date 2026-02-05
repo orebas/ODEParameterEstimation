@@ -774,8 +774,8 @@ function build_equations_at_time_point(
 				if occursin("NaN", eq_str) || occursin("Inf", eq_str)
 					println("      WARNING: Equation contains NaN or Inf!")
 				end
-			catch
-				# Ignore string conversion errors
+			catch e
+				@debug "Equation string conversion failed" exception = e
 			end
 		end
 	end
@@ -824,8 +824,8 @@ function solve_at_shooting_point(
 				if eq_val isa Number && (isnan(eq_val) || isinf(eq_val))
 					println("  ERROR: Equation $i evaluates to $(eq_val)")
 				end
-			catch
-				# Equation might contain variables, that's ok
+			catch e
+				@debug "Symbolic equation evaluation check skipped (expected if contains variables)" exception = e
 			end
 		end
 

@@ -665,7 +665,8 @@ function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
 			# Log marginal likelihood: -0.5 * (y'α + logdet(K) + n*log(2π))
 			loglik = -0.5 * (dot(ys_norm_vec, α) + logdet(C) + n * log(2π))
 			return -loglik
-		catch
+		catch e
+			@debug "GP log-likelihood evaluation failed (Cholesky)" exception = e
 			return Inf
 		end
 	end
@@ -804,7 +805,8 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 		# Compute negative log marginal likelihood (using raw X)
 		try
 			return -logpdf(gp(xs_raw, σₙ²), ys_norm)
-		catch
+		catch e
+			@debug "AbstractGPs log-likelihood evaluation failed" exception = e
 			return Inf
 		end
 	end
@@ -1005,7 +1007,8 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 			data_fit = dot(ys_norm, alpha_local)
 			log_det = 2.0 * sum(log.(diag(C.U)))
 			return 0.5 * (data_fit + log_det + n * log(2π))
-		catch
+		catch e
+			@debug "Robust GP log-likelihood evaluation failed (Cholesky)" exception = e
 			return Inf
 		end
 	end

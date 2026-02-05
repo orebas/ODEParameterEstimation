@@ -350,7 +350,8 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	final_residual = zeros(m)
 	try
 		residual!(final_residual, sol.u, nothing)
-	catch
+	catch e
+		@debug "Final residual evaluation failed, using initial residual" exception = e
 		final_residual .= initial_residual
 	end
 	final_norm = LinearAlgebra.norm(final_residual)

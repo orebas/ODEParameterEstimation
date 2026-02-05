@@ -1,7 +1,7 @@
 using OrderedCollections
 using Symbolics
 using OrdinaryDiffEq
-#using SciMLBase
+using SciMLBase
 
 """
     OrderedODESystem
@@ -78,20 +78,20 @@ Struct to store the results of parameter estimation.
 - `datasize::Int64`: Size of the data used
 - `report_time::Union{Nothing, Float64}`: Time at which the result is reported
 - `unident_dict::Union{Nothing, OrderedDict{Num, Float64}}`: Dictionary of unidentifiable parameters and their values
-- `all_unidentifiable::Set`: Set of all parameters detected as unidentifiable during analysis
-- `solution::Union{Nothing, Any}`: The ODE solution (optional)
+- `all_unidentifiable::Set{Num}`: Set of all parameters detected as unidentifiable during analysis
+- `solution::Union{Nothing, SciMLBase.AbstractODESolution}`: The ODE solution (optional)
 """
 mutable struct ParameterEstimationResult
-    parameters::OrderedDict
-    states::OrderedDict
+    parameters::OrderedDict{Num, Float64}
+    states::OrderedDict{Num, Float64}
     at_time::Float64
     err::Union{Nothing, Float64}
-    return_code::Union{Nothing, Symbol}  # Changed to allow Nothing
+    return_code::Union{Nothing, Symbol}
     datasize::Int64
     report_time::Union{Nothing, Float64}
-    unident_dict::Union{Nothing, Dict}
-    all_unidentifiable::Set
-    solution::Union{Nothing, Any}  # Keep this as Any for now since ODESolution type might vary
+    unident_dict::Union{Nothing, OrderedDict{Num, Float64}}
+    all_unidentifiable::Set{Num}
+    solution::Union{Nothing, SciMLBase.AbstractODESolution}
 end
 
 """
@@ -103,25 +103,25 @@ The "cleared" versions are produced from versions of the state equations and mea
 which have had their denominators cleared, i.e. they should be polynomial and never rational.
 
 # Fields
-- `states_lhs_cleared::Any`: Left-hand side of cleared state equations
-- `states_rhs_cleared::Any`: Right-hand side of cleared state equations
-- `obs_lhs_cleared::Any`: Left-hand side of cleared observation equations
-- `obs_rhs_cleared::Any`: Right-hand side of cleared observation equations
-- `states_lhs::Any`: Left-hand side of state equations
-- `states_rhs::Any`: Right-hand side of state equations
-- `obs_lhs::Any`: Left-hand side of observation equations
-- `obs_rhs::Any`: Right-hand side of observation equations
-- `all_unidentifiable::Set{Any}`: Set of all unidentifiable parameters
+- `states_lhs_cleared::Vector{Vector{Num}}`: Left-hand side of cleared state equations (indexed by [derivative_order+1])
+- `states_rhs_cleared::Vector{Vector{Num}}`: Right-hand side of cleared state equations
+- `obs_lhs_cleared::Vector{Vector{Num}}`: Left-hand side of cleared observation equations
+- `obs_rhs_cleared::Vector{Vector{Num}}`: Right-hand side of cleared observation equations
+- `states_lhs::Vector{Vector{Num}}`: Left-hand side of state equations
+- `states_rhs::Vector{Vector{Num}}`: Right-hand side of state equations
+- `obs_lhs::Vector{Vector{Num}}`: Left-hand side of observation equations
+- `obs_rhs::Vector{Vector{Num}}`: Right-hand side of observation equations
+- `all_unidentifiable::Set{Num}`: Set of all unidentifiable parameters
 """
 mutable struct DerivativeData
-    states_lhs_cleared::Any
-    states_rhs_cleared::Any
-    obs_lhs_cleared::Any
-    obs_rhs_cleared::Any
-    states_lhs::Any
-    states_rhs::Any
-    obs_lhs::Any
-    obs_rhs::Any
-    all_unidentifiable::Set{Any}
+    states_lhs_cleared::Vector{Vector{Num}}
+    states_rhs_cleared::Vector{Vector{Num}}
+    obs_lhs_cleared::Vector{Vector{Num}}
+    obs_rhs_cleared::Vector{Vector{Num}}
+    states_lhs::Vector{Vector{Num}}
+    states_rhs::Vector{Vector{Num}}
+    obs_lhs::Vector{Vector{Num}}
+    obs_rhs::Vector{Vector{Num}}
+    all_unidentifiable::Set{Num}
 end
 

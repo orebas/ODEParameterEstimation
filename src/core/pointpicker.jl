@@ -60,7 +60,8 @@ function compute_variability_score(interpolant, t, window = 0.1)
 	try
 		derivatives = [ODEParameterEstimation.nth_deriv(x -> interpolant(x), 1, t + δ) for δ in -window:window/10:window]
 		return std(derivatives)
-	catch
+	catch e
+		@debug "Variability score computation failed, defaulting to 0.0" exception = e
 		return 0.0
 	end
 end

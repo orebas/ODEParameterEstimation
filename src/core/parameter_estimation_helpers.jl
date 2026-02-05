@@ -483,7 +483,8 @@ function process_estimation_results(
 	result_template = ParameterEstimationResult(
 		param_dict, states_dict, t_vector[lowest_time_index], nothing, nothing,
 		length(PEP.data_sample["t"]), t_vector[lowest_time_index],
-		solution_data.good_udict, setup_data.all_unidentifiable, nothing,
+		OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in solution_data.good_udict),
+		Set{Num}(setup_data.all_unidentifiable), nothing,
 	)
 
 	# Process each solution

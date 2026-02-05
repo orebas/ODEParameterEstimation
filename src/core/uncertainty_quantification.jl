@@ -856,7 +856,8 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 
 		try
 			return -logpdf(gp(xs_raw, σₙ²), ys_norm)
-		catch
+		catch e
+			@debug "UQ GP log-likelihood evaluation failed" exception = e
 			return Inf
 		end
 	end

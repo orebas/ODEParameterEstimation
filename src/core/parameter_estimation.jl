@@ -23,7 +23,13 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
-	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+	DD = DerivativeData(
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Set{Num}(),
+	)
 
 	#First, we fully substitute values we have chosen for an unidentifiable variables.
 	unident_subst!(model_eq, measured_quantities, unident_dict)
@@ -1021,7 +1027,7 @@ function multipoint_local_identifiability_analysis(
 	jac = nothing
 	evaluated_jac = nothing
 	DD = nothing
-	unident_set = Set{Any}()
+	unident_set = Set{Num}()
 
 	all_identified = false
 	while (!all_identified)
@@ -1417,7 +1423,8 @@ function lookup_value(var, var_search, soln_index::Int,
 			# Unwrap Num or other wrappers to get the core symbol/expression
 			core = try
 				Symbolics.value(var_search)
-			catch
+			catch e
+				@debug "Symbolics.value unwrap failed, using raw variable" exception = e
 				var_search
 			end
 			name_str = string(core)
@@ -1498,8 +1505,8 @@ function lookup_value(var, var_search, soln_index::Int,
 					end
 				end
 			end
-		catch
-			# Ignore fallback errors
+		catch e
+			@debug "Variable index fallback lookup failed" exception = e
 		end
 	end
 
@@ -1523,7 +1530,13 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 
 
 	# Create DD structure to compute derivatives
-	DD = DerivativeData([], [], [], [], [], [], [], [], Set{Any}())
+	DD = DerivativeData(
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Vector{Vector{Num}}(), Vector{Vector{Num}}(),
+		Set{Num}(),
+	)
 	DD.states_lhs = [[eq.lhs for eq in eqns], expand_derivatives.(D.([eq.lhs for eq in eqns]))]
 	DD.states_rhs = [[eq.rhs for eq in eqns], expand_derivatives.(D.([eq.rhs for eq in eqns]))]
 
@@ -1602,284 +1615,6 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 	return evaluated
 end
 
-"""
-	polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
-										 solver = Vern9(),
-										 opt_method = BFGS,
-										 opt_maxiters = 200000,
-										 abstol = 1e-13,
-										 reltol = 1e-13,
-										 lb = nothing,
-										 ub = nothing)
-
-Using a local-optimization approach, polish a candidate solution obtained from multi-point analysis.
-This function assumes that `PEP` contains the original model, measured quantities, and data_sample,
-and that the candidate_solution (of type ParameterEstimationResult) includes guessed values for states
-and parameters in OrderedDicts. We form an ODEProblem from these values, define a loss function that sums
-squared errors between simulated trajectories with the data stored in `PEP.data_sample.
-On success, the returned `polished_result` is a new ParameterEstimationResult whose fields (states, parameters,
-solution, err) have been updated with the optimized values.
-
-An example call is provided below.
-"""
-#=function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
-	solver = Vern9(),
-	opt_method = LBFGS,
-	opt_maxiters = 20,
-	abstol = 1e-13,
-	reltol = 1e-13,
-	lb = nothing,
-	ub = nothing)
-	# Extract the time vector from the data sample
-	t_vector = PEP.data_sample["t"]
-
-	# Candidate solution contains states and parameters as OrderedDicts.
-	# For the optimization we form a single vector: [state_values; parameter_values]
-	state_keys = collect(keys(candidate_solution.states))
-	param_keys = collect(keys(candidate_solution.parameters))
-	n_ic = length(state_keys)
-	n_param = length(param_keys)
-
-	# Convert to Float64 explicitly
-	initial_states = Float64[v for v in values(candidate_solution.states)]
-	initial_params = Float64[v for v in values(candidate_solution.parameters)]
-	p0 = vcat(initial_states, initial_params)
-
-	# Set default bounds if not provided
-	if lb === nothing
-		lb = -10.0 * ones(Float64, length(p0))
-	end
-	if ub === nothing
-		ub = 10.0 * ones(Float64, length(p0))
-	end
-
-	# Build the ODE problem using the model stored in PEP.
-	# (We call complete() to ensure the system is fully defined.)
-	new_model = complete(PEP.model.system)
-	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
-
-	prob = ODEProblem(new_model, merge(initial_states, initial_params), tspan)
-
-	# Create a mapping from state variables to their index in the solution vector.
-	state_index = Dict{Any, Int}()
-	for (i, s) in enumerate(state_keys)
-		state_index[s] = i
-	end
-
-	# The loss function:
-	# Given a vector p_vec (with the candidate's state and parameter guesses),
-	# re-simulate the ODE and compute the sum of squared differences between
-	# simulated measurements and the data stored in PEP.data_sample.
-	# Here we assume that each measured quantity equation is of the form `LHS ~ rhs`,
-	# where the source of the measurement is the state corresponding to `rhs`.
-	function loss(p_vec)
-		# Validate input vector for complex numbers
-		if any(abs.(imag.(p_vec)) .> complex_threshold)
-			return Inf
-		end
-
-		ic_guess = real.(p_vec[1:n_ic])
-		param_guess = real.(p_vec[(n_ic+1):end])
-
-		prob_opt = remake(prob, u0 = ic_guess, p = param_guess)
-		sol_opt = try
-			ModelingToolkit.solve(prob_opt, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
-		catch e
-			println("WARNING: ODE solver failed with error: $e")
-			return Inf
-		end
-
-		if sol_opt.retcode != ReturnCode.Success
-			return Inf
-		end
-
-		total_error = 0.0
-		# Loop over each measured quantity
-		for eq in PEP.measured_quantities
-			sim_vals = []
-			for i in 1:length(sol_opt.u)
-				# Create substitution dictionary for current timepoint
-				time_subst = Dict(s => sol_opt.u[i][state_index[s]] for s in state_keys)
-				# Evaluate the formula with current state values and extract value from possible Dual type
-				val = Symbolics.substitute(eq.rhs, time_subst)
-				push!(sim_vals, val)
-			end
-			# Determine which key to use from the data sample
-			key = eq.rhs
-			data_true = PEP.data_sample[key]
-			total_error += sum((sim_vals .- data_true) .^ 2)
-		end
-		return total_error
-	end
-
-	# Print initial loss value for debugging
-	initial_loss = loss(p0)
-	println("Initial parameter vector: ", p0)
-	println("Initial loss value: ", initial_loss)
-
-
-	# Set up the Optimization problem using auto-differentiation via ForwardDiff
-	adtype = Optimization.AutoForwardDiff()
-	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
-	optprob = Optimization.OptimizationProblem(optf, p0; lb = lb, ub = ub)
-
-	# Solve the optimization problem with a timeout
-	result = Optimization.solve(optprob, opt_method(), callback = (p, l) -> false, maxiters = opt_maxiters)
-
-	# Extract the optimized initial conditions and parameters.
-	p_opt = result.u
-	ic_opt = real.(p_opt[1:n_ic])
-	param_opt = real.(p_opt[(n_ic+1):end])
-
-	# Re-simulate the ODE using the optimized values.
-	prob_polished = remake(prob, u0 = ic_opt, p = param_opt)
-	sol_polished = ModelingToolkit.solve(prob_polished, solver, saveat = t_vector, abstol = abstol, reltol = reltol)
-
-	# Update a copy of the candidate solution with the polished values.
-	polished_result = deepcopy(candidate_solution)
-	polished_result.states = OrderedDict(zip(state_keys, ic_opt))
-	polished_result.parameters = OrderedDict(zip(param_keys, param_opt))
-	polished_result.solution = sol_polished
-	polished_result.err = loss(p_opt)
-
-	return polished_result, result
-end
-=#
-#=
-"""
-	direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
-										   opts::EstimationOptions = EstimationOptions())
-
-Performs parameter estimation using a direct local optimization approach,
-starting from a random initial guess. This is an alternative to the
-symbolic-numeric methods like `optimized_multishot_parameter_estimation`.
-
-It replicates the behavior of a standalone optimization script by:
-- Starting from a single random parameter guess.
-- Using a gradient-based local optimizer (`BFGS`) to minimize the squared error.
-- Using bounds `[0,1]` by default, configurable via `opts.opt_lb` and `opts.opt_ub`.
-
-This function is useful for problems where symbolic methods may struggle,
-but it is not guaranteed to find a global optimum. For better results,
-multiple runs may be required.
-
-Returns a `Vector{ParameterEstimationResult}` containing a single result.
-"""
-function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
-	opts::EstimationOptions = EstimationOptions())
-	# Extract problem information
-	t_vector = PEP.data_sample["t"]
-	state_syms = collect(keys(PEP.ic))
-	param_syms_out = collect(keys(PEP.p_true))
-
-	# Use system ordering for problem construction and evaluation
-	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
-	param_syms = ModelingToolkit.parameters(PEP.model.system)
-	n_ic = length(unknown_syms)
-	n_param = length(param_syms)
-	p_size = n_ic + n_param
-
-	# Set up initial guess and bounds: if user provides valid bounds, use them; otherwise run unconstrained
-	use_bounds = (!isnothing(opts.opt_lb)) && (!isnothing(opts.opt_ub)) &&
-				 (length(opts.opt_lb) == p_size) && (length(opts.opt_ub) == p_size)
-	lb = use_bounds ? opts.opt_lb : nothing
-	ub = use_bounds ? opts.opt_ub : nothing
-	p0 = use_bounds ? (lb .+ rand(p_size) .* (ub .- lb)) : rand(p_size)
-
-	if !opts.nooutput
-		println("Starting direct optimization with initial guess: ", p0)
-	end
-
-	# Build the ODE problem template once (dictionary form to avoid deprecation)
-	new_model = complete(PEP.model.system)
-	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
-	u0_map = Dict(unknown_syms .=> p0[1:n_ic])
-	p_map = Dict(param_syms .=> p0[(n_ic+1):end])
-	prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
-
-	# Precompute data target arrays and compiled measurement functions
-	data_targets = [PEP.data_sample[eq.rhs] for eq in PEP.measured_quantities]
-	obs_funcs = begin
-		[
-			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
-				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
-				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
-			end for eq in PEP.measured_quantities
-		]
-	end
-
-	# Reverse-mode adjoint for low allocations
-	adtype = Optimization.AutoForwardDiff()
-
-	# Loss function using views and ODEProblem reconstruction to avoid deprecated vector API
-	function loss(p_all)
-		ic_guess = @view p_all[1:n_ic]
-		param_guess = @view p_all[(n_ic+1):end]
-
-		prob_opt = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_guess), Dict(param_syms .=> param_guess)), tspan)
-		sol_opt = try
-			ModelingToolkit.solve(prob_opt, PEP.solver; saveat = t_vector, abstol = opts.abstol, reltol = opts.reltol)
-		catch e
-			!opts.nooutput && println("WARNING: ODE solver failed with error: $e")
-			return Inf
-		end
-		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
-
-		# Accumulate squared error directly, AD-friendly (no Float64 arrays)
-		total_error = zero(eltype(param_guess))
-		for (j, f) in enumerate(obs_funcs)
-			data_true = data_targets[j]
-			local_err = zero(eltype(param_guess))
-			@inbounds for i in eachindex(t_vector)
-				val = f(sol_opt.u[i], param_guess)
-				diff = val - data_true[i]
-				local_err += diff * diff
-			end
-			total_error += local_err
-		end
-		return total_error
-	end
-
-	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
-	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0; lb = lb, ub = ub) :
-			  Optimization.OptimizationProblem(optf, p0)
-
-	# Prefer LBFGS for lower memory footprint
-	result = Optimization.solve(optprob, LBFGS(); maxiters = opts.opt_maxiters)
-
-	# Extract final values
-	p_opt = result.u
-	ic_opt = p_opt[1:n_ic]
-	param_opt = p_opt[(n_ic+1):end]
-
-	prob_final = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_opt), Dict(param_syms .=> param_opt)), tspan)
-	sol_final = ModelingToolkit.solve(prob_final, PEP.solver; saveat = t_vector, abstol = opts.abstol, reltol = opts.reltol)
-
-	# Map back to original output symbol order (PEP.ic/p_true order) for result tables
-	states_out = OrderedDict(zip(state_syms, [sol_final.u[1][i] for i in 1:length(state_syms)]))
-	params_out = OrderedDict(zip(param_syms_out, param_opt[1:length(param_syms_out)]))
-
-	final_result = ParameterEstimationResult(
-		params_out,
-		states_out,
-		t_vector[1],
-		result.objective,
-		nothing,
-		length(t_vector),
-		t_vector[1],
-		Dict{Any, Any}(),
-		Set{Any}(),
-		sol_final,
-	)
-
-	if !opts.nooutput
-		println("Direct optimization finished with final loss: ", result.objective)
-		println("Found solution: ", merge(final_result.states, final_result.parameters))
-	end
-
-	return [final_result]
-end
-=#
 # Shared internal helper: optimize ODE parameters against data
 function _optimize_against_data(
 	PEP::ParameterEstimationProblem,
@@ -1928,7 +1663,7 @@ function _optimize_against_data(
 		sol_opt = try
 			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
 		catch e
-			println("WARNING: ODE solver failed with error: $e")
+			@warn "ODE solver failed" exception = (e, catch_backtrace())
 			return Inf
 		end
 		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
@@ -1998,8 +1733,8 @@ function _optimize_against_data(
 		nothing,
 		length(t_vector),
 		t_vector[1],
-		Dict{Any, Any}(),
-		Set{Any}(),
+		OrderedDict{Num, Float64}(),
+		Set{Num}(),
 		sol_final,
 	)
 	return final_result, result

@@ -154,7 +154,8 @@ function convert_to_si_ode(
 			if rhs_nemo isa AbstractFloat
 				try
 					rhs_nemo = R(rhs_nemo)
-				catch
+				catch e
+					@debug "Nemo ring coercion failed for state equation, retrying with rationalize" exception = e
 					rhs_nemo = R(rationalize(rhs_nemo))
 				end
 			else
@@ -173,7 +174,8 @@ function convert_to_si_ode(
 			if rhs_nemo isa AbstractFloat
 				try
 					rhs_nemo = R(rhs_nemo)
-				catch
+				catch e
+					@debug "Nemo ring coercion failed for output equation, retrying with rationalize" exception = e
 					rhs_nemo = R(rationalize(rhs_nemo))
 				end
 			else
