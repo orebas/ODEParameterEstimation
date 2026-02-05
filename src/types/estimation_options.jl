@@ -26,6 +26,7 @@ Enum for selecting the data interpolation method.
 	InterpolatorAAADOld        # aaad_old_reliable - Conservative AAA
 	InterpolatorFHD            # Floater-Hormann interpolation
 	InterpolatorAGP            # agp_gpr - AbstractGPs.jl GP interpolation with uncertainty
+	InterpolatorAGPRobust      # agp_gpr_robust - Robust GP that handles smooth/noiseless data
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -303,6 +304,8 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return fhd5  # Default to degree 5 FHD
 	elseif method == InterpolatorAGP
 		return agp_gpr
+	elseif method == InterpolatorAGPRobust
+		return agp_gpr_robust
 	elseif method == InterpolatorCustom
 		if isnothing(custom)
 			error("InterpolatorCustom selected but no custom_interpolator provided")

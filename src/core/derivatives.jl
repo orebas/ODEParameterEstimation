@@ -899,3 +899,163 @@ function mean_and_var(interp::AGPInterpolator, x::Real)
 	std_val = interp.std_function(x)
 	return (mean_val, std_val^2)
 end
+
+"""
+	agp_gpr_robust(xs, ys; kernel_type=:se) -> AGPInterpolator
+
+Robust GP interpolator that fixes failures on smooth/noiseless data.
+
+Uses softplus reparameterization (hyperparams are always strictly positive),
+bounded optimization via Fminbox(LBFGS), and direct Cholesky log-likelihood
+(avoids ScaledKernel in the optimization loop). Automatically detects smooth
+data and initializes noise variance low.
+
+Returns an `AGPInterpolator` compatible with TaylorDiff for derivative computation.
+
+# Arguments
+- `xs::AbstractArray{T}`: Input x-values
+- `ys::AbstractArray{T}`: Output y-values
+- `kernel_type::Symbol`: Kernel type, `:se` (default) or `:matern52`
+
+# Returns
+- `AGPInterpolator`: GP interpolator with mean and std prediction functions
+"""
+function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
+                        kernel_type::Symbol = :se)::AGPInterpolator where {T}
+	@assert length(xs) == length(ys) "Input arrays must have same length"
+	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
+
+	# --- Softplus helpers (overflow-safe) ---
+	_softplus(x::Real) = x > 34.0 ? x : log(1.0 + exp(x))
+	_inv_softplus(y::Real) = y > 34.0 ? y : log(exp(y) - 1.0)
+
+	# Handle constant data edge case (same as agp_gpr)
+	y_std_raw = std(ys)
+	if y_std_raw < 1e-10
+		constant_val = mean(ys)
+		return AGPInterpolator(
+			x -> constant_val,
+			x -> 0.0,
+			nothing,
+			0.0, 1.0, constant_val, 1.0
+		)
+	end
+
+	# NO X normalization (same as agp_gpr, required for TaylorDiff)
+	xs_raw = collect(Float64, xs)
+	n = length(xs_raw)
+
+	# Standardize Y only (zero mean, unit variance)
+	y_mean = mean(ys)
+	y_std = max(y_std_raw, 1e-8)
+	ys_norm = (collect(Float64, ys) .- y_mean) ./ y_std
+
+	# Add small jitter to avoid numerical issues (matching agp_gpr)
+	jitter = 1e-8
+	ys_norm = ys_norm .+ jitter * randn(length(ys_norm))
+
+	# --- Smoothness detection via second finite differences ---
+	if n >= 3
+		d2 = [ys_norm[i+2] - 2.0 * ys_norm[i+1] + ys_norm[i] for i in 1:(n-2)]
+		roughness = mean(abs.(d2))
+	else
+		roughness = 1.0
+	end
+
+	if roughness < 0.1
+		init_noise = 1e-6    # very smooth data
+	elseif roughness < 1.0
+		init_noise = 1e-4    # moderate
+	else
+		init_noise = 0.01    # noisy
+	end
+
+	# Build base kernel
+	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+
+	# Initial hyperparameters
+	init_lengthscale = std(xs_raw) / 8.0
+	init_signal_var = 1.0
+
+	# --- Optimization in softplus-reparameterized space ---
+	# θ = [θ_l, θ_σ², θ_σₙ²] where actual = softplus(θ)
+	θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise)]
+
+	# Bounds in θ-space (mapped through softplus to actual hyperparameter bounds)
+	θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(1e-10)]
+	θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0)]
+
+	# Identity matrix (pre-allocate)
+	I_n = Matrix{Float64}(I, n, n)
+
+	# Negative log marginal likelihood using direct Cholesky (no ScaledKernel)
+	function neg_logpdf_robust(θ)
+		l = _softplus(θ[1])
+		σ² = _softplus(θ[2])
+		σₙ² = _softplus(θ[3])
+
+		# Build kernel matrix directly: σ² * K(X,X) + σₙ² * I
+		k_base = base_kernel ∘ ScaleTransform(1.0 / l)
+		K = σ² * kernelmatrix(k_base, xs_raw) + σₙ² * I_n
+
+		try
+			C = cholesky(Symmetric(K))
+			# log marginal likelihood: -0.5 * (y'K⁻¹y + log|K| + n*log(2π))
+			alpha_local = C \ ys_norm
+			data_fit = dot(ys_norm, alpha_local)
+			log_det = 2.0 * sum(log.(diag(C.U)))
+			return 0.5 * (data_fit + log_det + n * log(2π))
+		catch
+			return Inf
+		end
+	end
+
+	# Defaults in case optimization fails
+	l_opt = init_lengthscale
+	σ²_opt = init_signal_var
+	σₙ²_opt = init_noise
+
+	try
+		result = Optim.optimize(
+			neg_logpdf_robust,
+			θ_lower,
+			θ_upper,
+			θ0,
+			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
+			Optim.Options(iterations = 1000);
+		)
+		θ_opt = Optim.minimizer(result)
+		l_opt = _softplus(θ_opt[1])
+		σ²_opt = _softplus(θ_opt[2])
+		σₙ²_opt = _softplus(θ_opt[3])
+	catch e
+		@warn "agp_gpr_robust: hyperparameter optimization failed, using adaptive defaults" exception = e
+	end
+
+	# --- Build final GP with optimized hyperparameters ---
+	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
+
+	# Build posterior via AbstractGPs for std predictions
+	kernel_opt = σ²_opt * scaled_kernel_opt
+	f_opt = AbstractGPs.GP(kernel_opt)
+	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, σₙ²_opt), ys_norm)
+
+	# Pre-compute alpha for TaylorDiff-compatible mean predictions
+	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_raw)
+	K_noisy = K_train + σₙ²_opt * I_n
+	C_opt = cholesky(Symmetric(K_noisy))
+	alpha = C_opt \ collect(ys_norm)
+
+	# Prediction using cached alpha - TaylorDiff compatible (only basic arithmetic)
+	function mean_pred(x::Real)
+		k_star = [σ²_opt * scaled_kernel_opt(x, xi) for xi in xs_raw]
+		return y_std * dot(k_star, alpha) + y_mean
+	end
+
+	function std_pred(x::Real)
+		pred_var = AbstractGPs.var(f_posterior([x]))[1]
+		return y_std * sqrt(max(pred_var, 0.0))
+	end
+
+	return AGPInterpolator(mean_pred, std_pred, f_posterior, 0.0, 1.0, y_mean, y_std)
+end

@@ -38,8 +38,13 @@ using Zygote
 using Enzyme
 #using OptimizationEnzyme
 using SymbolicUtils
+using PDMats
 
-
+# Disambiguation for GaussianProcesses.jl / PDMats.jl ldiv! conflict
+# Both packages define ldiv! methods that overlap for PDMat with Matrix arguments
+# GaussianProcesses uses the pre-computed Cholesky factor (A.chol) which is more efficient
+import LinearAlgebra: ldiv!
+LinearAlgebra.ldiv!(A::PDMats.PDMat, B::AbstractVecOrMat) = ldiv!(A.chol, B)
 
 #using CSV
 #using DataFrames
@@ -103,7 +108,7 @@ export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
-export AGPInterpolator, agp_gpr, mean_and_var
+export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
 export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
 
 # Export logging functions
@@ -132,7 +137,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
 export FlowDeprecated, FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorCustom
+export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
 export get_solver_function, get_interpolator_function, get_polish_optimizer
 export merge_options, validate_options, print_options, get_solver_options_dict

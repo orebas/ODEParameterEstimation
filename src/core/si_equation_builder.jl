@@ -144,10 +144,11 @@ function convert_to_si_ode(
 		Union{Nemo.QQMPolyRingElem, Nemo.Generic.FracFieldElem{Nemo.QQMPolyRingElem}}}()
 
 	# Convert state equations
+	subs_dict = Dict(input_symbols .=> gens_)
 	for i in eachindex(diff_eqs)
-		lhs_nemo = Symbolics.substitute(state_vars[i], input_symbols .=> gens_)
+		lhs_nemo = eval_at_nemo(Symbolics.value(state_vars[i]), subs_dict)
 		# Route through eval_at_nemo to robustly handle constants
-		rhs_nemo = eval_at_nemo(Symbolics.value(diff_eqs[i].rhs), Dict(input_symbols .=> gens_))
+		rhs_nemo = eval_at_nemo(Symbolics.value(diff_eqs[i].rhs), subs_dict)
 		# Coerce plain numbers into the Nemo polynomial ring
 		if rhs_nemo isa Number
 			if rhs_nemo isa AbstractFloat
@@ -165,8 +166,8 @@ function convert_to_si_ode(
 
 	# Convert output equations
 	for i in 1:length(measured_quantities)
-		lhs_nemo = Symbolics.substitute(y_functions[i], input_symbols .=> gens_)
-		rhs_nemo = eval_at_nemo(measured_quantities[i].rhs, Dict(input_symbols .=> gens_))
+		lhs_nemo = eval_at_nemo(Symbolics.value(y_functions[i]), subs_dict)
+		rhs_nemo = eval_at_nemo(Symbolics.value(measured_quantities[i].rhs), subs_dict)
 		# Coerce plain numbers into the Nemo polynomial ring
 		if rhs_nemo isa Number
 			if rhs_nemo isa AbstractFloat
@@ -183,7 +184,7 @@ function convert_to_si_ode(
 	end
 
 	# Convert inputs
-	inputs_ = [Symbolics.substitute(each, input_symbols .=> gens_) for each in inputs]
+	inputs_ = [eval_at_nemo(Symbolics.value(each), subs_dict) for each in inputs]
 	if isempty(inputs_)
 		inputs_ = Vector{Nemo.QQMPolyRingElem}()
 	end
@@ -369,12 +370,19 @@ function get_si_equation_system(
 					# Map to DD structure if available
 					if !isnothing(DD)
 						# Find the corresponding observable index
-						# SIAN uses y1, y2, etc. for observables
-						# Extract the index from base_name (e.g., "y1" -> 1)
+						# SIAN uses y1, y2, etc. for multi-observable systems
+						# but just "y" for single-observable systems
+						# Extract the index from base_name (e.g., "y1" -> 1, "y" -> 1)
+						obs_idx = nothing
 						m = match(r"y(\d+)", base_name)
 						if !isnothing(m)
 							obs_idx = parse(Int, m.captures[1])
+						elseif base_name == "y"
+							# Single observable system: "y" maps to index 1
+							obs_idx = 1
+						end
 
+						if !isnothing(obs_idx)
 							# Map to the appropriate DD variable
 							if deriv_order == 0
 								# Base observable
@@ -691,7 +699,35 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	@info "[DEBUG-EQ-COUNT] theta_l variables: $(theta_l)"
 	@info "[DEBUG-EQ-COUNT] x_theta_vars_reorder: $(x_theta_vars_reorder)"
 
-	Et_ids, alg_indep = algebraic_independence(Et_eval_base, x_theta_vars_reorder,
+	# ==== Filter variables to only those that actually appear in Et ====
+	# This is critical for models where some parameters/states don't affect observed outputs.
+	# Without filtering, we'd have phantom variables inflating the count, causing overdetermined systems.
+	vars_in_Et = Set{Nemo.QQMPolyRingElem}()
+	for eq in Et
+		union!(vars_in_Et, Set(Nemo.vars(eq)))
+	end
+
+	# Filter x_theta_vars to only include variables that appear in Et
+	x_theta_vars_filtered = filter(v -> v in vars_in_Et, x_theta_vars)
+
+	# Log any phantom variables that were filtered out
+	phantom_vars = setdiff(Set(x_theta_vars), vars_in_Et)
+	if !isempty(phantom_vars)
+		@info "[DEBUG-EQ-COUNT] Filtered out $(length(phantom_vars)) phantom variables not in equations: $(phantom_vars)"
+	end
+
+	# Also filter theta_l to only include variables present in equations
+	theta_l_filtered = filter(v -> v in vars_in_Et, theta_l)
+
+	# Recompute the reordered variable list using filtered variables
+	x_theta_vars_reorder_filtered = vcat(theta_l_filtered,
+		reverse([x for x in x_theta_vars_filtered if !(x in theta_l_filtered)]))
+
+	@info "[DEBUG-EQ-COUNT] After filtering: $(length(x_theta_vars_filtered)) variables (from $(length(x_theta_vars)))"
+	@info "[DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: $(x_theta_vars_reorder_filtered)"
+	# ==== End of filtering block ====
+
+	Et_ids, alg_indep = algebraic_independence(Et_eval_base, x_theta_vars_reorder_filtered,
 		all_x_theta_vars_subs)
 
 	@info "[DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with $(length(Et_ids)) indices: $Et_ids"
@@ -716,15 +752,15 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	@info "Reduced polynomial system to $(length(reduced_Et)) equations"
-	@info "[DEBUG-EQ-COUNT] Final: $(length(reduced_Et)) equations for $(length(x_theta_vars)) variables in x_theta_vars"
+	@info "[DEBUG-EQ-COUNT] Final: $(length(reduced_Et)) equations for $(length(x_theta_vars_filtered)) variables in x_theta_vars_filtered"
 	@info "[DEBUG-EQ-COUNT] Actual variables in reduced system: $(length(reduced_vars))"
 	@info "[DEBUG-EQ-COUNT] Reduced system variables: $(reduced_vars)"
 
 	# Check for mismatch between equations and actual variables
 	if length(reduced_Et) != length(reduced_vars)
 		@warn "[DEBUG-EQ-COUNT] MISMATCH DETECTED: $(length(reduced_Et)) equations but $(length(reduced_vars)) actual variables!"
-		@warn "[DEBUG-EQ-COUNT] Variables in x_theta_vars but not in equations: $(setdiff(Set(x_theta_vars), reduced_vars))"
-		@warn "[DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars: $(setdiff(reduced_vars, Set(x_theta_vars)))"
+		@warn "[DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: $(setdiff(Set(x_theta_vars_filtered), reduced_vars))"
+		@warn "[DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: $(setdiff(reduced_vars, Set(x_theta_vars_filtered)))"
 	end
 
 	# Build the derivative mapping dictionary
@@ -741,7 +777,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		"X_eq" => X_eq,
 		"Y" => Y,  # Keep the full Y structure for reference
 		"X" => X,  # Keep X structure as well
-		"x_theta_vars" => x_theta_vars,  # Variables in the system
+		"x_theta_vars" => x_theta_vars_filtered,  # Variables that actually appear in the system
 		"beta" => beta,  # Derivative orders used
 		"non_jet_ring" => non_jet_ring,
 	)
@@ -783,18 +819,31 @@ end
 """
 	parse_derivative_variable_name(var_name::String)
 
-Parse a SIAN derivative variable name like "y1_2" to extract base variable and derivative order.
+Parse a SIAN derivative variable name to extract base variable and derivative order.
+Supports two patterns:
+  - "y1_2" where y1 is the base and 2 is the derivative order (multi-observable)
+  - "y_2" where y is the base and 2 is the derivative order (single observable)
 Returns (base_name, derivative_order) or nothing if parsing fails.
 """
 function parse_derivative_variable_name(var_name::String)
-	# Match pattern like "y1_2" where y1 is the base and 2 is the derivative order
+	# First try pattern like "y1_2" (letters + digit + underscore + digit)
 	m = match(r"^([a-zA-Z]+\d+)_(\d+)$", var_name)
-	if isnothing(m)
-		return nothing
+	if !isnothing(m)
+		base_name = m.captures[1]
+		derivative_order = parse(Int, m.captures[2])
+		return (base_name, derivative_order)
 	end
-	base_name = m.captures[1]
-	derivative_order = parse(Int, m.captures[2])
-	return (base_name, derivative_order)
+
+	# Also try pattern like "y_2" (just letters + underscore + digit, no index)
+	# This is used by SIAN for single-observable systems
+	m = match(r"^([a-zA-Z]+)_(\d+)$", var_name)
+	if !isnothing(m)
+		base_name = m.captures[1]
+		derivative_order = parse(Int, m.captures[2])
+		return (base_name, derivative_order)
+	end
+
+	return nothing
 end
 
 """

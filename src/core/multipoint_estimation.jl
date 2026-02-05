@@ -54,7 +54,7 @@ function multipoint_parameter_estimation(PEP::ParameterEstimationProblem, opts::
 			system_solver = system_solver,
 			interpolator = interpolator,
 			diagnostics = opts.diagnostics,
-			diagnostic_data = opts.diagnostic_data,
+			diagnostic_data = opts.diagnostics ? PEP : nothing,
 			save_system = opts.save_system,
 			debug_solver = opts.debug_solver,
 			debug_cas_diagnostics = opts.debug_cas_diagnostics,

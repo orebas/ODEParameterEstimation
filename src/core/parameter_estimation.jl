@@ -56,26 +56,20 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
 	end
 
-	for i in eachindex(DD.states_rhs), j in eachindex(DD.states_rhs[i])
-		DD.states_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs[i][j]))
-		DD.states_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs[i][j]))
-		DD.states_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_rhs_cleared[i][j]))
-		DD.states_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.states_lhs_cleared[i][j]))
-	end
-
-	for i in 1:(max_deriv_level-1)
+	# Build observable derivatives (must match state derivative levels for substitution to work)
+	# Note: Use (max_deriv_level-2) to match states loop - obs derivatives must not
+	# exceed state derivatives, otherwise substitution will fail with missing keys
+	for i in 1:(max_deriv_level-2)
 		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
 		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
 		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
 		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
 	end
 
-	for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
-		DD.obs_rhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs[i][j]))
-		DD.obs_lhs[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs[i][j]))
-		DD.obs_rhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_rhs_cleared[i][j]))
-		DD.obs_lhs_cleared[i][j] = ModelingToolkit.diff2term(expand_derivatives(DD.obs_lhs_cleared[i][j]))
-	end
+	# NOTE: We intentionally do NOT apply diff2term here.
+	# diff2term converts Differential(t)(x(t)) to xˍt(t), but it creates NEW symbol objects
+	# each time, causing substitution failures (Symbolics.substitute uses object identity).
+	# By keeping everything in Differential form, structural equality ensures matching.
 	return DD
 end
 
@@ -303,7 +297,7 @@ function construct_multipoint_equation_system!(time_index_set,
 
 			# Output the SI.jl polynomial system for debugging
 			println("\n[DEBUG-SI] ========== SI.jl POLYNOMIAL SYSTEM ==========")
-			println("[DEBUG-SI] Variables in derivative_dict: $(length(derivative_dict))")
+			println("[DEBUG-SI] Variables in deriv_dict: $(length(si_template.deriv_dict))")
 			println("[DEBUG-SI] Equations ($(length(template_equations))): ")
 			for (i, eq) in enumerate(template_equations)
 				println("[DEBUG-SI]   Eq $i: $eq")
@@ -323,7 +317,7 @@ function construct_multipoint_equation_system!(time_index_set,
 				println(io, "# SI.jl Template Polynomial System")
 				println(io, "# Generated: $(timestamp_str)")
 				println(io, "# Number of equations: $(length(template_equations))")
-				println(io, "# Variables: $(keys(derivative_dict))")
+				println(io, "# Variables: $(keys(si_template.deriv_dict))")
 				println(io, "")
 				for (i, eq) in enumerate(template_equations)
 					println(io, "# Equation $i:")
@@ -844,7 +838,8 @@ function multipoint_numerical_jacobian(
 	end
 
 	function f(param_and_ic_values_vec)
-		obs_deriv_vals = []
+		T = eltype(param_and_ic_values_vec)  # Float64 or ForwardDiff.Dual
+		obs_deriv_vals = T[]
 		for k in eachindex(ic_dict_vector)
 			evaluated_subst_dict = OrderedDict{Any, Any}(deepcopy(values_dict))
 			thekeys = collect(keys(evaluated_subst_dict))
@@ -868,7 +863,24 @@ function multipoint_numerical_jacobian(
 				end
 			end
 			for i in eachindex(DD.obs_rhs), j in eachindex(DD.obs_rhs[i])
-				push!(obs_deriv_vals, Symbolics.value(Symbolics.substitute(DD.obs_rhs[i][j], evaluated_subst_dict)))
+				substituted = Symbolics.substitute(DD.obs_rhs[i][j], evaluated_subst_dict)
+				val = Symbolics.value(substituted)
+				# Convert to the appropriate numeric type for ForwardDiff compatibility
+				if val isa Number
+					push!(obs_deriv_vals, T(val))
+				else
+					# If still symbolic, substitution was incomplete - this is a bug
+					# Print debugging info to help diagnose
+					dict_keys = collect(keys(evaluated_subst_dict))
+					error("Incomplete symbolic substitution in multipoint_numerical_jacobian:\n" *
+						  "  Expression: $(DD.obs_rhs[i][j])\n" *
+						  "  After substitution: $(substituted)\n" *
+						  "  Result type: $(typeof(val))\n" *
+						  "  obs_rhs index: i=$i, j=$j\n" *
+						  "  Number of derivative levels in states_lhs: $(length(DD.states_lhs))\n" *
+						  "  Number of derivative levels in obs_rhs: $(length(DD.obs_rhs))\n" *
+						  "  Dict keys (first 20): $(dict_keys[1:min(20, length(dict_keys))])")
+				end
 			end
 		end
 		return obs_deriv_vals
@@ -962,7 +974,7 @@ function multipoint_local_identifiability_analysis(
 	# This change was made to address potential Dict ordering issues in the Jacobian construction
 	# but has NOT been verified to fix the k7=0 issue in biohydrogenation
 	# TODO: Test if this actually improves parameter estimation accuracy
-	parameter_values = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+	parameter_values = OrderedDict{Num, Float64}()
 	for p in ModelingToolkit.parameters(model)
 		parameter_values[p] = rand(Float64)
 	end
@@ -974,12 +986,12 @@ function multipoint_local_identifiability_analysis(
 	for i in 1:max_num_points
 		# UNTESTED FIX: Use OrderedDict for initial conditions too
 		# See comment above - this is part of the same untested fix
-		initial_conditions = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+		initial_conditions = OrderedDict{Num, Float64}()
 		for s in ModelingToolkit.unknowns(model)
 			initial_conditions[s] = rand(Float64)
 		end
 
-		ordered_test_point = OrderedDict{SymbolicUtils.BasicSymbolic{Real}, Float64}()
+		ordered_test_point = OrderedDict{Num, Float64}()
 		for i in model_ps
 			ordered_test_point[i] = parameter_values[i]
 		end

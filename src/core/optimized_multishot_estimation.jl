@@ -967,17 +967,24 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				union!(vars_in_system, Symbolics.get_variables(eq))
 			end
 
-			# Filter out data variables - these are known values, not unknowns
-			# Data variables can be in different formats:
-			#   - Nemo format: y1_0, y2_1 (y followed by digit, underscore, digit)
-			#   - Symbolics format: y1(t), y2(t) (y followed by digit and (t))
-			#   - Symbolics derivatives: y1ˍt(t), y1ˍtt(t) (with derivative markers)
+			# Build set of ALL observable derivative variables from DD structure.
+			# DD.obs_lhs[order+1][obs_idx] gives the Symbolics variable for the
+			# order-th derivative of observable obs_idx.  These are the exact
+			# variables that si_template_integration.jl substitutes with
+			# interpolated numerical values at each shooting point.
+			obs_data_vars = Set{Any}()
+			if !isnothing(good_DD)
+				for level in good_DD.obs_lhs
+					for v in level
+						push!(obs_data_vars, v)
+					end
+				end
+			end
+
 			unknown_vars = OrderedSet{Any}()
 			data_vars = OrderedSet{Any}()
 			for v in vars_in_system
-				v_name = string(v)
-				# Match y1_0, y2_1 (Nemo) OR y1(t), y2(t), y1ˍt(t), y1ˍtt(t) (Symbolics)
-				if occursin(r"^y\d+_\d+$", v_name) || occursin(r"^y\d+", v_name) && occursin("(t)", v_name)
+				if v in obs_data_vars
 					push!(data_vars, v)
 				else
 					push!(unknown_vars, v)

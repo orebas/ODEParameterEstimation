@@ -5,7 +5,7 @@ using SciMLBase
 using Optimization
 using OptimizationOptimJL
 using OptimizationOptimisers
-using OptimizationMOI
+#using OptimizationMOI
 using NLSolversBase: NLSolversBase
 using NonlinearSolve
 using LeastSquaresOptim
@@ -25,7 +25,7 @@ Modify the filter below to exclude problematic models.
 =============================================================================#
 
 # Exclude models that are known to be problematic or slow
-EXCLUDED_MODELS = [:sirsforced, :treatment, :crauste]
+EXCLUDED_MODELS = [:sirsforced, :treatment, :crauste, :cstr, :cstr_reparametrized,  :cstr_fixed_activation, :hiv_old_wrong]
 
 models_to_run = filter(x -> x ∉ EXCLUDED_MODELS, collect(keys(ALL_MODELS)))
 models_to_run = shuffle(models_to_run)
@@ -33,12 +33,14 @@ models_to_run = shuffle(models_to_run)
 # Alternative model selections (uncomment to use):
 # models_to_run = collect(keys(STANDARD_MODELS))  # Only standard models
 # models_to_run = collect(keys(HARD_MODELS))      # Only hard models
-# models_to_run = [:simple, :lotka_volterra]      # Specific models
+# models_to_run = [:simple, :lotka_volterra, :onevar_exp]      # Specific models
+
+#models_to_run = [:bicycle_model]
 
 # Create EstimationOptions with desired settings
 standard_opts = EstimationOptions(
-	datasize = 501,
-	noise_level = 0.0000001,
+	datasize = 2001,
+	noise_level = 0.000000,
 	system_solver = SolverHC,
 	flow = FlowStandard,
 	use_si_template = true,
@@ -48,7 +50,9 @@ standard_opts = EstimationOptions(
 	polish_method = PolishLBFGS,
 	opt_ad_backend = :enzyme,
 	#interpolator = InterpolatorAGP,
-	interpolator = InterpolatorAAADGPR,
+	#interpolator = InterpolatorAAADGPR,
+	#interpolator = InterpolatorAAAD,
+	interpolator = InterpolatorAGPRobust,
 	diagnostics = true)
 
 nlopts = EstimationOptions(

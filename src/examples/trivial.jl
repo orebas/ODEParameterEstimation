@@ -19,23 +19,21 @@ This includes the ODE system, observed quantities, and true parameter values.
 
 function quadratic_test()
 	# Define symbolic parameters and state variables
-	parameters = @parameters a b c
-	states = @variables x1(t) x2(t) x3(t)
-	observables = @variables y1(t) y2(t) y3(t)
+	parameters = @parameters a
+	states = @variables x1(t) 
+	observables = @variables y1(t) 
 
 	# True parameter values (what we're trying to recover)
-	p_true = [0.1, 0.9, -1.5]
-	ic_true = [2.0, 3.0, 4.0]
+	p_true = [0.1]
+	ic_true = [2.0]
 
 	# Define the ODE system
 	equations = [
 		D(x1) ~ -a * x1,
-		D(x2) ~ b * b * (x2),
-		D(x3) ~ (c + 1) * (c + 0.5) * (x3),
 	]
 
 	# Define which quantities are measured/observed
-	measured_quantities = [y1 ~ x1, y2 ~ x2, y3 ~ x3]
+	measured_quantities = [y1 ~ x1]
 
 	# Create the ordered ODE system (maintains parameter ordering)
 	model, mq = create_ordered_ode_system("quadratic_test", states, parameters, equations, measured_quantities)
@@ -66,13 +64,20 @@ function run_first_example()
 
 	# Configure estimation options
 	opts = EstimationOptions(
-		datasize = 101,                      # number of data points
-		noise_level = 0.0,                   # noise level (0 = no noise)
-		interpolator = InterpolatorAAAD,     # interpolation method
-		system_solver = SolverHC,            # solver for polynomial systems
-		flow = FlowStandard,                 # use standard workflow
-	)
-
+        datasize = 201,
+        noise_level = 0,
+        system_solver = SolverHC,
+        flow = FlowStandard,
+        use_si_template = true,
+        polish_solver_solutions = true,
+        polish_solutions = false,
+        polish_maxiters = 50,
+        polish_method = PolishLBFGS,
+        opt_ad_backend = :enzyme,
+        #interpolator = InterpolatorAGP,
+        #interpolator = InterpolatorAAADGPR,
+        interpolator = InterpolatorAAAD,
+        diagnostics = true)
 	# Determine time interval
 	time_interval = isnothing(estimation_problem.recommended_time_interval) ?
 		[0.0, 5.0] : estimation_problem.recommended_time_interval
