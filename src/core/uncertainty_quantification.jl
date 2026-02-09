@@ -613,7 +613,7 @@ function compute_constraint_jacobians(
 
 		# Build initial conditions dict using name-based mapping
 		# state_syms[i] corresponds to ic_vals[i], we need to map to sys_unknowns symbols
-		ic_dict = Dict{Any, T}()
+		ic_dict = Dict{Num, T}()
 		for (i, state_sym) in enumerate(state_syms)
 			state_name = string(state_sym)
 			if haskey(state_name_to_sysunknown, state_name)
@@ -636,7 +636,7 @@ function compute_constraint_jacobians(
 		end
 
 		# Build parameters dict using name-based mapping
-		param_dict = Dict{Any, T}()
+		param_dict = Dict{Num, T}()
 		for (i, param_sym) in enumerate(param_syms_only)
 			param_name = string(param_sym)
 			if haskey(param_name_to_sysparam, param_name)
@@ -1030,7 +1030,7 @@ function estimate_parameter_uncertainty(
 		end
 
 		# Step 1: Fit UQ-enabled GP interpolators to each observable
-		interpolators = OrderedDict{Any, AGPInterpolatorUQ}()
+		interpolators = OrderedDict{Num, AGPInterpolatorUQ}()
 		for obs_key in obs_keys
 			ys = collect(data_sample[obs_key])
 			try

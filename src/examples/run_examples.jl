@@ -25,7 +25,8 @@ Modify the filter below to exclude problematic models.
 =============================================================================#
 
 # Exclude models that are known to be problematic or slow
-EXCLUDED_MODELS = [:sirsforced, :treatment, :crauste, :cstr, :cstr_reparametrized,  :cstr_fixed_activation, :hiv_old_wrong]
+EXCLUDED_MODELS = [:sirsforced, :treatment, :crauste, :cstr, :cstr_reparametrized,  :cstr_fixed_activation, :hiv_old_wrong, :hiv, :tank_level, :ball_beam, :crauste_revised, :two_tank, :cart_pole, :magnetic_levitation, :swing_equation, boost_converter, boost_converter_sinusoidal]
+EXCLUDED_MODELS = []
 
 models_to_run = filter(x -> x ∉ EXCLUDED_MODELS, collect(keys(ALL_MODELS)))
 models_to_run = shuffle(models_to_run)
@@ -39,8 +40,9 @@ models_to_run = shuffle(models_to_run)
 
 # Create EstimationOptions with desired settings
 standard_opts = EstimationOptions(
-	datasize = 2001,
-	noise_level = 0.000000,
+	use_parameter_homotopy = true,
+	datasize = 1501,
+	noise_level = 1e-10,
 	system_solver = SolverHC,
 	flow = FlowStandard,
 	use_si_template = true,

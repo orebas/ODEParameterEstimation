@@ -75,6 +75,7 @@ include("core/derivative_utils.jl")
 
 # Include core functionality
 include("core/si_equation_builder.jl")  # StructuralIdentifiability integration
+include("core/transcendental_utils.jl")  # Transcendental function handling (sin/cos/exp) — after si_equation_builder for parse_derivative_variable_name
 include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
 include("core/robust_conversion.jl")  # New robust conversion utilities
@@ -110,12 +111,16 @@ export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimat
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
 export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
 export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
+export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict
 
 # Export derivative utilities
 export calculate_higher_derivatives, calculate_higher_derivative_terms
+
+# Export transcendental handling
+export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
 
 # Export UQ (Uncertainty Quantification) functions
 export AGPInterpolatorUQ, agp_gpr_uq
@@ -144,49 +149,46 @@ export merge_options, validate_options, print_options, get_solver_options_dict
 export optimized_multishot_parameter_estimation
 
 
-#=
+# Precompilation workload - runs during package precompilation to reduce first-run latency
+@compile_workload begin
+	# Use local t/D to avoid polluting namespace
+	local _t = ModelingToolkit.t_nounits
+	local _D = ModelingToolkit.D_nounits
 
-@recompile_invalidations begin
-	@compile_workload begin
-		using ModelingToolkit
-		using ModelingToolkit: t_nounits as t, D_nounits as D
-		using OrdinaryDiffEq: Vern9
-		using OrderedCollections: OrderedDict
+	# Simple 1-state model to precompile core code paths
+	local _k1 = only(@parameters k1)
+	local _x = only(@variables x(_t))
+	local _y1 = only(@variables y1(_t))
 
-		solver = Vern9()
+	local _states = [_x]
+	local _parameters = [_k1]
+	local _state_equations = [_D(_x) ~ _k1 * _x]
+	local _measured_quantities = [_y1 ~ _x]
 
-		name = "lotka-volterra_0"
-		@parameters k1
-		@variables x(t) y1(t)
-		states = [x]
-		parameters = [k1]
-		state_equations = [
-			D(x) ~ k1 * x,
-		]
-		measured_quantities = [
-			y1 ~ x,
-		]
-		ic = [0.536]
-		p_true = [0.539]
+	local _model, _mq = create_ordered_ode_system(
+		"precompile_simple", _states, _parameters, _state_equations, _measured_quantities
+	)
+	local _pep = ParameterEstimationProblem(
+		"precompile_simple", _model, _mq, nothing, [-0.5, 0.5], nothing,
+		OrderedDict(_parameters .=> [0.5]), OrderedDict(_states .=> [0.5]), 0
+	)
 
-		time_interval = [-0.5, 0.5]
+	# Run with HC solver (most common) and minimal settings
+	local _opts = EstimationOptions(
+		datasize = 11,
+		noise_level = 0.0,
+		system_solver = SolverHC,
+		max_num_points = 2,
+		shooting_points = 1,
+	)
 
-		model, mq = create_ordered_ode_system(name, states, parameters, state_equations, measured_quantities)
-		pep = ParameterEstimationProblem(name, model, mq, nothing, time_interval, nothing, OrderedDict(parameters .=> p_true), OrderedDict(states .=> ic), 0)
-
-		# Create EstimationOptions with desired settings
-		opts = EstimationOptions(
-			datasize = 21,
-			noise_level = 0.0,
-			system_solver = SolverRobust,
-			shooting_points = 1,
-		)
-
-		estimation_problem = sample_problem_data(pep, opts)
-		res = analyze_parameter_estimation_problem(estimation_problem, opts)
+	local _est_problem = sample_problem_data(_pep, _opts)
+	try
+		analyze_parameter_estimation_problem(_est_problem, _opts)
+	catch
+		# Ignore errors during precompilation - we just want to trigger compilation
 	end
 end
-=#
 
 end # module
 

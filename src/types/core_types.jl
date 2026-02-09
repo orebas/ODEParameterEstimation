@@ -39,7 +39,7 @@ Struct representing a parameter estimation problem.
 - `name::String`: Name of the estimation problem
 - `model::OrderedODESystem`: Model system with equations
 - `measured_quantities::Vector{Equation}`: Equations defining measured quantities
-- `data_sample::Union{Nothing, OrderedDict{Any, Vector{Float64}}}`: Measured data or nothing
+- `data_sample::Union{Nothing, OrderedDict{Union{String, Num}, Vector{Float64}}}`: Measured data or nothing
 - `recommended_time_interval::Union{Nothing, Vector{Float64}}`: [start_time, end_time] or nothing for default
 - `solver::OrdinaryDiffEq.AbstractODEAlgorithm`: ODE solver to use
 - `p_true::OrderedDict{Num, Float64}`: True parameter values if known
@@ -50,7 +50,7 @@ struct ParameterEstimationProblem
     name::String
     model::OrderedODESystem
     measured_quantities::Vector{ModelingToolkit.Equation}
-    data_sample::Union{Nothing, OrderedDict{Any, Vector{Float64}}}
+    data_sample::Union{Nothing, OrderedDict{Union{String, Num}, Vector{Float64}}}
     recommended_time_interval::Union{Nothing, Vector{Float64}}
     solver::Any  # Use Any for now since the exact type hierarchy can be complex
     p_true::OrderedDict{Symbolics.Num, Float64}

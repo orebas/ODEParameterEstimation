@@ -63,12 +63,10 @@ function calculate_higher_derivative_terms(lhs_terms, rhs_terms, max_level)
         
         temp = rhs_derivatives[end]
         temp2 = D.(temp)
-        temp3 = deepcopy(temp2)
-        temp4 = []
-        
-        for j in 1:length(temp3)
-            temptemp = expand_derivatives(temp3[j])
-            push!(temp4, deepcopy(temptemp))
+        temp4 = Num[]
+
+        for j in 1:length(temp2)
+            push!(temp4, expand_derivatives(temp2[j]))
         end
         
         push!(rhs_derivatives, temp4)

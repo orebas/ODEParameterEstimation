@@ -13,7 +13,7 @@ Add relative Gaussian noise to data values while preserving time points.
 - New OrderedDict with noisy data
 """
 function add_relative_noise(data::OrderedDict, noise_level::Float64)
-	noisy_data = OrderedDict{Any, Vector{Float64}}()
+	noisy_data = OrderedDict{Union{String, Num}, Vector{Float64}}()
 
 	# Copy time points unchanged
 	noisy_data["t"] = data["t"]
@@ -30,7 +30,7 @@ function add_relative_noise(data::OrderedDict, noise_level::Float64)
 end
 
 function add_additive_noise(data::OrderedDict, noise_level::Float64)
-	noisy_data = OrderedDict{Any, Vector{Float64}}()
+	noisy_data = OrderedDict{Union{String, Num}, Vector{Float64}}()
 
 	# Copy time points unchanged
 	noisy_data["t"] = data["t"]
@@ -101,7 +101,7 @@ function sample_data(model::ModelingToolkit.AbstractSystem,
 	#	end
 	#end
 
-	data_sample = OrderedDict{Any, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
+	data_sample = OrderedDict{Union{String, Num}, Vector{T}}(Num(v.rhs) => solution_true[Num(v.rhs)]
 											  for v in measured_data)
 	if inject_noise
 		for (key, sample) in data_sample

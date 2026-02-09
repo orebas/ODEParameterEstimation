@@ -341,6 +341,16 @@ end
 
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Auto-handle transcendental functions (sin/cos/exp) at the top level
+	# so the transformed PEP is used consistently for both estimation and analysis
+	if opts.auto_handle_transcendentals
+		t_var = ModelingToolkit.get_iv(PEP.model.system)
+		PEP, _tr_info = transform_pep_for_estimation(PEP, t_var)
+		if !isnothing(_tr_info) && !opts.nooutput
+			println("Transcendental handling: transformed $(length(_tr_info.entries)) expression(s) into polynomial form")
+		end
+	end
+
 	# Extract needed values from opts
 	system_solver = get_solver_function(opts.system_solver)
 	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)

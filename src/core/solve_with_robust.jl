@@ -55,12 +55,26 @@ function solve_with_robust(poly_system, varlist;
 		println("[ROBUST] Jacobian: $jac_mode")
 	end
 
+	# Try to compile the system into a fast native function; fall back to substitute/value
+	compiled_residual_robust! = nothing
+	try
+		_f_oop, _f_ip = Symbolics.build_function(poly_system, varlist;
+			expression = Val(false))
+		compiled_residual_robust! = (res, u, p) -> (_f_ip(res, u); nothing)
+	catch err
+		@warn "build_function failed in solve_with_robust; falling back to substitute/value" err
+	end
+
 	# Create residual function
 	function residual!(res, u, p = nothing)
-		d = Dict(zip(varlist, u))
-		for (i, eq) in enumerate(poly_system)
-			val = Symbolics.value(Symbolics.substitute(eq, d))
-			res[i] = convert(eltype(res), val)
+		if compiled_residual_robust! !== nothing
+			compiled_residual_robust!(res, u, p)
+		else
+			d = Dict{Num, eltype(u)}(zip(varlist, u))
+			for (i, eq) in enumerate(poly_system)
+				val = Symbolics.value(Symbolics.substitute(eq, d))
+				res[i] = convert(eltype(res), val)
+			end
 		end
 		return nothing
 	end

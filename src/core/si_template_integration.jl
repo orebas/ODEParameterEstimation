@@ -144,8 +144,26 @@ function construct_equation_system_from_si_template(
 	end
 
 
+	# Also substitute _trfn_ transcendental input variables with their known analytical values.
+	# These represent sin(c*t), cos(c*t), and their derivatives at the shooting point — they
+	# are known functions of time, not unknowns.  After substitution, equations that only
+	# contained data_vars + _trfn_ vars will become trivially satisfied (0 ≈ 0) and get
+	# removed by the zero-variable filter below.
+	n_trfn_substituted = 0
+	for v in vars_in_template
+		var_name = string(v)
+		trfn_val = evaluate_trfn_template_variable(var_name, t_point)
+		if !isnothing(trfn_val)
+			interpolated_values_dict[v] = trfn_val
+			n_trfn_substituted += 1
+		end
+	end
+	if n_trfn_substituted > 0
+		@info "[TEMPLATE] Substituted $n_trfn_substituted _trfn_ variable(s) at t=$t_point"
+	end
+
 	if diagnostics
-		println("[DEBUG-SI] Created interpolated_values_dict with $(length(interpolated_values_dict)) entries")
+		println("[DEBUG-SI] Created interpolated_values_dict with $(length(interpolated_values_dict)) entries (including $n_trfn_substituted _trfn_ vars)")
 	end
 
 	# Substitute interpolated values into the template equations (broadcast over the vector)
@@ -162,12 +180,32 @@ function construct_equation_system_from_si_template(
 		println("[DEBUG-SI] After substitution (Eq1): ", substituted_equations[1])
 	end
 
-	# FINAL FIX: Extract variables from the system *after* substitution
+	# Extract variables from each equation *after* substitution,
+	# and filter out trivially-satisfied equations (0 remaining variables).
+	# These arise from oscillator coupling constraints when _trfn_ observable
+	# derivatives are substituted — the equations become "0 ≈ 0".
 	final_vars = OrderedSet()
+	kept_equations = eltype(substituted_equations)[]
+	n_trivial = 0
 	for (eq_idx, eq) in enumerate(substituted_equations)
 		vars_in_eq = Symbolics.get_variables(eq)
-		union!(final_vars, vars_in_eq)
-		@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
+		if isempty(vars_in_eq)
+			# Equation has no remaining variables — trivially satisfied after substitution
+			n_trivial += 1
+			if diagnostics
+				@info "[DEBUG-SI-VARS] Eq$eq_idx TRIVIAL (0 variables, removing): $eq"
+			end
+		else
+			push!(kept_equations, eq)
+			union!(final_vars, vars_in_eq)
+			if diagnostics
+				@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
+			end
+		end
+	end
+
+	if n_trivial > 0
+		@info "[TEMPLATE] Removed $n_trivial trivially-satisfied equations after data substitution"
 	end
 
 	if diagnostics
@@ -178,13 +216,48 @@ function construct_equation_system_from_si_template(
 	@info "[DEBUG-SI-VARS] Final variables list ($(length(final_vars))): $(collect(final_vars))"
 
 	# Always log this critical count info
-	@info "[DEBUG-EQ-VAR-COUNT] After template instantiation: $(length(substituted_equations)) equations, $(length(final_vars)) variables"
-	if length(substituted_equations) != length(final_vars)
-		@warn "[DEBUG-EQ-VAR-COUNT] MISMATCH! equations=$(length(substituted_equations)) != variables=$(length(final_vars))"
+	@info "[DEBUG-EQ-VAR-COUNT] After template instantiation: $(length(kept_equations)) equations, $(length(final_vars)) variables"
+
+	# Handle overdetermined systems: when _trfn_ substitution + data substitution
+	# leaves more equations than variables, remove redundant equations.
+	# An equation is "removable" if every variable in it also appears in at least one
+	# other kept equation — removing it won't lose any variable.
+	# Among removable equations, prefer removing from the end (highest derivative order,
+	# most numerically sensitive).
+	while length(kept_equations) > length(final_vars)
+		n_excess = length(kept_equations) - length(final_vars)
+		# Build per-variable occurrence count across all kept equations
+		var_eq_count = Dict{Any, Int}()
+		for eq in kept_equations
+			for v in Symbolics.get_variables(eq)
+				var_eq_count[v] = get(var_eq_count, v, 0) + 1
+			end
+		end
+		# Find removable equations (from the end, for numerical stability)
+		removed = false
+		for idx in length(kept_equations):-1:1
+			eq_vars = Symbolics.get_variables(kept_equations[idx])
+			# Safe to remove if every variable appears in at least 2 equations (this one + another)
+			if all(v -> get(var_eq_count, v, 0) >= 2, eq_vars)
+				@info "[TEMPLATE] Overdetermined ($n_excess excess): removing equation $idx (all $(length(eq_vars)) vars appear elsewhere)"
+				deleteat!(kept_equations, idx)
+				removed = true
+				break
+			end
+		end
+		if !removed
+			@warn "[TEMPLATE] Cannot safely remove any equation without losing a variable. Keeping overdetermined system."
+			break
+		end
+		# Recompute final_vars after removal
+		final_vars = OrderedSet()
+		for eq in kept_equations
+			union!(final_vars, Symbolics.get_variables(eq))
+		end
 	end
 
-	# Return the substituted equations and the correctly filtered variable list
-	return substituted_equations, collect(final_vars)
+	# Return the non-trivial equations and the correctly filtered variable list
+	return kept_equations, collect(final_vars)
 end
 
 # Export the template-based constructor

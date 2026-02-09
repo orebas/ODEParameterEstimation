@@ -51,11 +51,9 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
 		temp = DD.states_rhs[end]
 		temp2 = D.(temp)
-		temp3 = deepcopy(temp2)
-		temp4 = []
-		for j in 1:length(temp3)
-			temptemp = expand_derivatives(temp3[j])
-			push!(temp4, deepcopy(temptemp))
+		temp4 = Num[]
+		for j in 1:length(temp2)
+			push!(temp4, expand_derivatives(temp2[j]))
 		end
 		push!(DD.states_rhs, temp4)
 		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
@@ -132,8 +130,8 @@ function create_interpolants(
 	data_sample::OrderedDict,
 	t_vector::Vector{Float64},
 	interp_func::Function,
-)::Dict{Any, AbstractInterpolator}
-	interpolants = Dict{Any, AbstractInterpolator}()
+)::Dict{Num, AbstractInterpolator}
+	interpolants = Dict{Num, AbstractInterpolator}()
 
 	for j in measured_quantities
 		r = j.rhs
@@ -207,7 +205,7 @@ function construct_multipoint_equation_system!(time_index_set,
 		# ITERATIVE PARAMETER FIXING:
 		# We fix ONE parameter at a time and re-run full SIAN analysis
 		# until the system is determined (equations == variables)
-		pre_fixed_params = OrderedDict{Any, Float64}()
+		pre_fixed_params = OrderedDict{Num, Float64}()
 		max_fix_iterations = 10
 		iteration = 0
 		converged = false
@@ -378,7 +376,7 @@ function construct_multipoint_equation_system!(time_index_set,
 		push!(full_varlist, varlist_k)
 		# Substitution dictionaries are not used in this path but are kept for API compatibility.
 		push!(forward_subst_dict, OrderedDict{Num, Any}())
-		push!(reverse_subst_dict, OrderedDict{Any, Num}())
+		push!(reverse_subst_dict, OrderedDict{Num, Num}())
 	end  #this is the end of the loop over the time points which just constructs the System
 	return full_target, full_varlist, forward_subst_dict, reverse_subst_dict
 end
@@ -481,7 +479,7 @@ function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostic
 		for f in funcs_filtered
 			union!(all_vars, Symbolics.get_variables(f))
 		end
-		val_dict = Dict{Any, Float64}()
+		val_dict = Dict{Num, Float64}()
 		for v in all_vars
 			val_dict[v] = 0.5 + rand()
 		end
@@ -520,9 +518,13 @@ function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostic
 		return nothing, nothing
 	end
 
+	# Convert Nemo parameter to Symbolics Num for type consistency
+	# The param_to_fix may be a Nemo.QQMPolyRingElem from SIAN
+	param_to_fix_sym = Symbolics.variable(Symbol(string(param_to_fix)))
+
 	# Return the parameter and the value to fix it to
 	fix_value = 1.0
-	return param_to_fix, fix_value
+	return param_to_fix_sym, fix_value
 end
 
 function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
@@ -602,7 +604,7 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 				for f in funcs_filtered
 					union!(all_vars, Symbolics.get_variables(f))
 				end
-				val_dict = Dict{Any, Float64}()
+				val_dict = Dict{Num, Float64}()
 				for v in all_vars
 					val_dict[v] = 0.5 + rand()
 				end
@@ -847,7 +849,7 @@ function multipoint_numerical_jacobian(
 		T = eltype(param_and_ic_values_vec)  # Float64 or ForwardDiff.Dual
 		obs_deriv_vals = T[]
 		for k in eachindex(ic_dict_vector)
-			evaluated_subst_dict = OrderedDict{Any, Any}(deepcopy(values_dict))
+			evaluated_subst_dict = OrderedDict{Num, Any}(values_dict)
 			thekeys = collect(keys(evaluated_subst_dict))
 			for i in 1:num_real_params
 				evaluated_subst_dict[thekeys[i]] = param_and_ic_values_vec[i]
@@ -857,7 +859,7 @@ function multipoint_numerical_jacobian(
 					param_and_ic_values_vec[(k-1)*num_real_states+num_real_params+i]
 			end
 
-			for i in eachindex(DD.states_rhs)
+		for i in eachindex(DD.states_rhs)
 				for j in eachindex(DD.states_rhs[i])
 					substituted_val = Symbolics.substitute(DD.states_rhs[i][j], evaluated_subst_dict)
 					# If the substituted value is a constant, unwrap it from the symbolic type.
@@ -1545,11 +1547,9 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
 		temp = DD.states_rhs[end]
 		temp2 = D.(temp)
-		temp3 = deepcopy(temp2)
-		temp4 = []
-		for j in 1:length(temp3)
-			temptemp = expand_derivatives(temp3[j])
-			push!(temp4, deepcopy(temptemp))
+		temp4 = Num[]
+		for j in 1:length(temp2)
+			push!(temp4, expand_derivatives(temp2[j]))
 		end
 		push!(DD.states_rhs, temp4)
 	end
@@ -1601,14 +1601,8 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 	#println("sub_dict after computing derivatives:")
 	#println(sub_dict)
 
-	# Apply all substitutions to the polynomial system
-	for i in 1:7
-		evaluated = [simplify(Symbolics.substitute(expr, sub_dict)) for expr in poly_system]
-		#println(evaluated)
-	end
-
-	# Final pass: convert any remaining derivatives to terms
-	evaluated = [ModelingToolkit.diff2term(expand_derivatives(expr)) for expr in evaluated]
+	# Apply substitutions and convert remaining derivatives to terms
+	evaluated = [ModelingToolkit.diff2term(expand_derivatives(simplify(Symbolics.substitute(expr, sub_dict)))) for expr in poly_system]
 
 
 

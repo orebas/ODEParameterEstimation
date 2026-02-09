@@ -38,14 +38,28 @@ function solve_with_nlopt(poly_system, varlist;
 	debug = get(options, :debug, false)
 	jac_mode = get(options, :jacobian, :none)
 
+	# Try to compile the system into a fast native function; fall back to substitute/value
+	compiled_residual! = nothing
+	try
+		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
+			expression = Val(false))
+		compiled_residual! = (res, u, p) -> (_f_ip(res, u); nothing)
+	catch err
+		@warn "build_function failed in solve_with_nlopt; falling back to substitute/value" err
+	end
+
 	# Define residual function for NonlinearLeastSquares (AD-safe; no Float64 forcing)
 	res_evals_nlopt = Ref(0)
 	function residual!(res, u, p)
 		res_evals_nlopt[] += 1
-		d = Dict(zip(mangled_varlist, u))
-		for (i, eq) in enumerate(prepared_system)
-			val = Symbolics.value(Symbolics.substitute(eq, d))
-			res[i] = convert(eltype(u), val)
+		if compiled_residual! !== nothing
+			compiled_residual!(res, u, p)
+		else
+			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
+			for (i, eq) in enumerate(prepared_system)
+				val = Symbolics.value(Symbolics.substitute(eq, d))
+				res[i] = convert(eltype(u), val)
+			end
 		end
 		return nothing
 	end
@@ -148,14 +162,28 @@ function solve_with_nlopt_quick(poly_system, varlist;
 	debug = get(options, :debug, false)
 	jac_mode = get(options, :jacobian, :none)
 
+	# Try to compile the system into a fast native function; fall back to substitute/value
+	compiled_residual_quick! = nothing
+	try
+		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
+			expression = Val(false))
+		compiled_residual_quick! = (res, u, p) -> (_f_ip(res, u); nothing)
+	catch err
+		@warn "build_function failed in solve_with_nlopt_quick; falling back to substitute/value" err
+	end
+
 	# Define residual function for NonlinearLeastSquares (AD-safe)
 	res_evals_nlopt_quick = Ref(0)
 	function residual!(res, u, p)
 		res_evals_nlopt_quick[] += 1
-		d = Dict(zip(mangled_varlist, u))
-		for (i, eq) in enumerate(prepared_system)
-			val = Symbolics.value(Symbolics.substitute(eq, d))
-			res[i] = convert(eltype(u), val)
+		if compiled_residual_quick! !== nothing
+			compiled_residual_quick!(res, u, p)
+		else
+			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
+			for (i, eq) in enumerate(prepared_system)
+				val = Symbolics.value(Symbolics.substitute(eq, d))
+				res[i] = convert(eltype(u), val)
+			end
 		end
 		return nothing
 	end
@@ -255,13 +283,26 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	m = length(prepared_system)
 	n = length(mangled_varlist)
 
-	# Always use fallback residual via Symbolics substitution (Dual-safe)
+	# Try to compile the system into a fast native function; fall back to substitute/value
+	compiled_residual_fast! = nothing
+	try
+		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
+			expression = Val(false))
+		compiled_residual_fast! = (res, u, p) -> (_f_ip(res, u); nothing)
+	catch err
+		@warn "build_function failed in solve_with_fast_nlopt; falling back to substitute/value" err
+	end
+
 	eval_count = Ref(0)
 	function residual!(res, u, p)
 		eval_count[] += 1
-		d = Dict(zip(mangled_varlist, u))
-		for i in 1:m
-			res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
+		if compiled_residual_fast! !== nothing
+			compiled_residual_fast!(res, u, p)
+		else
+			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
+			for i in 1:m
+				res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
+			end
 		end
 		return nothing
 	end
@@ -359,8 +400,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	println("[NLOPT_fast] residual_norm initial=", initial_norm,
 		" final=", final_norm,
 		" improvement=", improvement,
-		" (compiled=", false,
-		" compile_ms=", 0.0,
+		" (compiled=", compiled_residual_fast! !== nothing,
 		" solve_ms=", solve_ms,
 		" evals=", eval_count[], ")")
 
@@ -764,5 +804,268 @@ end
 
 
 
-#=
-=#
+# ============================================================================
+# Parameter Homotopy Functions
+# ============================================================================
+
+"""
+	convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
+
+Convert a polynomial system to HomotopyContinuation.System with both variables and parameters.
+
+# Arguments
+- `poly_system`: System of polynomial equations (Symbolics expressions)
+- `solve_vars`: Variables to solve for (unknowns - parameters and states)
+- `data_vars`: Variables that become HC parameters (interpolated observable values)
+
+# Returns
+- `hc_system`: HomotopyContinuation.System with parameters
+- `hc_variables`: HC variable list (corresponding to solve_vars)
+- `hc_params`: HC parameter list (corresponding to data_vars)
+"""
+function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
+	# Convert expressions to strings
+	string_target = string.(poly_system)
+
+	# Sanitize variable names (both solve_vars and data_vars)
+	sanitized_solve = sanitize_vars(solve_vars)
+	sanitized_data = sanitize_vars(data_vars)
+
+	# Build mapping from original variable string to hmcs("sanitized_name") placeholder
+	variable_string_mapping = Dict{String, String}()
+
+	# Map solve variables
+	for (i, v) in enumerate(solve_vars)
+		orig_name = string(v)
+		sanitized_name = sanitized_solve[i]
+		variable_string_mapping[orig_name] = "hmcs(\"" * sanitized_name * "\")"
+	end
+
+	# Map data variables (parameters in HC)
+	for (i, v) in enumerate(data_vars)
+		orig_name = string(v)
+		sanitized_name = sanitized_data[i]
+		variable_string_mapping[orig_name] = "hmcs(\"p_" * sanitized_name * "\")"
+	end
+
+	# Apply textual replacement
+	for i in eachindex(string_target)
+		string_target[i] = replace(string_target[i], variable_string_mapping...)
+	end
+
+	# Parse and eval into HC expressions
+	parsed = eval.(Meta.parse.(string_target))
+	HomotopyContinuation.set_default_compile(:all)
+
+	# Build variables list in the same order as solve_vars
+	hc_variables = [HomotopyContinuation.ModelKit.Variable(Symbol(sanitized_solve[i])) for i in eachindex(solve_vars)]
+
+	# Build parameters list in the same order as data_vars (with p_ prefix)
+	hc_params = [HomotopyContinuation.ModelKit.Variable(Symbol("p_" * sanitized_data[i])) for i in eachindex(data_vars)]
+
+	# Construct the parameterized system
+	hc_system = HomotopyContinuation.System(parsed, variables = hc_variables, parameters = hc_params)
+
+	return hc_system, hc_variables, hc_params
+end
+
+"""
+	solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options=Dict())
+
+Solve a polynomial system at multiple parameter values using parameter homotopy.
+
+This function provides significant speedup when solving the same polynomial structure
+at multiple shooting points, as it tracks existing solutions instead of computing
+fresh start systems for each point.
+
+# Arguments
+- `poly_system`: Symbolic equations (structure fixed, coefficients vary)
+- `solve_vars`: Variables to solve for (parameters and states)
+- `data_vars`: Variables that become HC parameters (interpolated observables like y1(t), y1'(t))
+- `param_values_list`: Vector of parameter value vectors, one per shooting point
+
+# Keyword Arguments
+- `options::Dict`: Solver options (e.g., :show_progress, :real_tol)
+
+# Returns
+Vector of vectors of real solutions, one per shooting point.
+
+# Algorithm
+1. First point: Fresh solve with HC.solve(), collect ALL solutions (real + complex)
+2. Subsequent points: Parameter homotopy tracking ALL solutions from previous point
+3. At each point: Filter to real solutions for output
+4. Track ALL solutions to next point (solutions can transition between real/complex)
+
+# Fallback
+If parameter homotopy tracking loses solutions, falls back to fresh solve at that point
+and emits a warning.
+"""
+function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options = Dict())
+	# Convert to HC format with parameters
+	hc_system, hc_variables, hc_params = convert_to_hc_format_with_params(
+		poly_system, solve_vars, data_vars
+	)
+
+	# Get options
+	show_progress = get(options, :show_progress, false)
+	real_tol = get(options, :real_tol, 1e-9)
+	debug = get(options, :debug, false)
+
+	all_real_results = Vector{Vector{Vector{Float64}}}()
+	prev_all_solutions = nothing  # Track ALL solutions (real + complex)
+	prev_params = nothing
+	initial_solution_count = 0
+
+	for (i, current_params) in enumerate(param_values_list)
+		if i == 1 || isnothing(prev_all_solutions) || isempty(prev_all_solutions)
+			# Fresh solve at first point - get ALL solutions
+			if debug
+				println("[HC-PARAM] Point $i: Fresh solve with $(length(current_params)) parameters")
+			end
+
+			result = HomotopyContinuation.solve(hc_system;
+				target_parameters = current_params,
+				show_progress = show_progress)
+
+			all_solutions = HomotopyContinuation.solutions(result)  # ALL, not just real
+			initial_solution_count = length(all_solutions)
+
+			if debug
+				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
+				println("[HC-PARAM] Point $i: Fresh solve found $(length(all_solutions)) total solutions ($real_count real)")
+			end
+		else
+			# Parameter homotopy from previous point - track ALL solutions
+			if debug
+				println("[HC-PARAM] Point $i: Parameter homotopy tracking $(length(prev_all_solutions)) solutions")
+			end
+
+			result = HomotopyContinuation.solve(hc_system, prev_all_solutions;
+				start_parameters = prev_params,
+				target_parameters = current_params,
+				show_progress = show_progress)
+
+			all_solutions = HomotopyContinuation.solutions(result)
+
+			# Check if tracking lost significant solutions
+			if length(all_solutions) < length(prev_all_solutions) * 0.9  # Lost more than 10%
+				@warn "Parameter homotopy: solution count dropped from $(length(prev_all_solutions)) to $(length(all_solutions)) at point $i. Falling back to fresh solve."
+
+				# Fresh solve fallback
+				result = HomotopyContinuation.solve(hc_system;
+					target_parameters = current_params,
+					show_progress = show_progress)
+				all_solutions = HomotopyContinuation.solutions(result)
+
+				if debug
+					println("[HC-PARAM] Point $i: Fallback fresh solve found $(length(all_solutions)) solutions")
+				end
+			elseif debug
+				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
+				println("[HC-PARAM] Point $i: Tracked $(length(all_solutions)) solutions ($real_count real)")
+			end
+		end
+
+		# Filter for REAL solutions at this point (for output)
+		real_solutions_hc = HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol)
+
+		# Convert to Float64 vectors
+		real_solutions = Vector{Vector{Float64}}()
+		for s in real_solutions_hc
+			vals = Float64[real(s[j]) for j in 1:length(hc_variables)]
+			push!(real_solutions, vals)
+		end
+		push!(all_real_results, real_solutions)
+
+		# Track ALL solutions to next point (real + complex)
+		prev_all_solutions = all_solutions
+		prev_params = current_params
+	end
+
+	return all_real_results
+end
+
+"""
+	extract_data_variables_from_DD(DD::DerivativeData)
+
+Extract all observable derivative variables from the DerivativeData structure.
+These are the variables that should become HC parameters in parameter homotopy.
+
+# Returns
+Vector of Symbolics variables representing y_i^(j) for all observables and derivative levels.
+"""
+function extract_data_variables_from_DD(DD)
+	data_vars = Vector{Any}()
+
+	if isnothing(DD)
+		return data_vars
+	end
+
+	# DD.obs_lhs[level+1][obs_idx] gives the variable for derivative level of observable obs_idx
+	for level_vars in DD.obs_lhs
+		for v in level_vars
+			push!(data_vars, v)
+		end
+	end
+
+	return data_vars
+end
+
+"""
+	evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quantities, t_point)
+
+Evaluate all data variables (observable derivatives) at a specific time point.
+
+# Arguments
+- `interpolants`: Dict mapping observable RHS to interpolation functions
+- `data_vars`: Vector of data variables (from extract_data_variables_from_DD)
+- `DD`: DerivativeData structure containing obs_lhs mapping
+- `measured_quantities`: Vector of measured quantity equations
+- `t_point`: Time point at which to evaluate
+
+# Returns
+Vector of Float64 values corresponding to data_vars order.
+"""
+function evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quantities, t_point)
+	values = Vector{Float64}()
+
+	# Build a mapping from data_var -> (obs_idx, deriv_level)
+	var_to_obs = Dict{Any, Tuple{Int, Int}}()
+	for (level_idx, level_vars) in enumerate(DD.obs_lhs)
+		deriv_level = level_idx - 1  # 0-indexed derivative level
+		for (obs_idx, v) in enumerate(level_vars)
+			var_to_obs[v] = (obs_idx, deriv_level)
+		end
+	end
+
+	for v in data_vars
+		if haskey(var_to_obs, v)
+			obs_idx, deriv_level = var_to_obs[v]
+
+			# Get the interpolant for this observable
+			obs_rhs = ModelingToolkit.diff2term(measured_quantities[obs_idx].rhs)
+
+			if haskey(interpolants, obs_rhs)
+				interp_func = interpolants[obs_rhs]
+				val = nth_deriv(x -> interp_func(x), deriv_level, t_point)
+				push!(values, Float64(val))
+			else
+				# Try with wrapped LHS
+				obs_lhs_wrapped = Symbolics.wrap(measured_quantities[obs_idx].lhs)
+				if haskey(interpolants, obs_lhs_wrapped)
+					interp_func = interpolants[obs_lhs_wrapped]
+					val = nth_deriv(x -> interp_func(x), deriv_level, t_point)
+					push!(values, Float64(val))
+				else
+					@warn "No interpolant found for observable $obs_idx at derivative level $deriv_level"
+					push!(values, 0.0)
+				end
+			end
+		else
+			@warn "Data variable $v not found in DD.obs_lhs mapping"
+			push!(values, 0.0)
+		end
+	end
+
+	return values
+end

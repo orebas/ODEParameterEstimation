@@ -360,6 +360,16 @@ function get_si_equation_system(
 			extended_map[k] = v
 		end
 
+		# Build mapping from observable base names to indices for derivative variable matching
+		obs_name_to_idx = Dict{String, Int}()
+		for (idx, mq) in enumerate(measured_quantities)
+			lhs_val = Symbolics.value(mq.lhs)
+			if Symbolics.iscall(lhs_val)
+				lhs_name = string(Symbolics.operation(lhs_val))
+				obs_name_to_idx[lhs_name] = idx
+			end
+		end
+
 		# Add derivative variable mappings
 		for var in all_vars
 			if !haskey(extended_map, var)
@@ -372,16 +382,15 @@ function get_si_equation_system(
 					# Map to DD structure if available
 					if !isnothing(DD)
 						# Find the corresponding observable index
-						# SIAN uses y1, y2, etc. for multi-observable systems
-						# but just "y" for single-observable systems
-						# Extract the index from base_name (e.g., "y1" -> 1, "y" -> 1)
-						obs_idx = nothing
-						m = match(r"y(\d+)", base_name)
-						if !isnothing(m)
-							obs_idx = parse(Int, m.captures[1])
-						elseif base_name == "y"
-							# Single observable system: "y" maps to index 1
-							obs_idx = 1
+						# First try the measured quantities name mapping (handles all observable names)
+						# Then fall back to legacy SIAN naming (y1, y2, etc.)
+						obs_idx = get(obs_name_to_idx, base_name, nothing)
+						if isnothing(obs_idx)
+							# Legacy fallback: SIAN uses y1, y2, etc. for multi-observable systems
+							m = match(r"^y(\d+)$", base_name)
+							if !isnothing(m)
+								obs_idx = parse(Int, m.captures[1])
+							end
 						end
 
 						if !isnothing(obs_idx)
@@ -822,23 +831,16 @@ end
 	parse_derivative_variable_name(var_name::String)
 
 Parse a SIAN derivative variable name to extract base variable and derivative order.
-Supports two patterns:
-  - "y1_2" where y1 is the base and 2 is the derivative order (multi-observable)
-  - "y_2" where y is the base and 2 is the derivative order (single observable)
+The last `_N` suffix (where N is a non-negative integer) is always the derivative order.
+Supports patterns like:
+  - "y1_2" where y1 is the base and 2 is the derivative order
+  - "y_2" where y is the base and 2 is the derivative order
+  - "_obs_trfn_cos_5_0_cos_3" where _obs_trfn_cos_5_0_cos is the base and 3 is the order
 Returns (base_name, derivative_order) or nothing if parsing fails.
 """
 function parse_derivative_variable_name(var_name::String)
-	# First try pattern like "y1_2" (letters + digit + underscore + digit)
-	m = match(r"^([a-zA-Z]+\d+)_(\d+)$", var_name)
-	if !isnothing(m)
-		base_name = m.captures[1]
-		derivative_order = parse(Int, m.captures[2])
-		return (base_name, derivative_order)
-	end
-
-	# Also try pattern like "y_2" (just letters + underscore + digit, no index)
-	# This is used by SIAN for single-observable systems
-	m = match(r"^([a-zA-Z]+)_(\d+)$", var_name)
+	# Match the last _N suffix as the derivative order
+	m = match(r"^(.+)_(\d+)$", var_name)
 	if !isnothing(m)
 		base_name = m.captures[1]
 		derivative_order = parse(Int, m.captures[2])

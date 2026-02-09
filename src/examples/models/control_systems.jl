@@ -1381,9 +1381,9 @@ Control relevance: Power grid stability, frequency regulation.
 Fundamental model for transient stability analysis.
 """
 function swing_equation()
-	parameters = @parameters H D Pmax omega_s Pm
+	parameters = @parameters H D_damp Pmax omega_s Pm
 	# H: inertia constant (s)
-	# D: damping coefficient (pu)
+	# D_damp: damping coefficient (pu)
 	# Pmax: maximum synchronizing power (pu)
 	# omega_s: synchronous speed (rad/s)
 	# Pm is the INPUT (mechanical power input)
@@ -1395,7 +1395,7 @@ function swing_equation()
 
 	p_true = [
 		5.0,      # H: inertia constant (s) - typical for large generator
-		1.0,      # D: damping coefficient
+		1.0,      # D_damp: damping coefficient
 		1.0,      # Pmax: maximum sync power (pu)
 		377.0,    # omega_s: 60 Hz → 2π*60 rad/s
 		0.8,      # Pm: INPUT - mechanical power (pu)
@@ -1408,7 +1408,7 @@ function swing_equation()
 	# Electrical power: Pe = Pmax * sin(delta)
 	equations = [
 		D(delta) ~ Delta_omega,
-		D(Delta_omega) ~ (omega_s / (2 * H)) * (Pm - Pmax * sin(delta) - D * Delta_omega),
+		D(Delta_omega) ~ (omega_s / (2 * H)) * (Pm - Pmax * sin(delta) - D_damp * Delta_omega),
 	]
 
 	# Frequency is the primary measured quantity
@@ -2016,4 +2016,442 @@ function maglev_linear()
 		OrderedDict(states .=> ic_true),
 		0,
 	)
+end
+
+# =============================================================================
+#                    NATURAL SINUSOIDAL INPUT MODELS
+#   These use sin(ω*t) directly instead of manual oscillator polynomialization.
+#   The transcendental handling layer automatically transforms them.
+# ============================================================================= #
+
+"""
+    dc_motor_sinusoidal()
+
+DC motor with sinusoidal voltage input, written naturally using sin().
+This is the natural version of `dc_motor_identifiable()` — the transcendental
+handling layer automatically converts sin(5.0*t) into polynomial form.
+
+Compared to `dc_motor_identifiable()`:
+- 2 fewer states (no u_sin, u_cos)
+- 2 fewer ODEs (no oscillator equations)
+- 2 fewer observables (no oscillator observations)
+- 2 fewer initial conditions
+"""
+function dc_motor_sinusoidal()
+    @parameters Kt J b
+
+    # FIXED electrical parameters
+    R_val = 2.0
+    L_val = 0.5
+    Kb_val = 0.1
+
+    # Input parameters
+    V0_val = 12.0
+    Va_val = 2.0
+    omega_val = 5.0
+
+    @variables omega_m(t) i(t)
+    @variables y1(t)
+
+    p_true = [0.1, 0.01, 0.1]  # Kt, J, b
+    ic_true = [0.0, 0.0]
+
+    # Just write sin() directly!
+    V_input = V0_val + Va_val * sin(omega_val * t)
+
+    equations = [
+        D(omega_m) ~ (Kt * i - b * omega_m) / J,
+        D(i) ~ (V_input - R_val * i - Kb_val * omega_m) / L_val,
+    ]
+
+    measured_quantities = [y1 ~ omega_m]
+
+    states = [omega_m, i]
+    parameters = [Kt, J, b]
+
+    model, mq = create_ordered_ode_system("dc_motor_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "dc_motor_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 5.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    quadrotor_sinusoidal()
+
+Quadrotor altitude with sinusoidal thrust, written naturally using sin().
+This is the natural version of `quadrotor_altitude_identifiable()`.
+"""
+function quadrotor_sinusoidal()
+    @parameters m d
+
+    g_val = 9.81
+    Ta_val = 2.0
+    omega_val = 1.0
+
+    @variables z(t) w(t)
+    @variables y1(t)
+
+    p_true = [1.0, 0.1]
+    ic_true = [5.0, 0.0]
+
+    equations = [
+        D(z) ~ w,
+        D(w) ~ (Ta_val * sin(omega_val * t) - d * w) / m,
+    ]
+
+    measured_quantities = [y1 ~ z]
+
+    states = [z, w]
+    parameters = [m, d]
+
+    model, mq = create_ordered_ode_system("quadrotor_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "quadrotor_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 10.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    forced_lv_sinusoidal()
+
+Forced Lotka-Volterra with sinusoidal harvesting, written naturally.
+This is the natural version of `forced_lotka_volterra_identifiable()`.
+"""
+function forced_lv_sinusoidal()
+    @parameters alpha beta delta gamma
+
+    h_val = 0.3
+    omega_val = 2.0
+
+    @variables x(t) y(t)
+    @variables y1(t) y2(t)
+
+    p_true = [1.5, 1.0, 0.5, 3.0]
+    ic_true = [1.0, 1.0]
+
+    equations = [
+        D(x) ~ alpha * x - beta * x * y - h_val * sin(omega_val * t),
+        D(y) ~ delta * x * y - gamma * y,
+    ]
+
+    measured_quantities = [y1 ~ x, y2 ~ y]
+
+    states = [x, y]
+    parameters = [alpha, beta, delta, gamma]
+
+    model, mq = create_ordered_ode_system("forced_lv_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "forced_lv_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 5.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    magnetic_levitation_sinusoidal()
+
+Magnetic levitation with sinusoidal voltage, written naturally using sin().
+This is the natural version of `magnetic_levitation_identifiable()`.
+"""
+function magnetic_levitation_sinusoidal()
+    @parameters m_lin k_lin b_lin
+
+    # FIXED electrical parameters (measured)
+    R_coil_val = 2.0   # coil resistance (Ohms)
+    L_val = 0.05       # inductance (H)
+    ki_val = 10.0      # current-to-force gain
+
+    # Input parameters - FIXED
+    V0_val = 5.0
+    Va_val = 1.0
+    omega_val = 5.0
+
+    @variables x(t) v(t) i(t)
+    @variables y1(t)
+
+    p_true = [
+        0.1,    # m_lin: effective mass
+        50.0,   # k_lin: linearized stiffness
+        2.0,    # b_lin: damping
+    ]
+
+    i_eq = V0_val / R_coil_val
+    ic_true = [0.0, 0.0, i_eq]
+
+    V_input = V0_val + Va_val * sin(omega_val * t)
+
+    equations = [
+        D(x) ~ v,
+        D(v) ~ (ki_val * (i - V0_val / R_coil_val) - k_lin * x - b_lin * v) / m_lin,
+        D(i) ~ (V_input - R_coil_val * i) / L_val,
+    ]
+
+    measured_quantities = [y1 ~ x]
+
+    states = [x, v, i]
+    parameters = [m_lin, k_lin, b_lin]
+
+    model, mq = create_ordered_ode_system("magnetic_levitation_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "magnetic_levitation_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 5.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    aircraft_pitch_sinusoidal()
+
+Aircraft pitch dynamics with sinusoidal elevator input, written naturally using sin().
+This is the natural version of `aircraft_pitch_identifiable()`.
+"""
+function aircraft_pitch_sinusoidal()
+    @parameters M_alpha M_q M_delta_e Z_alpha
+
+    # FIXED from flight conditions
+    V_air_val = 50.0  # true airspeed (m/s)
+
+    # Input parameters - FIXED
+    delta_e0_val = 0.0
+    delta_ea_val = 0.05
+    omega_val = 2.0
+
+    @variables theta(t) q(t) alpha(t)
+    @variables y1(t)
+
+    p_true = [
+        -5.0,     # M_alpha
+        -2.0,     # M_q
+        -10.0,    # M_delta_e
+        -0.5,     # Z_alpha
+    ]
+
+    ic_true = [0.0, 0.0, 0.05]
+
+    delta_e_input = delta_e0_val + delta_ea_val * sin(omega_val * t)
+
+    equations = [
+        D(theta) ~ q,
+        D(q) ~ M_alpha * alpha + M_q * q + M_delta_e * delta_e_input,
+        D(alpha) ~ Z_alpha * alpha / V_air_val + q,
+    ]
+
+    measured_quantities = [y1 ~ q]
+
+    states = [theta, q, alpha]
+    parameters = [M_alpha, M_q, M_delta_e, Z_alpha]
+
+    model, mq = create_ordered_ode_system("aircraft_pitch_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "aircraft_pitch_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 10.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    bicycle_model_sinusoidal()
+
+Vehicle lateral dynamics with sinusoidal steering input, written naturally using sin().
+This is the natural version of `bicycle_model_identifiable()`.
+"""
+function bicycle_model_sinusoidal()
+    @parameters Cf Cr m_veh Iz
+
+    # FIXED from vehicle specs and test conditions
+    lf_val = 1.2    # front axle to CG (m)
+    lr_val = 1.4    # rear axle to CG (m)
+    Vx_val = 20.0   # test speed (m/s)
+
+    # Input parameters - FIXED
+    delta_a_val = 0.05
+    omega_val = 0.5
+
+    @variables vy(t) r(t)
+    @variables y1(t) y2(t)
+
+    p_true = [
+        80000.0,   # Cf
+        80000.0,   # Cr
+        1500.0,    # m_veh
+        2500.0,    # Iz
+    ]
+
+    ic_true = [0.0, 0.0]
+
+    delta_input = delta_a_val * sin(omega_val * t)
+
+    equations = [
+        D(vy) ~ (Cf * (delta_input - (vy + lf_val * r) / Vx_val) + Cr * (-(vy - lr_val * r) / Vx_val)) / m_veh - Vx_val * r,
+        D(r) ~ (lf_val * Cf * (delta_input - (vy + lf_val * r) / Vx_val) - lr_val * Cr * (-(vy - lr_val * r) / Vx_val)) / Iz,
+    ]
+
+    measured_quantities = [y1 ~ r, y2 ~ vy]
+
+    states = [vy, r]
+    parameters = [Cf, Cr, m_veh, Iz]
+
+    model, mq = create_ordered_ode_system("bicycle_model_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "bicycle_model_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 20.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    boost_converter_sinusoidal()
+
+Boost converter with sinusoidal duty cycle, written naturally using sin().
+This is the natural version of `boost_converter_identifiable()`.
+"""
+function boost_converter_sinusoidal()
+    @parameters L C_cap R_load
+
+    # FIXED from measurement
+    Vin_val = 12.0  # input voltage (V)
+
+    # Input parameters - FIXED
+    d0_val = 0.5
+    da_val = 0.1
+    omega_val = 100.0
+
+    @variables iL(t) vC(t)
+    @variables y1(t) y2(t)
+
+    p_true = [
+        0.001,   # L
+        0.001,   # C_cap
+        10.0,    # R_load
+    ]
+
+    ic_true = [1.0, 24.0]
+
+    d_complement = (1.0 - d0_val) - da_val * sin(omega_val * t)
+
+    equations = [
+        D(iL) ~ (Vin_val - d_complement * vC) / L,
+        D(vC) ~ (d_complement * iL - vC / R_load) / C_cap,
+    ]
+
+    measured_quantities = [y1 ~ vC, y2 ~ iL]
+
+    states = [iL, vC]
+    parameters = [L, C_cap, R_load]
+
+    model, mq = create_ordered_ode_system("boost_converter_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "boost_converter_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 0.5],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
+end
+
+"""
+    bilinear_system_sinusoidal()
+
+Bilinear system with sinusoidal input, written naturally using sin().
+This is the natural version of `bilinear_system_identifiable()`.
+"""
+function bilinear_system_sinusoidal()
+    @parameters a11 a12 a21 a22 b1 b2 n1 n2
+
+    # Input parameters - FIXED
+    u0_val = 1.0
+    ua_val = 0.5
+    omega_val = 2.0
+
+    @variables x1(t) x2(t)
+    @variables y1(t) y2(t)
+
+    p_true = [
+        -0.5,    # a11
+        0.2,     # a12
+        0.1,     # a21
+        -0.3,    # a22
+        1.0,     # b1
+        0.5,     # b2
+        0.2,     # n1
+        0.1,     # n2
+    ]
+
+    ic_true = [1.0, 0.5]
+
+    u_input = u0_val + ua_val * sin(omega_val * t)
+
+    equations = [
+        D(x1) ~ a11 * x1 + a12 * x2 + b1 * u_input + n1 * x1 * u_input,
+        D(x2) ~ a21 * x1 + a22 * x2 + b2 * u_input + n2 * x2 * u_input,
+    ]
+
+    measured_quantities = [y1 ~ x1, y2 ~ x2]
+
+    states = [x1, x2]
+    parameters = [a11, a12, a21, a22, b1, b2, n1, n2]
+
+    model, mq = create_ordered_ode_system("bilinear_system_sinusoidal", states, parameters, equations, measured_quantities)
+
+    return ParameterEstimationProblem(
+        "bilinear_system_sinusoidal",
+        model,
+        mq,
+        nothing,
+        [0.0, 15.0],
+        nothing,
+        OrderedDict(parameters .=> p_true),
+        OrderedDict(states .=> ic_true),
+        0,
+    )
 end

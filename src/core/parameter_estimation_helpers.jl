@@ -490,6 +490,10 @@ function process_estimation_results(
 	# Process each solution
 	results_vec = []
 	for soln_index in eachindex(solns)
+		# Determine shooting time index early — needed for _trfn_ state IC computation below.
+		shoot_idx = hasfield(typeof(solution_data), :solution_time_indices) && soln_index <= length(solution_data.solution_time_indices) ? solution_data.solution_time_indices[soln_index] : lowest_time_index
+		t_shoot = t_vector[shoot_idx]
+
 		# Extract initial conditions and parameter values
 		initial_conditions = [1e10 for s in states]
 		parameter_values = [1e10 for p in params]
@@ -523,6 +527,25 @@ function process_estimation_results(
 
 		# Lookup initial states
 		for i in eachindex(states)
+			# Check if this is a _trfn_ transcendental input state (e.g. _trfn_sin_5_0(t)).
+			# These were substituted out during solving — their values are known analytically.
+			state_name = string(states[i])
+			base_name = replace(state_name, "(t)" => "")
+			trfn_info = _parse_trfn_base_name(base_name)
+			if !isnothing(trfn_info)
+				func_type, frequency = trfn_info
+				# Compute analytical value at shooting time (0th derivative = the function itself)
+				if func_type == :sin
+					initial_conditions[i] = sin(frequency * t_shoot)
+				elseif func_type == :cos
+					initial_conditions[i] = cos(frequency * t_shoot)
+				elseif func_type == :exp
+					initial_conditions[i] = exp(frequency * t_shoot)
+				end
+				@debug "Set _trfn_ state $(states[i]) = $(initial_conditions[i]) at t=$t_shoot"
+				continue
+			end
+
 			model_state_search = if !isempty(forward_subst_dict[1])
 				forward_subst_dict[1][(states[i])]
 			else
@@ -530,10 +553,40 @@ function process_estimation_results(
 			end
 			# Convert trivial_dict to Dict{Symbol, Any} to ensure type stability
 			safe_trivial_dict = Dict{Symbol, Any}(solution_data.trivial_dict)
-			initial_conditions[i] = lookup_value(
-				states[i], model_state_search,
-				soln_index, solution_data.good_udict, safe_trivial_dict, final_varlist, trimmed_varlist, solns,
-			)
+			use_si_workflow = isempty(forward_subst_dict[1])
+			try
+				initial_conditions[i] = lookup_value(
+					states[i], model_state_search,
+					soln_index, solution_data.good_udict, safe_trivial_dict, final_varlist, trimmed_varlist, solns,
+				)
+			catch e
+				if use_si_workflow
+					# State not found in solver vars — it may have been eliminated because it
+					# equals a measured quantity (e.g. y2 ~ y means y was treated as data).
+					# Try to get its value from the data sample via measured quantities.
+					found_from_mq = false
+					for mq in PEP.measured_quantities
+						mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+						if isequal(mq_rhs, states[i])
+							# This state is directly observed via this measured quantity
+							mq_lhs_str = string(mq.lhs)
+							mq_key = replace(mq_lhs_str, "(t)" => "")
+							if haskey(PEP.data_sample, mq_key)
+								initial_conditions[i] = Float64(PEP.data_sample[mq_key][shoot_idx])
+								@debug "State $(states[i]) resolved from measured quantity $mq_key at t=$t_shoot"
+								found_from_mq = true
+								break
+							end
+						end
+					end
+					if !found_from_mq
+						@debug "State $(states[i]) not found in solver vars or measured quantities; defaulting to 0.0"
+						initial_conditions[i] = 0.0
+					end
+				else
+					rethrow(e)
+				end
+			end
 		end
 
 		# Convert to arrays of the appropriate type
@@ -545,8 +598,6 @@ function process_estimation_results(
 		@debug "Constructed parameter values: $parameter_values"
 
 		# Solve the ODE with the estimated parameters
-		# If caller provided per-solution shooting indices, backsolve from that time to t0; otherwise use lowest_time_index.
-		shoot_idx = hasfield(typeof(solution_data), :solution_time_indices) && soln_index <= length(solution_data.solution_time_indices) ? solution_data.solution_time_indices[soln_index] : lowest_time_index
 		tspan = (t_vector[shoot_idx], t_vector[1])
 		u0_map = Dict(states .=> initial_conditions)
 		p_map = Dict(params .=> parameter_values)
@@ -727,7 +778,7 @@ function log_diagnostic_info(
 
 		# Get state and parameter values at the lowest time
 		lowest_time = min(time_index_set...)
-		exact_state_vals = OrderedDict{Any, Any}()
+		exact_state_vals = OrderedDict{Num, Float64}()
 		for s in states
 			exact_state_vals[s] = ideal_sol(PEP.data_sample["t"][lowest_time], idxs = s)
 		end

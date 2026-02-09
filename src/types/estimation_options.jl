@@ -121,6 +121,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `debug_cas_diagnostics::Bool`: Enable CAS system diagnostics (default: false)
 - `debug_dimensional_analysis::Bool`: Enable dimensional analysis debugging (default: false)
 - `trap_debug::Bool`: Enable debug trapping with file output (default: false)
+- `profile_phases::Bool`: Print per-phase timing/allocation breakdown (default: false)
 
 ## Feature Flags
 - `flow::EstimationFlow`: Which workflow to run (default: `FlowStandard`)
@@ -131,9 +132,11 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `polish_only::Bool`: Only polish existing solutions (default: false)
 - `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
+- `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 
 ## HomotopyContinuation Specific
 - `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
+- `use_parameter_homotopy::Bool`: Use parameter homotopy for multi-shot estimation (default: false). When enabled, tracks solutions between shooting points instead of solving from scratch at each point. Can provide 2-20x speedup for shooting_points >= 3.
 - `hc_real_tol::Float64`: Tolerance for real solutions in HC (default: 1e-9)
 - `hc_show_progress::Bool`: Show HC solving progress (default: false)
 
@@ -234,6 +237,7 @@ Base.@kwdef struct EstimationOptions
 	debug_cas_diagnostics::Bool = false
 	debug_dimensional_analysis::Bool = false
 	trap_debug::Bool = false
+	profile_phases::Bool = false  # Print per-phase timing/allocation breakdown
 
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
@@ -244,9 +248,11 @@ Base.@kwdef struct EstimationOptions
 	polish_only::Bool = false
 	ideal::Bool = false
 	compute_uncertainty::Bool = false  # Compute parameter uncertainty via GP covariance + IFT
+	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
+	use_parameter_homotopy::Bool = false  # Use parameter homotopy for multi-shot (track solutions between points)
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
 
@@ -499,10 +505,10 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
-			:debug_dimensional_analysis, :trap_debug]),
+			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :try_more_methods, :save_system,
-			:display_system, :polish_only, :ideal, :compute_uncertainty]),
-		("HomotopyContinuation", [:use_monodromy, :hc_real_tol, :hc_show_progress]),
+			:display_system, :polish_only, :ideal, :compute_uncertainty, :auto_handle_transcendentals]),
+		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),
 		("Limits", [:max_solutions]),

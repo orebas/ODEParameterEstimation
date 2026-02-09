@@ -990,18 +990,49 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 	# Identity matrix (pre-allocate)
 	I_n = Matrix{Float64}(I, n, n)
 
+	# Precompute squared distance matrix (done once, reused across all iterations)
+	D² = Matrix{Float64}(undef, n, n)
+	for j in 1:n
+		for i in 1:n
+			D²[i, j] = abs2(xs_raw[i] - xs_raw[j])
+		end
+	end
+
+	# Preallocate working matrix for kernel (avoids allocation per iteration)
+	K_work = Matrix{Float64}(undef, n, n)
+
+	# Check kernel type once (avoids branch per iteration)
+	is_matern52 = (kernel_type == :matern52)
+	const_sqrt5 = sqrt(5.0)
+
 	# Negative log marginal likelihood using direct Cholesky (no ScaledKernel)
+	# Uses precomputed D² and in-place K_work to avoid allocations
 	function neg_logpdf_robust(θ)
 		l = _softplus(θ[1])
 		σ² = _softplus(θ[2])
 		σₙ² = _softplus(θ[3])
 
-		# Build kernel matrix directly: σ² * K(X,X) + σₙ² * I
-		k_base = base_kernel ∘ ScaleTransform(1.0 / l)
-		K = σ² * kernelmatrix(k_base, xs_raw) + σₙ² * I_n
+		# Compute kernel matrix in-place from precomputed squared distances
+		# Using broadcasting (@.) for SIMD optimization
+		if is_matern52
+			# Matern52: k(r) = σ² * (1 + √5r + 5r²/3) * exp(-√5r), where r = d/l
+			inv_l = 1.0 / l
+			# Compute in-place using vectorized operations
+			@. K_work = sqrt(D²) * inv_l  # r = d/l
+			@. K_work = σ² * (1.0 + const_sqrt5 * K_work + 5.0 * K_work^2 / 3.0) * exp(-const_sqrt5 * K_work)
+		else
+			# SqExponential: k(d) = σ² * exp(-d² / (2l²))
+			inv_2l² = 1.0 / (2.0 * l * l)
+			@. K_work = σ² * exp(-D² * inv_2l²)
+		end
+
+		# Add noise variance to diagonal
+		@inbounds for i in 1:n
+			K_work[i, i] += σₙ²
+		end
 
 		try
-			C = cholesky(Symmetric(K))
+			C = cholesky(Symmetric(K_work))
 			# log marginal likelihood: -0.5 * (y'K⁻¹y + log|K| + n*log(2π))
 			alpha_local = C \ ys_norm
 			data_fit = dot(ys_norm, alpha_local)
@@ -1039,14 +1070,47 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 
 	# Build posterior via AbstractGPs for std predictions
+	# Use jitter fallback to handle near-singular matrices
 	kernel_opt = σ²_opt * scaled_kernel_opt
 	f_opt = AbstractGPs.GP(kernel_opt)
-	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, σₙ²_opt), ys_norm)
+
+	# Try building posterior with increasing jitter if needed
+	jitter_levels = [0.0, 1e-8, 1e-6, 1e-4, 1e-2]
+	f_posterior = nothing
+	effective_noise = σₙ²_opt
+
+	for jitter in jitter_levels
+		try
+			effective_noise = σₙ²_opt + jitter
+			f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
+			break  # Success
+		catch e
+			if jitter == jitter_levels[end]
+				# All jitter levels failed, rethrow with context
+				@warn "agp_gpr_robust: posterior failed even with maximum jitter" σₙ²_opt jitter
+				rethrow(e)
+			end
+			@debug "agp_gpr_robust: posterior failed with jitter=$jitter, trying more" exception = e
+		end
+	end
 
 	# Pre-compute alpha for TaylorDiff-compatible mean predictions
 	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_raw)
-	K_noisy = K_train + σₙ²_opt * I_n
-	C_opt = cholesky(Symmetric(K_noisy))
+	K_noisy = K_train + effective_noise * I_n
+
+	# Apply same jitter fallback for alpha computation
+	C_opt = nothing
+	for jitter in jitter_levels
+		try
+			C_opt = cholesky(Symmetric(K_noisy + jitter * I_n))
+			break
+		catch e
+			if jitter == jitter_levels[end]
+				@warn "agp_gpr_robust: alpha computation failed even with maximum jitter"
+				rethrow(e)
+			end
+		end
+	end
 	alpha = C_opt \ collect(ys_norm)
 
 	# Prediction using cached alpha - TaylorDiff compatible (only basic arithmetic)

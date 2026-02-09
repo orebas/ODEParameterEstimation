@@ -102,6 +102,12 @@ and combines the results.
 - Tuple containing (all_solutions, all_udict, all_trivial_dict, all_unidentifiable)
 """
 function multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Auto-handle transcendental functions if enabled
+	if opts.auto_handle_transcendentals
+		t_var = ModelingToolkit.get_iv(PEP.model.system)
+		PEP, _ = transform_pep_for_estimation(PEP, t_var)
+	end
+
 	# Initialize empty arrays to store all solutions and metadata
 	all_solutions = []
 	all_udict = nothing

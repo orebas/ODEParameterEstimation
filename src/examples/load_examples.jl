@@ -95,6 +95,16 @@ const STANDARD_MODELS = Dict(
 	:two_tank_poly => two_tank_poly,
 	:cstr_reparametrized => cstr_reparametrized,
 	:cstr_fixed_activation => cstr_fixed_activation,
+
+	# Natural sinusoidal input models (auto-polynomialized via transcendental handling)
+	:dc_motor_sinusoidal => dc_motor_sinusoidal,
+	:quadrotor_sinusoidal => quadrotor_sinusoidal,
+	:forced_lv_sinusoidal => forced_lv_sinusoidal,
+	:magnetic_levitation_sinusoidal => magnetic_levitation_sinusoidal,
+	:aircraft_pitch_sinusoidal => aircraft_pitch_sinusoidal,
+	:bicycle_model_sinusoidal => bicycle_model_sinusoidal,
+	:boost_converter_sinusoidal => boost_converter_sinusoidal,
+	:bilinear_system_sinusoidal => bilinear_system_sinusoidal,
 )
 
 """Models that are more challenging (stiff, ill-conditioned, or computationally expensive)."""
