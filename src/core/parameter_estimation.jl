@@ -47,23 +47,33 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
 	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
 
+	extra_levels = 0
 	for i in 1:(max_deriv_level-2)
-		push!(DD.states_lhs, expand_derivatives.(D.(DD.states_lhs[end])))
+		new_states_lhs = expand_derivatives.(D.(DD.states_lhs[end]))
 		temp = DD.states_rhs[end]
 		temp2 = D.(temp)
 		temp4 = Num[]
 		for j in 1:length(temp2)
 			push!(temp4, expand_derivatives(temp2[j]))
 		end
+
+		# Stop if symbolic coefficients have overflowed Float64
+		if any(expr -> (let s = string(expr); occursin("Inf", s) || occursin("NaN", s) end), temp4)
+			@warn "populate_derivatives: coefficient overflow at derivative level $(length(DD.states_rhs) + 1), capping at $(length(DD.states_rhs))"
+			break
+		end
+
+		push!(DD.states_lhs, new_states_lhs)
 		push!(DD.states_rhs, temp4)
 		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
 		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
+		extra_levels += 1
 	end
 
 	# Build observable derivatives (must match state derivative levels for substitution to work)
-	# Note: Use (max_deriv_level-2) to match states loop - obs derivatives must not
-	# exceed state derivatives, otherwise substitution will fail with missing keys
-	for i in 1:(max_deriv_level-2)
+	# Note: obs derivatives must not exceed state derivatives, otherwise substitution
+	# will fail with missing keys
+	for i in 1:extra_levels
 		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
 		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
 		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
@@ -1038,6 +1048,10 @@ function multipoint_local_identifiability_analysis(
 
 		(evaluated_jac, DD) = (multipoint_numerical_jacobian(model, measured_quantities, n, max_num_points, unident_dict, varlist,
 			parameter_values, points_ics, temp))
+
+		# Cap n to actual derivative levels computed (may be less than requested if coefficients overflowed)
+		n = length(DD.obs_rhs) - 1
+		deriv_level = Dict([p => n for p in 1:length(measured_quantities)])
 
 		# Apply matrix equilibration for numerical stability in nullspace computation
 		evaluated_jac = equilibrate_jacobian(evaluated_jac)
