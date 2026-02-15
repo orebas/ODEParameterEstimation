@@ -345,6 +345,26 @@ function get_polish_optimizer(method::PolishMethod)
 end
 
 """
+	get_ad_backend(backend::Symbol)
+
+Convert AD backend symbol to an Optimization.jl AD type.
+
+# Supported backends
+- `:forward` → `AutoForwardDiff()` (default, works with most problems)
+- `:zygote` → `AutoZygote()` (reverse-mode, good for large parameter counts)
+- `:enzyme` → `AutoEnzyme()` (compiler-based AD)
+- `:finite` → `AutoFiniteDiff()` (fallback, no AD required)
+"""
+function get_ad_backend(backend::Symbol)
+	backend === :forward && return Optimization.AutoForwardDiff()
+	backend === :zygote && return Optimization.AutoZygote()
+	backend === :enzyme && return Optimization.AutoEnzyme()
+	backend === :finite && return Optimization.AutoFiniteDiff()
+	@warn "Unknown AD backend :$backend, using AutoForwardDiff()"
+	return Optimization.AutoForwardDiff()
+end
+
+"""
 	merge_options(base::EstimationOptions; kwargs...) -> EstimationOptions
 
 Create a new EstimationOptions struct by merging keyword arguments with an existing options struct.

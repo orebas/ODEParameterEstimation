@@ -8,9 +8,9 @@ using BaryRational
 using Dates
 using DynamicPolynomials
 using ForwardDiff
-using GaussianProcesses
-using AbstractGPs
 using KernelFunctions
+using AbstractGPs
+using GaussianProcesses
 using Groebner
 using HomotopyContinuation
 using LinearAlgebra
@@ -144,7 +144,7 @@ export FlowDeprecated, FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
 export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
-export get_solver_function, get_interpolator_function, get_polish_optimizer
+export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export merge_options, validate_options, print_options, get_solver_options_dict
 export optimized_multishot_parameter_estimation
 

@@ -447,11 +447,40 @@ function process_estimation_results(
 	PEP::ParameterEstimationProblem,
 	solution_data,
 	setup_data;
+	opts::Union{Nothing, EstimationOptions} = nothing,
 	nooutput = false,
 	polish_solutions = false,
 	polish_maxiters = 20,
 	polish_method = NewtonTrustRegion,
 )
+	# If opts not provided, construct from legacy kwargs for backward compatibility
+	if isnothing(opts)
+		# Map legacy function types to PolishMethod enums
+		pm = if polish_method isa PolishMethod
+			polish_method
+		elseif polish_method === NewtonTrustRegion
+			PolishNewtonTrust
+		elseif polish_method === LevenbergMarquardt
+			PolishLevenberg
+		elseif polish_method === GaussNewton
+			PolishGaussNewton
+		elseif polish_method === BFGS
+			PolishBFGS
+		elseif polish_method === LBFGS
+			PolishLBFGS
+		else
+			PolishNewtonTrust  # default
+		end
+		opts = EstimationOptions(
+			nooutput = nooutput,
+			polish_solutions = polish_solutions,
+			polish_maxiters = polish_maxiters,
+			polish_method = pm,
+		)
+	end
+	# Use opts as the single source of truth from here on
+	nooutput = opts.nooutput
+	polish_solutions = opts.polish_solutions
 	# Extract components from the solution data
 	solns = solution_data.solns
 	forward_subst_dict = solution_data.forward_subst_dict
@@ -604,7 +633,7 @@ function process_estimation_results(
 
 		prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
 		ode_solution = try
-			ModelingToolkit.solve(prob, PEP.solver, abstol = 1e-14, reltol = 1e-14)
+			ModelingToolkit.solve(prob, PEP.solver, abstol = opts.abstol, reltol = opts.reltol)
 		catch e
 			@warn "ODE solve failed during final trajectory reconstruction: $e"
 			nothing
@@ -643,7 +672,7 @@ function process_estimation_results(
 
 		# Process the raw solution
 		ordered_states, ordered_params, ode_solution, err = process_raw_solution(
-			raw_sol, PEP.model, PEP.data_sample, PEP.solver, abstol = 1e-14, reltol = 1e-14,
+			raw_sol, PEP.model, PEP.data_sample, PEP.solver, abstol = opts.abstol, reltol = opts.reltol,
 		)
 
 		# Update result with processed data
@@ -663,14 +692,7 @@ function process_estimation_results(
 
 			try
 				polished_result, opt_result = polish_solution_using_optimization(
-					candidate,
-					PEP,
-					solver = PEP.solver,
-					opt_method = polish_method,
-					opt_maxiters = polish_maxiters,
-					abstol = 1e-14,
-					reltol = 1e-14,
-					opt_ad_backend = :forward,
+					candidate, PEP; opts = opts,
 				)
 
 				# Always retain the original candidate and append the polished result

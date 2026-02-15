@@ -34,6 +34,9 @@ EXCLUDED_MODELS = [:magnetic_levitation, :cstr,
 models_to_run = filter(x -> x ∉ EXCLUDED_MODELS, collect(keys(ALL_MODELS)))
 models_to_run = shuffle(models_to_run)
 
+
+
+models_to_run = [:simple]
 # Alternative model selections (uncomment to use):
 # models_to_run = collect(keys(STANDARD_MODELS))  # Only standard models
 # models_to_run = collect(keys(HARD_MODELS))      # Only hard models

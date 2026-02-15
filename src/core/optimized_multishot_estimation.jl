@@ -992,7 +992,6 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 	# Extract function references from options
 	system_solver = get_solver_function(opts.system_solver)
 	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
-	polish_method = get_polish_optimizer(opts.polish_method)
 
 	# Fast path: Use SI template exactly like the standard flow, but reuse it for all selected
 	# shooting points in this run. This mirrors PE.jl construction.
@@ -1525,10 +1524,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			PEP,
 			solution_data,
 			setup_data;
-			nooutput = opts.nooutput,
-			polish_solutions = opts.polish_solutions,
-			polish_maxiters = opts.polish_maxiters,
-			polish_method = polish_method,
+			opts = opts,
 		)
 		end
 
@@ -1692,11 +1688,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		for (i, candidate) in enumerate(all_solutions)
 			try
 				polished_result, opt_result = polish_solution_using_optimization(
-					candidate, PEP,
-					solver = PEP.solver,
-					opt_method = polish_method,
-					opt_maxiters = opts.polish_maxiters,
-					opt_ad_backend = opts.opt_ad_backend,
+					candidate, PEP; opts = opts,
 				)
 
 				# Always keep the original candidate

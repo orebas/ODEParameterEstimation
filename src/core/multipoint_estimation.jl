@@ -26,7 +26,6 @@ function multipoint_parameter_estimation(PEP::ParameterEstimationProblem, opts::
 	# Extract function references from enums
 	system_solver = get_solver_function(opts.system_solver)
 	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
-	polish_method = get_polish_optimizer(opts.polish_method)
 	# Check input validity
 	if isnothing(PEP.data_sample)
 		error("No data sample provided in the ParameterEstimationProblem")
@@ -70,11 +69,8 @@ function multipoint_parameter_estimation(PEP::ParameterEstimationProblem, opts::
 			solved_res = process_estimation_results(
 				PEP,
 				solution_data,
-				setup_data,
-				nooutput = opts.nooutput,
-				polish_solutions = opts.polish_solutions,
-				polish_maxiters = opts.polish_maxiters,
-				polish_method = polish_method,
+				setup_data;
+				opts = opts,
 			)
 
 			return (solved_res, setup_data.good_udict, solution_data.trivial_dict, setup_data.good_DD.all_unidentifiable)

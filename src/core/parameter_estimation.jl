@@ -1627,14 +1627,10 @@ end
 function _optimize_against_data(
 	PEP::ParameterEstimationProblem,
 	p0_all::AbstractVector{<:Real};
-	solver,
-	abstol::Float64,
-	reltol::Float64,
-	optimizer,
-	opt_maxiters::Int,
+	opts::EstimationOptions = EstimationOptions(),
+	optimizer = LBFGS(),
 	lb::Union{Nothing, AbstractVector{<:Real}} = nothing,
 	ub::Union{Nothing, AbstractVector{<:Real}} = nothing,
-	adtype = Optimization.AutoForwardDiff(),
 )
 	# Stable variable ordering from the system
 	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
@@ -1661,6 +1657,13 @@ function _optimize_against_data(
 		]
 	end
 	data_targets = [PEP.data_sample[eq.rhs] for eq in PEP.measured_quantities]
+
+	# Read settings from opts and PEP
+	solver = PEP.solver
+	abstol = opts.abstol
+	reltol = opts.reltol
+	opt_maxiters = opts.opt_maxiters
+	adtype = get_ad_backend(opts.opt_ad_backend)
 
 	# Loss compatible with ForwardDiff Duals
 	function loss(p_all)
@@ -1692,6 +1695,10 @@ function _optimize_against_data(
 
 	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
 	use_bounds = !isnothing(lb) && !isnothing(ub)
+	# Ensure initial guess is feasible when bounds are active
+	if use_bounds
+		p0_all = clamp.(p0_all, lb, ub)
+	end
 	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0_all; lb = lb, ub = ub) :
 			  Optimization.OptimizationProblem(optf, p0_all)
 	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
@@ -1749,39 +1756,46 @@ function _optimize_against_data(
 end
 
 # Refactor polishing to use shared helper
-function polish_solution_using_optimization(candidate_solution::ParameterEstimationResult, PEP::ParameterEstimationProblem;
-	solver = package_wide_default_ode_solver,
-	opt_method = LBFGS,
-	opt_maxiters = 20,
-	abstol = 1e-13,
-	reltol = 1e-13,
-	lb = nothing,
-	ub = nothing)
+function polish_solution_using_optimization(
+	candidate_solution::ParameterEstimationResult,
+	PEP::ParameterEstimationProblem;
+	opts::EstimationOptions = EstimationOptions(),
+)
 	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
 	param_syms = ModelingToolkit.parameters(PEP.model.system)
 	n_ic = length(unknown_syms)
 	n_param = length(param_syms)
+	p_size = n_ic + n_param
 
 	# Build p0 vector in system order from candidate
 	ic_vec = [candidate_solution.states[s] for s in unknown_syms]
 	param_vec = [candidate_solution.parameters[p] for p in param_syms]
 	p0 = vcat(ic_vec, param_vec)
 
-	# Bounds optional
-	use_bounds = (!isnothing(lb) && length(lb) == n_ic + n_param) && (!isnothing(ub) && length(ub) == n_ic + n_param)
-	lb_use = use_bounds ? lb : nothing
-	ub_use = use_bounds ? ub : nothing
+	# Resolve optimizer from opts
+	optimizer_type = get_polish_optimizer(opts.polish_method)
+	optimizer = optimizer_type()
+
+	# Resolve bounds from opts with size validation
+	lb = nothing
+	ub = nothing
+	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub) &&
+	   length(opts.opt_lb) == p_size && length(opts.opt_ub) == p_size
+		lb = opts.opt_lb
+		ub = opts.opt_ub
+		# Clamp initial guess to bounds so the optimizer starts from a feasible point
+		p0 = clamp.(p0, lb, ub)
+	end
+
+	# Use polish_maxiters for the polishing step (typically smaller than opt_maxiters)
+	polish_opts = merge_options(opts; opt_maxiters = opts.polish_maxiters)
 
 	final_result, opt_result = _optimize_against_data(
 		PEP, p0;
-		solver = solver,
-		abstol = abstol,
-		reltol = reltol,
-		optimizer = opt_method(),
-		opt_maxiters = opt_maxiters,
-		lb = lb_use,
-		ub = ub_use,
-		adtype = Optimization.AutoForwardDiff(),
+		opts = polish_opts,
+		optimizer = optimizer,
+		lb = lb,
+		ub = ub,
 	)
 	return final_result, opt_result
 end
@@ -1809,14 +1823,10 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 
 	final_result, opt_result = _optimize_against_data(
 		PEP, p0;
-		solver = PEP.solver,
-		abstol = opts.abstol,
-		reltol = opts.reltol,
+		opts = opts,
 		optimizer = LBFGS(),
-		opt_maxiters = opts.opt_maxiters,
 		lb = lb,
 		ub = ub,
-		adtype = Optimization.AutoForwardDiff(),
 	)
 
 	if !opts.nooutput
