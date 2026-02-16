@@ -682,29 +682,10 @@ function process_estimation_results(
 		solved_res[end].err = err
 	end
 
-	# Polish solutions if requested
+	# Polish solutions if requested (shared context built once, reused for all solutions)
 	if polish_solutions
-		polished_solved_res = []
-		for (i, candidate) in enumerate(solved_res)
-			if !nooutput
-				@debug "Polishing solution $i"
-			end
-
-			try
-				polished_result, opt_result = polish_solution_using_optimization(
-					candidate, PEP; opts = opts,
-				)
-
-				# Always retain the original candidate and append the polished result
-				push!(polished_solved_res, candidate)
-				push!(polished_solved_res, polished_result)
-			catch e
-				@warn "Failed to polish solution $i: $e"
-				push!(polished_solved_res, candidate)
-			end
-		end
-
-		solved_res = polished_solved_res
+		ctx = _build_polish_context(PEP; opts = opts)
+		solved_res = _polish_batch_from_context(ctx, solved_res; opts = opts)
 	end
 
 	# Print solutions to match ParameterEstimation.jl output

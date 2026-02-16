@@ -1623,66 +1623,131 @@ function evaluate_poly_system(poly_system, forward_subst::OrderedDict, reverse_s
 	return evaluated
 end
 
-# Shared internal helper: optimize ODE parameters against data
-function _optimize_against_data(
-	PEP::ParameterEstimationProblem,
-	p0_all::AbstractVector{<:Real};
+"""
+	PolishContext
+
+Holds all invariant data needed for polishing solutions. Built once per problem,
+reused across all polish/optimization runs. This avoids redundant calls to
+`complete()`, `build_function()`, and `ODEProblem()` construction.
+
+# Fields
+- `unknown_syms`: System state variable symbols (MTK ordering)
+- `param_syms`: System parameter symbols (MTK ordering)
+- `n_ic`: Number of initial conditions (states)
+- `n_param`: Number of parameters
+- `new_model`: Completed MTK system (from `complete()`)
+- `obs_funcs`: Compiled observable functions (one per measured quantity)
+- `data_targets`: Vector of data vectors for each observable
+- `t_vector`: Time points from data sample
+- `tspan`: ODE integration time span
+- `solver`: ODE solver instance
+- `abstol`: Absolute tolerance for ODE solver
+- `reltol`: Relative tolerance for ODE solver
+- `adtype`: AD backend for Optimization.jl
+- `optf`: Pre-built OptimizationFunction (loss closure + AD)
+- `base_ode_prob`: Template ODEProblem for `remake` inside loss
+- `state_syms_out`: User-facing state symbol ordering (from PEP.ic)
+- `param_syms_out`: User-facing parameter symbol ordering (from PEP.p_true)
+- `state_index`: Map from state symbol → index in unknown_syms
+- `param_index`: Map from param symbol → index in param_syms
+- `lb`: Optional lower bounds
+- `ub`: Optional upper bounds
+"""
+struct PolishContext
+	unknown_syms::Vector
+	param_syms::Vector
+	n_ic::Int
+	n_param::Int
+	new_model::Any
+	obs_funcs::Vector{Function}
+	data_targets::Vector{Vector{Float64}}
+	t_vector::Vector{Float64}
+	tspan::Tuple{Float64, Float64}
+	solver::Any
+	abstol::Float64
+	reltol::Float64
+	adtype::Any
+	optf::Optimization.OptimizationFunction
+	base_ode_prob::Any
+	state_syms_out::Vector
+	param_syms_out::Vector
+	state_index::Dict
+	param_index::Dict
+	lb::Union{Nothing, Vector{Float64}}
+	ub::Union{Nothing, Vector{Float64}}
+end
+
+"""
+	_build_polish_context(PEP; opts) -> PolishContext
+
+Perform all expensive one-time setup for polishing: model completion, observable
+compilation, base ODEProblem construction, and OptimizationFunction assembly.
+Call this once, then pass the result to `_polish_single_from_context` or
+`_polish_batch_from_context` for each solution.
+"""
+function _build_polish_context(
+	PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions(),
-	optimizer = LBFGS(),
-	lb::Union{Nothing, AbstractVector{<:Real}} = nothing,
-	ub::Union{Nothing, AbstractVector{<:Real}} = nothing,
 )
 	# Stable variable ordering from the system
 	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
 	param_syms = ModelingToolkit.parameters(PEP.model.system)
 	n_ic = length(unknown_syms)
 	n_param = length(param_syms)
-	@assert length(p0_all) == n_ic + n_param "p0 length does not match (n_states + n_params)"
+	p_size = n_ic + n_param
 
-	# Problem template using dict (avoids deprecated vector API)
+	# Complete model once (not 28× per polish run)
 	new_model = complete(PEP.model.system)
-	t_vector = PEP.data_sample["t"]
-	tspan = (Float64(t_vector[1]), Float64(t_vector[end]))
-	u0_map = Dict(unknown_syms .=> p0_all[1:n_ic])
-	p_map = Dict(param_syms .=> p0_all[(n_ic+1):end])
-	prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
+	t_vector = Float64.(PEP.data_sample["t"])
+	tspan = (t_vector[1], t_vector[end])
 
-	# Compile observable functions and collect data targets once
-	obs_funcs = begin
-		[
-			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
-				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
-				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
-			end for eq in PEP.measured_quantities
-		]
-	end
-	data_targets = [PEP.data_sample[eq.rhs] for eq in PEP.measured_quantities]
+	# Compile observable functions once (not 28× per polish run)
+	obs_funcs = Function[
+		let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
+			f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
+			(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
+		end for eq in PEP.measured_quantities
+	]
+	data_targets = Vector{Float64}[Float64.(PEP.data_sample[eq.rhs]) for eq in PEP.measured_quantities]
 
-	# Read settings from opts and PEP
+	# Solver and tolerances
 	solver = PEP.solver
 	abstol = opts.abstol
 	reltol = opts.reltol
-	opt_maxiters = opts.opt_maxiters
 	adtype = get_ad_backend(opts.opt_ad_backend)
 
-	# Loss compatible with ForwardDiff Duals
+	# Build base ODEProblem once — remake inside loss will swap u0/p values
+	u0_default = Dict(unknown_syms .=> zeros(n_ic))
+	p_default = Dict(param_syms .=> ones(n_param))
+	base_ode_prob = ODEProblem(new_model, merge(u0_default, p_default), tspan)
+
+	# Bounds validation
+	lb = nothing
+	ub = nothing
+	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub) &&
+	   length(opts.opt_lb) == p_size && length(opts.opt_ub) == p_size
+		lb = Float64.(opts.opt_lb)
+		ub = Float64.(opts.opt_ub)
+	end
+
+	# Loss closure capturing all invariants — uses remake for efficiency
 	function loss(p_all)
 		ic_guess = @view p_all[1:n_ic]
 		param_guess = @view p_all[(n_ic+1):end]
 
-		prob_opt = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_guess), Dict(param_syms .=> param_guess)), tspan)
+		prob_opt = remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess))
 		sol_opt = try
 			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
 		catch e
-			@warn "ODE solver failed" exception = (e, catch_backtrace())
+			@warn "ODE solver failed during polish" exception = (e, catch_backtrace())
 			return Inf
 		end
 		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
 
-		total_error = zero(eltype(param_guess))
+		total_error = zero(eltype(p_all))
 		for (j, f) in enumerate(obs_funcs)
 			data_true = data_targets[j]
-			local_err = zero(eltype(param_guess))
+			local_err = zero(eltype(p_all))
 			@inbounds for i in eachindex(t_vector)
 				val = f(sol_opt.u[i], param_guess)
 				diff = val - data_true[i]
@@ -1693,61 +1758,92 @@ function _optimize_against_data(
 		return total_error
 	end
 
-	optf = Optimization.OptimizationFunction((x, p) -> loss(x), adtype)
-	use_bounds = !isnothing(lb) && !isnothing(ub)
-	# Ensure initial guess is feasible when bounds are active
-	if use_bounds
-		p0_all = clamp.(p0_all, lb, ub)
-	end
-	optprob = use_bounds ? Optimization.OptimizationProblem(optf, p0_all; lb = lb, ub = ub) :
-			  Optimization.OptimizationProblem(optf, p0_all)
-	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
-	if opt_verbose
-		println("[polish] Starting optimization with $(typeof(optimizer))")
-		println("[polish]  n_states=$(n_ic), n_params=$(n_param), data_points=$(length(t_vector))")
-		println("[polish]  solver=$(typeof(solver)), abstol=$(abstol), reltol=$(reltol), maxiters=$(opt_maxiters)")
-		iter_count = 0
-		best_obj = Inf
-		last_t = time()
-		callback = (x, l) -> begin
-			iter_count += 1
-			now = time()
-			dt = now - last_t
-			last_t = now
-			if (iter_count == 1) || (l < best_obj) || (iter_count % 5 == 0)
-				best_obj = min(best_obj, l)
-				println("[polish]  iter=$(iter_count) loss=$(l) dt=$(round(dt; digits=3))s")
-			end
-			false
-		end
-		result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters, callback = callback)
-	else
-		result = Optimization.solve(optprob, optimizer; maxiters = opt_maxiters)
-	end
+	optf = Optimization.OptimizationFunction((x, _) -> loss(x), adtype)
 
-	# Final simulate
-	p_opt = result.u
-	ic_opt = p_opt[1:n_ic]
-	param_opt = p_opt[(n_ic+1):end]
-	prob_final = ODEProblem(new_model, merge(Dict(unknown_syms .=> ic_opt), Dict(param_syms .=> param_opt)), tspan)
-	sol_final = ModelingToolkit.solve(prob_final, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
-
-	# Map back to user-facing order (PEP.ic, PEP.p_true)
+	# User-facing symbol ordering for result construction
 	state_syms_out = collect(keys(PEP.ic))
 	param_syms_out = collect(keys(PEP.p_true))
 	state_index = Dict(s => i for (i, s) in enumerate(unknown_syms))
 	param_index = Dict(p => i for (i, p) in enumerate(param_syms))
-	states_out = OrderedDict(s => ic_opt[state_index[s]] for s in state_syms_out if haskey(state_index, s))
-	params_out = OrderedDict(p => param_opt[param_index[p]] for p in param_syms_out if haskey(param_index, p))
+
+	return PolishContext(
+		unknown_syms, param_syms, n_ic, n_param,
+		new_model, obs_funcs, data_targets,
+		t_vector, tspan, solver, abstol, reltol, adtype, optf,
+		base_ode_prob,
+		state_syms_out, param_syms_out, state_index, param_index,
+		lb, ub,
+	)
+end
+
+"""
+	_polish_single_from_context(ctx, p0; optimizer, maxiters) -> (ParameterEstimationResult, opt_result)
+
+Polish a single solution using a pre-built PolishContext. Only constructs
+the lightweight OptimizationProblem (wrapping p0) and solves.
+"""
+function _polish_single_from_context(
+	ctx::PolishContext,
+	p0::AbstractVector{<:Real};
+	optimizer = BFGS(),
+	maxiters::Int = 200000,
+)
+	# Clamp to bounds if active
+	p0_clamped = (!isnothing(ctx.lb) && !isnothing(ctx.ub)) ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
+
+	# Build lightweight OptimizationProblem (just wraps p0 + optf)
+	optprob = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
+		Optimization.OptimizationProblem(ctx.optf, p0_clamped; lb = ctx.lb, ub = ctx.ub)
+	else
+		Optimization.OptimizationProblem(ctx.optf, p0_clamped)
+	end
+
+	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
+	result = if opt_verbose
+		println("[polish] Starting optimization with $(typeof(optimizer))")
+		println("[polish]  n_states=$(ctx.n_ic), n_params=$(ctx.n_param), data_points=$(length(ctx.t_vector))")
+		println("[polish]  solver=$(typeof(ctx.solver)), abstol=$(ctx.abstol), reltol=$(ctx.reltol), maxiters=$(maxiters)")
+		iter_count = Ref(0)
+		best_obj = Ref(Inf)
+		last_t = Ref(time())
+		callback = (x, l) -> begin
+			iter_count[] += 1
+			now = time()
+			dt = now - last_t[]
+			last_t[] = now
+			if (iter_count[] == 1) || (l < best_obj[]) || (iter_count[] % 5 == 0)
+				best_obj[] = min(best_obj[], l)
+				println("[polish]  iter=$(iter_count[]) loss=$(l) dt=$(round(dt; digits=3))s")
+			end
+			false
+		end
+		Optimization.solve(optprob, optimizer; maxiters = maxiters, callback = callback)
+	else
+		Optimization.solve(optprob, optimizer; maxiters = maxiters)
+	end
+
+	# Final simulate via remake
+	p_opt = result.u
+	ic_opt = p_opt[1:ctx.n_ic]
+	param_opt = p_opt[(ctx.n_ic+1):end]
+	prob_final = remake(ctx.base_ode_prob;
+		u0 = Dict(ctx.unknown_syms .=> ic_opt),
+		p = Dict(ctx.param_syms .=> param_opt),
+	)
+	sol_final = ModelingToolkit.solve(prob_final, ctx.solver; saveat = ctx.t_vector, abstol = ctx.abstol, reltol = ctx.reltol)
+
+	# Map back to user-facing ordering
+	states_out = OrderedDict(s => ic_opt[ctx.state_index[s]] for s in ctx.state_syms_out if haskey(ctx.state_index, s))
+	params_out = OrderedDict(p => param_opt[ctx.param_index[p]] for p in ctx.param_syms_out if haskey(ctx.param_index, p))
 
 	final_result = ParameterEstimationResult(
 		params_out,
 		states_out,
-		t_vector[1],
+		ctx.t_vector[1],
 		result.objective,
 		nothing,
-		length(t_vector),
-		t_vector[1],
+		length(ctx.t_vector),
+		ctx.t_vector[1],
 		OrderedDict{Num, Float64}(),
 		Set{Num}(),
 		sol_final,
@@ -1755,78 +1851,103 @@ function _optimize_against_data(
 	return final_result, result
 end
 
-# Refactor polishing to use shared helper
-function polish_solution_using_optimization(
-	candidate_solution::ParameterEstimationResult,
-	PEP::ParameterEstimationProblem;
+"""
+	_polish_batch_from_context(ctx, candidates; opts) -> Vector{ParameterEstimationResult}
+
+Polish all candidate solutions using a shared PolishContext. For each candidate,
+extracts the p0 vector, calls `_polish_single_from_context`, and returns the
+combined list of original + polished results.
+"""
+function _polish_batch_from_context(
+	ctx::PolishContext,
+	candidates::AbstractVector;
 	opts::EstimationOptions = EstimationOptions(),
 )
-	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
-	param_syms = ModelingToolkit.parameters(PEP.model.system)
-	n_ic = length(unknown_syms)
-	n_param = length(param_syms)
-	p_size = n_ic + n_param
-
-	# Build p0 vector in system order from candidate
-	ic_vec = [candidate_solution.states[s] for s in unknown_syms]
-	param_vec = [candidate_solution.parameters[p] for p in param_syms]
-	p0 = vcat(ic_vec, param_vec)
-
-	# Resolve optimizer from opts
 	optimizer_type = get_polish_optimizer(opts.polish_method)
 	optimizer = optimizer_type()
+	maxiters = opts.polish_maxiters
+	n_candidates = length(candidates)
 
-	# Resolve bounds from opts with size validation
-	lb = nothing
-	ub = nothing
-	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub) &&
-	   length(opts.opt_lb) == p_size && length(opts.opt_ub) == p_size
-		lb = opts.opt_lb
-		ub = opts.opt_ub
-		# Clamp initial guess to bounds so the optimizer starts from a feasible point
-		p0 = clamp.(p0, lb, ub)
+	if !opts.nooutput
+		n_threads = Threads.nthreads()
+		println("Polishing $n_candidates solutions (maxiters=$maxiters, threads=$n_threads)...")
 	end
 
-	# Use polish_maxiters for the polishing step (typically smaller than opt_maxiters)
-	polish_opts = merge_options(opts; opt_maxiters = opts.polish_maxiters)
+	polish_start = time()
+	print_lock = ReentrantLock()
 
-	final_result, opt_result = _optimize_against_data(
-		PEP, p0;
-		opts = polish_opts,
-		optimizer = optimizer,
-		lb = lb,
-		ub = ub,
-	)
-	return final_result, opt_result
+	# Spawn one task per candidate — each builds a local result vector
+	tasks = map(enumerate(candidates)) do (i, candidate)
+		Threads.@spawn begin
+			t0 = time()
+			local_results = ParameterEstimationResult[]
+			try
+				# Build p0 vector in system order from candidate
+				ic_vec = [candidate.states[s] for s in ctx.unknown_syms]
+				param_vec = [candidate.parameters[p] for p in ctx.param_syms]
+				p0 = vcat(ic_vec, param_vec)
+
+				polished_result, opt_result = _polish_single_from_context(
+					ctx, p0; optimizer = optimizer, maxiters = maxiters,
+				)
+				dt = time() - t0
+				n_iters = try; opt_result.original.iterations; catch; -1; end
+				if !opts.nooutput
+					err_before = isnothing(candidate.err) ? Inf : candidate.err
+					err_after = isnothing(polished_result.err) ? Inf : polished_result.err
+					lock(print_lock) do
+						println("  Polish $i/$n_candidates: $(round(dt; digits=1))s, $(n_iters) iters, err $(round(err_before; sigdigits=3)) → $(round(err_after; sigdigits=3))")
+					end
+				end
+
+				# Always retain the original candidate and append the polished result
+				push!(local_results, candidate)
+				push!(local_results, polished_result)
+			catch e
+				dt = time() - t0
+				@warn "Failed to polish solution $i ($(round(dt; digits=1))s): $e"
+				push!(local_results, candidate)
+			end
+			local_results
+		end
+	end
+
+	# Collect results in original order (preserves deterministic ordering)
+	polished_results = ParameterEstimationResult[]
+	for task in tasks
+		append!(polished_results, fetch(task))
+	end
+
+	if !opts.nooutput
+		println("  Polish total: $(round(time() - polish_start; digits=1))s for $n_candidates solutions")
+	end
+	return polished_results
 end
 
-# Refactor direct optimization to use shared helper
+"""
+	direct_optimization_parameter_estimation(PEP; opts) -> Vector{ParameterEstimationResult}
+
+Perform parameter estimation via direct BFGS optimization from a random initial guess.
+Uses the shared PolishContext infrastructure for consistency with the polish path.
+"""
 function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions())
-	# Ordering from system
-	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
-	param_syms = ModelingToolkit.parameters(PEP.model.system)
-	n_ic = length(unknown_syms)
-	n_param = length(param_syms)
-	p_size = n_ic + n_param
+	ctx = _build_polish_context(PEP; opts = opts)
+	p_size = ctx.n_ic + ctx.n_param
 
-	# Optional bounds
-	use_bounds = (!isnothing(opts.opt_lb)) && (!isnothing(opts.opt_ub)) &&
-				 (length(opts.opt_lb) == p_size) && (length(opts.opt_ub) == p_size)
-	lb = use_bounds ? opts.opt_lb : nothing
-	ub = use_bounds ? opts.opt_ub : nothing
-	p0 = use_bounds ? (lb .+ rand(p_size) .* (ub .- lb)) : rand(p_size)
+	# Generate random initial guess, respecting bounds if set
+	p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
+		ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
+	else
+		rand(p_size)
+	end
 
 	if !opts.nooutput
 		println("Starting direct optimization with initial guess: ", p0)
 	end
 
-	final_result, opt_result = _optimize_against_data(
-		PEP, p0;
-		opts = opts,
-		optimizer = LBFGS(),
-		lb = lb,
-		ub = ub,
+	final_result, opt_result = _polish_single_from_context(
+		ctx, p0; optimizer = LBFGS(), maxiters = opts.opt_maxiters,
 	)
 
 	if !opts.nooutput

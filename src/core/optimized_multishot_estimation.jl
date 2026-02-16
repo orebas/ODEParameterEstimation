@@ -1518,14 +1518,39 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			solution_time_indices = solution_time_indices,
 		)
 
-		# Reuse existing processing pipeline
+		# Reuse existing processing pipeline (without polish — polish gets its own phase below)
+		opts_no_polish = merge_options(opts; polish_solutions = false)
 		solved_res = _record_phase!(phase_stats, "Result processing") do
 		process_estimation_results(
 			PEP,
 			solution_data,
 			setup_data;
-			opts = opts,
+			opts = opts_no_polish,
 		)
+		end
+
+		# PHASE: Polish solutions (separate phase for profiling visibility)
+		if opts.polish_solutions
+			solved_res = _record_phase!(phase_stats, "Polish (BFGS)") do
+				ctx = _build_polish_context(PEP; opts = opts)
+				if isempty(solved_res)
+					# Pareto fallback: no algebraic solutions, try one random-start BFGS
+					if !opts.nooutput
+						println("No algebraic solutions found. Running random-start BFGS fallback...")
+					end
+					p_size = ctx.n_ic + ctx.n_param
+					p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
+						ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
+					else
+						randn(p_size)
+					end
+					result, _ = _polish_single_from_context(ctx, p0;
+						optimizer = LBFGS(), maxiters = opts.polish_maxiters)
+					[result]
+				else
+					_polish_batch_from_context(ctx, solved_res; opts = opts)
+				end
+			end
 		end
 
 		# Print phase profiling table if enabled
@@ -1678,29 +1703,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		merge!(merged_trivial, td)
 	end
 
-	# PHASE 4: Polish if requested
+	# PHASE 4: Polish if requested (shared context built once, reused for all solutions)
 	if opts.polish_solutions && !isempty(all_solutions)
-		if !opts.nooutput
-			println("Phase 4: Polishing solutions...")
-		end
-
-		polished = []
-		for (i, candidate) in enumerate(all_solutions)
-			try
-				polished_result, opt_result = polish_solution_using_optimization(
-					candidate, PEP; opts = opts,
-				)
-
-				# Always keep the original candidate
-				push!(polished, candidate)
-				# Also keep the polished result
-				push!(polished, polished_result)
-			catch e
-				@debug "Failed to polish solution $i: $e"
-				push!(polished, candidate)
-			end
-		end
-		all_solutions = polished
+		ctx = _build_polish_context(PEP; opts = opts)
+		all_solutions = _polish_batch_from_context(ctx, all_solutions; opts = opts)
 	end
 
 	# Return in the expected format

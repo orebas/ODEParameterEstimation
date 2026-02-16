@@ -252,7 +252,7 @@ Base.@kwdef struct EstimationOptions
 
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
-	use_parameter_homotopy::Bool = false  # Use parameter homotopy for multi-shot (track solutions between points)
+	use_parameter_homotopy::Bool = true  # Use parameter homotopy for multi-shot (track solutions between points)
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
 
