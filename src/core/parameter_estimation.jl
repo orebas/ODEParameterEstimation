@@ -680,6 +680,29 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 	return template_equations, new_si_template
 end
 
+"""
+	compute_default_bounds(PEP::ParameterEstimationProblem)
+
+Compute default optimization bounds based on the scale of observed data.
+Returns `(lb, ub)` vectors of length `n_states + n_params`, scaled by
+`DEFAULT_BOUND_MULTIPLIER * max(1, max_data_value)`.
+"""
+function compute_default_bounds(PEP::ParameterEstimationProblem)
+	data_vals = Float64[]
+	for (k, v) in PEP.data_sample
+		k == "t" && continue
+		append!(data_vals, abs.(Float64.(v)))
+	end
+	data_scale = isempty(data_vals) ? 1.0 : max(1.0, maximum(data_vals))
+	n_states = length(ModelingToolkit.unknowns(PEP.model.system))
+	n_params = length(ModelingToolkit.parameters(PEP.model.system))
+	p_size = n_states + n_params
+	bound = DEFAULT_BOUND_MULTIPLIER * data_scale
+	lb = fill(-bound, p_size)
+	ub = fill(bound, p_size)
+	return lb, ub
+end
+
 function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode_solver; abstol = 1e-12, reltol = 1e-12)
 	# Create ordered collections for states and parameters
 	ordered_states = OrderedDict()
@@ -1721,13 +1744,19 @@ function _build_polish_context(
 	p_default = Dict(param_syms .=> ones(n_param))
 	base_ode_prob = ODEProblem(new_model, merge(u0_default, p_default), tspan)
 
-	# Bounds validation
+	# Bounds: use user-specified if valid, otherwise auto-compute from data scale.
+	# Note: only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
+	# silently ignore bounds in _polish_single_from_context.
 	lb = nothing
 	ub = nothing
 	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub) &&
 	   length(opts.opt_lb) == p_size && length(opts.opt_ub) == p_size
 		lb = Float64.(opts.opt_lb)
 		ub = Float64.(opts.opt_ub)
+	else
+		lb_auto, ub_auto = compute_default_bounds(PEP)
+		lb = lb_auto
+		ub = ub_auto
 	end
 
 	# Loss closure capturing all invariants — uses remake for efficiency
@@ -1788,11 +1817,14 @@ function _polish_single_from_context(
 	optimizer = BFGS(),
 	maxiters::Int = 200000,
 )
-	# Clamp to bounds if active
-	p0_clamped = (!isnothing(ctx.lb) && !isnothing(ctx.ub)) ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
+	# Only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
+	# (NewtonTrustRegion, LevenbergMarquardt, GaussNewton) don't.
+	use_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub) &&
+		optimizer isa Union{Optim.BFGS, Optim.LBFGS}
 
-	# Build lightweight OptimizationProblem (just wraps p0 + optf)
-	optprob = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
+	p0_clamped = use_bounds ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
+
+	optprob = if use_bounds
 		Optimization.OptimizationProblem(ctx.optf, p0_clamped; lb = ctx.lb, ub = ctx.ub)
 	else
 		Optimization.OptimizationProblem(ctx.optf, p0_clamped)

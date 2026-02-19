@@ -1,0 +1,862 @@
+{
+  "systems": [
+    {
+      "name": "aircraft_pitch_sinusoidal_scaled",
+      "ode_system": {
+        "theta": "q",
+        "alpha": "(0.05*q - 0.002*Z_alpha*alpha) / 0.1",
+        "q": "(-M_alpha*alpha - M_delta_e*sin(2.0*t) - 0.2*M_q*q) / 0.05"
+      },
+      "measurements": {
+        "y1": "0.05*q"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "theta",
+        "q",
+        "alpha"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "M_alpha",
+        "M_q",
+        "M_delta_e",
+        "Z_alpha"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "bicycle_model_sinusoidal_scaled",
+      "ode_system": {
+        "vy": "((160000.0*Cf*(0.05*sin(0.5*t) + (-0.12*r - 0.5*vy) / 20.0) + (8000.0)*Cr*(0.13999999999999999*r - 0.5*vy)) / (3000.0*m_veh) - 2.0*r) / 0.5",
+        "r": "(192000.0*Cf*(0.05*sin(0.5*t) + (-0.12*r - 0.5*vy) / 20.0) - (11200.0)*Cr*(0.13999999999999999*r - 0.5*vy)) / (500.0*Iz)"
+      },
+      "measurements": {
+        "y1": "0.1*r",
+        "y2": "0.5*vy"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "vy",
+        "r"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "Cf",
+        "Cr",
+        "m_veh",
+        "Iz"
+      ],
+      "time_interval": [
+        0.0,
+        20.0
+      ]
+    },
+    {
+      "name": "biohydrogenation_scaled",
+      "ode_system": {
+        "x5": "((-0.3*k7*x5) / (2.0*k8 + 0.5*x6 + 0.5*x5) + (8.0*k5*x4) / (4.0*k6 + 8.0*x4)) / 0.5",
+        "x7": "(0.2*(10.0*k10 - 0.5*x6)*k9*x6) / (5.0*k10)",
+        "x4": "(-8.0*k5*x4) / (8.0*(4.0*k6 + 8.0*x4))",
+        "x6": "((-0.2*(10.0*k10 - 0.5*x6)*k9*x6) / (10.0*k10) + (0.3*k7*x5) / (2.0*k8 + 0.5*x6 + 0.5*x5)) / 0.5"
+      },
+      "measurements": {
+        "y1": "8.0*x4",
+        "y2": "0.5*x5"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x4",
+        "x5",
+        "x6",
+        "x7"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "k5",
+        "k6",
+        "k7",
+        "k8",
+        "k9",
+        "k10"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "boost_converter_sinusoidal_scaled",
+      "ode_system": {
+        "vC": "((-48.0*vC) / (20.0*R_load) + 2.0*(0.5 - 0.1*sin(100.0*t))*iL) / (0.096*C_cap)",
+        "iL": "(12.0 - 48.0*(0.5 - 0.1*sin(100.0*t))*vC) / (0.004*L)"
+      },
+      "measurements": {
+        "y1": "48.0*vC",
+        "y2": "2.0*iL"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "iL",
+        "vC"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "L",
+        "C_cap",
+        "R_load"
+      ],
+      "time_interval": [
+        0.0,
+        0.5
+      ]
+    },
+    {
+      "name": "brusselator_scaled",
+      "ode_system": {
+        "Y": "6.0*b*X - 16.0*a*Y*(X^2)",
+        "X": "0.5 - 0.5*X - 3.0*b*X + 16.0*a*Y*(X^2)"
+      },
+      "measurements": {
+        "y1": "2.0*X",
+        "y2": "2.0*Y"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "X",
+        "Y"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a",
+        "b"
+      ],
+      "time_interval": [
+        0.0,
+        20.0
+      ]
+    },
+    {
+      "name": "crauste_corrected_scaled",
+      "ode_system": {
+        "M": "0.05*delta_LM*L",
+        "P": "(-0.11*mu_P - 3.6*e-6*mu_PE*E - 0.00036*mu_PL*L + 0.6*rho_P*P)*P",
+        "N": "(-24270.0*mu_N*N - 582.4799999999999*delta_NE*P*N) / 16180.0",
+        "L": "(11.799999999999999*delta_EL*E - 10.0*(0.05*delta_LM + 7.2*e-7*mu_LE*E + 0.00015000000000000001*mu_LL*L)*L) / 10.0",
+        "E": "(582.4799999999999*delta_NE*P*N + 10.0*(-1.18*delta_EL - 0.000432*mu_EE*E + 2.56*rho_E*P)*E) / 10.0"
+      },
+      "measurements": {
+        "y3": "10.0*M + 10.0*L",
+        "y1": "16180.0*N",
+        "y4": "2.0*P",
+        "y2": "10.0*E"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "N",
+        "E",
+        "L",
+        "M",
+        "P"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3",
+        "y4"
+      ],
+      "parameter_variables": [
+        "mu_N",
+        "mu_EE",
+        "mu_LE",
+        "mu_LL",
+        "mu_P",
+        "mu_PE",
+        "mu_PL",
+        "delta_NE",
+        "delta_EL",
+        "delta_LM",
+        "rho_E",
+        "rho_P"
+      ],
+      "time_interval": [
+        0.0,
+        25.0
+      ]
+    },
+    {
+      "name": "cstr_fixed_activation_scaled",
+      "ode_system": {
+        "T": "((700.0*Tin - 700.0*T) / (2.0*tau) - 2.0*UA_VrhoCP*(-300.0 - 10.0*u_sin + 700.0*T) + 19.99863916554819*dH_rhoCP*C*r_eff) / 700.0",
+        "C": "(2.0*Cin - C) / (2.0*tau) - 1.999863916554819*C*r_eff",
+        "r_eff": "(17498.809269854668*((700.0*Tin - 700.0*T) / (2.0*tau) - 2.0*UA_VrhoCP*(-300.0 - 10.0*u_sin + 700.0*T) + 19.99863916554819*dH_rhoCP*C*r_eff)*r_eff) / (979933.3191118614*(T^2))",
+        "u_cos": "-0.25*u_sin",
+        "u_sin": "u_cos"
+      },
+      "measurements": {
+        "y3": "2.0*u_cos",
+        "y1": "700.0*T",
+        "y2": "u_sin"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "C",
+        "T",
+        "r_eff",
+        "u_sin",
+        "u_cos"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3"
+      ],
+      "parameter_variables": [
+        "tau",
+        "Tin",
+        "Cin",
+        "dH_rhoCP",
+        "UA_VrhoCP"
+      ],
+      "time_interval": [
+        0.0,
+        20.0
+      ]
+    },
+    {
+      "name": "daisy_mamil3_scaled",
+      "ode_system": {
+        "x1": "(0.5*(-1.666*a01 - a21 - 1.334*a31)*x1 + 0.334*a12*x2 + 0.9990000000000001*a13*x3) / 0.5",
+        "x2": "-0.334*a12*x2 + 0.5*a21*x1",
+        "x3": "(-0.9990000000000001*a13*x3 + 0.667*a31*x1) / 1.5"
+      },
+      "measurements": {
+        "y1": "0.5*x1",
+        "y2": "x2"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x1",
+        "x2",
+        "x3"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a12",
+        "a13",
+        "a21",
+        "a31",
+        "a01"
+      ],
+      "time_interval": [
+        0.0,
+        20.0
+      ]
+    },
+    {
+      "name": "daisy_mamil4_scaled",
+      "ode_system": {
+        "x1": "(-0.1*k01*x1 + 0.4*k12*x2 + 0.8999999999999999*k13*x3 + 1.6*k14*x4 - 0.5*k21*x1 - 0.6000000000000001*k31*x1 - 0.7000000000000001*k41*x1) / 0.4",
+        "x4": "(-1.6*k14*x4 + 0.7000000000000001*k41*x1) / 1.6",
+        "x2": "(-0.4*k12*x2 + 0.5*k21*x1) / 0.8",
+        "x3": "(-0.8999999999999999*k13*x3 + 0.6000000000000001*k31*x1) / 1.2"
+      },
+      "measurements": {
+        "y3": "1.2*x3 + 1.6*x4",
+        "y1": "0.4*x1",
+        "y2": "0.8*x2"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x1",
+        "x2",
+        "x3",
+        "x4"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3"
+      ],
+      "parameter_variables": [
+        "k01",
+        "k12",
+        "k13",
+        "k14",
+        "k21",
+        "k31",
+        "k41"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "dc_motor_sinusoidal_scaled",
+      "ode_system": {
+        "omega_m": "(0.2*Kt*i - 0.2*b*omega_m) / (0.02*J)",
+        "i": "(12.0 - 0.1*omega_m - 2.0*i + 2.0*sin(5.0*t)) / 0.5"
+      },
+      "measurements": {
+        "y1": "omega_m"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "omega_m",
+        "i"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "Kt",
+        "J",
+        "b"
+      ],
+      "time_interval": [
+        0.0,
+        5.0
+      ]
+    },
+    {
+      "name": "fitzhugh_nagumo_scaled",
+      "ode_system": {
+        "V": "(-3.0)*g*(0.5*R - 2.0*V + (2.6666666666666665)*(V^3))",
+        "R": "(-0.4*a - 2.0*V + 0.2*b*R) / (3.0*g)"
+      },
+      "measurements": {
+        "y1": "-2.0*V"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "V",
+        "R"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "g",
+        "a",
+        "b"
+      ],
+      "time_interval": [
+        0.0,
+        0.03
+      ]
+    },
+    {
+      "name": "flexible_arm_scaled",
+      "ode_system": {
+        "theta_t": "omega_t",
+        "omega_m": "(tau - 0.1*bm*omega_m - 20.0*k*(-0.5*theta_t + 0.5*theta_m)) / (0.1*Jm)",
+        "omega_t": "(-0.05*bt*omega_t - 20.0*k*(0.5*theta_t - 0.5*theta_m)) / (0.05*Jt)",
+        "theta_m": "omega_m"
+      },
+      "measurements": {
+        "y1": "0.5*theta_m",
+        "y2": "0.5*theta_t"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "theta_m",
+        "omega_m",
+        "theta_t",
+        "omega_t"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "Jm",
+        "Jt",
+        "bm",
+        "bt",
+        "k",
+        "tau"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "forced_lv_sinusoidal_scaled",
+      "ode_system": {
+        "x": "(-0.3*sin(2.0*t) + 6.0*alpha*x - 8.0*beta*x*y) / 2.0",
+        "y": "(-12.0*gamma*y + 4.0*delta*x*y) / 2.0"
+      },
+      "measurements": {
+        "y1": "2.0*x",
+        "y2": "2.0*y"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x",
+        "y"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "alpha",
+        "beta",
+        "delta",
+        "gamma"
+      ],
+      "time_interval": [
+        0.0,
+        5.0
+      ]
+    },
+    {
+      "name": "harmonic_scaled",
+      "ode_system": {
+        "x1": "-a*x2",
+        "x2": "x1 / b"
+      },
+      "measurements": {
+        "y1": "2.0*x1",
+        "y2": "x2"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x1",
+        "x2"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a",
+        "b"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "hiv_scaled",
+      "ode_system": {
+        "v": "(200.0*k*y - 0.012*u*v) / 0.002",
+        "w": "(-0.008*b*w - 0.08000000000000002*c*q*w*y + 0.4*c*w*z*y) / 2.0",
+        "x": "(2.0*lm - 40.0*d*x - 0.00016*beta*x*v) / 2000.0",
+        "z": "-0.2*h*z + 0.08000000000000002*c*q*w*y",
+        "y": "(-2.0*a*y + 0.00016*beta*x*v) / 2.0"
+      },
+      "measurements": {
+        "y3": "2000.0*x",
+        "y1": "2.0*w",
+        "y4": "0.002*v + 2.0*y",
+        "y2": "z"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x",
+        "y",
+        "v",
+        "w",
+        "z"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3",
+        "y4"
+      ],
+      "parameter_variables": [
+        "lm",
+        "d",
+        "beta",
+        "a",
+        "k",
+        "u",
+        "c",
+        "q",
+        "b",
+        "h"
+      ],
+      "time_interval": [
+        0.0,
+        25.0
+      ]
+    },
+    {
+      "name": "lotka_volterra_scaled",
+      "ode_system": {
+        "w": "-0.6*k3*w + 4.0*k2*w*r",
+        "r": "2.0*k1*r - 2.0*k2*w*r"
+      },
+      "measurements": {
+        "y1": "4.0*r"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "r",
+        "w"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "k1",
+        "k2",
+        "k3"
+      ],
+      "time_interval": [
+        0.0,
+        20.0
+      ]
+    },
+    {
+      "name": "magnetic_levitation_sinusoidal_scaled",
+      "ode_system": {
+        "v": "(10.0*(-2.5 + 5.0*i) - 0.2*b_lin*v - k_lin*x) / (0.010000000000000002*m_lin)",
+        "x": "5.0*v",
+        "i": "(5.0 - 10.0*i + sin(5.0*t)) / 0.25"
+      },
+      "measurements": {
+        "y1": "0.01*x"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x",
+        "v",
+        "i"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "m_lin",
+        "k_lin",
+        "b_lin"
+      ],
+      "time_interval": [
+        0.0,
+        5.0
+      ]
+    },
+    {
+      "name": "mass_spring_damper_scaled",
+      "ode_system": {
+        "v": "(2.0*F - 0.5*c*v - 8.0*k*x) / m",
+        "x": "0.5*v"
+      },
+      "measurements": {
+        "y1": "x"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x",
+        "v"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "m",
+        "c",
+        "k",
+        "F"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "quadrotor_sinusoidal_scaled",
+      "ode_system": {
+        "w": "(2.0*sin(t) - 0.2*d*w) / (2.0*m)",
+        "z": "0.1*w"
+      },
+      "measurements": {
+        "y1": "10.0*z"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "z",
+        "w"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "m",
+        "d"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "repressilator_scaled",
+      "ode_system": {
+        "m3": "-m3 + (4.0*beta) / (0.5*(1 + 8.0*n*p2))",
+        "m2": "-m2 + (4.0*beta) / (0.5*(1 + 16.0*n*p1))",
+        "p3": "-2.0*alpha*(p3 - 0.08333333333333333*m3)",
+        "p2": "-2.0*alpha*(-0.25*m2 + p2)",
+        "m1": "-m1 + (4.0*beta) / (0.5*(1 + 24.0*n*p3))",
+        "p1": "-2.0*alpha*(-0.125*m1 + p1)"
+      },
+      "measurements": {
+        "y3": "6.0*p3",
+        "y1": "4.0*p1",
+        "y2": "2.0*p2"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "m1",
+        "m2",
+        "m3",
+        "p1",
+        "p2",
+        "p3"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3"
+      ],
+      "parameter_variables": [
+        "beta",
+        "n",
+        "alpha"
+      ],
+      "time_interval": [
+        0.0,
+        24.0
+      ]
+    },
+    {
+      "name": "seir_scaled",
+      "ode_system": {
+        "S": "(-15840.0*b*In*S) / (3.96*e6*N)",
+        "N": "0",
+        "E": "((15840.0*b*In*S) / (2000.0*N) - 6.0*nu*E) / 20.0",
+        "In": "(-4.0*a*In + 6.0*nu*E) / 10.0"
+      },
+      "measurements": {
+        "y1": "10.0*In",
+        "y2": "2000.0*N"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "S",
+        "E",
+        "In",
+        "N"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a",
+        "b",
+        "nu"
+      ],
+      "time_interval": [
+        0.0,
+        60.0
+      ]
+    },
+    {
+      "name": "sirsforced_scaled",
+      "ode_system": {
+        "x1": "-1.4262158920539727*M*x2",
+        "x2": "0.9144225690276111*M*x1",
+        "r": "(-0.666*(0.858*g + 1.428*mu)*r + 0.572476*nu*i) / 0.666",
+        "s": "1.428*mu + 0.571428*g*r - 1.428*mu*s - 0.095524*b0*(1.0 + 0.763048*b1*x1)*s*i",
+        "i": "(-0.334*(1.428*mu + 1.714*nu)*i + 0.095524*b0*(1.0 + 0.763048*b1*x1)*s*i) / 0.334"
+      },
+      "measurements": {
+        "y1": "0.334*i",
+        "y2": "0.666*r"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "i",
+        "r",
+        "s",
+        "x1",
+        "x2"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "b0",
+        "b1",
+        "g",
+        "M",
+        "mu",
+        "nu"
+      ],
+      "time_interval": [
+        0.0,
+        30.0
+      ]
+    },
+    {
+      "name": "slowfast_scaled",
+      "ode_system": {
+        "eA": "0",
+        "xC": "0.666*k2*xB",
+        "eC": "0",
+        "xB": "(0.166*k1*xA - 0.666*k2*xB) / 0.666",
+        "eB": "0",
+        "xA": "-0.5*k1*xA"
+      },
+      "measurements": {
+        "y3": "1.332*eA",
+        "y1": "xC",
+        "y4": "1.666*eC",
+        "y2": "0.44222400000000006*xA*eA + 0.9990000000000001*eB*xB + 1.666*xC*eC"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "xA",
+        "xB",
+        "xC",
+        "eA",
+        "eC",
+        "eB"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2",
+        "y3",
+        "y4"
+      ],
+      "parameter_variables": [
+        "k1",
+        "k2"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "treatment_scaled",
+      "ode_system": {
+        "S": "((-121600.0*b*d*S*Tr) / (2000.0*N) + (-304000.0*b*In*S) / (2000.0*N)) / 1900.0",
+        "N": "0",
+        "Tr": "(60.0*g*In - 2.0*nu*Tr) / 10.0",
+        "In": "((304000.0*b*In*S) / (2000.0*N) + (121600.0*b*d*S*Tr) / (2000.0*N) - 100.0*(0.2*a + 0.6*g)*In) / 100.0"
+      },
+      "measurements": {
+        "y1": "10.0*Tr",
+        "y2": "2000.0*N"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "In",
+        "N",
+        "S",
+        "Tr"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a",
+        "b",
+        "d",
+        "g",
+        "nu"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    },
+    {
+      "name": "two_compartment_pk_scaled",
+      "ode_system": {
+        "C1": "((2.0*V2*k21*C2) / (2.0*V1) - 20.0*k12*C1 - 6.0*ke*C1) / 20.0",
+        "C2": "(40.0*V1*k12*C1) / (4.0*V2) - 0.5*k21*C2"
+      },
+      "measurements": {
+        "y1": "20.0*C1"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "C1",
+        "C2"
+      ],
+      "measurement_variables": [
+        "y1"
+      ],
+      "parameter_variables": [
+        "k12",
+        "k21",
+        "ke",
+        "V1",
+        "V2"
+      ],
+      "time_interval": [
+        0.0,
+        48.0
+      ]
+    },
+    {
+      "name": "vanderpol_scaled",
+      "ode_system": {
+        "x1": "0.5*a*x2",
+        "x2": "-4.0*x1 + 2.0*b*x2 - 32.0*b*x2*(x1^2)"
+      },
+      "measurements": {
+        "y1": "4.0*x1",
+        "y2": "x2"
+      },
+      "non_identifiable": [],
+      "state_variables": [
+        "x1",
+        "x2"
+      ],
+      "measurement_variables": [
+        "y1",
+        "y2"
+      ],
+      "parameter_variables": [
+        "a",
+        "b"
+      ],
+      "time_interval": [
+        0.0,
+        10.0
+      ]
+    }
+  ]
+}

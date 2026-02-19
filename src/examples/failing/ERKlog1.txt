@@ -1,0 +1,1345 @@
+WARNING: Detected access to binding `KernelFunctions.kernelpdmat` in a world prior to its definition world.
+  Julia 1.12 has introduced more strict world age semantics for global bindings.
+  !!! This code may malfunction under Revise.
+  !!! This code will error in future versions of Julia.
+Hint: Add an appropriate `invokelatest` around the access to this binding.
+To make this warning an error, and hence obtain a stack trace, use `julia --depwarn=error`.
+[ Info: [ITERATIVE-FIX] Iteration 1, fixed so far: Num[]
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 36 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 36 equations, 33 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S2_1, S0_1, S1_1, S2_2, C2_1, S0_2, E_1, C1_1, S1_2, S2_3, C2_2, S0_3, E_2, C1_2, S1_3, S2_4, C2_3, S0_4, E_3, C1_3, S1_4]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 3 variables: Nemo.QQMPolyRingElem[C2_0, S2_1, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 6 variables: Nemo.QQMPolyRingElem[S0_0, C1_0, E_0, S0_1, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 6 variables: Nemo.QQMPolyRingElem[S1_0, C2_0, E_0, S1_1, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 3 variables: Nemo.QQMPolyRingElem[C2_1, S2_2, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq9 has 9 variables: Nemo.QQMPolyRingElem[S1_0, C1_0, C2_0, E_0, C2_1, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq10 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 8 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, C1_1, E_1, S0_2, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq12 has 11 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, C1_0, C2_0, E_0, E_1, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq13 has 7 variables: Nemo.QQMPolyRingElem[S0_0, C1_0, E_0, C1_1, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 8 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, C2_1, E_1, S1_2, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 3 variables: Nemo.QQMPolyRingElem[C2_2, S2_3, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq18 has 11 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, C1_1, C2_1, E_1, C2_2, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq19 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq20 has 10 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, C1_2, E_2, S0_3, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq21 has 14 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, E_0, S1_1, S0_1, C1_1, C2_1, E_1, E_2, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq22 has 9 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, C1_1, E_1, C1_2, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq23 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq24 has 10 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, C2_2, E_2, S1_3, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq25 has 2 variables: Nemo.QQMPolyRingElem[S2_3, y2_3]
+[ Info: [DEBUG-EQUATION] Eq26 has 3 variables: Nemo.QQMPolyRingElem[C2_3, S2_4, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq27 has 13 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, C1_2, C2_2, E_2, C2_3, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq28 has 2 variables: Nemo.QQMPolyRingElem[S0_3, y0_3]
+[ Info: [DEBUG-EQUATION] Eq29 has 12 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, E_2, S0_3, C1_3, E_3, S0_4, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq30 has 17 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, E_0, S1_1, S0_1, E_1, S1_2, S0_2, C1_2, C2_2, E_2, E_3, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq31 has 11 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, C1_2, E_2, C1_3, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq32 has 2 variables: Nemo.QQMPolyRingElem[S1_3, y1_3]
+[ Info: [DEBUG-EQUATION] Eq33 has 12 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, E_2, S1_3, C2_3, E_3, S1_4, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq34 has 2 variables: Nemo.QQMPolyRingElem[S2_4, y2_4]
+[ Info: [DEBUG-EQUATION] Eq35 has 2 variables: Nemo.QQMPolyRingElem[S0_4, y0_4]
+[ Info: [DEBUG-EQUATION] Eq36 has 2 variables: Nemo.QQMPolyRingElem[S1_4, y1_4]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 36 equations, 33 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 12 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S1_4, C1_3, E_3, S0_4, C2_3, S2_4, S1_3, C1_2, E_2, S0_3, C2_2, S2_3, S1_2, C1_1, E_1, S0_2, C2_1, S2_2, S1_1, S0_1, S2_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 33 variables (from 33)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S1_4, C1_3, E_3, S0_4, C2_3, S2_4, S1_3, C1_2, E_2, S0_3, C2_2, S2_3, S1_2, C1_1, E_1, S0_2, C2_1, S2_2, S1_1, S0_1, S2_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 36 equations, 33 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (36, 33)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 33
+[ Info: [DEBUG-ALG-INDEP] Found 33 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 33 equations (current_rank=33)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 33 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [34, 35, 36]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq34: -S2_4 + y2_4
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq35: -S0_4 + y0_4
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq36: -S1_4 + y1_4
+[ Info: Reduced polynomial system to 33 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 33 equations for 33 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 45
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[S1_4, kr1_0, y2_1, C2_0, y1_3, S0_4, kf1_0, y2_3, y1_0, E_0, kf2_0, C2_2, S1_2, y0_2, S2_1, E_2, C2_1, kc2_0, S2_4, C1_3, E_1, y2_0, C2_3, C1_1, S0_1, S2_3, y0_0, S1_1, S0_3, C1_0, kc1_0, E_3, S0_0, S1_0, S1_3, S2_0, S0_2, y0_3, S2_2, y0_1, y1_2, y1_1, y2_2, kr2_0, C1_2])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 33 equations but 45 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y2_1, y1_3, y2_3, y1_0, y0_2, y2_0, y0_0, y0_3, y0_1, y1_2, y1_1, y2_2])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 6.347282682 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.163458964 seconds
+[ Info: Dimensions of the Wronskians [5, 7, 7]
+[ Info: Ranks of the Wronskians computed in 5.1916e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.31141173
+[ Info: Selecting generators in 0.005450948
+[ Info: Inclusion checked with probability 0.9955 in 0.67997669 seconds
+[ Info: Global identifiability assessed in 12.356486233 seconds
+[ Info: SI.jl found 33 template equations
+[ Info: Derivative variables: Any[y2_5, y2_1, y2_9, y0_0, y0_10, y1_7, y2_12, y1_3, y1_8, y1_13, y2_7, y1_6, y2_3, y0_6, y1_0, y1_10, y1_5, y1_4, y2_11, y2_13, y1_11, y0_2, y0_3, y0_7, y0_12, y0_11, y2_10, y0_5, y2_4, y1_12, y2_6, y0_4, y2_0, y0_1, y0_8, y2_8, y0_13, y1_2, y2_2, y0_9, y1_1, y1_9]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y2_5 => 5, y2_1 => 1, y2_9 => 9, y0_0 => 0, y0_10 => 10, y1_7 => 7, y2_12 => 12, y1_3 => 3, y1_8 => 8, y1_13 => 13, y2_7 => 7, y1_6 => 6, y2_3 => 3, y0_6 => 6, y1_0 => 0, y1_10 => 10, y1_5 => 5, y1_4 => 4, y2_11 => 11, y2_13 => 13, y1_11 => 11, y0_2 => 2, y0_3 => 3, y0_7 => 7, y0_12 => 12, y0_11 => 11, y2_10 => 10, y0_5 => 5, y2_4 => 4, y1_12 => 12, y2_6 => 6, y0_4 => 4, y2_0 => 0, y0_1 => 1, y0_8 => 8, y2_8 => 8, y0_13 => 13, y1_2 => 2, y2_2 => 2, y0_9 => 9, y1_1 => 1, y1_9 => 9)
+[ Info: Maximum derivative order needed: 13
+[ Info: Non-identifiable parameters: Set{Any}()
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.01489274 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.004731368 seconds
+[ Info: Dimensions of the Wronskians [5, 7, 7]
+[ Info: Ranks of the Wronskians computed in 1.7145e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000844585
+[ Info: Selecting generators in 0.185564613
+[ Info: Inclusion checked with probability 0.995 in 0.005446509 seconds
+[ Info: The search for identifiable functions concluded in 0.475176211 seconds
+[ Info: Identifiable functions of unidentifiable parameters: AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}[kc2, kr2, kf2, kc1, kr1, kf1]
+┌ Warning: Cannot map y2_13 to DD (order=13), using symbolic: y2_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y0_13 to DD (order=13), using symbolic: y0_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y1_13 to DD (order=13), using symbolic: y1_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y2_14 to DD (order=14), using symbolic: y2_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y0_14 to DD (order=14), using symbolic: y0_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y1_14 to DD (order=14), using symbolic: y1_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+[ Info: Converting 33 polynomials from Nemo to Symbolics
+[ Info: [ITERATIVE-FIX] System status: 33 equations, 33 unknowns (+ 12 data variables)
+[ Info: [ITERATIVE-FIX] CONVERGED: Determined system achieved after 1 iteration(s)
+[ Info: [DEBUG-EQ-COUNT] Final SI template: 33 equations after iterative fixing
+[ Info: Saved SI template to saved_systems/si_template_2026-02-19T08:16:15.831.jl
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 2. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 3. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 1 at point 4. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 5. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 6. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 7. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+┌ Warning: Parameter homotopy: solution count dropped from 2 to 0 at point 8. Falling back to fresh solve.
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:952
+[ Info: [DEBUG-SI-VARS] Final variables list (33): Any[S2_0, C2_0, kc2_0, S2_1, S0_0, S0_1, kr1_0, kf1_0, C1_0, E_0, S1_0, S1_1, kr2_0, kf2_0, S2_2, C2_1, kc1_0, C1_1, S0_2, E_1, S1_2, C2_2, S2_3, S0_3, C1_2, E_2, S1_3, C2_3, S2_4, S0_4, C1_3, E_3, S1_4]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 33 equations, 33 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (33): Any[S2_0, C2_0, kc2_0, S2_1, S0_0, S0_1, kr1_0, kf1_0, C1_0, E_0, S1_0, S1_1, kr2_0, kf2_0, S2_2, C2_1, kc1_0, C1_1, S0_2, E_1, S1_2, C2_2, S2_3, S0_3, C1_2, E_2, S1_3, C2_3, S2_4, S0_4, C1_3, E_3, S1_4]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 33 equations, 33 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (33): Any[S2_0, C2_0, kc2_0, S2_1, S0_0, S0_1, kr1_0, kf1_0, C1_0, E_0, S1_0, S1_1, kr2_0, kf2_0, S2_2, C2_1, kc1_0, C1_1, S0_2, E_1, S1_2, C2_2, S2_3, S0_3, C1_2, E_2, S1_3, C2_3, S2_4, S0_4, C1_3, E_3, S1_4]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 33 equations, 33 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (33): Any[S2_0, C2_0, kc2_0, S2_1, S0_0, S0_1, kr1_0, kf1_0, C1_0, E_0, S1_0, S1_1, kr2_0, kf2_0, S2_2, C2_1, kc1_0, C1_1, S0_2, E_1, S1_2, C2_2, S2_3, S0_3, C1_2, E_2, S1_3, C2_3, S2_4, S0_4, C1_3, E_3, S1_4]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 33 equations, 33 variables
+┌ Warning: Verbosity toggle: max_iters 
+│  Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/obTYa/src/integrator_interface.jl:635
+┌ Warning: Verbosity toggle: max_iters 
+│  Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/obTYa/src/integrator_interface.jl:635
+[ Info: [BACKSOLVE] Solution 1 OK: err=1.0e15, max_abs_IC=103.19861922645727
+[ Info: [BACKSOLVE] Solution 2 OK: err=1.0e15, max_abs_IC=4.934984303322239
+[ Info: [BACKSOLVE] Solution 3 BLOWN: err=1.0e15, blown_states=Tuple{Num, Float64}[(S0(t), -2.514583466794621e114), (C1(t), 2.514583466796343e114), (C2(t), 1.788225232572829e103), (S1(t), -2.0758281061150194e103), (S2(t), 3.1783571174866933e91), (E(t), -2.514583466814356e114)]
+[ Info: [BACKSOLVE] Solution 4 BLOWN: err=1.0e15, blown_states=Tuple{Num, Float64}[(S0(t), 5.682307315732792e95), (C1(t), -5.704103469971258e95), (C2(t), -3.251238558937949e113), (S1(t), 3.2498945334854544e113), (S2(t), 5.639005774831203e99), (E(t), 3.251134468185473e113)]
+[ Info: [BACKSOLVE] Solution 5 BLOWN: err=1.0e15, blown_states=Tuple{Num, Float64}[(S0(t), -1.55917326500399e115), (C1(t), 1.5591732650052332e115), (C2(t), -1.5266515267536383e103), (S1(t), -1.5207604359055987e88), (S2(t), -3.490690728958604e91), (E(t), -1.5591732650040095e115)]
+[ Info: [BACKSOLVE] Solution 6 BLOWN: err=3.0225853782636523e12, blown_states=Tuple{Num, Float64}[(C2(t), -1.9121290151343766e14), (S2(t), 1.9121290151344188e14), (E(t), 1.912129015134383e14)]
+[ Info: [BACKSOLVE] Solution 7 BLOWN: err=1.0e15, blown_states=Tuple{Num, Float64}[(C2(t), 4.798039599479278e23), (S2(t), 1.2100581330478514e24), (E(t), -1.9255294178293618e24)]
+[ Info: [BACKSOLVE] Solution 8 OK: err=1.0e15, max_abs_IC=36.32712513437879
+[ Info: [RESOLVE] Re-running SIAN with 6 fixed parameters
+[ Info: [PRE-FIX] Substituting kf1 => 0.8307707949882797
+[ Info: [PRE-FIX] Substituting kr1 => 2.747279042887484
+[ Info: [PRE-FIX] Substituting kc1 => 3.2086090897228465
+[ Info: [PRE-FIX] Substituting kf2 => 0.3964007402395096
+[ Info: [PRE-FIX] Substituting kr2 => 0.00014078492120020146
+[ Info: [PRE-FIX] Substituting kc2 => -3.9850196055262903
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 6)
+[ Info: [RESOLVE] Fixed model: 0 remaining parameters (should be 0)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -0.8307707949882797 will be converted to -92747971//111640866.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 2.747279042887484 will be converted to 85942927//31282926.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.8307707949882797 will be converted to 92747971//111640866.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -5.955888132610331 will be converted to -562056228//94369843.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.9848788206050902 will be converted to 237487369//59597137.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.2086090897228465 will be converted to 57564061//17940503.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.3964007402395096 will be converted to 70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.00014078492120020146 will be converted to 251932//1789481415.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.3964007402395096 will be converted to -70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.9850196055262903 will be converted to -249841115//62695078.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.9848788206050902 will be converted to -237487369//59597137.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.8307707949882797 will be converted to -92747971//111640866.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 2.747279042887484 will be converted to 85942927//31282926.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.3964007402395096 will be converted to -70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 18 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 18 equations, 15 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S1_1, S0_1, S2_1, S1_2, E_1, C2_1, S0_2, C1_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 4 variables: Nemo.QQMPolyRingElem[C2_0, S1_0, E_0, S1_1]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, S0_1]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 2 variables: Nemo.QQMPolyRingElem[C2_0, S2_1]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 6 variables: Nemo.QQMPolyRingElem[S1_0, E_0, C2_1, S1_1, E_1, S1_2]
+[ Info: [DEBUG-EQUATION] Eq9 has 6 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S0_0, S1_0, E_0, E_1]
+[ Info: [DEBUG-EQUATION] Eq10 has 5 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S1_0, E_0, C2_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq12 has 6 variables: Nemo.QQMPolyRingElem[S0_0, E_0, C1_1, S0_1, E_1, S0_2]
+[ Info: [DEBUG-EQUATION] Eq13 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, C1_1]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 2 variables: Nemo.QQMPolyRingElem[C2_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq18 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 18 equations, 15 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 6 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 15 variables (from 15)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 18 equations, 15 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (18, 15)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 15
+[ Info: [DEBUG-ALG-INDEP] Found 15 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 15 equations (current_rank=15)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 15 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [16, 17, 18]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq16: -S1_2 + y1_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq17: -S0_2 + y0_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq18: -S2_2 + y2_2
+[ Info: Reduced polynomial system to 15 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 15 equations for 15 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 21
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[C1_0, S0_1, S1_1, S0_2, C2_0, E_0, y0_0, S0_0, y2_1, S1_0, y0_1, C1_1, S2_1, S2_2, C2_1, S1_2, y1_0, y2_0, E_1, y1_1, S2_0])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 15 equations but 21 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y0_0, y2_1, y0_1, y1_0, y2_0, y1_1])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.048758063 seconds
+[ Info: No parameters, so Wronskian computation is not needed
+[ Info: Global identifiability assessed in 0.054211946 seconds
+[ Info: SI.jl found 15 template equations
+[ Info: Derivative variables: Any[y0_4, y1_6, y2_6, y0_0, y2_3, y0_5, y0_6, y0_7, y2_1, y1_7, y0_1, y1_4, y1_3, y0_3, y2_2, y2_7, y2_4, y2_5, y1_0, y2_0, y0_2, y1_5, y1_1, y1_2]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y0_4 => 4, y1_6 => 6, y2_6 => 6, y0_0 => 0, y2_3 => 3, y0_5 => 5, y0_6 => 6, y0_7 => 7, y2_1 => 1, y1_7 => 7, y0_1 => 1, y1_4 => 4, y1_3 => 3, y0_3 => 3, y2_2 => 2, y2_7 => 7, y2_4 => 4, y2_5 => 5, y1_0 => 0, y2_0 => 0, y0_2 => 2, y1_5 => 5, y1_1 => 1, y1_2 => 2)
+[ Info: Maximum derivative order needed: 7
+[ Info: Non-identifiable parameters: Set{Any}()
+┌ Warning: There are no parameters in the given ODE, thus no identifiabile
+│ functions.
+│ Use `find_identifiable_functions` with keyword `with_states=true` to
+│ compute the functions with the ODE states included.
+└ @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/gt3mc/src/identifiable_functions.jl:97
+[ Info: Identifiable functions of unidentifiable parameters: Nemo.QQMPolyRingElem[1]
+[ Info: Converting 15 polynomials from Nemo to Symbolics
+[ Info: [RESOLVE] SIAN re-run produced 15 template eqs, 24 deriv vars
+[ Info: [DEBUG-SI-VARS] Eq1 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0])
+[ Info: [DEBUG-SI-VARS] Eq2 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq3 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_0])
+[ Info: [DEBUG-SI-VARS] Eq4 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq5 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_0])
+[ Info: [DEBUG-SI-VARS] Eq6 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_0, S2_1])
+[ Info: [DEBUG-SI-VARS] Eq7 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1])
+[ Info: [DEBUG-SI-VARS] Eq8 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_1, E_1, E_0, S1_2])
+[ Info: [DEBUG-SI-VARS] Eq9 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0, C2_0, E_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq10 has 5 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_1, C2_0, S1_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq11 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1])
+[ Info: [DEBUG-SI-VARS] Eq12 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_1, S0_2, E_1, S0_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq13 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq14 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_1])
+[ Info: [DEBUG-SI-VARS] Eq15 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_2, C2_1])
+[ Info: [DEBUG-SI-VARS] Final variables list (15): Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 15 equations, 15 variables
+[ Info: [RESOLVE] Instantiated system: 15 eqs, 15 state vars (square)
+[ Info: [RESOLVE] Variables: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [RESOLVE] Eq1 (1 vars): -1.5300057651981705e-5 - S1_0
+[ Info: [RESOLVE] Eq2 (4 vars): -(251932//1789481415)*C2_0 + S1_1 + (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq3 (1 vars): 4.961012584143873 - S0_0
+[ Info: [RESOLVE] Eq4 (4 vars): -(85942927//31282926)*C1_0 + S0_1 + (92747971//111640866)*E_0*S0_0
+[ Info: [RESOLVE] Eq5 (1 vars): -0.0007900646008112133 - S2_0
+[ Info: [RESOLVE] Eq6 (2 vars): (249841115//62695078)*C2_0 + S2_1
+[ Info: [RESOLVE] Eq7 (1 vars): 0.012263441044677435 - S1_1
+[ Info: [RESOLVE] Eq8 (6 vars): -(251932//1789481415)*C2_1 + S1_2 + (70919708//178909121)*E_0*S1_1 + (70919708//178909121)*E_1*S1_0
+[ Info: [RESOLVE] Eq9 (6 vars): -(85942927//31282926)*C1_0 + (237487369//59597137)*C2_0 + E_1 + (92747971//111640866)*E_0*S0_0 + (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq10 (5 vars): -(57564061//17940503)*C1_0 - (237487369//59597137)*C2_0 + C2_1 - (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq11 (1 vars): -2.469206017584986 - S0_1
+[ Info: [RESOLVE] Eq12 (6 vars): -(85942927//31282926)*C1_1 + S0_2 + (92747971//111640866)*E_0*S0_1 + (92747971//111640866)*E_1*S0_0
+[ Info: [RESOLVE] Eq13 (4 vars): (562056228//94369843)*C1_0 + C1_1 - (92747971//111640866)*E_0*S0_0
+[ Info: [RESOLVE] Eq14 (1 vars): 0.9683983436663337 - S2_1
+[ Info: [RESOLVE] Eq15 (2 vars): (249841115//62695078)*C2_1 + S2_2
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 15 variables
+[ Info: [RESOLVE-MAP] sian_name_to_val: Dict("S0" => 4.961012584143873, "C2" => -0.24300968113767663, "C1" => 3040.991124040732, "S1" => -1.5300057651981705e-5, "S2" => -0.0007900646008112133, "E" => 2027.658046645096)
+[ Info: [RESOLVE-MAP] MTK unknowns: ["S0(t)", "C1(t)", "C2(t)", "S1(t)", "S2(t)", "E(t)"]
+┌ Warning: Verbosity toggle: max_iters 
+│  Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/obTYa/src/integrator_interface.jl:635
+[ Info: [RESOLVE] Re-running SIAN with 6 fixed parameters
+[ Info: [PRE-FIX] Substituting kf1 => -0.02931827689555194
+[ Info: [PRE-FIX] Substituting kr1 => 4.9107456175669535
+[ Info: [PRE-FIX] Substituting kc1 => -4.308872838120523
+[ Info: [PRE-FIX] Substituting kf2 => 0.3964007402395096
+[ Info: [PRE-FIX] Substituting kr2 => -0.00011964871898624985
+[ Info: [PRE-FIX] Substituting kc2 => 3.386744026785939
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 6)
+[ Info: [RESOLVE] Fixed model: 0 remaining parameters (should be 0)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value 0.02931827689555194 will be converted to 120161291//4098511363.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.9107456175669535 will be converted to 43907723//8941152.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.02931827689555194 will be converted to -120161291//4098511363.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.6018727794464303 will be converted to -36034925//59871332.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.3866243780669527 will be converted to -896567152//264737701.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -4.308872838120523 will be converted to -56088727//13017030.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.3964007402395096 will be converted to 70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.00011964871898624985 will be converted to -913230//7632593209.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.3964007402395096 will be converted to -70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.386744026785939 will be converted to 105807861//31241765.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.3866243780669527 will be converted to 896567152//264737701.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.02931827689555194 will be converted to 120161291//4098511363.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.9107456175669535 will be converted to 43907723//8941152.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.3964007402395096 will be converted to -70919708//178909121.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 18 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 18 equations, 15 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S1_1, S0_1, S2_1, S1_2, E_1, C2_1, S0_2, C1_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 4 variables: Nemo.QQMPolyRingElem[C2_0, S1_0, E_0, S1_1]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, S0_1]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 2 variables: Nemo.QQMPolyRingElem[C2_0, S2_1]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 6 variables: Nemo.QQMPolyRingElem[S1_0, E_0, C2_1, S1_1, E_1, S1_2]
+[ Info: [DEBUG-EQUATION] Eq9 has 6 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S0_0, S1_0, E_0, E_1]
+[ Info: [DEBUG-EQUATION] Eq10 has 5 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S1_0, E_0, C2_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq12 has 6 variables: Nemo.QQMPolyRingElem[S0_0, E_0, C1_1, S0_1, E_1, S0_2]
+[ Info: [DEBUG-EQUATION] Eq13 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, C1_1]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 2 variables: Nemo.QQMPolyRingElem[C2_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq18 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 18 equations, 15 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 6 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 15 variables (from 15)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 18 equations, 15 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (18, 15)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 15
+[ Info: [DEBUG-ALG-INDEP] Found 15 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 15 equations (current_rank=15)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 15 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [16, 17, 18]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq16: -S1_2 + y1_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq17: -S0_2 + y0_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq18: -S2_2 + y2_2
+[ Info: Reduced polynomial system to 15 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 15 equations for 15 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 21
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[C1_0, S0_1, S1_1, S0_2, C2_0, E_0, y0_0, S0_0, y2_1, S1_0, y0_1, C1_1, S2_1, S2_2, C2_1, S1_2, y1_0, y2_0, E_1, y1_1, S2_0])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 15 equations but 21 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y0_0, y2_1, y0_1, y1_0, y2_0, y1_1])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.034373794 seconds
+[ Info: No parameters, so Wronskian computation is not needed
+[ Info: Global identifiability assessed in 0.038783219 seconds
+[ Info: SI.jl found 15 template equations
+[ Info: Derivative variables: Any[y0_4, y1_6, y2_6, y0_0, y2_3, y0_5, y0_6, y0_7, y2_1, y1_7, y0_1, y1_4, y1_3, y0_3, y2_2, y2_7, y2_4, y2_5, y1_0, y2_0, y0_2, y1_5, y1_1, y1_2]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y0_4 => 4, y1_6 => 6, y2_6 => 6, y0_0 => 0, y2_3 => 3, y0_5 => 5, y0_6 => 6, y0_7 => 7, y2_1 => 1, y1_7 => 7, y0_1 => 1, y1_4 => 4, y1_3 => 3, y0_3 => 3, y2_2 => 2, y2_7 => 7, y2_4 => 4, y2_5 => 5, y1_0 => 0, y2_0 => 0, y0_2 => 2, y1_5 => 5, y1_1 => 1, y1_2 => 2)
+[ Info: Maximum derivative order needed: 7
+[ Info: Non-identifiable parameters: Set{Any}()
+┌ Warning: There are no parameters in the given ODE, thus no identifiabile
+│ functions.
+│ Use `find_identifiable_functions` with keyword `with_states=true` to
+│ compute the functions with the ODE states included.
+└ @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/gt3mc/src/identifiable_functions.jl:97
+[ Info: Identifiable functions of unidentifiable parameters: Nemo.QQMPolyRingElem[1]
+[ Info: Converting 15 polynomials from Nemo to Symbolics
+[ Info: [RESOLVE] SIAN re-run produced 15 template eqs, 24 deriv vars
+[ Info: [DEBUG-SI-VARS] Eq1 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0])
+[ Info: [DEBUG-SI-VARS] Eq2 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq3 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_0])
+[ Info: [DEBUG-SI-VARS] Eq4 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq5 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_0])
+[ Info: [DEBUG-SI-VARS] Eq6 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_0, S2_1])
+[ Info: [DEBUG-SI-VARS] Eq7 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1])
+[ Info: [DEBUG-SI-VARS] Eq8 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_1, E_1, E_0, S1_2])
+[ Info: [DEBUG-SI-VARS] Eq9 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0, C2_0, E_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq10 has 5 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_1, C2_0, S1_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq11 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1])
+[ Info: [DEBUG-SI-VARS] Eq12 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_1, S0_2, E_1, S0_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq13 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq14 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_1])
+[ Info: [DEBUG-SI-VARS] Eq15 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_2, C2_1])
+[ Info: [DEBUG-SI-VARS] Final variables list (15): Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 15 equations, 15 variables
+[ Info: [RESOLVE] Instantiated system: 15 eqs, 15 state vars (square)
+[ Info: [RESOLVE] Variables: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [RESOLVE] Eq1 (1 vars): -1.5300057651981705e-5 - S1_0
+[ Info: [RESOLVE] Eq2 (4 vars): (913230//7632593209)*C2_0 + S1_1 + (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq3 (1 vars): 4.961012584143873 - S0_0
+[ Info: [RESOLVE] Eq4 (4 vars): -(43907723//8941152)*C1_0 + S0_1 - (120161291//4098511363)*E_0*S0_0
+[ Info: [RESOLVE] Eq5 (1 vars): -0.0007900646008112133 - S2_0
+[ Info: [RESOLVE] Eq6 (2 vars): -(105807861//31241765)*C2_0 + S2_1
+[ Info: [RESOLVE] Eq7 (1 vars): 0.012263441044677435 - S1_1
+[ Info: [RESOLVE] Eq8 (6 vars): (913230//7632593209)*C2_1 + S1_2 + (70919708//178909121)*E_0*S1_1 + (70919708//178909121)*E_1*S1_0
+[ Info: [RESOLVE] Eq9 (6 vars): -(43907723//8941152)*C1_0 - (896567152//264737701)*C2_0 + E_1 - (120161291//4098511363)*E_0*S0_0 + (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq10 (5 vars): (56088727//13017030)*C1_0 + (896567152//264737701)*C2_0 + C2_1 - (70919708//178909121)*E_0*S1_0
+[ Info: [RESOLVE] Eq11 (1 vars): -2.469206017584986 - S0_1
+[ Info: [RESOLVE] Eq12 (6 vars): -(43907723//8941152)*C1_1 + S0_2 - (120161291//4098511363)*E_0*S0_1 - (120161291//4098511363)*E_1*S0_0
+[ Info: [RESOLVE] Eq13 (4 vars): (36034925//59871332)*C1_0 + C1_1 + (120161291//4098511363)*E_0*S0_0
+[ Info: [RESOLVE] Eq14 (1 vars): 0.9683983436663337 - S2_1
+[ Info: [RESOLVE] Eq15 (2 vars): -(105807861//31241765)*C2_1 + S2_2
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 15 variables
+[ Info: [RESOLVE-MAP] sian_name_to_val: Dict("S0" => 4.961012584143873, "C2" => 0.2859378612635675, "C1" => -60.55876793774141, "S1" => -1.5300057651981705e-5, "S2" => -0.0007900646008112133, "E" => 2027.6580466450962)
+[ Info: [RESOLVE-MAP] MTK unknowns: ["S0(t)", "C1(t)", "C2(t)", "S1(t)", "S2(t)", "E(t)"]
+[ Info: [RESOLVE] Re-running SIAN with 6 fixed parameters
+[ Info: [PRE-FIX] Substituting kf1 => 1.0086098216510853
+[ Info: [PRE-FIX] Substituting kr1 => 3.0445987833754278
+[ Info: [PRE-FIX] Substituting kc1 => 2.762361026981087
+[ Info: [PRE-FIX] Substituting kf2 => -3.054503834763125
+[ Info: [PRE-FIX] Substituting kr2 => 0.01183756881918482
+[ Info: [PRE-FIX] Substituting kc2 => -3.209045227931529
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 6)
+[ Info: [RESOLVE] Fixed model: 0 remaining parameters (should be 0)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0086098216510853 will be converted to -13529592//13414099.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.0445987833754278 will be converted to 157345471//51680199.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 1.0086098216510853 will be converted to 13529592//13414099.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -5.806959810356515 will be converted to -86258898//14854399.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.197207659112344 will be converted to 94544957//29571103.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 2.762361026981087 will be converted to 227756907//82450087.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.054503834763125 will be converted to -103807771//33985150.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.01183756881918482 will be converted to 7633914//644888669.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.054503834763125 will be converted to 103807771//33985150.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.209045227931529 will be converted to -123571417//38507222.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.197207659112344 will be converted to -94544957//29571103.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -1.0086098216510853 will be converted to -13529592//13414099.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.0445987833754278 will be converted to 157345471//51680199.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.054503834763125 will be converted to 103807771//33985150.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 18 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 18 equations, 15 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S1_1, S0_1, S2_1, S1_2, E_1, C2_1, S0_2, C1_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 4 variables: Nemo.QQMPolyRingElem[C2_0, S1_0, E_0, S1_1]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, S0_1]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 2 variables: Nemo.QQMPolyRingElem[C2_0, S2_1]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 6 variables: Nemo.QQMPolyRingElem[S1_0, E_0, C2_1, S1_1, E_1, S1_2]
+[ Info: [DEBUG-EQUATION] Eq9 has 6 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S0_0, S1_0, E_0, E_1]
+[ Info: [DEBUG-EQUATION] Eq10 has 5 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S1_0, E_0, C2_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq12 has 6 variables: Nemo.QQMPolyRingElem[S0_0, E_0, C1_1, S0_1, E_1, S0_2]
+[ Info: [DEBUG-EQUATION] Eq13 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, C1_1]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 2 variables: Nemo.QQMPolyRingElem[C2_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq18 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 18 equations, 15 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 6 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 15 variables (from 15)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 18 equations, 15 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (18, 15)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 15
+[ Info: [DEBUG-ALG-INDEP] Found 15 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 15 equations (current_rank=15)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 15 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [16, 17, 18]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq16: -S1_2 + y1_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq17: -S0_2 + y0_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq18: -S2_2 + y2_2
+[ Info: Reduced polynomial system to 15 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 15 equations for 15 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 21
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[C1_0, S0_1, S1_1, S0_2, C2_0, E_0, y0_0, S0_0, y2_1, S1_0, y0_1, C1_1, S2_1, S2_2, C2_1, S1_2, y1_0, y2_0, E_1, y1_1, S2_0])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 15 equations but 21 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y0_0, y2_1, y0_1, y1_0, y2_0, y1_1])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.034676858 seconds
+[ Info: No parameters, so Wronskian computation is not needed
+[ Info: Global identifiability assessed in 0.038849108 seconds
+[ Info: SI.jl found 15 template equations
+[ Info: Derivative variables: Any[y0_4, y1_6, y2_6, y0_0, y2_3, y0_5, y0_6, y0_7, y2_1, y1_7, y0_1, y1_4, y1_3, y0_3, y2_2, y2_7, y2_4, y2_5, y1_0, y2_0, y0_2, y1_5, y1_1, y1_2]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y0_4 => 4, y1_6 => 6, y2_6 => 6, y0_0 => 0, y2_3 => 3, y0_5 => 5, y0_6 => 6, y0_7 => 7, y2_1 => 1, y1_7 => 7, y0_1 => 1, y1_4 => 4, y1_3 => 3, y0_3 => 3, y2_2 => 2, y2_7 => 7, y2_4 => 4, y2_5 => 5, y1_0 => 0, y2_0 => 0, y0_2 => 2, y1_5 => 5, y1_1 => 1, y1_2 => 2)
+[ Info: Maximum derivative order needed: 7
+[ Info: Non-identifiable parameters: Set{Any}()
+┌ Warning: There are no parameters in the given ODE, thus no identifiabile
+│ functions.
+│ Use `find_identifiable_functions` with keyword `with_states=true` to
+│ compute the functions with the ODE states included.
+└ @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/gt3mc/src/identifiable_functions.jl:97
+[ Info: Identifiable functions of unidentifiable parameters: Nemo.QQMPolyRingElem[1]
+[ Info: Converting 15 polynomials from Nemo to Symbolics
+[ Info: [RESOLVE] SIAN re-run produced 15 template eqs, 24 deriv vars
+[ Info: [DEBUG-SI-VARS] Eq1 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0])
+[ Info: [DEBUG-SI-VARS] Eq2 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq3 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_0])
+[ Info: [DEBUG-SI-VARS] Eq4 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq5 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_0])
+[ Info: [DEBUG-SI-VARS] Eq6 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_0, S2_1])
+[ Info: [DEBUG-SI-VARS] Eq7 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1])
+[ Info: [DEBUG-SI-VARS] Eq8 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_1, E_1, E_0, S1_2])
+[ Info: [DEBUG-SI-VARS] Eq9 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0, C2_0, E_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq10 has 5 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_1, C2_0, S1_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq11 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1])
+[ Info: [DEBUG-SI-VARS] Eq12 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_1, S0_2, E_1, S0_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq13 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq14 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_1])
+[ Info: [DEBUG-SI-VARS] Eq15 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_2, C2_1])
+[ Info: [DEBUG-SI-VARS] Final variables list (15): Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 15 equations, 15 variables
+[ Info: [RESOLVE] Instantiated system: 15 eqs, 15 state vars (square)
+[ Info: [RESOLVE] Variables: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [RESOLVE] Eq1 (1 vars): -1.5300057651981705e-5 - S1_0
+[ Info: [RESOLVE] Eq2 (4 vars): -(7633914//644888669)*C2_0 + S1_1 - (103807771//33985150)*E_0*S1_0
+[ Info: [RESOLVE] Eq3 (1 vars): 4.961012584143873 - S0_0
+[ Info: [RESOLVE] Eq4 (4 vars): -(157345471//51680199)*C1_0 + S0_1 + (13529592//13414099)*E_0*S0_0
+[ Info: [RESOLVE] Eq5 (1 vars): -0.0007900646008112133 - S2_0
+[ Info: [RESOLVE] Eq6 (2 vars): (123571417//38507222)*C2_0 + S2_1
+[ Info: [RESOLVE] Eq7 (1 vars): 0.012263441044677435 - S1_1
+[ Info: [RESOLVE] Eq8 (6 vars): -(7633914//644888669)*C2_1 + S1_2 - (103807771//33985150)*E_0*S1_1 - (103807771//33985150)*E_1*S1_0
+[ Info: [RESOLVE] Eq9 (6 vars): -(157345471//51680199)*C1_0 + (94544957//29571103)*C2_0 + E_1 + (13529592//13414099)*E_0*S0_0 - (103807771//33985150)*E_0*S1_0
+[ Info: [RESOLVE] Eq10 (5 vars): -(227756907//82450087)*C1_0 - (94544957//29571103)*C2_0 + C2_1 + (103807771//33985150)*E_0*S1_0
+[ Info: [RESOLVE] Eq11 (1 vars): -2.469206017584986 - S0_1
+[ Info: [RESOLVE] Eq12 (6 vars): -(157345471//51680199)*C1_1 + S0_2 + (13529592//13414099)*E_0*S0_1 + (13529592//13414099)*E_1*S0_0
+[ Info: [RESOLVE] Eq13 (4 vars): (86258898//14854399)*C1_0 + C1_1 - (13529592//13414099)*E_0*S0_0
+[ Info: [RESOLVE] Eq14 (1 vars): 0.9683983436663337 - S2_1
+[ Info: [RESOLVE] Eq15 (2 vars): (123571417//38507222)*C2_1 + S2_2
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 15 variables
+[ Info: [RESOLVE-MAP] sian_name_to_val: Dict("S0" => 4.961012584143873, "C2" => -0.3017714849380727, "C1" => -557.6972372820036, "S1" => -1.5300057651981705e-5, "S2" => -0.0007900646008112133, "E" => -338.84651519782085)
+[ Info: [RESOLVE-MAP] MTK unknowns: ["S0(t)", "C1(t)", "C2(t)", "S1(t)", "S2(t)", "E(t)"]
+[ Info: [RESOLVE] Re-running SIAN with 6 fixed parameters
+[ Info: [PRE-FIX] Substituting kf1 => -0.018973649578630805
+[ Info: [PRE-FIX] Substituting kr1 => 4.620876031130128
+[ Info: [PRE-FIX] Substituting kc1 => -4.145355503005812
+[ Info: [PRE-FIX] Substituting kf2 => -3.0545038347649593
+[ Info: [PRE-FIX] Substituting kr2 => -0.012184217908310157
+[ Info: [PRE-FIX] Substituting kc2 => 3.3030182913364183
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 6)
+[ Info: [RESOLVE] Fixed model: 0 remaining parameters (should be 0)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value 0.018973649578630805 will be converted to 14052584//740636847.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.620876031130128 will be converted to 223026041//48264883.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.018973649578630805 will be converted to -14052584//740636847.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.4755205281243162 will be converted to -64535132//135714713.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.2908340734281083 will be converted to -312496567//94959685.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -4.145355503005812 will be converted to -71397402//17223469.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -3.0545038347649593 will be converted to -210085481//68778922.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.012184217908310157 will be converted to -5400671//443251347.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.0545038347649593 will be converted to 210085481//68778922.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.3030182913364183 will be converted to 110760043//33532979.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.2908340734281083 will be converted to 312496567//94959685.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.018973649578630805 will be converted to 14052584//740636847.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.620876031130128 will be converted to 223026041//48264883.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 3.0545038347649593 will be converted to 210085481//68778922.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 18 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 18 equations, 15 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S1_1, S0_1, S2_1, S1_2, E_1, C2_1, S0_2, C1_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 4 variables: Nemo.QQMPolyRingElem[C2_0, S1_0, E_0, S1_1]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, S0_1]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 2 variables: Nemo.QQMPolyRingElem[C2_0, S2_1]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 6 variables: Nemo.QQMPolyRingElem[S1_0, E_0, C2_1, S1_1, E_1, S1_2]
+[ Info: [DEBUG-EQUATION] Eq9 has 6 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S0_0, S1_0, E_0, E_1]
+[ Info: [DEBUG-EQUATION] Eq10 has 5 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S1_0, E_0, C2_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq12 has 6 variables: Nemo.QQMPolyRingElem[S0_0, E_0, C1_1, S0_1, E_1, S0_2]
+[ Info: [DEBUG-EQUATION] Eq13 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, C1_1]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 2 variables: Nemo.QQMPolyRingElem[C2_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq18 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 18 equations, 15 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 6 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 15 variables (from 15)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 18 equations, 15 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (18, 15)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 15
+[ Info: [DEBUG-ALG-INDEP] Found 15 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 15 equations (current_rank=15)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 15 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [16, 17, 18]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq16: -S1_2 + y1_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq17: -S0_2 + y0_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq18: -S2_2 + y2_2
+[ Info: Reduced polynomial system to 15 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 15 equations for 15 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 21
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[C1_0, S0_1, S1_1, S0_2, C2_0, E_0, y0_0, S0_0, y2_1, S1_0, y0_1, C1_1, S2_1, S2_2, C2_1, S1_2, y1_0, y2_0, E_1, y1_1, S2_0])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 15 equations but 21 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y0_0, y2_1, y0_1, y1_0, y2_0, y1_1])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.035176936 seconds
+[ Info: No parameters, so Wronskian computation is not needed
+[ Info: Global identifiability assessed in 0.039385375 seconds
+[ Info: SI.jl found 15 template equations
+[ Info: Derivative variables: Any[y0_4, y1_6, y2_6, y0_0, y2_3, y0_5, y0_6, y0_7, y2_1, y1_7, y0_1, y1_4, y1_3, y0_3, y2_2, y2_7, y2_4, y2_5, y1_0, y2_0, y0_2, y1_5, y1_1, y1_2]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y0_4 => 4, y1_6 => 6, y2_6 => 6, y0_0 => 0, y2_3 => 3, y0_5 => 5, y0_6 => 6, y0_7 => 7, y2_1 => 1, y1_7 => 7, y0_1 => 1, y1_4 => 4, y1_3 => 3, y0_3 => 3, y2_2 => 2, y2_7 => 7, y2_4 => 4, y2_5 => 5, y1_0 => 0, y2_0 => 0, y0_2 => 2, y1_5 => 5, y1_1 => 1, y1_2 => 2)
+[ Info: Maximum derivative order needed: 7
+[ Info: Non-identifiable parameters: Set{Any}()
+┌ Warning: There are no parameters in the given ODE, thus no identifiabile
+│ functions.
+│ Use `find_identifiable_functions` with keyword `with_states=true` to
+│ compute the functions with the ODE states included.
+└ @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/gt3mc/src/identifiable_functions.jl:97
+[ Info: Identifiable functions of unidentifiable parameters: Nemo.QQMPolyRingElem[1]
+[ Info: Converting 15 polynomials from Nemo to Symbolics
+[ Info: [RESOLVE] SIAN re-run produced 15 template eqs, 24 deriv vars
+[ Info: [DEBUG-SI-VARS] Eq1 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0])
+[ Info: [DEBUG-SI-VARS] Eq2 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq3 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_0])
+[ Info: [DEBUG-SI-VARS] Eq4 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq5 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_0])
+[ Info: [DEBUG-SI-VARS] Eq6 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_0, S2_1])
+[ Info: [DEBUG-SI-VARS] Eq7 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1])
+[ Info: [DEBUG-SI-VARS] Eq8 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_1, E_1, E_0, S1_2])
+[ Info: [DEBUG-SI-VARS] Eq9 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0, C2_0, E_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq10 has 5 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_1, C2_0, S1_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq11 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1])
+[ Info: [DEBUG-SI-VARS] Eq12 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_1, S0_2, E_1, S0_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq13 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq14 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_1])
+[ Info: [DEBUG-SI-VARS] Eq15 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_2, C2_1])
+[ Info: [DEBUG-SI-VARS] Final variables list (15): Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 15 equations, 15 variables
+[ Info: [RESOLVE] Instantiated system: 15 eqs, 15 state vars (square)
+[ Info: [RESOLVE] Variables: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [RESOLVE] Eq1 (1 vars): -1.5300057651981705e-5 - S1_0
+[ Info: [RESOLVE] Eq2 (4 vars): (5400671//443251347)*C2_0 + S1_1 - (210085481//68778922)*E_0*S1_0
+[ Info: [RESOLVE] Eq3 (1 vars): 4.961012584143873 - S0_0
+[ Info: [RESOLVE] Eq4 (4 vars): -(223026041//48264883)*C1_0 + S0_1 - (14052584//740636847)*E_0*S0_0
+[ Info: [RESOLVE] Eq5 (1 vars): -0.0007900646008112133 - S2_0
+[ Info: [RESOLVE] Eq6 (2 vars): -(110760043//33532979)*C2_0 + S2_1
+[ Info: [RESOLVE] Eq7 (1 vars): 0.012263441044677435 - S1_1
+[ Info: [RESOLVE] Eq8 (6 vars): (5400671//443251347)*C2_1 + S1_2 - (210085481//68778922)*E_0*S1_1 - (210085481//68778922)*E_1*S1_0
+[ Info: [RESOLVE] Eq9 (6 vars): -(223026041//48264883)*C1_0 - (312496567//94959685)*C2_0 + E_1 - (14052584//740636847)*E_0*S0_0 - (210085481//68778922)*E_0*S1_0
+[ Info: [RESOLVE] Eq10 (5 vars): (71397402//17223469)*C1_0 + (312496567//94959685)*C2_0 + C2_1 + (210085481//68778922)*E_0*S1_0
+[ Info: [RESOLVE] Eq11 (1 vars): -2.469206017584986 - S0_1
+[ Info: [RESOLVE] Eq12 (6 vars): -(223026041//48264883)*C1_1 + S0_2 - (14052584//740636847)*E_0*S0_1 - (14052584//740636847)*E_1*S0_0
+[ Info: [RESOLVE] Eq13 (4 vars): (64535132//135714713)*C1_0 + C1_1 + (14052584//740636847)*E_0*S0_0
+[ Info: [RESOLVE] Eq14 (1 vars): 0.9683983436663337 - S2_1
+[ Info: [RESOLVE] Eq15 (2 vars): -(110760043//33532979)*C2_1 + S2_2
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 15 variables
+[ Info: [RESOLVE-MAP] sian_name_to_val: Dict("S0" => 4.961012584143873, "C2" => 0.2931858858324744, "C1" => 6.368037758321156, "S1" => -1.5300057651981705e-5, "S2" => -0.0007900646008112133, "E" => -338.84651519765544)
+[ Info: [RESOLVE-MAP] MTK unknowns: ["S0(t)", "C1(t)", "C2(t)", "S1(t)", "S2(t)", "E(t)"]
+[ Info: [RESOLVE] Re-running SIAN with 6 fixed parameters
+[ Info: [PRE-FIX] Substituting kf1 => 2.8893217415580112
+[ Info: [PRE-FIX] Substituting kr1 => -7.888974776217212
+[ Info: [PRE-FIX] Substituting kc1 => -6.582996813473351
+[ Info: [PRE-FIX] Substituting kf2 => 11.997355544036944
+[ Info: [PRE-FIX] Substituting kr2 => 0.017002272962263153
+[ Info: [PRE-FIX] Substituting kc2 => 4.511824780960908
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 6)
+[ Info: [RESOLVE] Fixed model: 0 remaining parameters (should be 0)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -2.8893217415580112 will be converted to -160543585//55564454.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -7.888974776217212 will be converted to -149382952//18935661.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 2.8893217415580112 will be converted to 160543585//55564454.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 14.471971589690565 will be converted to 29084220//2009693.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -4.528827053923171 will be converted to -146624331//32375785.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -6.582996813473351 will be converted to -150501770//22862197.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 11.997355544036944 will be converted to 156651007//13057128.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.017002272962263153 will be converted to 15539954//913992737.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -11.997355544036944 will be converted to -156651007//13057128.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.511824780960908 will be converted to 72284969//16021227.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 4.528827053923171 will be converted to 146624331//32375785.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -2.8893217415580112 will be converted to -160543585//55564454.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -7.888974776217212 will be converted to -149382952//18935661.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -11.997355544036944 will be converted to -156651007//13057128.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 18 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 18 equations, 15 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S1_1, S0_1, S2_1, S1_2, E_1, C2_1, S0_2, C1_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 4 variables: Nemo.QQMPolyRingElem[C2_0, S1_0, E_0, S1_1]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, S0_1]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 2 variables: Nemo.QQMPolyRingElem[C2_0, S2_1]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 6 variables: Nemo.QQMPolyRingElem[S1_0, E_0, C2_1, S1_1, E_1, S1_2]
+[ Info: [DEBUG-EQUATION] Eq9 has 6 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S0_0, S1_0, E_0, E_1]
+[ Info: [DEBUG-EQUATION] Eq10 has 5 variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S1_0, E_0, C2_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq12 has 6 variables: Nemo.QQMPolyRingElem[S0_0, E_0, C1_1, S0_1, E_1, S0_2]
+[ Info: [DEBUG-EQUATION] Eq13 has 4 variables: Nemo.QQMPolyRingElem[C1_0, S0_0, E_0, C1_1]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 2 variables: Nemo.QQMPolyRingElem[C2_1, S2_2]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq18 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 18 equations, 15 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 6 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 15 variables (from 15)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[C1_0, C2_0, S2_0, S0_0, S1_0, E_0, S2_2, C1_1, S0_2, C2_1, E_1, S1_2, S2_1, S0_1, S1_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 18 equations, 15 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (18, 15)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 15
+[ Info: [DEBUG-ALG-INDEP] Found 15 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 15 equations (current_rank=15)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 15 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [16, 17, 18]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq16: -S1_2 + y1_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq17: -S0_2 + y0_2
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq18: -S2_2 + y2_2
+[ Info: Reduced polynomial system to 15 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 15 equations for 15 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 21
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[C1_0, S0_1, S1_1, S0_2, C2_0, E_0, y0_0, S0_0, y2_1, S1_0, y0_1, C1_1, S2_1, S2_2, C2_1, S1_2, y1_0, y2_0, E_1, y1_1, S2_0])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 15 equations but 21 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y0_0, y2_1, y0_1, y1_0, y2_0, y1_1])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.031387633 seconds
+[ Info: No parameters, so Wronskian computation is not needed
+[ Info: Global identifiability assessed in 0.035738216 seconds
+[ Info: SI.jl found 15 template equations
+[ Info: Derivative variables: Any[y0_4, y1_6, y2_6, y0_0, y2_3, y0_5, y0_6, y0_7, y2_1, y1_7, y0_1, y1_4, y1_3, y0_3, y2_2, y2_7, y2_4, y2_5, y1_0, y2_0, y0_2, y1_5, y1_1, y1_2]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y0_4 => 4, y1_6 => 6, y2_6 => 6, y0_0 => 0, y2_3 => 3, y0_5 => 5, y0_6 => 6, y0_7 => 7, y2_1 => 1, y1_7 => 7, y0_1 => 1, y1_4 => 4, y1_3 => 3, y0_3 => 3, y2_2 => 2, y2_7 => 7, y2_4 => 4, y2_5 => 5, y1_0 => 0, y2_0 => 0, y0_2 => 2, y1_5 => 5, y1_1 => 1, y1_2 => 2)
+[ Info: Maximum derivative order needed: 7
+[ Info: Non-identifiable parameters: Set{Any}()
+┌ Warning: There are no parameters in the given ODE, thus no identifiabile
+│ functions.
+│ Use `find_identifiable_functions` with keyword `with_states=true` to
+│ compute the functions with the ODE states included.
+└ @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/gt3mc/src/identifiable_functions.jl:97
+[ Info: Identifiable functions of unidentifiable parameters: Nemo.QQMPolyRingElem[1]
+[ Info: Converting 15 polynomials from Nemo to Symbolics
+[ Info: [RESOLVE] SIAN re-run produced 15 template eqs, 24 deriv vars
+[ Info: [DEBUG-SI-VARS] Eq1 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0])
+[ Info: [DEBUG-SI-VARS] Eq2 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq3 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_0])
+[ Info: [DEBUG-SI-VARS] Eq4 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq5 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_0])
+[ Info: [DEBUG-SI-VARS] Eq6 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_0, S2_1])
+[ Info: [DEBUG-SI-VARS] Eq7 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1])
+[ Info: [DEBUG-SI-VARS] Eq8 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_1, S1_0, C2_1, E_1, E_0, S1_2])
+[ Info: [DEBUG-SI-VARS] Eq9 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S1_0, C2_0, E_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq10 has 5 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C2_1, C2_0, S1_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq11 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S0_1])
+[ Info: [DEBUG-SI-VARS] Eq12 has 6 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_1, S0_2, E_1, S0_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq13 has 4 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[C1_1, S0_0, C1_0, E_0])
+[ Info: [DEBUG-SI-VARS] Eq14 has 1 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_1])
+[ Info: [DEBUG-SI-VARS] Eq15 has 2 variables: Set(SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}[S2_2, C2_1])
+[ Info: [DEBUG-SI-VARS] Final variables list (15): Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 15 equations, 15 variables
+[ Info: [RESOLVE] Instantiated system: 15 eqs, 15 state vars (square)
+[ Info: [RESOLVE] Variables: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[ Info: [RESOLVE] Eq1 (1 vars): -1.5300057651981705e-5 - S1_0
+[ Info: [RESOLVE] Eq2 (4 vars): -(15539954//913992737)*C2_0 + S1_1 + (156651007//13057128)*E_0*S1_0
+[ Info: [RESOLVE] Eq3 (1 vars): 4.961012584143873 - S0_0
+[ Info: [RESOLVE] Eq4 (4 vars): (149382952//18935661)*C1_0 + S0_1 + (160543585//55564454)*E_0*S0_0
+[ Info: [RESOLVE] Eq5 (1 vars): -0.0007900646008112133 - S2_0
+[ Info: [RESOLVE] Eq6 (2 vars): -(72284969//16021227)*C2_0 + S2_1
+[ Info: [RESOLVE] Eq7 (1 vars): 0.012263441044677435 - S1_1
+[ Info: [RESOLVE] Eq8 (6 vars): -(15539954//913992737)*C2_1 + S1_2 + (156651007//13057128)*E_0*S1_1 + (156651007//13057128)*E_1*S1_0
+[ Info: [RESOLVE] Eq9 (6 vars): (149382952//18935661)*C1_0 - (146624331//32375785)*C2_0 + E_1 + (160543585//55564454)*E_0*S0_0 + (156651007//13057128)*E_0*S1_0
+[ Info: [RESOLVE] Eq10 (5 vars): (150501770//22862197)*C1_0 + (146624331//32375785)*C2_0 + C2_1 - (156651007//13057128)*E_0*S1_0
+[ Info: [RESOLVE] Eq11 (1 vars): -2.469206017584986 - S0_1
+[ Info: [RESOLVE] Eq12 (6 vars): (149382952//18935661)*C1_1 + S0_2 + (160543585//55564454)*E_0*S0_1 + (160543585//55564454)*E_1*S0_0
+[ Info: [RESOLVE] Eq13 (4 vars): -(29084220//2009693)*C1_0 + C1_1 - (160543585//55564454)*E_0*S0_0
+[ Info: [RESOLVE] Eq14 (1 vars): 0.9683983436663337 - S2_1
+[ Info: [RESOLVE] Eq15 (2 vars): -(72284969//16021227)*C2_1 + S2_2
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 15 variables
+[ Info: [RESOLVE-MAP] sian_name_to_val: Dict("S0" => 4.961012584143873, "C2" => 0.21463562764068342, "C1" => -84.95368966915206, "S1" => -1.5300057651981705e-5, "S2" => -0.0007900646008112133, "E" => 46.92817962770108)
+[ Info: [RESOLVE-MAP] MTK unknowns: ["S0(t)", "C1(t)", "C2(t)", "S1(t)", "S2(t)", "E(t)"]
+┌ Warning: Verbosity toggle: max_iters 
+│  Interrupted. Larger maxiters is needed. If you are using an integrator for non-stiff ODEs or an automatic switching algorithm (the default), you may want to consider using a method for stiff equations. See the solver pages for more details (e.g. https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Stiff-Problems).
+└ @ SciMLBase ~/.julia/packages/SciMLBase/obTYa/src/integrator_interface.jl:635
+[ Info: [RESOLVE-RESULT] Candidate 1: err=1.0e15, max_abs_IC=3040.991124040732, states=Dict("C1(t)" => 3041.0, "C2(t)" => -0.243, "S1(t)" => -1.53e-5, "S2(t)" => -0.0007901, "S0(t)" => 4.961, "E(t)" => 2028.0)
+[ Info: [RESOLVE-RESULT] Candidate 2: err=1.0e15, max_abs_IC=2027.6580466450962, states=Dict("C1(t)" => -60.56, "C2(t)" => 0.2859, "S1(t)" => -1.53e-5, "S2(t)" => -0.0007901, "S0(t)" => 4.961, "E(t)" => 2028.0)
+[ Info: [RESOLVE-RESULT] Candidate 3: err=514.7964151831441, max_abs_IC=557.6972372820036, states=Dict("C1(t)" => -557.7, "C2(t)" => -0.3018, "S1(t)" => -1.53e-5, "S2(t)" => -0.0007901, "S0(t)" => 4.961, "E(t)" => -338.8)
+[ Info: [RESOLVE-RESULT] Candidate 4: err=2.4026079911631e32, max_abs_IC=338.84651519765544, states=Dict("C1(t)" => 6.368, "C2(t)" => 0.2932, "S1(t)" => -1.53e-5, "S2(t)" => -0.0007901, "S0(t)" => 4.961, "E(t)" => -338.8)
+[ Info: [RESOLVE-RESULT] Candidate 5: err=1.0e15, max_abs_IC=84.95368966915206, states=Dict("C1(t)" => -84.95, "C2(t)" => 0.2146, "S1(t)" => -1.53e-5, "S2(t)" => -0.0007901, "S0(t)" => 4.961, "E(t)" => 46.93)
+Starting model: test
+Using NEW optimized parameter estimation flow
+Phase 3: Solving at 8 shooting points using PARAMETER HOMOTOPY...
+
+=== Using Parameter Homotopy for 8 shooting points ===
+  Data variables (HC parameters): 39
+    1. y0(t)
+    2. y1(t)
+    3. y2(t)
+    4. Differential(t, 1)(y0(t))
+    5. Differential(t, 1)(y1(t))
+    6. Differential(t, 1)(y2(t))
+    7. Differential(t, 2)(y0(t))
+    8. Differential(t, 2)(y1(t))
+    9. Differential(t, 2)(y2(t))
+    10. Differential(t, 3)(y0(t))
+    11. Differential(t, 3)(y1(t))
+    12. Differential(t, 3)(y2(t))
+    13. Differential(t, 4)(y0(t))
+    14. Differential(t, 4)(y1(t))
+    15. Differential(t, 4)(y2(t))
+    16. Differential(t, 5)(y0(t))
+    17. Differential(t, 5)(y1(t))
+    18. Differential(t, 5)(y2(t))
+    19. Differential(t, 6)(y0(t))
+    20. Differential(t, 6)(y1(t))
+    21. Differential(t, 6)(y2(t))
+    22. Differential(t, 7)(y0(t))
+    23. Differential(t, 7)(y1(t))
+    24. Differential(t, 7)(y2(t))
+    25. Differential(t, 8)(y0(t))
+    26. Differential(t, 8)(y1(t))
+    27. Differential(t, 8)(y2(t))
+    28. Differential(t, 9)(y0(t))
+    29. Differential(t, 9)(y1(t))
+    30. Differential(t, 9)(y2(t))
+    31. Differential(t, 10)(y0(t))
+    32. Differential(t, 10)(y1(t))
+    33. Differential(t, 10)(y2(t))
+    34. Differential(t, 11)(y0(t))
+    35. Differential(t, 11)(y1(t))
+    36. Differential(t, 11)(y2(t))
+    37. Differential(t, 12)(y0(t))
+    38. Differential(t, 12)(y1(t))
+    39. Differential(t, 12)(y2(t))
+  Solve variables (HC variables): 33
+    1. S2_0
+    2. C2_0
+    3. kc2_0
+    4. S2_1
+    5. S0_0
+    6. S0_1
+    7. kr1_0
+    8. kf1_0
+    9. C1_0
+    10. E_0
+    11. S1_0
+    12. S1_1
+    13. kr2_0
+    14. kf2_0
+    15. S2_2
+    16. C2_1
+    17. kc1_0
+    18. C1_1
+    19. S0_2
+    20. E_1
+    21. S1_2
+    22. C2_2
+    23. S2_3
+    24. S0_3
+    25. C1_2
+    26. E_2
+    27. S1_3
+    28. C2_3
+    29. S2_4
+    30. S0_4
+    31. C1_3
+    32. E_3
+    33. S1_4
+  Data variables (HC parameters): 39
+  Template equations: 33
+  Point 1 (t=0.0): 39 parameter values (39 obs + 0 trfn)
+  Point 144 (t=2.8628628628628627): 39 parameter values (39 obs + 0 trfn)
+  Point 286 (t=5.7057057057057055): 39 parameter values (39 obs + 0 trfn)
+  Point 429 (t=8.568568568568569): 39 parameter values (39 obs + 0 trfn)
+  Point 572 (t=11.431431431431431): 39 parameter values (39 obs + 0 trfn)
+  Point 715 (t=14.294294294294295): 39 parameter values (39 obs + 0 trfn)
+  Point 857 (t=17.137137137137138): 39 parameter values (39 obs + 0 trfn)
+  Point 1000 (t=20.0): 39 parameter values (39 obs + 0 trfn)
+[HC-PARAM] Point 1: Fresh solve with 39 parameters
+[HC-PARAM] Point 1: Fresh solve found 2 total solutions (0 real)
+[HC-PARAM] Point 2: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 2: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 3: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 3: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 4: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 4: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 5: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 5: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 6: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 6: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 7: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 7: Fallback fresh solve found 2 solutions
+[HC-PARAM] Point 8: Parameter homotopy tracking 2 solutions
+[HC-PARAM] Point 8: Fallback fresh solve found 2 solutions
+
+  Point 1: 0 real solutions
+
+  Point 144: 0 real solutions
+
+  Point 286: 0 real solutions
+
+  Point 429: 2 real solutions
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 4.1945558700474136e-17
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 4.1945558700474136e-17
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 4.5472172455596147e-17
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 4.5472172455596147e-17
+
+  Point 572: 2 real solutions
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 8.682125150073784e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 8.682125150073784e-18
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 9.796135347333305e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 9.796135347333305e-18
+
+  Point 715: 2 real solutions
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 7.992667873923729e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 7.992667873923729e-18
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 5.9327626642988976e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 5.9327626642988976e-18
+
+  Point 857: 2 real solutions
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 3.754932258171722e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 3.754932258171722e-18
+[ROBUST] System: 33 equations, 33 variables
+[ROBUST] Polish mode: true
+[ROBUST] Algorithm: auto
+[ROBUST] Jacobian: symbolic
+[ROBUST] Building symbolic Jacobian...
+[ROBUST] ✓ Symbolic Jacobian built successfully
+[ROBUST] Found solution with residual: 2.5132346755167015e-18
+[ROBUST] Found 1 unique solution(s)
+[ROBUST] Best residual: 2.5132346755167015e-18
+
+  Point 1000: 0 real solutions
+
+=== Parameter Homotopy complete: 8 total solutions ===
+Found 8 solutions total
+
+[ODEPE SOLUTIONS]:
+Solution 1: OrderedDict{Num, Float64}(S0(t) => 0.03994211368997566, C1(t) => 3.3819595551241754e-5, C2(t) => 0.6929996568281953, S1(t) => 103.19861922645727, S2(t) => -98.93150760639851, E(t) => -0.04989084967984669, kf1 => 0.8347714802336093, kr1 => -22.65346751759256, kc1 => -26.616881468540527, kf2 => -1.125451657779452, kr2 => -0.013874532261111136, kc2 => 8.369795968488885)
+Solution 2: OrderedDict{Num, Float64}(S0(t) => 4.934984303322239, C1(t) => 0.21230350501161366, C2(t) => -0.1093808209724225, S1(t) => 0.002416589560414222, S2(t) => -0.04022207135479376, E(t) => 0.5402342380991199, kf1 => -1.177860635147146, kr1 => -20.57946948731531, kc1 => 5.9985107095166095, kf2 => -1.125451657779452, kr2 => 0.018958604001658278, kc2 => -11.436756523030269)
+Solution 3: OrderedDict{Num, Float64}(S0(t) => -2.514583466794621e114, C1(t) => 2.514583466796343e114, C2(t) => 1.788225232572829e103, S1(t) => -2.0758281061150194e103, S2(t) => 3.1783571174866933e91, E(t) => -2.514583466814356e114, kf1 => 0.8307707949882797, kr1 => 2.747279042887484, kc1 => 3.2086090897228465, kf2 => 0.3964007402395096, kr2 => 0.00014078492120020146, kc2 => -3.9850196055262903)
+Solution 4: OrderedDict{Num, Float64}(S0(t) => 5.682307315732792e95, C1(t) => -5.704103469971258e95, C2(t) => -3.251238558937949e113, S1(t) => 3.2498945334854544e113, S2(t) => 5.639005774831203e99, E(t) => 3.251134468185473e113, kf1 => -0.02931827689555194, kr1 => 4.9107456175669535, kc1 => -4.308872838120523, kf2 => 0.3964007402395096, kr2 => -0.00011964871898624985, kc2 => 3.386744026785939)
+Solution 5: OrderedDict{Num, Float64}(S0(t) => -1.55917326500399e115, C1(t) => 1.5591732650052332e115, C2(t) => -1.5266515267536383e103, S1(t) => -1.5207604359055987e88, S2(t) => -3.490690728958604e91, E(t) => -1.5591732650040095e115, kf1 => 1.0086098216510853, kr1 => 3.0445987833754278, kc1 => 2.762361026981087, kf2 => -3.054503834763125, kr2 => 0.01183756881918482, kc2 => -3.209045227931529)
+Solution 6: OrderedDict{Num, Float64}(S0(t) => 1.0681832588073076e-28, C1(t) => -8.38666926849651e-17, C2(t) => -1.9121290151343766e14, S1(t) => -0.003988935214169629, S2(t) => 1.9121290151344188e14, E(t) => 1.912129015134383e14, kf1 => -0.018973649578630805, kr1 => 4.620876031130128, kc1 => -4.145355503005812, kf2 => -3.0545038347649593, kr2 => -0.012184217908310157, kc2 => 3.3030182913364183)
+Solution 7: OrderedDict{Num, Float64}(S0(t) => -3.4344805464626164e-27, C1(t) => -8.078403991571526e-17, C2(t) => 4.798039599479278e23, S1(t) => -4.139540087607224e9, S2(t) => 1.2100581330478514e24, E(t) => -1.9255294178293618e24, kf1 => 2.8893217415580112, kr1 => -7.888974776217212, kc1 => -6.582996813473351, kf2 => 11.997355544036944, kr2 => 0.017002272962263153, kc2 => 4.511824780960908)
+Solution 8: OrderedDict{Num, Float64}(S0(t) => 0.586087065785696, C1(t) => 0.0011106407673662823, C2(t) => 0.2062348319414499, S1(t) => -32.120578383709734, S2(t) => 36.32712513437879, E(t) => 0.009883773227263594, kf1 => -2.6626545630203284, kr1 => -21.488365762010897, kc1 => 7.5019327571101435, kf2 => 11.997355544036623, kr2 => -0.06916082542443341, kc2 => -18.35293002966433)
+Detected 5/8 blown backsolves, attempting algebraic re-solve at t=0
+  5 unique parameter set(s) to re-solve
+[DEBUG-SI] Max derivative order required by template: 7
+[DEBUG-SI] Created interpolated_values_dict with 24 entries (including 0 _trfn_ vars)
+[DEBUG-SI] Substitution key sample (up to 5): Any[Differential(t, 1)(y2(t)), Differential(t, 4)(y0(t)), y2(t), Differential(t, 6)(y2(t)), Differential(t, 2)(y0(t))]
+[DEBUG-SI] Before substitution (Eq1): -S1_0 + y1(t)
+[DEBUG-SI] After substitution (Eq1): -1.5300057651981705e-5 - S1_0
+[DEBUG-SI] Extracted 15 variables from substituted system: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[DEBUG-SI] Max derivative order required by template: 7
+[DEBUG-SI] Created interpolated_values_dict with 24 entries (including 0 _trfn_ vars)
+[DEBUG-SI] Substitution key sample (up to 5): Any[Differential(t, 1)(y2(t)), Differential(t, 4)(y0(t)), y2(t), Differential(t, 6)(y2(t)), Differential(t, 2)(y0(t))]
+[DEBUG-SI] Before substitution (Eq1): -S1_0 + y1(t)
+[DEBUG-SI] After substitution (Eq1): -1.5300057651981705e-5 - S1_0
+[DEBUG-SI] Extracted 15 variables from substituted system: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[DEBUG-SI] Max derivative order required by template: 7
+[DEBUG-SI] Created interpolated_values_dict with 24 entries (including 0 _trfn_ vars)
+[DEBUG-SI] Substitution key sample (up to 5): Any[Differential(t, 1)(y2(t)), Differential(t, 4)(y0(t)), y2(t), Differential(t, 6)(y2(t)), Differential(t, 2)(y0(t))]
+[DEBUG-SI] Before substitution (Eq1): -S1_0 + y1(t)
+[DEBUG-SI] After substitution (Eq1): -1.5300057651981705e-5 - S1_0
+[DEBUG-SI] Extracted 15 variables from substituted system: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[DEBUG-SI] Max derivative order required by template: 7
+[DEBUG-SI] Created interpolated_values_dict with 24 entries (including 0 _trfn_ vars)
+[DEBUG-SI] Substitution key sample (up to 5): Any[Differential(t, 1)(y2(t)), Differential(t, 4)(y0(t)), y2(t), Differential(t, 6)(y2(t)), Differential(t, 2)(y0(t))]
+[DEBUG-SI] Before substitution (Eq1): -S1_0 + y1(t)
+[DEBUG-SI] After substitution (Eq1): -1.5300057651981705e-5 - S1_0
+[DEBUG-SI] Extracted 15 variables from substituted system: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+[DEBUG-SI] Max derivative order required by template: 7
+[DEBUG-SI] Created interpolated_values_dict with 24 entries (including 0 _trfn_ vars)
+[DEBUG-SI] Substitution key sample (up to 5): Any[Differential(t, 1)(y2(t)), Differential(t, 4)(y0(t)), y2(t), Differential(t, 6)(y2(t)), Differential(t, 2)(y0(t))]
+[DEBUG-SI] Before substitution (Eq1): -S1_0 + y1(t)
+[DEBUG-SI] After substitution (Eq1): -1.5300057651981705e-5 - S1_0
+[DEBUG-SI] Extracted 15 variables from substituted system: Any[S1_0, S1_1, C2_0, E_0, S0_0, S0_1, C1_0, S2_0, S2_1, C2_1, E_1, S1_2, C1_1, S0_2, S2_2]
+  After re-solve: 8 total candidates (5 from re-solve)
+
+Unidentifiability Analysis from multipoint_parameter_estimation:
+All unidentifiable variables: Set{Any}()
+Unidentifiable variables substitution dictionary: Dict{Any, Any}()
+Trivially solvable variables: Dict{Any, Any}()
+
+=== Model: test ===
+
+Found 8 distinct solution clusters:
+
+Cluster 1: 1 similar solutions
+Best solution (Error: 2.4026079911631e32):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.961013 |   0.007797
+C1(t)        |   0.000000 |   6.368038 |   6.368038
+C2(t)        |   0.000000 |   0.293186 |   0.293186
+S1(t)        |   0.000000 |  -0.000015 |   0.000015
+S2(t)        |   0.000000 |  -0.000790 |   0.000790
+E(t)         |   0.650000 | -338.846515 | 522.302331
+kf1          |  11.500000 |  -0.018974 |   1.001650
+kr1          | 300.000000 |   4.620876 |   0.984597
+kc1          |  12.450000 |  -4.145356 |   1.332960
+kf2          |  11.150000 |  -3.054504 |   1.273947
+kr2          |   4.864000 |  -0.012184 |   1.002505
+kc2          | 428.130000 |   3.303018 |   0.992285
+
+
+Cluster 2: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   0.039942 |   0.992012
+C1(t)        |   0.000000 |   0.000034 |   0.000034
+C2(t)        |   0.000000 |   0.693000 |   0.693000
+S1(t)        |   0.000000 | 103.198619 | 103.198619
+S2(t)        |   0.000000 | -98.931508 |  98.931508
+E(t)         |   0.650000 |  -0.049891 |   1.076755
+kf1          |  11.500000 |   0.834771 |   0.927411
+kr1          | 300.000000 | -22.653468 |   1.075512
+kc1          |  12.450000 | -26.616881 |   3.137902
+kf2          |  11.150000 |  -1.125452 |   1.100937
+kr2          |   4.864000 |  -0.013875 |   1.002852
+kc2          | 428.130000 |   8.369796 |   0.980450
+
+
+Cluster 3: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.934984 |   0.013003
+C1(t)        |   0.000000 |   0.212304 |   0.212304
+C2(t)        |   0.000000 |  -0.109381 |   0.109381
+S1(t)        |   0.000000 |   0.002417 |   0.002417
+S2(t)        |   0.000000 |  -0.040222 |   0.040222
+E(t)         |   0.650000 |   0.540234 |   0.168870
+kf1          |  11.500000 |  -1.177861 |   1.102423
+kr1          | 300.000000 | -20.579469 |   1.068598
+kc1          |  12.450000 |   5.998511 |   0.518192
+kf2          |  11.150000 |  -1.125452 |   1.100937
+kr2          |   4.864000 |   0.018959 |   0.996102
+kc2          | 428.130000 | -11.436757 |   1.026713
+
+
+Cluster 4: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   0.586087 |   0.882783
+C1(t)        |   0.000000 |   0.001111 |   0.001111
+C2(t)        |   0.000000 |   0.206235 |   0.206235
+S1(t)        |   0.000000 | -32.120578 |  32.120578
+S2(t)        |   0.000000 |  36.327125 |  36.327125
+E(t)         |   0.650000 |   0.009884 |   0.984794
+kf1          |  11.500000 |  -2.662655 |   1.231535
+kr1          | 300.000000 | -21.488366 |   1.071628
+kc1          |  12.450000 |   7.501933 |   0.397435
+kf2          |  11.150000 |  11.997356 |   0.075996
+kr2          |   4.864000 |  -0.069161 |   1.014219
+kc2          | 428.130000 | -18.352930 |   1.042868
+
+
+Cluster 5: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.961013 |   0.007797
+C1(t)        |   0.000000 | 3040.991124 | 3040.991124
+C2(t)        |   0.000000 |  -0.243010 |   0.243010
+S1(t)        |   0.000000 |  -0.000015 |   0.000015
+S2(t)        |   0.000000 |  -0.000790 |   0.000790
+E(t)         |   0.650000 | 2027.658047 | 3118.473918
+kf1          |  11.500000 |   0.830771 |   0.927759
+kr1          | 300.000000 |   2.747279 |   0.990842
+kc1          |  12.450000 |   3.208609 |   0.742280
+kf2          |  11.150000 |   0.396401 |   0.964448
+kr2          |   4.864000 |   0.000141 |   0.999971
+kc2          | 428.130000 |  -3.985020 |   1.009308
+
+
+Cluster 6: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.961013 |   0.007797
+C1(t)        |   0.000000 | -60.558768 |  60.558768
+C2(t)        |   0.000000 |   0.285938 |   0.285938
+S1(t)        |   0.000000 |  -0.000015 |   0.000015
+S2(t)        |   0.000000 |  -0.000790 |   0.000790
+E(t)         |   0.650000 | 2027.658047 | 3118.473918
+kf1          |  11.500000 |  -0.029318 |   1.002549
+kr1          | 300.000000 |   4.910746 |   0.983631
+kc1          |  12.450000 |  -4.308873 |   1.346094
+kf2          |  11.150000 |   0.396401 |   0.964448
+kr2          |   4.864000 |  -0.000120 |   1.000025
+kc2          | 428.130000 |   3.386744 |   0.992089
+
+
+Cluster 7: 1 similar solutions
+Best solution (Error: 1.0e15):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.961013 |   0.007797
+C1(t)        |   0.000000 | -84.953690 |  84.953690
+C2(t)        |   0.000000 |   0.214636 |   0.214636
+S1(t)        |   0.000000 |  -0.000015 |   0.000015
+S2(t)        |   0.000000 |  -0.000790 |   0.000790
+E(t)         |   0.650000 |  46.928180 |  71.197199
+kf1          |  11.500000 |   2.889322 |   0.748755
+kr1          | 300.000000 |  -7.888975 |   1.026297
+kc1          |  12.450000 |  -6.582997 |   1.528755
+kf2          |  11.150000 |  11.997356 |   0.075996
+kr2          |   4.864000 |   0.017002 |   0.996504
+kc2          | 428.130000 |   4.511825 |   0.989462
+
+
+Cluster 8: 1 similar solutions
+Best solution (Error: 514.796415):
+--------------------------------------------------
+Variable     | True Value  | Estimated   | Rel. Error
+-----------------------------------------------------
+S0(t)        |   5.000000 |   4.961013 |   0.007797
+C1(t)        |   0.000000 | -557.697237 | 557.697237
+C2(t)        |   0.000000 |  -0.301771 |   0.301771
+S1(t)        |   0.000000 |  -0.000015 |   0.000015
+S2(t)        |   0.000000 |  -0.000790 |   0.000790
+E(t)         |   0.650000 | -338.846515 | 522.302331
+kf1          |  11.500000 |   1.008610 |   0.912295
+kr1          | 300.000000 |   3.044599 |   0.989851
+kc1          |  12.450000 |   2.762361 |   0.778124
+kf2          |  11.150000 |  -3.054504 |   1.273947
+kr2          |   4.864000 |   0.011838 |   0.997566
+kc2          | 428.130000 |  -3.209045 |   1.007495
+
+
+Best approximation error for test: 514.796415
+
+Best maximum relative error for test (excluding ALL unidentifiable parameters): 1.102423
+Best minimum relative error: 1.5e-5
+Best mean relative error: 0.52993
+Best median relative error: 0.365248
+Best maximum relative error: 1.102423
+Best RMS relative error: 0.705427

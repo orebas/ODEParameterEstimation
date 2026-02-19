@@ -260,5 +260,278 @@ function construct_equation_system_from_si_template(
 	return kept_equations, collect(final_vars)
 end
 
+"""
+	resolve_states_with_fixed_params(
+		model, measured_quantities, data_sample,
+		deriv_level, unident_dict, varlist, DD,
+		known_param_dict, interpolants;
+		si_template, time_index, diagnostics
+	)
+
+Re-solve for unknown state initial conditions at a specific time point,
+with parameter values fixed from a previous shooting-point solution.
+
+This is the algebraic fallback for when backward ODE integration (backsolving)
+fails due to stiff eigenvalues amplifying numerical errors.
+
+**Approach**: Re-run SIAN with all parameters pre-fixed at the model level,
+so SIAN generates a purpose-built polynomial system where the only unknowns
+are state derivative variables. This produces a square system (N eqs = N vars),
+unlike post-hoc parameter substitution which creates an overdetermined system
+with numerically inconsistent redundant equations.
+
+Returns `(state_solutions, state_vars)` where:
+- `state_solutions::Vector{Vector{Float64}}` — each inner vector has values
+  in the same order as `state_vars`
+- `state_vars::Vector` — the Symbolics variables for states in the reduced system
+"""
+function resolve_states_with_fixed_params(
+	model::ModelingToolkit.AbstractSystem,
+	measured_quantities,
+	data_sample,
+	deriv_level,
+	unident_dict,
+	varlist,
+	DD,
+	known_param_dict::OrderedDict,
+	interpolants;
+	si_template = nothing,  # ignored — we generate a fresh template via SIAN re-run
+	time_index::Int = 1,
+	diagnostics::Bool = false,
+)
+	@info "[RESOLVE] Re-running SIAN with $(length(known_param_dict)) fixed parameters"
+
+	# Step 1: Build OrderedODESystem for the original model
+	model_states = ModelingToolkit.unknowns(model)
+	model_params = ModelingToolkit.parameters(model)
+	ordered_model = if isa(model, ODEParameterEstimation.OrderedODESystem)
+		model
+	else
+		ODEParameterEstimation.OrderedODESystem(model, model_states, model_params)
+	end
+
+	# Step 2: Apply all parameters as pre-fixed → model with 0 parameters, values baked in
+	fixed_model, fixed_mq = apply_prefixed_params_to_model(ordered_model, measured_quantities, known_param_dict)
+
+	if diagnostics
+		fixed_sys = isa(fixed_model, ODEParameterEstimation.OrderedODESystem) ? fixed_model.system : fixed_model
+		n_remaining = length(ModelingToolkit.parameters(fixed_sys))
+		@info "[RESOLVE] Fixed model: $(n_remaining) remaining parameters (should be 0)"
+	end
+
+	# Step 3: Re-run SIAN on the parameter-free model → template with only state unknowns
+	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs = get_si_equation_system(
+		fixed_model, fixed_mq, data_sample;
+		DD = DD,
+		infolevel = diagnostics ? 1 : 0,
+	)
+
+	if isempty(new_template_eqs)
+		@warn "[RESOLVE] SIAN re-run produced no template equations"
+		return Vector{Float64}[], Any[]
+	end
+
+	new_si_template = (
+		equations = new_template_eqs,
+		deriv_dict = new_deriv_dict,
+		unidentifiable = new_unident,
+		identifiable_funcs = new_id_funcs,
+	)
+
+	@info "[RESOLVE] SIAN re-run produced $(length(new_template_eqs)) template eqs, $(length(new_deriv_dict)) deriv vars"
+
+	# Step 4: Instantiate at t=0 using the new template
+	# Use ORIGINAL model for unpack_ODE (DD is tied to original model's observables)
+	# but the NEW si_template for equations (parameters already baked in)
+	equations, template_vars = construct_equation_system_from_si_template(
+		model,
+		measured_quantities,
+		data_sample,
+		deriv_level,
+		OrderedDict(),  # empty unident_dict — all params fixed, nothing unidentifiable
+		varlist,
+		DD;
+		interpolator = :AAA,  # unused — precomputed_interpolants provided
+		time_index_set = [time_index],
+		precomputed_interpolants = interpolants,
+		diagnostics = diagnostics,
+		si_template = new_si_template,
+	)
+
+	if isempty(equations)
+		@warn "[RESOLVE] No equations after template instantiation at time_index=$time_index"
+		return Vector{Float64}[], Any[]
+	end
+
+	n_eqs = length(equations)
+	n_vars = length(template_vars)
+	@info "[RESOLVE] Instantiated system: $n_eqs eqs, $n_vars state vars" * (n_eqs == n_vars ? " (square)" : " (NOT square)")
+
+	if diagnostics
+		@info "[RESOLVE] Variables: $(template_vars)"
+		for (i, eq) in enumerate(equations)
+			eq_vars = Symbolics.get_variables(eq)
+			@info "[RESOLVE] Eq$i ($(length(eq_vars)) vars): $eq"
+		end
+	end
+
+	# Step 5: Try HC.jl first — square systems are HC.jl's sweet spot
+	state_vars = template_vars
+	solutions = Vector{Float64}[]
+
+	if n_eqs == n_vars && n_vars > 0
+		@info "[RESOLVE] Solving square system with HC.jl"
+		solutions, _, _, _ = solve_with_hc(equations, state_vars)
+		if isempty(solutions)
+			@warn "[RESOLVE] HC.jl found no solutions for square system"
+		else
+			@info "[RESOLVE] HC.jl found $(length(solutions)) solution(s)"
+		end
+	elseif n_eqs != n_vars
+		@warn "[RESOLVE] Non-square system ($n_eqs eqs, $n_vars vars) — skipping HC.jl"
+	end
+
+	# Fallback: cascading substitution if HC.jl fails or system isn't square
+	if isempty(solutions)
+		@info "[RESOLVE] Attempting cascading substitution fallback"
+
+		cascade_subst = Dict{Any, Any}()
+		cascade_pass = 0
+		reduced_eqs = copy(equations)
+		changed = true
+
+		while changed
+			changed = false
+			cascade_pass += 1
+			new_eqs = eltype(reduced_eqs)[]
+			for eq in reduced_eqs
+				eq_vars = Symbolics.get_variables(eq)
+				if isempty(eq_vars)
+					continue
+				elseif length(eq_vars) == 1
+					v = only(eq_vars)
+					haskey(cascade_subst, v) && continue
+					try
+						solved = Symbolics.symbolic_linear_solve(eq, v)
+						cascade_subst[v] = solved
+						changed = true
+						if diagnostics
+							@info "[RESOLVE] Cascade (pass $cascade_pass): solved $v = $solved"
+						end
+					catch
+						push!(new_eqs, eq)
+					end
+				else
+					push!(new_eqs, eq)
+				end
+			end
+			reduced_eqs = changed ? Symbolics.substitute.(new_eqs, Ref(cascade_subst)) : new_eqs
+		end
+
+		if diagnostics
+			@info "[RESOLVE] Cascading completed in $cascade_pass passes, solved $(length(cascade_subst)) variables"
+		end
+
+		if !isempty(cascade_subst)
+			# Resolve dependency chains (A→B→C→number)
+			resolved = Dict{Any, Any}(k => v for (k, v) in cascade_subst)
+			for _pass in 1:10
+				all_numeric = true
+				for (v, expr) in resolved
+					new_expr = Symbolics.substitute(expr, resolved)
+					resolved[v] = new_expr
+					if !isempty(Symbolics.get_variables(new_expr))
+						all_numeric = false
+					end
+				end
+				all_numeric && break
+			end
+
+			final_vals = Dict{Any, Float64}()
+			n_failed = 0
+			for (v, expr) in resolved
+				try
+					final_vals[v] = Float64(Symbolics.value(expr))
+				catch e
+					n_failed += 1
+					@warn "[RESOLVE] Failed to convert $v = $expr to Float64: $e"
+					final_vals[v] = 0.0
+				end
+			end
+			if n_failed > 0
+				@warn "[RESOLVE] $n_failed variables failed Float64 conversion (set to 0.0)"
+			end
+
+			# Check if any equations remain unsolved
+			remaining_vars = OrderedSet()
+			remaining_eqs = eltype(reduced_eqs)[]
+			for eq in reduced_eqs
+				eq_vars = Symbolics.get_variables(eq)
+				if !isempty(eq_vars)
+					push!(remaining_eqs, eq)
+					union!(remaining_vars, eq_vars)
+				end
+			end
+
+			if isempty(remaining_eqs)
+				@info "[RESOLVE] All variables solved by cascading (no HC.jl needed)"
+				solutions = [collect(values(final_vals))]
+				state_vars = collect(keys(final_vals))
+			else
+				remaining_state_vars = collect(remaining_vars)
+				n_rem_eqs = length(remaining_eqs)
+				n_rem_vars = length(remaining_state_vars)
+
+				hc_solutions = Vector{Float64}[]
+				if n_rem_eqs >= n_rem_vars && n_rem_vars > 0
+					# Square or overdetermined — HC.jl can handle this
+					@info "[RESOLVE] Trying HC.jl on remaining $n_rem_eqs eqs, $n_rem_vars vars"
+					hc_solutions, _, _, _ = solve_with_hc(remaining_eqs, remaining_state_vars)
+				elseif n_rem_vars > 0
+					# Underdetermined — HC.jl would throw FiniteException
+					@warn "[RESOLVE] Remaining system is underdetermined ($n_rem_eqs eqs, $n_rem_vars vars) — skipping HC.jl"
+				end
+
+				if !isempty(hc_solutions)
+					# Merge cascaded + HC solutions
+					all_vars = copy(remaining_state_vars)
+					cascade_keys = collect(keys(cascade_subst))
+					append!(all_vars, cascade_keys)
+
+					for sol in hc_solutions
+						sol_dict = Dict{Any, Any}(remaining_state_vars[j] => sol[j] for j in eachindex(remaining_state_vars))
+						merged = copy(sol)
+						for cvar in cascade_keys
+							expr = cascade_subst[cvar]
+							val = Symbolics.substitute(expr, merge(sol_dict, cascade_subst))
+							try
+								push!(merged, Float64(Symbolics.value(val)))
+							catch
+								push!(merged, 0.0)
+							end
+						end
+						push!(solutions, merged)
+					end
+					state_vars = all_vars
+				else
+					# HC.jl failed or was skipped — return cascade-only partial solution.
+					# The caller handles missing vars via data-derived fallback.
+					@info "[RESOLVE] Returning partial solution from cascading ($(length(final_vals)) of $n_vars vars solved)"
+					solutions = [collect(values(final_vals))]
+					state_vars = collect(keys(final_vals))
+				end
+			end
+		end
+	end
+
+	if isempty(solutions)
+		@warn "[RESOLVE] No solutions found (neither HC.jl nor cascading)"
+	else
+		@info "[RESOLVE] Final: $(length(solutions)) solution(s) with $(length(state_vars)) variables"
+	end
+
+	return solutions, state_vars
+end
+
 # Export the template-based constructor
 export construct_equation_system_from_si_template

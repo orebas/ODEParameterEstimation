@@ -1,0 +1,325 @@
+WARNING: Detected access to binding `KernelFunctions.kernelpdmat` in a world prior to its definition world.
+  Julia 1.12 has introduced more strict world age semantics for global bindings.
+  !!! This code may malfunction under Revise.
+  !!! This code will error in future versions of Julia.
+Hint: Add an appropriate `invokelatest` around the access to this binding.
+To make this warning an error, and hence obtain a stack trace, use `julia --depwarn=error`.
+Data: 2001 points, h = 0.01
+t range: [0.0, 20.0]
+data_sample keys: ["S0(t)", "S1(t)", "S2(t)", "t"]
+
+====================================================================================================
+PART 1: AAA SUPPORT POINT ANALYSIS
+====================================================================================================
+
+--- S0 ---
+  Number of support points: 18
+  Support point range: [0.0, 20.0]
+  *** t=0 IS a support point (index 1)
+      value = 5.0, weight = 1.64747133599444e-8
+  *** t=20 IS a support point (index 18)
+      value = 0.017321788783394475, weight = -0.008476713696016836
+  First 10 support points (sorted by t):
+    t=0.0  f=5.0  w=1.64747133599444e-8
+    t=0.01  f=4.894296287073123  w=-1.6363688525641157e-6
+    t=0.02  f=4.880105272639671  w=5.886887523528497e-5
+    t=0.03  f=4.868002780143298  w=-0.0008775976207120676
+    t=0.04  f=4.855970581626586  w=0.004348250968235252
+    t=0.07  f=4.820028488005953  w=-0.025979505385876314
+    t=0.25  f=4.609102330561188  w=0.386590527423151
+    t=0.29  f=4.563317285508791  w=-0.4194394449206773
+    t=0.68  f=4.137037725570931  w=0.09375636523319841
+    t=1.55  f=3.3092602887610183  w=-0.13966825908052333
+  Last 5 support points:
+    t=6.71  f=0.8066258591526255  w=-0.04903933220674878
+    t=12.03  f=0.1753471289641594  w=0.02439845308637856
+    t=15.75  f=0.05961175793852962  w=-0.04275184048564527
+    t=17.68  f=0.03401650436256265  w=0.035955355378251265
+    t=20.0  f=0.017321788783394475  w=-0.008476713696016836
+
+--- S1 ---
+  Number of support points: 23
+  Support point range: [0.0, 20.0]
+  *** t=0 IS a support point (index 1)
+      value = 0.0, weight = 5.469495144988512e-9
+  *** t=20 IS a support point (index 23)
+      value = 8.443769463702484e-6, weight = 0.01349272917710308
+  First 10 support points (sorted by t):
+    t=0.0  f=0.0  w=5.469495144988512e-9
+    t=0.01  f=7.195021649897004e-5  w=-1.8999934560740006e-7
+    t=0.02  f=0.00019831894702404217  w=3.8822193034870195e-6
+    t=0.03  f=0.00032028625612165386  w=-3.1690007723915274e-5
+    t=0.05  f=0.0005425105325530722  w=0.0006176997236476888
+    t=0.08  f=0.0008271686879849185  w=-0.005571355458901349
+    t=0.12  f=0.0011306572317522868  w=0.013512724687495734
+    t=0.27  f=0.0017578265916150795  w=-0.10681706988243729
+    t=0.32  f=0.0018557439073660102  w=0.13834726177704987
+    t=0.55  f=0.0019979621004516533  w=-0.09703095298820515
+  Last 5 support points:
+    t=9.19  f=0.00019384306163168608  w=0.11914424584246991
+    t=11.48  f=0.00010020960358960138  w=-0.06781367219407564
+    t=16.31  f=2.46947543081591e-5  w=0.05869474481381832
+    t=17.98  f=1.5196490032640105e-5  w=-0.05433909095039669
+    t=20.0  f=8.443769463702484e-6  w=0.01349272917710308
+
+--- S2 ---
+  Number of support points: 21
+  Support point range: [0.0, 20.0]
+  *** t=0 IS a support point (index 1)
+      value = 0.0, weight = 4.5940033014774677e-7
+  *** t=20 IS a support point (index 21)
+      value = 4.982243182070045, weight = -0.105754690798747
+  First 10 support points (sorted by t):
+    t=0.0  f=0.0  w=4.5940033014774677e-7
+    t=0.01  f=0.006467905623125289  w=-2.0578774379637066e-5
+    t=0.02  f=0.01831792411770785  w=0.0006034435635401611
+    t=0.03  f=0.03045314440147512  w=-0.009207314822910234
+    t=0.04  f=0.042579368931916516  w=0.06279170124805929
+    t=0.05  f=0.05468735356456932  w=-0.13025611829319714
+    t=0.14  f=0.1627731637013567  w=0.29254773486158603
+    t=0.23  f=0.2691394912886199  w=-0.3138638839561818
+    t=0.61  f=0.697632718332946  w=0.36363981910554494
+    t=0.87  f=0.9714045292762236  w=-0.48083516106263846
+  Last 5 support points:
+    t=13.08  f=4.867389053903909  w=0.04723714831232299
+    t=16.55  f=4.9515684350376725  w=-0.04399030250847091
+    t=16.67  f=4.9532285488957415  w=-0.01156492276946158
+    t=19.6  f=4.980051516172648  w=0.135385452306461
+    t=20.0  f=4.982243182070045  w=-0.105754690798747
+
+====================================================================================================
+PART 2: BREAKFLAG BEHAVIOR WITH TAYLORDIFF
+====================================================================================================
+
+--- baryEval at z=0.0 (Float64) ---
+    j=1: x=0.0, z-x=0.0, (z-x)^2=0.0, threshold=3.162277660168379e-7
+    *** BREAKFLAG triggered at j=1, x=0.0
+    j=2: x=0.01, z-x=-0.01, (z-x)^2=0.0001, threshold=3.162277660168379e-7
+    j=3: x=0.02, z-x=-0.02, (z-x)^2=0.0004, threshold=3.162277660168379e-7
+    j=4: x=0.03, z-x=-0.03, (z-x)^2=0.0009, threshold=3.162277660168379e-7
+    j=5: x=0.04, z-x=-0.04, (z-x)^2=0.0016, threshold=3.162277660168379e-7
+    Entering break branch, breakindex=1, x[break]=0.0
+    m = 0.0
+    num (excluding break) = 0.4261545825555822
+    den (excluding break) = 0.0868949535996307
+    result = 5.0
+  Result: 5.0
+
+--- baryEval at z=TaylorScalar(0.0) ---
+  TaylorScalar: TaylorDiff.TaylorScalar{Float64, 1}(0.0, (1.0,)) (type: TaylorDiff.TaylorScalar{Float64, 1})
+  (z_taylor - sp[1])^2 = TaylorDiff.TaylorScalar{Float64, 1}(0.0, (0.0,)) (type: TaylorDiff.TaylorScalar{Float64, 1})
+  result < sqrt(1e-13) = true
+
+--- TaylorDiff.derivative at z=0.0 ---
+  Order 0 at t=0: 5.0
+  Order 1 at t=0: -505027.6299677865
+  Order 2 at t=0: 5.327443232875599e12
+  Order 3 at t=0: -8.429752496388643e19
+
+--- BaryRational.bary at z=0.0 ---
+  bary(0.0) = 5.0
+
+--- TaylorDiff through BaryRational.bary ---
+  Order 0 at t=0: ERROR: MethodError(BaryRational.nearby, (TaylorDiff.TaylorScalar{Float64, 0}(0.0, ()), [0.0, 0.01, 0.02, 0.03, 0.04, 0.07, 0.25, 0.29, 0.68, 1.55, 2.48, 2.75, 5.0, 6.71, 12.03, 15.75, 17.68, 20.0]), 0x000000000000997e)
+  Order 1 at t=0: ERROR: MethodError(BaryRational.nearby, (TaylorDiff.TaylorScalar{Float64, 1}(0.0, (1.0,)), [0.0, 0.01, 0.02, 0.03, 0.04, 0.07, 0.25, 0.29, 0.68, 1.55, 2.48, 2.75, 5.0, 6.71, 12.03, 15.75, 17.68, 20.0]), 0x000000000000997e)
+  Order 2 at t=0: ERROR: MethodError(BaryRational.nearby, (TaylorDiff.TaylorScalar{Float64, 2}(0.0, (1.0, 0.0)), [0.0, 0.01, 0.02, 0.03, 0.04, 0.07, 0.25, 0.29, 0.68, 1.55, 2.48, 2.75, 5.0, 6.71, 12.03, 15.75, 17.68, 20.0]), 0x000000000000997e)
+  Order 3 at t=0: ERROR: MethodError(BaryRational.nearby, (TaylorDiff.TaylorScalar{Float64, 3}(0.0, (1.0, 0.0, 0.0)), [0.0, 0.01, 0.02, 0.03, 0.04, 0.07, 0.25, 0.29, 0.68, 1.55, 2.48, 2.75, 5.0, 6.71, 12.03, 15.75, 17.68, 20.0]), 0x000000000000997e)
+
+====================================================================================================
+PART 3: COMPARISON AT BOTH BOUNDARIES
+====================================================================================================
+
+Ground truth at t=0: S0=5.0, S0'=-37.375, S0''=13640.940625
+┌ Warning: Assignment to `y_data` in soft scope is ambiguous because a global variable by the same name exists: `y_data` will be treated as a new local. Disambiguate by using `local y_data` to suppress this warning or `global y_data` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:247
+┌ Warning: Assignment to `aaa_approx` in soft scope is ambiguous because a global variable by the same name exists: `aaa_approx` will be treated as a new local. Disambiguate by using `local aaa_approx` to suppress this warning or `global aaa_approx` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:248
+
+--- S0: derivatives at both boundaries ---
+  t=0.0:   d0=5.0  d1=-505027.6299677865  d2=5.327443232875599e12
+  t=20.0:   d0=0.017321788783394475  d1=-0.005040205544405788  d2=0.00146565403674785
+  t=0.005:   d0=4.898199578109946  d1=-1.2102580547152275  d2=1.0435865706309702
+
+--- S1: derivatives at both boundaries ---
+  t=0.0:   d0=0.0  d1=-1.5422391789137206  d2=68858.88637768681
+  t=20.0:   d0=8.443769463702484e-6  d1=-2.456922766773616e-6  d2=7.144535231430166e-7
+  t=0.005:   d0=8.423069626522964e-7  d1=0.01378685960996226  d2=-0.01834320923544375
+
+--- S2: derivatives at both boundaries ---
+  t=0.0:   d0=0.0  d1=-4664.652866817327  d2=7.218109509159816e9
+  t=20.0:   d0=4.982243182070045  d1=0.0051667064856276285  d2=-0.0015023921022100622
+  t=0.005:   d0=6.237675526505975e-5  d1=1.2181100456666583  d2=0.15657056595819055
+
+====================================================================================================
+PART 4: WHAT IF WE BYPASS baryEval AND USE BaryRational DIRECTLY?
+====================================================================================================
+┌ Warning: Assignment to `y_data` in soft scope is ambiguous because a global variable by the same name exists: `y_data` will be treated as a new local. Disambiguate by using `local y_data` to suppress this warning or `global y_data` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:285
+┌ Warning: Assignment to `aaa_approx` in soft scope is ambiguous because a global variable by the same name exists: `aaa_approx` will be treated as a new local. Disambiguate by using `local aaa_approx` to suppress this warning or `global aaa_approx` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:286
+┌ Warning: Assignment to `val_bary` in soft scope is ambiguous because a global variable by the same name exists: `val_bary` will be treated as a new local. Disambiguate by using `local val_bary` to suppress this warning or `global val_bary` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:299
+
+--- S0 ---
+  Our baryEval vs BaryRational.bary, TaylorDiff derivatives at t=0:
+  Order 0:  baryEval=ERR: BoundsError: attempt to access Tuple{} at index [0]  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 0}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 1:  baryEval=-505027.6299677865  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 1}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 2:  baryEval=5.327443232875599e12  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 2}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+
+--- S1 ---
+  Our baryEval vs BaryRational.bary, TaylorDiff derivatives at t=0:
+  Order 0:  baryEval=ERR: BoundsError: attempt to access Tuple{} at index [0]  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 0}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 1:  baryEval=-1.5422391789137206  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 1}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 2:  baryEval=68858.88637768681  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 2}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+
+--- S2 ---
+  Our baryEval vs BaryRational.bary, TaylorDiff derivatives at t=0:
+  Order 0:  baryEval=ERR: BoundsError: attempt to access Tuple{} at index [0]  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 0}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 1:  baryEval=-4664.652866817327  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 1}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+  Order 2:  baryEval=7.218109509159816e9  |  BaryRational.bary=ERR: MethodError: no method matching nearby(::TaylorDiff.TaylorScalar{Float64, 2}, ::Vector{Float64})
+The function `nearby` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  nearby(::T, !Matched::AbstractVector{T}) where T
+   @ BaryRational ~/.julia/packages/BaryRational/Zdtza/src/bary.jl:4
+
+
+====================================================================================================
+PART 5: POLES OF THE AAA APPROXIMANT
+====================================================================================================
+┌ Warning: Assignment to `y_data` in soft scope is ambiguous because a global variable by the same name exists: `y_data` will be treated as a new local. Disambiguate by using `local y_data` to suppress this warning or `global y_data` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:315
+┌ Warning: Assignment to `aaa_approx` in soft scope is ambiguous because a global variable by the same name exists: `aaa_approx` will be treated as a new local. Disambiguate by using `local aaa_approx` to suppress this warning or `global aaa_approx` to assign to the existing global variable.
+└ @ /tmp/aaad_deep_diagnostic.jl:316
+
+--- S0 ---
+  Number of poles: 17
+  Poles within |z| < 1 of origin:
+    pole=-1.8959429631410683e-7 + 1.71674362929791e-15im, |pole|=1.8959429631410683e-7, residue=1.8153664694521956e-8 + 8.25496120168269e-15im
+    pole=0.01001493770811545 + 4.991759766497847e-16im, |pole|=0.01001493770811545, residue=-3.220655000881616e-8 + 2.4409539637704148e-15im
+    pole=0.019618837354163435 - 2.6812896362293275e-18im, |pole|=0.019618837354163435, residue=1.869039396962123e-8 - 1.308594397293662e-17im
+    pole=0.031538722268257345 + 0.005310262384977001im, |pole|=0.031982649810664114, residue=-1.6466810134006815e-9 - 1.5374384051811507e-10im
+    pole=0.031538722268257345 - 0.0053102623849769996im, |pole|=0.031982649810664114, residue=-1.646681014923752e-9 + 1.5374385141849695e-10im
+    pole=-0.7122485181295088 + 0.424105293623166im, |pole|=0.8289531058249756, residue=-5.989632292533647e-5 - 2.2411782639097413e-5im
+    pole=-0.7122485181295113 - 0.4241052936231749im, |pole|=0.8289531058249822, residue=-5.989631410177545e-5 + 2.2411785599497126e-5im
+  Poles within |z-20| < 1:
+  *** REAL poles near [0,20]: ComplexF64[-1.8959429631410683e-7 + 1.71674362929791e-15im, 0.01001493770811545 + 4.991759766497847e-16im, 0.019618837354163435 - 2.6812896362293275e-18im]
+
+--- S1 ---
+  Number of poles: 22
+  Poles within |z| < 1 of origin:
+    pole=-4.5210983845911074e-5 + 1.0518863038838327e-12im, |pole|=4.521098384591109e-5, residue=3.181724368060424e-9 - 1.4941490223911413e-16im
+    pole=-0.005707518889141097 - 2.4271653809127866e-13im, |pole|=0.005707518889141097, residue=-2.0196252625085323e-9 + 3.7264730005969784e-17im
+    pole=0.010526480920488827 - 2.6546874844370823e-12im, |pole|=0.010526480920488827, residue=-1.9155486499300206e-9 - 1.905969451391948e-16im
+    pole=0.017036598886857678 + 1.6688276310557821e-12im, |pole|=0.017036598886857678, residue=6.917535637974412e-10 + 2.670571277646624e-16im
+    pole=0.029485968261179572 + 0.010514928520319326im, |pole|=0.03130472881349899, residue=2.1844087253236446e-12 + 1.145822270643824e-11im
+    pole=0.029485968261689123 - 0.010514928520145612im, |pole|=0.03130472881392059, residue=2.1845928693728007e-12 - 1.1458230471842539e-11im
+  Poles within |z-20| < 1:
+  *** REAL poles near [0,20]: ComplexF64[-0.005707518889141097 - 2.4271653809127866e-13im, -4.5210983845911074e-5 + 1.0518863038838327e-12im, 0.010526480920488827 - 2.6546874844370823e-12im, 0.017036598886857678 + 1.6688276310557821e-12im]
+
+--- S2 ---
+  Number of poles: 20
+  Poles within |z| < 1 of origin:
+    pole=-1.2928237671466606e-6 + 9.188903173756978e-16im, |pole|=1.2928237671466606e-6, residue=7.798506759109462e-9 - 1.108746405458321e-17im
+    pole=0.01004103476347237 - 1.5900790055305734e-16im, |pole|=0.01004103476347237, residue=-1.3198157011487617e-8 - 9.341760143414841e-19im
+    pole=0.019322791652326508 - 1.8842475108744012e-18im, |pole|=0.019322791652326508, residue=7.0652189287774185e-9 - 3.2924270471864615e-20im
+    pole=0.031116445864189934 - 0.006457523248237785im, |pole|=0.03177944004731037, residue=-4.722029442452747e-10 - 1.248985372965045e-10im
+    pole=0.031116445864189962 + 0.006457523248237792im, |pole|=0.031779440047310405, residue=-4.72202943472799e-10 + 1.2489853766942678e-10im
+  Poles within |z-20| < 1:
+  *** REAL poles near [0,20]: ComplexF64[16.645214535764254 + 9.146087683445345e-16im, -1.2928237671466606e-6 + 9.188903173756978e-16im, 0.01004103476347237 - 1.5900790055305734e-16im, 0.019322791652326508 - 1.8842475108744012e-18im]
+
+====================================================================================================
+PART 6: DERIVATIVE VALUE SWEEP NEAR BOUNDARIES
+====================================================================================================
+
+S0 first derivative near left boundary (t=0):
+  t               | d1_baryEval       | d1_BaryRational.bary
+               0.0 | -505027.6299677865 |                NaN
+           1.0e-15 | -505027.6246403343 | -505026.91672201507
+           1.0e-14 | -505027.5766934182 | -505027.3860172806
+           1.0e-13 | -505027.09722380474 | -505027.1152030111
+  1.0000000000000002e-12 | -505022.3025667933 | -505022.3060231883
+           1.0e-10 | -504495.30683588726 | -504495.3068213473
+            1.0e-8 | -455690.03766833607 | -455690.03766844264
+            1.0e-6 | -12829.445808182338 |   -12829.445808182
+            1.0e-5 | -176.05576266512864 | -176.05576266502408
+            0.0001 | -3.0201969383181693 | -3.0201969383196996
+             0.001 |  -1.22954725801557 |  -1.22954725801557
+  0.010000000000000002 |  143.1266531930456 |               -0.0
+
+S0 first derivative near right boundary (t=20):
+  t=            20.0 (20-0.0): d1=-0.005040205544405788
+  t=            20.0 (20-1.0e-15): d1=-0.005040205544405788
+  t= 19.999999999999 (20-1.0e-12): d1=-0.005040205544404997
+  t=   19.9999999999 (20-1.0e-10): d1=-0.005040205544551109
+  t=     19.99999999 (20-1.0e-8): d1=-0.005040205559061713
+  t=       19.999999 (20-1.0e-6): d1=-0.0050402070100595475
+  t=         19.9999 (20-0.0001): d1=-0.005040352111937702
+  t=          19.999 (20-0.001): d1=-0.005041671411295469
+  t=           19.99 (20-0.01): d1=-0.005054883388670689
+  t=            19.9 (20-0.1): d1=-0.005188919982603526
+
+====================================================================================================
+PART 7: IS THE BREAKFLAG BRANCH EVEN REACHED BY TAYLORDIFF?
+====================================================================================================
+
+Testing breakflag with TaylorScalar types...
+TaylorScalar for t=0, order 2: TaylorDiff.TaylorScalar{Float64, 2}(0.0, (1.0, 0.0))
+Type: TaylorDiff.TaylorScalar{Float64, 2}
+z_ts - sp[1] = TaylorDiff.TaylorScalar{Float64, 2}(0.0, (1.0, 0.0))  (type: TaylorDiff.TaylorScalar{Float64, 2})
+(z_ts - sp[1])^2 = TaylorDiff.TaylorScalar{Float64, 2}(0.0, (0.0, 1.0))  (type: TaylorDiff.TaylorScalar{Float64, 2})
+threshold = 3.162277660168379e-7
+comparison result: true
+
+Methods for < involving TaylorScalar:
+  isless(::TaylorDiff.TaylorScalar{Float64, 2}, ::Float64): true
+  <(::TaylorDiff.TaylorScalar{Float64, 2}, ::Float64): true
+  isless(::Float64, ::TaylorDiff.TaylorScalar{Float64, 2}): true

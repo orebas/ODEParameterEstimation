@@ -1529,6 +1529,216 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		)
 		end
 
+		# PHASE: Detect blown-up backsolves and attempt algebraic re-solve at t=0
+		if !isempty(solved_res)
+			_, ub_vec = compute_default_bounds(PEP)
+			bound_threshold = ub_vec[1]
+			blown_indices = Int[]
+			for (i, res) in enumerate(solved_res)
+				ic_blown = any(v -> !isfinite(v) || abs(v) > bound_threshold, values(res.states))
+				err_blown = !isnothing(res.err) && (!isfinite(res.err) || res.err > 1e15)
+				if ic_blown || err_blown
+					push!(blown_indices, i)
+					if opts.diagnostics
+						blown_states = [(k, v) for (k, v) in res.states if !isfinite(v) || abs(v) > bound_threshold]
+						@info "[BACKSOLVE] Solution $i BLOWN: err=$(res.err), blown_states=$(blown_states)"
+					end
+				elseif opts.diagnostics
+					# Log suspect-but-not-blown solutions for visibility
+					max_ic = maximum(abs.(values(res.states)))
+					@info "[BACKSOLVE] Solution $i OK: err=$(res.err), max_abs_IC=$max_ic"
+				end
+			end
+
+			if !isempty(blown_indices)
+				if !opts.nooutput
+					println("Detected $(length(blown_indices))/$(length(solved_res)) blown backsolves, attempting algebraic re-solve at t=0")
+				end
+
+				# Deduplicate blown candidates by parameter values (many share same params from same shooting point)
+				unique_param_sets = OrderedDict{UInt64, Tuple{OrderedDict, Vector{Int}}}()
+				for i in blown_indices
+					pvals = collect(values(solved_res[i].parameters))
+					key = hash(round.(pvals; sigdigits = 10))
+					if !haskey(unique_param_sets, key)
+						unique_param_sets[key] = (solved_res[i].parameters, Int[])
+					end
+					push!(unique_param_sets[key][2], i)
+				end
+
+				if !opts.nooutput
+					println("  $(length(unique_param_sets)) unique parameter set(s) to re-solve")
+				end
+
+				resolved_candidates = ParameterEstimationResult[]
+				for (params_dict, indices) in values(unique_param_sets)
+					# Build known_param_dict for parameter substitution
+					known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in params_dict)
+
+					# Algebraic re-solve at t=0 with fixed parameters
+					state_solutions, state_vars = resolve_states_with_fixed_params(
+						PEP.model.system,
+						PEP.measured_quantities,
+						PEP.data_sample,
+						good_deriv_level,
+						good_udict,
+						good_varlist,
+						good_DD,
+						known_param_dict,
+						interpolants;
+						si_template = si_template,
+						time_index = 1,
+						diagnostics = opts.diagnostics,
+					)
+
+					if !isempty(state_solutions)
+						# Build ParameterEstimationResult for each algebraic state solution
+						unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+
+						for state_sol in state_solutions
+							# Map state_vars back to full state vector.
+							# state_vars are SIAN template variables (e.g. S0_0, E_0, S0_1, ...)
+							# while unknown_syms are MTK variables (e.g. S0(t), E(t)).
+							# We need name-based matching: SIAN "S0_0" (order 0) → MTK "S0(t)"
+							sian_name_to_val = Dict{String, Float64}()
+							for j in eachindex(state_vars)
+								vname = replace(string(state_vars[j]), "(t)" => "")
+								parsed = parse_derivative_variable_name(vname)
+								if !isnothing(parsed)
+									base, order = parsed
+									if order == 0  # Only ICs (order 0) map to MTK unknowns
+										sian_name_to_val[String(base)] = state_sol[j]
+									end
+								end
+							end
+
+							if opts.diagnostics
+								@info "[RESOLVE-MAP] sian_name_to_val: $(sian_name_to_val)"
+								@info "[RESOLVE-MAP] MTK unknowns: $(string.(unknown_syms))"
+							end
+
+							# Build raw_sol in MTK unknowns order (what process_raw_solution expects)
+							raw_ic = Float64[]
+							for s in unknown_syms
+								sname = replace(string(s), "(t)" => "")
+								if haskey(sian_name_to_val, sname)
+									push!(raw_ic, sian_name_to_val[sname])
+								elseif haskey(known_param_dict, s)
+									push!(raw_ic, known_param_dict[s])
+								else
+									# Fallback: check if directly observed in data or _trfn_
+									fallback_val = 0.0
+									fallback_source = "ZERO (no source found)"
+									if startswith(sname, "_trfn_")
+										# _trfn_ states are known functions of time — evaluate at t=0
+										t0 = Float64(PEP.data_sample["t"][1])
+										trfn_val = evaluate_trfn_template_variable(sname, t0)
+										fallback_val = isnothing(trfn_val) ? 0.0 : trfn_val
+										fallback_source = "_trfn_ analytical"
+									else
+										for mq in PEP.measured_quantities
+											mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+											if isequal(mq_rhs, s)
+												mq_key = replace(string(mq.lhs), "(t)" => "")
+												if haskey(PEP.data_sample, mq_key)
+													fallback_val = Float64(PEP.data_sample[mq_key][1])
+													fallback_source = "measured quantity $mq_key"
+												end
+											end
+										end
+									end
+									@warn "[RESOLVE-MAP] State $sname NOT in SIAN solution — using fallback=$fallback_val ($fallback_source)"
+									push!(raw_ic, fallback_val)
+								end
+							end
+
+							raw_sol = raw_ic
+							append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
+
+							ordered_s, ordered_p, ode_solution, err = process_raw_solution(
+								raw_sol, PEP.model, PEP.data_sample, PEP.solver,
+								abstol = opts.abstol, reltol = opts.reltol,
+							)
+
+							candidate = ParameterEstimationResult(
+								ordered_p, ordered_s,
+								Float64(PEP.data_sample["t"][1]),
+								err, nothing,
+								length(PEP.data_sample["t"]),
+								Float64(PEP.data_sample["t"][1]),
+								OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
+								setup_data.all_unidentifiable, ode_solution,
+							)
+							push!(resolved_candidates, candidate)
+						end
+					else
+						# HC re-solve failed — use data-derived ICs as fallback for directly observed states
+						if !opts.nooutput
+							println("  HC re-solve found no solutions, using data-derived IC fallback")
+						end
+						unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+						raw_ic = Float64[]
+						for s in unknown_syms
+							fallback_val = 0.0
+							sname = string(s)
+							if startswith(sname, "_trfn_")
+								t0 = Float64(PEP.data_sample["t"][1])
+								trfn_val = evaluate_trfn_template_variable(replace(sname, "(t)" => ""), t0)
+								fallback_val = isnothing(trfn_val) ? 0.0 : trfn_val
+							else
+								for mq in PEP.measured_quantities
+									mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+									if isequal(mq_rhs, s)
+										mq_key = replace(string(mq.lhs), "(t)" => "")
+										if haskey(PEP.data_sample, mq_key)
+											fallback_val = Float64(PEP.data_sample[mq_key][1])
+										end
+									end
+								end
+							end
+							push!(raw_ic, fallback_val)
+						end
+
+						raw_sol = raw_ic
+						append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
+
+						ordered_s, ordered_p, ode_solution, err = process_raw_solution(
+							raw_sol, PEP.model, PEP.data_sample, PEP.solver,
+							abstol = opts.abstol, reltol = opts.reltol,
+						)
+
+						candidate = ParameterEstimationResult(
+							ordered_p, ordered_s,
+							Float64(PEP.data_sample["t"][1]),
+							err, nothing,
+							length(PEP.data_sample["t"]),
+							Float64(PEP.data_sample["t"][1]),
+							OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
+							setup_data.all_unidentifiable, ode_solution,
+						)
+						push!(resolved_candidates, candidate)
+					end
+				end
+
+				# Replace blown candidates with resolved ones
+				blown_set = Set(blown_indices)
+				solved_res = [r for (i, r) in enumerate(solved_res) if !(i in blown_set)]
+				append!(solved_res, resolved_candidates)
+
+				if !opts.nooutput
+					println("  After re-solve: $(length(solved_res)) total candidates ($(length(resolved_candidates)) from re-solve)")
+				end
+
+				# Log quality of resolved candidates
+				if opts.diagnostics
+					for (j, rc) in enumerate(resolved_candidates)
+						max_ic = maximum(abs.(values(rc.states)))
+						@info "[RESOLVE-RESULT] Candidate $j: err=$(rc.err), max_abs_IC=$max_ic, states=$(Dict(string(k)=>round(v;sigdigits=4) for (k,v) in rc.states))"
+					end
+				end
+			end
+		end
+
 		# PHASE: Polish solutions (separate phase for profiling visibility)
 		if opts.polish_solutions
 			solved_res = _record_phase!(phase_stats, "Polish (BFGS)") do

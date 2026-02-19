@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERK Explorer — Interactive Enzyme Kinetics Visualization</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+/* ═══════════════════════ CSS RESET & VARIABLES ═══════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; line-height: 1.7; transition: background 0.3s, color 0.3s; }
+
+[data-theme="dark"] {
+  --bg: #0d1117; --bg-surface: #161b22; --bg-card: #1c2333; --bg-card-alt: #21283b;
+  --text: #e6edf3; --text-muted: #8b949e; --text-dim: #484f58;
+  --accent: #58a6ff; --accent-dim: #1f6feb33; --border: #30363d;
+  --nav-bg: #010409ee; --nav-border: #21262d;
+  --plot-bg: #0d1117; --plot-paper: #161b22; --plot-grid: #21262d; --plot-zero: #30363d;
+  --red: #f85149; --orange: #f0883e; --green: #3fb950; --purple: #bc8cff;
+  --blue: #58a6ff; --teal: #39d353; --yellow: #d29922;
+  --warn-bg: #f8514922; --warn-border: #f85149;
+}
+[data-theme="light"] {
+  --bg: #f6f8fa; --bg-surface: #ffffff; --bg-card: #ffffff; --bg-card-alt: #f0f3f6;
+  --text: #1f2328; --text-muted: #656d76; --text-dim: #afb8c1;
+  --accent: #0969da; --accent-dim: #0969da1a; --border: #d0d7de;
+  --nav-bg: #ffffffee; --nav-border: #d0d7de;
+  --plot-bg: #ffffff; --plot-paper: #ffffff; --plot-grid: #e8eaed; --plot-zero: #d0d7de;
+  --red: #cf222e; --orange: #bc4c00; --green: #1a7f37; --purple: #8250df;
+  --blue: #0969da; --teal: #0f7b3f; --yellow: #9a6700;
+  --warn-bg: #cf222e11; --warn-border: #cf222e;
+}
+body { background: var(--bg); color: var(--text); }
+
+/* ═══════════════════════ NAVIGATION ═══════════════════════ */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1.5rem; overflow-x: auto; white-space: nowrap;
+}
+nav .brand { font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-right: 1rem; flex-shrink: 0; }
+nav a {
+  color: var(--text-muted); text-decoration: none; font-size: 0.82rem; padding: 0.3rem 0.6rem;
+  border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
+}
+nav a:hover { color: var(--text); background: var(--accent-dim); }
+nav a.active { color: var(--accent); background: var(--accent-dim); font-weight: 600; }
+nav .spacer { flex: 1; }
+.theme-toggle {
+  background: none; border: 1px solid var(--border); color: var(--text-muted);
+  padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* ═══════════════════════ MAIN LAYOUT ═══════════════════════ */
+main { max-width: 1200px; margin: 0 auto; padding: 1rem 1.5rem 4rem; }
+section { margin-bottom: 3rem; scroll-margin-top: 4rem; }
+h2 { font-size: 1.6rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+h3 { font-size: 1.15rem; margin: 1.5rem 0 0.7rem; color: var(--text); }
+p, li { color: var(--text); margin-bottom: 0.6rem; }
+.muted { color: var(--text-muted); }
+
+/* ═══════════════════════ CARDS & GLOSSARY ═══════════════════════ */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.2rem 1.5rem; margin-bottom: 1rem;
+}
+.glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.glossary-item {
+  background: var(--bg-card-alt); border: 1px solid var(--border); border-radius: 8px;
+  padding: 0.7rem 0.9rem; text-align: center; transition: transform 0.15s, box-shadow 0.15s;
+}
+.glossary-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px #00000033; }
+.glossary-item .symbol { font-size: 1.3rem; font-weight: 700; font-family: 'Times New Roman', serif; }
+.glossary-item .label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+.glossary-item .value { font-size: 0.82rem; font-family: monospace; margin-top: 0.15rem; }
+
+/* ═══════════════════════ SVG DIAGRAM ═══════════════════════ */
+.diagram-container { display: flex; justify-content: center; margin: 1.5rem 0; overflow-x: auto; }
+.diagram-container svg text { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ═══════════════════════ MATH BLOCKS ═══════════════════════ */
+.math-block {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.2rem 1.5rem; margin: 1rem 0; overflow-x: auto;
+}
+.math-block .katex { font-size: 1.05em; }
+
+/* ═══════════════════════ CONTROLS ═══════════════════════ */
+.controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 768px) { .controls-grid { grid-template-columns: 1fr; } }
+.control-group h3 { margin-top: 0; }
+.slider-row {
+  display: grid; grid-template-columns: 70px 1fr 90px; gap: 0.5rem; align-items: center;
+  margin-bottom: 0.4rem;
+}
+.slider-row label { font-family: 'Times New Roman', serif; font-size: 1rem; font-weight: 600; text-align: right; }
+.slider-row input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+.slider-row .readout {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem;
+  background: var(--bg-card-alt); padding: 0.15rem 0.4rem; border-radius: 4px;
+  text-align: right; min-width: 80px;
+}
+.btn-row { display: flex; gap: 0.7rem; margin-top: 0.8rem; }
+.btn {
+  padding: 0.45rem 1.1rem; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--bg-card); color: var(--text); cursor: pointer; font-size: 0.88rem;
+  transition: all 0.15s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.85; }
+
+/* ═══════════════════════ PLOTS ═══════════════════════ */
+.plot-container { width: 100%; min-height: 400px; border-radius: 10px; overflow: hidden; }
+.plot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .plot-row { grid-template-columns: 1fr; } }
+.plot-half { min-height: 320px; }
+.plot-third { min-height: 300px; }
+.plot-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+@media (max-width: 1000px) { .plot-row-3 { grid-template-columns: 1fr; } }
+
+/* ═══════════════════════ EIGENVALUE TABLE ═══════════════════════ */
+.eigen-table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.9rem; }
+.eigen-table th, .eigen-table td {
+  padding: 0.5rem 0.8rem; border: 1px solid var(--border); text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+.eigen-table th { background: var(--bg-card-alt); font-weight: 600; }
+.eigen-fast { color: var(--red); font-weight: 700; }
+.eigen-medium { color: var(--yellow); }
+.eigen-slow { color: var(--green); }
+
+/* ═══════════════════════ CONSERVATION READOUT ═══════════════════════ */
+.readout-bar {
+  display: flex; gap: 2rem; margin: 0.8rem 0; padding: 0.7rem 1rem;
+  background: var(--bg-card-alt); border-radius: 8px; font-family: monospace; font-size: 0.9rem;
+}
+.readout-bar .item { display: flex; gap: 0.4rem; align-items: center; }
+.readout-bar .label-text { color: var(--text-muted); }
+.readout-bar .value-text { font-weight: 700; }
+.readout-good { color: var(--green); }
+.readout-warn { color: var(--yellow); }
+.readout-bad { color: var(--red); }
+
+/* ═══════════════════════ WARNING BANNER ═══════════════════════ */
+.warn-banner {
+  background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 8px;
+  padding: 0.6rem 1rem; margin-bottom: 1rem; display: none; font-size: 0.9rem;
+}
+.warn-banner.visible { display: block; }
+
+/* ═══════════════════════ SENSITIVITY CONTROLS ═══════════════════════ */
+.sens-controls {
+  display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 0.8rem;
+}
+.sens-controls label { font-size: 0.88rem; color: var(--text-muted); }
+.sens-controls select, .sens-controls input[type="range"] { accent-color: var(--accent); }
+.sens-controls select {
+  background: var(--bg-card); color: var(--text); border: 1px solid var(--border);
+  padding: 0.3rem 0.5rem; border-radius: 4px;
+}
+
+/* ═══════════════════════ MISC ═══════════════════════ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+.derived-box { background: var(--bg-card-alt); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.88em; background: var(--bg-card-alt); padding: 0.1rem 0.35rem; border-radius: 3px; }
+.color-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+
+<body>
+<!-- ═══════════════════════ NAVIGATION ═══════════════════════ -->
+<nav>
+  <span class="brand">ERK Explorer</span>
+  <a href="#biology">Biology</a>
+  <a href="#math">Model</a>
+  <a href="#controls">Controls</a>
+  <a href="#states">States</a>
+  <a href="#observables">Observables</a>
+  <a href="#conservation">Conservation</a>
+  <a href="#stiffness">Stiffness</a>
+  <a href="#phase">Phase</a>
+  <a href="#flux">Flux</a>
+  <a href="#sensitivity">Sensitivity</a>
+  <span class="spacer"></span>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">◐ Theme</button>
+</nav>
+
+<main>
+<!-- ═══════════════════════ SECTION 1: BIOLOGICAL CONTEXT ═══════════════════════ -->
+<section id="biology">
+  <h2>1. Biological Context</h2>
+  <div class="card">
+    <p>This model describes a <strong>two-step enzyme-catalyzed cascade</strong> inspired by the
+    MAPK/ERK signaling pathway — one of the most important signal transduction mechanisms in cell biology.
+    A single enzyme <strong>E</strong> sequentially modifies a substrate through two reactions,
+    converting <strong>S0 → S1 → S2</strong> (e.g., double phosphorylation of ERK by MEK).</p>
+
+    <p>Each reaction follows <strong>Michaelis-Menten kinetics</strong>: the enzyme binds the substrate
+    to form an intermediate complex, which can either dissociate back (reverse reaction) or proceed
+    to catalysis (forward product formation). The key twist in this model is that the first catalytic
+    step is <em>partially processive</em> — the enzyme converts C1 directly to C2 without releasing
+    the intermediate S1, allowing rapid double modification.</p>
+  </div>
+
+  <h3>Reaction Diagram</h3>
+  <div class="diagram-container">
+    <svg viewBox="0 0 780 260" width="780" height="260" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect width="780" height="260" fill="none"/>
+
+      <!-- Boxes for species -->
+      <rect x="30"  y="90" width="70" height="44" rx="8" fill="#e74c3c22" stroke="#e74c3c" stroke-width="2"/>
+      <text x="65"  y="118" text-anchor="middle" fill="#e74c3c" font-size="18" font-weight="700">S0</text>
+
+      <rect x="200" y="90" width="70" height="44" rx="8" fill="#f39c1222" stroke="#f39c12" stroke-width="2"/>
+      <text x="235" y="118" text-anchor="middle" fill="#f39c12" font-size="18" font-weight="700">C1</text>
+
+      <rect x="370" y="90" width="70" height="44" rx="8" fill="#9b59b622" stroke="#9b59b6" stroke-width="2"/>
+      <text x="405" y="118" text-anchor="middle" fill="#9b59b6" font-size="18" font-weight="700">C2</text>
+
+      <rect x="540" y="90" width="70" height="44" rx="8" fill="#3498db22" stroke="#3498db" stroke-width="2"/>
+      <text x="575" y="118" text-anchor="middle" fill="#3498db" font-size="18" font-weight="700">S2</text>
+
+      <rect x="370" y="190" width="70" height="44" rx="8" fill="#2ecc7122" stroke="#2ecc71" stroke-width="2"/>
+      <text x="405" y="218" text-anchor="middle" fill="#2ecc71" font-size="18" font-weight="700">S1</text>
+
+      <rect x="640" y="30" width="55" height="44" rx="8" fill="#1abc9c22" stroke="#1abc9c" stroke-width="2"/>
+      <text x="667" y="58" text-anchor="middle" fill="#1abc9c" font-size="18" font-weight="700">E</text>
+
+      <!-- Arrow: S0 → C1 (forward binding, top) -->
+      <line x1="100" y1="102" x2="198" y2="102" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowRed)"/>
+      <text x="149" y="95" text-anchor="middle" fill="var(--text-muted)" font-size="12">kf1·E</text>
+
+      <!-- Arrow: C1 → S0 (reverse, bottom) -->
+      <line x1="198" y1="126" x2="100" y2="126" stroke="#f39c12" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowOrange)"/>
+      <text x="149" y="144" text-anchor="middle" fill="var(--text-muted)" font-size="12">kr1</text>
+
+      <!-- Arrow: C1 → C2 (catalysis, processive) -->
+      <line x1="270" y1="112" x2="368" y2="112" stroke="#bc8cff" stroke-width="2.5" marker-end="url(#arrowPurple)"/>
+      <text x="319" y="104" text-anchor="middle" fill="#bc8cff" font-size="13" font-weight="600">kc1</text>
+      <text x="319" y="88" text-anchor="middle" fill="var(--text-dim)" font-size="10">(processive)</text>
+
+      <!-- Arrow: C2 → S2 + E (catalysis 2) -->
+      <line x1="440" y1="102" x2="538" y2="102" stroke="#3498db" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+      <text x="489" y="95" text-anchor="middle" fill="#3498db" font-size="13" font-weight="600">kc2</text>
+
+      <!-- Arrow: C2 ↔ S1 + E -->
+      <line x1="405" y1="134" x2="405" y2="188" stroke="#2ecc71" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+      <text x="425" y="160" text-anchor="start" fill="var(--text-muted)" font-size="11">kr2</text>
+      <line x1="395" y1="188" x2="395" y2="136" stroke="#2ecc71" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowGreenUp)"/>
+      <text x="375" y="160" text-anchor="end" fill="var(--text-muted)" font-size="11">kf2·E</text>
+
+      <!-- E consumption/release indicators -->
+      <path d="M 667 74 Q 667 112 620 112" fill="none" stroke="#1abc9c" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="655" y="86" fill="#1abc9c" font-size="9">consumed/released</text>
+
+      <!-- "+E" labels -->
+      <text x="555" y="80" text-anchor="middle" fill="#1abc9c" font-size="11">+E</text>
+      <text x="440" y="230" text-anchor="middle" fill="#1abc9c" font-size="11">+E</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#e74c3c"/></marker>
+        <marker id="arrowOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f39c12"/></marker>
+        <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#bc8cff"/></marker>
+        <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3498db"/></marker>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2ecc71"/></marker>
+        <marker id="arrowGreenUp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2ecc71"/></marker>
+      </defs>
+    </svg>
+  </div>
+
+  <h3>Species &amp; Parameters</h3>
+  <div class="two-col">
+    <div>
+      <p class="muted" style="font-size:0.88rem; margin-bottom:0.5rem;">States (6 dynamic variables)</p>
+      <div class="glossary-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="glossary-item"><div class="symbol" style="color:#e74c3c">S0</div><div class="label">Unmodified substrate</div><div class="value">IC = 5.0</div></div>
+        <div class="glossary-item"><div class="symbol" style="color:#f39c12">C1</div><div class="label">Enzyme–S0 complex</div><div class="value">IC = 0</div></div>
+        <div class="glossary-item"><div class="symbol" style="color:#9b59b6">C2</div><div class="label">Enzyme–S1 complex</div><div class="value">IC = 0</div></div>
+        <div class="glossary-item"><div class="symbol" style="color:#2ecc71">S1</div><div class="label">Singly modified</div><div class="value">IC = 0</div></div>
+        <div class="glossary-item"><div class="symbol" style="color:#3498db">S2</div><div class="label">Doubly modified (product)</div><div class="value">IC = 0</div></div>
+        <div class="glossary-item"><div class="symbol" style="color:#1abc9c">E</div><div class="label">Free enzyme</div><div class="value">IC = 0.65</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="muted" style="font-size:0.88rem; margin-bottom:0.5rem;">Parameters (6 rate constants)</p>
+      <div class="glossary-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="glossary-item"><div class="symbol">kf1</div><div class="label">Binding rate (rxn 1)</div><div class="value">11.5</div></div>
+        <div class="glossary-item"><div class="symbol">kr1</div><div class="label">Unbinding rate (rxn 1)</div><div class="value">300.0</div></div>
+        <div class="glossary-item"><div class="symbol">kc1</div><div class="label">Catalytic rate (rxn 1)</div><div class="value">12.45</div></div>
+        <div class="glossary-item"><div class="symbol">kf2</div><div class="label">Binding rate (rxn 2)</div><div class="value">11.15</div></div>
+        <div class="glossary-item"><div class="symbol">kr2</div><div class="label">Unbinding rate (rxn 2)</div><div class="value">4.864</div></div>
+        <div class="glossary-item"><div class="symbol">kc2</div><div class="label">Catalytic rate (rxn 2)</div><div class="value">428.13</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="derived-box">
+    <strong>Derived quantities (Michaelis constants):</strong><br>
+    $$K_{m1} = \frac{k_{r1} + k_{c1}}{k_{f1}} = \frac{300 + 12.45}{11.5} \approx 27.2$$
+    $$K_{m2} = \frac{k_{r2} + k_{c2}}{k_{f2}} = \frac{4.864 + 428.13}{11.15} \approx 38.8$$
+    <p class="muted" style="font-size:0.85rem; margin-top:0.3rem;">Large Km values relative to substrate concentrations indicate the enzyme operates far below saturation — kinetics are approximately first-order in substrate.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 2: MATHEMATICAL MODEL ═══════════════════════ -->
+<section id="math">
+  <h2>2. Mathematical Model</h2>
+
+  <h3>ODE System</h3>
+  <div class="math-block">
+    $$\begin{aligned}
+    \frac{dS_0}{dt} &= -k_{f1} \, E \, S_0 + k_{r1} \, C_1 \\[4pt]
+    \frac{dC_1}{dt} &= k_{f1} \, E \, S_0 - (k_{r1} + k_{c1}) \, C_1 \\[4pt]
+    \frac{dC_2}{dt} &= k_{c1} \, C_1 - (k_{r2} + k_{c2}) \, C_2 + k_{f2} \, E \, S_1 \\[4pt]
+    \frac{dS_1}{dt} &= -k_{f2} \, E \, S_1 + k_{r2} \, C_2 \\[4pt]
+    \frac{dS_2}{dt} &= k_{c2} \, C_2 \\[4pt]
+    \frac{dE}{dt} &= -k_{f1} \, E \, S_0 + k_{r1} \, C_1 - k_{f2} \, E \, S_1 + (k_{r2} + k_{c2}) \, C_2
+    \end{aligned}$$
+  </div>
+
+  <h3>Conservation Laws</h3>
+  <div class="card">
+    <p><strong>Total substrate is conserved.</strong> Adding all six ODEs:</p>
+    <div class="math-block">
+      $$\frac{d}{dt}\big(S_0 + C_1 + C_2 + S_1 + S_2\big) = 0 \quad\Longrightarrow\quad S_0 + C_1 + C_2 + S_1 + S_2 = 5.0$$
+    </div>
+    <p><em>Proof sketch:</em> Every term in the sum cancels — binding removes one molecule from S0 and adds it to C1, catalysis moves C1 to C2, etc. No substrate is created or destroyed, only interconverted.</p>
+
+    <p><strong>Total enzyme is conserved.</strong> Adding the E, C1, and C2 equations:</p>
+    <div class="math-block">
+      $$\frac{d}{dt}\big(E + C_1 + C_2\big) = 0 \quad\Longrightarrow\quad E + C_1 + C_2 = 0.65$$
+    </div>
+    <p><em>Consequence:</em> Free enzyme E can be computed directly: $E(t) = 0.65 - C_1(t) - C_2(t)$. Since C1 and C2 are unobserved, E is partially hidden.</p>
+  </div>
+
+  <h3>Observable Mapping</h3>
+  <div class="math-block">
+    $$y_0(t) = S_0(t), \qquad y_1(t) = S_1(t), \qquad y_2(t) = S_2(t)$$
+  </div>
+  <p class="muted">Three of six states are directly measurable. The complexes C1, C2 and free enzyme E are <strong>hidden</strong> — they must be inferred from the dynamics of the observables.</p>
+</section>
+
+<!-- ═══════════════════════ SECTION 3: CONTROLS ═══════════════════════ -->
+<section id="controls">
+  <h2>3. Interactive Controls</h2>
+  <div id="stiffness-warning" class="warn-banner">
+    <strong>Warning:</strong> Estimated stiffness ratio exceeds 5000. The ODE solver may need very small steps — plots might be slow.
+  </div>
+  <div class="controls-grid">
+    <div class="control-group card">
+      <h3>Parameters (log scale)</h3>
+      <div class="slider-row"><label>kf1</label><input type="range" id="sl-kf1" min="-1" max="3" step="0.005" value="1.0607"><span class="readout" id="rd-kf1">11.50</span></div>
+      <div class="slider-row"><label>kr1</label><input type="range" id="sl-kr1" min="-1" max="3" step="0.005" value="2.4771"><span class="readout" id="rd-kr1">300.0</span></div>
+      <div class="slider-row"><label>kc1</label><input type="range" id="sl-kc1" min="-1" max="3" step="0.005" value="1.0953"><span class="readout" id="rd-kc1">12.45</span></div>
+      <div class="slider-row"><label>kf2</label><input type="range" id="sl-kf2" min="-1" max="3" step="0.005" value="1.0473"><span class="readout" id="rd-kf2">11.15</span></div>
+      <div class="slider-row"><label>kr2</label><input type="range" id="sl-kr2" min="-1" max="3" step="0.005" value="0.6870"><span class="readout" id="rd-kr2">4.864</span></div>
+      <div class="slider-row"><label>kc2</label><input type="range" id="sl-kc2" min="-1" max="3" step="0.005" value="2.6316"><span class="readout" id="rd-kc2">428.1</span></div>
+    </div>
+    <div class="control-group card">
+      <h3>Initial Conditions (linear scale)</h3>
+      <div class="slider-row"><label style="color:#e74c3c">S0</label><input type="range" id="sl-S0" min="0" max="20" step="0.1" value="5.0"><span class="readout" id="rd-S0">5.00</span></div>
+      <div class="slider-row"><label style="color:#f39c12">C1</label><input type="range" id="sl-C1" min="0" max="5" step="0.01" value="0"><span class="readout" id="rd-C1">0.00</span></div>
+      <div class="slider-row"><label style="color:#9b59b6">C2</label><input type="range" id="sl-C2" min="0" max="5" step="0.01" value="0"><span class="readout" id="rd-C2">0.00</span></div>
+      <div class="slider-row"><label style="color:#2ecc71">S1</label><input type="range" id="sl-S1" min="0" max="10" step="0.05" value="0"><span class="readout" id="rd-S1">0.00</span></div>
+      <div class="slider-row"><label style="color:#3498db">S2</label><input type="range" id="sl-S2" min="0" max="10" step="0.05" value="0"><span class="readout" id="rd-S2">0.00</span></div>
+      <div class="slider-row"><label style="color:#1abc9c">E</label><input type="range" id="sl-E" min="0" max="5" step="0.01" value="0.65"><span class="readout" id="rd-E">0.65</span></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="resetDefaults()">Reset to Defaults</button>
+    <button class="btn" onclick="randomizeParams()">Randomize Parameters</button>
+    <span id="solve-time" class="muted" style="font-size:0.82rem; align-self:center;"></span>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 4: STATE VARIABLES ═══════════════════════ -->
+<section id="states">
+  <h2>4. All State Variables</h2>
+  <div id="plot-states" class="plot-container"></div>
+</section>
+
+<!-- ═══════════════════════ SECTION 5: OBSERVABLES ═══════════════════════ -->
+<section id="observables">
+  <h2>5. Observables (Measurable)</h2>
+  <p class="muted">Only S0, S1, S2 are directly measurable in experiment. The hidden states C1, C2, E are shown as faint dashed lines for comparison.</p>
+  <div id="plot-obs" class="plot-container"></div>
+</section>
+
+<!-- ═══════════════════════ SECTION 6: CONSERVATION ═══════════════════════ -->
+<section id="conservation">
+  <h2>6. Conservation Law Verification</h2>
+  <div id="conservation-readout" class="readout-bar">
+    <div class="item"><span class="label-text">Substrate sum error:</span> <span id="cons-sub-err" class="value-text readout-good">—</span></div>
+    <div class="item"><span class="label-text">Enzyme sum error:</span> <span id="cons-enz-err" class="value-text readout-good">—</span></div>
+  </div>
+  <div class="plot-row">
+    <div id="plot-cons-sub" class="plot-half"></div>
+    <div id="plot-cons-enz" class="plot-half"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 7: STIFFNESS ═══════════════════════ -->
+<section id="stiffness">
+  <h2>7. Stiffness &amp; Eigenvalue Analysis</h2>
+  <div class="card">
+    <p>The Jacobian matrix $\mathbf{J} = \partial \mathbf{f}/\partial \mathbf{y}$ evaluated at the initial state determines the system's stiffness. Large negative eigenvalues create fast-decaying modes (boundary layers) that require tiny time steps to resolve.</p>
+  </div>
+  <div id="eigen-container">
+    <table class="eigen-table">
+      <thead><tr><th>#</th><th>Eigenvalue</th><th>Timescale</th><th>Mode</th></tr></thead>
+      <tbody id="eigen-body"></tbody>
+    </table>
+  </div>
+  <h3>Zoomed Transient (t &in; [0, 0.05])</h3>
+  <div id="plot-transient" class="plot-container" style="min-height:350px;"></div>
+</section>
+
+<!-- ═══════════════════════ SECTION 8: PHASE PORTRAITS ═══════════════════════ -->
+<section id="phase">
+  <h2>8. Phase Portraits</h2>
+  <div class="plot-row-3">
+    <div id="plot-phase1" class="plot-third"></div>
+    <div id="plot-phase2" class="plot-third"></div>
+    <div id="plot-phase3" class="plot-third"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ SECTION 9: FLUX ANALYSIS ═══════════════════════ -->
+<section id="flux">
+  <h2>9. Reaction Flux Analysis</h2>
+  <p class="muted">The six elementary reaction fluxes show which processes dominate at each point in time. When a forward flux approximately equals its reverse, the reaction is at quasi-steady state.</p>
+  <div id="plot-flux" class="plot-container"></div>
+</section>
+
+<!-- ═══════════════════════ SECTION 10: SENSITIVITY ═══════════════════════ -->
+<section id="sensitivity">
+  <h2>10. Parameter Sensitivity</h2>
+  <div class="sens-controls">
+    <label>State:</label>
+    <select id="sens-state">
+      <option value="0">S0</option><option value="1">C1</option><option value="2">C2</option>
+      <option value="3">S1</option><option value="4" selected>S2</option><option value="5">E</option>
+    </select>
+    <label>Time:</label>
+    <input type="range" id="sens-time" min="0" max="499" step="1" value="250">
+    <span id="sens-time-val" class="readout" style="min-width:60px;">t = 10.0</span>
+  </div>
+  <div id="plot-sens" class="plot-container" style="min-height:350px;"></div>
+</section>
+</main>
+
+<!-- ═══════════════════════ JAVASCRIPT ═══════════════════════ -->
+<script>
+"use strict";
+
+// ============ CONSTANTS ============
+const STATE_NAMES = ['S0', 'C1', 'C2', 'S1', 'S2', 'E'];
+const STATE_COLORS = ['#e74c3c', '#f39c12', '#9b59b6', '#2ecc71', '#3498db', '#1abc9c'];
+const PARAM_NAMES = ['kf1', 'kr1', 'kc1', 'kf2', 'kr2', 'kc2'];
+const FLUX_NAMES = ['kf1·E·S0 (bind 1)', 'kr1·C1 (unbind 1)', 'kc1·C1 (cat 1)',
+                    'kf2·E·S1 (bind 2)', 'kr2·C2 (unbind 2)', 'kc2·C2 (cat 2)'];
+const FLUX_COLORS = ['#e74c3c', '#f39c12', '#bc8cff', '#2ecc71', '#1abc9c', '#3498db'];
+const N_RESAMPLE = 500;
+const T_END = 20;
+
+const DEFAULTS = {
+  params: [11.5, 300.0, 12.45, 11.15, 4.864, 428.13],
+  ics: [5.0, 0.0, 0.0, 0.0, 0.0, 0.65]
+};
+
+// ============ ODE RIGHT-HAND SIDE ============
+function erkRHS(y, p) {
+  const S0 = y[0], C1 = y[1], C2 = y[2], S1 = y[3], S2 = y[4], E = y[5];
+  const kf1 = p[0], kr1 = p[1], kc1 = p[2], kf2 = p[3], kr2 = p[4], kc2 = p[5];
+  return [
+    -kf1*E*S0 + kr1*C1,
+     kf1*E*S0 - (kr1+kc1)*C1,
+     kc1*C1 - (kr2+kc2)*C2 + kf2*E*S1,
+    -kf2*E*S1 + kr2*C2,
+     kc2*C2,
+    -kf1*E*S0 + kr1*C1 - kf2*E*S1 + (kr2+kc2)*C2
+  ];
+}
+
+// ============ REACTION FLUXES ============
+function erkFluxes(y, p) {
+  const S0 = y[0], C1 = y[1], C2 = y[2], S1 = y[3], E = y[5];
+  const kf1 = p[0], kr1 = p[1], kc1 = p[2], kf2 = p[3], kr2 = p[4], kc2 = p[5];
+  return [kf1*E*S0, kr1*C1, kc1*C1, kf2*E*S1, kr2*C2, kc2*C2];
+}
+
+// ============ ANALYTICAL JACOBIAN ============
+function erkJacobian(y, p) {
+  const S0 = y[0], C1 = y[1], C2 = y[2], S1 = y[3], S2 = y[4], E = y[5];
+  const kf1 = p[0], kr1 = p[1], kc1 = p[2], kf2 = p[3], kr2 = p[4], kc2 = p[5];
+  return [
+    [-kf1*E,   kr1,        0,          0,     0, -kf1*S0          ],
+    [ kf1*E,  -(kr1+kc1),  0,          0,     0,  kf1*S0          ],
+    [ 0,       kc1,       -(kr2+kc2),  kf2*E, 0,  kf2*S1          ],
+    [ 0,       0,          kr2,       -kf2*E, 0, -kf2*S1          ],
+    [ 0,       0,          kc2,        0,     0,  0               ],
+    [-kf1*E,   kr1,        kr2+kc2,   -kf2*E, 0, -kf1*S0-kf2*S1  ]
+  ];
+}
+
+// ============ ADAPTIVE DORMAND-PRINCE RK45 SOLVER ============
+function solveODE(params, ics) {
+  const n = 6;
+  const atol = 1e-10, rtol = 1e-8;
+  const tEnd = T_END;
+
+  // Stiffness estimate for adaptive hMax
+  const stiffness = Math.max(params[1]+params[2], params[4]+params[5]); // max(kr1+kc1, kr2+kc2)
+  const tPhase1 = 0.05;
+  const hMaxPhase1 = Math.min(0.0002, 2.0 / stiffness);
+  const hMaxPhase2 = 0.05;
+
+  // Show stiffness warning
+  const warnEl = document.getElementById('stiffness-warning');
+  if (warnEl) warnEl.classList.toggle('visible', stiffness > 5000);
+
+  // Dormand-Prince coefficients
+  const a2 = 1/5, a3 = 3/10, a4 = 4/5, a5 = 8/9, a6 = 1;
+  const b21 = 1/5;
+  const b31 = 3/40, b32 = 9/40;
+  const b41 = 44/45, b42 = -56/15, b43 = 32/9;
+  const b51 = 19372/6561, b52 = -25360/2187, b53 = 64448/6561, b54 = -212/729;
+  const b61 = 9017/3168, b62 = -355/33, b63 = 46732/5247, b64 = 49/176, b65 = -5103/18656;
+  const c1 = 35/384, c3 = 500/1113, c4 = 125/192, c5 = -2187/6784, c6 = 11/84;
+  const e1 = 71/57600, e3 = -71/16695, e4 = 71/1920, e5 = -17253/339200, e6 = 22/525, e7 = -1/40;
+
+  let t = 0;
+  let y = ics.slice();
+  let h = hMaxPhase1 * 0.1;
+  const ts = [0], ys = [y.slice()];
+  let nSteps = 0, nReject = 0;
+  const maxSteps = 50000;
+
+  // Compute initial k1
+  let k1 = erkRHS(y, params);
+
+  while (t < tEnd && nSteps < maxSteps) {
+    const hMax = t < tPhase1 ? hMaxPhase1 : hMaxPhase2;
+    h = Math.min(h, hMax);
+    if (t + h > tEnd) h = tEnd - t;
+    if (h < 1e-15) break;
+
+    // RK45 stages
+    const yTmp = new Array(n);
+
+    // k2
+    for (let i = 0; i < n; i++) yTmp[i] = y[i] + h * b21 * k1[i];
+    const k2 = erkRHS(yTmp, params);
+
+    // k3
+    for (let i = 0; i < n; i++) yTmp[i] = y[i] + h * (b31*k1[i] + b32*k2[i]);
+    const k3 = erkRHS(yTmp, params);
+
+    // k4
+    for (let i = 0; i < n; i++) yTmp[i] = y[i] + h * (b41*k1[i] + b42*k2[i] + b43*k3[i]);
+    const k4 = erkRHS(yTmp, params);
+
+    // k5
+    for (let i = 0; i < n; i++) yTmp[i] = y[i] + h * (b51*k1[i] + b52*k2[i] + b53*k3[i] + b54*k4[i]);
+    const k5 = erkRHS(yTmp, params);
+
+    // k6
+    for (let i = 0; i < n; i++) yTmp[i] = y[i] + h * (b61*k1[i] + b62*k2[i] + b63*k3[i] + b64*k4[i] + b65*k5[i]);
+    const k6 = erkRHS(yTmp, params);
+
+    // 5th order solution
+    const yNew = new Array(n);
+    for (let i = 0; i < n; i++) yNew[i] = y[i] + h * (c1*k1[i] + c3*k3[i] + c4*k4[i] + c5*k5[i] + c6*k6[i]);
+
+    // k7 (FSAL)
+    const k7 = erkRHS(yNew, params);
+
+    // Error estimate
+    let errMax = 0;
+    for (let i = 0; i < n; i++) {
+      const sc = atol + rtol * Math.max(Math.abs(y[i]), Math.abs(yNew[i]));
+      const ei = h * (e1*k1[i] + e3*k3[i] + e4*k4[i] + e5*k5[i] + e6*k6[i] + e7*k7[i]);
+      errMax = Math.max(errMax, Math.abs(ei) / sc);
+    }
+
+    if (errMax <= 1.0) {
+      // Accept step
+      t += h;
+      y = yNew;
+      k1 = k7; // FSAL
+      ts.push(t);
+      ys.push(y.slice());
+      nSteps++;
+
+      // Step size increase
+      const factor = Math.min(5.0, Math.max(0.2, 0.9 * Math.pow(errMax, -0.2)));
+      h = Math.min(h * factor, hMax);
+    } else {
+      // Reject step
+      const factor = Math.max(0.2, 0.9 * Math.pow(errMax, -0.2));
+      h *= factor;
+      nReject++;
+      if (nReject > 10000) break; // Safety
+    }
+  }
+
+  // Resample to uniform grid, but keep raw output for transient plot
+  const result = resample(ts, ys, N_RESAMPLE, params);
+  result.rawT = ts;
+  result.rawY = ys;
+  return result;
+}
+
+function resample(ts, ys, nPts, params) {
+  const n = ys[0].length;
+  const tEnd = ts[ts.length - 1];
+  const dt = tEnd / (nPts - 1);
+  const tUniform = new Array(nPts);
+  const yUniform = [];
+  const fluxUniform = [];
+  for (let i = 0; i < n; i++) yUniform.push(new Array(nPts));
+  for (let i = 0; i < 6; i++) fluxUniform.push(new Array(nPts));
+
+  let j = 0;
+  for (let i = 0; i < nPts; i++) {
+    const tTarget = i * dt;
+    tUniform[i] = tTarget;
+
+    // Find bracketing interval
+    while (j < ts.length - 2 && ts[j + 1] < tTarget) j++;
+
+    if (j >= ts.length - 1) {
+      // Extrapolate last point
+      for (let k = 0; k < n; k++) yUniform[k][i] = ys[ts.length - 1][k];
+    } else {
+      // Linear interpolation
+      const frac = (ts[j+1] - ts[j]) > 1e-30 ? (tTarget - ts[j]) / (ts[j+1] - ts[j]) : 0;
+      const yInterp = new Array(n);
+      for (let k = 0; k < n; k++) {
+        yInterp[k] = ys[j][k] + frac * (ys[j+1][k] - ys[j][k]);
+        yUniform[k][i] = yInterp[k];
+      }
+      const fl = erkFluxes(yInterp, params);
+      for (let k = 0; k < 6; k++) fluxUniform[k][i] = fl[k];
+    }
+  }
+
+  return { t: tUniform, y: yUniform, fluxes: fluxUniform, nSteps: ts.length - 1 };
+}
+
+// ============ EIGENVALUE COMPUTATION (Hessenberg QR) ============
+
+// Householder reduction to upper Hessenberg form
+function toHessenberg(A) {
+  const n = A.length;
+  const H = A.map(r => r.slice());
+  for (let k = 0; k < n - 2; k++) {
+    // Build Householder vector for column k, rows k+1..n-1
+    let sigma = 0;
+    for (let i = k + 1; i < n; i++) sigma += H[i][k] * H[i][k];
+    if (sigma < 1e-30) continue;
+
+    const alpha = -Math.sign(H[k+1][k]) * Math.sqrt(sigma);
+    const r = Math.sqrt(0.5 * (alpha * alpha - H[k+1][k] * alpha));
+    if (Math.abs(r) < 1e-30) continue;
+
+    const v = new Array(n).fill(0);
+    v[k+1] = (H[k+1][k] - alpha) / (2 * r);
+    for (let i = k + 2; i < n; i++) v[i] = H[i][k] / (2 * r);
+
+    // H = (I - 2vv^T) H (I - 2vv^T)
+    // Left multiply: H = H - 2v(v^T H)
+    for (let j = k; j < n; j++) {
+      let dot = 0;
+      for (let i = k + 1; i < n; i++) dot += v[i] * H[i][j];
+      for (let i = k + 1; i < n; i++) H[i][j] -= 2 * dot * v[i];
+    }
+    // Right multiply: H = H - 2(Hv)v^T
+    for (let i = 0; i < n; i++) {
+      let dot = 0;
+      for (let j = k + 1; j < n; j++) dot += H[i][j] * v[j];
+      for (let j = k + 1; j < n; j++) H[i][j] -= 2 * dot * v[j];
+    }
+  }
+  return H;
+}
+
+// Extract eigenvalues from upper Hessenberg matrix using QR iteration
+function hessenbergEigenvalues(H0) {
+  const n = H0.length;
+  const H = H0.map(r => r.slice());
+  const eigenvalues = []; // {re, im}
+  let nn = n;
+  const maxIter = 200;
+
+  while (nn > 0) {
+    if (nn === 1) {
+      eigenvalues.push({ re: H[0][0], im: 0 });
+      break;
+    }
+
+    // Check for 2x2 block
+    if (nn === 2) {
+      const a = H[0][0], b = H[0][1], c = H[1][0], d = H[1][1];
+      const tr = a + d, det = a * d - b * c;
+      const disc = tr * tr - 4 * det;
+      if (disc >= 0) {
+        eigenvalues.push({ re: (tr + Math.sqrt(disc)) / 2, im: 0 });
+        eigenvalues.push({ re: (tr - Math.sqrt(disc)) / 2, im: 0 });
+      } else {
+        eigenvalues.push({ re: tr / 2, im: Math.sqrt(-disc) / 2 });
+        eigenvalues.push({ re: tr / 2, im: -Math.sqrt(-disc) / 2 });
+      }
+      break;
+    }
+
+    // QR iteration with Wilkinson shift
+    let converged = false;
+    for (let iter = 0; iter < maxIter; iter++) {
+      // Check convergence of H[nn-1][nn-2]
+      if (Math.abs(H[nn-1][nn-2]) < 1e-14 * (Math.abs(H[nn-1][nn-1]) + Math.abs(H[nn-2][nn-2]) + 1e-30)) {
+        eigenvalues.push({ re: H[nn-1][nn-1], im: 0 });
+        nn--;
+        converged = true;
+        break;
+      }
+
+      // Check for 2x2 block convergence
+      if (nn >= 3 && Math.abs(H[nn-2][nn-3]) < 1e-14 * (Math.abs(H[nn-2][nn-2]) + Math.abs(H[nn-3][nn-3]) + 1e-30)) {
+        const a = H[nn-2][nn-2], b = H[nn-2][nn-1], c = H[nn-1][nn-2], d = H[nn-1][nn-1];
+        const tr = a + d, det = a * d - b * c;
+        const disc = tr * tr - 4 * det;
+        if (disc >= 0) {
+          eigenvalues.push({ re: (tr + Math.sqrt(disc)) / 2, im: 0 });
+          eigenvalues.push({ re: (tr - Math.sqrt(disc)) / 2, im: 0 });
+        } else {
+          eigenvalues.push({ re: tr / 2, im: Math.sqrt(-disc) / 2 });
+          eigenvalues.push({ re: tr / 2, im: -Math.sqrt(-disc) / 2 });
+        }
+        nn -= 2;
+        converged = true;
+        break;
+      }
+
+      // Wilkinson shift: eigenvalue of bottom-right 2x2 closer to H[nn-1][nn-1]
+      const a = H[nn-2][nn-2], b = H[nn-2][nn-1], c = H[nn-1][nn-2], d = H[nn-1][nn-1];
+      const tr = a + d, det = a * d - b * c;
+      const disc = tr * tr - 4 * det;
+      let shift;
+      if (disc >= 0) {
+        const e1 = (tr + Math.sqrt(disc)) / 2, e2 = (tr - Math.sqrt(disc)) / 2;
+        shift = Math.abs(e1 - d) < Math.abs(e2 - d) ? e1 : e2;
+      } else {
+        shift = d; // Use real part
+      }
+
+      // Apply shift
+      for (let i = 0; i < nn; i++) H[i][i] -= shift;
+
+      // QR decomposition via Givens rotations
+      const cs = new Array(nn - 1), sn = new Array(nn - 1);
+      for (let i = 0; i < nn - 1; i++) {
+        const a = H[i][i], b = H[i+1][i];
+        const r = Math.sqrt(a * a + b * b);
+        if (r < 1e-30) { cs[i] = 1; sn[i] = 0; continue; }
+        cs[i] = a / r;
+        sn[i] = b / r;
+        // Apply Givens rotation to rows i and i+1
+        for (let j = i; j < nn; j++) {
+          const h1 = H[i][j], h2 = H[i+1][j];
+          H[i][j] = cs[i] * h1 + sn[i] * h2;
+          H[i+1][j] = -sn[i] * h1 + cs[i] * h2;
+        }
+      }
+
+      // R * Q (apply Givens rotations from right)
+      for (let i = 0; i < nn - 1; i++) {
+        for (let j = 0; j <= Math.min(i + 2, nn - 1); j++) {
+          const h1 = H[j][i], h2 = H[j][i+1];
+          H[j][i] = cs[i] * h1 + sn[i] * h2;
+          H[j][i+1] = -sn[i] * h1 + cs[i] * h2;
+        }
+      }
+
+      // Undo shift
+      for (let i = 0; i < nn; i++) H[i][i] += shift;
+    }
+
+    if (!converged) {
+      // Fallback: return diagonal as approximation
+      for (let i = 0; i < nn; i++) eigenvalues.push({ re: H[i][i], im: 0 });
+      break;
+    }
+  }
+
+  // Sort by real part (most negative first)
+  eigenvalues.sort((a, b) => a.re - b.re);
+  return eigenvalues;
+}
+
+function computeEigenvalues(y, params) {
+  const J = erkJacobian(y, params);
+  const H = toHessenberg(J);
+  return hessenbergEigenvalues(H);
+}
+
+// ============ SLIDER I/O ============
+function readSliders() {
+  const params = PARAM_NAMES.map(name => Math.pow(10, parseFloat(document.getElementById('sl-' + name).value)));
+  const ics = STATE_NAMES.map(name => parseFloat(document.getElementById('sl-' + name).value));
+  return { params, ics };
+}
+
+function updateReadouts() {
+  PARAM_NAMES.forEach(name => {
+    const val = Math.pow(10, parseFloat(document.getElementById('sl-' + name).value));
+    document.getElementById('rd-' + name).textContent = val < 10 ? val.toFixed(3) : val < 100 ? val.toFixed(2) : val.toFixed(1);
+  });
+  STATE_NAMES.forEach(name => {
+    const val = parseFloat(document.getElementById('sl-' + name).value);
+    document.getElementById('rd-' + name).textContent = val.toFixed(2);
+  });
+}
+
+function resetDefaults() {
+  const logDefaults = DEFAULTS.params.map(v => Math.log10(v));
+  PARAM_NAMES.forEach((name, i) => { document.getElementById('sl-' + name).value = logDefaults[i]; });
+  STATE_NAMES.forEach((name, i) => { document.getElementById('sl-' + name).value = DEFAULTS.ics[i]; });
+  updateReadouts();
+  scheduleUpdate();
+}
+
+function randomizeParams() {
+  PARAM_NAMES.forEach(name => {
+    const el = document.getElementById('sl-' + name);
+    el.value = -1 + Math.random() * 4; // log10 range [-1, 3]
+  });
+  updateReadouts();
+  scheduleUpdate();
+}
+
+// ============ PLOTLY LAYOUT HELPERS ============
+function getTheme() { return document.documentElement.getAttribute('data-theme'); }
+
+function baseLayout(title, xLabel, yLabel, extra) {
+  const dark = getTheme() === 'dark';
+  return Object.assign({
+    title: { text: title, font: { size: 14 } },
+    paper_bgcolor: dark ? '#161b22' : '#ffffff',
+    plot_bgcolor: dark ? '#0d1117' : '#fafafa',
+    font: { color: dark ? '#e6edf3' : '#1f2328', size: 12 },
+    xaxis: { title: xLabel, gridcolor: dark ? '#21262d' : '#e8eaed', zerolinecolor: dark ? '#30363d' : '#d0d7de' },
+    yaxis: { title: yLabel, gridcolor: dark ? '#21262d' : '#e8eaed', zerolinecolor: dark ? '#30363d' : '#d0d7de' },
+    margin: { l: 55, r: 20, t: 40, b: 45 },
+    legend: { orientation: 'h', y: -0.2, font: { size: 11 } },
+    hovermode: 'x unified'
+  }, extra || {});
+}
+
+// ============ PLOT INITIALIZATION ============
+let currentSolution = null;
+
+function initPlots() {
+  // States plot
+  Plotly.newPlot('plot-states', STATE_NAMES.map((name, i) => ({
+    x: [], y: [], name, mode: 'lines',
+    line: { color: STATE_COLORS[i], width: 2 }
+  })), baseLayout('All State Variables', 'Time t', 'Concentration'), { responsive: true });
+
+  // Observables plot
+  const obsTraces = [];
+  // Observable traces (thick)
+  [0, 3, 4].forEach(i => obsTraces.push({
+    x: [], y: [], name: STATE_NAMES[i] + ' (observed)', mode: 'lines',
+    line: { color: STATE_COLORS[i], width: 3 }
+  }));
+  // Hidden traces (dashed, faint)
+  [1, 2, 5].forEach(i => obsTraces.push({
+    x: [], y: [], name: STATE_NAMES[i] + ' (hidden)', mode: 'lines',
+    line: { color: STATE_COLORS[i], width: 1.5, dash: 'dash' }, opacity: 0.5
+  }));
+  Plotly.newPlot('plot-obs', obsTraces, baseLayout('Observables vs Hidden States', 'Time t', 'Concentration'), { responsive: true });
+
+  // Conservation plots
+  Plotly.newPlot('plot-cons-sub', [
+    { x: [], y: [], name: 'S0+C1+C2+S1+S2', mode: 'lines', line: { color: '#58a6ff', width: 2 } },
+    { x: [], y: [], name: 'Expected', mode: 'lines', line: { color: '#8b949e', width: 1, dash: 'dash' } }
+  ], baseLayout('Substrate Conservation', 'Time t', 'Total', { yaxis: { title: 'Total', rangemode: 'tozero' } }), { responsive: true });
+
+  Plotly.newPlot('plot-cons-enz', [
+    { x: [], y: [], name: 'E+C1+C2', mode: 'lines', line: { color: '#1abc9c', width: 2 } },
+    { x: [], y: [], name: 'Expected', mode: 'lines', line: { color: '#8b949e', width: 1, dash: 'dash' } }
+  ], baseLayout('Enzyme Conservation', 'Time t', 'Total', { yaxis: { title: 'Total', rangemode: 'tozero' } }), { responsive: true });
+
+  // Transient plot
+  Plotly.newPlot('plot-transient', STATE_NAMES.map((name, i) => ({
+    x: [], y: [], name, mode: 'lines',
+    line: { color: STATE_COLORS[i], width: 2 }
+  })), baseLayout('Fast Transient (Boundary Layer)', 'Time t', 'Concentration', {
+    xaxis: { title: 'Time t', range: [0, 0.05] }
+  }), { responsive: true });
+
+  // Phase portraits
+  Plotly.newPlot('plot-phase1', [
+    { x: [], y: [], mode: 'lines', line: { color: '#58a6ff', width: 1.5 }, showlegend: false },
+    { x: [], y: [], mode: 'markers', marker: { color: '#3fb950', size: 10, symbol: 'circle' }, name: 'Start', showlegend: true },
+    { x: [], y: [], mode: 'markers', marker: { color: '#f85149', size: 10, symbol: 'square' }, name: 'End', showlegend: true },
+    { x: [], y: [], mode: 'markers', marker: { color: '#58a6ff', size: 6, symbol: 'triangle-right', angle: [] }, showlegend: false }
+  ], baseLayout('S0 vs S1', 'S0', 'S1', { legend: { y: 1.05, orientation: 'h' } }), { responsive: true });
+
+  Plotly.newPlot('plot-phase2', [
+    { x: [], y: [], mode: 'lines', line: { color: '#bc8cff', width: 1.5 }, showlegend: false },
+    { x: [], y: [], mode: 'markers', marker: { color: '#3fb950', size: 10, symbol: 'circle' }, name: 'Start' },
+    { x: [], y: [], mode: 'markers', marker: { color: '#f85149', size: 10, symbol: 'square' }, name: 'End' },
+    { x: [], y: [], mode: 'markers', marker: { color: '#bc8cff', size: 6, symbol: 'triangle-right' }, showlegend: false }
+  ], baseLayout('C1 vs C2', 'C1', 'C2', { legend: { y: 1.05, orientation: 'h' } }), { responsive: true });
+
+  Plotly.newPlot('plot-phase3', [
+    { x: [], y: [], mode: 'lines', line: { color: '#1abc9c', width: 1.5 }, showlegend: false },
+    { x: [], y: [], mode: 'markers', marker: { color: '#3fb950', size: 10, symbol: 'circle' }, name: 'Start' },
+    { x: [], y: [], mode: 'markers', marker: { color: '#f85149', size: 10, symbol: 'square' }, name: 'End' },
+    { x: [], y: [], mode: 'markers', marker: { color: '#1abc9c', size: 6, symbol: 'triangle-right' }, showlegend: false }
+  ], baseLayout('E vs S0', 'E', 'S0', { legend: { y: 1.05, orientation: 'h' } }), { responsive: true });
+
+  // Flux plot
+  Plotly.newPlot('plot-flux', FLUX_NAMES.map((name, i) => ({
+    x: [], y: [], name, mode: 'lines',
+    line: { color: FLUX_COLORS[i], width: 2 }
+  })), baseLayout('Reaction Fluxes', 'Time t', 'Flux (concentration/time)'), { responsive: true });
+
+  // Sensitivity plot
+  Plotly.newPlot('plot-sens', [{
+    x: [], y: [], type: 'bar', orientation: 'h',
+    marker: { color: [] }
+  }], baseLayout('Normalized Sensitivity (Elasticity)', 'Elasticity ∂log(y)/∂log(p)', '', {
+    yaxis: { title: '' }, margin: { l: 80 }
+  }), { responsive: true });
+}
+
+// ============ PLOT UPDATE FUNCTIONS ============
+function updateAllPlots() {
+  const t0 = performance.now();
+  const { params, ics } = readSliders();
+  const sol = solveODE(params, ics);
+  currentSolution = sol;
+  const elapsed = (performance.now() - t0).toFixed(1);
+  document.getElementById('solve-time').textContent = `Solved in ${elapsed}ms (${sol.nSteps} steps)`;
+
+  updateStatePlot(sol);
+  updateObservablesPlot(sol);
+  updateConservationPlot(sol, ics);
+  updateStiffnessDisplay(ics, params);
+  updateTransientPlot(sol);
+  updatePhasePortraits(sol);
+  updateFluxPlot(sol);
+  scheduleSensitivity();
+}
+
+function updateStatePlot(sol) {
+  const update = { x: [], y: [] };
+  for (let i = 0; i < 6; i++) { update.x.push(sol.t); update.y.push(sol.y[i]); }
+  Plotly.update('plot-states', update, baseLayout('All State Variables', 'Time t', 'Concentration'));
+}
+
+function updateObservablesPlot(sol) {
+  const update = { x: [], y: [] };
+  // Observables: S0(0), S1(3), S2(4)
+  [0, 3, 4].forEach(i => { update.x.push(sol.t); update.y.push(sol.y[i]); });
+  // Hidden: C1(1), C2(2), E(5)
+  [1, 2, 5].forEach(i => { update.x.push(sol.t); update.y.push(sol.y[i]); });
+  Plotly.update('plot-obs', update, baseLayout('Observables vs Hidden States', 'Time t', 'Concentration'));
+}
+
+function updateConservationPlot(sol, ics) {
+  const n = sol.t.length;
+  const subSum = new Array(n), enzSum = new Array(n);
+  const subExpected = ics[0] + ics[1] + ics[2] + ics[3] + ics[4];
+  const enzExpected = ics[5] + ics[1] + ics[2];
+
+  let subErr = 0, enzErr = 0;
+  for (let i = 0; i < n; i++) {
+    subSum[i] = sol.y[0][i] + sol.y[1][i] + sol.y[2][i] + sol.y[3][i] + sol.y[4][i];
+    enzSum[i] = sol.y[5][i] + sol.y[1][i] + sol.y[2][i];
+    subErr = Math.max(subErr, Math.abs(subSum[i] - subExpected));
+    enzErr = Math.max(enzErr, Math.abs(enzSum[i] - enzExpected));
+  }
+
+  // Update readouts
+  const subEl = document.getElementById('cons-sub-err');
+  const enzEl = document.getElementById('cons-enz-err');
+  subEl.textContent = subErr.toExponential(2);
+  enzEl.textContent = enzErr.toExponential(2);
+  subEl.className = 'value-text ' + (subErr < 1e-8 ? 'readout-good' : subErr < 1e-4 ? 'readout-warn' : 'readout-bad');
+  enzEl.className = 'value-text ' + (enzErr < 1e-8 ? 'readout-good' : enzErr < 1e-4 ? 'readout-warn' : 'readout-bad');
+
+  const subRef = new Array(n).fill(subExpected);
+  const enzRef = new Array(n).fill(enzExpected);
+
+  Plotly.update('plot-cons-sub',
+    { x: [sol.t, sol.t], y: [subSum, subRef] },
+    baseLayout('Substrate Conservation', 'Time t', 'S0+C1+C2+S1+S2')
+  );
+  Plotly.update('plot-cons-enz',
+    { x: [sol.t, sol.t], y: [enzSum, enzRef] },
+    baseLayout('Enzyme Conservation', 'Time t', 'E+C1+C2')
+  );
+}
+
+function updateStiffnessDisplay(ics, params) {
+  const eigs = computeEigenvalues(ics, params);
+  const tbody = document.getElementById('eigen-body');
+  tbody.innerHTML = '';
+
+  eigs.forEach((e, i) => {
+    const row = tbody.insertRow();
+    row.insertCell().textContent = i + 1;
+
+    let eigStr;
+    if (Math.abs(e.im) < 1e-10) {
+      eigStr = e.re.toFixed(4);
+    } else {
+      eigStr = `${e.re.toFixed(4)} ± ${Math.abs(e.im).toFixed(4)}i`;
+    }
+    row.insertCell().textContent = eigStr;
+
+    const absRe = Math.abs(e.re);
+    const timescale = absRe > 1e-10 ? (1 / absRe).toExponential(2) : '∞';
+    row.insertCell().textContent = timescale;
+
+    let mode, cls;
+    if (absRe > 100) { mode = 'Fast'; cls = 'eigen-fast'; }
+    else if (absRe > 1) { mode = 'Medium'; cls = 'eigen-medium'; }
+    else { mode = 'Slow/Zero'; cls = 'eigen-slow'; }
+    const modeCell = row.insertCell();
+    modeCell.textContent = mode;
+    modeCell.className = cls;
+    row.cells[1].className = cls;
+  });
+}
+
+function updateTransientPlot(sol) {
+  // Use raw (non-uniform) solver output for full transient resolution
+  // The adaptive solver places ~250 points in [0, 0.05] vs ~1 in the resampled grid
+  const rawT = sol.rawT, rawY = sol.rawY;
+  let iEnd = rawT.length - 1;
+  for (let i = 0; i < rawT.length; i++) {
+    if (rawT[i] >= 0.05) { iEnd = i; break; }
+  }
+  const update = { x: [], y: [] };
+  for (let s = 0; s < 6; s++) {
+    const tSlice = [], ySlice = [];
+    for (let i = 0; i <= iEnd; i++) { tSlice.push(rawT[i]); ySlice.push(rawY[i][s]); }
+    update.x.push(tSlice);
+    update.y.push(ySlice);
+  }
+  Plotly.update('plot-transient', update, baseLayout('Fast Transient (Boundary Layer)', 'Time t', 'Concentration', {
+    xaxis: { title: 'Time t', range: [0, 0.05] }
+  }));
+}
+
+function updatePhasePortraits(sol) {
+  const n = sol.t.length;
+  const nArrows = 15;
+  const step = Math.max(1, Math.floor(n / nArrows));
+
+  function makeArrowData(xAll, yAll) {
+    const ax = [], ay = [], angles = [];
+    for (let i = step; i < n - 1; i += step) {
+      ax.push(xAll[i]);
+      ay.push(yAll[i]);
+      const dx = xAll[i+1] - xAll[i-1];
+      const dy = yAll[i+1] - yAll[i-1];
+      angles.push(Math.atan2(dy, dx) * 180 / Math.PI);
+    }
+    return { ax, ay, angles };
+  }
+
+  // Phase 1: S0 vs S1
+  const p1 = makeArrowData(sol.y[0], sol.y[3]);
+  Plotly.update('plot-phase1', {
+    x: [sol.y[0], [sol.y[0][0]], [sol.y[0][n-1]], p1.ax],
+    y: [sol.y[3], [sol.y[3][0]], [sol.y[3][n-1]], p1.ay],
+    'marker.angle': [undefined, undefined, undefined, p1.angles]
+  }, baseLayout('S0 vs S1', 'S0', 'S1', { legend: { y: 1.05, orientation: 'h' } }));
+
+  // Phase 2: C1 vs C2
+  const p2 = makeArrowData(sol.y[1], sol.y[2]);
+  Plotly.update('plot-phase2', {
+    x: [sol.y[1], [sol.y[1][0]], [sol.y[1][n-1]], p2.ax],
+    y: [sol.y[2], [sol.y[2][0]], [sol.y[2][n-1]], p2.ay],
+    'marker.angle': [undefined, undefined, undefined, p2.angles]
+  }, baseLayout('C1 vs C2', 'C1', 'C2', { legend: { y: 1.05, orientation: 'h' } }));
+
+  // Phase 3: E vs S0
+  const p3 = makeArrowData(sol.y[5], sol.y[0]);
+  Plotly.update('plot-phase3', {
+    x: [sol.y[5], [sol.y[5][0]], [sol.y[5][n-1]], p3.ax],
+    y: [sol.y[0], [sol.y[0][0]], [sol.y[0][n-1]], p3.ay],
+    'marker.angle': [undefined, undefined, undefined, p3.angles]
+  }, baseLayout('E vs S0', 'E', 'S0', { legend: { y: 1.05, orientation: 'h' } }));
+}
+
+function updateFluxPlot(sol) {
+  const update = { x: [], y: [] };
+  for (let i = 0; i < 6; i++) { update.x.push(sol.t); update.y.push(sol.fluxes[i]); }
+  Plotly.update('plot-flux', update, baseLayout('Reaction Fluxes', 'Time t', 'Flux (concentration/time)'));
+}
+
+// ============ SENSITIVITY COMPUTATION ============
+let sensTimer = null;
+function scheduleSensitivity() {
+  if (sensTimer) clearTimeout(sensTimer);
+  sensTimer = setTimeout(computeSensitivity, 300);
+}
+
+function computeSensitivity() {
+  const { params, ics } = readSliders();
+  const stateIdx = parseInt(document.getElementById('sens-state').value);
+  const timeIdx = parseInt(document.getElementById('sens-time').value);
+  const tVal = (timeIdx / (N_RESAMPLE - 1)) * T_END;
+  document.getElementById('sens-time-val').textContent = `t = ${tVal.toFixed(1)}`;
+
+  if (!currentSolution) return;
+  const baseline = currentSolution.y[stateIdx][timeIdx];
+  if (Math.abs(baseline) < 1e-15) {
+    // Can't compute elasticity at zero
+    Plotly.update('plot-sens', {
+      x: [new Array(12).fill(0)],
+      y: [PARAM_NAMES.concat(STATE_NAMES)],
+      'marker.color': [new Array(12).fill('#8b949e')]
+    });
+    return;
+  }
+
+  const labels = [];
+  const elasticities = [];
+  const colors = [];
+  const delta = 0.01; // 1% perturbation
+
+  // Parameter sensitivities
+  for (let i = 0; i < 6; i++) {
+    const pUp = params.slice();
+    pUp[i] *= (1 + delta);
+    const solUp = solveODE(pUp, ics);
+    const yUp = solUp.y[stateIdx][timeIdx];
+    const elast = ((yUp - baseline) / baseline) / delta;
+    labels.push(PARAM_NAMES[i]);
+    elasticities.push(elast);
+    colors.push(elast >= 0 ? '#3fb950' : '#f85149');
+  }
+
+  // IC sensitivities
+  for (let i = 0; i < 6; i++) {
+    const icUp = ics.slice();
+    const icVal = icUp[i];
+    if (Math.abs(icVal) < 1e-10) {
+      // Perturb by absolute amount when IC is near zero
+      icUp[i] = 0.01;
+      const solUp = solveODE(params, icUp);
+      const yUp = solUp.y[stateIdx][timeIdx];
+      const elast = (yUp - baseline) / baseline / 0.01;
+      labels.push(STATE_NAMES[i] + '(0)');
+      elasticities.push(elast);
+      colors.push(elast >= 0 ? '#3fb950' : '#f85149');
+    } else {
+      icUp[i] *= (1 + delta);
+      const solUp = solveODE(params, icUp);
+      const yUp = solUp.y[stateIdx][timeIdx];
+      const elast = ((yUp - baseline) / baseline) / delta;
+      labels.push(STATE_NAMES[i] + '(0)');
+      elasticities.push(elast);
+      colors.push(elast >= 0 ? '#3fb950' : '#f85149');
+    }
+  }
+
+  const stateName = STATE_NAMES[stateIdx];
+  Plotly.update('plot-sens', {
+    x: [elasticities], y: [labels], 'marker.color': [colors]
+  }, baseLayout(
+    `Sensitivity of ${stateName}(t=${tVal.toFixed(1)})`,
+    `Elasticity ∂log(${stateName})/∂log(p)`, '',
+    { yaxis: { title: '' }, margin: { l: 80 } }
+  ));
+}
+
+// ============ DARK/LIGHT TOGGLE ============
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+
+  // Re-layout all Plotly charts
+  const plots = ['plot-states', 'plot-obs', 'plot-cons-sub', 'plot-cons-enz',
+                 'plot-transient', 'plot-phase1', 'plot-phase2', 'plot-phase3',
+                 'plot-flux', 'plot-sens'];
+  const dark = next === 'dark';
+  const layoutUpdate = {
+    paper_bgcolor: dark ? '#161b22' : '#ffffff',
+    plot_bgcolor: dark ? '#0d1117' : '#fafafa',
+    'font.color': dark ? '#e6edf3' : '#1f2328',
+    'xaxis.gridcolor': dark ? '#21262d' : '#e8eaed',
+    'xaxis.zerolinecolor': dark ? '#30363d' : '#d0d7de',
+    'yaxis.gridcolor': dark ? '#21262d' : '#e8eaed',
+    'yaxis.zerolinecolor': dark ? '#30363d' : '#d0d7de'
+  };
+  plots.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.data) Plotly.relayout(id, layoutUpdate);
+  });
+}
+
+// ============ SCROLLSPY ============
+function initScrollspy() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -75% 0px' });
+  document.querySelectorAll('main > section').forEach(s => observer.observe(s));
+}
+
+// ============ UPDATE SCHEDULING ============
+let updatePending = false;
+function scheduleUpdate() {
+  if (!updatePending) {
+    updatePending = true;
+    requestAnimationFrame(() => {
+      updatePending = false;
+      updateAllPlots();
+    });
+  }
+}
+
+// ============ INITIALIZATION ============
+document.addEventListener('DOMContentLoaded', () => {
+  // Render KaTeX
+  if (typeof renderMathInElement !== 'undefined') {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: '$$', right: '$$', display: true },
+        { left: '$', right: '$', display: false }
+      ],
+      throwOnError: false
+    });
+  }
+
+  initPlots();
+  updateReadouts();
+  initScrollspy();
+
+  // Wire up all sliders
+  const allSliders = document.querySelectorAll('input[type="range"]');
+  allSliders.forEach(sl => {
+    if (sl.id === 'sens-time') {
+      sl.addEventListener('input', () => {
+        const tVal = (parseInt(sl.value) / (N_RESAMPLE - 1)) * T_END;
+        document.getElementById('sens-time-val').textContent = `t = ${tVal.toFixed(1)}`;
+        scheduleSensitivity();
+      });
+    } else if (sl.id.startsWith('sl-')) {
+      sl.addEventListener('input', () => { updateReadouts(); scheduleUpdate(); });
+    }
+  });
+
+  // Sensitivity state dropdown
+  document.getElementById('sens-state').addEventListener('change', scheduleSensitivity);
+
+  // Initial solve
+  updateAllPlots();
+});
+
+// KaTeX auto-render may load after DOMContentLoaded, handle that
+document.addEventListener('DOMContentLoaded', () => {
+  const katexCheck = setInterval(() => {
+    if (typeof renderMathInElement !== 'undefined') {
+      clearInterval(katexCheck);
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false }
+        ],
+        throwOnError: false
+      });
+    }
+  }, 100);
+  // Stop checking after 5 seconds
+  setTimeout(() => clearInterval(katexCheck), 5000);
+});
+</script>
+</body>
+</html>

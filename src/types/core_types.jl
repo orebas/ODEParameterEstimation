@@ -63,6 +63,7 @@ const CLUSTERING_THRESHOLD = 0.00001  # 0.001% relative difference threshold
 const MAX_ERROR_THRESHOLD = 0.5       # Maximum acceptable error
 const IMAG_THRESHOLD = 1e-8           # Threshold for ignoring imaginary components
 const MAX_SOLUTIONS = 20              # Maximum number of solutions to consider if no good ones found
+const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale to compute default optimization bounds
 
 """
     ParameterEstimationResult
