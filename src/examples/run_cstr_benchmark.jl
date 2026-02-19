@@ -28,7 +28,6 @@ using Random
 #   params: tau=1.0, Tin=350.0, Cin=1.0, dH_rhoCP=5.0, UA_VrhoCP=1.0
 #   states: C(0)=0.5, T(0)=350.0, r_eff(0)≈1.0, u_sin(0)=0, u_cos(0)=1
 #   observes: T, u_sin, u_cos
-models_to_run = [:cstr_fixed_activation]
 
 opts = EstimationOptions(
     use_parameter_homotopy = true,
@@ -66,11 +65,16 @@ println("  u_cos(0) = 1.0")
 println("=" ^ 70)
 println()
 
-run_parameter_estimation_examples(models = models_to_run, opts = opts)
+# Delete cached log so it doesn't skip
+log_path = joinpath("logs", "cstr_fixed_activation.log")
+isfile(log_path) && rm(log_path)
 
-# To also run with noise (matching benchmark noise levels):
-# for noise in [1e-8, 1e-6, 1e-4, 1e-2]
-#     println("\n\n=== Noise level: $noise ===\n")
-#     noisy_opts = EstimationOptions(opts; noise_level = noise)
-#     run_parameter_estimation_examples(models = models_to_run, opts = noisy_opts)
-# end
+run_parameter_estimation_examples(models = [:cstr_fixed_activation], opts = opts)
+
+# Print the log file so results appear on console
+if isfile(log_path)
+    println("\n" * "=" ^ 70)
+    println("RESULTS (from $log_path)")
+    println("=" ^ 70)
+    print(read(log_path, String))
+end
