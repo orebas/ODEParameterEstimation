@@ -316,7 +316,7 @@ end=#
 function fhd(xs::AbstractArray{T}, ys::AbstractArray{T}, N::Int) where {T}
 	#@suppress begin
 	@assert length(xs) == length(ys)
-	internalApprox = BaryRational.FHInterp(xs, ys, order = N, verbose = false)
+	internalApprox = BaryRational.FHInterp(xs, ys, order = N)
 	return FHDapprox(internalApprox)
 	#end
 end
@@ -560,14 +560,13 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 	initial_variance = 0.0
 	initial_noise = -2.0
 
-	# Add small amount of jitter to avoid numerical issues
+	# No data jitter — adding noise to data destroys high-order derivatives.
+	# GaussianProcesses.jl handles kernel matrix regularization internally.
 	kernel = SEIso(initial_lengthscale, initial_variance)
-	jitter = 1e-8
-	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
 
 	# 2. Do GPR approximation on normalized data
 	local gp
-	gp = GaussianProcesses.GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	gp = GaussianProcesses.GP(xs, ys_normalized, MeanZero(), kernel, initial_noise)
 	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
 	# Create a function that evaluates the GPR prediction and denormalizes the output
@@ -777,9 +776,10 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	y_std = max(y_std_raw, 1e-8)
 	ys_norm = (collect(ys) .- y_mean) ./ y_std
 
-	# Add small jitter to avoid numerical issues (matching GPR)
-	jitter = 1e-8
-	ys_norm = ys_norm .+ jitter * randn(length(ys_norm))
+	# Kernel matrix jitter for numerical stability (added to K diagonal, NOT to data).
+	# Adding noise to data destroys high-order derivatives: with cond(K) ~ 10^12,
+	# a 1e-8 data perturbation gets amplified to ~10^4 error in alpha coefficients.
+	kernel_jitter = 1e-8
 
 	# Initial hyperparameters (in log space for unconstrained optimization)
 	# Match GPR: use raw xs std (not normalized)
@@ -803,8 +803,9 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 		gp = AbstractGPs.GP(k)
 
 		# Compute negative log marginal likelihood (using raw X)
+		# kernel_jitter added to diagonal for numerical stability
 		try
-			return -logpdf(gp(xs_raw, σₙ²), ys_norm)
+			return -logpdf(gp(xs_raw, σₙ² + kernel_jitter), ys_norm)
 		catch e
 			@debug "AbstractGPs log-likelihood evaluation failed" exception = e
 			return Inf
@@ -851,14 +852,15 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 	kernel_opt = σ²_opt * scaled_kernel_opt
 	f_opt = AbstractGPs.GP(kernel_opt)
-	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, σₙ²_opt), ys_norm)
+	effective_noise = σₙ²_opt + kernel_jitter
+	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
 
 	# Pre-compute cached alpha for TaylorDiff-compatible predictions
 	# This avoids going through AbstractGPs/KernelFunctions/Distances which don't support TaylorScalar
 	n = length(xs_raw)
 	I_n = Matrix{Float64}(I, n, n)
 	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_raw)
-	K_noisy = K_train + σₙ²_opt * I_n
+	K_noisy = K_train + effective_noise * I_n
 	C_opt = cholesky(Symmetric(K_noisy))
 	alpha = C_opt \ collect(ys_norm)  # Pre-computed weights for mean prediction
 
@@ -952,9 +954,11 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 	y_std = max(y_std_raw, 1e-8)
 	ys_norm = (collect(Float64, ys) .- y_mean) ./ y_std
 
-	# Add small jitter to avoid numerical issues (matching agp_gpr)
-	jitter = 1e-8
-	ys_norm = ys_norm .+ jitter * randn(length(ys_norm))
+	# Kernel matrix jitter for numerical stability (added to K diagonal, NOT to data).
+	# Adding noise to data destroys high-order derivatives: with cond(K) ~ 10^12,
+	# a 1e-8 data perturbation gets amplified to ~10^4 error in alpha coefficients,
+	# catastrophically corrupting 3rd+ order derivatives on stiff systems like ERK.
+	kernel_jitter = 1e-8
 
 	# --- Smoothness detection via second finite differences ---
 	if n >= 3
@@ -1026,9 +1030,9 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 			@. K_work = σ² * exp(-D² * inv_2l²)
 		end
 
-		# Add noise variance to diagonal
+		# Add noise variance + kernel jitter to diagonal for numerical stability
 		@inbounds for i in 1:n
-			K_work[i, i] += σₙ²
+			K_work[i, i] += σₙ² + kernel_jitter
 		end
 
 		try
@@ -1075,9 +1079,10 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 	f_opt = AbstractGPs.GP(kernel_opt)
 
 	# Try building posterior with increasing jitter if needed
-	jitter_levels = [0.0, 1e-8, 1e-6, 1e-4, 1e-2]
+	# Start from kernel_jitter (matching the optimizer's diagonal) instead of 0
+	jitter_levels = [kernel_jitter, 1e-6, 1e-4, 1e-2]
 	f_posterior = nothing
-	effective_noise = σₙ²_opt
+	effective_noise = σₙ²_opt + kernel_jitter
 
 	for jitter in jitter_levels
 		try
