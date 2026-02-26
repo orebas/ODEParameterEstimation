@@ -1675,6 +1675,7 @@ reused across all polish/optimization runs. This avoids redundant calls to
 - `param_index`: Map from param symbol → index in param_syms
 - `lb`: Optional lower bounds
 - `ub`: Optional upper bounds
+- `polish_ode_maxiters`: ODE solver iteration cap inside loss function (fails fast on hopeless regions)
 """
 struct PolishContext
 	unknown_syms::Vector
@@ -1698,6 +1699,7 @@ struct PolishContext
 	param_index::Dict
 	lb::Union{Nothing, Vector{Float64}}
 	ub::Union{Nothing, Vector{Float64}}
+	polish_ode_maxiters::Int
 end
 
 """
@@ -1759,6 +1761,9 @@ function _build_polish_context(
 		ub = ub_auto
 	end
 
+	# ODE solver iteration cap — fail fast on hopeless parameter regions
+	ode_maxiters = opts.polish_ode_maxiters
+
 	# Loss closure capturing all invariants — uses remake for efficiency
 	function loss(p_all)
 		ic_guess = @view p_all[1:n_ic]
@@ -1766,7 +1771,7 @@ function _build_polish_context(
 
 		prob_opt = remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess))
 		sol_opt = try
-			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol)
+			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol, maxiters = ode_maxiters)
 		catch e
 			@warn "ODE solver failed during polish" exception = (e, catch_backtrace())
 			return Inf
@@ -1802,20 +1807,33 @@ function _build_polish_context(
 		base_ode_prob,
 		state_syms_out, param_syms_out, state_index, param_index,
 		lb, ub,
+		ode_maxiters,
 	)
 end
 
 """
-	_polish_single_from_context(ctx, p0; optimizer, maxiters) -> (ParameterEstimationResult, opt_result)
+	_polish_single_from_context(ctx, p0; optimizer, maxiters, maxtime, divergence_factor, stagnation_window) -> (ParameterEstimationResult, opt_result)
 
 Polish a single solution using a pre-built PolishContext. Only constructs
 the lightweight OptimizationProblem (wrapping p0) and solves.
+
+Safeguard callbacks automatically stop optimization when:
+- Wall-clock time exceeds `maxtime` seconds
+- Loss diverges beyond `initial_loss * divergence_factor`
+- No improvement seen in `stagnation_window` consecutive iterations
+- Loss becomes non-finite (NaN/Inf)
+
+The best solution seen during optimization is tracked; if the optimizer
+wanders past a good minimum, the best iterate is recovered.
 """
 function _polish_single_from_context(
 	ctx::PolishContext,
 	p0::AbstractVector{<:Real};
 	optimizer = BFGS(),
 	maxiters::Int = 200000,
+	maxtime::Float64 = 300.0,
+	divergence_factor::Float64 = 10.0,
+	stagnation_window::Int = 50,
 )
 	# Only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
 	# (NewtonTrustRegion, LevenbergMarquardt, GaussNewton) don't.
@@ -1830,32 +1848,93 @@ function _polish_single_from_context(
 		Optimization.OptimizationProblem(ctx.optf, p0_clamped)
 	end
 
+	# Evaluate initial loss for divergence baseline
+	initial_loss = try
+		ctx.optf.f(p0_clamped, nothing)
+	catch
+		Inf
+	end
+
+	# Safeguard state — each Threads.@spawn gets its own closure, so Refs are thread-safe
 	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
-	result = if opt_verbose
+	iter_count = Ref(0)
+	best_loss = Ref(isfinite(initial_loss) ? initial_loss : Inf)
+	best_p = Ref(copy(p0_clamped))
+	iters_since_improvement = Ref(0)
+	start_time = time()
+	last_log_time = Ref(start_time)
+	stop_reason = Ref("")
+
+	callback = (x, l) -> begin
+		iter_count[] += 1
+
+		# Track best solution
+		if isfinite(l) && l < best_loss[]
+			best_loss[] = l
+			best_p[] = copy(x.u)
+			iters_since_improvement[] = 0
+		else
+			iters_since_improvement[] += 1
+		end
+
+		# Safeguard checks
+		if !isfinite(l)
+			stop_reason[] = "non-finite loss"
+			return true
+		end
+
+		elapsed = time() - start_time
+		if elapsed > maxtime
+			stop_reason[] = "wall-clock timeout ($(round(elapsed; digits=1))s > $(maxtime)s)"
+			return true
+		end
+
+		if isfinite(initial_loss) && initial_loss > 0 && l > initial_loss * divergence_factor
+			stop_reason[] = "divergence (loss $(round(l; sigdigits=3)) > $(round(initial_loss * divergence_factor; sigdigits=3)))"
+			return true
+		end
+
+		if iters_since_improvement[] >= stagnation_window
+			stop_reason[] = "stagnation (no improvement in $(stagnation_window) iters)"
+			return true
+		end
+
+		# Verbose logging (gated on env var)
+		if opt_verbose
+			now = time()
+			dt = now - last_log_time[]
+			last_log_time[] = now
+			if (iter_count[] == 1) || (l <= best_loss[]) || (iter_count[] % 50 == 0)
+				println("[polish]  iter=$(iter_count[]) loss=$(l) best=$(round(best_loss[]; sigdigits=6)) dt=$(round(dt; digits=3))s elapsed=$(round(elapsed; digits=1))s")
+			end
+		end
+
+		false
+	end
+
+	if opt_verbose
 		println("[polish] Starting optimization with $(typeof(optimizer))")
 		println("[polish]  n_states=$(ctx.n_ic), n_params=$(ctx.n_param), data_points=$(length(ctx.t_vector))")
 		println("[polish]  solver=$(typeof(ctx.solver)), abstol=$(ctx.abstol), reltol=$(ctx.reltol), maxiters=$(maxiters)")
-		iter_count = Ref(0)
-		best_obj = Ref(Inf)
-		last_t = Ref(time())
-		callback = (x, l) -> begin
-			iter_count[] += 1
-			now = time()
-			dt = now - last_t[]
-			last_t[] = now
-			if (iter_count[] == 1) || (l < best_obj[]) || (iter_count[] % 5 == 0)
-				best_obj[] = min(best_obj[], l)
-				println("[polish]  iter=$(iter_count[]) loss=$(l) dt=$(round(dt; digits=3))s")
-			end
-			false
-		end
-		Optimization.solve(optprob, optimizer; maxiters = maxiters, callback = callback)
-	else
-		Optimization.solve(optprob, optimizer; maxiters = maxiters)
+		println("[polish]  safeguards: maxtime=$(maxtime)s, divergence=$(divergence_factor)x, stagnation=$(stagnation_window) iters")
+		println("[polish]  initial_loss=$(initial_loss)")
 	end
 
-	# Final simulate via remake
-	p_opt = result.u
+	result = Optimization.solve(optprob, optimizer; maxiters = maxiters, callback = callback)
+
+	if opt_verbose && !isempty(stop_reason[])
+		println("[polish]  early stop: $(stop_reason[]) after $(iter_count[]) iters")
+	end
+
+	# Recover best solution if optimizer wandered past the minimum
+	p_opt = if isfinite(best_loss[]) && best_loss[] < result.objective
+		if opt_verbose
+			println("[polish]  recovering best iterate: loss $(round(best_loss[]; sigdigits=6)) < final $(round(result.objective; sigdigits=6))")
+		end
+		best_p[]
+	else
+		result.u
+	end
 	ic_opt = p_opt[1:ctx.n_ic]
 	param_opt = p_opt[(ctx.n_ic+1):end]
 	prob_final = remake(ctx.base_ode_prob;
@@ -1868,11 +1947,14 @@ function _polish_single_from_context(
 	states_out = OrderedDict(s => ic_opt[ctx.state_index[s]] for s in ctx.state_syms_out if haskey(ctx.state_index, s))
 	params_out = OrderedDict(p => param_opt[ctx.param_index[p]] for p in ctx.param_syms_out if haskey(ctx.param_index, p))
 
+	# Use best_loss if we recovered the best iterate, otherwise use optimizer's final value
+	final_obj = (isfinite(best_loss[]) && best_loss[] < result.objective) ? best_loss[] : result.objective
+
 	final_result = ParameterEstimationResult(
 		params_out,
 		states_out,
 		ctx.t_vector[1],
-		result.objective,
+		final_obj,
 		nothing,
 		length(ctx.t_vector),
 		ctx.t_vector[1],
@@ -1900,27 +1982,84 @@ function _polish_batch_from_context(
 	maxiters = opts.polish_maxiters
 	n_candidates = length(candidates)
 
+	# --- Pre-polish clustering: deduplicate candidates that clamp to the same point ---
+	# Build clamped p0 vectors for all candidates
+	use_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub) &&
+		optimizer isa Union{Optim.BFGS, Optim.LBFGS}
+
+	clamped_p0s = Vector{Vector{Float64}}(undef, n_candidates)
+	for (i, candidate) in enumerate(candidates)
+		ic_vec = [candidate.states[s] for s in ctx.unknown_syms]
+		param_vec = [candidate.parameters[p] for p in ctx.param_syms]
+		p0 = vcat(ic_vec, param_vec)
+		clamped_p0s[i] = use_bounds ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
+	end
+
+	# Cluster by max relative component-wise distance (same metric as solution_distance)
+	cluster_threshold = 0.001  # 0.1% relative difference
+	# cluster_rep[k] = index of representative candidate for cluster k
+	cluster_reps = Int[]
+	# candidate_cluster[i] = which cluster candidate i belongs to
+	candidate_cluster = zeros(Int, n_candidates)
+
+	for i in 1:n_candidates
+		merged = false
+		for (k, rep) in enumerate(cluster_reps)
+			# Max relative component-wise distance
+			dist = zero(Float64)
+			for j in eachindex(clamped_p0s[i])
+				a = clamped_p0s[i][j]
+				b = clamped_p0s[rep][j]
+				scale = max(abs(a), abs(b), 1.0)
+				dist = max(dist, abs(a - b) / scale)
+			end
+			if dist <= cluster_threshold
+				candidate_cluster[i] = k
+				# Pick the candidate with better (lower) error as representative
+				err_i = isnothing(candidates[i].err) ? Inf : candidates[i].err
+				err_rep = isnothing(candidates[rep].err) ? Inf : candidates[rep].err
+				if err_i < err_rep
+					cluster_reps[k] = i
+				end
+				merged = true
+				break
+			end
+		end
+		if !merged
+			push!(cluster_reps, i)
+			candidate_cluster[i] = length(cluster_reps)
+		end
+	end
+
+	n_unique = length(cluster_reps)
+	if !opts.nooutput && n_unique < n_candidates
+		println("Deduplicated $n_candidates candidates → $n_unique unique starting points for polish")
+	end
+
 	if !opts.nooutput
 		n_threads = Threads.nthreads()
-		println("Polishing $n_candidates solutions (maxiters=$maxiters, threads=$n_threads)...")
+		println("Polishing $n_unique solutions (maxiters=$maxiters, threads=$n_threads)...")
 	end
 
 	polish_start = time()
 	print_lock = ReentrantLock()
 
-	# Spawn one task per candidate — each builds a local result vector
-	tasks = map(enumerate(candidates)) do (i, candidate)
+	# Only polish the cluster representatives
+	tasks = map(enumerate(cluster_reps)) do (task_idx, rep_idx)
 		Threads.@spawn begin
 			t0 = time()
+			candidate = candidates[rep_idx]
 			local_results = ParameterEstimationResult[]
 			try
-				# Build p0 vector in system order from candidate
-				ic_vec = [candidate.states[s] for s in ctx.unknown_syms]
-				param_vec = [candidate.parameters[p] for p in ctx.param_syms]
-				p0 = vcat(ic_vec, param_vec)
+				p0 = clamped_p0s[rep_idx]
 
 				polished_result, opt_result = _polish_single_from_context(
-					ctx, p0; optimizer = optimizer, maxiters = maxiters,
+					ctx, p0;
+					optimizer = optimizer,
+					maxiters = maxiters,
+					maxtime = opts.polish_maxtime,
+					divergence_factor = opts.polish_divergence_factor,
+					stagnation_window = opts.polish_stagnation_window,
 				)
 				dt = time() - t0
 				n_iters = try; opt_result.original.iterations; catch; -1; end
@@ -1928,30 +2067,34 @@ function _polish_batch_from_context(
 					err_before = isnothing(candidate.err) ? Inf : candidate.err
 					err_after = isnothing(polished_result.err) ? Inf : polished_result.err
 					lock(print_lock) do
-						println("  Polish $i/$n_candidates: $(round(dt; digits=1))s, $(n_iters) iters, err $(round(err_before; sigdigits=3)) → $(round(err_after; sigdigits=3))")
+						println("  Polish $task_idx/$n_unique (candidate $rep_idx): $(round(dt; digits=1))s, $(n_iters) iters, err $(round(err_before; sigdigits=3)) → $(round(err_after; sigdigits=3))")
 					end
 				end
 
-				# Always retain the original candidate and append the polished result
-				push!(local_results, candidate)
 				push!(local_results, polished_result)
 			catch e
 				dt = time() - t0
-				@warn "Failed to polish solution $i ($(round(dt; digits=1))s): $e"
-				push!(local_results, candidate)
+				@warn "Failed to polish solution $rep_idx ($(round(dt; digits=1))s): $e"
 			end
 			local_results
 		end
 	end
 
-	# Collect results in original order (preserves deterministic ordering)
+	# Collect results: all original candidates (unpolished baselines) + polished results
 	polished_results = ParameterEstimationResult[]
+
+	# First, include all original candidates as unpolished baselines
+	for candidate in candidates
+		push!(polished_results, candidate)
+	end
+
+	# Then append polished results from cluster representatives
 	for task in tasks
 		append!(polished_results, fetch(task))
 	end
 
 	if !opts.nooutput
-		println("  Polish total: $(round(time() - polish_start; digits=1))s for $n_candidates solutions")
+		println("  Polish total: $(round(time() - polish_start; digits=1))s for $n_unique unique solutions (from $n_candidates candidates)")
 	end
 	return polished_results
 end
@@ -1979,7 +2122,12 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 	end
 
 	final_result, opt_result = _polish_single_from_context(
-		ctx, p0; optimizer = LBFGS(), maxiters = opts.opt_maxiters,
+		ctx, p0;
+		optimizer = LBFGS(),
+		maxiters = opts.opt_maxiters,
+		maxtime = opts.polish_maxtime,
+		divergence_factor = opts.polish_divergence_factor,
+		stagnation_window = opts.polish_stagnation_window,
 	)
 
 	if !opts.nooutput

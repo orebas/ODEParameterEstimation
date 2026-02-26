@@ -1755,7 +1755,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						randn(p_size)
 					end
 					result, _ = _polish_single_from_context(ctx, p0;
-						optimizer = LBFGS(), maxiters = opts.polish_maxiters)
+						optimizer = LBFGS(), maxiters = opts.polish_maxiters,
+						maxtime = opts.polish_maxtime,
+						divergence_factor = opts.polish_divergence_factor,
+						stagnation_window = opts.polish_stagnation_window)
 					[result]
 				else
 					_polish_batch_from_context(ctx, solved_res; opts = opts)

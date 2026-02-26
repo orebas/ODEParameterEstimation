@@ -106,6 +106,10 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `opt_lb::Vector{Float64}`: Lower bounds for optimization (default: fill(-3.0, n_params))
 - `opt_ub::Vector{Float64}`: Upper bounds for optimization (default: fill(3.0, n_params))
 - `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:zygote`, `:enzyme`, `:finite`
+- `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 300.0)
+- `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
+- `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
+- `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
 
 ## Data Sampling Parameters
 - `datasize::Int`: Number of data points to generate (default: 21)
@@ -222,6 +226,10 @@ Base.@kwdef struct EstimationOptions
 	opt_lb::Union{Nothing, Vector{Float64}} = nothing
 	opt_ub::Union{Nothing, Vector{Float64}} = nothing
 	opt_ad_backend::Symbol = :forward
+	polish_maxtime::Float64 = 300.0          # Per-solution wall-clock timeout (seconds)
+	polish_divergence_factor::Float64 = 10.0 # Stop if loss > initial_loss * this
+	polish_stagnation_window::Int = 50       # Stop if no improvement in N iters
+	polish_ode_maxiters::Int = 5000          # ODE solver maxiters inside polish loss (DiffEq default: 100000)
 
 	# Data Sampling Parameters
 	datasize::Int = 21
@@ -461,6 +469,14 @@ function validate_options(opts::EstimationOptions)
 		end
 	end
 
+	# Check polish safeguard parameters
+	if opts.polish_maxtime <= 0
+		@warn "polish_maxtime must be positive; using default (300s)"
+	end
+	if opts.polish_stagnation_window < 5
+		@warn "polish_stagnation_window < 5 is too aggressive; may stop prematurely"
+	end
+
 	# Check data parameters
 	if opts.datasize < 3
 		@warn "Very small datasize (<3) may lead to underdetermined systems"
@@ -521,7 +537,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Multi-point/Multi-shot", [:max_num_points, :shooting_points, :point_hint]),
 		("Derivatives and Reconstruction", [:max_deriv_level, :max_reconstruction_attempts, :digits]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
-			:opt_lb, :opt_ub]),
+			:opt_lb, :opt_ub, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
