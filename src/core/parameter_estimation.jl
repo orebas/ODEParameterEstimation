@@ -1769,7 +1769,7 @@ function _build_polish_context(
 		ic_guess = @view p_all[1:n_ic]
 		param_guess = @view p_all[(n_ic+1):end]
 
-		prob_opt = remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess))
+		prob_opt = remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess), build_initializeprob = false)
 		sol_opt = try
 			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol, maxiters = ode_maxiters)
 		catch e
@@ -1940,6 +1940,7 @@ function _polish_single_from_context(
 	prob_final = remake(ctx.base_ode_prob;
 		u0 = Dict(ctx.unknown_syms .=> ic_opt),
 		p = Dict(ctx.param_syms .=> param_opt),
+		build_initializeprob = false,
 	)
 	sol_final = ModelingToolkit.solve(prob_final, ctx.solver; saveat = ctx.t_vector, abstol = ctx.abstol, reltol = ctx.reltol)
 
