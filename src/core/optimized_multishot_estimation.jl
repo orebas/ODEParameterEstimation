@@ -991,7 +991,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 	# Extract function references from options
 	system_solver = get_solver_function(opts.system_solver)
-	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+
+	# Resolve the interpolator list: multi-interpolator if specified, else single interpolator
+	interpolator_list = resolve_interpolator_list(opts)
 
 	# Fast path: Use SI template exactly like the standard flow, but reuse it for all selected
 	# shooting points in this run. This mirrors PE.jl construction.
@@ -999,25 +1001,40 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# Phase profiling: initialize stats collector (nothing = disabled, zero overhead)
 		phase_stats = opts.profile_phases ? OrderedDict{String, NamedTuple}() : nothing
 
-		# Get common setup (derivative levels, udict, varlist, DD, interpolants)
-		setup_data = _record_phase!(phase_stats, "Setup (identifiability + interpolants)") do
-		setup_parameter_estimation(
+		# Get common setup: identifiability analysis ONLY (shared across all interpolators)
+		ident_data = _record_phase!(phase_stats, "Setup (identifiability)") do
+		setup_identifiability(
 			PEP,
 			max_num_points = 1,
-			point_hint = 0.5,
 			nooutput = opts.nooutput,
-			interpolator = interpolator,
 		)
 		end
 
-		states = setup_data.states
-		params = setup_data.params
-		t_vector = setup_data.t_vector
-		interpolants = setup_data.interpolants
-		good_deriv_level = setup_data.good_deriv_level
-		good_udict = setup_data.good_udict
-		good_varlist = setup_data.good_varlist
-		good_DD = setup_data.good_DD
+		states = ident_data.states
+		params = ident_data.params
+		t_vector = ident_data.t_vector
+		good_deriv_level = ident_data.good_deriv_level
+		good_udict = ident_data.good_udict
+		good_varlist = ident_data.good_varlist
+		good_DD = ident_data.good_DD
+
+		# For backward compat, create setup_data with interpolants from the first interpolator
+		# (used by process_estimation_results which needs the named tuple shape)
+		first_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2])
+		first_interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, first_interp_func)
+		setup_data = (
+			states = states,
+			params = params,
+			t_vector = t_vector,
+			interpolants = first_interpolants,
+			good_num_points = ident_data.good_num_points,
+			good_deriv_level = good_deriv_level,
+			good_udict = good_udict,
+			good_varlist = good_varlist,
+			good_DD = good_DD,
+			time_index_set = Int[],  # will be set after shooting point selection
+			all_unidentifiable = ident_data.all_unidentifiable,
+		)
 
 		# Build the SI template ONCE using ITERATIVE PARAMETER FIXING
 		# We fix ONE parameter at a time and re-run full SIAN analysis
@@ -1188,18 +1205,22 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end
 
+		# Update setup_data with actual shooting point indices (needed by process_estimation_results)
+		setup_data = (; setup_data..., time_index_set = point_indices)
+
+		n_interpolators = length(interpolator_list)
 		if !opts.nooutput
+			interp_desc = n_interpolators > 1 ? " with $n_interpolators interpolators" : ""
 			if n_points == 1
-				println("Phase 3: Solving system using SI template at a single shooting point (t=$(t_vector[point_indices[1]]))...")
+				println("Phase 3: Solving system using SI template at a single shooting point (t=$(t_vector[point_indices[1]]))$interp_desc...")
 			elseif opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
-				println("Phase 3: Solving at $n_points shooting points using PARAMETER HOMOTOPY...")
+				println("Phase 3: Solving at $n_points shooting points using PARAMETER HOMOTOPY$interp_desc...")
 			else
-				println("Phase 3: Solving at $n_points shooting points using a reused SI template...")
+				println("Phase 3: Solving at $n_points shooting points using a reused SI template$interp_desc...")
 			end
 		end
 
-		# Iterate through shooting points, instantiating the template and solving independently at each
-		# Enable default system saving for SI-template path (matches classic flow behavior)
+		# Accumulators across all interpolators
 		all_solutions = []
 		all_hc_vars = []
 		all_trivial_dicts = []
@@ -1208,11 +1229,38 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		all_reverse_subst_dicts = []
 		all_final_varlists = []
 		solution_time_indices = Int[]
+		solution_interpolator_sources = Symbol[]  # track which interpolator produced each solution
 
 		# Check if we should use parameter homotopy
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
 		_record_phase!(phase_stats, "Equation construction + Solving") do
+
+		# ============================================================================
+		# MULTI-INTERPOLATOR LOOP
+		# Each interpolator gets its own interpolants and solve pass.
+		# The SI template and shooting points are shared across all interpolators.
+		# ============================================================================
+		for (interp_idx, (interp_method, interp_custom)) in enumerate(interpolator_list)
+			interp_func = get_interpolator_function(interp_method, interp_custom)
+			interp_sym = interpolator_method_to_symbol(interp_method)
+
+			# Create interpolants for this interpolator
+			_t_interp_start = time()
+			interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interp_func)
+			_t_interp_elapsed = time() - _t_interp_start
+
+			if !opts.nooutput && n_interpolators > 1
+				println("  Interpolator $interp_idx/$n_interpolators: $interp_method ($interp_sym)")
+			end
+			if opts.diagnostics
+				println("  [$interp_sym] Interpolant creation: $(round(_t_interp_elapsed, digits=3))s")
+			end
+
+			# Per-interpolator solution accumulators
+			interp_solutions = []
+			interp_time_indices = Int[]
+
 		if use_param_homotopy
 			# ============================================================================
 			# PARAMETER HOMOTOPY PATH
@@ -1286,6 +1334,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 
 			# Build parameter values for each shooting point
+			_t_eval_start = time()
 			param_values_list = Vector{Vector{Float64}}()
 			for point_idx in point_indices
 				t_point = t_vector[point_idx]
@@ -1318,6 +1367,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					println("  Point $point_idx (t=$t_point): $(length(param_values)) parameter values ($(length(obs_param_values)) obs + $(length(trfn_values)) trfn)")
 				end
 			end
+			_t_eval_elapsed = time() - _t_eval_start
+			if opts.diagnostics
+				println("  [$interp_sym] Param evaluation at shooting points: $(round(_t_eval_elapsed, digits=3))s")
+			end
 
 			# Use extended data_vars for HC (includes both observable derivatives and _trfn_ vars)
 			data_vars = extended_data_vars
@@ -1329,10 +1382,15 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				:debug => opts.diagnostics,
 			)
 
+			_t_hc_start = time()
 			solutions_by_point = solve_with_hc_parameterized(
 				template_equations, solve_vars, data_vars, param_values_list;
 				options = solver_options
 			)
+			_t_hc_elapsed = time() - _t_hc_start
+			if opts.diagnostics
+				println("  [$interp_sym] HC solve: $(round(_t_hc_elapsed, digits=3))s")
+			end
 
 			# Process results from each shooting point
 			for (i, (point_idx, point_solutions)) in enumerate(zip(point_indices, solutions_by_point))
@@ -1351,7 +1409,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						good_udict,
 						good_varlist,
 						good_DD;
-						interpolator = interpolator,
+						interpolator = interp_func,
 						time_index_set = [point_idx],
 						precomputed_interpolants = interpolants,
 						diagnostics = false,
@@ -1373,9 +1431,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					point_solutions = polished_point
 				end
 
-				append!(all_solutions, point_solutions)
+				append!(interp_solutions, point_solutions)
 				for _ in 1:length(point_solutions)
-					push!(solution_time_indices, point_idx)
+					push!(interp_time_indices, point_idx)
 				end
 			end
 
@@ -1384,8 +1442,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			all_hc_vars = solve_vars
 			all_trimmed_vars = solve_vars
 
+			_t_interp_total = _t_interp_elapsed + _t_eval_elapsed + _t_hc_elapsed
 			if opts.diagnostics
-				println("\n=== Parameter Homotopy complete: $(length(all_solutions)) total solutions ===")
+				println("\n=== Parameter Homotopy complete for $interp_sym: $(length(interp_solutions)) solutions ===")
+				println("  [$interp_sym] TOTAL: $(round(_t_interp_total, digits=3))s  (interp=$(round(_t_interp_elapsed, digits=3))s, eval=$(round(_t_eval_elapsed, digits=3))s, HC=$(round(_t_hc_elapsed, digits=3))s)")
 			end
 
 		else
@@ -1406,7 +1466,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					good_udict,
 					good_varlist,
 					good_DD;
-					interpolator = interpolator,
+					interpolator = interp_func,
 					time_index_set = [point_idx],
 					precomputed_interpolants = interpolants,
 					diagnostics = opts.diagnostics,
@@ -1458,10 +1518,6 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					:debug_dimensional_analysis => opts.debug_dimensional_analysis,
 				)
 				solutions, hc_vars, trivial_dict, trimmed_vars = system_solver(final_target, final_varlist_point; options = solver_options)
-				println("solutions: $solutions")
-				println("hc_vars: $hc_vars")
-				println("trivial_dict: $trivial_dict")
-				println("trimmed_vars: $trimmed_vars")
 
 				# Optional: polish each raw solver solution using fast NLLS if requested
 				if opts.polish_solver_solutions && !isempty(solutions)
@@ -1478,9 +1534,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					solutions = polished_point
 				end
 
-				append!(all_solutions, solutions)
+				append!(interp_solutions, solutions)
 				for _ in 1:length(solutions)
-					push!(solution_time_indices, point_idx)
+					push!(interp_time_indices, point_idx)
 				end
 				all_hc_vars = hc_vars
 				push!(all_trivial_dicts, trivial_dict)
@@ -1490,6 +1546,19 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				all_final_varlists = final_varlist_point
 			end
 		end  # end if use_param_homotopy
+
+			# Accumulate this interpolator's solutions into the global pool
+			append!(all_solutions, interp_solutions)
+			append!(solution_time_indices, interp_time_indices)
+			for _ in 1:length(interp_solutions)
+				push!(solution_interpolator_sources, interp_sym)
+			end
+
+			if !opts.nooutput && n_interpolators > 1
+				println("    -> $interp_sym produced $(length(interp_solutions)) solutions")
+			end
+
+		end  # end for (interp_method, interp_custom) in interpolator_list
 		end  # _record_phase! "Equation construction + Solving"
 
 		# Merge and finalize
@@ -1502,8 +1571,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		final_varlist = all_final_varlists
 
 		if !opts.nooutput
-			println("Found $(length(solutions)) solutions total")
+			println("Found $(length(solutions)) solutions total" *
+				(n_interpolators > 1 ? " across $n_interpolators interpolators" : ""))
 		end
+
+		# Use first interpolator's interpolants for downstream processing (resolve-states, etc.)
+		interpolants = first_interpolants
 
 		# Package as solution_data compatible with process_estimation_results
 		solution_data = (
@@ -1527,6 +1600,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			setup_data;
 			opts = opts_no_polish,
 		)
+		end
+
+		# Tag each result with its interpolator source
+		for (i, res) in enumerate(solved_res)
+			if i <= length(solution_interpolator_sources)
+				res.interpolator_source = solution_interpolator_sources[i]
+			end
 		end
 
 		# PHASE: Detect blown-up backsolves and attempt algebraic re-solve at t=0
@@ -1831,10 +1911,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		end
 	end
 
-	# Create interpolants for the data
+	# Create interpolants for the data (non-SI-template path uses first interpolator)
 	t_vector = PEP.data_sample["t"]
+	non_si_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2])
 	interpolants = create_interpolants(
-		PEP.measured_quantities, PEP.data_sample, t_vector, interpolator,
+		PEP.measured_quantities, PEP.data_sample, t_vector, non_si_interp_func,
 	)
 
 	# PHASE 3: Solve at each shooting point

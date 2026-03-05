@@ -397,8 +397,9 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	end
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 
-	if opts.try_more_methods
-		# Try second estimation with aaad interpolator
+	if opts.try_more_methods && isempty(opts.interpolators)
+		# Legacy path: backward compat for try_more_methods without multi-interpolator
+		# (runs AAAD as second pass, full pipeline re-run — expensive but unchanged)
 		try
 			# Create modified options with AAAD interpolator
 			opts_aaad = merge_options(opts, interpolator = InterpolatorAAAD)
@@ -419,6 +420,14 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		end
 
 		# Try third estimation with multiple points (commented out in original)
+		results_tuple_multi = ([], Dict(), Dict(), [])
+	elseif opts.try_more_methods && !isempty(opts.interpolators)
+		# Multi-interpolator path already handles multiple interpolators inside
+		# optimized_multishot_parameter_estimation — no need for a redundant re-run
+		if !opts.nooutput
+			@warn "try_more_methods is ignored when interpolators list is provided. Add InterpolatorAAAD to your interpolators list instead."
+		end
+		results_tuple_aaad = ([], Dict(), Dict(), [])
 		results_tuple_multi = ([], Dict(), Dict(), [])
 	end
 

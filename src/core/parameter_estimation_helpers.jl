@@ -10,11 +10,53 @@ using Statistics
 using ..ODEParameterEstimation
 
 """
+	setup_identifiability(PEP::ParameterEstimationProblem; max_num_points, nooutput)
+
+Identifiability-only setup phase. Performs structural identifiability analysis
+without creating interpolants (which are interpolator-dependent).
+
+This is the shared, interpolator-independent part of the pipeline.
+
+# Returns
+- Named tuple with identifiability data: states, params, t_vector, derivative levels, etc.
+"""
+function setup_identifiability(
+	PEP::ParameterEstimationProblem;
+	max_num_points = 1,
+	nooutput = false,
+)
+	t, eqns, states, params = unpack_ODE(PEP.model.system)
+	t_vector = PEP.data_sample["t"]
+
+	num_points_cap = min(length(params), max_num_points, length(t_vector))
+
+	good_num_points, good_deriv_level, good_udict, good_varlist, good_DD =
+		determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
+
+	@debug "Parameter estimation using $(good_num_points) points"
+
+	return (
+		states = states,
+		params = params,
+		t_vector = t_vector,
+		good_num_points = good_num_points,
+		good_deriv_level = good_deriv_level,
+		good_udict = good_udict,
+		good_varlist = good_varlist,
+		good_DD = good_DD,
+		all_unidentifiable = good_DD.all_unidentifiable,
+	)
+end
+
+"""
 	setup_parameter_estimation(PEP::ParameterEstimationProblem; max_num_points, point_hint)
 
 Setup phase for parameter estimation. This extracts the necessary data from the problem,
 determines the optimal number of points to use, analyzes identifiability, and selects
 time indices for sampling.
+
+This is a backward-compatible wrapper around `setup_identifiability` that also creates
+interpolants and picks time points.
 
 # Arguments
 - `PEP`: Parameter estimation problem
@@ -31,40 +73,29 @@ function setup_parameter_estimation(
 	nooutput = false,
 	interpolator = nothing,
 )
-	# Extract components from the problem
-	t, eqns, states, params = unpack_ODE(PEP.model.system)
-	t_vector = PEP.data_sample["t"]
-	time_interval = extrema(t_vector)
+	# Run the shared identifiability analysis
+	ident_data = setup_identifiability(PEP; max_num_points = max_num_points, nooutput = nooutput)
 
-	# Set up initial parameters
-	num_points_cap = min(length(params), max_num_points, length(t_vector))
-
-	# Create interpolants for measurement data
-	interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, interpolator)
-
-	# Determine optimal number of points and analyze identifiability
-	good_num_points, good_deriv_level, good_udict, good_varlist, good_DD =
-		determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
-
-	@debug "Parameter estimation using $(good_num_points) points"
+	# Create interpolants for measurement data (interpolator-dependent)
+	interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, ident_data.t_vector, interpolator)
 
 	# Pick time points for estimation
-	time_index_set = pick_points(t_vector, good_num_points, interpolants, point_hint)
+	time_index_set = pick_points(ident_data.t_vector, ident_data.good_num_points, interpolants, point_hint)
 	@debug "Using these points: $(time_index_set)"
-	@debug "Using these observations and their derivatives: $(good_deriv_level)"
+	@debug "Using these observations and their derivatives: $(ident_data.good_deriv_level)"
 
 	return (
-		states = states,
-		params = params,
-		t_vector = t_vector,
+		states = ident_data.states,
+		params = ident_data.params,
+		t_vector = ident_data.t_vector,
 		interpolants = interpolants,
-		good_num_points = good_num_points,
-		good_deriv_level = good_deriv_level,
-		good_udict = good_udict,
-		good_varlist = good_varlist,
-		good_DD = good_DD,
+		good_num_points = ident_data.good_num_points,
+		good_deriv_level = ident_data.good_deriv_level,
+		good_udict = ident_data.good_udict,
+		good_varlist = ident_data.good_varlist,
+		good_DD = ident_data.good_DD,
 		time_index_set = time_index_set,
-		all_unidentifiable = good_DD.all_unidentifiable,
+		all_unidentifiable = ident_data.good_DD.all_unidentifiable,
 	)
 end
 

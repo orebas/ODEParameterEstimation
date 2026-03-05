@@ -969,6 +969,15 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		# Filter for REAL solutions at this point (for output)
 		real_solutions_hc = HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol)
 
+		# Fallback: if no real solutions, project ALL solutions to real parts
+		# (mirrors solve_with_hc behavior — projected points often polish to genuine solutions)
+		if isempty(real_solutions_hc)
+			real_solutions_hc = HomotopyContinuation.solutions(result)
+			if debug
+				println("[HC-PARAM] Point $i: No real solutions, projecting $(length(real_solutions_hc)) complex solutions to real parts")
+			end
+		end
+
 		# Convert to Float64 vectors
 		real_solutions = Vector{Vector{Float64}}()
 		for s in real_solutions_hc

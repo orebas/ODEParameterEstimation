@@ -27,6 +27,9 @@ Enum for selecting the data interpolation method.
 	InterpolatorFHD            # Floater-Hormann interpolation
 	InterpolatorAGP            # agp_gpr - AbstractGPs.jl GP interpolation with uncertainty
 	InterpolatorAGPRobust      # agp_gpr_robust - Robust GP that handles smooth/noiseless data
+	InterpolatorAGPRobustRQ    # agp_gpr_robust with Rational Quadratic kernel
+	InterpolatorAGPRobustSEpRQ # agp_gpr_robust with SE + RQ sum kernel
+	InterpolatorAGPRobustSExRQ # agp_gpr_robust with SE * RQ product kernel
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -194,6 +197,10 @@ Base.@kwdef struct EstimationOptions
 	interpolator::InterpolatorMethod = InterpolatorAAADGPR
 	custom_interpolator::Union{Nothing, Function} = nothing
 
+	# Multi-interpolator support: when non-empty, overrides `interpolator` field
+	interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[]
+	custom_interpolators::Vector{Function} = Function[]
+
 	# Numerical Tolerances
 	abstol::Float64 = 1e-14
 	reltol::Float64 = 1e-14
@@ -250,7 +257,7 @@ Base.@kwdef struct EstimationOptions
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
 	use_si_template::Bool = true
-	try_more_methods::Bool = true
+	try_more_methods::Bool = false
 	save_system::Bool = true
 	display_system::Bool = false
 	polish_only::Bool = false
@@ -320,6 +327,12 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return agp_gpr
 	elseif method == InterpolatorAGPRobust
 		return agp_gpr_robust
+	elseif method == InterpolatorAGPRobustRQ
+		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:rq)
+	elseif method == InterpolatorAGPRobustSEpRQ
+		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:se_plus_rq)
+	elseif method == InterpolatorAGPRobustSExRQ
+		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:se_times_rq)
 	elseif method == InterpolatorCustom
 		if isnothing(custom)
 			error("InterpolatorCustom selected but no custom_interpolator provided")
@@ -328,6 +341,51 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 	else
 		error("Unknown interpolator method: $method")
 	end
+end
+
+"""
+	interpolator_method_to_symbol(method::InterpolatorMethod) -> Symbol
+
+Convert an InterpolatorMethod enum value to a Symbol for tagging results.
+"""
+function interpolator_method_to_symbol(method::InterpolatorMethod)
+	method == InterpolatorAAAD && return :aaad
+	method == InterpolatorAAADGPR && return :aaad_gpr
+	method == InterpolatorAAADOld && return :aaad_old
+	method == InterpolatorFHD && return :fhd
+	method == InterpolatorAGP && return :agp
+	method == InterpolatorAGPRobust && return :agp_robust
+	method == InterpolatorAGPRobustRQ && return :agp_robust_rq
+	method == InterpolatorAGPRobustSEpRQ && return :agp_robust_se_plus_rq
+	method == InterpolatorAGPRobustSExRQ && return :agp_robust_se_times_rq
+	method == InterpolatorCustom && return :custom
+	return :unknown
+end
+
+"""
+	resolve_interpolator_list(opts::EstimationOptions) -> Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}
+
+Resolve the list of interpolators to run. If `opts.interpolators` is empty, falls back to
+the single `opts.interpolator` field for backward compatibility.
+
+Returns a vector of `(method, custom_func_or_nothing)` tuples.
+"""
+function resolve_interpolator_list(opts::EstimationOptions)
+	if isempty(opts.interpolators)
+		return [(opts.interpolator, opts.custom_interpolator)]
+	end
+	result = Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}()
+	custom_idx = 0
+	for method in opts.interpolators
+		if method == InterpolatorCustom
+			custom_idx += 1
+			func = custom_idx <= length(opts.custom_interpolators) ? opts.custom_interpolators[custom_idx] : nothing
+			push!(result, (method, func))
+		else
+			push!(result, (method, nothing))
+		end
+	end
+	return result
 end
 
 """
@@ -507,6 +565,10 @@ function validate_options(opts::EstimationOptions)
 		@info "diagnostics=true but nooutput=true; diagnostic output will be suppressed"
 	end
 
+	if opts.try_more_methods && !isempty(opts.interpolators)
+		@warn "try_more_methods is ignored when interpolators list is provided. Add InterpolatorAAAD to your interpolators list instead."
+	end
+
 	if opts.ideal && opts.noise_level > 0
 		@warn "ideal=true but noise_level > 0; these options may conflict"
 	end
@@ -530,7 +592,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 	println(io, "EstimationOptions:")
 
 	categories = [
-		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator]),
+		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator, :interpolators]),
 		("Tolerances", [:abstol, :reltol, :rtol, :output_precision]),
 		("Solution Validation", [:imag_threshold, :clustering_threshold, :max_error_threshold,
 			:verification_threshold, :complex_threshold]),

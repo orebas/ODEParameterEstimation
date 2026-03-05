@@ -93,6 +93,20 @@ mutable struct ParameterEstimationResult
     unident_dict::Union{Nothing, OrderedDict{Num, Float64}}
     all_unidentifiable::Set{Num}
     solution::Union{Nothing, SciMLBase.AbstractODESolution}
+    interpolator_source::Union{Nothing, Symbol}   # Which interpolator produced this result
+end
+
+# Backward-compatible constructor (interpolator_source defaults to nothing)
+# Note: parameter types are relaxed to allow MTK 11's BasicSymbolicImpl keys
+# (Julia's inner struct constructor handles convert() to the declared field types)
+function ParameterEstimationResult(
+    parameters, states, at_time, err, return_code, datasize,
+    report_time, unident_dict, all_unidentifiable, solution,
+)
+    return ParameterEstimationResult(
+        parameters, states, at_time, err, return_code, datasize,
+        report_time, unident_dict, all_unidentifiable, solution, nothing,
+    )
 end
 
 """
