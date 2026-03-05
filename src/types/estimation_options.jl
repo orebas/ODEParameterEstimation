@@ -92,7 +92,9 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## Multi-point and Multi-shot Parameters
 - `max_num_points::Int`: Maximum number of points for multi-point estimation (default: 1)
-- `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 8)
+- `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 12)
+- `shooting_warp::Bool`: Use exponential warp to cluster points near t=0 (default: true)
+- `shooting_warp_beta::Float64`: Warp strength; 0≈uniform, 3=default (default: 3.0)
 - `point_hint::Float64`: Hint for time point selection, in [0,1] range (default: 0.5)
 
 ## Derivative and Reconstruction Parameters
@@ -216,7 +218,9 @@ Base.@kwdef struct EstimationOptions
 
 	# Multi-point and Multi-shot Parameters
 	max_num_points::Int = 1
-	shooting_points::Int = 8
+	shooting_points::Int = 12
+	shooting_warp::Bool = true                   # true = exponential warp, false = equidistant
+	shooting_warp_beta::Float64 = 3.0            # warp strength (0≈uniform, 3=default)
 	point_hint::Float64 = 0.5
 
 	# Derivative and Reconstruction Parameters
@@ -386,6 +390,37 @@ function resolve_interpolator_list(opts::EstimationOptions)
 		end
 	end
 	return result
+end
+
+"""
+	compute_shooting_indices(n_points, n_total; warp=true, beta=3.0) -> Vector{Int}
+
+Compute shooting point indices across a time vector of length `n_total`.
+
+When `warp=true` and `beta > 0`, uses an exponential warp to cluster more points
+near the start of the interval (where transient dynamics are typically richest).
+When `warp=false` or `beta ≈ 0`, returns equidistant indices.
+
+Returns a sorted vector of unique indices in `[1, n_total]`.
+"""
+function compute_shooting_indices(n_points::Int, n_total::Int; warp::Bool = true, beta::Float64 = 3.0)
+	n_total <= 0 && return Int[]
+	n_total == 1 && return [1]
+	n_total == 2 && return [1, 2]
+	n_points <= 0 && return [max(1, n_total ÷ 2)]
+	n_points == 1 && return [1]
+	n_points >= n_total && return collect(1:n_total)
+
+	if !warp || abs(beta) < 1e-10
+		# Equidistant
+		indices = round.(Int, range(1, n_total, length = n_points))
+	else
+		u = range(0.0, 1.0, length = n_points)
+		frac = (exp.(beta .* u) .- 1) ./ (exp(beta) - 1)
+		indices = round.(Int, 1 .+ frac .* (n_total - 1))
+		indices = clamp.(indices, 1, n_total)
+	end
+	return unique(indices)
 end
 
 """
@@ -596,7 +631,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Tolerances", [:abstol, :reltol, :rtol, :output_precision]),
 		("Solution Validation", [:imag_threshold, :clustering_threshold, :max_error_threshold,
 			:verification_threshold, :complex_threshold]),
-		("Multi-point/Multi-shot", [:max_num_points, :shooting_points, :point_hint]),
+		("Multi-point/Multi-shot", [:max_num_points, :shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
 		("Derivatives and Reconstruction", [:max_deriv_level, :max_reconstruction_attempts, :digits]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),

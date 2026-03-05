@@ -102,9 +102,8 @@ function pick_points(vec, n, interpolants, point_hint = 0.5)
 		if n == 2
 			return [min(max(1, round(Int, point_hint * length(vec))), length(vec)), min(max(1, round(Int, (point_hint + 1 / 3) * length(vec))), length(vec))]
 		else
-			# For n>2 points, return n equispaced points (excluding start and end)
-			step = fld(length(vec) - 2, n + 1)  # Calculate spacing between points
-			return [i for i in (step+1):step:(step*(n))]
+			# For n>2 points, use equidistant shooting indices (warp=false to preserve legacy behavior)
+			return compute_shooting_indices(n, length(vec); warp = false)
 		end
 	end
 end

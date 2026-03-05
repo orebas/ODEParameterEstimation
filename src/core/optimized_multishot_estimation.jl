@@ -1194,15 +1194,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			n_points = 1
 		else
 			n_points = min(opts.shooting_points, length(t_vector))
-			if length(t_vector) <= 2
-				point_indices = [1]
-			elseif n_points == 1
-				point_indices = [1]
-			elseif n_points == 2
-				point_indices = [1, length(t_vector)]
-			else
-				point_indices = round.(Int, range(1, length(t_vector), length = n_points))
-			end
+			point_indices = compute_shooting_indices(n_points, length(t_vector);
+				warp = opts.shooting_warp, beta = opts.shooting_warp_beta)
+			n_points = length(point_indices)  # may shrink after dedup
 		end
 
 		# Update setup_data with actual shooting point indices (needed by process_estimation_results)
@@ -1930,17 +1924,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		n_points = 1
 	else
 		n_points = min(opts.shooting_points, length(t_vector))
-		# Handle edge case when t_vector has only 2 points
-		if length(t_vector) <= 2
-			point_indices = [1]  # Just use the first point
-		elseif n_points == 1
-			point_indices = [1]  # Use first point (t=0)
-		elseif n_points == 2
-			point_indices = [1, length(t_vector)]  # Use both endpoints
-		else
-			# Include both endpoints and distribute remaining points evenly
-			point_indices = round.(Int, range(1, length(t_vector), length = n_points))
-		end
+		point_indices = compute_shooting_indices(n_points, length(t_vector);
+			warp = opts.shooting_warp, beta = opts.shooting_warp_beta)
+		n_points = length(point_indices)  # may shrink after dedup
 	end
 
 	if !opts.nooutput

@@ -145,7 +145,7 @@ export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
 export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
-export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability
+export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
 export merge_options, validate_options, print_options, get_solver_options_dict
 export optimized_multishot_parameter_estimation
 
