@@ -1255,6 +1255,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			interp_solutions = []
 			interp_time_indices = Int[]
 
+		try  # Catch errors in individual interpolators so one crash doesn't lose all results
+
 		if use_param_homotopy
 			# ============================================================================
 			# PARAMETER HOMOTOPY PATH
@@ -1541,6 +1543,20 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end  # end if use_param_homotopy
 
+		catch e
+			@error "Interpolator $interp_sym failed" exception=(e, catch_backtrace())
+			println(stderr, "[HC-CRASH] Interpolator $interp_sym threw $(typeof(e)): $e")
+			if @isdefined(param_values_list) && isa(param_values_list, AbstractVector)
+				println(stderr, "[HC-CRASH] param_values_list had $(length(param_values_list)) points")
+				for (pi, pv) in enumerate(param_values_list)
+					if any(isnan, pv) || any(isinf, pv)
+						println(stderr, "[HC-CRASH]   Point $pi: contains NaN/Inf: $pv")
+					end
+				end
+			end
+			# interp_solutions is empty, so accumulation below appends nothing
+		end  # end try/catch for interpolator
+
 			# Accumulate this pass's solutions into the global pool
 			append!(all_solutions, interp_solutions)
 			append!(solution_time_indices, interp_time_indices)
@@ -1650,20 +1666,29 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in params_dict)
 
 					# Algebraic re-solve at t=0 with fixed parameters
-					state_solutions, state_vars = resolve_states_with_fixed_params(
-						PEP.model.system,
-						PEP.measured_quantities,
-						PEP.data_sample,
-						good_deriv_level,
-						good_udict,
-						good_varlist,
-						good_DD,
-						known_param_dict,
-						interpolants;
-						si_template = si_template,
-						time_index = 1,
-						diagnostics = opts.diagnostics,
-					)
+					state_solutions = Vector{Vector{Float64}}()
+					state_vars = Any[]
+					try
+						state_solutions, state_vars = resolve_states_with_fixed_params(
+							PEP.model.system,
+							PEP.measured_quantities,
+							PEP.data_sample,
+							good_deriv_level,
+							good_udict,
+							good_varlist,
+							good_DD,
+							known_param_dict,
+							interpolants;
+							si_template = si_template,
+							time_index = 1,
+							diagnostics = opts.diagnostics,
+						)
+					catch e
+						@warn "[RESOLVE] Algebraic re-solve failed for parameter set" exception = (e, catch_backtrace())
+						if !opts.nooutput
+							println("  Algebraic re-solve failed ($(typeof(e))), falling back to data-derived ICs")
+						end
+					end
 
 					if !isempty(state_solutions)
 						# Build ParameterEstimationResult for each algebraic state solution

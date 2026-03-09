@@ -917,6 +917,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	initial_solution_count = 0
 
 	for (i, current_params) in enumerate(param_values_list)
+		try
 		if i == 1 || isnothing(prev_all_solutions) || isempty(prev_all_solutions)
 			# Fresh solve at first point - get ALL solutions
 			if debug
@@ -989,6 +990,20 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		# Track ALL solutions to next point (real + complex)
 		prev_all_solutions = all_solutions
 		prev_params = current_params
+
+		catch e
+			@error "[HC-PARAM] Point $i failed" exception=(e, catch_backtrace())
+			println(stderr, "[HC-CRASH] Point $i threw $(typeof(e)): $e")
+			println(stderr, "[HC-CRASH] current_params = $current_params")
+			if any(isnan, current_params) || any(isinf, current_params)
+				println(stderr, "[HC-CRASH] WARNING: current_params contains NaN/Inf!")
+			end
+			# Push empty results for this point
+			push!(all_real_results, Vector{Vector{Float64}}())
+			# Reset tracking so next point does a fresh solve
+			prev_all_solutions = nothing
+			prev_params = nothing
+		end
 	end
 
 	return all_real_results

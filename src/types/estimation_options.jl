@@ -344,7 +344,7 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 	elseif method == InterpolatorAAADOld
 		return aaad_old_reliable
 	elseif method == InterpolatorFHD
-		return fhd5  # Default to degree 5 FHD
+		return fhdn(5)  # Default to degree 5 FHD
 	elseif method == InterpolatorAGP
 		return agp_gpr
 	elseif method == InterpolatorAGPRobust
