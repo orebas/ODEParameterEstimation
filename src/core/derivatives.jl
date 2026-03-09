@@ -1198,3 +1198,166 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 
 	return AGPInterpolator(mean_pred, std_pred, f_posterior, 0.0, 1.0, y_mean, y_std)
 end
+
+# ============================================================================
+# S3 Refinement: GP → AAA → MLE composite interpolator
+# ============================================================================
+
+"""
+	_BaryResult
+
+Lightweight struct matching the BaryRational.AAAapprox field interface (x, w, f).
+Used to wrap MLE-refined barycentric parameters into an AAADapprox.
+"""
+struct _BaryResult
+	x::Vector{Float64}  # support points
+	w::Vector{Float64}  # barycentric weights
+	f::Vector{Float64}  # function values at support points
+end
+
+"""
+	_mle_refine_bary(z, w_init, f_init, t_data, y_data; maxiter, g_tol) -> (z, w_opt, f_opt)
+
+MLE refinement of barycentric weights and function values against raw noisy data.
+Uses LBFGS with a hard gauge constraint (w₁ = 1) to avoid scale ambiguity.
+"""
+function _mle_refine_bary(z::Vector{Float64}, w_init::Vector{Float64}, f_init::Vector{Float64},
+                          t_data::Vector{Float64}, y_data::Vector{Float64};
+                          maxiter::Int = 20000, g_tol::Float64 = 1e-15)
+	m = length(z)
+	m < 2 && return z, copy(w_init), copy(f_init)
+
+	# Hard gauge: fix w₁ = 1
+	w_scaled = w_init ./ w_init[1]
+	θ0 = vcat(w_scaled[2:end], copy(f_init))
+
+	fg! = function (F, G, θ)
+		w = vcat(one(eltype(θ)), θ[1:m-1])
+		fv = θ[m:2m-1]
+		loss = zero(eltype(θ))
+		G !== nothing && fill!(G, 0.0)
+		for j in eachindex(t_data)
+			tj = t_data[j]
+			exact = 0
+			for i in 1:m
+				tj == z[i] && (exact = i; break)
+			end
+			if exact > 0
+				res = y_data[j] - fv[exact]
+				loss += res^2
+				G !== nothing && (G[m-1+exact] -= 2.0 * res)
+			else
+				num, den = zero(eltype(θ)), zero(eltype(θ))
+				for i in 1:m
+					a = w[i] / (tj - z[i])
+					num += a * fv[i]; den += a
+				end
+				rv = num / den
+				res = y_data[j] - rv
+				loss += res^2
+				if G !== nothing
+					id = 1.0 / den
+					for i in 1:m
+						ai = 1.0 / (tj - z[i])
+						G[m-1+i] -= 2.0 * res * w[i] * ai * id
+						i >= 2 && (G[i-1] -= 2.0 * res * ai * (fv[i] - rv) * id)
+					end
+				end
+			end
+		end
+
+		return loss
+	end
+
+	od = Optim.OnceDifferentiable(Optim.only_fg!(fg!), θ0)
+	opts = Optim.Options(iterations = maxiter, g_tol = g_tol,
+	                     f_reltol = 1e-16, x_reltol = 1e-16, show_trace = false)
+	result = Optim.optimize(od, θ0, Optim.LBFGS(), opts)
+	θ_best = Optim.minimizer(result)
+	# Warm restart
+	result2 = Optim.optimize(od, θ_best, Optim.LBFGS(), opts)
+	θ_final = Optim.minimum(result2) < Optim.minimum(result) ?
+	          Optim.minimizer(result2) : θ_best
+
+	w_opt = vcat(1.0, θ_final[1:m-1])
+	f_opt = θ_final[m:2m-1]
+	return z, w_opt, f_opt
+end
+
+"""
+	s3_refine_gp(gp_interpolant::AbstractInterpolator, t_vector, y_raw;
+	             aaa_tol, mmax, maxiter, g_tol) -> AAADapprox
+
+S3 strategy: take a GP interpolant, evaluate it at data points to get denoised values,
+run AAA on the denoised values (tight tolerance for more support points), then
+MLE-refine the barycentric weights against the RAW noisy data.
+
+Returns an AAADapprox whose call method uses baryEval (AD-friendly at support points).
+"""
+function s3_refine_gp(gp_interpolant::AbstractInterpolator,
+                      t_vector::Vector{Float64}, y_raw::Vector{Float64};
+                      aaa_tol::Float64 = 1e-14, mmax::Int = 200,
+                      maxiter::Int = 20000, g_tol::Float64 = 1e-15)
+	# Step 1: Evaluate GP at data points → denoised values
+	y_gp = [gp_interpolant(t) for t in t_vector]
+
+	# Step 2: AAA on denoised data with tight tolerance → many support points
+	aaa_result = BaryRational.aaa(t_vector, y_gp; tol = aaa_tol, mmax = mmax)
+	z = copy(aaa_result.x)
+	w = copy(aaa_result.w)
+	f = copy(aaa_result.f)
+
+	# Step 3: MLE refine weights+values against raw noisy data
+	z, w, f = _mle_refine_bary(z, w, f, t_vector, y_raw; maxiter = maxiter, g_tol = g_tol)
+
+	# Step 4: Wrap in AAADapprox for baryEval-based evaluation
+	refined = _BaryResult(z, w, f)
+	return AAADapprox(refined)
+end
+
+"""
+	s2_aaa_mle_interpolator(xs, ys; aaa_tol, mmax, maxiter, g_tol) -> AAADapprox
+
+S2 strategy: run AAA directly on raw (noisy) data to harvest support points,
+then MLE-refine barycentric weights against the same data. No GP denoising step.
+
+This is the GP-free counterpart to S3. At high noise, skipping GP avoids
+over-smoothing; at low noise, S3 typically wins.
+"""
+function s2_aaa_mle_interpolator(xs::AbstractArray, ys::AbstractArray;
+                                  aaa_tol::Float64 = 1e-10, mmax::Int = 200,
+                                  maxiter::Int = 20000, g_tol::Float64 = 1e-15)
+	t_vec = Vector{Float64}(xs)
+	y_vec = Vector{Float64}(ys)
+
+	# AAA directly on raw data
+	aaa_result = BaryRational.aaa(t_vec, y_vec; tol = aaa_tol, mmax = mmax)
+	z = copy(aaa_result.x)
+	w = copy(aaa_result.w)
+	f = copy(aaa_result.f)
+
+	# MLE refine weights+values against the same raw data
+	z, w, f = _mle_refine_bary(z, w, f, t_vec, y_vec; maxiter = maxiter, g_tol = g_tol)
+
+	refined = _BaryResult(z, w, f)
+	return AAADapprox(refined)
+end
+
+"""
+	_s3_interpolator(xs, ys; kernel_type=:se) -> AAADapprox
+
+Standalone S3 composite interpolator factory.
+Fits a GP with the given kernel, then refines via AAA + MLE barycentric weights.
+"""
+function _s3_interpolator(xs::AbstractArray, ys::AbstractArray; kernel_type::Symbol = :se)
+	t_vec = Vector{Float64}(xs)
+	y_vec = Vector{Float64}(ys)
+	gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
+	return s3_refine_gp(gp, t_vec, y_vec)
+end
+
+s3_se_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se)
+s3_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :rq)
+s3_se_plus_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se_plus_rq)
+s3_se_times_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se_times_rq)
+s3_matern52_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :matern52)

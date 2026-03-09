@@ -1541,14 +1541,14 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end  # end if use_param_homotopy
 
-			# Accumulate this interpolator's solutions into the global pool
+			# Accumulate this pass's solutions into the global pool
 			append!(all_solutions, interp_solutions)
 			append!(solution_time_indices, interp_time_indices)
 			for _ in 1:length(interp_solutions)
 				push!(solution_interpolator_sources, interp_sym)
 			end
 
-			if !opts.nooutput && n_interpolators > 1
+			if !opts.nooutput
 				println("    -> $interp_sym produced $(length(interp_solutions)) solutions")
 			end
 

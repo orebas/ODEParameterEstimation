@@ -30,6 +30,13 @@ Enum for selecting the data interpolation method.
 	InterpolatorAGPRobustRQ    # agp_gpr_robust with Rational Quadratic kernel
 	InterpolatorAGPRobustSEpRQ # agp_gpr_robust with SE + RQ sum kernel
 	InterpolatorAGPRobustSExRQ # agp_gpr_robust with SE * RQ product kernel
+	InterpolatorAGPRobustMatern52 # agp_gpr_robust with Matérn-5/2 kernel
+	InterpolatorS2AAAMLE           # S2 composite: AAA(raw data) → MLE (no GP)
+	InterpolatorS3SE               # S3 composite: GP(SE) → AAA → MLE
+	InterpolatorS3RQ               # S3 composite: GP(RQ) → AAA → MLE
+	InterpolatorS3SEpRQ            # S3 composite: GP(SE+RQ) → AAA → MLE
+	InterpolatorS3SExRQ            # S3 composite: GP(SE×RQ) → AAA → MLE
+	InterpolatorS3Matern52         # S3 composite: GP(Matérn-5/2) → AAA → MLE
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -268,6 +275,7 @@ Base.@kwdef struct EstimationOptions
 	ideal::Bool = false
 	compute_uncertainty::Bool = false  # Compute parameter uncertainty via GP covariance + IFT
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
+	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
 
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
@@ -319,6 +327,16 @@ end
 Convert InterpolatorMethod enum to actual interpolator function.
 """
 function get_interpolator_function(method::InterpolatorMethod, custom::Union{Nothing, Function} = nothing)
+	if method == InterpolatorCustom
+		if isnothing(custom)
+			error("InterpolatorCustom selected but no custom_interpolator provided")
+		end
+		return custom
+	end
+	# If a custom override was provided (e.g., from GP caching layer), use it
+	if custom !== nothing
+		return custom
+	end
 	if method == InterpolatorAAAD
 		return aaad
 	elseif method == InterpolatorAAADGPR
@@ -337,11 +355,20 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:se_plus_rq)
 	elseif method == InterpolatorAGPRobustSExRQ
 		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:se_times_rq)
-	elseif method == InterpolatorCustom
-		if isnothing(custom)
-			error("InterpolatorCustom selected but no custom_interpolator provided")
-		end
-		return custom
+	elseif method == InterpolatorAGPRobustMatern52
+		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:matern52)
+	elseif method == InterpolatorS2AAAMLE
+		return s2_aaa_mle_interpolator
+	elseif method == InterpolatorS3SE
+		return s3_se_interpolator
+	elseif method == InterpolatorS3RQ
+		return s3_rq_interpolator
+	elseif method == InterpolatorS3SEpRQ
+		return s3_se_plus_rq_interpolator
+	elseif method == InterpolatorS3SExRQ
+		return s3_se_times_rq_interpolator
+	elseif method == InterpolatorS3Matern52
+		return s3_matern52_interpolator
 	else
 		error("Unknown interpolator method: $method")
 	end
@@ -362,8 +389,52 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorAGPRobustRQ && return :agp_robust_rq
 	method == InterpolatorAGPRobustSEpRQ && return :agp_robust_se_plus_rq
 	method == InterpolatorAGPRobustSExRQ && return :agp_robust_se_times_rq
+	method == InterpolatorAGPRobustMatern52 && return :agp_robust_matern52
+	method == InterpolatorS2AAAMLE && return :s2_aaa_mle
+	method == InterpolatorS3SE && return :s3_se
+	method == InterpolatorS3RQ && return :s3_rq
+	method == InterpolatorS3SEpRQ && return :s3_se_plus_rq
+	method == InterpolatorS3SExRQ && return :s3_se_times_rq
+	method == InterpolatorS3Matern52 && return :s3_matern52
 	method == InterpolatorCustom && return :custom
 	return :unknown
+end
+
+"""
+	is_gp_interpolator(method::InterpolatorMethod) -> Bool
+
+Returns true if the interpolator method is a GP-based method that supports S3 refinement.
+"""
+function is_gp_interpolator(method::InterpolatorMethod)::Bool
+	return method in (InterpolatorAGPRobust, InterpolatorAGPRobustRQ,
+	                  InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ,
+	                  InterpolatorAGPRobustMatern52,
+	                  InterpolatorAGP)
+end
+
+"""
+	is_matern_interpolator(method::InterpolatorMethod) -> Bool
+
+Returns true if the interpolator is Matérn-5/2, which is only C² smooth and
+cannot produce valid 3rd+ order derivatives from raw GP output.
+"""
+function is_matern_interpolator(method::InterpolatorMethod)::Bool
+	return method == InterpolatorAGPRobustMatern52
+end
+
+"""
+	s3_symbol(method::InterpolatorMethod) -> Symbol
+
+Map a GP interpolator method to its S3 companion tag symbol.
+"""
+function s3_symbol(method::InterpolatorMethod)::Symbol
+	method == InterpolatorAGPRobust && return :s3_se
+	method == InterpolatorAGPRobustRQ && return :s3_rq
+	method == InterpolatorAGPRobustSEpRQ && return :s3_se_plus_rq
+	method == InterpolatorAGPRobustSExRQ && return :s3_se_times_rq
+	method == InterpolatorAGPRobustMatern52 && return :s3_matern52
+	method == InterpolatorAGP && return :s3_agp
+	return :s3_unknown
 end
 
 """
@@ -376,20 +447,137 @@ Returns a vector of `(method, custom_func_or_nothing)` tuples.
 """
 function resolve_interpolator_list(opts::EstimationOptions)
 	if isempty(opts.interpolators)
-		return [(opts.interpolator, opts.custom_interpolator)]
-	end
-	result = Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}()
-	custom_idx = 0
-	for method in opts.interpolators
-		if method == InterpolatorCustom
-			custom_idx += 1
-			func = custom_idx <= length(opts.custom_interpolators) ? opts.custom_interpolators[custom_idx] : nothing
-			push!(result, (method, func))
-		else
-			push!(result, (method, nothing))
+		result = Tuple{InterpolatorMethod, Union{Nothing, Function}}[(opts.interpolator, opts.custom_interpolator)]
+	else
+		result = Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}()
+		custom_idx = 0
+		for method in opts.interpolators
+			if method == InterpolatorCustom
+				custom_idx += 1
+				func = custom_idx <= length(opts.custom_interpolators) ? opts.custom_interpolators[custom_idx] : nothing
+				push!(result, (method, func))
+			else
+				push!(result, (method, nothing))
+			end
 		end
 	end
+
+	# Backward compat: auto-expand GP methods when gp_s3_refinement=true
+	if opts.gp_s3_refinement
+		@warn "gp_s3_refinement is deprecated. Add InterpolatorS3SE etc. to your interpolators list directly." maxlog=1
+		gp_to_s3 = Dict(
+			InterpolatorAGPRobust => InterpolatorS3SE,
+			InterpolatorAGPRobustRQ => InterpolatorS3RQ,
+			InterpolatorAGPRobustSEpRQ => InterpolatorS3SEpRQ,
+			InterpolatorAGPRobustSExRQ => InterpolatorS3SExRQ,
+			InterpolatorAGPRobustMatern52 => InterpolatorS3Matern52,
+		)
+		for (m, _) in copy(result)
+			haskey(gp_to_s3, m) && push!(result, (gp_to_s3[m], nothing))
+		end
+	end
+
+	# Inject GP caching for shared kernels
+	_inject_gp_caching!(result)
+
 	return result
+end
+
+"""
+	_gp_kernel_of(method::InterpolatorMethod) -> Union{Nothing, Symbol}
+
+Map any GP-based interpolator method to its kernel type, or `nothing` if not GP-based.
+"""
+function _gp_kernel_of(method::InterpolatorMethod)::Union{Nothing, Symbol}
+	method == InterpolatorAGPRobust && return :se
+	method == InterpolatorAGPRobustRQ && return :rq
+	method == InterpolatorAGPRobustSEpRQ && return :se_plus_rq
+	method == InterpolatorAGPRobustSExRQ && return :se_times_rq
+	method == InterpolatorAGPRobustMatern52 && return :matern52
+	method == InterpolatorS3SE && return :se
+	method == InterpolatorS3RQ && return :rq
+	method == InterpolatorS3SEpRQ && return :se_plus_rq
+	method == InterpolatorS3SExRQ && return :se_times_rq
+	method == InterpolatorS3Matern52 && return :matern52
+	return nothing
+end
+
+"""
+	_is_s3_method(method::InterpolatorMethod) -> Bool
+
+Returns true if the interpolator method is an S3 composite (GP→AAA→MLE).
+"""
+function _is_s3_method(method::InterpolatorMethod)::Bool
+	return method in (InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ,
+	                  InterpolatorS3SExRQ, InterpolatorS3Matern52)
+end
+
+"""
+	_make_cached_gp_func(kernel_type, cache) -> Function
+
+Create a closure that fits a GP and stores it in the shared cache, keyed by `hash(ys)`.
+"""
+function _make_cached_gp_func(kernel_type::Symbol, cache::Dict{UInt64, Any})
+	return function(xs, ys)
+		key = hash(ys)
+		gp = agp_gpr_robust(Vector{Float64}(xs), Vector{Float64}(ys); kernel_type = kernel_type)
+		cache[key] = gp
+		return gp
+	end
+end
+
+"""
+	_make_cached_s3_func(kernel_type, cache) -> Function
+
+Create a closure that reuses a cached GP (if available) for S3 refinement.
+On cache miss, fits the GP internally.
+"""
+function _make_cached_s3_func(kernel_type::Symbol, cache::Dict{UInt64, Any})
+	return function(xs, ys)
+		key = hash(ys)
+		t_vec = Vector{Float64}(xs)
+		y_vec = Vector{Float64}(ys)
+		gp = get(cache, key, nothing)
+		if gp === nothing
+			gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
+		end
+		return s3_refine_gp(gp, t_vec, y_vec)
+	end
+end
+
+"""
+	_inject_gp_caching!(interpolator_list)
+
+For interpolator methods that share a GP kernel (e.g., AGPRobust + S3SE both use SE),
+inject closure-wrapped functions that share a `Dict` cache so the GP is fitted only once.
+"""
+function _inject_gp_caching!(interpolator_list::Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}})
+	# Count how many methods share each GP kernel
+	kernel_counts = Dict{Symbol, Int}()
+	for (method, _) in interpolator_list
+		kt = _gp_kernel_of(method)
+		kt !== nothing && (kernel_counts[kt] = get(kernel_counts, kt, 0) + 1)
+	end
+	shared_kernels = Set(k for (k, c) in kernel_counts if c > 1)
+	isempty(shared_kernels) && return
+
+	# Create per-kernel caches
+	caches = Dict(k => Dict{UInt64, Any}() for k in shared_kernels)
+
+	# Replace functions for methods that share a kernel
+	for i in eachindex(interpolator_list)
+		method, custom = interpolator_list[i]
+		custom !== nothing && continue  # don't override user-provided functions
+		kt = _gp_kernel_of(method)
+		kt === nothing && continue
+		kt ∉ shared_kernels && continue
+		cache = caches[kt]
+		if _is_s3_method(method)
+			interpolator_list[i] = (method, _make_cached_s3_func(kt, cache))
+		else
+			interpolator_list[i] = (method, _make_cached_gp_func(kt, cache))
+		end
+	end
 end
 
 """
@@ -640,7 +828,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :try_more_methods, :save_system,
-			:display_system, :polish_only, :ideal, :compute_uncertainty, :auto_handle_transcendentals]),
+			:display_system, :polish_only, :ideal, :compute_uncertainty, :auto_handle_transcendentals, :gp_s3_refinement]),
 		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),

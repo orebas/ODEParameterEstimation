@@ -142,10 +142,11 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
 export FlowDeprecated, FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorCustom
+export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
+export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp
 export merge_options, validate_options, print_options, get_solver_options_dict
 export optimized_multishot_parameter_estimation
 
