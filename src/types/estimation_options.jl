@@ -149,6 +149,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
+- `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI placeholder categories. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 
 ## HomotopyContinuation Specific
@@ -278,6 +279,7 @@ Base.@kwdef struct EstimationOptions
 	ideal::Bool = false
 	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
+	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
 
@@ -826,6 +828,20 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
+	valid_placeholder_categories = Set((
+		:dd_observable_index_oob,
+		:dd_derivative_unmapped,
+		:nonobservable_derivative,
+		:no_dd_derivative,
+		:unknown_variable,
+		:late_map_miss,
+	))
+	invalid_placeholder_categories = [cat for cat in opts.si_placeholder_fail_categories if !(cat in valid_placeholder_categories)]
+	if !isempty(invalid_placeholder_categories)
+		@error "Unknown si_placeholder_fail_categories: $(invalid_placeholder_categories)"
+		valid = false
+	end
+
 	if opts.ideal && opts.noise_level > 0
 		@warn "ideal=true but noise_level > 0; these options may conflict"
 	end
@@ -863,7 +879,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
-			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :auto_handle_transcendentals, :gp_s3_refinement]),
+			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
 		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),

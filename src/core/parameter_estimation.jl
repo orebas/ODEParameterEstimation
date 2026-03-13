@@ -230,6 +230,7 @@ function construct_multipoint_equation_system!(time_index_set,
 				DD = good_DD,
 				infolevel = diagnostics ? 1 : 0,
 				pre_fixed_params = pre_fixed_params,
+				placeholder_fail_categories = opts.si_placeholder_fail_categories,
 			)
 
 			si_template = (

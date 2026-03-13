@@ -33,6 +33,7 @@ function construct_equation_system_from_si_template(
 	precomputed_interpolants = nothing,
 	diagnostics = false,
 	si_template = nothing,  # Cache the template if provided
+	placeholder_fail_categories = Symbol[],
 	kwargs...,
 )
 	measured_quantities = deepcopy(measured_quantities_in)
@@ -60,6 +61,7 @@ function construct_equation_system_from_si_template(
 			data_sample;
 			DD = DD,
 			infolevel = diagnostics ? 1 : 0,
+			placeholder_fail_categories = placeholder_fail_categories,
 		)
 
 		si_template = (
@@ -304,6 +306,7 @@ function resolve_states_with_fixed_params(
 	si_template = nothing,  # ignored — we generate a fresh template via SIAN re-run
 	time_index::Int = 1,
 	diagnostics::Bool = false,
+	placeholder_fail_categories = Symbol[],
 )
 	@info "[RESOLVE] Re-running SIAN with $(length(known_param_dict)) fixed parameters"
 
@@ -346,6 +349,7 @@ function resolve_states_with_fixed_params(
 		fixed_model, fixed_mq, data_sample;
 		DD = DD,
 		infolevel = diagnostics ? 1 : 0,
+		placeholder_fail_categories = placeholder_fail_categories,
 	)
 
 	if isempty(new_template_eqs)
@@ -378,6 +382,7 @@ function resolve_states_with_fixed_params(
 		precomputed_interpolants = interpolants,
 		diagnostics = diagnostics,
 		si_template = new_si_template,
+		placeholder_fail_categories = placeholder_fail_categories,
 	)
 
 	if isempty(equations)

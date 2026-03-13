@@ -1077,6 +1077,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				DD = good_DD,
 				infolevel = opts.diagnostics ? 1 : 0,
 				pre_fixed_params = pre_fixed_params,
+				placeholder_fail_categories = opts.si_placeholder_fail_categories,
 			)
 
 			si_template = (
@@ -1720,6 +1721,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							si_template = si_template,
 							time_index = 1,
 							diagnostics = opts.diagnostics,
+							placeholder_fail_categories = opts.si_placeholder_fail_categories,
 						)
 						state_solutions = resolve_result.solutions
 						state_vars = resolve_result.state_vars

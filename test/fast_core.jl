@@ -82,6 +82,9 @@ using OrderedCollections
         invalid_uq_policy = EstimationOptions(uq_failure_policy = :maybe)
         @test !ODEParameterEstimation.validate_options(invalid_uq_policy)
 
+        invalid_placeholder_policy = EstimationOptions(si_placeholder_fail_categories = [:not_a_real_category])
+        @test !ODEParameterEstimation.validate_options(invalid_placeholder_policy)
+
         @test_throws ErrorException ODEParameterEstimation.merge_options(base; definitely_not_an_option = true)
     end
 
@@ -96,6 +99,30 @@ using OrderedCollections
 
         @test ODEParameterEstimation.apply_uq_failure_policy(failed_uq, passthrough_opts) === failed_uq
         @test_throws ErrorException ODEParameterEstimation.apply_uq_failure_policy(failed_uq, throw_opts)
+    end
+
+    @testset "SI placeholder policy helpers" begin
+        @test !ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, Symbol[])
+        @test ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, [:dd_observable_index_oob])
+
+        placeholder_stats = Dict{Symbol, Vector{String}}()
+        placeholder_map = Dict{Any, Any}()
+        @test_throws ErrorException ODEParameterEstimation._create_si_symbolic_placeholder!(
+            placeholder_map,
+            :fake_var,
+            "fake_var",
+            placeholder_stats,
+            :dd_observable_index_oob;
+            fail_categories = [:dd_observable_index_oob],
+        )
+
+        R, gens = ODEParameterEstimation.Nemo.polynomial_ring(ODEParameterEstimation.Nemo.QQ, ["late_x"])
+        late_poly = gens[1]
+        @test_throws ErrorException ODEParameterEstimation.nemo_to_symbolics(
+            late_poly,
+            Dict();
+            fail_categories = [:late_map_miss],
+        )
     end
 
     @testset "Math helpers" begin

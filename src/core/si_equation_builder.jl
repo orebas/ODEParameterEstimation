@@ -194,16 +194,24 @@ function _record_si_symbolic_placeholder!(stats::Dict{Symbol, Vector{String}}, c
 	return nothing
 end
 
+function should_fail_si_placeholder(category::Symbol, fail_categories)::Bool
+	return category in fail_categories
+end
+
 function _create_si_symbolic_placeholder!(
 	extended_map::Dict,
 	var,
 	var_name::AbstractString,
 	stats::Dict{Symbol, Vector{String}},
 	category::Symbol;
+	fail_categories = Symbol[],
 	infolevel::Integer = 0,
 	message_level::Symbol = :debug,
 	message::AbstractString = "",
 )
+	if should_fail_si_placeholder(category, fail_categories)
+		error("SI placeholder category $category is configured to hard-fail for variable $var_name. $message")
+	end
 	sym_var = Symbolics.variable(Symbol(var_name))
 	extended_map[var] = sym_var
 	_record_si_symbolic_placeholder!(stats, category, var_name)
@@ -217,6 +225,135 @@ function _create_si_symbolic_placeholder!(
 		end
 	end
 	return sym_var
+end
+
+function build_extended_si_variable_map(
+	all_vars,
+	base_map::Dict,
+	measured_quantities,
+	DD;
+	infolevel::Integer = 0,
+	fail_categories = Symbol[],
+)
+	extended_map = Dict{Nemo.QQMPolyRingElem, Any}()
+	placeholder_stats = Dict{Symbol, Vector{String}}()
+
+	for (k, v) in base_map
+		extended_map[k] = v
+	end
+
+	obs_name_to_idx = Dict{String, Int}()
+	for (idx, mq) in enumerate(measured_quantities)
+		lhs_val = Symbolics.value(mq.lhs)
+		if Symbolics.iscall(lhs_val)
+			lhs_name = string(Symbolics.operation(lhs_val))
+			obs_name_to_idx[lhs_name] = idx
+		end
+	end
+
+	for var in all_vars
+		haskey(extended_map, var) && continue
+		var_name = string(var)
+		parsed = parse_derivative_variable_name(var_name)
+
+		if !isnothing(parsed)
+			base_name, deriv_order = parsed
+			if !isnothing(DD)
+				obs_idx = get(obs_name_to_idx, base_name, nothing)
+				if isnothing(obs_idx)
+					m = match(r"^y(\d+)$", base_name)
+					if !isnothing(m)
+						obs_idx = parse(Int, m.captures[1])
+					end
+				end
+
+				if !isnothing(obs_idx)
+					if deriv_order == 0
+						if obs_idx <= length(DD.obs_lhs[1])
+							deriv_var = DD.obs_lhs[1][obs_idx]
+							extended_map[var] = deriv_var
+							if infolevel > 0
+								@debug "Mapped $var_name to DD observable: $deriv_var"
+							end
+						else
+							_create_si_symbolic_placeholder!(
+								extended_map,
+								var,
+								var_name,
+								placeholder_stats,
+								:dd_observable_index_oob;
+								fail_categories = fail_categories,
+								infolevel = infolevel,
+								message_level = :warn,
+								message = "Observable index $obs_idx out of bounds for DD structure; using symbolic placeholder",
+							)
+						end
+					else
+						if deriv_order + 1 <= length(DD.obs_lhs) && obs_idx <= length(DD.obs_lhs[deriv_order+1])
+							deriv_var = DD.obs_lhs[deriv_order+1][obs_idx]
+							extended_map[var] = deriv_var
+							if infolevel > 0
+								@debug "Mapped $var_name to DD derivative: $deriv_var"
+							end
+						else
+							_create_si_symbolic_placeholder!(
+								extended_map,
+								var,
+								var_name,
+								placeholder_stats,
+								:dd_derivative_unmapped;
+								fail_categories = fail_categories,
+								infolevel = infolevel,
+								message_level = :warn,
+								message = "Cannot map derivative variable to DD structure (order=$deriv_order); using symbolic placeholder",
+							)
+						end
+					end
+				else
+					_create_si_symbolic_placeholder!(
+						extended_map,
+						var,
+						var_name,
+						placeholder_stats,
+						:nonobservable_derivative;
+						fail_categories = fail_categories,
+						infolevel = infolevel,
+						message = "Created symbolic placeholder for non-observable derivative variable",
+					)
+				end
+			else
+				_create_si_symbolic_placeholder!(
+					extended_map,
+					var,
+					var_name,
+					placeholder_stats,
+					:no_dd_derivative;
+					fail_categories = fail_categories,
+					infolevel = infolevel,
+					message_level = :info,
+					message = "No DD structure available; using symbolic placeholder",
+				)
+			end
+		else
+			_create_si_symbolic_placeholder!(
+				extended_map,
+				var,
+				var_name,
+				placeholder_stats,
+				:unknown_variable;
+				fail_categories = fail_categories,
+				infolevel = infolevel,
+				message = "Mapped unknown SI variable to symbolic placeholder",
+			)
+		end
+	end
+
+	if !isempty(placeholder_stats)
+		placeholder_counts = Dict(k => length(v) for (k, v) in placeholder_stats)
+		@info "[SI-MAP] Created symbolic placeholders while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
+	end
+
+	return extended_map
 end
 
 """
@@ -314,6 +451,7 @@ function get_si_equation_system(
 
 	# Convert to SI.jl format (pre-fixed params are applied after SIAN, at the polynomial level)
 	si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
+	placeholder_fail_categories = get(kwargs, :placeholder_fail_categories, Symbol[])
 
 	# Get parameters for identifiability analysis 
 	# Use the parameters field directly instead of SIAN.get_parameters to avoid dependency issues
@@ -374,134 +512,14 @@ function get_si_equation_system(
 		R = parent(poly_system[1])
 		all_vars = Nemo.gens(R)
 
-		# Build extended mapping including derivative variables
-		extended_map = Dict{Nemo.QQMPolyRingElem, Any}()
-		placeholder_stats = Dict{Symbol, Vector{String}}()
-
-		# Copy existing mappings
-		for (k, v) in nemo2mtk
-			extended_map[k] = v
-		end
-
-		# Build mapping from observable base names to indices for derivative variable matching
-		obs_name_to_idx = Dict{String, Int}()
-		for (idx, mq) in enumerate(measured_quantities)
-			lhs_val = Symbolics.value(mq.lhs)
-			if Symbolics.iscall(lhs_val)
-				lhs_name = string(Symbolics.operation(lhs_val))
-				obs_name_to_idx[lhs_name] = idx
-			end
-		end
-
-		# Add derivative variable mappings
-		for var in all_vars
-			if !haskey(extended_map, var)
-				var_name = string(var)
-				parsed = parse_derivative_variable_name(var_name)
-
-				if !isnothing(parsed)
-					base_name, deriv_order = parsed
-
-					# Map to DD structure if available
-					if !isnothing(DD)
-						# Find the corresponding observable index
-						# First try the measured quantities name mapping (handles all observable names)
-						# Then fall back to legacy SIAN naming (y1, y2, etc.)
-						obs_idx = get(obs_name_to_idx, base_name, nothing)
-						if isnothing(obs_idx)
-							# Legacy fallback: SIAN uses y1, y2, etc. for multi-observable systems
-							m = match(r"^y(\d+)$", base_name)
-							if !isnothing(m)
-								obs_idx = parse(Int, m.captures[1])
-							end
-						end
-
-						if !isnothing(obs_idx)
-							# Map to the appropriate DD variable
-							if deriv_order == 0
-								# Base observable
-								if obs_idx <= length(DD.obs_lhs[1])
-									deriv_var = DD.obs_lhs[1][obs_idx]
-									extended_map[var] = deriv_var
-									if infolevel > 0
-										@debug "Mapped $var_name to DD observable: $deriv_var"
-									end
-								else
-									_create_si_symbolic_placeholder!(
-										extended_map,
-										var,
-										var_name,
-										placeholder_stats,
-										:dd_observable_index_oob;
-										infolevel = infolevel,
-										message_level = :warn,
-										message = "Observable index $obs_idx out of bounds for DD structure; using symbolic placeholder",
-									)
-								end
-							else
-								# Derivative of observable
-								if deriv_order + 1 <= length(DD.obs_lhs) && obs_idx <= length(DD.obs_lhs[deriv_order+1])
-									deriv_var = DD.obs_lhs[deriv_order+1][obs_idx]
-									extended_map[var] = deriv_var
-									if infolevel > 0
-										@debug "Mapped $var_name to DD derivative: $deriv_var"
-									end
-								else
-									_create_si_symbolic_placeholder!(
-										extended_map,
-										var,
-										var_name,
-										placeholder_stats,
-										:dd_derivative_unmapped;
-										infolevel = infolevel,
-										message_level = :warn,
-										message = "Cannot map derivative variable to DD structure (order=$deriv_order); using symbolic placeholder",
-									)
-								end
-							end
-						else
-							_create_si_symbolic_placeholder!(
-								extended_map,
-								var,
-								var_name,
-								placeholder_stats,
-								:nonobservable_derivative;
-								infolevel = infolevel,
-								message = "Created symbolic placeholder for non-observable derivative variable",
-							)
-						end
-					else
-						_create_si_symbolic_placeholder!(
-							extended_map,
-							var,
-							var_name,
-							placeholder_stats,
-							:no_dd_derivative;
-							infolevel = infolevel,
-							message_level = :info,
-							message = "No DD structure available; using symbolic placeholder",
-						)
-					end
-				else
-					_create_si_symbolic_placeholder!(
-						extended_map,
-						var,
-						var_name,
-						placeholder_stats,
-						:unknown_variable;
-						infolevel = infolevel,
-						message = "Mapped unknown SI variable to symbolic placeholder",
-					)
-				end
-			end
-		end
-
-		if !isempty(placeholder_stats)
-			placeholder_counts = Dict(k => length(v) for (k, v) in placeholder_stats)
-			@info "[SI-MAP] Created symbolic placeholders while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
-		end
-
-		nemo2mtk = extended_map
+		nemo2mtk = build_extended_si_variable_map(
+			all_vars,
+			nemo2mtk,
+			measured_quantities,
+			DD;
+			infolevel = infolevel,
+			fail_categories = placeholder_fail_categories,
+		)
 	end
 
 	# Convert polynomial system to Symbolics format
@@ -513,7 +531,7 @@ function get_si_equation_system(
 
 	for poly in poly_system
 		# Convert the polynomial to Symbolics
-		poly_sym = nemo_to_symbolics(poly, nemo2mtk)
+		poly_sym = nemo_to_symbolics(poly, nemo2mtk; fail_categories = placeholder_fail_categories)
 
 		if infolevel > 0
 			@debug "Converted polynomial: $(typeof(poly)) -> $(typeof(poly_sym))"
@@ -904,7 +922,7 @@ end
 
 Convert a Nemo expression to a Symbolics expression using proper term-by-term reconstruction.
 """
-function nemo_to_symbolics(nemo_expr, var_map::Dict)
+function nemo_to_symbolics(nemo_expr, var_map::Dict; fail_categories = Symbol[])
 	# Handle constants
 	if nemo_expr isa Number
 		return nemo_expr
@@ -919,8 +937,8 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
 
 	# Handle fraction field elements
 	if nemo_expr isa Nemo.Generic.FracFieldElem
-		numer = nemo_to_symbolics(Nemo.numerator(nemo_expr), var_map)
-		denom = nemo_to_symbolics(Nemo.denominator(nemo_expr), var_map)
+		numer = nemo_to_symbolics(Nemo.numerator(nemo_expr), var_map; fail_categories = fail_categories)
+		denom = nemo_to_symbolics(Nemo.denominator(nemo_expr), var_map; fail_categories = fail_categories)
 		return numer / denom
 	end
 
@@ -976,9 +994,17 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
 						# Late placeholder creation is still allowed here because some
 						# identifiable-function outputs introduce symbols that were not
 						# present in the initial SIAN→MTK map.
-						@warn "Variable $var not found in SI variable map; creating a late symbolic placeholder."
-						sym_var = Symbolics.variable(Symbol(var_name))
-						var_map[var] = sym_var # Cache for future use
+						placeholder_stats = Dict{Symbol, Vector{String}}()
+						sym_var = _create_si_symbolic_placeholder!(
+							var_map,
+							var,
+							var_name,
+							placeholder_stats,
+							:late_map_miss;
+							fail_categories = fail_categories,
+							message_level = :warn,
+							message = "Variable not found in SI variable map during Nemo reconstruction; creating a late symbolic placeholder.",
+						)
 					end
 
 					if exp_vec[j] == 1
