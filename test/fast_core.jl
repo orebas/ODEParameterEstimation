@@ -116,6 +116,10 @@ using OrderedCollections
         unknown_classification = ODEParameterEstimation.classify_si_ring_variable("mystery_symbol", Dict{String, Int}(), nothing)
         @test unknown_classification.category == :true_unknown_variable
 
+        R_used, gens_used = ODEParameterEstimation.Nemo.polynomial_ring(ODEParameterEstimation.Nemo.QQ, ["x", "y1_0", "y1_1"])
+        used_vars = ODEParameterEstimation.collect_used_nemo_variables([gens_used[1] + gens_used[2]])
+        @test Set(string.(used_vars)) == Set(["x", "y1_0"])
+
         placeholder_stats = Dict{Symbol, Vector{String}}()
         placeholder_map = Dict{Any, Any}()
         @test_throws ErrorException ODEParameterEstimation._create_si_symbolic_placeholder!(

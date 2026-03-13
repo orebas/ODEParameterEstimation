@@ -428,6 +428,16 @@ function si_role_summary_from_stats(stats::Dict{Symbol, Vector{String}})
 	)
 end
 
+function collect_used_nemo_variables(polys)
+	used_vars = OrderedSet{Any}()
+	for poly in polys
+		for var in Nemo.vars(poly)
+			push!(used_vars, var)
+		end
+	end
+	return collect(used_vars)
+end
+
 """
 	algebraic_independence(Et::Vector{Nemo.QQMPolyRingElem},
 						   indets::Vector{Nemo.QQMPolyRingElem},
@@ -580,13 +590,15 @@ function get_si_equation_system(
 	# We need to map these to our DD structure when available
 	si_variable_role_summary = si_role_summary_from_stats(Dict{Symbol, Vector{String}}())
 
-	# First, identify all variables in the polynomial system
+	# Build mappings only for variables actually used in the template polynomials.
+	# SIAN's parent ring can contain a much larger jet-variable universe than the
+	# final polynomial system needs, and mapping the whole ring inflates support-role
+	# traffic with irrelevant high-order observable derivatives.
 	if !isempty(poly_system)
-		R = parent(poly_system[1])
-		all_vars = Nemo.gens(R)
+		used_template_vars = collect_used_nemo_variables(poly_system)
 
 		nemo2mtk, si_variable_role_stats = build_extended_si_variable_map(
-			all_vars,
+			used_template_vars,
 			nemo2mtk,
 			measured_quantities,
 			DD;
@@ -596,6 +608,11 @@ function get_si_equation_system(
 		si_variable_role_summary = si_role_summary_from_stats(si_variable_role_stats)
 		if !isempty(si_variable_role_summary.suspicious_categories)
 			@warn "[SI-MAP] Suspicious SI variable-role categories encountered" counts = si_variable_role_summary.suspicious_categories samples = Dict(k => si_variable_role_summary.samples[k] for k in keys(si_variable_role_summary.suspicious_categories))
+		end
+		if infolevel > 0
+			R = parent(poly_system[1])
+			all_ring_vars = Nemo.gens(R)
+			@info "[SI-MAP] Template uses $(length(used_template_vars)) of $(length(all_ring_vars)) SIAN ring variables"
 		end
 	end
 
