@@ -104,6 +104,17 @@ using OrderedCollections
     @testset "SI placeholder policy helpers" begin
         @test !ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, Symbol[])
         @test ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, [:dd_observable_index_oob])
+        @test ODEParameterEstimation.should_fail_si_placeholder(:observable_derivative_overflow, [:dd_derivative_unmapped])
+        @test ODEParameterEstimation.should_fail_si_placeholder(:true_unknown_variable, [:unknown_variable])
+
+        z_aux_classification = ODEParameterEstimation.classify_si_ring_variable("z_aux", Dict{String, Int}(), nothing)
+        @test z_aux_classification.category == :sian_auxiliary
+
+        jet_classification = ODEParameterEstimation.classify_si_ring_variable("x1_0", Dict{String, Int}(), (obs_lhs = [[1]],))
+        @test jet_classification.category == :state_or_input_jet
+
+        unknown_classification = ODEParameterEstimation.classify_si_ring_variable("mystery_symbol", Dict{String, Int}(), nothing)
+        @test unknown_classification.category == :true_unknown_variable
 
         placeholder_stats = Dict{Symbol, Vector{String}}()
         placeholder_map = Dict{Any, Any}()
@@ -123,6 +134,11 @@ using OrderedCollections
             Dict();
             fail_categories = [:late_map_miss],
         )
+
+        R_aux, gens_aux = ODEParameterEstimation.Nemo.polynomial_ring(ODEParameterEstimation.Nemo.QQ, ["z_aux"])
+        aux_poly = gens_aux[1]
+        aux_sym = ODEParameterEstimation.nemo_to_symbolics(aux_poly, Dict())
+        @test string(aux_sym) == "z_aux"
     end
 
     @testset "Math helpers" begin

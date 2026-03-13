@@ -32,6 +32,14 @@ A smaller follow-up spot-check on limitation models was started separately. It w
 
 ## Main Result
 
+Note: this inventory was gathered before the SI mapping vocabulary was redesigned. The underlying behavior is still the same, but the runtime category names have since been clarified:
+
+- `:dd_derivative_unmapped` -> `:observable_derivative_overflow`
+- `:nonobservable_derivative` -> `:state_or_input_jet`
+- `:unknown_variable` split into:
+  - `:sian_auxiliary` for `z_aux`
+  - `:true_unknown_variable` for anything genuinely unmapped
+
 Across all 56 realistic runs, every model exercised all of these placeholder categories:
 
 - `:dd_derivative_unmapped`
@@ -94,6 +102,22 @@ It captures derivative-like or `_0`-suffixed symbols that are not measured-obser
 In practice this is mostly `z_aux`.
 
 That strongly suggests there is one recurring auxiliary-symbol pathway in the SI conversion flow, not a broad family of random unmapped symbols.
+
+## Post-Refactor Interpretation
+
+After the SI mapping refactor, these now surface as:
+
+- `:observable_derivative_overflow`
+- `:state_or_input_jet`
+- `:sian_auxiliary` / `:true_unknown_variable`
+
+A representative post-refactor probe on `simple` now reports:
+
+- `:observable_derivative_overflow = 4`
+- `:state_or_input_jet = 5`
+- `:sian_auxiliary = 1` with sample `z_aux`
+
+That confirms `z_aux` is no longer being bucketed as a generic unknown.
 
 ## Implications For Cleanup
 

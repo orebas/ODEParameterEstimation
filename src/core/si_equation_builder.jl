@@ -189,13 +189,15 @@ function coerce_nemo_ring_value(R, value; context = "expression")
 end
 
 function _record_si_symbolic_placeholder!(stats::Dict{Symbol, Vector{String}}, category::Symbol, var_name::AbstractString)
+	category = canonicalize_si_placeholder_category(category)
 	names = get!(stats, category, String[])
 	length(names) < 5 && push!(names, String(var_name))
 	return nothing
 end
 
 function should_fail_si_placeholder(category::Symbol, fail_categories)::Bool
-	return category in fail_categories
+	category = canonicalize_si_placeholder_category(category)
+	return category in normalize_si_placeholder_fail_categories(fail_categories)
 end
 
 function _create_si_symbolic_placeholder!(
@@ -209,6 +211,7 @@ function _create_si_symbolic_placeholder!(
 	message_level::Symbol = :debug,
 	message::AbstractString = "",
 )
+	category = canonicalize_si_placeholder_category(category)
 	if should_fail_si_placeholder(category, fail_categories)
 		error("SI placeholder category $category is configured to hard-fail for variable $var_name. $message")
 	end
@@ -227,6 +230,149 @@ function _create_si_symbolic_placeholder!(
 	return sym_var
 end
 
+is_sian_auxiliary_variable_name(var_name::AbstractString) = var_name == "z_aux"
+
+function build_si_observable_index_map(measured_quantities)
+	obs_name_to_idx = Dict{String, Int}()
+	for (idx, mq) in enumerate(measured_quantities)
+		lhs_val = Symbolics.value(mq.lhs)
+		if Symbolics.iscall(lhs_val)
+			lhs_name = string(Symbolics.operation(lhs_val))
+			obs_name_to_idx[lhs_name] = idx
+		end
+	end
+	return obs_name_to_idx
+end
+
+function resolve_si_observable_index(base_name::AbstractString, obs_name_to_idx::Dict{String, Int})
+	obs_idx = get(obs_name_to_idx, base_name, nothing)
+	if isnothing(obs_idx)
+		m = match(r"^y(\d+)$", base_name)
+		if !isnothing(m)
+			obs_idx = parse(Int, m.captures[1])
+		end
+	end
+	return obs_idx
+end
+
+function classify_si_ring_variable(
+	var_name::AbstractString,
+	obs_name_to_idx::Dict{String, Int},
+	DD,
+)
+	if is_sian_auxiliary_variable_name(var_name)
+		return (
+			category = :sian_auxiliary,
+			message_level = :info,
+			message = "Mapped known SIAN auxiliary variable",
+		)
+	end
+
+	parsed = parse_derivative_variable_name(var_name)
+	if isnothing(parsed)
+		return (
+			category = :true_unknown_variable,
+			message_level = :debug,
+			message = "Mapped truly unknown SI variable to symbolic placeholder",
+		)
+	end
+
+	base_name, deriv_order = parsed
+	if isnothing(DD)
+		return (
+			category = :no_dd_derivative,
+			message_level = :info,
+			message = "No DD structure available; using symbolic placeholder",
+		)
+	end
+
+	obs_idx = resolve_si_observable_index(base_name, obs_name_to_idx)
+	if isnothing(obs_idx)
+		return (
+			category = :state_or_input_jet,
+			message_level = :debug,
+			message = "Mapped state/input jet symbol to symbolic support variable",
+		)
+	end
+
+	if deriv_order == 0
+		if obs_idx <= length(DD.obs_lhs[1])
+			return (
+				category = :observable_derivative,
+				symbol = DD.obs_lhs[1][obs_idx],
+				message_level = :debug,
+				message = "Mapped observable to DD structure",
+			)
+		end
+		return (
+			category = :dd_observable_index_oob,
+			message_level = :warn,
+			message = "Observable index $obs_idx out of bounds for DD structure; using symbolic support variable",
+		)
+	end
+
+	if deriv_order + 1 <= length(DD.obs_lhs) && obs_idx <= length(DD.obs_lhs[deriv_order+1])
+		return (
+			category = :observable_derivative,
+			symbol = DD.obs_lhs[deriv_order+1][obs_idx],
+			message_level = :debug,
+			message = "Mapped observable derivative to DD structure",
+		)
+	end
+
+	return (
+		category = :observable_derivative_overflow,
+		message_level = :warn,
+		message = "Observable derivative exceeds DD support (order=$deriv_order); using symbolic support variable",
+	)
+end
+
+function resolve_si_ring_variable(
+	var,
+	base_map::Dict,
+	obs_name_to_idx::Dict{String, Int},
+	DD;
+	infolevel::Integer = 0,
+	fail_categories = Symbol[],
+	stats = Dict{Symbol, Vector{String}}(),
+)
+	haskey(base_map, var) && return (
+		category = :model_symbol,
+		symbol = base_map[var],
+	)
+
+	var_name = string(var)
+	classification = classify_si_ring_variable(var_name, obs_name_to_idx, DD)
+	category = classification.category
+
+	if category == :observable_derivative
+		if infolevel > 0
+			@debug classification.message var_name = var_name symbolic = classification.symbol
+		end
+		return (
+			category = category,
+			symbol = classification.symbol,
+		)
+	end
+
+	sym_var = _create_si_symbolic_placeholder!(
+		base_map,
+		var,
+		var_name,
+		stats,
+		category;
+		fail_categories = fail_categories,
+		infolevel = infolevel,
+		message_level = classification.message_level,
+		message = classification.message,
+	)
+
+	return (
+		category = category,
+		symbol = sym_var,
+	)
+end
+
 function build_extended_si_variable_map(
 	all_vars,
 	base_map::Dict,
@@ -242,115 +388,25 @@ function build_extended_si_variable_map(
 		extended_map[k] = v
 	end
 
-	obs_name_to_idx = Dict{String, Int}()
-	for (idx, mq) in enumerate(measured_quantities)
-		lhs_val = Symbolics.value(mq.lhs)
-		if Symbolics.iscall(lhs_val)
-			lhs_name = string(Symbolics.operation(lhs_val))
-			obs_name_to_idx[lhs_name] = idx
-		end
-	end
+	obs_name_to_idx = build_si_observable_index_map(measured_quantities)
 
 	for var in all_vars
 		haskey(extended_map, var) && continue
-		var_name = string(var)
-		parsed = parse_derivative_variable_name(var_name)
-
-		if !isnothing(parsed)
-			base_name, deriv_order = parsed
-			if !isnothing(DD)
-				obs_idx = get(obs_name_to_idx, base_name, nothing)
-				if isnothing(obs_idx)
-					m = match(r"^y(\d+)$", base_name)
-					if !isnothing(m)
-						obs_idx = parse(Int, m.captures[1])
-					end
-				end
-
-				if !isnothing(obs_idx)
-					if deriv_order == 0
-						if obs_idx <= length(DD.obs_lhs[1])
-							deriv_var = DD.obs_lhs[1][obs_idx]
-							extended_map[var] = deriv_var
-							if infolevel > 0
-								@debug "Mapped $var_name to DD observable: $deriv_var"
-							end
-						else
-							_create_si_symbolic_placeholder!(
-								extended_map,
-								var,
-								var_name,
-								placeholder_stats,
-								:dd_observable_index_oob;
-								fail_categories = fail_categories,
-								infolevel = infolevel,
-								message_level = :warn,
-								message = "Observable index $obs_idx out of bounds for DD structure; using symbolic placeholder",
-							)
-						end
-					else
-						if deriv_order + 1 <= length(DD.obs_lhs) && obs_idx <= length(DD.obs_lhs[deriv_order+1])
-							deriv_var = DD.obs_lhs[deriv_order+1][obs_idx]
-							extended_map[var] = deriv_var
-							if infolevel > 0
-								@debug "Mapped $var_name to DD derivative: $deriv_var"
-							end
-						else
-							_create_si_symbolic_placeholder!(
-								extended_map,
-								var,
-								var_name,
-								placeholder_stats,
-								:dd_derivative_unmapped;
-								fail_categories = fail_categories,
-								infolevel = infolevel,
-								message_level = :warn,
-								message = "Cannot map derivative variable to DD structure (order=$deriv_order); using symbolic placeholder",
-							)
-						end
-					end
-				else
-					_create_si_symbolic_placeholder!(
-						extended_map,
-						var,
-						var_name,
-						placeholder_stats,
-						:nonobservable_derivative;
-						fail_categories = fail_categories,
-						infolevel = infolevel,
-						message = "Created symbolic placeholder for non-observable derivative variable",
-					)
-				end
-			else
-				_create_si_symbolic_placeholder!(
-					extended_map,
-					var,
-					var_name,
-					placeholder_stats,
-					:no_dd_derivative;
-					fail_categories = fail_categories,
-					infolevel = infolevel,
-					message_level = :info,
-					message = "No DD structure available; using symbolic placeholder",
-				)
-			end
-		else
-			_create_si_symbolic_placeholder!(
-				extended_map,
-				var,
-				var_name,
-				placeholder_stats,
-				:unknown_variable;
-				fail_categories = fail_categories,
-				infolevel = infolevel,
-				message = "Mapped unknown SI variable to symbolic placeholder",
-			)
-		end
+		resolution = resolve_si_ring_variable(
+			var,
+			extended_map,
+			obs_name_to_idx,
+			DD;
+			infolevel = infolevel,
+			fail_categories = fail_categories,
+			stats = placeholder_stats,
+		)
+		extended_map[var] = resolution.symbol
 	end
 
 	if !isempty(placeholder_stats)
 		placeholder_counts = Dict(k => length(v) for (k, v) in placeholder_stats)
-		@info "[SI-MAP] Created symbolic placeholders while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
+		@info "[SI-MAP] Classified symbolic SI support variables while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
 	end
 
 	return extended_map
@@ -995,15 +1051,19 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict; fail_categories = Symbol[])
 						# identifiable-function outputs introduce symbols that were not
 						# present in the initial SIAN→MTK map.
 						placeholder_stats = Dict{Symbol, Vector{String}}()
+						late_category = is_sian_auxiliary_variable_name(var_name) ? :sian_auxiliary : :late_map_miss
+						late_message = late_category == :sian_auxiliary ?
+							"Variable not found in SI variable map during Nemo reconstruction; preserving known SIAN auxiliary." :
+							"Variable not found in SI variable map during Nemo reconstruction; creating a late symbolic placeholder."
 						sym_var = _create_si_symbolic_placeholder!(
 							var_map,
 							var,
 							var_name,
 							placeholder_stats,
-							:late_map_miss;
+							late_category;
 							fail_categories = fail_categories,
 							message_level = :warn,
-							message = "Variable not found in SI variable map during Nemo reconstruction; creating a late symbolic placeholder.",
+							message = late_message,
 						)
 					end
 

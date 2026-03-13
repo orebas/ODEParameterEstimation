@@ -67,6 +67,32 @@ Enum selecting the high-level workflow used during estimation.
 	FlowDirectOpt    # direct_optimization_parameter_estimation
 end
 
+const SI_PLACEHOLDER_CATEGORY_ALIASES = Dict{Symbol, Symbol}(
+	:dd_derivative_unmapped => :observable_derivative_overflow,
+	:nonobservable_derivative => :state_or_input_jet,
+	:unknown_variable => :true_unknown_variable,
+)
+
+const SI_PLACEHOLDER_CANONICAL_CATEGORIES = Set((
+	:dd_observable_index_oob,
+	:observable_derivative_overflow,
+	:state_or_input_jet,
+	:no_dd_derivative,
+	:sian_auxiliary,
+	:true_unknown_variable,
+	:late_map_miss,
+))
+
+const SI_PLACEHOLDER_VALID_CATEGORIES = union(
+	SI_PLACEHOLDER_CANONICAL_CATEGORIES,
+	Set(keys(SI_PLACEHOLDER_CATEGORY_ALIASES)),
+)
+
+canonicalize_si_placeholder_category(category::Symbol) = get(SI_PLACEHOLDER_CATEGORY_ALIASES, category, category)
+
+normalize_si_placeholder_fail_categories(categories) =
+	unique(Symbol[canonicalize_si_placeholder_category(cat) for cat in categories])
+
 """
 	EstimationOptions
 
@@ -149,7 +175,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
-- `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI placeholder categories. Empty preserves current behavior.
+- `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 
 ## HomotopyContinuation Specific
@@ -828,15 +854,7 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	valid_placeholder_categories = Set((
-		:dd_observable_index_oob,
-		:dd_derivative_unmapped,
-		:nonobservable_derivative,
-		:no_dd_derivative,
-		:unknown_variable,
-		:late_map_miss,
-	))
-	invalid_placeholder_categories = [cat for cat in opts.si_placeholder_fail_categories if !(cat in valid_placeholder_categories)]
+	invalid_placeholder_categories = [cat for cat in opts.si_placeholder_fail_categories if !(cat in SI_PLACEHOLDER_VALID_CATEGORIES)]
 	if !isempty(invalid_placeholder_categories)
 		@error "Unknown si_placeholder_fail_categories: $(invalid_placeholder_categories)"
 		valid = false

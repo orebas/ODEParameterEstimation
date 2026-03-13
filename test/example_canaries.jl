@@ -62,6 +62,9 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test !isempty(raw_results[1])
         @test !isnothing(best)
         @test analysis[2] < 1e-6
+        @test all(string(param) != "z_aux" for param in keys(best.parameters))
+        @test all(string(state) != "z_aux" for state in keys(best.states))
+        @test all(string(var) != "z_aux" for var in best.all_unidentifiable)
 
         for (param, true_value) in pep.p_true
             @test best.parameters[param] ≈ true_value atol = 1e-6 rtol = 1e-6
