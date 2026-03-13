@@ -105,13 +105,25 @@ using OrderedCollections
         @test !ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, Symbol[])
         @test ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, [:dd_observable_index_oob])
         @test ODEParameterEstimation.should_fail_si_placeholder(:observable_derivative_overflow, [:dd_derivative_unmapped])
+        @test ODEParameterEstimation.should_fail_si_placeholder(:support_jet, [:state_or_input_jet])
         @test ODEParameterEstimation.should_fail_si_placeholder(:true_unknown_variable, [:unknown_variable])
 
         z_aux_classification = ODEParameterEstimation.classify_si_ring_variable("z_aux", Dict{String, Int}(), nothing)
         @test z_aux_classification.category == :sian_auxiliary
 
-        jet_classification = ODEParameterEstimation.classify_si_ring_variable("x1_0", Dict{String, Int}(), (obs_lhs = [[1]],))
-        @test jet_classification.category == :state_or_input_jet
+        role_context = (
+            state_names = Set(["x1"]),
+            param_names = Set(["b"]),
+            measured_rhs_names = Set(["z2"]),
+        )
+        state_jet_classification = ODEParameterEstimation.classify_si_ring_variable("x1_0", Dict{String, Int}(), (obs_lhs = [[1]],), role_context)
+        @test state_jet_classification.category == :state_jet
+        param_support_classification = ODEParameterEstimation.classify_si_ring_variable("b_0", Dict{String, Int}(), (obs_lhs = [[1]],), role_context)
+        @test param_support_classification.category == :parameter_or_ic_symbol
+        measured_rhs_classification = ODEParameterEstimation.classify_si_ring_variable("z2_0", Dict{String, Int}(), (obs_lhs = [[1]],), role_context)
+        @test measured_rhs_classification.category == :measured_rhs_jet
+        trfn_support_classification = ODEParameterEstimation.classify_si_ring_variable("_trfn_u_0", Dict{String, Int}(), (obs_lhs = [[1]],), role_context)
+        @test trfn_support_classification.category == :transformed_analytic_support
 
         unknown_classification = ODEParameterEstimation.classify_si_ring_variable("mystery_symbol", Dict{String, Int}(), nothing)
         @test unknown_classification.category == :true_unknown_variable

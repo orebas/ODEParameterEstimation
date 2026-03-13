@@ -69,14 +69,19 @@ end
 
 const SI_PLACEHOLDER_CATEGORY_ALIASES = Dict{Symbol, Symbol}(
 	:dd_derivative_unmapped => :observable_derivative_overflow,
-	:nonobservable_derivative => :state_or_input_jet,
+	:nonobservable_derivative => :support_jet,
+	:state_or_input_jet => :support_jet,
 	:unknown_variable => :true_unknown_variable,
 )
 
 const SI_PLACEHOLDER_CANONICAL_CATEGORIES = Set((
 	:dd_observable_index_oob,
 	:observable_derivative_overflow,
-	:state_or_input_jet,
+	:measured_rhs_jet,
+	:state_jet,
+	:parameter_or_ic_symbol,
+	:transformed_analytic_support,
+	:support_jet,
 	:no_dd_derivative,
 	:sian_auxiliary,
 	:true_unknown_variable,

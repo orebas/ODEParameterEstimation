@@ -232,6 +232,32 @@ end
 
 is_sian_auxiliary_variable_name(var_name::AbstractString) = var_name == "z_aux"
 
+strip_time_suffix(name::AbstractString) = replace(String(name), "(t)" => "")
+
+function extract_symbol_base_names(expr)
+	return Set(strip_time_suffix(string(v)) for v in Symbolics.get_variables(expr))
+end
+
+function build_si_role_context(ode, measured_quantities)
+	model = isa(ode, OrderedODESystem) ? ode.system : ode
+	state_names = Set(strip_time_suffix(string(s)) for s in ModelingToolkit.unknowns(model))
+	param_names = Set(strip_time_suffix(string(p)) for p in ModelingToolkit.parameters(model))
+	t = ModelingToolkit.get_iv(model)
+	params_from_measured = ModelingToolkit.parameters(
+		ModelingToolkit.ODESystem(measured_quantities, t, name = :SIRoleContext),
+	)
+	union!(param_names, Set(strip_time_suffix(string(p)) for p in params_from_measured))
+	measured_rhs_names = Set{String}()
+	for mq in measured_quantities
+		union!(measured_rhs_names, extract_symbol_base_names(mq.rhs))
+	end
+	return (
+		state_names = state_names,
+		param_names = param_names,
+		measured_rhs_names = measured_rhs_names,
+	)
+end
+
 function build_si_observable_index_map(measured_quantities)
 	obs_name_to_idx = Dict{String, Int}()
 	for (idx, mq) in enumerate(measured_quantities)
@@ -259,6 +285,7 @@ function classify_si_ring_variable(
 	var_name::AbstractString,
 	obs_name_to_idx::Dict{String, Int},
 	DD,
+	role_context = nothing,
 )
 	if is_sian_auxiliary_variable_name(var_name)
 		return (
@@ -288,10 +315,40 @@ function classify_si_ring_variable(
 
 	obs_idx = resolve_si_observable_index(base_name, obs_name_to_idx)
 	if isnothing(obs_idx)
+		if !isnothing(role_context)
+			if startswith(base_name, "_trfn_")
+				return (
+					category = :transformed_analytic_support,
+					message_level = :debug,
+					message = "Mapped analytical transformed support variable to symbolic support variable",
+				)
+			end
+			if base_name in role_context.param_names && deriv_order == 0
+				return (
+					category = :parameter_or_ic_symbol,
+					message_level = :debug,
+					message = "Mapped parameter/IC SI support symbol to symbolic support variable",
+				)
+			end
+			if base_name in role_context.measured_rhs_names
+				return (
+					category = :measured_rhs_jet,
+					message_level = :debug,
+					message = "Mapped measured-RHS jet symbol to symbolic support variable",
+				)
+			end
+			if base_name in role_context.state_names
+				return (
+					category = :state_jet,
+					message_level = :debug,
+					message = "Mapped state jet symbol to symbolic support variable",
+				)
+			end
+		end
 		return (
-			category = :state_or_input_jet,
+			category = :support_jet,
 			message_level = :debug,
-			message = "Mapped state/input jet symbol to symbolic support variable",
+			message = "Mapped generic SI support jet symbol to symbolic support variable",
 		)
 	end
 
@@ -332,6 +389,7 @@ function resolve_si_ring_variable(
 	base_map::Dict,
 	obs_name_to_idx::Dict{String, Int},
 	DD;
+	role_context = nothing,
 	infolevel::Integer = 0,
 	fail_categories = Symbol[],
 	stats = Dict{Symbol, Vector{String}}(),
@@ -342,7 +400,7 @@ function resolve_si_ring_variable(
 	)
 
 	var_name = string(var)
-	classification = classify_si_ring_variable(var_name, obs_name_to_idx, DD)
+	classification = classify_si_ring_variable(var_name, obs_name_to_idx, DD, role_context)
 	category = classification.category
 
 	if category == :observable_derivative
@@ -378,6 +436,7 @@ function build_extended_si_variable_map(
 	base_map::Dict,
 	measured_quantities,
 	DD;
+	role_context = nothing,
 	infolevel::Integer = 0,
 	fail_categories = Symbol[],
 )
@@ -397,6 +456,7 @@ function build_extended_si_variable_map(
 			extended_map,
 			obs_name_to_idx,
 			DD;
+			role_context = role_context,
 			infolevel = infolevel,
 			fail_categories = fail_categories,
 			stats = support_var_stats,
@@ -596,12 +656,14 @@ function get_si_equation_system(
 	# traffic with irrelevant high-order observable derivatives.
 	if !isempty(poly_system)
 		used_template_vars = collect_used_nemo_variables(poly_system)
+		role_context = build_si_role_context(ode, measured_quantities)
 
 		nemo2mtk, si_variable_role_stats = build_extended_si_variable_map(
 			used_template_vars,
 			nemo2mtk,
 			measured_quantities,
 			DD;
+			role_context = role_context,
 			infolevel = infolevel,
 			fail_categories = placeholder_fail_categories,
 		)
