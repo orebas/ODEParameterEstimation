@@ -113,7 +113,24 @@ end
                          RUNNING THE ESTIMATION
 =============================================================================#
 
-function run_hello_world()
+function hello_world_options(; smoke = false)
+    return EstimationOptions(
+        datasize = smoke ? 31 : 101,
+        noise_level = 0.0,
+        interpolator = InterpolatorAAAD,
+        system_solver = SolverHC,
+        flow = FlowStandard,
+        use_si_template = true,
+        use_parameter_homotopy = false,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+        polish_solver_solutions = false,
+        polish_solutions = false,
+    )
+end
+
+function run_hello_world(; smoke = false, opts = nothing)
     println("="^70)
     println("HELLO WORLD: Parameter Estimation with Constant Input")
     println("="^70)
@@ -134,14 +151,8 @@ function run_hello_world()
     # Configure options
     #-------------------------------------------------------------------------
     println("Step 2: Configuring estimation options...")
-    opts = EstimationOptions(
-        datasize = 101,              # Number of data points to sample
-        noise_level = 0.0,           # No noise for this simple example
-        interpolator = InterpolatorAAAD,  # Adaptive interpolation method
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    println("  Data points: 101")
+    run_opts = isnothing(opts) ? hello_world_options(smoke = smoke) : opts
+    println("  Data points: $(run_opts.datasize)")
     println("  Noise level: 0% (perfect data)")
     println("  Solver: Homotopy Continuation (SolverHC)")
     println()
@@ -151,8 +162,8 @@ function run_hello_world()
     #-------------------------------------------------------------------------
     println("Step 3: Sampling synthetic data...")
     time_interval = problem.recommended_time_interval
-    opts = merge_options(opts, time_interval = time_interval)
-    problem_with_data = sample_problem_data(problem, opts)
+    run_opts = merge_options(run_opts, time_interval = time_interval)
+    problem_with_data = sample_problem_data(problem, run_opts)
     println("  Time interval: [$(time_interval[1]), $(time_interval[2])]")
     println()
 
@@ -161,7 +172,7 @@ function run_hello_world()
     #-------------------------------------------------------------------------
     println("Step 4: Running parameter estimation...")
     println("  (This may take a moment...)")
-    results = analyze_parameter_estimation_problem(problem_with_data, opts)
+    results = analyze_parameter_estimation_problem(problem_with_data, run_opts)
     println()
 
     #-------------------------------------------------------------------------
@@ -205,8 +216,9 @@ end
                               RUN THE EXAMPLE
 =============================================================================#
 
-# Execute the example
-results = run_hello_world()
+if abspath(PROGRAM_FILE) == @__FILE__
+    run_hello_world()
+end
 
 #=============================================================================
                          KEY TAKEAWAYS

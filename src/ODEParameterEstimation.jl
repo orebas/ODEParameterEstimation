@@ -84,7 +84,6 @@ include("core/pointpicker.jl")
 
 include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
-include("core/multipoint_estimation.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("core/derivatives.jl")
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
@@ -92,13 +91,13 @@ include("core/sampling.jl")
 include("examples/load_examples.jl")
 
 # Export types
-export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, DerivativeData
+export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, DerivativeData
 
 # Export constants
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
 
 # Export core functions
-export solve_with_hc, solve_with_monodromy, multipoint_parameter_estimation, multishot_parameter_estimation
+export solve_with_hc, solve_with_monodromy
 export optimized_multishot_parameter_estimation, solve_with_robust
 export direct_optimization_parameter_estimation
 export estimate
@@ -124,8 +123,8 @@ export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
 
 # Export UQ (Uncertainty Quantification) functions
 export AGPInterpolatorUQ, agp_gpr_uq
-export se_kernel_derivative, se_kernel_prior_covariance_matrix
-export joint_derivative_covariance, build_observation_covariance
+export se_kernel_derivative, se_kernel_prior_covariance_matrix, se_kernel_cross_time_covariance_matrix
+export joint_derivative_covariance, joint_derivative_covariance_cross_time, build_observation_covariance
 export compute_parameter_covariance
 export estimate_parameter_uncertainty, print_uncertainty_results
 
@@ -140,7 +139,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 # Export the main types and functions
 export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
-export FlowDeprecated, FlowStandard, FlowDirectOpt
+export FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
 export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
@@ -148,6 +147,7 @@ export get_solver_function, get_interpolator_function, get_polish_optimizer, get
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
 export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp
 export merge_options, validate_options, print_options, get_solver_options_dict
+export compatibility_return_code, sync_result_contract!, lineage_summary
 export optimized_multishot_parameter_estimation
 
 
@@ -180,17 +180,25 @@ export optimized_multishot_parameter_estimation
 		datasize = 11,
 		noise_level = 0.0,
 		system_solver = SolverHC,
-		max_num_points = 2,
-		shooting_points = 1,
+		interpolator = InterpolatorAAAD,
+		max_num_points = 1,
+		shooting_points = 0,
+		nooutput = true,
+		diagnostics = false,
+		save_system = false,
+		use_parameter_homotopy = false,
+		polish_solver_solutions = false,
+		polish_solutions = false,
 	)
 
 	local _est_problem = sample_problem_data(_pep, _opts)
 	try
-		analyze_parameter_estimation_problem(_est_problem, _opts)
+		with_logger(NullLogger()) do
+			analyze_parameter_estimation_problem(_est_problem, _opts)
+		end
 	catch
 		# Ignore errors during precompilation - we just want to trigger compilation
 	end
 end
 
 end # module
-

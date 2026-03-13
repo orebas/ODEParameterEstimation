@@ -54,43 +54,55 @@ function quadratic_test()
 	)
 end
 
+function first_example_options(; smoke = false)
+	return EstimationOptions(
+		datasize = smoke ? 21 : 101,
+		noise_level = 0.0,
+		interpolator = InterpolatorAAAD,
+		system_solver = SolverHC,
+		flow = FlowStandard,
+		use_si_template = true,
+		use_parameter_homotopy = false,
+		nooutput = smoke,
+		diagnostics = !smoke,
+		save_system = false,
+		polish_solver_solutions = false,
+		polish_solutions = false,
+	)
+end
+
 #=============================================================================
                          STEP 2: RUN THE ESTIMATION
 
 Configure estimation options and run the analysis.
 =============================================================================#
 
-function run_first_example()
+function run_first_example(; smoke = false, opts = nothing)
 	# Create the problem definition
 	estimation_problem = quadratic_test()
 
 	# Configure estimation options
-	opts = EstimationOptions(
-		datasize = 101,                      # number of data points
-		noise_level = 0.0,                   # noise level (0 = no noise)
-		interpolator = InterpolatorAAAD,     # interpolation method
-		system_solver = SolverHC,            # solver for polynomial systems
-		flow = FlowStandard,                 # use standard workflow
-	)
+	run_opts = isnothing(opts) ? first_example_options(smoke = smoke) : opts
 
 	# Determine time interval
 	time_interval = isnothing(estimation_problem.recommended_time_interval) ?
 		[0.0, 5.0] : estimation_problem.recommended_time_interval
 
 	# Update options with the time interval
-	opts = merge_options(opts, time_interval = time_interval)
+	run_opts = merge_options(run_opts, time_interval = time_interval)
 
 	# Sample synthetic data from the problem
-	estimation_problem_with_data = sample_problem_data(estimation_problem, opts)
+	estimation_problem_with_data = sample_problem_data(estimation_problem, run_opts)
 
 	# Run the parameter estimation analysis
-	results = analyze_parameter_estimation_problem(estimation_problem_with_data, opts)
+	results = analyze_parameter_estimation_problem(estimation_problem_with_data, run_opts)
 
 	return results
 end
 
-# Run the example
-results = run_first_example()
+if abspath(PROGRAM_FILE) == @__FILE__
+	run_first_example()
+end
 
 #=============================================================================
                          ALTERNATIVE CONFIGURATIONS

@@ -80,8 +80,6 @@ opts = EstimationOptions(
         #interpolator = InterpolatorAAAD,
         interpolator = InterpolatorAGPRobust,
         diagnostics = true,
-	try_more_methods=false,
-
     # datasize = length(data_sample["t"]),
     #noise_level = 0.000,
 #   interpolator = InterpolatorAAADGPR,
@@ -110,4 +108,3 @@ meta, results = analyze_parameter_estimation_problem(
 )
 
 nothing
-

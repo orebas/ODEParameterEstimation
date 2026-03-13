@@ -280,10 +280,16 @@ are state derivative variables. This produces a square system (N eqs = N vars),
 unlike post-hoc parameter substitution which creates an overdetermined system
 with numerically inconsistent redundant equations.
 
-Returns `(state_solutions, state_vars)` where:
-- `state_solutions::Vector{Vector{Float64}}` — each inner vector has values
+Returns a named tuple:
+- `solutions::Vector{Vector{Float64}}` — each inner vector has values
   in the same order as `state_vars`
-- `state_vars::Vector` — the Symbolics variables for states in the reduced system
+- `state_vars::Vector` — the Symbolics variables for the returned solution vectors
+- `missing_vars_per_solution::Vector{Vector}` — explicit unresolved variables for each returned solution
+- `used_cascading::Bool` — whether the cascading-substitution fallback was used
+- `status::Symbol` — high-level branch outcome for the rescue attempt
+- `notes::Vector{Symbol}` — branch notes describing why paths were skipped or partial
+- `hc_status::Symbol` — `:success`, `:no_solutions`, `:skipped_nonsquare`, or `:not_attempted`
+- `cascading_status::Symbol` — `:not_used`, `:full`, `:partial`, `:merged`, `:merge_failed_partial`, or `:failed`
 """
 function resolve_states_with_fixed_params(
 	model::ModelingToolkit.AbstractSystem,
@@ -300,6 +306,22 @@ function resolve_states_with_fixed_params(
 	diagnostics::Bool = false,
 )
 	@info "[RESOLVE] Re-running SIAN with $(length(known_param_dict)) fixed parameters"
+
+	empty_result(;
+		status::Symbol = :no_solution,
+		notes::Vector{Symbol} = Symbol[],
+		hc_status::Symbol = :not_attempted,
+		cascading_status::Symbol = :not_used,
+	) = (
+		solutions = Vector{Vector{Float64}}(),
+		state_vars = Any[],
+		missing_vars_per_solution = Vector{Vector{Any}}(),
+		used_cascading = false,
+		status = status,
+		notes = notes,
+		hc_status = hc_status,
+		cascading_status = cascading_status,
+	)
 
 	# Step 1: Build OrderedODESystem for the original model
 	model_states = ModelingToolkit.unknowns(model)
@@ -328,7 +350,7 @@ function resolve_states_with_fixed_params(
 
 	if isempty(new_template_eqs)
 		@warn "[RESOLVE] SIAN re-run produced no template equations"
-		return Vector{Float64}[], Any[]
+		return empty_result(status = :empty_template, notes = [:empty_template])
 	end
 
 	new_si_template = (
@@ -360,7 +382,7 @@ function resolve_states_with_fixed_params(
 
 	if isempty(equations)
 		@warn "[RESOLVE] No equations after template instantiation at time_index=$time_index"
-		return Vector{Float64}[], Any[]
+		return empty_result(status = :no_equations_after_instantiation, notes = [:no_equations_after_instantiation])
 	end
 
 	n_eqs = length(equations)
@@ -378,22 +400,39 @@ function resolve_states_with_fixed_params(
 	# Step 5: Try HC.jl first — square systems are HC.jl's sweet spot
 	state_vars = template_vars
 	solutions = Vector{Float64}[]
+	missing_vars_per_solution = Vector{Vector{Any}}()
+	used_cascading = false
+	resolve_notes = Symbol[]
+	hc_status = :not_attempted
+	cascading_status = :not_used
+	resolve_status = :not_attempted
 
 	if n_eqs == n_vars && n_vars > 0
 		@info "[RESOLVE] Solving square system with HC.jl"
+		hc_status = :attempted
 		solutions, _, _, _ = solve_with_hc(equations, state_vars)
 		if isempty(solutions)
 			@warn "[RESOLVE] HC.jl found no solutions for square system"
+			hc_status = :no_solutions
+			push!(resolve_notes, :hc_no_solutions)
 		else
 			@info "[RESOLVE] HC.jl found $(length(solutions)) solution(s)"
+			missing_vars_per_solution = [Any[] for _ in 1:length(solutions)]
+			hc_status = :success
+			resolve_status = :hc_success
 		end
 	elseif n_eqs != n_vars
 		@warn "[RESOLVE] Non-square system ($n_eqs eqs, $n_vars vars) — skipping HC.jl"
+		hc_status = :skipped_nonsquare
+		push!(resolve_notes, :hc_skipped_nonsquare)
 	end
 
 	# Fallback: cascading substitution if HC.jl fails or system isn't square
 	if isempty(solutions)
 		@info "[RESOLVE] Attempting cascading substitution fallback"
+		used_cascading = true
+		cascading_status = :attempted
+		push!(resolve_notes, :cascading_attempted)
 
 		cascade_subst = Dict{Any, Any}()
 		cascade_pass = 0
@@ -448,18 +487,18 @@ function resolve_states_with_fixed_params(
 			end
 
 			final_vals = Dict{Any, Float64}()
-			n_failed = 0
+			failed_vals = Any[]
 			for (v, expr) in resolved
 				try
 					final_vals[v] = Float64(Symbolics.value(expr))
 				catch e
-					n_failed += 1
 					@warn "[RESOLVE] Failed to convert $v = $expr to Float64: $e"
-					final_vals[v] = 0.0
+					push!(failed_vals, v)
 				end
 			end
-			if n_failed > 0
-				@warn "[RESOLVE] $n_failed variables failed Float64 conversion (set to 0.0)"
+			if !isempty(failed_vals)
+				@warn "[RESOLVE] $(length(failed_vals)) variables failed Float64 conversion and were left unresolved: $(failed_vals)"
+				push!(resolve_notes, :cascade_float64_conversion_failed)
 			end
 
 			# Check if any equations remain unsolved
@@ -477,6 +516,9 @@ function resolve_states_with_fixed_params(
 				@info "[RESOLVE] All variables solved by cascading (no HC.jl needed)"
 				solutions = [collect(values(final_vals))]
 				state_vars = collect(keys(final_vals))
+				missing_vars_per_solution = [collect(failed_vals)]
+				cascading_status = :full
+				resolve_status = isempty(failed_vals) ? :cascade_full_solution : :cascade_full_with_unresolved
 			else
 				remaining_state_vars = collect(remaining_vars)
 				n_rem_eqs = length(remaining_eqs)
@@ -490,6 +532,7 @@ function resolve_states_with_fixed_params(
 				elseif n_rem_vars > 0
 					# Underdetermined — HC.jl would throw FiniteException
 					@warn "[RESOLVE] Remaining system is underdetermined ($n_rem_eqs eqs, $n_rem_vars vars) — skipping HC.jl"
+					push!(resolve_notes, :remaining_system_underdetermined)
 				end
 
 				if !isempty(hc_solutions)
@@ -497,40 +540,81 @@ function resolve_states_with_fixed_params(
 					all_vars = copy(remaining_state_vars)
 					cascade_keys = collect(keys(cascade_subst))
 					append!(all_vars, cascade_keys)
+					merged_solutions = Vector{Vector{Float64}}()
+					merged_missing = Vector{Vector{Any}}()
 
 					for sol in hc_solutions
 						sol_dict = Dict{Any, Any}(remaining_state_vars[j] => sol[j] for j in eachindex(remaining_state_vars))
 						merged = copy(sol)
+						solution_failed_vars = Any[]
 						for cvar in cascade_keys
 							expr = cascade_subst[cvar]
 							val = Symbolics.substitute(expr, merge(sol_dict, cascade_subst))
 							try
 								push!(merged, Float64(Symbolics.value(val)))
-							catch
-								push!(merged, 0.0)
+							catch e
+								@warn "[RESOLVE] Failed to convert merged value for $cvar: $e"
+								push!(solution_failed_vars, cvar)
 							end
 						end
-						push!(solutions, merged)
+						if isempty(solution_failed_vars)
+							push!(merged_solutions, merged)
+							push!(merged_missing, Any[])
+						end
 					end
-					state_vars = all_vars
+					if isempty(merged_solutions)
+						@warn "[RESOLVE] No fully mergeable HC+cascade solutions; returning partial cascade-only solution"
+						state_vars = collect(keys(final_vals))
+						solutions = [collect(values(final_vals))]
+						unresolved = setdiff(collect(template_vars), state_vars)
+						append!(unresolved, failed_vals)
+						missing_vars_per_solution = [collect(OrderedSet(unresolved))]
+						cascading_status = :merge_failed_partial
+						resolve_status = :cascade_merge_failed_partial
+						push!(resolve_notes, :cascade_merge_failed_partial)
+					else
+						solutions = merged_solutions
+						missing_vars_per_solution = merged_missing
+						state_vars = all_vars
+						cascading_status = :merged
+						resolve_status = :cascade_hc_merged
+					end
 				else
 					# HC.jl failed or was skipped — return cascade-only partial solution.
-					# The caller handles missing vars via data-derived fallback.
 					@info "[RESOLVE] Returning partial solution from cascading ($(length(final_vals)) of $n_vars vars solved)"
 					solutions = [collect(values(final_vals))]
 					state_vars = collect(keys(final_vals))
+					unresolved = setdiff(collect(template_vars), state_vars)
+					append!(unresolved, failed_vals)
+					missing_vars_per_solution = [collect(OrderedSet(unresolved))]
+					cascading_status = :partial
+					resolve_status = :cascade_partial_solution
 				end
 			end
+		else
+			cascading_status = :failed
+			push!(resolve_notes, :cascade_found_no_substitutions)
 		end
 	end
 
 	if isempty(solutions)
 		@warn "[RESOLVE] No solutions found (neither HC.jl nor cascading)"
+		resolve_status = :no_solution
+		cascading_status == :attempted && (cascading_status = :failed)
 	else
 		@info "[RESOLVE] Final: $(length(solutions)) solution(s) with $(length(state_vars)) variables"
 	end
 
-	return solutions, state_vars
+	return (
+		solutions = solutions,
+		state_vars = state_vars,
+		missing_vars_per_solution = missing_vars_per_solution,
+		used_cascading = used_cascading,
+		status = resolve_status,
+		notes = unique(resolve_notes),
+		hc_status = hc_status,
+		cascading_status = cascading_status,
+	)
 end
 
 # Export the template-based constructor

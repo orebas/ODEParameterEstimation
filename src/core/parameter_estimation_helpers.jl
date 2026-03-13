@@ -135,6 +135,100 @@ function get_next_deriv_increment(current_deriv_level, attempted_increments; max
 	return first(candidates)
 end
 
+function is_structurally_unidentifiable(var, all_unidentifiable)
+	return any(entry -> isequal(entry, var) || string(entry) == string(var), all_unidentifiable)
+end
+
+function representative_completion_value(kind::Symbol)
+	if kind == :parameter
+		return 1.0
+	elseif kind == :state
+		return 0.0
+	end
+	error("Unknown representative completion kind: $kind")
+end
+
+function note_provenance!(provenance::ResultProvenance, note::Symbol)
+	note in provenance.notes || push!(provenance.notes, note)
+	return provenance
+end
+
+function apply_representative_assignment!(
+	assignments::OrderedDict{Num, Float64},
+	notes::Vector{Symbol},
+	var,
+	kind::Symbol,
+	all_unidentifiable,
+)
+	if !is_structurally_unidentifiable(var, all_unidentifiable)
+		return nothing
+	end
+
+	value = representative_completion_value(kind)
+	assignments[var] = value
+	:representative_completion in notes || push!(notes, :representative_completion)
+	return value
+end
+
+function record_representative_assignment!(
+	provenance::ResultProvenance,
+	var,
+	kind::Symbol,
+	all_unidentifiable,
+)
+	if !is_structurally_unidentifiable(var, all_unidentifiable)
+		return nothing
+	end
+
+	value = representative_completion_value(kind)
+	provenance.representative_assignments[var] = value
+	note_provenance!(provenance, :representative_completion)
+	return value
+end
+
+function set_result_lineage!(
+	result::ParameterEstimationResult;
+	primary_method::Union{Nothing, Symbol} = nothing,
+	interpolator_source = result.interpolator_source,
+	rescue_path::Union{Nothing, Symbol} = nothing,
+	source_shooting_index::Union{Nothing, Int} = nothing,
+	source_candidate_index::Union{Nothing, Int} = nothing,
+	pre_polish_error = nothing,
+	post_polish_error = nothing,
+	polish_applied::Union{Nothing, Bool} = nothing,
+	notes::Vector{Symbol} = Symbol[],
+)
+	prov = result.provenance
+	if !isnothing(primary_method)
+		prov.primary_method = primary_method
+	end
+	prov.interpolator_source = interpolator_source
+	result.interpolator_source = interpolator_source
+	if !isnothing(rescue_path)
+		prov.rescue_path = rescue_path
+	end
+	if !isnothing(source_shooting_index)
+		prov.source_shooting_index = source_shooting_index
+	end
+	if !isnothing(source_candidate_index)
+		prov.source_candidate_index = source_candidate_index
+	end
+	if !isnothing(pre_polish_error)
+		prov.pre_polish_error = Float64(pre_polish_error)
+	end
+	if !isnothing(post_polish_error)
+		prov.post_polish_error = Float64(post_polish_error)
+	end
+	if !isnothing(polish_applied)
+		prov.polish_applied = polish_applied
+	end
+	for note in notes
+		note_provenance!(prov, note)
+	end
+	sync_result_contract!(result)
+	return result
+end
+
 """
 	solve_parameter_estimation(PEP, setup_data; system_solver, diagnostics, diagnostic_data)
 
@@ -512,6 +606,20 @@ function process_estimation_results(
 	# Use opts as the single source of truth from here on
 	nooutput = opts.nooutput
 	polish_solutions = opts.polish_solutions
+
+	function lookup_explicit_fixed_value(dict, candidates)
+		for candidate in candidates
+			haskey(dict, candidate) && return Float64(real(dict[candidate]))
+		end
+		candidate_strings = Set(string(c) for c in candidates)
+		for (k, v) in dict
+			if string(k) in candidate_strings
+				return Float64(real(v))
+			end
+		end
+		return nothing
+	end
+
 	# Extract components from the solution data
 	solns = solution_data.solns
 	forward_subst_dict = solution_data.forward_subst_dict
@@ -553,6 +661,9 @@ function process_estimation_results(
 		# Determine shooting time index early — needed for _trfn_ state IC computation below.
 		shoot_idx = hasfield(typeof(solution_data), :solution_time_indices) && soln_index <= length(solution_data.solution_time_indices) ? solution_data.solution_time_indices[soln_index] : lowest_time_index
 		t_shoot = t_vector[shoot_idx]
+		source_interp = hasfield(typeof(solution_data), :solution_interpolator_sources) && soln_index <= length(solution_data.solution_interpolator_sources) ? solution_data.solution_interpolator_sources[soln_index] : nothing
+		representative_assignments = OrderedDict{Num, Float64}()
+		provenance_notes = Symbol[]
 
 		# Extract initial conditions and parameter values
 		initial_conditions = [1e10 for s in states]
@@ -568,8 +679,6 @@ function process_estimation_results(
 			# In SI-template workflow forward_subst_dict is empty; avoid using random good_udict values.
 			use_si_workflow = isempty(forward_subst_dict[1])
 			local_good_udict = use_si_workflow ? Dict{Any, Any}() : solution_data.good_udict
-			# Prefer solver-provided values; if the parameter was eliminated by SI substitutions,
-			# fall back to a consistent default (1.0) instead of a random value from good_udict.
 			try
 				parameter_values[i] = lookup_value(
 					params[i], param_search,
@@ -577,8 +686,25 @@ function process_estimation_results(
 				)
 			catch e
 				if use_si_workflow
-					@debug "Parameter $(params[i]) not found in solver vars under SI; defaulting to 1.0 for backsolve"
-					parameter_values[i] = 1.0
+					explicit_fixed_value = lookup_explicit_fixed_value(solution_data.good_udict, (params[i], param_search))
+					if !isnothing(explicit_fixed_value)
+						parameter_values[i] = explicit_fixed_value
+						@info "Parameter $(params[i]) resolved from good_udict after SI elimination"
+					else
+						representative_value = apply_representative_assignment!(
+							representative_assignments,
+							provenance_notes,
+							params[i],
+							:parameter,
+							setup_data.all_unidentifiable,
+						)
+						if !isnothing(representative_value)
+							parameter_values[i] = representative_value
+							@info "Parameter $(params[i]) is structurally unidentifiable; using representative completion value $(representative_value)"
+						else
+							error("Parameter $(params[i]) is missing from the SI solution and has no explicit fixed value. Refusing to fabricate a default.")
+						end
+					end
 				else
 					rethrow(e)
 				end
@@ -640,8 +766,19 @@ function process_estimation_results(
 						end
 					end
 					if !found_from_mq
-						@debug "State $(states[i]) not found in solver vars or measured quantities; defaulting to 0.0"
-						initial_conditions[i] = 0.0
+						representative_value = apply_representative_assignment!(
+							representative_assignments,
+							provenance_notes,
+							states[i],
+							:state,
+							setup_data.all_unidentifiable,
+						)
+						if !isnothing(representative_value)
+							initial_conditions[i] = representative_value
+							@info "State $(states[i]) is structurally unidentifiable; using representative completion value $(representative_value)"
+						else
+							error("State $(states[i]) is missing from the SI solution and is not directly observed. Refusing to fabricate an initial condition.")
+						end
 					end
 				else
 					rethrow(e)
@@ -688,12 +825,19 @@ function process_estimation_results(
 		@debug "Constructed parameter values: $parameter_values"
 
 		# We report the initial conditions at t0 (backsolved), not the state at the shooting time
-		push!(results_vec, [backsolved_initial_conditions; parameter_values])
+		push!(results_vec, (
+			raw = [backsolved_initial_conditions; parameter_values],
+			shoot_idx = shoot_idx,
+			source_interp = source_interp,
+			source_candidate_index = soln_index,
+			representative_assignments = deepcopy(representative_assignments),
+			notes = copy(provenance_notes),
+		))
 	end
 
 	# Convert raw results to ParameterEstimationResult objects
 	solved_res = []
-	for (i, raw_sol) in enumerate(results_vec)
+	for (i, result_entry) in enumerate(results_vec)
 		if !nooutput
 			@debug "Processing solution $i for final result"
 		end
@@ -703,7 +847,7 @@ function process_estimation_results(
 
 		# Process the raw solution
 		ordered_states, ordered_params, ode_solution, err = process_raw_solution(
-			raw_sol, PEP.model, PEP.data_sample, PEP.solver, abstol = opts.abstol, reltol = opts.reltol,
+			result_entry.raw, PEP.model, PEP.data_sample, PEP.solver, abstol = opts.abstol, reltol = opts.reltol,
 		)
 
 		# Update result with processed data
@@ -711,6 +855,17 @@ function process_estimation_results(
 		solved_res[end].parameters = ordered_params
 		solved_res[end].solution = ode_solution
 		solved_res[end].err = err
+		solved_res[end].provenance = ResultProvenance(
+			primary_method = :algebraic,
+			interpolator_source = result_entry.source_interp,
+			rescue_path = :none,
+			source_shooting_index = result_entry.shoot_idx,
+			source_candidate_index = result_entry.source_candidate_index,
+			post_polish_error = err,
+			representative_assignments = result_entry.representative_assignments,
+			notes = result_entry.notes,
+		)
+		sync_result_contract!(solved_res[end])
 	end
 
 	# Polish solutions if requested (shared context built once, reused for all solutions)

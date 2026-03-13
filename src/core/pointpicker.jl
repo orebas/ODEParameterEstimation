@@ -1,4 +1,9 @@
-
+#
+# Point selection is intentionally frozen for now.
+# The package currently uses the simple `pick_points` path below; the older
+# derivative-scoring machinery remains parked here for later redesign rather
+# than being treated as active selection logic.
+#
 """
 	compute_derivative_score(interpolant, t, max_deriv=3)
 

@@ -149,19 +149,7 @@ function convert_to_si_ode(
 		lhs_nemo = eval_at_nemo(Symbolics.value(state_vars[i]), subs_dict)
 		# Route through eval_at_nemo to robustly handle constants
 		rhs_nemo = eval_at_nemo(Symbolics.value(diff_eqs[i].rhs), subs_dict)
-		# Coerce plain numbers into the Nemo polynomial ring
-		if rhs_nemo isa Number
-			if rhs_nemo isa AbstractFloat
-				try
-					rhs_nemo = R(rhs_nemo)
-				catch e
-					@debug "Nemo ring coercion failed for state equation, retrying with rationalize" exception = e
-					rhs_nemo = R(rationalize(rhs_nemo))
-				end
-			else
-				rhs_nemo = R(rhs_nemo)
-			end
-		end
+		rhs_nemo = coerce_nemo_ring_value(R, rhs_nemo; context = "state equation")
 		state_eqn_dict[lhs_nemo] = rhs_nemo
 	end
 
@@ -169,19 +157,7 @@ function convert_to_si_ode(
 	for i in 1:length(measured_quantities)
 		lhs_nemo = eval_at_nemo(Symbolics.value(y_functions[i]), subs_dict)
 		rhs_nemo = eval_at_nemo(Symbolics.value(measured_quantities[i].rhs), subs_dict)
-		# Coerce plain numbers into the Nemo polynomial ring
-		if rhs_nemo isa Number
-			if rhs_nemo isa AbstractFloat
-				try
-					rhs_nemo = R(rhs_nemo)
-				catch e
-					@debug "Nemo ring coercion failed for output equation, retrying with rationalize" exception = e
-					rhs_nemo = R(rationalize(rhs_nemo))
-				end
-			else
-				rhs_nemo = R(rhs_nemo)
-			end
-		end
+		rhs_nemo = coerce_nemo_ring_value(R, rhs_nemo; context = "output equation")
 		out_eqn_dict[lhs_nemo] = rhs_nemo
 	end
 
@@ -195,6 +171,52 @@ function convert_to_si_ode(
 	si_ode = ODE{Nemo.QQMPolyRingElem}(state_eqn_dict, out_eqn_dict, inputs_)
 
 	return si_ode, input_symbols, gens_
+end
+
+function coerce_nemo_ring_value(R, value; context = "expression")
+	if !(value isa Number)
+		return value
+	end
+	if value isa AbstractFloat
+		try
+			return R(value)
+		catch e
+			@debug "Nemo ring coercion failed, retrying with rationalize" context = context exception = e
+			return R(rationalize(value))
+		end
+	end
+	return R(value)
+end
+
+function _record_si_symbolic_placeholder!(stats::Dict{Symbol, Vector{String}}, category::Symbol, var_name::AbstractString)
+	names = get!(stats, category, String[])
+	length(names) < 5 && push!(names, String(var_name))
+	return nothing
+end
+
+function _create_si_symbolic_placeholder!(
+	extended_map::Dict,
+	var,
+	var_name::AbstractString,
+	stats::Dict{Symbol, Vector{String}},
+	category::Symbol;
+	infolevel::Integer = 0,
+	message_level::Symbol = :debug,
+	message::AbstractString = "",
+)
+	sym_var = Symbolics.variable(Symbol(var_name))
+	extended_map[var] = sym_var
+	_record_si_symbolic_placeholder!(stats, category, var_name)
+	if infolevel > 0
+		if message_level == :warn
+			@warn message var_name = var_name symbolic = sym_var
+		elseif message_level == :info
+			@info message var_name = var_name symbolic = sym_var
+		else
+			@debug message var_name = var_name symbolic = sym_var
+		end
+	end
+	return sym_var
 end
 
 """
@@ -354,6 +376,7 @@ function get_si_equation_system(
 
 		# Build extended mapping including derivative variables
 		extended_map = Dict{Nemo.QQMPolyRingElem, Any}()
+		placeholder_stats = Dict{Symbol, Vector{String}}()
 
 		# Copy existing mappings
 		for (k, v) in nemo2mtk
@@ -404,7 +427,16 @@ function get_si_equation_system(
 										@debug "Mapped $var_name to DD observable: $deriv_var"
 									end
 								else
-									@warn "Observable index $obs_idx out of bounds for DD structure"
+									_create_si_symbolic_placeholder!(
+										extended_map,
+										var,
+										var_name,
+										placeholder_stats,
+										:dd_observable_index_oob;
+										infolevel = infolevel,
+										message_level = :warn,
+										message = "Observable index $obs_idx out of bounds for DD structure; using symbolic placeholder",
+									)
 								end
 							else
 								# Derivative of observable
@@ -415,41 +447,58 @@ function get_si_equation_system(
 										@debug "Mapped $var_name to DD derivative: $deriv_var"
 									end
 								else
-									# Create a symbolic variable as fallback
-									deriv_var = Symbolics.variable(Symbol(var_name))
-									extended_map[var] = deriv_var
-									if infolevel > 0
-										@warn "Cannot map $var_name to DD (order=$deriv_order), using symbolic: $deriv_var"
-									end
+									_create_si_symbolic_placeholder!(
+										extended_map,
+										var,
+										var_name,
+										placeholder_stats,
+										:dd_derivative_unmapped;
+										infolevel = infolevel,
+										message_level = :warn,
+										message = "Cannot map derivative variable to DD structure (order=$deriv_order); using symbolic placeholder",
+									)
 								end
 							end
 						else
-							# Not a y-variable, might be a state or parameter derivative
-							# Create a symbolic variable
-							deriv_var = Symbolics.variable(Symbol(var_name))
-							extended_map[var] = deriv_var
-							if infolevel > 0
-								@debug "Created symbolic for non-observable derivative $var_name: $deriv_var"
-							end
+							_create_si_symbolic_placeholder!(
+								extended_map,
+								var,
+								var_name,
+								placeholder_stats,
+								:nonobservable_derivative;
+								infolevel = infolevel,
+								message = "Created symbolic placeholder for non-observable derivative variable",
+							)
 						end
 					else
-						# No DD structure available, create symbolic variable
-						deriv_var = Symbolics.variable(Symbol(var_name))
-						extended_map[var] = deriv_var
-						if infolevel > 0
-							@info "No DD structure, created symbolic for $var_name: $deriv_var"
-						end
+						_create_si_symbolic_placeholder!(
+							extended_map,
+							var,
+							var_name,
+							placeholder_stats,
+							:no_dd_derivative;
+							infolevel = infolevel,
+							message_level = :info,
+							message = "No DD structure available; using symbolic placeholder",
+						)
 					end
 				else
-					# Non-derivative variable not in original map
-					# Create a symbolic variable for it
-					sym_var = Symbolics.variable(Symbol(var_name))
-					extended_map[var] = sym_var
-					if infolevel > 0
-						@debug "Mapped unknown variable $var_name to symbolic $sym_var"
-					end
+					_create_si_symbolic_placeholder!(
+						extended_map,
+						var,
+						var_name,
+						placeholder_stats,
+						:unknown_variable;
+						infolevel = infolevel,
+						message = "Mapped unknown SI variable to symbolic placeholder",
+					)
 				end
 			end
+		end
+
+		if !isempty(placeholder_stats)
+			placeholder_counts = Dict(k => length(v) for (k, v) in placeholder_stats)
+			@info "[SI-MAP] Created symbolic placeholders while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
 		end
 
 		nemo2mtk = extended_map
@@ -923,13 +972,11 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict)
 					# Get the Symbolics variable from the map
 					sym_var = get(var_map, var, nothing)
 					if isnothing(sym_var)
-						# Try to create mapping on the fly for derivative variables
 						var_name = string(var)
-						parsed = parse_derivative_variable_name(var_name)
-						# If not found, create a new symbolic variable on-the-fly.
-						# This is crucial for handling identifiable functions, where the
-						# parameters might not be in the initial `var_map`.
-						@warn "Variable $var not found in map, creating it symbolically."
+						# Late placeholder creation is still allowed here because some
+						# identifiable-function outputs introduce symbols that were not
+						# present in the initial SIAN→MTK map.
+						@warn "Variable $var not found in SI variable map; creating a late symbolic placeholder."
 						sym_var = Symbolics.variable(Symbol(var_name))
 						var_map[var] = sym_var # Cache for future use
 					end

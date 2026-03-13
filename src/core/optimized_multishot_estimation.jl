@@ -82,6 +82,24 @@ function _print_phase_profile(stats::OrderedDict{String, NamedTuple})
 	println("╚", "═"^name_w, "╧══════════╧═════════════╧═══════╝")
 end
 
+function filter_finite_shooting_point_params(point_indices, param_values_list)
+	valid_point_indices = Int[]
+	valid_param_values_list = Vector{Vector{Float64}}()
+	dropped_points = Vector{Tuple{Int, Int}}()
+
+	for (point_idx, params) in zip(point_indices, param_values_list)
+		nonfinite_count = count(value -> !isfinite(value), params)
+		if nonfinite_count == 0
+			push!(valid_point_indices, point_idx)
+			push!(valid_param_values_list, params)
+		else
+			push!(dropped_points, (point_idx, nonfinite_count))
+		end
+	end
+
+	return valid_point_indices, valid_param_values_list, dropped_points
+end
+
 # ============================================================================
 # Data Structures
 # ============================================================================
@@ -971,7 +989,6 @@ end
 	optimized_multishot_parameter_estimation(PEP; kwargs...)
 
 Optimized parameter estimation using precomputed derivatives.
-Drop-in replacement for multishot_parameter_estimation.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	# Check input validity
@@ -1363,13 +1380,31 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					println("  Point $point_idx (t=$t_point): $(length(param_values)) parameter values ($(length(obs_param_values)) obs + $(length(trfn_values)) trfn)")
 				end
 			end
-			_t_eval_elapsed = time() - _t_eval_start
-			if opts.diagnostics
-				println("  [$interp_sym] Param evaluation at shooting points: $(round(_t_eval_elapsed, digits=3))s")
-			end
+				_t_eval_elapsed = time() - _t_eval_start
+				if opts.diagnostics
+					println("  [$interp_sym] Param evaluation at shooting points: $(round(_t_eval_elapsed, digits=3))s")
+				end
 
-			# Use extended data_vars for HC (includes both observable derivatives and _trfn_ vars)
-			data_vars = extended_data_vars
+				valid_point_indices, valid_param_values_list, dropped_points =
+					filter_finite_shooting_point_params(point_indices, param_values_list)
+
+				if !isempty(dropped_points)
+					if opts.diagnostics
+						for (dropped_point_idx, nonfinite_count) in dropped_points
+							println("  [$interp_sym] Dropping shooting point $dropped_point_idx due to $nonfinite_count nonfinite interpolated value(s)")
+						end
+					elseif !opts.nooutput
+						println("  [$interp_sym] Dropped $(length(dropped_points)) shooting point(s) with nonfinite interpolated values before HC")
+					end
+				end
+
+				if isempty(valid_point_indices)
+					@warn "Interpolator $interp_sym produced nonfinite data at every shooting point; skipping this branch."
+					continue
+				end
+
+				# Use extended data_vars for HC (includes both observable derivatives and _trfn_ vars)
+				data_vars = extended_data_vars
 
 			# Solve using parameter homotopy
 			solver_options = Dict(
@@ -1378,21 +1413,21 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				:debug => opts.diagnostics,
 			)
 
-			_t_hc_start = time()
-			solutions_by_point = solve_with_hc_parameterized(
-				template_equations, solve_vars, data_vars, param_values_list;
-				options = solver_options
-			)
-			_t_hc_elapsed = time() - _t_hc_start
-			if opts.diagnostics
-				println("  [$interp_sym] HC solve: $(round(_t_hc_elapsed, digits=3))s")
-			end
-
-			# Process results from each shooting point
-			for (i, (point_idx, point_solutions)) in enumerate(zip(point_indices, solutions_by_point))
+				_t_hc_start = time()
+				solutions_by_point = solve_with_hc_parameterized(
+					template_equations, solve_vars, data_vars, valid_param_values_list;
+					options = solver_options
+				)
+				_t_hc_elapsed = time() - _t_hc_start
 				if opts.diagnostics
-					println("\n  Point $point_idx: $(length(point_solutions)) real solutions")
+					println("  [$interp_sym] HC solve: $(round(_t_hc_elapsed, digits=3))s")
 				end
+
+				# Process results from each shooting point
+				for (i, (point_idx, point_solutions)) in enumerate(zip(valid_point_indices, solutions_by_point))
+					if opts.diagnostics
+						println("\n  Point $point_idx: $(length(point_solutions)) real solutions")
+					end
 
 				# Optional: polish each raw solver solution using fast NLLS if requested
 				if opts.polish_solver_solutions && !isempty(point_solutions)
@@ -1599,6 +1634,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			final_varlist = final_varlist,
 			good_udict = good_udict,
 			solution_time_indices = solution_time_indices,
+			solution_interpolator_sources = solution_interpolator_sources,
 		)
 
 		# Reuse existing processing pipeline (without polish — polish gets its own phase below)
@@ -1612,15 +1648,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		)
 		end
 
-		# Tag each result with its interpolator source
-		for (i, res) in enumerate(solved_res)
-			if i <= length(solution_interpolator_sources)
-				res.interpolator_source = solution_interpolator_sources[i]
-			end
-		end
-
 		# PHASE: Detect blown-up backsolves and attempt algebraic re-solve at t=0
-		if !isempty(solved_res)
+		if !isempty(solved_res) && opts.backsolve_recovery == :algebraic_resolve
 			_, ub_vec = compute_default_bounds(PEP)
 			bound_threshold = ub_vec[1]
 			blown_indices = Int[]
@@ -1661,15 +1690,24 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				end
 
 				resolved_candidates = ParameterEstimationResult[]
+				data_scale_vals = Float64[]
+				for (k, v) in PEP.data_sample
+					k == "t" && continue
+					append!(data_scale_vals, abs.(Float64.(v)))
+				end
+				state_seed_scale = isempty(data_scale_vals) ? 1.0 : max(1.0, maximum(data_scale_vals))
 				for (params_dict, indices) in values(unique_param_sets)
 					# Build known_param_dict for parameter substitution
 					known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in params_dict)
+					base_candidate = solved_res[first(indices)]
+					source_shoot_idx = base_candidate.provenance.source_shooting_index
+					source_interp = base_candidate.provenance.interpolator_source
 
 					# Algebraic re-solve at t=0 with fixed parameters
 					state_solutions = Vector{Vector{Float64}}()
 					state_vars = Any[]
 					try
-						state_solutions, state_vars = resolve_states_with_fixed_params(
+						resolve_result = resolve_states_with_fixed_params(
 							PEP.model.system,
 							PEP.measured_quantities,
 							PEP.data_sample,
@@ -1683,6 +1721,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							time_index = 1,
 							diagnostics = opts.diagnostics,
 						)
+						state_solutions = resolve_result.solutions
+						state_vars = resolve_result.state_vars
 					catch e
 						@warn "[RESOLVE] Algebraic re-solve failed for parameter set" exception = (e, catch_backtrace())
 						if !opts.nooutput
@@ -1694,7 +1734,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						# Build ParameterEstimationResult for each algebraic state solution
 						unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
 
-						for state_sol in state_solutions
+						for (state_sol_idx, state_sol) in enumerate(state_solutions)
 							# Map state_vars back to full state vector.
 							# state_vars are SIAN template variables (e.g. S0_0, E_0, S0_1, ...)
 							# while unknown_syms are MTK variables (e.g. S0(t), E(t)).
@@ -1718,6 +1758,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 							# Build raw_sol in MTK unknowns order (what process_raw_solution expects)
 							raw_ic = Float64[]
+							representative_assignments = OrderedDict{Num, Float64}()
+							provenance_notes = Symbol[]
+							append!(provenance_notes, resolve_result.notes)
+							resolve_result.used_cascading && push!(provenance_notes, :cascading_substitution)
+							missing_state_vars = state_sol_idx <= length(resolve_result.missing_vars_per_solution) ? resolve_result.missing_vars_per_solution[state_sol_idx] : Any[]
+							!isempty(missing_state_vars) && push!(provenance_notes, :partial_algebraic_resolve)
 							for s in unknown_syms
 								sname = replace(string(s), "(t)" => "")
 								if haskey(sian_name_to_val, sname)
@@ -1725,29 +1771,48 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								elseif haskey(known_param_dict, s)
 									push!(raw_ic, known_param_dict[s])
 								else
-									# Fallback: check if directly observed in data or _trfn_
-									fallback_val = 0.0
-									fallback_source = "ZERO (no source found)"
+									representative_value = apply_representative_assignment!(
+										representative_assignments,
+										provenance_notes,
+										s,
+										:state,
+										setup_data.all_unidentifiable,
+									)
+									if !isnothing(representative_value)
+										push!(raw_ic, representative_value)
+										continue
+									end
+									# Only accept explicit reconstruction sources: analytical _trfn_ states
+									# or directly observed measured quantities. Do not fabricate values.
 									if startswith(sname, "_trfn_")
 										# _trfn_ states are known functions of time — evaluate at t=0
 										t0 = Float64(PEP.data_sample["t"][1])
 										trfn_val = evaluate_trfn_template_variable(sname, t0)
-										fallback_val = isnothing(trfn_val) ? 0.0 : trfn_val
-										fallback_source = "_trfn_ analytical"
+										isnothing(trfn_val) && error("Failed to reconstruct analytical _trfn_ state $sname at t=$t0")
+										push!(raw_ic, trfn_val)
 									else
+										resolved_from_measurement = false
 										for mq in PEP.measured_quantities
 											mq_rhs = ModelingToolkit.diff2term(mq.rhs)
 											if isequal(mq_rhs, s)
 												mq_key = replace(string(mq.lhs), "(t)" => "")
 												if haskey(PEP.data_sample, mq_key)
-													fallback_val = Float64(PEP.data_sample[mq_key][1])
-													fallback_source = "measured quantity $mq_key"
+													push!(raw_ic, Float64(PEP.data_sample[mq_key][1]))
+													resolved_from_measurement = true
+													break
 												end
 											end
 										end
+										resolved_from_measurement && continue
+										if opts.polish_solutions && opts.t0_state_completion == :seed_for_polish
+											rng = MersenneTwister(UInt(abs(hash((PEP.name, sname, collect(values(params_dict)))))))
+											seed_val = (2 * rand(rng) - 1) * state_seed_scale
+											@warn "[RESOLVE-MAP] State $sname missing from SIAN re-solve output; seeding with $seed_val for polish-assisted rescue"
+											push!(raw_ic, seed_val)
+										else
+											error("State $sname is missing from the SIAN re-solve output and is not directly reconstructible. Refusing to fabricate a fallback value without polish.")
+										end
 									end
-									@warn "[RESOLVE-MAP] State $sname NOT in SIAN solution — using fallback=$fallback_val ($fallback_source)"
-									push!(raw_ic, fallback_val)
 								end
 							end
 
@@ -1768,64 +1833,122 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
 								setup_data.all_unidentifiable, ode_solution,
 							)
+							candidate.return_code = :algebraic_resolve_t0
+							candidate.provenance = ResultProvenance(
+								primary_method = :algebraic,
+								interpolator_source = source_interp,
+								rescue_path = :algebraic_resolve_t0,
+								source_shooting_index = source_shoot_idx,
+								source_candidate_index = first(indices),
+								post_polish_error = err,
+								representative_assignments = representative_assignments,
+								notes = unique(provenance_notes),
+							)
+							sync_result_contract!(candidate)
 							push!(resolved_candidates, candidate)
 						end
 					else
-						# HC re-solve failed — use data-derived ICs as fallback for directly observed states
-						if !opts.nooutput
-							println("  HC re-solve found no solutions, using data-derived IC fallback")
-						end
-						unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
-						raw_ic = Float64[]
-						for s in unknown_syms
-							fallback_val = 0.0
-							sname = string(s)
-							if startswith(sname, "_trfn_")
-								t0 = Float64(PEP.data_sample["t"][1])
-								trfn_val = evaluate_trfn_template_variable(replace(sname, "(t)" => ""), t0)
-								fallback_val = isnothing(trfn_val) ? 0.0 : trfn_val
-							else
+						if opts.polish_solutions && opts.t0_state_completion == :seed_for_polish
+							if !opts.nooutput
+								println("  HC re-solve found no solutions; generating polish seed from fixed parameters plus explicit/seeded ICs")
+							end
+							unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
+							raw_ic = Float64[]
+							representative_assignments = OrderedDict{Num, Float64}()
+							provenance_notes = Symbol[:partial_algebraic_resolve]
+							append!(provenance_notes, resolve_result.notes)
+							resolve_result.used_cascading && push!(provenance_notes, :cascading_substitution)
+							for s in unknown_syms
+								sname = replace(string(s), "(t)" => "")
+								if startswith(sname, "_trfn_")
+									t0 = Float64(PEP.data_sample["t"][1])
+									trfn_val = evaluate_trfn_template_variable(sname, t0)
+									isnothing(trfn_val) && error("Failed to reconstruct analytical _trfn_ state $sname at t=$t0")
+									push!(raw_ic, trfn_val)
+									continue
+								end
+
+								resolved_from_measurement = false
 								for mq in PEP.measured_quantities
 									mq_rhs = ModelingToolkit.diff2term(mq.rhs)
 									if isequal(mq_rhs, s)
 										mq_key = replace(string(mq.lhs), "(t)" => "")
 										if haskey(PEP.data_sample, mq_key)
-											fallback_val = Float64(PEP.data_sample[mq_key][1])
+											push!(raw_ic, Float64(PEP.data_sample[mq_key][1]))
+											resolved_from_measurement = true
+											break
 										end
 									end
 								end
+								if resolved_from_measurement
+									continue
+								end
+
+								representative_value = apply_representative_assignment!(
+									representative_assignments,
+									provenance_notes,
+									s,
+									:state,
+									setup_data.all_unidentifiable,
+								)
+								if !isnothing(representative_value)
+									push!(raw_ic, representative_value)
+									continue
+								end
+
+								rng = MersenneTwister(UInt(abs(hash((PEP.name, sname, collect(values(params_dict)), :hc_resolve_seed)))))
+								seed_val = (2 * rand(rng) - 1) * state_seed_scale
+								@warn "[RESOLVE-SEED] State $sname unresolved after failed HC re-solve; seeding with $seed_val for polish-assisted rescue"
+								push!(raw_ic, seed_val)
 							end
-							push!(raw_ic, fallback_val)
+
+							raw_sol = raw_ic
+							append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
+
+							ordered_s, ordered_p, ode_solution, err = process_raw_solution(
+								raw_sol, PEP.model, PEP.data_sample, PEP.solver,
+								abstol = opts.abstol, reltol = opts.reltol,
+							)
+
+							candidate = ParameterEstimationResult(
+								ordered_p, ordered_s,
+								Float64(PEP.data_sample["t"][1]),
+								err, nothing,
+								length(PEP.data_sample["t"]),
+								Float64(PEP.data_sample["t"][1]),
+								OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
+								setup_data.all_unidentifiable, ode_solution,
+							)
+							candidate.return_code = :algebraic_resolve_seeded
+							candidate.provenance = ResultProvenance(
+								primary_method = :algebraic,
+								interpolator_source = source_interp,
+								rescue_path = :algebraic_resolve_seeded,
+								source_shooting_index = source_shoot_idx,
+								source_candidate_index = first(indices),
+								post_polish_error = err,
+								representative_assignments = representative_assignments,
+								notes = unique(provenance_notes),
+							)
+							sync_result_contract!(candidate)
+							push!(resolved_candidates, candidate)
+						elseif opts.diagnostics
+							@warn "[RESOLVE] HC re-solve with fixed parameters found no state solutions at t0; leaving blown candidates unchanged because polish-assisted rescue is disabled."
 						end
-
-						raw_sol = raw_ic
-						append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
-
-						ordered_s, ordered_p, ode_solution, err = process_raw_solution(
-							raw_sol, PEP.model, PEP.data_sample, PEP.solver,
-							abstol = opts.abstol, reltol = opts.reltol,
-						)
-
-						candidate = ParameterEstimationResult(
-							ordered_p, ordered_s,
-							Float64(PEP.data_sample["t"][1]),
-							err, nothing,
-							length(PEP.data_sample["t"]),
-							Float64(PEP.data_sample["t"][1]),
-							OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
-							setup_data.all_unidentifiable, ode_solution,
-						)
-						push!(resolved_candidates, candidate)
 					end
 				end
 
 				# Replace blown candidates with resolved ones
-				blown_set = Set(blown_indices)
-				solved_res = [r for (i, r) in enumerate(solved_res) if !(i in blown_set)]
-				append!(solved_res, resolved_candidates)
+				if !isempty(resolved_candidates)
+					blown_set = Set(blown_indices)
+					solved_res = [r for (i, r) in enumerate(solved_res) if !(i in blown_set)]
+					append!(solved_res, resolved_candidates)
 
-				if !opts.nooutput
-					println("  After re-solve: $(length(solved_res)) total candidates ($(length(resolved_candidates)) from re-solve)")
+					if !opts.nooutput
+						println("  After re-solve: $(length(solved_res)) total candidates ($(length(resolved_candidates)) from re-solve)")
+					end
+				elseif !opts.nooutput
+					println("  Re-solve produced no usable rescue candidates; keeping original blown candidates for transparency")
 				end
 
 				# Log quality of resolved candidates
@@ -1839,27 +1962,36 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		end
 
 		# PHASE: Polish solutions (separate phase for profiling visibility)
-		if opts.polish_solutions
+		if opts.polish_solutions || (opts.terminal_fallback == :direct_opt && isempty(solved_res))
 			solved_res = _record_phase!(phase_stats, "Polish (BFGS)") do
-				ctx = _build_polish_context(PEP; opts = opts)
 				if isempty(solved_res)
-					# Pareto fallback: no algebraic solutions, try one random-start BFGS
-					if !opts.nooutput
-						println("No algebraic solutions found. Running random-start BFGS fallback...")
-					end
-					p_size = ctx.n_ic + ctx.n_param
-					p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
-						ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
+					if opts.terminal_fallback == :direct_opt
+						# Terminal rescue: keep parity with direct optimization, but make the provenance explicit.
+						ctx = _build_polish_context(PEP; opts = opts)
+						if !opts.nooutput
+							println("No algebraic solutions found. Running explicit direct-optimization fallback from a random start.")
+						end
+						p_size = ctx.n_ic + ctx.n_param
+						p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
+							ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
+						else
+							randn(p_size)
+						end
+						result, _ = _polish_single_from_context(ctx, p0;
+							optimizer = LBFGS(), maxiters = opts.polish_maxiters,
+							maxtime = opts.polish_maxtime,
+							divergence_factor = opts.polish_divergence_factor,
+							stagnation_window = opts.polish_stagnation_window)
+						result.provenance.rescue_path = :direct_opt_fallback
+						result.provenance.primary_method = :direct_opt
+						note_provenance!(result.provenance, :terminal_fallback)
+						sync_result_contract!(result)
+						[result]
 					else
-						randn(p_size)
+						solved_res
 					end
-					result, _ = _polish_single_from_context(ctx, p0;
-						optimizer = LBFGS(), maxiters = opts.polish_maxiters,
-						maxtime = opts.polish_maxtime,
-						divergence_factor = opts.polish_divergence_factor,
-						stagnation_window = opts.polish_stagnation_window)
-					[result]
 				else
+					ctx = _build_polish_context(PEP; opts = opts)
 					_polish_batch_from_context(ctx, solved_res; opts = opts)
 				end
 			end

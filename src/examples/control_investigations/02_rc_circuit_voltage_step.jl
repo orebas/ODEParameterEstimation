@@ -183,7 +183,25 @@ end
                          RUNNING THE EXAMPLES
 =============================================================================#
 
-function run_rc_circuit_examples()
+function rc_circuit_options(problem; smoke = false)
+    opts = EstimationOptions(
+        datasize = smoke ? 31 : 101,
+        noise_level = 0.0,
+        interpolator = InterpolatorAAAD,
+        system_solver = SolverHC,
+        flow = FlowStandard,
+        use_si_template = true,
+        use_parameter_homotopy = false,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+        polish_solver_solutions = false,
+        polish_solutions = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function run_rc_circuit_examples(; smoke = false)
     println("="^70)
     println("RC CIRCUIT: Parameter Estimation with Physical System")
     println("="^70)
@@ -211,14 +229,7 @@ function run_rc_circuit_examples()
 
     # Create and solve
     problem1 = rc_circuit_tau()
-    opts1 = EstimationOptions(
-        datasize = 101,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts1 = merge_options(opts1, time_interval = problem1.recommended_time_interval)
+    opts1 = rc_circuit_options(problem1, smoke = smoke)
     problem1_with_data = sample_problem_data(problem1, opts1)
 
     println("Running estimation...")
@@ -250,14 +261,7 @@ function run_rc_circuit_examples()
     println()
 
     problem2 = rc_circuit_separate()
-    opts2 = EstimationOptions(
-        datasize = 101,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts2 = merge_options(opts2, time_interval = problem2.recommended_time_interval)
+    opts2 = rc_circuit_options(problem2, smoke = smoke)
     problem2_with_data = sample_problem_data(problem2, opts2)
 
     println("Running estimation...")
@@ -298,7 +302,9 @@ end
                               RUN THE EXAMPLE
 =============================================================================#
 
-results = run_rc_circuit_examples()
+if abspath(PROGRAM_FILE) == @__FILE__
+    run_rc_circuit_examples()
+end
 
 #=============================================================================
                          NEXT STEPS

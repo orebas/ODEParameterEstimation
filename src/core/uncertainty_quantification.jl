@@ -115,9 +115,9 @@ function se_kernel_derivative(σ²::Real, ℓ::Real, Δt::Real, i::Int, j::Int):
 	# Total derivative order
 	n = i + j
 
-	# Sign factor: derivatives alternate based on which variable we differentiate
-	# ∂/∂t gives +u/ℓ inside exp, ∂/∂t' gives -u/ℓ inside exp
-	# So ∂^i/∂t^i ∂^j/∂t'^j has sign factor (-1)^j
+	# General sign pattern: (-1)^i · σ²/ℓ^(i+j) · He_{i+j}(u) · exp(-u²/2)
+	# where He_n is the probabilist's Hermite polynomial
+	# This comes from ∂/∂t = +∂/∂Δ and ∂/∂t' = -∂/∂Δ
 
 	if n == 0
 		# k(Δt) = σ² exp(-u²/2)
@@ -139,35 +139,17 @@ function se_kernel_derivative(σ²::Real, ℓ::Real, Δt::Real, i::Int, j::Int):
 		end
 
 	elseif n == 3
-		# Third derivatives
-		# Pattern: ∂³k/∂t^a∂t'^b involves (u³ - 3u) with appropriate sign
-		if i == 3 || j == 3
-			# ∂³k/∂t³ or ∂³k/∂t'³
-			sign = (i == 3) ? -1 : 1
-			return sign * base / ℓ^3 * u * (u² - 3)
-		elseif i == 2 && j == 1
-			# ∂³k/∂t²∂t'
-			return base / ℓ^3 * u * (3 - u²)
-		else  # i == 1 && j == 2
-			# ∂³k/∂t∂t'²
-			return -base / ℓ^3 * u * (3 - u²)
-		end
+		# Third derivatives: (-1)^i · σ²/ℓ³ · He₃(u) · exp(-u²/2)
+		# He₃(u) = u³ - 3u = u(u² - 3)
+		# General sign: (-1)^i because ∂/∂t = +∂/∂Δ, ∂/∂t' = -∂/∂Δ
+		He3 = u * (u² - 3)
+		return (iseven(i) ? 1 : -1) * base / ℓ^3 * He3
 
 	elseif n == 4
-		# Fourth derivatives
-		if i == 2 && j == 2
-			# ∂⁴k/∂t²∂t'² = σ²/ℓ⁴ (3 - 6u² + u⁴) exp(-u²/2)
-			return base / ℓ^4 * (3 - 6 * u² + u²^2)
-		elseif i == 4 || j == 4
-			# ∂⁴k/∂t⁴ or ∂⁴k/∂t'⁴ = σ²/ℓ⁴ (u⁴ - 6u² + 3) exp(-u²/2)
-			return base / ℓ^4 * (u²^2 - 6 * u² + 3)
-		elseif (i == 3 && j == 1) || (i == 1 && j == 3)
-			# ∂⁴k/∂t³∂t' or ∂⁴k/∂t∂t'³
-			sign = (i == 3) ? 1 : -1
-			return sign * base / ℓ^4 * (u²^2 - 6 * u² + 3)
-		else
-			error("Unexpected derivative order combination: i=$i, j=$j")
-		end
+		# Fourth derivatives: (-1)^i · σ²/ℓ⁴ · He₄(u) · exp(-u²/2)
+		# He₄(u) = u⁴ - 6u² + 3
+		He4 = u²^2 - 6 * u² + 3
+		return (iseven(i) ? 1 : -1) * base / ℓ^4 * He4
 	end
 
 	error("Total derivative order $(i+j) not implemented")
@@ -205,6 +187,37 @@ function se_kernel_prior_covariance_matrix(σ²::Real, ℓ::Real, max_deriv::Int
 	for i in 0:max_deriv
 		for j in 0:max_deriv
 			Σ[i+1, j+1] = se_kernel_derivative(σ², ℓ, 0.0, i, j)
+		end
+	end
+
+	return Σ
+end
+
+"""
+    se_kernel_cross_time_covariance_matrix(σ²::Real, ℓ::Real, delta_t::Real, max_deriv::Int=2) -> Matrix{Float64}
+
+Compute the prior covariance matrix between derivative vectors at two time points separated by `delta_t`.
+
+Entry [a+1, b+1] = Cov(f^(a)(t), f^(b)(t')) where t - t' = delta_t.
+
+Reduces to `se_kernel_prior_covariance_matrix` when `delta_t == 0`.
+
+# Arguments
+- `σ²::Real`: Signal variance
+- `ℓ::Real`: Lengthscale
+- `delta_t::Real`: Time difference t - t'
+- `max_deriv::Int`: Maximum derivative order (default 2)
+
+# Returns
+- Matrix of size (max_deriv+1) × (max_deriv+1)
+"""
+function se_kernel_cross_time_covariance_matrix(σ²::Real, ℓ::Real, delta_t::Real, max_deriv::Int = 2)::Matrix{Float64}
+	n = max_deriv + 1
+	Σ = zeros(n, n)
+
+	for i in 0:max_deriv
+		for j in 0:max_deriv
+			Σ[i+1, j+1] = se_kernel_derivative(σ², ℓ, delta_t, i, j)
 		end
 	end
 
@@ -252,6 +265,34 @@ end
 (interp::AGPInterpolatorUQ)(x) = interp.mean_function(x)
 
 """
+    _build_K_star_n(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int) -> Matrix{Float64}
+
+Build the K_*n matrix: covariance between test derivatives at `t` and training points.
+
+K_star_n[d+1, k] = Cov(f^(d)(t), f(x_k)) = ∂^d/∂t^d k(t, x_k)
+
+# Returns
+- Matrix of size (max_deriv+1) × n_train
+"""
+function _build_K_star_n(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int)::Matrix{Float64}
+	σ² = interp.signal_var
+	ℓ = interp.lengthscale
+	xs = interp.xs_train
+	n_train = length(xs)
+	n_derivs = max_deriv + 1
+
+	K_star_n = zeros(n_derivs, n_train)
+	for d in 0:max_deriv
+		for k in 1:n_train
+			Δt = t - xs[k]
+			K_star_n[d+1, k] = se_kernel_derivative(σ², ℓ, Δt, d, 0)
+		end
+	end
+
+	return K_star_n
+end
+
+"""
     joint_derivative_covariance(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int=2)
 
 Compute the joint posterior covariance matrix for [f(t), f'(t), ..., f^(max_deriv)(t)].
@@ -280,25 +321,15 @@ where:
 function joint_derivative_covariance(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int = 2)
 	σ² = interp.signal_var
 	ℓ = interp.lengthscale
-	xs = interp.xs_train
 	alpha = interp.alpha
 	C = interp.chol
-	n_train = length(xs)
 	n_derivs = max_deriv + 1
 
 	# 1. Build prior covariance for [f(t), f'(t), ..., f^(max_deriv)(t)]
 	Σ_prior = se_kernel_prior_covariance_matrix(σ², ℓ, max_deriv)
 
-	# 2. Build K_*n matrix: covariance between test derivatives and training points
-	# K_*n[d+1, k] = Cov(f^(d)(t), f(x_k)) = ∂^d/∂t^d k(t, x_k)
-	K_star_n = zeros(n_derivs, n_train)
-	for d in 0:max_deriv
-		for k in 1:n_train
-			Δt = t - xs[k]
-			# Derivative with respect to first argument only (test point)
-			K_star_n[d+1, k] = se_kernel_derivative(σ², ℓ, Δt, d, 0)
-		end
-	end
+	# 2. Build K_*n matrix using extracted helper
+	K_star_n = _build_K_star_n(interp, t, max_deriv)
 
 	# 3. Posterior mean: μ = K_*n @ alpha
 	μ_norm = K_star_n * alpha
@@ -330,6 +361,52 @@ function joint_derivative_covariance(interp::AGPInterpolatorUQ, t::Real, max_der
 	return μ_scaled, Matrix(Σ_scaled)
 end
 
+"""
+    joint_derivative_covariance_cross_time(interp::AGPInterpolatorUQ, t_a::Real, t_b::Real, max_deriv::Int=2)
+
+Compute the posterior cross-covariance between derivative vectors at two different time points.
+
+Returns the matrix Σ where Σ[a+1, b+1] = Cov_posterior(f^(a)(t_a), f^(b)(t_b)).
+
+When `t_a == t_b`, this is equivalent to `joint_derivative_covariance`.
+
+# Arguments
+- `interp::AGPInterpolatorUQ`: The GP interpolator
+- `t_a::Real`: First time point
+- `t_b::Real`: Second time point
+- `max_deriv::Int`: Maximum derivative order (default 2)
+
+# Returns
+- `Σ_cross::Matrix{Float64}`: Cross-covariance matrix (NOT necessarily PSD — this is an off-diagonal block)
+
+# Theory
+The posterior cross-covariance is:
+    Σ_cross = Σ_prior_cross(t_a - t_b) - K_*n(t_a) K⁻¹ K_n*(t_b)
+"""
+function joint_derivative_covariance_cross_time(interp::AGPInterpolatorUQ, t_a::Real, t_b::Real, max_deriv::Int = 2)
+	σ² = interp.signal_var
+	ℓ = interp.lengthscale
+	C = interp.chol
+
+	# Prior cross-covariance at delta_t = t_a - t_b
+	Σ_prior_cross = se_kernel_cross_time_covariance_matrix(σ², ℓ, t_a - t_b, max_deriv)
+
+	# Build K_*n matrices for both time points
+	K_star_n_a = _build_K_star_n(interp, t_a, max_deriv)
+	K_star_n_b = _build_K_star_n(interp, t_b, max_deriv)
+
+	# Posterior cross-covariance: Σ_prior_cross - K_*n(t_a) K⁻¹ K_n*(t_b)
+	V_b = C \ K_star_n_b'  # n_train × n_derivs
+	Σ_cross = Σ_prior_cross - K_star_n_a * V_b
+
+	# De-normalize to original scale
+	scale_factors = fill(interp.y_std, max_deriv + 1)
+	Σ_cross_scaled = Diagonal(scale_factors) * Σ_cross * Diagonal(scale_factors)
+
+	# NO PSD enforcement — this is an off-diagonal block, not a covariance matrix
+	return Matrix(Σ_cross_scaled)
+end
+
 #==========================================================================
  Building Full Observation Covariance Matrix Σ_z
 ==========================================================================#
@@ -339,8 +416,8 @@ end
 
 Build the full covariance matrix Σ_z for all observables and derivatives at given times.
 
-For Phase 1 (independent GPs), this is a block-diagonal matrix where each block
-corresponds to one observable at one time point.
+Includes **within-observable cross-time covariance blocks** from the GP posterior.
+Cross-observable blocks remain zero (independent GPs for different sensors).
 
 # Arguments
 - `gp_results::Dict{String, AGPInterpolatorUQ}`: GP results keyed by observable name
@@ -349,7 +426,7 @@ corresponds to one observable at one time point.
 
 # Returns
 - `μ_z::Vector{Float64}`: Full mean vector for all observables and derivatives
-- `Σ_z::Matrix{Float64}`: Full covariance matrix (block-diagonal for independent GPs)
+- `Σ_z::Matrix{Float64}`: Full covariance matrix
 - `labels::Vector{String}`: Labels for each component (e.g., "y1(t=0.5)", "y1'(t=0.5)")
 
 # Structure
@@ -365,29 +442,89 @@ function build_observation_covariance(
 	n_obs = length(gp_results)
 	n_times = length(times)
 	n_derivs = max_deriv + 1
-	total_dim = n_obs * n_times * n_derivs
+	obs_block_size = n_times * n_derivs  # size of per-observable block
+	total_dim = n_obs * obs_block_size
 
 	μ_z = zeros(total_dim)
 	Σ_z = zeros(total_dim, total_dim)
 	labels = String[]
 
-	idx = 1
+	obs_offset = 0  # tracks starting row/col for current observable
+
 	for (obs_name, gp) in gp_results
-		for t in times
-			μ_block, Σ_block = joint_derivative_covariance(gp, t, max_deriv)
+		σ² = gp.signal_var
+		ℓ = gp.lengthscale
+		C = gp.chol
+		alpha = gp.alpha
+		scale_factors = fill(gp.y_std, n_derivs)
+		scale_diag = Diagonal(scale_factors)
 
-			block_range = idx:(idx+n_derivs-1)
-			μ_z[block_range] = μ_block
-			Σ_z[block_range, block_range] = Σ_block
+		# Pre-compute K_star_n and V = C \ K_star_n' for all time points
+		K_stars = Vector{Matrix{Float64}}(undef, n_times)
+		Vs = Vector{Matrix{Float64}}(undef, n_times)
+		for ti in 1:n_times
+			K_stars[ti] = _build_K_star_n(gp, times[ti], max_deriv)
+			Vs[ti] = C \ K_stars[ti]'  # n_train × n_derivs
+		end
 
-			# Generate labels
+		for ti in 1:n_times
+			row_start = obs_offset + (ti - 1) * n_derivs + 1
+			row_range = row_start:(row_start + n_derivs - 1)
+
+			# Posterior mean
+			μ_norm = K_stars[ti] * alpha
+			μ_scaled = μ_norm .* scale_factors
+			μ_scaled[1] += gp.y_mean
+			μ_z[row_range] = μ_scaled
+
+			# Generate labels for this time point
 			for d in 0:max_deriv
 				deriv_label = d == 0 ? "" : "'" ^ d
-				push!(labels, "$(obs_name)$(deriv_label)(t=$(round(t, digits=3)))")
+				push!(labels, "$(obs_name)$(deriv_label)(t=$(round(times[ti], digits=3)))")
 			end
 
-			idx += n_derivs
+			# Diagonal block: same-time covariance (ti, ti)
+			Σ_prior_diag = se_kernel_prior_covariance_matrix(σ², ℓ, max_deriv)
+			Σ_post_diag = Σ_prior_diag - K_stars[ti] * Vs[ti]
+
+			# PSD enforcement on diagonal block
+			Σ_post_diag = Symmetric(Σ_post_diag)
+			min_eig = minimum(eigvals(Σ_post_diag))
+			if min_eig < 0
+				Σ_post_diag = Σ_post_diag + Matrix{Float64}(I, n_derivs, n_derivs) * (abs(min_eig) + 1e-10)
+			end
+
+			# De-normalize
+			Σ_z[row_range, row_range] = scale_diag * Σ_post_diag * scale_diag
+
+			# Off-diagonal (cross-time) blocks within this observable
+			for tj in (ti+1):n_times
+				col_start = obs_offset + (tj - 1) * n_derivs + 1
+				col_range = col_start:(col_start + n_derivs - 1)
+
+				# Prior cross-covariance at delta_t = times[ti] - times[tj]
+				Σ_prior_cross = se_kernel_cross_time_covariance_matrix(σ², ℓ, times[ti] - times[tj], max_deriv)
+
+				# Posterior cross-covariance: Σ_prior_cross - K_*n(ti) K⁻¹ K_n*(tj)
+				Σ_cross = Σ_prior_cross - K_stars[ti] * Vs[tj]
+
+				# De-normalize (no PSD enforcement for off-diagonal blocks)
+				Σ_cross_scaled = scale_diag * Σ_cross * scale_diag
+
+				Σ_z[row_range, col_range] = Σ_cross_scaled
+				Σ_z[col_range, row_range] = Σ_cross_scaled'  # symmetric
+			end
 		end
+
+		# PSD enforcement on the full per-observable block
+		obs_range = (obs_offset + 1):(obs_offset + obs_block_size)
+		Σ_obs = Symmetric(Σ_z[obs_range, obs_range])
+		min_eig_obs = minimum(eigvals(Σ_obs))
+		if min_eig_obs < 0
+			Σ_z[obs_range, obs_range] .+= Matrix{Float64}(I, obs_block_size, obs_block_size) * (abs(min_eig_obs) + 1e-10)
+		end
+
+		obs_offset += obs_block_size
 	end
 
 	return μ_z, Symmetric(Σ_z), labels
@@ -974,6 +1111,9 @@ end
     )
 
 Estimate parameter uncertainty using GP derivative covariances and the Implicit Function Theorem.
+
+This is experimental sidecar functionality rather than part of the stable core
+estimation contract.
 
 This is the main entry point for uncertainty quantification. It:
 1. Fits UQ-enabled GP interpolators to each observable

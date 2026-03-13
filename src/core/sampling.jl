@@ -137,6 +137,7 @@ Generate sample data for a parameter estimation problem.
 - New ParameterEstimationProblem with generated data
 """
 function sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before sampling data."))
 
 	# Create new OrderedODESystem with completed system
 	ordered_system = OrderedODESystem(

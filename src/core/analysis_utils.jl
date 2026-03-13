@@ -68,6 +68,66 @@ function cluster_solutions(sorted_results)
 	return clusters
 end
 
+function relative_error_value(est, true_val)
+	if !isfinite(est)
+		return NaN
+	elseif abs(true_val) < 1e-6
+		return abs(est - true_val)
+	else
+		return abs((est - true_val) / true_val)
+	end
+end
+
+function oracle_error_stats(problem::ParameterEstimationProblem, candidate)
+	param_names = collect(keys(candidate.parameters))
+	non_init_params = filter(p -> !startswith(string(p), "init_"), param_names)
+	unident_params = if hasfield(typeof(candidate), :all_unidentifiable)
+		Set(candidate.all_unidentifiable)
+	else
+		Set()
+	end
+
+	errorvec = Float64[]
+
+	for (state, value) in candidate.states
+		if !(state in unident_params) && haskey(problem.ic, state)
+			push!(errorvec, relative_error_value(value, problem.ic[state]))
+		end
+	end
+
+	for p in non_init_params
+		if !(p in unident_params) && haskey(problem.p_true, p)
+			push!(errorvec, relative_error_value(candidate.parameters[p], problem.p_true[p]))
+		end
+	end
+
+	finite_errors = filter(isfinite, errorvec)
+	isempty(finite_errors) && return nothing
+
+	return (
+		minimum = minimum(finite_errors),
+		mean = mean(finite_errors),
+		median = median(finite_errors),
+		maximum = maximum(finite_errors),
+		rms = sqrt(mean(finite_errors .^ 2)),
+	)
+end
+
+function oracle_sort_key(problem::ParameterEstimationProblem, candidate)
+	stats = oracle_error_stats(problem, candidate)
+	if isnothing(stats)
+		return (Inf, Inf, isnothing(candidate.err) ? Inf : candidate.err)
+	end
+	return (stats.maximum, stats.median, isnothing(candidate.err) ? Inf : candidate.err)
+end
+
+function apply_uq_failure_policy(uq_result, opts::EstimationOptions)
+	if !uq_result.success && opts.uq_failure_policy == :throw
+		error("Uncertainty quantification failed: $(uq_result.message)")
+	end
+	return uq_result
+end
+
 """
 	print_stats_table(io, name, stats)
 
@@ -169,6 +229,9 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		if !nooutput
 			println("\nCluster $i: $(length(cluster)) similar solutions")
 			println("Best solution (Error: $(round(best_solution.err, digits=6))):")
+			if hasfield(typeof(best_solution), :provenance)
+				println("Lineage: $(lineage_summary(best_solution))")
+			end
 			println("-"^50)
 		end
 
@@ -194,11 +257,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 
 		# Calculate relative errors with proper handling of near-zero values
 		rel_errors = map(zip(estimates, true_values)) do (est, true_val)
-			if abs(true_val) < 1e-6
-				abs(est - true_val) # Use absolute error when true value is near zero
-			else
-				abs((est - true_val) / true_val) # Use relative error otherwise
-			end
+			relative_error_value(est, true_val)
 		end
 
 		# Find maximum lengths for alignment
@@ -247,64 +306,14 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	best_rms_error = Inf
 
 	for each in result
-		# Get all parameter names
-		param_names = collect(keys(each.parameters))
-
-		# Filter out init_ parameters from the parameter list since they're already in states
-		non_init_params = filter(p -> !startswith(string(p), "init_"), param_names)
-
-		# Get ALL unidentifiable parameters from the analysis
-		unident_params = if hasfield(typeof(each), :all_unidentifiable)
-			Set(each.all_unidentifiable)
-		else
-			Set()
-		end
-
-		# Collect values, excluding init_ parameters and unidentifiable parameters
-		estimates = Float64[]
-		true_values = Float64[]
-
-		# Add states that aren't unidentifiable
-		for (state, value) in each.states
-			if !(state in unident_params)
-				push!(estimates, value)
-				push!(true_values, problem.ic[state])
-			end
-		end
-
-		# Add parameters that aren't unidentifiable
-		for p in non_init_params
-			if !(p in unident_params)
-				push!(estimates, each.parameters[p])
-				push!(true_values, problem.p_true[p])
-			end
-		end
-
-		# Calculate relative errors only for identifiable parameters
-		if !isempty(estimates)
-			# Calculate errors, using absolute error when true value is near zero
-			# Filter out NaN/Inf estimated values
-			errorvec = map(zip(estimates, true_values)) do (est, true_val)
-				if !isfinite(est)
-					NaN  # Mark NaN estimates as NaN errors (will be filtered)
-				elseif abs(true_val) < 1e-6
-					abs(est - true_val)  # Use absolute error when true value is near zero
-				else
-					abs((est - true_val) / true_val)  # Use relative error otherwise
-				end
-			end
-			# Filter out NaN values before computing statistics
-			finite_errors = filter(isfinite, errorvec)
-			if !isempty(finite_errors)
-				besterror = min(besterror, maximum(finite_errors))
-
-				# Calculate additional statistics using filtered errors
-				best_min_error = min(best_min_error, minimum(finite_errors))
-				best_mean_error = min(best_mean_error, mean(finite_errors))
-				best_median_error = min(best_median_error, median(finite_errors))
-				best_max_error = min(best_max_error, maximum(finite_errors))
-				best_rms_error = min(best_rms_error, sqrt(mean(finite_errors .^ 2)))
-			end
+		stats = oracle_error_stats(problem, each)
+		if !isnothing(stats)
+			besterror = min(besterror, stats.maximum)
+			best_min_error = min(best_min_error, stats.minimum)
+			best_mean_error = min(best_mean_error, stats.mean)
+			best_median_error = min(best_median_error, stats.median)
+			best_max_error = min(best_max_error, stats.maximum)
+			best_rms_error = min(best_rms_error, stats.rms)
 		end
 	end
 	if !nooutput
@@ -325,7 +334,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	# - Best approximation error across all results
 	# - Best RMS relative error across all results
 	return (
-		[last(cluster) for cluster in clusters],
+		sort([last(cluster) for cluster in clusters], by = candidate -> oracle_sort_key(problem, candidate)),
 		besterror,
 		best_min_error,
 		best_mean_error,
@@ -341,6 +350,8 @@ end
 
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
+
 	# Auto-handle transcendental functions (sin/cos/exp) at the top level
 	# so the transformed PEP is used consistently for both estimation and analysis
 	if opts.auto_handle_transcendentals
@@ -351,11 +362,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		end
 	end
 
-	# Extract needed values from opts
-	system_solver = get_solver_function(opts.system_solver)
-	interpolator = get_interpolator_function(opts.interpolator, opts.custom_interpolator)
-	polish_method = get_polish_optimizer(opts.polish_method)
-
 	if !opts.nooutput
 		println("Starting model: ", PEP.name)
 	end
@@ -365,8 +371,6 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	unident_dict = Dict()
 	trivial_dict = Dict()
 	all_unidentifiable = []
-	results_tuple_aaad = ([], Dict(), Dict(), [])
-	results_tuple_multi = ([], Dict(), Dict(), [])
 
 	# Choose workflow based on opts.flow
 	if opts.flow == FlowStandard
@@ -374,71 +378,20 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 			println("Using NEW optimized parameter estimation flow")
 		end
 		results_tuple = optimized_multishot_parameter_estimation(PEP, opts)
-	elseif opts.flow == FlowDeprecated
-		if !opts.nooutput
-			println("Using standard parameter estimation flow")
-		end
-		results_tuple = multishot_parameter_estimation(PEP, opts)
 	elseif opts.flow == FlowDirectOpt
 		if !opts.nooutput
 			println("Using direct optimization workflow (BFGS)")
 		end
 		# Align return signature with other workflows: (solutions, unident_dict, trivial_dict, all_unidentifiable)
-		local direct_results
-		try
-			direct_results = direct_optimization_parameter_estimation(PEP; opts = opts)
-		catch e
-			@warn "Direct optimization failed: $e"
-			direct_results = []
-		end
+		local direct_results = direct_optimization_parameter_estimation(PEP; opts = opts)
 		results_tuple = (direct_results, Dict(), Dict(), [])
 	else
 		error("Unknown EstimationFlow: $(opts.flow)")
 	end
 	solved_res, unident_dict, trivial_dict, all_unidentifiable = results_tuple
 
-	if opts.try_more_methods && isempty(opts.interpolators)
-		# Legacy path: backward compat for try_more_methods without multi-interpolator
-		# (runs AAAD as second pass, full pipeline re-run — expensive but unchanged)
-		try
-			# Create modified options with AAAD interpolator
-			opts_aaad = merge_options(opts, interpolator = InterpolatorAAAD)
-			if opts.flow == FlowStandard
-				results_tuple_aaad = optimized_multishot_parameter_estimation(PEP, opts_aaad)
-			elseif opts.flow == FlowDeprecated
-				results_tuple_aaad = multishot_parameter_estimation(PEP, opts_aaad)
-			elseif opts.flow == FlowDirectOpt
-				# For direct optimization, AAAD interpolator is irrelevant; rerun direct path
-				local direct_results_aaad = direct_optimization_parameter_estimation(PEP; opts = opts_aaad)
-				results_tuple_aaad = (direct_results_aaad, Dict(), Dict(), [])
-			else
-				error("Unknown EstimationFlow: $(opts.flow)")
-			end
-		catch e
-			@warn "Second estimation failed: $e"
-			results_tuple_aaad = ([], Dict(), Dict(), [])
-		end
-
-		# Try third estimation with multiple points (commented out in original)
-		results_tuple_multi = ([], Dict(), Dict(), [])
-	elseif opts.try_more_methods && !isempty(opts.interpolators)
-		# Multi-interpolator path already handles multiple interpolators inside
-		# optimized_multishot_parameter_estimation — no need for a redundant re-run
-		if !opts.nooutput
-			@warn "try_more_methods is ignored when interpolators list is provided. Add InterpolatorAAAD to your interpolators list instead."
-		end
-		results_tuple_aaad = ([], Dict(), Dict(), [])
-		results_tuple_multi = ([], Dict(), Dict(), [])
-	end
-
-	# Merge solutions from all attempts
-	solved_res = vcat(solved_res, first(results_tuple_aaad), first(results_tuple_multi))
-	unident_dict = merge(unident_dict, results_tuple_aaad[2], results_tuple_multi[2])
-	trivial_dict = merge(trivial_dict, results_tuple_aaad[3], results_tuple_multi[3])
-	all_unidentifiable = union(all_unidentifiable, results_tuple_aaad[4], results_tuple_multi[4])
-
 	if !opts.nooutput
-		println("\nUnidentifiability Analysis from multipoint_parameter_estimation:")
+		println("\nUnidentifiability analysis from the algebraic estimation workflow:")
 		println("All unidentifiable variables: ", all_unidentifiable)
 		println("Unidentifiable variables substitution dictionary: ", unident_dict)
 		println("Trivially solvable variables: ", trivial_dict)
@@ -450,29 +403,23 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	uq_result = nothing
 	if opts.compute_uncertainty && !isempty(solved_res)
 		if !opts.nooutput
-			println("\nComputing parameter uncertainty...")
+			println("\nComputing parameter uncertainty (experimental)...")
 		end
 		# Use the best solution for UQ
 		best_solution = first(filter(x -> !isnothing(x.err), sort(solved_res, by = x -> isnothing(x.err) ? Inf : x.err)))
-		try
-			uq_result = estimate_parameter_uncertainty(
-				PEP,
-				best_solution,
-				PEP.data_sample;
-				max_deriv_order = 2,
-				n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
-			)
-			if !opts.nooutput
-				print_uncertainty_results(uq_result)
-			end
-		catch e
-			@warn "Uncertainty quantification failed: $e"
-			uq_result = (success = false, message = "UQ failed: $e")
+		uq_result = estimate_parameter_uncertainty(
+			PEP,
+			best_solution,
+			PEP.data_sample;
+			max_deriv_order = 2,
+			n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
+		)
+		uq_result = apply_uq_failure_policy(uq_result, opts)
+		if !opts.nooutput
+			print_uncertainty_results(uq_result)
 		end
 	end
 
 	return results_tuple, results_tuple_to_return, uq_result
 
 end
-
-

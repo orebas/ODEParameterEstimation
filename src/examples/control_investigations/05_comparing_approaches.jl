@@ -274,7 +274,38 @@ end
                          COMPREHENSIVE COMPARISON
 =============================================================================#
 
-function run_comprehensive_comparison()
+function comparison_standard_options(problem; smoke = false)
+    opts = EstimationOptions(
+        datasize = smoke ? 41 : 151,
+        noise_level = 0.0,
+        interpolator = InterpolatorAAAD,
+        system_solver = SolverHC,
+        flow = FlowStandard,
+        use_si_template = true,
+        use_parameter_homotopy = false,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+        polish_solver_solutions = false,
+        polish_solutions = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function comparison_direct_options(problem; smoke = false)
+    opts = EstimationOptions(
+        datasize = smoke ? 41 : 151,
+        noise_level = 0.0,
+        flow = FlowDirectOpt,
+        opt_maxiters = smoke ? 5000 : 100000,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function run_comprehensive_comparison(; smoke = false)
     println("="^70)
     println("COMPREHENSIVE COMPARISON: All Three Input Approaches")
     println("="^70)
@@ -287,8 +318,6 @@ function run_comprehensive_comparison()
     println()
 
     # Common options
-    common_datasize = 151
-
     results_all = Dict{String, Any}()
 
     #-------------------------------------------------------------------------
@@ -302,14 +331,7 @@ function run_comprehensive_comparison()
     println()
 
     prob1 = motor_constant_input()
-    opts1 = EstimationOptions(
-        datasize = common_datasize,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts1 = merge_options(opts1, time_interval = prob1.recommended_time_interval)
+    opts1 = comparison_standard_options(prob1, smoke = smoke)
     prob1_data = sample_problem_data(prob1, opts1)
     println("Running...")
     results_all["constant"] = analyze_parameter_estimation_problem(prob1_data, opts1)
@@ -326,14 +348,7 @@ function run_comprehensive_comparison()
     println()
 
     prob2 = motor_driven_input()
-    opts2 = EstimationOptions(
-        datasize = common_datasize,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts2 = merge_options(opts2, time_interval = prob2.recommended_time_interval)
+    opts2 = comparison_direct_options(prob2, smoke = smoke)
     prob2_data = sample_problem_data(prob2, opts2)
     println("Running...")
     results_all["driven"] = analyze_parameter_estimation_problem(prob2_data, opts2)
@@ -351,14 +366,7 @@ function run_comprehensive_comparison()
     println()
 
     prob3a = motor_polynomialized()
-    opts3a = EstimationOptions(
-        datasize = common_datasize,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts3a = merge_options(opts3a, time_interval = prob3a.recommended_time_interval)
+    opts3a = comparison_standard_options(prob3a, smoke = smoke)
     prob3a_data = sample_problem_data(prob3a, opts3a)
     println("Running...")
     results_all["poly"] = analyze_parameter_estimation_problem(prob3a_data, opts3a)
@@ -375,14 +383,7 @@ function run_comprehensive_comparison()
     println()
 
     prob3b = motor_poly_known_input()
-    opts3b = EstimationOptions(
-        datasize = common_datasize,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts3b = merge_options(opts3b, time_interval = prob3b.recommended_time_interval)
+    opts3b = comparison_standard_options(prob3b, smoke = smoke)
     prob3b_data = sample_problem_data(prob3b, opts3b)
     println("Running...")
     results_all["poly_known"] = analyze_parameter_estimation_problem(prob3b_data, opts3b)
@@ -458,7 +459,9 @@ end
                               RUN THE COMPARISON
 =============================================================================#
 
-results = run_comprehensive_comparison()
+if abspath(PROGRAM_FILE) == @__FILE__
+    run_comprehensive_comparison()
+end
 
 #=============================================================================
                          FINAL THOUGHTS

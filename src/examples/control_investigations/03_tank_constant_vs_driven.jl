@@ -231,7 +231,22 @@ end
                          COMPARISON RUNNER
 =============================================================================#
 
-function run_tank_comparison()
+function tank_example_options(problem; smoke = false)
+    # These tank examples are intentionally non-polynomial because of sqrt(h),
+    # so the direct optimization path is the supported route here.
+    opts = EstimationOptions(
+        datasize = smoke ? 41 : 201,
+        noise_level = 0.0,
+        flow = FlowDirectOpt,
+        opt_maxiters = smoke ? 5000 : 100000,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function run_tank_comparison(; smoke = false)
     println("="^70)
     println("TANK LEVEL: Comparing Constant vs Driven Inputs")
     println("="^70)
@@ -251,14 +266,7 @@ function run_tank_comparison()
     println()
 
     problem_a = tank_constant_input()
-    opts_a = EstimationOptions(
-        datasize = 151,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts_a = merge_options(opts_a, time_interval = problem_a.recommended_time_interval)
+    opts_a = tank_example_options(problem_a, smoke = smoke)
     problem_a_with_data = sample_problem_data(problem_a, opts_a)
 
     println("Running estimation...")
@@ -281,14 +289,7 @@ function run_tank_comparison()
     println()
 
     problem_b = tank_driven_input()
-    opts_b = EstimationOptions(
-        datasize = 201,   # More points for oscillating system
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts_b = merge_options(opts_b, time_interval = problem_b.recommended_time_interval)
+    opts_b = tank_example_options(problem_b, smoke = smoke)
     problem_b_with_data = sample_problem_data(problem_b, opts_b)
 
     println("Running estimation...")
@@ -311,14 +312,7 @@ function run_tank_comparison()
     println()
 
     problem_c = tank_driven_fixed_omega()
-    opts_c = EstimationOptions(
-        datasize = 201,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts_c = merge_options(opts_c, time_interval = problem_c.recommended_time_interval)
+    opts_c = tank_example_options(problem_c, smoke = smoke)
     problem_c_with_data = sample_problem_data(problem_c, opts_c)
 
     println("Running estimation...")
@@ -369,7 +363,9 @@ end
                               RUN THE EXAMPLE
 =============================================================================#
 
-results = run_tank_comparison()
+if abspath(PROGRAM_FILE) == @__FILE__
+    run_tank_comparison()
+end
 
 #=============================================================================
                          NEXT STEPS

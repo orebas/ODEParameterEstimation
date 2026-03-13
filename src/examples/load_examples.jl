@@ -23,8 +23,8 @@ All available models are registered here. run_examples.jl and the
 run_parameter_estimation_examples() function reference these dicts.
 =============================================================================#
 
-"""Standard models that typically work well with default settings."""
-const STANDARD_MODELS = Dict(
+"""Models that currently run cleanly and are reasonable to present as straightforward examples."""
+const GREEN_MODELS = Dict(
 	# Simple models
 	:simple => simple,
 	:simple_linear_combination => simple_linear_combination,
@@ -34,95 +34,114 @@ const STANDARD_MODELS = Dict(
 
 	# Classical systems
 	:lotka_volterra => lotka_volterra,
-	:lv_periodic => lv_periodic,
 	:vanderpol => vanderpol,
-	:brusselator => brusselator,
 	:harmonic => harmonic,
 
-	# Biological systems
-	:seir => seir,
-	:treatment => treatment,
-	:biohydrogenation => biohydrogenation,
-	:repressilator => repressilator,
-	:hiv_old_wrong => hiv_old_wrong,
-
-	# Test models
-	:substr_test => substr_test,
-	:global_unident_test => global_unident_test,
 	:sum_test => sum_test,
-	:trivial_unident => trivial_unident,
 
 	# DAISY models
-	:daisy_ex3 => daisy_ex3,
 	:daisy_mamil3 => daisy_mamil3,
-	:daisy_mamil4 => daisy_mamil4,
 
 	# Specialized models
 	:slowfast => slowfast,
-	:two_compartment_pk => two_compartment_pk,
-	:fitzhugh_nagumo => fitzhugh_nagumo,
+	:repressilator => repressilator,
 
-	# Control systems (original, may have transcendental inputs)
+	# Control systems and transformed variants that currently estimate well
 	:dc_motor => dc_motor,
+	:quadrotor_altitude => quadrotor_altitude,
+	:thermal_system => thermal_system,
+	:bicycle_model => bicycle_model,
+	:flexible_arm => flexible_arm,
+	:bilinear_system => bilinear_system,
+	:maglev_linear => maglev_linear,
+
+	:quadrotor_altitude_identifiable => quadrotor_altitude_identifiable,
+	:aircraft_pitch_identifiable => aircraft_pitch_identifiable,
+	:tank_level_poly => tank_level_poly,
+	:two_tank_poly => two_tank_poly,
+	:bicycle_model_identifiable => bicycle_model_identifiable,
+
+	# Natural sinusoidal input models (auto-polynomialized via transcendental handling)
+	:quadrotor_sinusoidal => quadrotor_sinusoidal,
+	:forced_lv_sinusoidal => forced_lv_sinusoidal,
+	:aircraft_pitch_sinusoidal => aircraft_pitch_sinusoidal,
+)
+
+"""Models that are intentionally useful as structural-unidentifiability demonstrations."""
+const STRUCTURAL_UNIDENTIFIABILITY_MODELS = Dict(
+	:substr_test => substr_test,
+	:global_unident_test => global_unident_test,
+	:trivial_unident => trivial_unident,
+	:aircraft_pitch => aircraft_pitch,
+	:dc_motor_identifiable => dc_motor_identifiable,
 	:mass_spring_damper => mass_spring_damper,
+	:two_compartment_pk => two_compartment_pk,
+	:treatment => treatment,
+)
+
+"""Models that run, but are harder, less accurate, or more experimental than the green set."""
+const HARD_MODELS = Dict(
+	:hiv => hiv,
+	:hiv_old_wrong => hiv_old_wrong,
+	:crauste_corrected => crauste_corrected,
+	:allee_competition => allee_competition,
+	:biohydrogenation => biohydrogenation,
+	:fitzhugh_nagumo => fitzhugh_nagumo,
+	:boost_converter_identifiable => boost_converter_identifiable,
+	:boost_converter_sinusoidal => boost_converter_sinusoidal,
+	:daisy_ex3 => daisy_ex3,
+	:daisy_mamil4 => daisy_mamil4,
+	:brusselator => brusselator,
+	:lv_periodic => lv_periodic,
+	:forced_lotka_volterra => forced_lotka_volterra,
+	:forced_lotka_volterra_identifiable => forced_lotka_volterra_identifiable,
+	:bilinear_system_identifiable => bilinear_system_identifiable,
+	:bilinear_system_sinusoidal => bilinear_system_sinusoidal,
+	:cart_pole_linear => cart_pole_linear,
+	:magnetic_levitation_identifiable => magnetic_levitation_identifiable,
+	:magnetic_levitation_sinusoidal => magnetic_levitation_sinusoidal,
+	:bicycle_model_sinusoidal => bicycle_model_sinusoidal,
+	:dc_motor_sinusoidal => dc_motor_sinusoidal,
+)
+
+"""Models retained in-package but currently best treated as limitations or active failure cases."""
+const LIMITATION_MODELS = Dict(
+	:seir => seir,
 	:cart_pole => cart_pole,
 	:tank_level => tank_level,
 	:cstr => cstr,
-	:quadrotor_altitude => quadrotor_altitude,
-	:thermal_system => thermal_system,
 	:ball_beam => ball_beam,
-	:bicycle_model => bicycle_model,
 	:swing_equation => swing_equation,
 	:magnetic_levitation => magnetic_levitation,
-	:aircraft_pitch => aircraft_pitch,
 	:two_tank => two_tank,
 	:boost_converter => boost_converter,
-	:flexible_arm => flexible_arm,
-	:bilinear_system => bilinear_system,
-	:forced_lotka_volterra => forced_lotka_volterra,
-	:cart_pole_linear => cart_pole_linear,
-	:maglev_linear => maglev_linear,
-
-	# Polynomialized / identifiable control systems
-	:dc_motor_identifiable => dc_motor_identifiable,
-	:quadrotor_altitude_identifiable => quadrotor_altitude_identifiable,
-	:magnetic_levitation_identifiable => magnetic_levitation_identifiable,
-	:aircraft_pitch_identifiable => aircraft_pitch_identifiable,
-	:bicycle_model_identifiable => bicycle_model_identifiable,
-	:boost_converter_identifiable => boost_converter_identifiable,
-	:bilinear_system_identifiable => bilinear_system_identifiable,
-	:forced_lotka_volterra_identifiable => forced_lotka_volterra_identifiable,
-	:tank_level_poly => tank_level_poly,
-	:two_tank_poly => two_tank_poly,
+	:crauste => crauste,
+	:crauste_revised => crauste_revised,
 	:cstr_reparametrized => cstr_reparametrized,
 	:cstr_fixed_activation => cstr_fixed_activation,
-
-	# Natural sinusoidal input models (auto-polynomialized via transcendental handling)
-	:dc_motor_sinusoidal => dc_motor_sinusoidal,
-	:quadrotor_sinusoidal => quadrotor_sinusoidal,
-	:forced_lv_sinusoidal => forced_lv_sinusoidal,
-	:magnetic_levitation_sinusoidal => magnetic_levitation_sinusoidal,
-	:aircraft_pitch_sinusoidal => aircraft_pitch_sinusoidal,
-	:bicycle_model_sinusoidal => bicycle_model_sinusoidal,
-	:boost_converter_sinusoidal => boost_converter_sinusoidal,
-	:bilinear_system_sinusoidal => bilinear_system_sinusoidal,
-)
-
-"""Models that are more challenging (stiff, ill-conditioned, or computationally expensive)."""
-const HARD_MODELS = Dict(
-	:hiv => hiv,
-	:crauste => crauste,
-	:crauste_corrected => crauste_corrected,
-	:crauste_revised => crauste_revised,
-	:allee_competition => allee_competition,
 	:sirsforced => sirsforced,
 )
 
+"""Default runnable set: green examples plus the explicit structural-unidentifiability demos."""
+const STANDARD_MODELS = merge(GREEN_MODELS, STRUCTURAL_UNIDENTIFIABILITY_MODELS)
+
 """All available models (standard + hard)."""
-const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS)
+const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS, LIMITATION_MODELS)
 
 """Get list of all available model names."""
 available_models() = sort(collect(keys(ALL_MODELS)))
+
+"""Get a dictionary of model registries by category name."""
+function available_model_categories()
+	return Dict(
+		:green => GREEN_MODELS,
+		:structural_unidentifiability => STRUCTURAL_UNIDENTIFIABILITY_MODELS,
+		:standard => STANDARD_MODELS,
+		:hard => HARD_MODELS,
+		:limitations => LIMITATION_MODELS,
+		:all => ALL_MODELS,
+	)
+end
 
 
 
@@ -149,9 +168,11 @@ Run parameter estimation examples on the specified models.
 - Additional keyword arguments for backward compatibility (will be merged into opts)
 
 # Available models
-Use `available_models()` to get the full list. Models are defined in:
-- STANDARD_MODELS: typical models that work well with defaults
-- HARD_MODELS: challenging models (stiff, ill-conditioned, expensive)
+Use `available_models()` to get the full list. Models are organized into:
+- `GREEN_MODELS`: straightforward, maintained examples
+- `STRUCTURAL_UNIDENTIFIABILITY_MODELS`: explicit identifiability demos
+- `HARD_MODELS`: running but harder / less reliable examples
+- `LIMITATION_MODELS`: retained in-package but currently limitation / failure cases
 """
 function run_parameter_estimation_examples(;
 	models = :all,
@@ -163,20 +184,18 @@ function run_parameter_estimation_examples(;
 	log_dir = "logs",
 	doskip = true,
 	shooting_points = nothing,
-	try_more_methods = nothing,
 	use_new_flow = nothing,
 	use_si_template = nothing,
 )
 	# Merge any provided keyword arguments with EstimationOptions
 	if !isnothing(datasize) || !isnothing(noise_level) || !isnothing(interpolator) ||
-	   !isnothing(system_solver) || !isnothing(shooting_points) || !isnothing(try_more_methods) ||
+	   !isnothing(system_solver) || !isnothing(shooting_points) ||
 	   !isnothing(use_new_flow) || !isnothing(use_si_template)
 		# Build keyword dict for merging
 		merge_kwargs = Dict{Symbol, Any}()
 		!isnothing(datasize) && (merge_kwargs[:datasize] = datasize)
 		!isnothing(noise_level) && (merge_kwargs[:noise_level] = noise_level)
 		!isnothing(shooting_points) && (merge_kwargs[:shooting_points] = shooting_points)
-		!isnothing(try_more_methods) && (merge_kwargs[:try_more_methods] = try_more_methods)
 		!isnothing(use_new_flow) && (merge_kwargs[:use_new_flow] = use_new_flow)
 		!isnothing(use_si_template) && (merge_kwargs[:use_si_template] = use_si_template)
 
@@ -205,9 +224,10 @@ function run_parameter_estimation_examples(;
 			end
 		end
 
-		# Backward-compat: map legacy boolean to new flow enum
+		# Backward-compat: map the old boolean onto the supported flow enum
 		if haskey(merge_kwargs, :use_new_flow)
-			merge_kwargs[:flow] = merge_kwargs[:use_new_flow] ? FlowStandard : FlowDeprecated
+			merge_kwargs[:use_new_flow] || error("use_new_flow=false is no longer supported. Use flow=FlowStandard or flow=FlowDirectOpt explicitly.")
+			merge_kwargs[:flow] = FlowStandard
 			delete!(merge_kwargs, :use_new_flow)
 		end
 
@@ -217,13 +237,21 @@ function run_parameter_estimation_examples(;
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
 
-	# Determine which models to run (using module-level STANDARD_MODELS and HARD_MODELS)
+	model_categories = available_model_categories()
+
+	# Determine which models to run from the named registries above
 	models_to_run = if models == :all
-		collect(keys(ALL_MODELS))
+		collect(keys(model_categories[:all]))
 	elseif models == :hard
-		collect(keys(HARD_MODELS))
+		collect(keys(model_categories[:hard]))
+	elseif models == :green
+		collect(keys(model_categories[:green]))
+	elseif models == :structural_unidentifiability
+		collect(keys(model_categories[:structural_unidentifiability]))
+	elseif models == :limitations
+		collect(keys(model_categories[:limitations]))
 	elseif models == :standard
-		collect(keys(STANDARD_MODELS))
+		collect(keys(model_categories[:standard]))
 	elseif models isa Symbol
 		[models]
 	else
@@ -259,8 +287,6 @@ function run_parameter_estimation_examples(;
 
 							if opts.flow == FlowStandard
 								println("Using NEW optimized workflow")
-							elseif opts.flow == FlowDeprecated
-								println("Using standard workflow")
 							elseif opts.flow == FlowDirectOpt
 								println("Using direct optimization workflow")
 							end

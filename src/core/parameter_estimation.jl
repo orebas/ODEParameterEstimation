@@ -1,7 +1,5 @@
 # REFACTORING NOTE:
 # Several functions have been moved out of this file to improve organization:
-# - multipoint_parameter_estimation -> moved to multipoint_estimation.jl
-# - multishot_parameter_estimation -> moved to multipoint_estimation.jl
 # - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
 
 """
@@ -770,16 +768,6 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 
 	return ordered_states, ordered_params, ode_solution, err
 end
-
-
-
-
-# multishot_parameter_estimation has been moved to multipoint_estimation.jl
-
-
-
-# The implementation has been moved to multipoint_estimation.jl
-
 
 """
 	equilibrate_jacobian(jac::Matrix{Float64}) -> Matrix{Float64}
@@ -1963,6 +1951,11 @@ function _polish_single_from_context(
 		Set{Num}(),
 		sol_final,
 	)
+	final_result.provenance = ResultProvenance(
+		primary_method = :direct_opt,
+		post_polish_error = final_obj,
+	)
+	sync_result_contract!(final_result)
 	return final_result, result
 end
 
@@ -2064,6 +2057,26 @@ function _polish_batch_from_context(
 				)
 				dt = time() - t0
 				n_iters = try; opt_result.original.iterations; catch; -1; end
+				polished_result.unident_dict = deepcopy(candidate.unident_dict)
+				polished_result.all_unidentifiable = copy(candidate.all_unidentifiable)
+				polished_result.provenance = copy_provenance(
+					candidate.provenance;
+					pre_polish_error = candidate.err,
+					post_polish_error = polished_result.err,
+					polish_applied = true,
+				)
+				set_result_lineage!(
+					polished_result;
+					primary_method = candidate.provenance.primary_method,
+					interpolator_source = candidate.provenance.interpolator_source,
+					rescue_path = candidate.provenance.rescue_path,
+					source_shooting_index = candidate.provenance.source_shooting_index,
+					source_candidate_index = candidate.provenance.source_candidate_index,
+					pre_polish_error = candidate.err,
+					post_polish_error = polished_result.err,
+					polish_applied = true,
+					notes = candidate.provenance.notes,
+				)
 				if !opts.nooutput
 					err_before = isnothing(candidate.err) ? Inf : candidate.err
 					err_after = isnothing(polished_result.err) ? Inf : polished_result.err
@@ -2135,8 +2148,15 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 		println("Direct optimization finished with final loss: ", opt_result.objective)
 		println("Found solution: ", merge(final_result.states, final_result.parameters))
 	end
+	final_result.provenance = ResultProvenance(
+		primary_method = :direct_opt,
+		rescue_path = :none,
+		source_candidate_index = 1,
+		pre_polish_error = nothing,
+		post_polish_error = final_result.err,
+		polish_applied = true,
+	)
+	sync_result_contract!(final_result)
 
 	return [final_result]
 end
-
-

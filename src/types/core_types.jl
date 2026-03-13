@@ -66,6 +66,128 @@ const MAX_SOLUTIONS = 20              # Maximum number of solutions to consider 
 const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale to compute default optimization bounds
 
 """
+    ResultProvenance
+
+Structured lineage metadata for a parameter-estimation result.
+
+# Fields
+- `primary_method::Symbol`: `:algebraic` or `:direct_opt`
+- `interpolator_source::Union{Nothing, Symbol}`: Which interpolator produced the candidate
+- `rescue_path::Symbol`: `:none`, `:algebraic_resolve_t0`, `:algebraic_resolve_seeded`, `:direct_opt_fallback`
+- `source_shooting_index::Union{Nothing, Int}`: Shooting-point index that produced the candidate
+- `source_candidate_index::Union{Nothing, Int}`: Stable candidate index within the producing phase
+- `pre_polish_error::Union{Nothing, Float64}`: Error before polishing, when applicable
+- `post_polish_error::Union{Nothing, Float64}`: Error after polishing, when applicable
+- `polish_applied::Bool`: Whether a polishing stage was applied
+- `representative_assignments::OrderedDict{Num, Float64}`: Values assigned only because variables were already known structurally unidentifiable
+- `notes::Vector{Symbol}`: Additional lineage/debug notes
+"""
+mutable struct ResultProvenance
+    primary_method::Symbol
+    interpolator_source::Union{Nothing, Symbol}
+    rescue_path::Symbol
+    source_shooting_index::Union{Nothing, Int}
+    source_candidate_index::Union{Nothing, Int}
+    pre_polish_error::Union{Nothing, Float64}
+    post_polish_error::Union{Nothing, Float64}
+    polish_applied::Bool
+    representative_assignments::OrderedDict{Num, Float64}
+    notes::Vector{Symbol}
+end
+
+function ResultProvenance(;
+    primary_method::Symbol = :algebraic,
+    interpolator_source::Union{Nothing, Symbol} = nothing,
+    rescue_path::Symbol = :none,
+    source_shooting_index::Union{Nothing, Int} = nothing,
+    source_candidate_index::Union{Nothing, Int} = nothing,
+    pre_polish_error::Union{Nothing, Real} = nothing,
+    post_polish_error::Union{Nothing, Real} = nothing,
+    polish_applied::Bool = false,
+    representative_assignments = OrderedDict{Num, Float64}(),
+    notes = Symbol[],
+)
+    return ResultProvenance(
+        primary_method,
+        interpolator_source,
+        rescue_path,
+        source_shooting_index,
+        source_candidate_index,
+        isnothing(pre_polish_error) ? nothing : Float64(pre_polish_error),
+        isnothing(post_polish_error) ? nothing : Float64(post_polish_error),
+        polish_applied,
+        OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in representative_assignments),
+        Symbol[notes...],
+    )
+end
+
+function copy_provenance(
+    provenance::ResultProvenance;
+    primary_method = provenance.primary_method,
+    interpolator_source = provenance.interpolator_source,
+    rescue_path = provenance.rescue_path,
+    source_shooting_index = provenance.source_shooting_index,
+    source_candidate_index = provenance.source_candidate_index,
+    pre_polish_error = provenance.pre_polish_error,
+    post_polish_error = provenance.post_polish_error,
+    polish_applied = provenance.polish_applied,
+    representative_assignments = provenance.representative_assignments,
+    notes = provenance.notes,
+)
+    return ResultProvenance(
+        primary_method = primary_method,
+        interpolator_source = interpolator_source,
+        rescue_path = rescue_path,
+        source_shooting_index = source_shooting_index,
+        source_candidate_index = source_candidate_index,
+        pre_polish_error = pre_polish_error,
+        post_polish_error = post_polish_error,
+        polish_applied = polish_applied,
+        representative_assignments = deepcopy(representative_assignments),
+        notes = copy(notes),
+    )
+end
+
+"""
+    compatibility_return_code(provenance::ResultProvenance) -> Symbol
+
+Map canonical provenance metadata onto the legacy `return_code` compatibility field.
+"""
+function compatibility_return_code(provenance::ResultProvenance)::Symbol
+    provenance.rescue_path != :none && return provenance.rescue_path
+    provenance.primary_method == :direct_opt && return :direct_opt
+    return :algebraic
+end
+
+"""
+    sync_result_contract!(result) -> result
+
+Synchronize compatibility fields that are now derived from provenance.
+"""
+function sync_result_contract!(result)
+    result.interpolator_source = result.provenance.interpolator_source
+    result.return_code = compatibility_return_code(result.provenance)
+    return result
+end
+
+"""
+    lineage_summary(result) -> String
+
+Compact human-readable summary of result provenance for logs and diagnostics.
+"""
+function lineage_summary(result)::String
+    prov = result.provenance
+    parts = String["method=$(prov.primary_method)"]
+    prov.rescue_path != :none && push!(parts, "rescue=$(prov.rescue_path)")
+    !isnothing(prov.source_shooting_index) && push!(parts, "shoot=$(prov.source_shooting_index)")
+    !isnothing(prov.source_candidate_index) && push!(parts, "candidate=$(prov.source_candidate_index)")
+    !isnothing(prov.interpolator_source) && push!(parts, "interp=$(prov.interpolator_source)")
+    prov.polish_applied && push!(parts, "polished=true")
+    !isempty(prov.representative_assignments) && push!(parts, "representative=$(length(prov.representative_assignments))")
+    return join(parts, ", ")
+end
+
+"""
     ParameterEstimationResult
 
 Struct to store the results of parameter estimation.
@@ -81,6 +203,8 @@ Struct to store the results of parameter estimation.
 - `unident_dict::Union{Nothing, OrderedDict{Num, Float64}}`: Dictionary of unidentifiable parameters and their values
 - `all_unidentifiable::Set{Num}`: Set of all parameters detected as unidentifiable during analysis
 - `solution::Union{Nothing, SciMLBase.AbstractODESolution}`: The ODE solution (optional)
+- `interpolator_source::Union{Nothing, Symbol}`: Which interpolator produced this result
+- `provenance::ResultProvenance`: Structured lineage/provenance metadata
 """
 mutable struct ParameterEstimationResult
     parameters::OrderedDict{Num, Float64}
@@ -94,9 +218,10 @@ mutable struct ParameterEstimationResult
     all_unidentifiable::Set{Num}
     solution::Union{Nothing, SciMLBase.AbstractODESolution}
     interpolator_source::Union{Nothing, Symbol}   # Which interpolator produced this result
+    provenance::ResultProvenance
 end
 
-# Backward-compatible constructor (interpolator_source defaults to nothing)
+# Backward-compatible constructor (interpolator_source defaults to nothing, provenance to an empty record)
 # Note: parameter types are relaxed to allow MTK 11's BasicSymbolicImpl keys
 # (Julia's inner struct constructor handles convert() to the declared field types)
 function ParameterEstimationResult(
@@ -105,7 +230,7 @@ function ParameterEstimationResult(
 )
     return ParameterEstimationResult(
         parameters, states, at_time, err, return_code, datasize,
-        report_time, unident_dict, all_unidentifiable, solution, nothing,
+        report_time, unident_dict, all_unidentifiable, solution, nothing, ResultProvenance(),
     )
 end
 
@@ -139,4 +264,3 @@ mutable struct DerivativeData
     obs_rhs::Vector{Vector{Num}}
     all_unidentifiable::Set{Num}
 end
-

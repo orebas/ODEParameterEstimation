@@ -257,7 +257,38 @@ end
                          DEMONSTRATION RUNNER
 =============================================================================#
 
-function run_polynomialization_demo()
+function polynomialization_standard_options(problem; smoke = false)
+    opts = EstimationOptions(
+        datasize = smoke ? 41 : 151,
+        noise_level = 0.0,
+        interpolator = InterpolatorAAAD,
+        system_solver = SolverHC,
+        flow = FlowStandard,
+        use_si_template = true,
+        use_parameter_homotopy = false,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+        polish_solver_solutions = false,
+        polish_solutions = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function polynomialization_direct_options(problem; smoke = false)
+    opts = EstimationOptions(
+        datasize = smoke ? 41 : 151,
+        noise_level = 0.0,
+        flow = FlowDirectOpt,
+        opt_maxiters = smoke ? 5000 : 100000,
+        nooutput = smoke,
+        diagnostics = !smoke,
+        save_system = false,
+    )
+    return merge_options(opts, time_interval = problem.recommended_time_interval)
+end
+
+function run_polynomialization_demo(; smoke = false)
     println("="^70)
     println("POLYNOMIALIZATION: Converting to Autonomous Systems")
     println("="^70)
@@ -294,14 +325,7 @@ function run_polynomialization_demo()
     println()
 
     problem1 = linear_system_driven()
-    opts1 = EstimationOptions(
-        datasize = 151,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts1 = merge_options(opts1, time_interval = problem1.recommended_time_interval)
+    opts1 = polynomialization_direct_options(problem1, smoke = smoke)
     problem1_with_data = sample_problem_data(problem1, opts1)
 
     println("Running estimation...")
@@ -327,14 +351,7 @@ function run_polynomialization_demo()
     println()
 
     problem2 = linear_system_polynomialized()
-    opts2 = EstimationOptions(
-        datasize = 151,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts2 = merge_options(opts2, time_interval = problem2.recommended_time_interval)
+    opts2 = polynomialization_standard_options(problem2, smoke = smoke)
     problem2_with_data = sample_problem_data(problem2, opts2)
 
     println("Running estimation...")
@@ -357,14 +374,7 @@ function run_polynomialization_demo()
     println()
 
     problem3 = linear_system_poly_known_input()
-    opts3 = EstimationOptions(
-        datasize = 151,
-        noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
-        system_solver = SolverHC,    # Homotopy continuation solver
-        flow = FlowStandard,         # Standard polynomial system solving
-    )
-    opts3 = merge_options(opts3, time_interval = problem3.recommended_time_interval)
+    opts3 = polynomialization_standard_options(problem3, smoke = smoke)
     problem3_with_data = sample_problem_data(problem3, opts3)
 
     println("Running estimation...")
@@ -417,7 +427,9 @@ end
                               RUN THE EXAMPLE
 =============================================================================#
 
-results = run_polynomialization_demo()
+if abspath(PROGRAM_FILE) == @__FILE__
+    run_polynomialization_demo()
+end
 
 #=============================================================================
                          MATHEMATICAL BACKGROUND

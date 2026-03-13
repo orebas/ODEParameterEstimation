@@ -59,12 +59,10 @@ end
 
 Enum selecting the high-level workflow used during estimation.
 
-- `FlowDeprecated`: Old/standard workflow
 - `FlowStandard`: New optimized multishot workflow (default)
 - `FlowDirectOpt`: Direct local optimization workflow (BFGS from random start)
 """
 @enum EstimationFlow begin
-	FlowDeprecated   # old workflow
 	FlowStandard     # optimized_multishot_parameter_estimation
 	FlowDirectOpt    # direct_optimization_parameter_estimation
 end
@@ -122,6 +120,9 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
 - `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
 - `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
+- `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:none`)
+- `backsolve_recovery::Symbol`: Recovery policy for blown backsolves: `:none` or `:algebraic_resolve` (default: `:algebraic_resolve`)
+- `t0_state_completion::Symbol`: State completion policy during `t=0` rescue: `:strict` or `:seed_for_polish` (default: `:strict`)
 
 ## Data Sampling Parameters
 - `datasize::Int`: Number of data points to generate (default: 21)
@@ -142,12 +143,12 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Feature Flags
 - `flow::EstimationFlow`: Which workflow to run (default: `FlowStandard`)
 - `use_si_template::Bool`: Use StructuralIdentifiability.jl templates (default: true)
-- `try_more_methods::Bool`: Try additional estimation methods on failure (default: true)
 - `save_system::Bool`: Save polynomial systems to files (default: true)
 - `display_system::Bool`: Display system being solved (default: false)
 - `polish_only::Bool`: Only polish existing solutions (default: false)
 - `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
+- `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 
 ## HomotopyContinuation Specific
@@ -196,7 +197,7 @@ opts = EstimationOptions(
 
 - This struct is designed to be immutable for thread safety and performance
 - Default values are chosen based on extensive testing and should work well for most problems
-- For challenging problems, consider adjusting tolerances and enabling `try_more_methods`
+- For challenging problems, use an explicit `interpolators = [...]` list rather than relying on hidden retries
 - When debugging, enable relevant debug flags and set `nooutput=false`
 """
 Base.@kwdef struct EstimationOptions
@@ -248,6 +249,9 @@ Base.@kwdef struct EstimationOptions
 	polish_divergence_factor::Float64 = 10.0 # Stop if loss > initial_loss * this
 	polish_stagnation_window::Int = 50       # Stop if no improvement in N iters
 	polish_ode_maxiters::Int = 5000          # ODE solver maxiters inside polish loss (DiffEq default: 100000)
+	terminal_fallback::Symbol = :none        # :none | :direct_opt
+	backsolve_recovery::Symbol = :algebraic_resolve  # :none | :algebraic_resolve
+	t0_state_completion::Symbol = :strict    # :strict | :seed_for_polish
 
 	# Data Sampling Parameters
 	datasize::Int = 21
@@ -268,12 +272,12 @@ Base.@kwdef struct EstimationOptions
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
 	use_si_template::Bool = true
-	try_more_methods::Bool = false
 	save_system::Bool = true
 	display_system::Bool = false
 	polish_only::Bool = false
 	ideal::Bool = false
-	compute_uncertainty::Bool = false  # Compute parameter uncertainty via GP covariance + IFT
+	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
+	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
 
@@ -649,8 +653,7 @@ function get_ad_backend(backend::Symbol)
 	backend === :zygote && return Optimization.AutoZygote()
 	backend === :enzyme && return Optimization.AutoEnzyme()
 	backend === :finite && return Optimization.AutoFiniteDiff()
-	@warn "Unknown AD backend :$backend, using AutoForwardDiff()"
-	return Optimization.AutoForwardDiff()
+	error("Unknown AD backend :$backend. Supported backends: :forward, :zygote, :enzyme, :finite")
 end
 
 """
@@ -675,7 +678,7 @@ function merge_options(base::EstimationOptions; kwargs...)
 		if k in fields
 			values[k] = v
 		else
-			@warn "Unknown option: $k"
+			error("Unknown option: $k")
 		end
 	end
 
@@ -718,8 +721,9 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	if opts.shooting_points < 2
-		@warn "shooting_points should be at least 2 for multi-shot estimation"
+	if opts.shooting_points < 0
+		@error "shooting_points must be non-negative"
+		valid = false
 	end
 
 	# Check point_hint
@@ -757,6 +761,18 @@ function validate_options(opts::EstimationOptions)
 	if opts.polish_stagnation_window < 5
 		@warn "polish_stagnation_window < 5 is too aggressive; may stop prematurely"
 	end
+	if !(opts.terminal_fallback in (:none, :direct_opt))
+		@error "terminal_fallback must be :none or :direct_opt"
+		valid = false
+	end
+	if !(opts.backsolve_recovery in (:none, :algebraic_resolve))
+		@error "backsolve_recovery must be :none or :algebraic_resolve"
+		valid = false
+	end
+	if !(opts.t0_state_completion in (:strict, :seed_for_polish))
+		@error "t0_state_completion must be :strict or :seed_for_polish"
+		valid = false
+	end
 
 	# Check data parameters
 	if opts.datasize < 3
@@ -788,8 +804,26 @@ function validate_options(opts::EstimationOptions)
 		@info "diagnostics=true but nooutput=true; diagnostic output will be suppressed"
 	end
 
-	if opts.try_more_methods && !isempty(opts.interpolators)
-		@warn "try_more_methods is ignored when interpolators list is provided. Add InterpolatorAAAD to your interpolators list instead."
+	if opts.terminal_fallback != :none && opts.flow == FlowDirectOpt
+		@error "terminal_fallback only applies to FlowStandard. FlowDirectOpt already is the terminal optimizer."
+		valid = false
+	end
+
+	if opts.backsolve_recovery != :none && opts.flow != FlowStandard
+		@info "backsolve_recovery is ignored outside FlowStandard"
+	end
+
+	if opts.t0_state_completion != :strict && opts.flow != FlowStandard
+		@info "t0_state_completion is ignored outside FlowStandard"
+	end
+
+	if opts.t0_state_completion == :seed_for_polish && !opts.polish_solutions
+		@warn "t0_state_completion=:seed_for_polish requires polish_solutions=true to be useful"
+	end
+
+	if !(opts.uq_failure_policy in (:return_failed, :throw))
+		@error "uq_failure_policy must be :return_failed or :throw"
+		valid = false
 	end
 
 	if opts.ideal && opts.noise_level > 0
@@ -823,12 +857,13 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Derivatives and Reconstruction", [:max_deriv_level, :max_reconstruction_attempts, :digits]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
+		("Rescue Policy", [:terminal_fallback, :backsolve_recovery, :t0_state_completion]),
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
-		("Feature Flags", [:flow, :use_si_template, :try_more_methods, :save_system,
-			:display_system, :polish_only, :ideal, :compute_uncertainty, :auto_handle_transcendentals, :gp_s3_refinement]),
+		("Feature Flags", [:flow, :use_si_template, :save_system,
+			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :auto_handle_transcendentals, :gp_s3_refinement]),
 		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),

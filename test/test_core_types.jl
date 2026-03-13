@@ -156,6 +156,11 @@ using Symbolics
         @test haskey(result.unident_dict, b)
         @test b in result.all_unidentifiable
         @test isnothing(result.solution)
+        @test result.provenance isa ODEParameterEstimation.ResultProvenance
+        @test result.provenance.primary_method == :algebraic
+        @test result.provenance.rescue_path == :none
+        @test !result.provenance.polish_applied
+        @test isempty(result.provenance.representative_assignments)
     end
     
     @testset "Constants" begin
