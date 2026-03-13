@@ -55,7 +55,7 @@ function construct_equation_system_from_si_template(
 		end
 
 		# Get the template from SI.jl
-		template_equations, derivative_dict, unidentifiable = get_si_equation_system(
+		template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
 			ordered_model,
 			measured_quantities,
 			data_sample;
@@ -68,11 +68,17 @@ function construct_equation_system_from_si_template(
 			equations = template_equations,
 			deriv_dict = derivative_dict,
 			unidentifiable = unidentifiable,
+			identifiable_funcs = identifiable_funcs,
+			si_variable_role_summary = si_variable_role_summary,
 		)
 
 		if diagnostics
 			println("[DEBUG-SI] Got $(length(template_equations)) template equations from SI.jl")
 			println("[DEBUG-SI] Derivative variables: ", keys(derivative_dict))
+			if !isempty(si_variable_role_summary.counts)
+				println("[DEBUG-SI] SI variable roles: ", si_variable_role_summary.counts)
+				println("[DEBUG-SI] SI auxiliaries: ", si_variable_role_summary.auxiliary_variables)
+			end
 		end
 	else
 		template_equations = si_template.equations
@@ -345,7 +351,7 @@ function resolve_states_with_fixed_params(
 	end
 
 	# Step 3: Re-run SIAN on the parameter-free model → template with only state unknowns
-	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs = get_si_equation_system(
+	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary = get_si_equation_system(
 		fixed_model, fixed_mq, data_sample;
 		DD = DD,
 		infolevel = diagnostics ? 1 : 0,
@@ -362,6 +368,7 @@ function resolve_states_with_fixed_params(
 		deriv_dict = new_deriv_dict,
 		unidentifiable = new_unident,
 		identifiable_funcs = new_id_funcs,
+		si_variable_role_summary = new_si_variable_role_summary,
 	)
 
 	@info "[RESOLVE] SIAN re-run produced $(length(new_template_eqs)) template eqs, $(length(new_deriv_dict)) deriv vars"

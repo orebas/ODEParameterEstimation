@@ -382,7 +382,7 @@ function build_extended_si_variable_map(
 	fail_categories = Symbol[],
 )
 	extended_map = Dict{Nemo.QQMPolyRingElem, Any}()
-	placeholder_stats = Dict{Symbol, Vector{String}}()
+	support_var_stats = Dict{Symbol, Vector{String}}()
 
 	for (k, v) in base_map
 		extended_map[k] = v
@@ -399,17 +399,33 @@ function build_extended_si_variable_map(
 			DD;
 			infolevel = infolevel,
 			fail_categories = fail_categories,
-			stats = placeholder_stats,
+			stats = support_var_stats,
 		)
 		extended_map[var] = resolution.symbol
 	end
 
-	if !isempty(placeholder_stats)
-		placeholder_counts = Dict(k => length(v) for (k, v) in placeholder_stats)
-		@info "[SI-MAP] Classified symbolic SI support variables while converting SIAN output" counts = placeholder_counts samples = placeholder_stats
+	if !isempty(support_var_stats)
+		support_var_counts = Dict(k => length(v) for (k, v) in support_var_stats)
+		@info "[SI-MAP] Classified symbolic SI support variables while converting SIAN output" counts = support_var_counts samples = support_var_stats
 	end
 
-	return extended_map
+	return extended_map, support_var_stats
+end
+
+function si_role_summary_from_stats(stats::Dict{Symbol, Vector{String}})
+	counts = Dict(category => length(names) for (category, names) in stats)
+	suspicious_categories = Dict(
+		category => counts[category]
+		for category in keys(counts)
+		if category in (:true_unknown_variable, :late_map_miss)
+	)
+	auxiliary_variables = get(stats, :sian_auxiliary, String[])
+	return (
+		counts = counts,
+		samples = Dict(stats),
+		suspicious_categories = suspicious_categories,
+		auxiliary_variables = copy(auxiliary_variables),
+	)
 end
 
 """
@@ -562,13 +578,14 @@ function get_si_equation_system(
 	# Build comprehensive variable mapping including derivatives
 	# SIAN uses variables like y1_0, y1_1, y1_2 for derivatives
 	# We need to map these to our DD structure when available
+	si_variable_role_summary = si_role_summary_from_stats(Dict{Symbol, Vector{String}}())
 
 	# First, identify all variables in the polynomial system
 	if !isempty(poly_system)
 		R = parent(poly_system[1])
 		all_vars = Nemo.gens(R)
 
-		nemo2mtk = build_extended_si_variable_map(
+		nemo2mtk, si_variable_role_stats = build_extended_si_variable_map(
 			all_vars,
 			nemo2mtk,
 			measured_quantities,
@@ -576,6 +593,10 @@ function get_si_equation_system(
 			infolevel = infolevel,
 			fail_categories = placeholder_fail_categories,
 		)
+		si_variable_role_summary = si_role_summary_from_stats(si_variable_role_stats)
+		if !isempty(si_variable_role_summary.suspicious_categories)
+			@warn "[SI-MAP] Suspicious SI variable-role categories encountered" counts = si_variable_role_summary.suspicious_categories samples = Dict(k => si_variable_role_summary.samples[k] for k in keys(si_variable_role_summary.suspicious_categories))
+		end
 	end
 
 	# Convert polynomial system to Symbolics format
@@ -678,7 +699,7 @@ function get_si_equation_system(
 	end
 
 	# Return identifiable_funcs as well
-	return template_equations, y_derivative_dict, unidentifiable, identifiable_funcs
+	return template_equations, y_derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary
 end
 
 """

@@ -1070,7 +1070,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
 
 			# Run SIAN analysis with current pre-fixed parameters
-			template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
+			template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
 				ordered_model,
 				PEP.measured_quantities,
 				PEP.data_sample;
@@ -1085,6 +1085,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				deriv_dict = derivative_dict,
 				unidentifiable = unidentifiable,
 				identifiable_funcs = identifiable_funcs,
+				si_variable_role_summary = si_variable_role_summary,
 			)
 
 			# Count equations and variables in the current system
@@ -1196,11 +1197,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					"timestamp" => string(now()),
 					"num_equations" => length(template_equations),
 					"num_variables" => length(varlist_template),
+					"si_variable_role_counts" => string(si_template.si_variable_role_summary.counts),
+					"si_auxiliary_variables" => string(si_template.si_variable_role_summary.auxiliary_variables),
+					"suspicious_si_roles" => string(si_template.si_variable_role_summary.suspicious_categories),
 					"description" => "StructuralIdentifiability template polynomial system",
 				),
 			)
 			if !opts.nooutput
 				@info "Saved SI template to $(save_filepath_tpl)"
+				if !isempty(si_template.si_variable_role_summary.counts)
+					@info "[SI-TEMPLATE] SI variable roles" counts = si_template.si_variable_role_summary.counts auxiliaries = si_template.si_variable_role_summary.auxiliary_variables suspicious = si_template.si_variable_role_summary.suspicious_categories
+				end
 			end
 		end
 

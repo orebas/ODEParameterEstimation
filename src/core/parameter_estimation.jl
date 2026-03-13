@@ -223,7 +223,7 @@ function construct_multipoint_equation_system!(time_index_set,
 			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
 
 			# Run SIAN analysis with current pre-fixed parameters
-			template_equations, derivative_dict, unidentifiable, identifiable_funcs = get_si_equation_system(
+			template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
 				ordered_model,
 				measured_quantities,
 				data_sample;
@@ -238,6 +238,7 @@ function construct_multipoint_equation_system!(time_index_set,
 				deriv_dict = derivative_dict,
 				unidentifiable = unidentifiable,
 				identifiable_funcs = identifiable_funcs,
+				si_variable_role_summary = si_variable_role_summary,
 			)
 
 			# Count equations and variables in the current system
@@ -311,6 +312,15 @@ function construct_multipoint_equation_system!(time_index_set,
 			# Output the SI.jl polynomial system for debugging
 			println("\n[DEBUG-SI] ========== SI.jl POLYNOMIAL SYSTEM ==========")
 			println("[DEBUG-SI] Variables in deriv_dict: $(length(si_template.deriv_dict))")
+			if !isempty(si_template.si_variable_role_summary.counts)
+				println("[DEBUG-SI] SI variable roles: $(si_template.si_variable_role_summary.counts)")
+				if !isempty(si_template.si_variable_role_summary.auxiliary_variables)
+					println("[DEBUG-SI] SI auxiliaries: $(si_template.si_variable_role_summary.auxiliary_variables)")
+				end
+				if !isempty(si_template.si_variable_role_summary.suspicious_categories)
+					println("[DEBUG-SI] Suspicious SI roles: $(si_template.si_variable_role_summary.suspicious_categories)")
+				end
+			end
 			println("[DEBUG-SI] Equations ($(length(template_equations))): ")
 			for (i, eq) in enumerate(template_equations)
 				println("[DEBUG-SI]   Eq $i: $eq")
@@ -331,6 +341,9 @@ function construct_multipoint_equation_system!(time_index_set,
 				println(io, "# Generated: $(timestamp_str)")
 				println(io, "# Number of equations: $(length(template_equations))")
 				println(io, "# Variables: $(keys(si_template.deriv_dict))")
+				println(io, "# SI variable roles: $(si_template.si_variable_role_summary.counts)")
+				println(io, "# SI auxiliaries: $(si_template.si_variable_role_summary.auxiliary_variables)")
+				println(io, "# Suspicious SI roles: $(si_template.si_variable_role_summary.suspicious_categories)")
 				println(io, "")
 				for (i, eq) in enumerate(template_equations)
 					println(io, "# Equation $i:")
@@ -592,6 +605,7 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 					deriv_dict = si_template.deriv_dict,
 					unidentifiable = si_template.unidentifiable,
 					identifiable_funcs = si_template.identifiable_funcs,
+					si_variable_role_summary = si_template.si_variable_role_summary,
 				)
 			end
 
@@ -674,6 +688,7 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 		deriv_dict = si_template.deriv_dict, # old
 		unidentifiable = si_template.unidentifiable, # old
 		identifiable_funcs = si_template.identifiable_funcs, # old
+		si_variable_role_summary = si_template.si_variable_role_summary,
 	)
 
 	return template_equations, new_si_template
