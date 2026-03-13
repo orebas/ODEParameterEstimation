@@ -232,10 +232,12 @@ function construct_multipoint_equation_system!(time_index_set,
 				pre_fixed_params = pre_fixed_params,
 				placeholder_fail_categories = opts.si_placeholder_fail_categories,
 			)
+			template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, good_DD, derivative_dict)
 
 			si_template = (
 				equations = template_equations,
 				deriv_dict = derivative_dict,
+				template_DD = template_DD,
 				unidentifiable = unidentifiable,
 				identifiable_funcs = identifiable_funcs,
 				si_variable_role_summary = si_variable_role_summary,
@@ -686,6 +688,7 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 	new_si_template = (
 		equations = template_equations,
 		deriv_dict = si_template.deriv_dict, # old
+		template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing,
 		unidentifiable = si_template.unidentifiable, # old
 		identifiable_funcs = si_template.identifiable_funcs, # old
 		si_variable_role_summary = si_template.si_variable_role_summary,

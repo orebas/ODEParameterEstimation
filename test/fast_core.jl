@@ -132,6 +132,16 @@ using OrderedCollections
         used_vars = ODEParameterEstimation.collect_used_nemo_variables([gens_used[1] + gens_used[2]])
         @test Set(string.(used_vars)) == Set(["x", "y1_0"])
 
+        pep_dd = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), EstimationOptions(datasize = 11, noise_level = 0.0, nooutput = true))
+        shallow_dd = ODEParameterEstimation.populate_derivatives(pep_dd.model.system, pep_dd.measured_quantities, 1, OrderedCollections.OrderedDict())
+        extended_dd = ODEParameterEstimation.ensure_si_template_dd_support(
+            pep_dd.model,
+            pep_dd.measured_quantities,
+            shallow_dd,
+            Dict(:fake_y => 3),
+        )
+        @test length(extended_dd.obs_lhs) >= 4
+
         placeholder_stats = Dict{Symbol, Vector{String}}()
         placeholder_map = Dict{Any, Any}()
         @test_throws ErrorException ODEParameterEstimation._create_si_symbolic_placeholder!(

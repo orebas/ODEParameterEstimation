@@ -1079,10 +1079,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				pre_fixed_params = pre_fixed_params,
 				placeholder_fail_categories = opts.si_placeholder_fail_categories,
 			)
+			template_DD = ensure_si_template_dd_support(ordered_model, PEP.measured_quantities, good_DD, derivative_dict)
 
 			si_template = (
 				equations = template_equations,
 				deriv_dict = derivative_dict,
+				template_DD = template_DD,
 				unidentifiable = unidentifiable,
 				identifiable_funcs = identifiable_funcs,
 				si_variable_role_summary = si_variable_role_summary,
@@ -1102,8 +1104,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			# variables that si_template_integration.jl substitutes with
 			# interpolated numerical values at each shooting point.
 			obs_data_vars = Set{Any}()
-			if !isnothing(good_DD)
-				for level in good_DD.obs_lhs
+			if !isnothing(template_DD)
+				for level in template_DD.obs_lhs
 					for v in level
 						push!(obs_data_vars, v)
 					end
@@ -1293,7 +1295,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 			# Extract data variables from DD.obs_lhs
 			# These are the observable derivative variables (y1_0, y1_1, etc.)
-			data_vars = extract_data_variables_from_DD(good_DD)
+			template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : good_DD
+			data_vars = extract_data_variables_from_DD(template_DD)
 
 			if opts.diagnostics
 				println("  Data variables (HC parameters): $(length(data_vars))")
@@ -1361,7 +1364,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				t_point = t_vector[point_idx]
 				# Evaluate observable derivative data vars
 				obs_param_values = evaluate_data_vars_at_point(
-					interpolants, data_vars, good_DD, PEP.measured_quantities, t_point
+					interpolants, data_vars, template_DD, PEP.measured_quantities, t_point
 				)
 				# Evaluate _trfn_ vars at this time point
 				trfn_values = Float64[]

@@ -63,10 +63,12 @@ function construct_equation_system_from_si_template(
 			infolevel = diagnostics ? 1 : 0,
 			placeholder_fail_categories = placeholder_fail_categories,
 		)
+		template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, DD, derivative_dict)
 
 		si_template = (
 			equations = template_equations,
 			deriv_dict = derivative_dict,
+			template_DD = template_DD,
 			unidentifiable = unidentifiable,
 			identifiable_funcs = identifiable_funcs,
 			si_variable_role_summary = si_variable_role_summary,
@@ -84,6 +86,8 @@ function construct_equation_system_from_si_template(
 		template_equations = si_template.equations
 		derivative_dict = si_template.deriv_dict
 	end
+
+	template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : DD
 
 	# Create interpolants if not provided
 	if isnothing(precomputed_interpolants)
@@ -129,8 +133,8 @@ function construct_equation_system_from_si_template(
 
 		for i in 0:max_required_deriv
 			# Find the corresponding lhs variable in the DD structure
-			if i + 1 <= length(DD.obs_lhs) && obs_idx <= length(DD.obs_lhs[i+1])
-				lhs_var = DD.obs_lhs[i+1][obs_idx]
+			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
+				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
 				val = nth_deriv(x -> obs_interp(x), i, t_point)
 				if isnan(val)
 					@warn "[DEBUG-ODEPE-NaN] NaN detected from interpolator call." observable = obs_rhs deriv_order = i time_point = t_point
@@ -357,6 +361,7 @@ function resolve_states_with_fixed_params(
 		infolevel = diagnostics ? 1 : 0,
 		placeholder_fail_categories = placeholder_fail_categories,
 	)
+	new_template_DD = ensure_si_template_dd_support(fixed_model, fixed_mq, DD, new_deriv_dict)
 
 	if isempty(new_template_eqs)
 		@warn "[RESOLVE] SIAN re-run produced no template equations"
@@ -366,6 +371,7 @@ function resolve_states_with_fixed_params(
 	new_si_template = (
 		equations = new_template_eqs,
 		deriv_dict = new_deriv_dict,
+		template_DD = new_template_DD,
 		unidentifiable = new_unident,
 		identifiable_funcs = new_id_funcs,
 		si_variable_role_summary = new_si_variable_role_summary,

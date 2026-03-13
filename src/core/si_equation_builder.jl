@@ -258,6 +258,22 @@ function build_si_role_context(ode, measured_quantities)
 	)
 end
 
+max_required_observable_derivative_order(derivative_dict) =
+	isempty(derivative_dict) ? 0 : maximum(Int(v) for v in values(derivative_dict))
+
+function ensure_si_template_dd_support(ode, measured_quantities, DD, derivative_dict)
+	required_order = max_required_observable_derivative_order(derivative_dict)
+	current_order = isnothing(DD) ? -1 : length(DD.obs_lhs) - 1
+	if current_order >= required_order
+		return DD
+	end
+
+	model = isa(ode, OrderedODESystem) ? ode.system : ode
+	target_deriv_level = max(required_order + 1, 2)
+	@info "[SI-MAP] Extending DerivativeData support for SI template" current_order = current_order required_order = required_order
+	return populate_derivatives(model, measured_quantities, target_deriv_level, OrderedDict())
+end
+
 function build_si_observable_index_map(measured_quantities)
 	obs_name_to_idx = Dict{String, Int}()
 	for (idx, mq) in enumerate(measured_quantities)
@@ -614,6 +630,7 @@ function get_si_equation_system(
 	# Extract the polynomial system and derivative info
 	poly_system = result["polynomial_system"]
 	y_derivative_dict = result["Y_eq"]
+	DD = ensure_si_template_dd_support(ode, measured_quantities, DD, y_derivative_dict)
 
 	# Also run identifiability check
 	@info "Checking identifiability"
