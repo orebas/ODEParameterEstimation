@@ -200,7 +200,7 @@ function construct_multipoint_equation_system!(time_index_set,
 	interpolator, precomputed_interpolants, diagnostics, diagnostic_data, states, params; ideal = false, sol = nothing, use_si_template = true)  # SI.jl is now the default
 	full_target, full_varlist, forward_subst_dict, reverse_subst_dict = [[] for _ in 1:4]
 
-	# Get SI.jl template using iterative parameter fixing (if using SI.jl)
+	# Get SI.jl template using structural representative fixing only.
 	si_template = nothing
 	if use_si_template
 		# Create the template on first use
@@ -210,9 +210,7 @@ function construct_multipoint_equation_system!(time_index_set,
 			OrderedODESystem(model, states, params)
 		end
 
-		max_fix_iterations = 10
-
-		si_template, _template_structure = prepare_si_template_with_fix_phases(
+		si_template, _template_structure = prepare_si_template_with_structural_fix(
 			ordered_model,
 			measured_quantities,
 			data_sample,
@@ -222,10 +220,9 @@ function construct_multipoint_equation_system!(time_index_set,
 			params = params,
 			infolevel = diagnostics ? 1 : 0,
 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
-			max_residual_fix_iterations = max_fix_iterations,
 		)
 
-		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural/residual fixing"
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural fixing"
 		template_equations = si_template.equations
 
 		if diagnostics
@@ -550,10 +547,79 @@ function analyze_si_template_structure(si_template)
 	)
 end
 
-function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostics; states = nothing)
+struct SITemplateShapeError <: Exception
+	status::Symbol
+	n_equations::Int
+	n_variables::Int
+	n_data_vars::Int
+	n_effective_eqs::Int
+	n_effective_vars::Int
+	structural_fix_set::OrderedDict{Num, Float64}
+	dropped_equation_indices::Vector{Int}
+	suspicious_si_roles::Dict{Symbol, Int}
+end
+
+function Base.showerror(io::IO, err::SITemplateShapeError)
+	print(
+		io,
+		"SI template remained $(err.status) after structural fixing; ",
+		"effective system has $(err.n_effective_eqs) equations and $(err.n_effective_vars) unknowns ",
+		"(raw: $(err.n_equations) equations, $(err.n_variables) unknowns, $(err.n_data_vars) data variables).",
+	)
+	!isempty(err.structural_fix_set) && print(io, " Structural fix set: $(err.structural_fix_set).")
+	!isempty(err.dropped_equation_indices) && print(io, " Rank-trimmed equations dropped: $(err.dropped_equation_indices).")
+	!isempty(err.suspicious_si_roles) && print(io, " Suspicious SI roles: $(err.suspicious_si_roles).")
+end
+
+function throw_on_nonsquare_si_template(structure, structural_fix_set, si_variable_role_summary)
+	structure.status == :determined && return nothing
+	throw(SITemplateShapeError(
+		structure.status,
+		structure.n_equations,
+		structure.n_variables,
+		structure.n_data_vars,
+		structure.n_effective_eqs,
+		structure.n_effective_vars,
+		deepcopy(structural_fix_set),
+		copy(structure.dropped_equation_indices),
+		Dict{Symbol, Int}(si_variable_role_summary.suspicious_categories),
+	))
+end
+
+function build_si_template_for_fixed_params(
+	ordered_model,
+	measured_quantities,
+	data_sample,
+	base_DD;
+	infolevel = 0,
+	pre_fixed_params = OrderedDict{Num, Float64}(),
+	placeholder_fail_categories = Symbol[],
+)
+	template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata = get_si_equation_system(
+		ordered_model,
+		measured_quantities,
+		data_sample;
+		DD = base_DD,
+		infolevel = infolevel,
+		pre_fixed_params = pre_fixed_params,
+		placeholder_fail_categories = placeholder_fail_categories,
+	)
+	template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, derivative_dict)
+	return (
+		equations = template_equations,
+		deriv_dict = derivative_dict,
+		template_DD = template_DD,
+		unidentifiable = unidentifiable,
+		identifiable_funcs = identifiable_funcs,
+		si_variable_role_summary = si_variable_role_summary,
+		rank_trimming_metadata = si_template_metadata,
+	)
+end
+
+function select_one_legacy_template_fix_variable(si_template, already_fixed::Set, diagnostics; states = nothing)
 	candidate_vars = _candidate_fix_variables(si_template.unidentifiable, already_fixed, states)
 	if isempty(candidate_vars)
-		diagnostics && println("[TEMPLATE-RESIDUAL] No unfixed structural candidates remain for residual template repair")
+		diagnostics && println("[LEGACY-TEMPLATE-REPAIR] No unfixed structural candidates remain for legacy square repair")
 		return nothing, nothing
 	end
 
@@ -561,11 +627,76 @@ function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostic
 	selected = _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
 	param_to_fix = isempty(selected) ? candidate_vars[1] : selected[1]
 	param_to_fix_sym = Symbolics.variable(Symbol(string(param_to_fix)))
-	diagnostics && println("[TEMPLATE-RESIDUAL] Selected residual fix variable: $param_to_fix_sym")
+	diagnostics && println("[LEGACY-TEMPLATE-REPAIR] Selected fix variable: $param_to_fix_sym")
 	return param_to_fix_sym, 1.0
 end
 
-function prepare_si_template_with_fix_phases(
+function prepare_si_template_with_structural_fix(
+	ordered_model,
+	measured_quantities,
+	data_sample,
+	base_DD,
+	diagnostics;
+	states = nothing,
+	params = nothing,
+	infolevel = diagnostics ? 1 : 0,
+	placeholder_fail_categories = Symbol[],
+)
+	initial_template = build_si_template_for_fixed_params(
+		ordered_model,
+		measured_quantities,
+		data_sample,
+		base_DD;
+		infolevel = infolevel,
+		pre_fixed_params = OrderedDict{Num, Float64}(),
+		placeholder_fail_categories = placeholder_fail_categories,
+	)
+
+	structural_fix_info = derive_structural_fix_set(initial_template, diagnostics; states = states, params = params)
+	structural_fix_set = structural_fix_info.pre_fixed
+	structural_fix_report = structural_fix_info.reported
+	structural_unidentifiable = structural_fix_info.structural_unidentifiable
+	final_template = build_si_template_for_fixed_params(
+		ordered_model,
+		measured_quantities,
+		data_sample,
+		base_DD;
+		infolevel = infolevel,
+		pre_fixed_params = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set),
+		placeholder_fail_categories = placeholder_fail_categories,
+	)
+	structure = analyze_si_template_structure(final_template)
+
+	if diagnostics
+		@info "[TEMPLATE-STRUCTURE] System status: $(structure.n_equations) equations, $(structure.n_variables) unknowns (+ $(structure.n_data_vars) data variables)"
+		if structure.n_trfn_vars > 0
+			@info "[TEMPLATE-STRUCTURE] _trfn_ vars: $(structure.n_trfn_vars) known inputs, $(structure.n_trfn_only_eqs) trivial equations"
+			@info "[TEMPLATE-STRUCTURE] Effective system: $(structure.n_effective_eqs) equations, $(structure.n_effective_vars) real unknowns"
+		end
+	end
+
+	final_template = (
+		equations = final_template.equations,
+		deriv_dict = final_template.deriv_dict,
+		template_DD = final_template.template_DD,
+		unidentifiable = final_template.unidentifiable,
+		identifiable_funcs = final_template.identifiable_funcs,
+		si_variable_role_summary = final_template.si_variable_role_summary,
+		rank_trimming_metadata = final_template.rank_trimming_metadata,
+		structural_unidentifiable = structural_unidentifiable,
+		structural_fix_set = structural_fix_report,
+		residual_fix_set = OrderedDict{Num, Float64}(),
+		template_status_before_residual_fix = structure.status,
+		template_status_after_residual_fix = structure.status,
+		practical_identifiability_status = :not_assessed,
+	)
+	throw_on_nonsquare_si_template(structure, structural_fix_report, final_template.si_variable_role_summary)
+	return final_template, structure
+end
+
+# Deprecated internal helper retained only for debugging/forensics of older
+# square-repair behavior. The supported flow no longer calls this.
+function prepare_si_template_with_legacy_square_repair(
 	ordered_model,
 	measured_quantities,
 	data_sample,
@@ -577,24 +708,14 @@ function prepare_si_template_with_fix_phases(
 	placeholder_fail_categories = Symbol[],
 	max_residual_fix_iterations = 10,
 )
-	initial_equations, initial_derivative_dict, initial_unidentifiable, initial_identifiable_funcs, initial_role_summary, initial_metadata = get_si_equation_system(
+	initial_template = build_si_template_for_fixed_params(
 		ordered_model,
 		measured_quantities,
-		data_sample;
-		DD = base_DD,
+		data_sample,
+		base_DD;
 		infolevel = infolevel,
 		pre_fixed_params = OrderedDict{Num, Float64}(),
 		placeholder_fail_categories = placeholder_fail_categories,
-	)
-	initial_template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, initial_derivative_dict)
-	initial_template = (
-		equations = initial_equations,
-		deriv_dict = initial_derivative_dict,
-		template_DD = initial_template_DD,
-		unidentifiable = initial_unidentifiable,
-		identifiable_funcs = initial_identifiable_funcs,
-		si_variable_role_summary = initial_role_summary,
-		rank_trimming_metadata = initial_metadata,
 	)
 
 	structural_fix_info = derive_structural_fix_set(initial_template, diagnostics; states = states, params = params)
@@ -611,44 +732,34 @@ function prepare_si_template_with_fix_phases(
 	final_structure = nothing
 
 	while residual_iteration <= max_residual_fix_iterations
-		template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata = get_si_equation_system(
+		si_template = build_si_template_for_fixed_params(
 			ordered_model,
 			measured_quantities,
-			data_sample;
-			DD = base_DD,
+			data_sample,
+			base_DD;
 			infolevel = infolevel,
 			pre_fixed_params = current_fixed,
 			placeholder_fail_categories = placeholder_fail_categories,
-		)
-		template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, derivative_dict)
-		si_template = (
-			equations = template_equations,
-			deriv_dict = derivative_dict,
-			template_DD = template_DD,
-			unidentifiable = unidentifiable,
-			identifiable_funcs = identifiable_funcs,
-			si_variable_role_summary = si_variable_role_summary,
-			rank_trimming_metadata = si_template_metadata,
 		)
 		structure = analyze_si_template_structure(si_template)
 		isnothing(template_status_before_residual_fix) && (template_status_before_residual_fix = structure.status)
 
 		if diagnostics
-			@info "[TEMPLATE-STRUCTURE] System status: $(structure.n_equations) equations, $(structure.n_variables) unknowns (+ $(structure.n_data_vars) data variables)"
+			@info "[LEGACY-TEMPLATE-REPAIR] System status: $(structure.n_equations) equations, $(structure.n_variables) unknowns (+ $(structure.n_data_vars) data variables)"
 			if structure.n_trfn_vars > 0
-				@info "[TEMPLATE-STRUCTURE] _trfn_ vars: $(structure.n_trfn_vars) known inputs, $(structure.n_trfn_only_eqs) trivial equations"
-				@info "[TEMPLATE-STRUCTURE] Effective system: $(structure.n_effective_eqs) equations, $(structure.n_effective_vars) real unknowns"
+				@info "[LEGACY-TEMPLATE-REPAIR] _trfn_ vars: $(structure.n_trfn_vars) known inputs, $(structure.n_trfn_only_eqs) trivial equations"
+				@info "[LEGACY-TEMPLATE-REPAIR] Effective system: $(structure.n_effective_eqs) equations, $(structure.n_effective_vars) real unknowns"
 			end
 		end
 
 		final_template = (
-			equations = template_equations,
-			deriv_dict = derivative_dict,
-			template_DD = template_DD,
-			unidentifiable = unidentifiable,
-			identifiable_funcs = identifiable_funcs,
-			si_variable_role_summary = si_variable_role_summary,
-			rank_trimming_metadata = si_template_metadata,
+			equations = si_template.equations,
+			deriv_dict = si_template.deriv_dict,
+			template_DD = si_template.template_DD,
+			unidentifiable = si_template.unidentifiable,
+			identifiable_funcs = si_template.identifiable_funcs,
+			si_variable_role_summary = si_template.si_variable_role_summary,
+			rank_trimming_metadata = si_template.rank_trimming_metadata,
 			structural_unidentifiable = structural_unidentifiable,
 			structural_fix_set = structural_fix_report,
 			residual_fix_set = copy(residual_fix_report),
@@ -659,28 +770,28 @@ function prepare_si_template_with_fix_phases(
 		final_structure = structure
 		template_status_after_residual_fix = structure.status
 
-		if structure.status in (:determined, :slightly_overdetermined)
+		if structure.status == :determined
 			break
 		elseif structure.status == :residual_underdetermined
 			residual_iteration += 1
 			if residual_iteration > max_residual_fix_iterations
-				@warn "[TEMPLATE-RESIDUAL] Did not converge after $max_residual_fix_iterations residual iterations"
+				@warn "[LEGACY-TEMPLATE-REPAIR] Did not converge after $max_residual_fix_iterations residual iterations"
 				break
 			end
-			@info "[TEMPLATE-RESIDUAL] Iteration $residual_iteration, fixed so far: $(keys(residual_fix_set))"
-			param_to_fix, fix_value = select_one_parameter_to_fix(
+			@info "[LEGACY-TEMPLATE-REPAIR] Iteration $residual_iteration, fixed so far: $(keys(residual_fix_set))"
+			param_to_fix, fix_value = select_one_legacy_template_fix_variable(
 				si_template, Set(keys(current_fixed)), diagnostics; states = states
 			)
 			if param_to_fix === nothing
-				@warn "[TEMPLATE-RESIDUAL] No parameter available to fix, stopping residual template repair"
+				@warn "[LEGACY-TEMPLATE-REPAIR] No parameter available to fix, stopping legacy square repair"
 				break
 			end
-			@info "[TEMPLATE-RESIDUAL] Fixing residual template variable: $param_to_fix = $fix_value"
+			@info "[LEGACY-TEMPLATE-REPAIR] Fixing residual template variable: $param_to_fix = $fix_value"
 			current_fixed[param_to_fix] = fix_value
 			residual_fix_set[param_to_fix] = fix_value
 			residual_fix_report[_model_symbol_from_name(string(param_to_fix), states, params)] = fix_value
 		else
-			@warn "[TEMPLATE-RESIDUAL] Template is severely overdetermined ($(structure.n_effective_eqs) eqs > $(structure.n_effective_vars) vars)"
+			@warn "[LEGACY-TEMPLATE-REPAIR] Template remained $(structure.status); stopping legacy repair"
 			break
 		end
 	end

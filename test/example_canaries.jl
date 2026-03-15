@@ -148,7 +148,7 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test !isempty(best.provenance.structural_fix_set)
         @test isempty(best.provenance.residual_fix_set)
         @test best.provenance.template_status_before_residual_fix == :determined
-        @test best.provenance.template_status_after_residual_fix in (:determined, :slightly_overdetermined)
+        @test best.provenance.template_status_after_residual_fix == :determined
         @test best.provenance.practical_identifiability_status == :not_assessed
     end
 

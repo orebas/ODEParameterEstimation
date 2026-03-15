@@ -1054,13 +1054,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			si_template = nothing,
 		)
 
-		# Build the SI template once: first apply structural representative fixing
-		# from SI outputs, then perform residual template repair only if needed.
+		# Build the SI template once: apply structural representative fixing from
+		# SI outputs, then require a square effective template.
 		ordered_model = isa(PEP.model.system, OrderedODESystem) ? PEP.model.system : OrderedODESystem(PEP.model.system, states, params)
 
 		si_template, template_equations = _record_phase!(phase_stats, "SI Template (SIAN analysis)") do
-		max_fix_iterations = 10
-		si_template, _template_structure = prepare_si_template_with_fix_phases(
+		si_template, _template_structure = prepare_si_template_with_structural_fix(
 			ordered_model,
 			PEP.measured_quantities,
 			PEP.data_sample,
@@ -1070,10 +1069,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			params = params,
 			infolevel = opts.diagnostics ? 1 : 0,
 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
-			max_residual_fix_iterations = max_fix_iterations,
 		)
 
-		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural/residual fixing"
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural fixing"
 		template_equations = si_template.equations
 		(si_template, template_equations)
 		end

@@ -188,6 +188,38 @@ using OrderedCollections
         @test dropped == [(5, 1), (9, 1)]
     end
 
+    @testset "SI template shape guard" begin
+        @parameters a
+
+        fake_structure = (
+            status = :residual_underdetermined,
+            n_equations = 10,
+            n_variables = 12,
+            n_data_vars = 3,
+            n_effective_eqs = 8,
+            n_effective_vars = 10,
+            dropped_equation_indices = [2, 5],
+        )
+        fake_roles = (
+            suspicious_categories = Dict(:true_unknown_variable => 1),
+        )
+
+        err = try
+            ODEParameterEstimation.throw_on_nonsquare_si_template(
+                fake_structure,
+                OrderedDict(a => 1.0),
+                fake_roles,
+            )
+            nothing
+        catch e
+            e
+        end
+
+        @test err isa ODEParameterEstimation.SITemplateShapeError
+        @test occursin("residual_underdetermined", sprint(showerror, err))
+        @test occursin("effective system has 8 equations and 10 unknowns", sprint(showerror, err))
+    end
+
     @testset "Result compatibility helpers" begin
         @parameters a
         @variables t x(t)
