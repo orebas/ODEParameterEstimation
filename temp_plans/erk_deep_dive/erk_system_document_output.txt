@@ -1,0 +1,782 @@
+WARNING: Detected access to binding `KernelFunctions.kernelpdmat` in a world prior to its definition world.
+  Julia 1.12 has introduced more strict world age semantics for global bindings.
+  !!! This code may malfunction under Revise.
+  !!! This code will error in future versions of Julia.
+Hint: Add an appropriate `invokelatest` around the access to this binding.
+To make this warning an error, and hence obtain a stack trace, use `julia --depwarn=error`.
+================================================================================
+  ERK 33×33 SYSTEM REFERENCE DOCUMENT
+================================================================================
+
+STEP 1: Setting up ERK model and generating data...
+  Parameters: kf1=11.5, kr1=300.0, kc1=12.45, kf2=11.15, kr2=4.864, kc2=428.13
+  ICs: S0=5.0, C1=0.0, C2=0.0, S1=0.0, S2=0.0, E=0.65
+  Data sample: 2001 points over [0.0, 20.0]
+  STEP 1 DONE
+
+STEP 2: Running production setup (SIAN + AGPRobust interpolants)...
+  SIAN derivative levels: Dict(2 => 3, 3 => 3, 1 => 3)
+  DD.obs_lhs levels: 13
+  # varlist entries: 12
+  STEP 2 DONE
+
+STEP 3: Getting SIAN template equations...
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 36 equations
+[ Info: [DEBUG-EQ-COUNT] After iterative construction: 36 equations, 33 variables in x_theta_vars
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars list: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S2_1, S0_1, S1_1, S2_2, C2_1, S0_2, E_1, C1_1, S1_2, S2_3, C2_2, S0_3, E_2, C1_2, S1_3, S2_4, C2_3, S0_4, E_3, C1_3, S1_4]
+[ Info: [DEBUG-EQUATION] Eq1 has 2 variables: Nemo.QQMPolyRingElem[S2_0, y2_0]
+[ Info: [DEBUG-EQUATION] Eq2 has 3 variables: Nemo.QQMPolyRingElem[C2_0, S2_1, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq3 has 2 variables: Nemo.QQMPolyRingElem[S0_0, y0_0]
+[ Info: [DEBUG-EQUATION] Eq4 has 6 variables: Nemo.QQMPolyRingElem[S0_0, C1_0, E_0, S0_1, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq5 has 2 variables: Nemo.QQMPolyRingElem[S1_0, y1_0]
+[ Info: [DEBUG-EQUATION] Eq6 has 6 variables: Nemo.QQMPolyRingElem[S1_0, C2_0, E_0, S1_1, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq7 has 2 variables: Nemo.QQMPolyRingElem[S2_1, y2_1]
+[ Info: [DEBUG-EQUATION] Eq8 has 3 variables: Nemo.QQMPolyRingElem[C2_1, S2_2, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq9 has 9 variables: Nemo.QQMPolyRingElem[S1_0, C1_0, C2_0, E_0, C2_1, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq10 has 2 variables: Nemo.QQMPolyRingElem[S0_1, y0_1]
+[ Info: [DEBUG-EQUATION] Eq11 has 8 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, C1_1, E_1, S0_2, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq12 has 11 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, C1_0, C2_0, E_0, E_1, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq13 has 7 variables: Nemo.QQMPolyRingElem[S0_0, C1_0, E_0, C1_1, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq14 has 2 variables: Nemo.QQMPolyRingElem[S1_1, y1_1]
+[ Info: [DEBUG-EQUATION] Eq15 has 8 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, C2_1, E_1, S1_2, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq16 has 2 variables: Nemo.QQMPolyRingElem[S2_2, y2_2]
+[ Info: [DEBUG-EQUATION] Eq17 has 3 variables: Nemo.QQMPolyRingElem[C2_2, S2_3, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq18 has 11 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, C1_1, C2_1, E_1, C2_2, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq19 has 2 variables: Nemo.QQMPolyRingElem[S0_2, y0_2]
+[ Info: [DEBUG-EQUATION] Eq20 has 10 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, C1_2, E_2, S0_3, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq21 has 14 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, E_0, S1_1, S0_1, C1_1, C2_1, E_1, E_2, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq22 has 9 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, C1_1, E_1, C1_2, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq23 has 2 variables: Nemo.QQMPolyRingElem[S1_2, y1_2]
+[ Info: [DEBUG-EQUATION] Eq24 has 10 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, C2_2, E_2, S1_3, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq25 has 2 variables: Nemo.QQMPolyRingElem[S2_3, y2_3]
+[ Info: [DEBUG-EQUATION] Eq26 has 3 variables: Nemo.QQMPolyRingElem[C2_3, S2_4, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq27 has 13 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, C1_2, C2_2, E_2, C2_3, kc1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq28 has 2 variables: Nemo.QQMPolyRingElem[S0_3, y0_3]
+[ Info: [DEBUG-EQUATION] Eq29 has 12 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, E_2, S0_3, C1_3, E_3, S0_4, kf1_0, kr1_0]
+[ Info: [DEBUG-EQUATION] Eq30 has 17 variables: Nemo.QQMPolyRingElem[S1_0, S0_0, E_0, S1_1, S0_1, E_1, S1_2, S0_2, C1_2, C2_2, E_2, E_3, kf1_0, kr1_0, kf2_0, kr2_0, kc2_0]
+[ Info: [DEBUG-EQUATION] Eq31 has 11 variables: Nemo.QQMPolyRingElem[S0_0, E_0, S0_1, E_1, S0_2, C1_2, E_2, C1_3, kf1_0, kr1_0, kc1_0]
+[ Info: [DEBUG-EQUATION] Eq32 has 2 variables: Nemo.QQMPolyRingElem[S1_3, y1_3]
+[ Info: [DEBUG-EQUATION] Eq33 has 12 variables: Nemo.QQMPolyRingElem[S1_0, E_0, S1_1, E_1, S1_2, E_2, S1_3, C2_3, E_3, S1_4, kf2_0, kr2_0]
+[ Info: [DEBUG-EQUATION] Eq34 has 2 variables: Nemo.QQMPolyRingElem[S2_4, y2_4]
+[ Info: [DEBUG-EQUATION] Eq35 has 2 variables: Nemo.QQMPolyRingElem[S0_4, y0_4]
+[ Info: [DEBUG-EQUATION] Eq36 has 2 variables: Nemo.QQMPolyRingElem[S1_4, y1_4]
+[ Info: [DEBUG-EQ-COUNT] Before algebraic_independence: 36 equations, 33 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l (locally identifiable): 12 variables
+[ Info: [DEBUG-EQ-COUNT] theta_l variables: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0]
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S1_4, C1_3, E_3, S0_4, C2_3, S2_4, S1_3, C1_2, E_2, S0_3, C2_2, S2_3, S1_2, C1_1, E_1, S0_2, C2_1, S2_2, S1_1, S0_1, S2_1]
+[ Info: [DEBUG-EQ-COUNT] After filtering: 33 variables (from 33)
+[ Info: [DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: Nemo.QQMPolyRingElem[kf1_0, kr1_0, kc1_0, kf2_0, kr2_0, kc2_0, S1_0, S0_0, C1_0, C2_0, S2_0, E_0, S1_4, C1_3, E_3, S0_4, C2_3, S2_4, S1_3, C1_2, E_2, S0_3, C2_2, S2_3, S1_2, C1_1, E_1, S0_2, C2_1, S2_2, S1_1, S0_1, S2_1]
+[ Info: [DEBUG-ALG-INDEP] Input: 36 equations, 33 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (36, 33)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 33
+[ Info: [DEBUG-ALG-INDEP] Found 33 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 33 equations (current_rank=33)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33], alg_indep has 0 vars
+[ Info: [DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with 33 indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+[ Info: [DEBUG-EQ-COUNT] alg_indep (transcendence basis): 0 variables
+[ Info: [DEBUG-EQ-COUNT] alg_indep list: Nemo.QQMPolyRingElem[]
+[ Info: [DEBUG-EQ-COUNT] Selected equations indices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]
+[ Info: [DEBUG-EQ-COUNT] Dropped equations indices: [34, 35, 36]
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq34: -S2_4 + y2_4
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq35: -S0_4 + y0_4
+[ Info: [DEBUG-DROPPED-EQ] Dropped Eq36: -S1_4 + y1_4
+[ Info: Reduced polynomial system to 33 equations
+[ Info: [DEBUG-EQ-COUNT] Final: 33 equations for 33 variables in x_theta_vars_filtered
+[ Info: [DEBUG-EQ-COUNT] Actual variables in reduced system: 45
+[ Info: [DEBUG-EQ-COUNT] Reduced system variables: Set(Nemo.QQMPolyRingElem[S1_4, kr1_0, y2_1, C2_0, y1_3, S0_4, kf1_0, y2_3, y1_0, E_0, kf2_0, C2_2, S1_2, y0_2, S2_1, E_2, C2_1, kc2_0, S2_4, C1_3, E_1, y2_0, C2_3, C1_1, S0_1, S2_3, y0_0, S1_1, S0_3, C1_0, kc1_0, E_3, S0_0, S1_0, S1_3, S2_0, S0_2, y0_3, S2_2, y0_1, y1_2, y1_1, y2_2, kr2_0, C1_2])
+┌ Warning: [DEBUG-EQ-COUNT] MISMATCH DETECTED: 33 equations but 45 actual variables!
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:772
+┌ Warning: [DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: Set{Nemo.QQMPolyRingElem}()
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:773
+┌ Warning: [DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: Set(Nemo.QQMPolyRingElem[y2_1, y1_3, y2_3, y1_0, y0_2, y2_0, y0_0, y0_3, y0_1, y1_2, y1_1, y2_2])
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:774
+[ Info: Checking identifiability
+[ Info: Assessing local identifiability
+[ Info: Assessing global identifiability
+[ Info: Note: the input model has nontrivial submodels. If the computation for the full model will be too heavy, you may want to try to first analyze one of the submodels. They can be produced using function `find_submodels`
+[ Info: Functions to check involve states
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 4.873233433 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.145660078 seconds
+[ Info: Dimensions of the Wronskians [5, 7, 7]
+[ Info: Ranks of the Wronskians computed in 2.6226e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.167635886
+[ Info: Selecting generators in 0.009994899
+[ Info: Inclusion checked with probability 0.9955 in 0.482380598 seconds
+[ Info: Global identifiability assessed in 9.934341829 seconds
+[ Info: SI.jl found 33 template equations
+[ Info: Derivative variables: Any[y2_5, y2_1, y2_9, y0_0, y0_10, y1_7, y2_12, y1_3, y1_8, y1_13, y2_7, y1_6, y2_3, y0_6, y1_0, y1_10, y1_5, y1_4, y2_11, y2_13, y1_11, y0_2, y0_3, y0_7, y0_12, y0_11, y2_10, y0_5, y2_4, y1_12, y2_6, y0_4, y2_0, y0_1, y0_8, y2_8, y0_13, y1_2, y2_2, y0_9, y1_1, y1_9]
+[ Info: Derivative orders in y_derivative_dict: Dict{Any, Any}(y2_5 => 5, y2_1 => 1, y2_9 => 9, y0_0 => 0, y0_10 => 10, y1_7 => 7, y2_12 => 12, y1_3 => 3, y1_8 => 8, y1_13 => 13, y2_7 => 7, y1_6 => 6, y2_3 => 3, y0_6 => 6, y1_0 => 0, y1_10 => 10, y1_5 => 5, y1_4 => 4, y2_11 => 11, y2_13 => 13, y1_11 => 11, y0_2 => 2, y0_3 => 3, y0_7 => 7, y0_12 => 12, y0_11 => 11, y2_10 => 10, y0_5 => 5, y2_4 => 4, y1_12 => 12, y2_6 => 6, y0_4 => 4, y2_0 => 0, y0_1 => 1, y0_8 => 8, y2_8 => 8, y0_13 => 13, y1_2 => 2, y2_2 => 2, y0_9 => 9, y1_1 => 1, y1_9 => 9)
+[ Info: Maximum derivative order needed: 13
+[ Info: Non-identifiable parameters: Set{Any}()
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.013577026 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.00443276 seconds
+[ Info: Dimensions of the Wronskians [5, 7, 7]
+[ Info: Ranks of the Wronskians computed in 1.6029e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000676972
+[ Info: Selecting generators in 0.147982211
+[ Info: Inclusion checked with probability 0.995 in 0.004093312 seconds
+[ Info: The search for identifiable functions concluded in 0.372138326 seconds
+[ Info: Identifiable functions of unidentifiable parameters: AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}[kc2, kr2, kf2, kc1, kr1, kf1]
+┌ Warning: Cannot map y2_13 to DD (order=13), using symbolic: y2_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y0_13 to DD (order=13), using symbolic: y0_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y1_13 to DD (order=13), using symbolic: y1_13
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y2_14 to DD (order=14), using symbolic: y2_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y0_14 to DD (order=14), using symbolic: y0_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+┌ Warning: Cannot map y1_14 to DD (order=14), using symbolic: y1_14
+└ @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:422
+[ Info: Converting 33 polynomials from Nemo to Symbolics
+  SIAN template: 33 equations
+  Derivative dict: Dict{Any, Any}(y2_5 => 5, y2_1 => 1, y2_9 => 9, y0_0 => 0, y0_10 => 10, y1_7 => 7, y2_12 => 12, y1_3 => 3, y1_8 => 8, y1_13 => 13, y2_7 => 7, y1_6 => 6, y2_3 => 3, y0_6 => 6, y1_0 => 0, y1_10 => 10, y1_5 => 5, y1_4 => 4, y2_11 => 11, y2_13 => 13, y1_11 => 11, y0_2 => 2, y0_3 => 3, y0_7 => 7, y0_12 => 12, y0_11 => 11, y2_10 => 10, y0_5 => 5, y2_4 => 4, y1_12 => 12, y2_6 => 6, y0_4 => 4, y2_0 => 0, y0_1 => 1, y0_8 => 8, y2_8 => 8, y0_13 => 13, y1_2 => 2, y2_2 => 2, y0_9 => 9, y1_1 => 1, y1_9 => 9)
+  Max derivative order: 13
+  STEP 3 DONE
+
+STEP 4: Defining evaluation points...
+  Point: idx=1, t=0.0000 — LEFTMOST (boundary, stiff transient)
+  Point: idx=1000, t=9.9900 — MIDPOINT (shooting point 1)
+  Point: idx=1667, t=16.6600 — LATE INTERIOR (shooting point 2)
+  STEP 4 DONE
+
+STEP 5: Computing ground-truth derivatives via Taylor recursion at all 3 points...
+  Computing truth at t=0.0...
+  Computing truth at t=9.99...
+  Computing truth at t=16.66...
+  STEP 5 DONE
+
+STEP 6: Building interpolants for all 4 methods...
+  Building interpolants for AGPRobust...
+  Building interpolants for AAAD...
+  Building interpolants for AAAD-GPR...
+PosDefException(2)
+PosDefException(2)
+PosDefException(3)
+PosDefException(3)
+PosDefException(3)
+PosDefException(4)
+PosDefException(5)
+PosDefException(34)
+PosDefException(2)
+PosDefException(2)
+PosDefException(2)
+PosDefException(2)
+PosDefException(3)
+PosDefException(3)
+PosDefException(4)
+PosDefException(3)
+PosDefException(3)
+PosDefException(5)
+PosDefException(3)
+PosDefException(4)
+PosDefException(3)
+PosDefException(4)
+PosDefException(16)
+PosDefException(2)
+PosDefException(3)
+PosDefException(2)
+PosDefException(5)
+PosDefException(5)
+PosDefException(4)
+PosDefException(4)
+PosDefException(34)
+PosDefException(3)
+PosDefException(2)
+PosDefException(3)
+PosDefException(2)
+PosDefException(2)
+PosDefException(5)
+PosDefException(148)
+PosDefException(3)
+PosDefException(4)
+PosDefException(4)
+PosDefException(8)
+PosDefException(13)
+PosDefException(12)
+PosDefException(14)
+PosDefException(19)
+  Building interpolants for FHD5...
+  STEP 6 DONE
+
+STEP 7: Building the 33×33 system via production code path...
+[ Info: [DEBUG-SI-VARS] Final variables list (33): Any[S2_0, C2_0, kc2_0, S2_1, S0_0, S0_1, kr1_0, kf1_0, C1_0, E_0, S1_0, S1_1, kr2_0, kf2_0, S2_2, C2_1, kc1_0, C1_1, S0_2, E_1, S1_2, C2_2, S2_3, S0_3, C1_2, E_2, S1_3, C2_3, S2_4, S0_4, C1_3, E_3, S1_4]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 33 equations, 33 variables
+  System size: 33 equations, 33 variables
+  Square: YES
+  STEP 7 DONE
+
+
+================================================================================
+  SECTION A: THE SYMBOLIC 33×33 SYSTEM
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  A1. SIAN Template Equations (BEFORE data substitution)
+      These are the 33 raw polynomial equations from SIAN.
+      Observable derivatives (y0_0, y0_1, ...) are still symbolic here.
+────────────────────────────────────────────────────────────────────────────────
+
+  Eq1 (2 vars):
+    -S2_0 + y2(t) = 0
+
+  Eq2 (3 vars):
+    S2_1 - C2_0*kc2_0 = 0
+
+  Eq3 (2 vars):
+    -S0_0 + y0(t) = 0
+
+  Eq4 (6 vars):
+    S0_1 - C1_0*kr1_0 + E_0*S0_0*kf1_0 = 0
+
+  Eq5 (2 vars):
+    -S1_0 + y1(t) = 0
+
+  Eq6 (6 vars):
+    S1_1 - C2_0*kr2_0 + E_0*S1_0*kf2_0 = 0
+
+  Eq7 (2 vars):
+    -S2_1 + Differential(t, 1)(y2(t)) = 0
+
+  Eq8 (3 vars):
+    S2_2 - C2_1*kc2_0 = 0
+
+  Eq9 (9 vars):
+    C2_1 - C1_0*kc1_0 + C2_0*kc2_0 + C2_0*kr2_0 - E_0*S1_0*kf2_0 = 0
+
+  Eq10 (2 vars):
+    -S0_1 + Differential(t, 1)(y0(t)) = 0
+
+  Eq11 (8 vars):
+    S0_2 - C1_1*kr1_0 + E_0*S0_1*kf1_0 + E_1*S0_0*kf1_0 = 0
+
+  Eq12 (11 vars):
+    E_1 - C1_0*kr1_0 - C2_0*kc2_0 - C2_0*kr2_0 + E_0*S0_0*kf1_0 + E_0*S1_0*kf2_0 = 0
+
+  Eq13 (7 vars):
+    C1_1 + C1_0*kc1_0 + C1_0*kr1_0 - E_0*S0_0*kf1_0 = 0
+
+  Eq14 (2 vars):
+    -S1_1 + Differential(t, 1)(y1(t)) = 0
+
+  Eq15 (8 vars):
+    S1_2 - C2_1*kr2_0 + E_0*S1_1*kf2_0 + E_1*S1_0*kf2_0 = 0
+
+  Eq16 (2 vars):
+    -S2_2 + Differential(t, 2)(y2(t)) = 0
+
+  Eq17 (3 vars):
+    S2_3 - C2_2*kc2_0 = 0
+
+  Eq18 (11 vars):
+    C2_2 - C1_1*kc1_0 + C2_1*kc2_0 + C2_1*kr2_0 - E_0*S1_1*kf2_0 - E_1*S1_0*kf2_0 = 0
+
+  Eq19 (2 vars):
+    -S0_2 + Differential(t, 2)(y0(t)) = 0
+
+  Eq20 (10 vars):
+    S0_3 - C1_2*kr1_0 + E_0*S0_2*kf1_0 + (2//1)*E_1*S0_1*kf1_0 + E_2*S0_0*kf1_0 = 0
+
+  Eq21 (14 vars):
+    E_2 - C1_1*kr1_0 - C2_1*kc2_0 - C2_1*kr2_0 + E_0*S0_1*kf1_0 + E_0*S1_1*kf2_0 + E_1*S0_0*kf1_0 + E_1*S1_0*kf2_0 = 0
+
+  Eq22 (9 vars):
+    C1_2 + C1_1*kc1_0 + C1_1*kr1_0 - E_0*S0_1*kf1_0 - E_1*S0_0*kf1_0 = 0
+
+  Eq23 (2 vars):
+    -S1_2 + Differential(t, 2)(y1(t)) = 0
+
+  Eq24 (10 vars):
+    S1_3 - C2_2*kr2_0 + E_0*S1_2*kf2_0 + (2//1)*E_1*S1_1*kf2_0 + E_2*S1_0*kf2_0 = 0
+
+  Eq25 (2 vars):
+    -S2_3 + Differential(t, 3)(y2(t)) = 0
+
+  Eq26 (3 vars):
+    S2_4 - C2_3*kc2_0 = 0
+
+  Eq27 (13 vars):
+    C2_3 - C1_2*kc1_0 + C2_2*kc2_0 + C2_2*kr2_0 - E_0*S1_2*kf2_0 - (2//1)*E_1*S1_1*kf2_0 - E_2*S1_0*kf2_0 = 0
+
+  Eq28 (2 vars):
+    -S0_3 + Differential(t, 3)(y0(t)) = 0
+
+  Eq29 (12 vars):
+    S0_4 - C1_3*kr1_0 + E_0*S0_3*kf1_0 + (3//1)*E_1*S0_2*kf1_0 + (3//1)*E_2*S0_1*kf1_0 + E_3*S0_0*kf1_0 = 0
+
+  Eq30 (17 vars):
+    E_3 - C1_2*kr1_0 - C2_2*kc2_0 - C2_2*kr2_0 + E_0*S0_2*kf1_0 + E_0*S1_2*kf2_0 + (2//1)*E_1*S0_1*kf1_0 + (2//1)*E_1*S1_1*kf2_0 + E_2*S0_0*kf1_0 + E_2*S1_0*kf2_0 = 0
+
+  Eq31 (11 vars):
+    C1_3 + C1_2*kc1_0 + C1_2*kr1_0 - E_0*S0_2*kf1_0 - (2//1)*E_1*S0_1*kf1_0 - E_2*S0_0*kf1_0 = 0
+
+  Eq32 (2 vars):
+    -S1_3 + Differential(t, 3)(y1(t)) = 0
+
+  Eq33 (12 vars):
+    S1_4 - C2_3*kr2_0 + E_0*S1_3*kf2_0 + (3//1)*E_1*S1_2*kf2_0 + (3//1)*E_2*S1_1*kf2_0 + E_3*S1_0*kf2_0 = 0
+
+────────────────────────────────────────────────────────────────────────────────
+  A2. Variable Classification (AFTER data substitution → 33 unknowns)
+────────────────────────────────────────────────────────────────────────────────
+
+    [STATE]  S2_0                  (state S2, derivative order 0)
+    [STATE]  C2_0                  (state C2, derivative order 0)
+    [PARAM]  kc2_0                 (parameter kc2, order 0)
+    [STATE]  S2_1                  (state S2, derivative order 1)
+    [STATE]  S0_0                  (state S0, derivative order 0)
+    [STATE]  S0_1                  (state S0, derivative order 1)
+    [PARAM]  kr1_0                 (parameter kr1, order 0)
+    [PARAM]  kf1_0                 (parameter kf1, order 0)
+    [STATE]  C1_0                  (state C1, derivative order 0)
+    [STATE]  E_0                   (state E, derivative order 0)
+    [STATE]  S1_0                  (state S1, derivative order 0)
+    [STATE]  S1_1                  (state S1, derivative order 1)
+    [PARAM]  kr2_0                 (parameter kr2, order 0)
+    [PARAM]  kf2_0                 (parameter kf2, order 0)
+    [STATE]  S2_2                  (state S2, derivative order 2)
+    [STATE]  C2_1                  (state C2, derivative order 1)
+    [PARAM]  kc1_0                 (parameter kc1, order 0)
+    [STATE]  C1_1                  (state C1, derivative order 1)
+    [STATE]  S0_2                  (state S0, derivative order 2)
+    [STATE]  E_1                   (state E, derivative order 1)
+    [STATE]  S1_2                  (state S1, derivative order 2)
+    [STATE]  C2_2                  (state C2, derivative order 2)
+    [STATE]  S2_3                  (state S2, derivative order 3)
+    [STATE]  S0_3                  (state S0, derivative order 3)
+    [STATE]  C1_2                  (state C1, derivative order 2)
+    [STATE]  E_2                   (state E, derivative order 2)
+    [STATE]  S1_3                  (state S1, derivative order 3)
+    [STATE]  C2_3                  (state C2, derivative order 3)
+    [STATE]  S2_4                  (state S2, derivative order 4)
+    [STATE]  S0_4                  (state S0, derivative order 4)
+    [STATE]  C1_3                  (state C1, derivative order 3)
+    [STATE]  E_3                   (state E, derivative order 3)
+    [STATE]  S1_4                  (state S1, derivative order 4)
+
+  Summary: 6 parameter vars + 27 state vars = 33 total
+
+────────────────────────────────────────────────────────────────────────────────
+  A3. Final Equations (AFTER data substitution)
+      These are the 33 polynomial equations that HC.jl solves.
+      Observable derivative values have been substituted as numerical constants.
+────────────────────────────────────────────────────────────────────────────────
+
+  Eq1 (1 vars):
+    4.676184546415373 - S2_0 = 0
+
+  Eq2 (3 vars):
+    S2_1 - C2_0*kc2_0 = 0
+
+  Eq3 (1 vars):
+    0.31596657146593177 - S0_0 = 0
+
+  Eq4 (6 vars):
+    S0_1 - C1_0*kr1_0 + E_0*S0_0*kf1_0 = 0
+
+  Eq5 (1 vars):
+    0.00015402047704239695 - S1_0 = 0
+
+  Eq6 (6 vars):
+    S1_1 - C2_0*kr2_0 + E_0*S1_0*kf2_0 = 0
+
+  Eq7 (1 vars):
+    0.09319200999336472 - S2_1 = 0
+
+  Eq8 (3 vars):
+    S2_2 - C2_1*kc2_0 = 0
+
+  Eq9 (9 vars):
+    C2_1 - C1_0*kc1_0 + C2_0*kc2_0 + C2_0*kr2_0 - E_0*S1_0*kf2_0 = 0
+
+  Eq10 (1 vars):
+    -0.09095522460831162 - S0_1 = 0
+
+  Eq11 (8 vars):
+    S0_2 - C1_1*kr1_0 + E_0*S0_1*kf1_0 + E_1*S0_0*kf1_0 = 0
+
+  Eq12 (11 vars):
+    E_1 - C1_0*kr1_0 - C2_0*kc2_0 - C2_0*kr2_0 + E_0*S0_0*kf1_0 + E_0*S1_0*kf2_0 = 0
+
+  Eq13 (7 vars):
+    C1_1 + C1_0*kc1_0 + C1_0*kr1_0 - E_0*S0_0*kf1_0 = 0
+
+  Eq14 (1 vars):
+    -4.433619545100369e-5 - S1_1 = 0
+
+  Eq15 (8 vars):
+    S1_2 - C2_1*kr2_0 + E_0*S1_1*kf2_0 + E_1*S1_0*kf2_0 = 0
+
+  Eq16 (1 vars):
+    -0.02648192305120186 - S2_2 = 0
+
+  Eq17 (3 vars):
+    S2_3 - C2_2*kc2_0 = 0
+
+  Eq18 (11 vars):
+    C2_2 - C1_1*kc1_0 + C2_1*kc2_0 + C2_1*kr2_0 - E_0*S1_1*kf2_0 - E_1*S1_0*kf2_0 = 0
+
+  Eq19 (1 vars):
+    0.025886398893354826 - S0_2 = 0
+
+  Eq20 (10 vars):
+    S0_3 - C1_2*kr1_0 + E_0*S0_2*kf1_0 + (2//1)*E_1*S0_1*kf1_0 + E_2*S0_0*kf1_0 = 0
+
+  Eq21 (14 vars):
+    E_2 - C1_1*kr1_0 - C2_1*kc2_0 - C2_1*kr2_0 + E_0*S0_1*kf1_0 + E_0*S1_1*kf2_0 + E_1*S0_0*kf1_0 + E_1*S1_0*kf2_0 = 0
+
+  Eq22 (9 vars):
+    C1_2 + C1_1*kc1_0 + C1_1*kr1_0 - E_0*S0_1*kf1_0 - E_1*S0_0*kf1_0 = 0
+
+  Eq23 (1 vars):
+    1.2617966404674973e-5 - S1_2 = 0
+
+  Eq24 (10 vars):
+    S1_3 - C2_2*kr2_0 + E_0*S1_2*kf2_0 + (2//1)*E_1*S1_1*kf2_0 + E_2*S1_0*kf2_0 = 0
+
+  Eq25 (1 vars):
+    0.00719727787026364 - S2_3 = 0
+
+  Eq26 (3 vars):
+    S2_4 - C2_3*kc2_0 = 0
+
+  Eq27 (13 vars):
+    C2_3 - C1_2*kc1_0 + C2_2*kc2_0 + C2_2*kr2_0 - E_0*S1_2*kf2_0 - (2//1)*E_1*S1_1*kf2_0 - E_2*S1_0*kf2_0 = 0
+
+  Eq28 (1 vars):
+    -0.007198759197444074 - S0_3 = 0
+
+  Eq29 (12 vars):
+    S0_4 - C1_3*kr1_0 + E_0*S0_3*kf1_0 + (3//1)*E_1*S0_2*kf1_0 + (3//1)*E_2*S0_1*kf1_0 + E_3*S0_0*kf1_0 = 0
+
+  Eq30 (17 vars):
+    E_3 - C1_2*kr1_0 - C2_2*kc2_0 - C2_2*kr2_0 + E_0*S0_2*kf1_0 + E_0*S1_2*kf2_0 + (2//1)*E_1*S0_1*kf1_0 + (2//1)*E_1*S1_1*kf2_0 + E_2*S0_0*kf1_0 + E_2*S1_0*kf2_0 = 0
+
+  Eq31 (11 vars):
+    C1_3 + C1_2*kc1_0 + C1_2*kr1_0 - E_0*S0_2*kf1_0 - (2//1)*E_1*S0_1*kf1_0 - E_2*S0_0*kf1_0 = 0
+
+  Eq32 (1 vars):
+    -3.5086826110680393e-6 - S1_3 = 0
+
+  Eq33 (12 vars):
+    S1_4 - C2_3*kr2_0 + E_0*S1_3*kf2_0 + (3//1)*E_1*S1_2*kf2_0 + (3//1)*E_2*S1_1*kf2_0 + E_3*S1_0*kf2_0 = 0
+
+
+================================================================================
+  SECTION B: DATA VARIABLE CATALOG
+  These are the observable derivative variables that become numerical constants
+  when interpolated data is substituted into the SIAN template.
+================================================================================
+
+  DD.obs_lhs has 13 derivative levels
+
+  y0(t)                      obs=1  order= 0  (y0 ~ S0)  DATA (substituted)
+  y1(t)                      obs=2  order= 0  (y1 ~ S1)  DATA (substituted)
+  y2(t)                      obs=3  order= 0  (y2 ~ S2)  DATA (substituted)
+  Differential(t, 1)(y0(t))  obs=1  order= 1  (y0 ~ S0)  DATA (substituted)
+  Differential(t, 1)(y1(t))  obs=2  order= 1  (y1 ~ S1)  DATA (substituted)
+  Differential(t, 1)(y2(t))  obs=3  order= 1  (y2 ~ S2)  DATA (substituted)
+  Differential(t, 2)(y0(t))  obs=1  order= 2  (y0 ~ S0)  DATA (substituted)
+  Differential(t, 2)(y1(t))  obs=2  order= 2  (y1 ~ S1)  DATA (substituted)
+  Differential(t, 2)(y2(t))  obs=3  order= 2  (y2 ~ S2)  DATA (substituted)
+  Differential(t, 3)(y0(t))  obs=1  order= 3  (y0 ~ S0)  DATA (substituted)
+  Differential(t, 3)(y1(t))  obs=2  order= 3  (y1 ~ S1)  DATA (substituted)
+  Differential(t, 3)(y2(t))  obs=3  order= 3  (y2 ~ S2)  DATA (substituted)
+  Differential(t, 4)(y0(t))  obs=1  order= 4  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 4)(y1(t))  obs=2  order= 4  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 4)(y2(t))  obs=3  order= 4  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 5)(y0(t))  obs=1  order= 5  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 5)(y1(t))  obs=2  order= 5  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 5)(y2(t))  obs=3  order= 5  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 6)(y0(t))  obs=1  order= 6  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 6)(y1(t))  obs=2  order= 6  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 6)(y2(t))  obs=3  order= 6  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 7)(y0(t))  obs=1  order= 7  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 7)(y1(t))  obs=2  order= 7  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 7)(y2(t))  obs=3  order= 7  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 8)(y0(t))  obs=1  order= 8  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 8)(y1(t))  obs=2  order= 8  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 8)(y2(t))  obs=3  order= 8  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 9)(y0(t))  obs=1  order= 9  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 9)(y1(t))  obs=2  order= 9  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 9)(y2(t))  obs=3  order= 9  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 10)(y0(t))  obs=1  order=10  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 10)(y1(t))  obs=2  order=10  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 10)(y2(t))  obs=3  order=10  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 11)(y0(t))  obs=1  order=11  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 11)(y1(t))  obs=2  order=11  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 11)(y2(t))  obs=3  order=11  (y2 ~ S2)  NOT IN TEMPLATE
+  Differential(t, 12)(y0(t))  obs=1  order=12  (y0 ~ S0)  NOT IN TEMPLATE
+  Differential(t, 12)(y1(t))  obs=2  order=12  (y1 ~ S1)  NOT IN TEMPLATE
+  Differential(t, 12)(y2(t))  obs=3  order=12  (y2 ~ S2)  NOT IN TEMPLATE
+
+  Summary: 12 data vars (substituted) + 0 unknown vars (kept) + 27 not in template
+  The 12 data vars become numerical constants from interpolation.
+  The 0 vars remain as unknowns in the 33×33 system.
+
+
+================================================================================
+  SECTION C: TRUE DERIVATIVE VALUES AT 3 TIME POINTS
+  Computed via Taylor coefficient recursion (machine precision)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+  C1. Data Variable True Values (what interpolation replaces)
+────────────────────────────────────────────────────────────────────────────────
+
+  Obs/Order              |             t=0.0000 |             t=9.9900 |            t=16.6600
+  ──────────────────────────────────────────────────────────────────────────────────────────
+  y0              ord=0  |       5.00000000e+00 |       3.15966571e-01 |       4.57595802e-02
+  y1              ord=0  |       0.00000000e+00 |       1.54020477e-04 |       2.23061722e-05
+  y2              ord=0  |       0.00000000e+00 |       4.67618529e+00 |       4.95309240e+00
+  y0              ord=1  |      -3.73750000e+01 |      -9.09552246e-02 |      -1.33012016e-02
+  y1              ord=1  |       0.00000000e+00 |      -4.43361955e-05 |      -6.48384936e-06
+  y2              ord=1  |       0.00000000e+00 |       9.31881524e-02 |       1.36343345e-02
+  y0              ord=2  |       1.36409406e+04 |       2.58863970e-02 |       3.85994161e-03
+  y1              ord=2  |       0.00000000e+00 |       1.26179662e-05 |       1.88157197e-06
+  y2              ord=2  |       0.00000000e+00 |      -2.65069597e-02 |      -3.95628569e-03
+  y0              ord=3  |      -5.15032641e+06 |      -7.19872948e-03 |      -1.11639483e-03
+  y1              ord=3  |       2.26331040e+03 |      -3.50869315e-06 |      -5.44237136e-07
+  y2              ord=3  |       1.99216916e+05 |       7.36285314e-03 |       1.14409597e-03
+
+────────────────────────────────────────────────────────────────────────────────
+  C2. Unknown Variable True Values (parameters + unobserved state derivatives)
+      These are the 33 unknowns that HC.jl must recover.
+────────────────────────────────────────────────────────────────────────────────
+
+  At t=0.0 (LEFTMOST (boundary, stiff transient)):
+    S2_0                 =  0.00000000e+00  (d^0 S2 / dt^0)
+    C2_0                 =  0.00000000e+00  (d^0 C2 / dt^0)
+    kc2_0                =  4.28130000e+02  (param kc2)
+    S2_1                 =  0.00000000e+00  (d^1 S2 / dt^1)
+    S0_0                 =  5.00000000e+00  (d^0 S0 / dt^0)
+    S0_1                 = -3.73750000e+01  (d^1 S0 / dt^1)
+    kr1_0                =  3.00000000e+02  (param kr1)
+    kf1_0                =  1.15000000e+01  (param kf1)
+    C1_0                 =  0.00000000e+00  (d^0 C1 / dt^0)
+    E_0                  =  6.50000000e-01  (d^0 E / dt^0)
+    S1_0                 =  0.00000000e+00  (d^0 S1 / dt^0)
+    S1_1                 =  0.00000000e+00  (d^1 S1 / dt^1)
+    kr2_0                =  4.86400000e+00  (param kr2)
+    kf2_0                =  1.11500000e+01  (param kf2)
+    S2_2                 =  0.00000000e+00  (d^2 S2 / dt^2)
+    C2_1                 =  0.00000000e+00  (d^1 C2 / dt^1)
+    kc1_0                =  1.24500000e+01  (param kc1)
+    C1_1                 =  3.73750000e+01  (d^1 C1 / dt^1)
+    S0_2                 =  1.36409406e+04  (d^2 S0 / dt^2)
+    E_1                  = -3.73750000e+01  (d^1 E / dt^1)
+    S1_2                 =  0.00000000e+00  (d^2 S1 / dt^2)
+    C2_2                 =  4.65318750e+02  (d^2 C2 / dt^2)
+    S2_3                 =  1.99216916e+05  (d^3 S2 / dt^3)
+    S0_3                 = -5.15032641e+06  (d^3 S0 / dt^3)
+    C1_2                 = -1.41062594e+04  (d^2 C1 / dt^2)
+    E_2                  =  1.36409406e+04  (d^2 E / dt^2)
+    S1_3                 =  2.26331040e+03  (d^3 S1 / dt^3)
+    C2_3                 = -3.77103156e+05  (d^3 C2 / dt^3)
+    S2_4                 = -1.61449174e+08  (d^4 S2 / dt^4)
+    S0_4                 =  1.95602043e+09  (d^4 S0 / dt^4)
+    C1_3                 =  5.32594934e+06  (d^3 C1 / dt^3)
+    E_3                  = -4.94884619e+06  (d^3 E / dt^3)
+    S1_4                 = -1.85063309e+06  (d^4 S1 / dt^4)
+
+  At t=9.99 (MIDPOINT (shooting point 1)):
+    S2_0                 =  4.67618529e+00  (d^0 S2 / dt^0)
+    C2_0                 =  2.17663215e-04  (d^0 C2 / dt^0)
+    kc2_0                =  4.28130000e+02  (param kc2)
+    S2_1                 =  9.31881524e-02  (d^1 S2 / dt^1)
+    S0_0                 =  3.15966571e-01  (d^0 S0 / dt^0)
+    S0_1                 = -9.09552246e-02  (d^1 S0 / dt^1)
+    kr1_0                =  3.00000000e+02  (param kr1)
+    kf1_0                =  1.15000000e+01  (param kf1)
+    C1_0                 =  7.47645806e-03  (d^0 C1 / dt^0)
+    E_0                  =  6.42305879e-01  (d^0 E / dt^0)
+    S1_0                 =  1.54020477e-04  (d^0 S1 / dt^0)
+    S1_1                 = -4.43361955e-05  (d^1 S1 / dt^1)
+    kr2_0                =  4.86400000e+00  (param kr2)
+    kf2_0                =  1.11500000e+01  (param kf2)
+    S2_2                 = -2.65069597e-02  (d^2 S2 / dt^2)
+    C2_1                 = -6.19133434e-05  (d^1 C2 / dt^1)
+    kc1_0                =  1.24500000e+01  (param kc1)
+    C1_1                 = -2.12667823e-03  (d^1 C1 / dt^1)
+    S0_2                 =  2.58863970e-02  (d^2 S0 / dt^2)
+    E_1                  =  2.18859158e-03  (d^1 E / dt^1)
+    S1_2                 =  1.26179662e-05  (d^2 S1 / dt^2)
+    C2_2                 =  1.71977043e-05  (d^2 C2 / dt^2)
+    S2_3                 =  7.36285314e-03  (d^3 S2 / dt^3)
+    S0_3                 = -7.19872948e-03  (d^3 S0 / dt^3)
+    C1_2                 =  5.90746975e-04  (d^2 C1 / dt^2)
+    E_2                  = -6.07944679e-04  (d^2 E / dt^2)
+    S1_3                 = -3.50869315e-06  (d^3 S1 / dt^3)
+    C2_3                 = -4.54461076e-06  (d^3 C2 / dt^3)
+    S2_4                 = -1.94568420e-03  (d^4 S2 / dt^4)
+    S0_4                 =  1.90653046e-03  (d^4 S0 / dt^4)
+    C1_3                 = -1.56070355e-04  (d^3 C1 / dt^3)
+    E_3                  =  1.60614966e-04  (d^3 E / dt^3)
+    S1_4                 =  9.22078634e-07  (d^4 S1 / dt^4)
+
+  At t=16.66 (LATE INTERIOR (shooting point 2)):
+    S2_0                 =  4.95309240e+00  (d^0 S2 / dt^0)
+    C2_0                 =  3.18462487e-05  (d^0 C2 / dt^0)
+    kc2_0                =  4.28130000e+02  (param kc2)
+    S2_1                 =  1.36343345e-02  (d^1 S2 / dt^1)
+    S0_0                 =  4.57595802e-02  (d^0 S0 / dt^0)
+    S0_1                 = -1.33012016e-02  (d^1 S0 / dt^1)
+    kr1_0                =  3.00000000e+02  (param kr1)
+    kf1_0                =  1.15000000e+01  (param kf1)
+    C1_0                 =  1.09386424e-03  (d^0 C1 / dt^0)
+    E_0                  =  6.48874290e-01  (d^0 E / dt^0)
+    S1_0                 =  2.23061722e-05  (d^0 S1 / dt^0)
+    S1_1                 = -6.48384936e-06  (d^1 S1 / dt^1)
+    kr2_0                =  4.86400000e+00  (param kr2)
+    kf2_0                =  1.11500000e+01  (param kf2)
+    S2_2                 = -3.95628569e-03  (d^2 S2 / dt^2)
+    C2_1                 = -9.24085135e-06  (d^1 C2 / dt^1)
+    kc1_0                =  1.24500000e+01  (param kc1)
+    C1_1                 = -3.17408177e-04  (d^1 C1 / dt^1)
+    S0_2                 =  3.85994161e-03  (d^2 S0 / dt^2)
+    E_1                  =  3.26649029e-04  (d^1 E / dt^1)
+    S1_2                 =  1.88157197e-06  (d^2 S1 / dt^2)
+    C2_2                 =  2.67230974e-06  (d^2 C2 / dt^2)
+    S2_3                 =  1.14409597e-03  (d^3 S2 / dt^3)
+    S0_3                 = -1.11639483e-03  (d^3 S0 / dt^3)
+    C1_2                 =  9.17901957e-05  (d^2 C1 / dt^2)
+    E_2                  = -9.44625055e-05  (d^2 E / dt^2)
+    S1_3                 = -5.44237136e-07  (d^3 S1 / dt^3)
+    C2_3                 = -7.63795384e-07  (d^3 C2 / dt^3)
+    S2_4                 = -3.27003718e-04  (d^4 S2 / dt^4)
+    S0_4                 =  3.11528140e-04  (d^4 S0 / dt^4)
+    C1_3                 = -2.63931086e-05  (d^3 C1 / dt^3)
+    E_3                  =  2.71569040e-05  (d^3 E / dt^3)
+    S1_4                 =  1.74626205e-07  (d^4 S1 / dt^4)
+
+
+================================================================================
+  SECTION D: MULTI-METHOD INTERPOLATION COMPARISON
+  Comparing 4 interpolation methods against Taylor-recursion ground truth
+  at 3 time points for all data variables (observable derivatives).
+================================================================================
+
+  All interpolation values computed.
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  t = 0.0000  (LEFTMOST (boundary, stiff transient))
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Var/Order              Truth |              AGPRobust |                   AAAD |               AAAD-GPR |                   FHD5
+  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  y0 ord 0        5.000000e+00 |   4.9996e+00 (  0.0%) |   5.0000e+00 (  0.0%) |   5.0000e+00 (  0.0%) |   5.0000e+00 (  0.0%)
+  y1 ord 0        0.000000e+00 |  -1.4182e-07 (  0.0%) |   0.0000e+00 (  0.0%) |  -2.4302e-05 (  0.0%) |  -0.0000e+00 (  0.0%)
+  y2 ord 0        0.000000e+00 |  -4.3309e-03 (  0.0%) |   0.0000e+00 (  0.0%) |  -8.5876e-08 (  0.0%) |  -0.0000e+00 (  0.0%)
+  y0 ord 1       -3.737500e+01 |  -1.9172e+01 ( 48.7%)** |  -5.0503e+05 (1351144.5%)*** |  -2.5892e+01 ( 30.7%)** |  -2.3230e+01 ( 37.8%)**
+  y1 ord 1        0.000000e+00 |   1.1921e-03 (  0.0%) |  -1.5422e+00 (  1.5%)* |   1.2028e-02 (  0.0%) |  -6.2837e-04 (  0.0%)
+  y2 ord 1        0.000000e+00 |   1.1923e+00 (  1.2%)* |  -4.6647e+03 (4664.7%)*** |  -1.6488e-01 (  0.2%) |  -6.2119e-02 (  0.1%)
+  y0 ord 2        1.364094e+04 |   2.4365e+03 ( 82.1%)** |   5.3274e+12 (39054808357.4%)*** |   5.1810e+03 ( 62.0%)** |   3.8450e+03 ( 71.8%)**
+  y1 ord 2        0.000000e+00 |   1.7297e+00 (  1.7%)* |   6.8859e+04 (68858.9%)*** |  -1.9835e-02 (  0.0%) |   2.3821e+00 (  2.4%)*
+  y2 ord 2        0.000000e+00 |   9.1918e-02 (  0.1%) |   7.2181e+09 (7218109509.2%)*** |   2.6480e+02 (264.8%)*** |   2.1215e+02 (212.1%)***
+  y0 ord 3       -5.150326e+06 |  -2.3497e+05 ( 95.4%)** |  -8.4298e+19 (1636741406039687.8%)*** |  -8.6350e+05 ( 83.2%)** |  -4.8649e+05 ( 90.6%)**
+  y1 ord 3        2.263310e+03 |  -1.8098e+02 (108.0%)*** |  -4.5692e+09 (201880357.7%)*** |  -8.1612e-01 (100.0%)*** |  -3.0128e+02 (113.3%)***
+  y2 ord 3        1.992169e+05 |  -2.1636e+00 (100.0%)*** |  -1.6750e+16 (8407738214286.6%)*** |  -4.1270e+04 (120.7%)*** |  -2.5924e+04 (113.0%)***
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  t = 9.9900  (MIDPOINT (shooting point 1))
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Var/Order              Truth |              AGPRobust |                   AAAD |               AAAD-GPR |                   FHD5
+  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  y0 ord 0        3.159666e-01 |   3.1597e-01 (  0.0%) |   3.1597e-01 (  0.0%) |   3.1597e-01 (  0.0%) |   3.1597e-01 (  0.0%)
+  y1 ord 0        1.540205e-04 |   1.5402e-04 (  0.0%) |   1.5402e-04 (  0.0%) |   1.5402e-04 (  0.0%) |   1.5402e-04 (  0.0%)
+  y2 ord 0        4.676185e+00 |   4.6762e+00 (  0.0%) |   4.6762e+00 (  0.0%) |   4.6762e+00 (  0.0%) |   4.6762e+00 (  0.0%)
+  y0 ord 1       -9.095522e-02 |  -9.0955e-02 (  0.0%) |  -9.0955e-02 (  0.0%) |  -9.0955e-02 (  0.0%) |  -9.1217e-02 (  0.3%)
+  y1 ord 1       -4.433620e-05 |  -4.4336e-05 (  0.0%) |  -4.4336e-05 (  0.0%) |  -4.4336e-05 (  0.0%) |  -4.4491e-05 (  0.3%)
+  y2 ord 1        9.318815e-02 |   9.3192e-02 (  0.0%) |   9.3188e-02 (  0.0%) |   9.3188e-02 (  0.0%) |   9.3175e-02 (  0.0%)
+  y0 ord 2        2.588640e-02 |   2.5886e-02 (  0.0%) |   2.5886e-02 (  0.0%) |   2.5886e-02 (  0.0%) |   2.5939e-02 (  0.2%)
+  y1 ord 2        1.261797e-05 |   1.2618e-05 (  0.0%) |   1.2618e-05 (  0.0%) |   1.2618e-05 (  0.0%) |   1.2649e-05 (  0.2%)
+  y2 ord 2       -2.650696e-02 |  -2.6482e-02 (  0.1%) |  -2.6507e-02 (  0.0%) |  -2.6507e-02 (  0.0%) |  -2.6504e-02 (  0.0%)
+  y0 ord 3       -7.198729e-03 |  -7.1988e-03 (  0.0%) |  -7.1987e-03 (  0.0%) |  -7.1987e-03 (  0.0%) |   2.5781e+01 (358238.9%)***
+  y1 ord 3       -3.508693e-06 |  -3.5087e-06 (  0.0%) |  -3.5087e-06 (  0.0%) |  -3.5087e-06 (  0.0%) |   1.5271e-02 (435321.4%)***
+  y2 ord 3        7.362853e-03 |   7.1973e-03 (  2.2%)* |   7.3629e-03 (  0.0%) |   7.3629e-03 (  0.0%) |   1.3189e+00 (17812.4%)***
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  t = 16.6600  (LATE INTERIOR (shooting point 2))
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Var/Order              Truth |              AGPRobust |                   AAAD |               AAAD-GPR |                   FHD5
+  ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  y0 ord 0        4.575958e-02 |   4.5760e-02 (  0.0%) |   4.5760e-02 (  0.0%) |   4.5760e-02 (  0.0%) |   4.5760e-02 (  0.0%)
+  y1 ord 0        2.230617e-05 |   2.2306e-05 (  0.0%) |   2.2306e-05 (  0.0%) |   2.2306e-05 (  0.0%) |   2.2306e-05 (  0.0%)
+  y2 ord 0        4.953092e+00 |   4.9531e+00 (  0.0%) |   4.9531e+00 (  0.0%) |   4.9531e+00 (  0.0%) |   4.9531e+00 (  0.0%)
+  y0 ord 1       -1.330120e-02 |  -1.3301e-02 (  0.0%) |  -1.3301e-02 (  0.0%) |  -1.3301e-02 (  0.0%) |  -1.3145e-02 (  1.2%)*
+  y1 ord 1       -6.483849e-06 |  -6.4838e-06 (  0.0%) |  -6.4838e-06 (  0.0%) |  -6.4837e-06 (  0.0%) |  -6.3910e-06 (  1.4%)*
+  y2 ord 1        1.363433e-02 |   1.3633e-02 (  0.0%) |   1.3634e-02 (  0.0%) |   1.3634e-02 (  0.0%) |   1.3642e-02 (  0.1%)
+  y0 ord 2        3.859942e-03 |   3.8599e-03 (  0.0%) |   3.8599e-03 (  0.0%) |   3.8599e-03 (  0.0%) |   3.8411e-03 (  0.5%)
+  y1 ord 2        1.881572e-06 |   1.8816e-06 (  0.0%) |   1.8816e-06 (  0.0%) |   1.8843e-06 (  0.1%) |   1.8704e-06 (  0.6%)
+  y2 ord 2       -3.956286e-03 |  -3.9630e-03 (  0.2%) |  -3.9563e-03 (  0.0%) |  -3.9563e-03 (  0.0%) |  -3.9572e-03 (  0.0%)
+  y0 ord 3       -1.116395e-03 |  -1.1166e-03 (  0.0%) |  -1.1164e-03 (  0.0%) |  -1.1164e-03 (  0.0%) |  -1.5466e+01 (1385241.5%)***
+  y1 ord 3       -5.442371e-07 |  -5.4457e-07 (  0.1%) |  -5.4421e-07 (  0.0%) |  -6.1090e-07 ( 12.2%)** |  -9.1609e-03 (1683157.4%)***
+  y2 ord 3        1.144096e-03 |   1.2111e-03 (  5.9%)* |   1.1441e-03 (  0.0%) |   1.1441e-03 (  0.0%) |  -7.8541e-01 (68748.6%)***
+
+
+────────────────────────────────────────────────────────────────────────────────
+  SECTION D2: SUMMARY — MAX ERROR (%) BY DERIVATIVE ORDER
+  Across all 3 observables, showing worst-case error per order per method
+────────────────────────────────────────────────────────────────────────────────
+
+  t = 0.0000  (LEFTMOST (boundary, stiff transient))
+  Order    |    AGPRobust |         AAAD |     AAAD-GPR |         FHD5
+  ────────────────────────────────────────────────────────────────────
+  0        |      0.008% |      0.000% |      0.000% |      0.000%
+  1        |     48.704% |    1.4e+06% |     30.723% |     37.847%
+  2        |     82.139% |    3.9e+10% |     62.018% |     71.813%
+  3        |    107.996% |    1.6e+15% |    120.716% |    113.311%
+
+  t = 9.9900  (MIDPOINT (shooting point 1))
+  Order    |    AGPRobust |         AAAD |     AAAD-GPR |         FHD5
+  ────────────────────────────────────────────────────────────────────
+  0        |      0.000% |      0.000% |      0.000% |      0.000%
+  1        |      0.004% |      0.000% |      0.000% |      0.349%
+  2        |      0.094% |      0.000% |      0.000% |      0.245%
+  3        |      2.249% |      0.000% |      0.000% |    4.4e+05%
+
+  t = 16.6600  (LATE INTERIOR (shooting point 2))
+  Order    |    AGPRobust |         AAAD |     AAAD-GPR |         FHD5
+  ────────────────────────────────────────────────────────────────────
+  0        |      0.000% |      0.000% |      0.000% |      0.000%
+  1        |      0.013% |      0.000% |      0.002% |      1.431%
+  2        |      0.170% |      0.000% |      0.145% |      0.592%
+  3        |      5.860% |      0.005% |     12.248% |    1.7e+06%
+
+
+================================================================================
+  FINAL SUMMARY
+================================================================================
+
+  System: 33 equations, 33 variables (SQUARE)
+  Unknowns: 6 parameter variables + 27 unobserved state derivative variables
+  Data: 12 observable derivative values substituted from interpolation
+  Max derivative order required: 13
+
+  Evaluation points:
+    t=0.0000 (idx 1) — LEFTMOST (boundary, stiff transient)
+    t=9.9900 (idx 1000) — MIDPOINT (shooting point 1)
+    t=16.6600 (idx 1667) — LATE INTERIOR (shooting point 2)
+
+  Key findings (read from Section D tables above):
+    - Order 0 derivatives: ALL methods accurate at all points
+    - Higher-order derivatives: accuracy degrades as order increases
+    - Boundary (t=0): worst case due to stiff transient / AAA poles
+    - Interior points: much better accuracy for all methods
+
+  Legend for error flags:
+    (no flag) = <1% error
+    *          = 1-10% error
+    **         = 10-100% error
+    ***        = >100% error
+
+Done!
