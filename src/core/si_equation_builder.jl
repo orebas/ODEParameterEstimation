@@ -794,8 +794,14 @@ function get_si_equation_system(
 		end
 	end
 
+	si_template_metadata = (
+		selected_equation_indices = get(result, "selected_equation_indices", collect(1:length(poly_system))),
+		dropped_equation_indices = get(result, "dropped_equation_indices", Int[]),
+		original_equation_count = get(result, "original_equation_count", length(poly_system)),
+	)
+
 	# Return identifiable_funcs as well
-	return template_equations, y_derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary
+	return template_equations, y_derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata
 end
 
 """
@@ -1031,6 +1037,9 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		"x_theta_vars" => x_theta_vars_filtered,  # Variables that actually appear in the system
 		"beta" => beta,  # Derivative orders used
 		"non_jet_ring" => non_jet_ring,
+		"selected_equation_indices" => collect(Et_ids),
+		"dropped_equation_indices" => collect(dropped_ids),
+		"original_equation_count" => length(Et),
 	)
 end
 

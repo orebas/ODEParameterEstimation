@@ -211,6 +211,8 @@ using OrderedCollections
             source_shooting_index = 3,
             source_candidate_index = 7,
             polish_applied = true,
+            structural_fix_set = OrderedDict(a => 1.0),
+            template_status_after_residual_fix = :determined,
         )
 
         ODEParameterEstimation.sync_result_contract!(result)
@@ -220,5 +222,7 @@ using OrderedCollections
         @test ODEParameterEstimation.compatibility_return_code(result.provenance) == :direct_opt_fallback
         @test occursin("method=direct_opt", ODEParameterEstimation.lineage_summary(result))
         @test occursin("rescue=direct_opt_fallback", ODEParameterEstimation.lineage_summary(result))
+        @test occursin("structural_fix=1", ODEParameterEstimation.lineage_summary(result))
+        @test occursin("template=determined", ODEParameterEstimation.lineage_summary(result))
     end
 end

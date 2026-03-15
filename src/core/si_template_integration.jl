@@ -55,7 +55,7 @@ function construct_equation_system_from_si_template(
 		end
 
 		# Get the template from SI.jl
-		template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
+		template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata = get_si_equation_system(
 			ordered_model,
 			measured_quantities,
 			data_sample;
@@ -72,6 +72,7 @@ function construct_equation_system_from_si_template(
 			unidentifiable = unidentifiable,
 			identifiable_funcs = identifiable_funcs,
 			si_variable_role_summary = si_variable_role_summary,
+			rank_trimming_metadata = si_template_metadata,
 		)
 
 		if diagnostics
@@ -355,7 +356,7 @@ function resolve_states_with_fixed_params(
 	end
 
 	# Step 3: Re-run SIAN on the parameter-free model → template with only state unknowns
-	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary = get_si_equation_system(
+	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary, new_si_template_metadata = get_si_equation_system(
 		fixed_model, fixed_mq, data_sample;
 		DD = DD,
 		infolevel = diagnostics ? 1 : 0,
@@ -375,6 +376,7 @@ function resolve_states_with_fixed_params(
 		unidentifiable = new_unident,
 		identifiable_funcs = new_id_funcs,
 		si_variable_role_summary = new_si_variable_role_summary,
+		rank_trimming_metadata = new_si_template_metadata,
 	)
 
 	@info "[RESOLVE] SIAN re-run produced $(length(new_template_eqs)) template eqs, $(length(new_deriv_dict)) deriv vars"

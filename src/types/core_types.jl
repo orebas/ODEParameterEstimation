@@ -80,6 +80,12 @@ Structured lineage metadata for a parameter-estimation result.
 - `post_polish_error::Union{Nothing, Float64}`: Error after polishing, when applicable
 - `polish_applied::Bool`: Whether a polishing stage was applied
 - `representative_assignments::OrderedDict{Num, Float64}`: Values assigned only because variables were already known structurally unidentifiable
+- `structural_fix_set::OrderedDict{Num, Float64}`: Representative structural fix set derived from SI structural outputs
+- `residual_fix_set::OrderedDict{Num, Float64}`: Additional heuristic fix set applied only to repair residual template underdetermination
+- `template_status_before_residual_fix::Union{Nothing, Symbol}`: Template dimension status immediately after structural fixing
+- `template_status_after_residual_fix::Union{Nothing, Symbol}`: Final template dimension status after any residual template repair
+- `equations_dropped_by_rank_trimming::Vector{Int}`: Equation indices removed by rank-based template trimming
+- `practical_identifiability_status::Symbol`: Practical/numerical identifiability assessment status for this flow
 - `notes::Vector{Symbol}`: Additional lineage/debug notes
 """
 mutable struct ResultProvenance
@@ -92,6 +98,12 @@ mutable struct ResultProvenance
     post_polish_error::Union{Nothing, Float64}
     polish_applied::Bool
     representative_assignments::OrderedDict{Num, Float64}
+    structural_fix_set::OrderedDict{Num, Float64}
+    residual_fix_set::OrderedDict{Num, Float64}
+    template_status_before_residual_fix::Union{Nothing, Symbol}
+    template_status_after_residual_fix::Union{Nothing, Symbol}
+    equations_dropped_by_rank_trimming::Vector{Int}
+    practical_identifiability_status::Symbol
     notes::Vector{Symbol}
 end
 
@@ -105,6 +117,12 @@ function ResultProvenance(;
     post_polish_error::Union{Nothing, Real} = nothing,
     polish_applied::Bool = false,
     representative_assignments = OrderedDict{Num, Float64}(),
+    structural_fix_set = OrderedDict{Num, Float64}(),
+    residual_fix_set = OrderedDict{Num, Float64}(),
+    template_status_before_residual_fix::Union{Nothing, Symbol} = nothing,
+    template_status_after_residual_fix::Union{Nothing, Symbol} = nothing,
+    equations_dropped_by_rank_trimming = Int[],
+    practical_identifiability_status::Symbol = :not_assessed,
     notes = Symbol[],
 )
     return ResultProvenance(
@@ -117,6 +135,12 @@ function ResultProvenance(;
         isnothing(post_polish_error) ? nothing : Float64(post_polish_error),
         polish_applied,
         OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in representative_assignments),
+        OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in structural_fix_set),
+        OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in residual_fix_set),
+        template_status_before_residual_fix,
+        template_status_after_residual_fix,
+        Int[equations_dropped_by_rank_trimming...],
+        practical_identifiability_status,
         Symbol[notes...],
     )
 end
@@ -132,6 +156,12 @@ function copy_provenance(
     post_polish_error = provenance.post_polish_error,
     polish_applied = provenance.polish_applied,
     representative_assignments = provenance.representative_assignments,
+    structural_fix_set = provenance.structural_fix_set,
+    residual_fix_set = provenance.residual_fix_set,
+    template_status_before_residual_fix = provenance.template_status_before_residual_fix,
+    template_status_after_residual_fix = provenance.template_status_after_residual_fix,
+    equations_dropped_by_rank_trimming = provenance.equations_dropped_by_rank_trimming,
+    practical_identifiability_status = provenance.practical_identifiability_status,
     notes = provenance.notes,
 )
     return ResultProvenance(
@@ -144,6 +174,12 @@ function copy_provenance(
         post_polish_error = post_polish_error,
         polish_applied = polish_applied,
         representative_assignments = deepcopy(representative_assignments),
+        structural_fix_set = deepcopy(structural_fix_set),
+        residual_fix_set = deepcopy(residual_fix_set),
+        template_status_before_residual_fix = template_status_before_residual_fix,
+        template_status_after_residual_fix = template_status_after_residual_fix,
+        equations_dropped_by_rank_trimming = copy(equations_dropped_by_rank_trimming),
+        practical_identifiability_status = practical_identifiability_status,
         notes = copy(notes),
     )
 end
@@ -184,6 +220,10 @@ function lineage_summary(result)::String
     !isnothing(prov.interpolator_source) && push!(parts, "interp=$(prov.interpolator_source)")
     prov.polish_applied && push!(parts, "polished=true")
     !isempty(prov.representative_assignments) && push!(parts, "representative=$(length(prov.representative_assignments))")
+    !isempty(prov.structural_fix_set) && push!(parts, "structural_fix=$(length(prov.structural_fix_set))")
+    !isempty(prov.residual_fix_set) && push!(parts, "residual_fix=$(length(prov.residual_fix_set))")
+    !isnothing(prov.template_status_after_residual_fix) && push!(parts, "template=$(prov.template_status_after_residual_fix)")
+    prov.practical_identifiability_status != :not_assessed && push!(parts, "practical=$(prov.practical_identifiability_status)")
     return join(parts, ", ")
 end
 

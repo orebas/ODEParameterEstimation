@@ -145,6 +145,11 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test isfinite(analysis[2])
         @test state_has_transformed_input(best)
         @test !isempty(best.all_unidentifiable)
+        @test !isempty(best.provenance.structural_fix_set)
+        @test isempty(best.provenance.residual_fix_set)
+        @test best.provenance.template_status_before_residual_fix == :determined
+        @test best.provenance.template_status_after_residual_fix in (:determined, :slightly_overdetermined)
+        @test best.provenance.practical_identifiability_status == :not_assessed
     end
 
     @testset "direct optimization smoke test" begin

@@ -1051,136 +1051,37 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			good_DD = good_DD,
 			time_index_set = Int[],  # will be set after shooting point selection
 			all_unidentifiable = ident_data.all_unidentifiable,
+			si_template = nothing,
 		)
 
-		# Build the SI template ONCE using ITERATIVE PARAMETER FIXING
-		# We fix ONE parameter at a time and re-run full SIAN analysis
-		# until the system is determined (equations == variables)
+		# Build the SI template once: first apply structural representative fixing
+		# from SI outputs, then perform residual template repair only if needed.
 		ordered_model = isa(PEP.model.system, OrderedODESystem) ? PEP.model.system : OrderedODESystem(PEP.model.system, states, params)
 
 		si_template, template_equations = _record_phase!(phase_stats, "SI Template (SIAN analysis)") do
-		pre_fixed_params = OrderedDict{Num, Float64}()
 		max_fix_iterations = 10
-		iteration = 0
-		converged = false
-		si_template = nothing
+		si_template, _template_structure = prepare_si_template_with_fix_phases(
+			ordered_model,
+			PEP.measured_quantities,
+			PEP.data_sample,
+			good_DD,
+			opts.diagnostics;
+			states = states,
+			params = params,
+			infolevel = opts.diagnostics ? 1 : 0,
+			placeholder_fail_categories = opts.si_placeholder_fail_categories,
+			max_residual_fix_iterations = max_fix_iterations,
+		)
 
-		while iteration < max_fix_iterations && !converged
-			iteration += 1
-			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
-
-			# Run SIAN analysis with current pre-fixed parameters
-			template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
-				ordered_model,
-				PEP.measured_quantities,
-				PEP.data_sample;
-				DD = good_DD,
-				infolevel = opts.diagnostics ? 1 : 0,
-				pre_fixed_params = pre_fixed_params,
-				placeholder_fail_categories = opts.si_placeholder_fail_categories,
-			)
-			template_DD = ensure_si_template_dd_support(ordered_model, PEP.measured_quantities, good_DD, derivative_dict)
-
-			si_template = (
-				equations = template_equations,
-				deriv_dict = derivative_dict,
-				template_DD = template_DD,
-				unidentifiable = unidentifiable,
-				identifiable_funcs = identifiable_funcs,
-				si_variable_role_summary = si_variable_role_summary,
-			)
-
-			# Count equations and variables in the current system
-			# Note: We need to count only UNKNOWN variables, not data values (y_i)
-			n_equations = length(template_equations)
-			vars_in_system = OrderedSet{Any}()
-			for eq in template_equations
-				union!(vars_in_system, Symbolics.get_variables(eq))
-			end
-
-			# Build set of ALL observable derivative variables from DD structure.
-			# DD.obs_lhs[order+1][obs_idx] gives the Symbolics variable for the
-			# order-th derivative of observable obs_idx.  These are the exact
-			# variables that si_template_integration.jl substitutes with
-			# interpolated numerical values at each shooting point.
-			obs_data_vars = Set{Any}()
-			if !isnothing(template_DD)
-				for level in template_DD.obs_lhs
-					for v in level
-						push!(obs_data_vars, v)
-					end
-				end
-			end
-
-			unknown_vars = OrderedSet{Any}()
-			data_vars = OrderedSet{Any}()
-			for v in vars_in_system
-				if v in obs_data_vars
-					push!(data_vars, v)
-				else
-					push!(unknown_vars, v)
-				end
-			end
-			n_variables = length(unknown_vars)
-			n_data_vars = length(data_vars)
-
-			# Additionally classify _trfn_ variables as known data.
-			# These represent sin(c*t), cos(c*t) etc. evaluated at shooting points —
-			# their values are analytically computable, not free unknowns.
-			trfn_var_info, real_solve_vars, trfn_only_eq_indices = classify_trfn_in_template(
-				collect(unknown_vars), Set(data_vars), template_equations
-			)
-			n_trfn_vars = length(trfn_var_info)
-			n_trfn_only_eqs = length(trfn_only_eq_indices)
-			n_effective_eqs = n_equations - n_trfn_only_eqs
-			n_effective_vars = n_variables - n_trfn_vars
-
-			@info "[ITERATIVE-FIX] System status: $n_equations equations, $n_variables unknowns (+ $n_data_vars data variables)"
-			if n_trfn_vars > 0
-				@info "[ITERATIVE-FIX] _trfn_ vars: $n_trfn_vars known inputs, $n_trfn_only_eqs trivial equations"
-				@info "[ITERATIVE-FIX] Effective system: $n_effective_eqs equations, $n_effective_vars real unknowns"
-			end
-
-			# Use effective counts for convergence check
-			# (accounting for _trfn_ vars that will be pre-substituted at solve time)
-			if n_effective_eqs == n_effective_vars
-				@info "[ITERATIVE-FIX] CONVERGED: Determined system achieved after $iteration iteration(s)"
-				converged = true
-			elseif n_effective_eqs > n_effective_vars && n_effective_eqs <= n_effective_vars + 2
-				# Slightly overdetermined is OK — HC handles via randomization
-				@info "[ITERATIVE-FIX] CONVERGED: Nearly-determined system ($n_effective_eqs eqs, $n_effective_vars vars) after $iteration iteration(s)"
-				converged = true
-			elseif n_effective_eqs < n_effective_vars
-				# Underdetermined (more unknowns than equations) - fix ONE parameter to reduce unknowns
-				already_fixed = Set(keys(pre_fixed_params))
-				param_to_fix, fix_value = select_one_parameter_to_fix(
-					si_template, already_fixed, opts.diagnostics; states = states
-				)
-
-				if param_to_fix === nothing
-					@warn "[ITERATIVE-FIX] No parameter available to fix, stopping iteration (still underdetermined)"
-					break
-				end
-
-				@info "[ITERATIVE-FIX] Fixing parameter: $param_to_fix = $fix_value (to reduce unknowns)"
-				pre_fixed_params[param_to_fix] = fix_value
-				# Loop continues - will re-run SIAN with the new fixed param
-			else
-				# Severely overdetermined - cannot proceed
-				@warn "[ITERATIVE-FIX] Overdetermined system ($n_effective_eqs eqs > $n_effective_vars vars), cannot fix by adding parameters"
-				break
-			end
-		end
-
-		if !converged && iteration >= max_fix_iterations
-			@warn "[ITERATIVE-FIX] Did not converge after $max_fix_iterations iterations"
-		end
-
-		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after iterative fixing"
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural/residual fixing"
 		template_equations = si_template.equations
-		# Note: We no longer call handle_unidentifiability here since iterative fixing handles it
 		(si_template, template_equations)
 		end
+
+		setup_data = (; setup_data...,
+			all_unidentifiable = si_template.structural_unidentifiable,
+			si_template = si_template,
+		)
 
 		# Enable default system saving for SI-template path and save template once
 		if opts.save_system
@@ -1202,6 +1103,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					"si_variable_role_counts" => string(si_template.si_variable_role_summary.counts),
 					"si_auxiliary_variables" => string(si_template.si_variable_role_summary.auxiliary_variables),
 					"suspicious_si_roles" => string(si_template.si_variable_role_summary.suspicious_categories),
+					"structural_fix_set" => string(si_template.structural_fix_set),
+					"residual_fix_set" => string(si_template.residual_fix_set),
+					"template_status_before_residual_fix" => string(si_template.template_status_before_residual_fix),
+					"template_status_after_residual_fix" => string(si_template.template_status_after_residual_fix),
+					"rank_trim_dropped_equations" => string(si_template.rank_trimming_metadata.dropped_equation_indices),
 					"description" => "StructuralIdentifiability template polynomial system",
 				),
 			)
@@ -1854,6 +1760,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								source_candidate_index = first(indices),
 								post_polish_error = err,
 								representative_assignments = representative_assignments,
+								; si_template_lineage_kwargs(setup_data.si_template)...,
 								notes = unique(provenance_notes),
 							)
 							sync_result_contract!(candidate)
@@ -1940,6 +1847,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								source_candidate_index = first(indices),
 								post_polish_error = err,
 								representative_assignments = representative_assignments,
+								; si_template_lineage_kwargs(setup_data.si_template)...,
 								notes = unique(provenance_notes),
 							)
 							sync_result_contract!(candidate)

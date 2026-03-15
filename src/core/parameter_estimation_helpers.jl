@@ -229,6 +229,27 @@ function set_result_lineage!(
 	return result
 end
 
+function si_template_lineage_kwargs(si_template)
+	if isnothing(si_template)
+		return NamedTuple()
+	end
+	structural_fix_set = hasproperty(si_template, :structural_fix_set) ? deepcopy(si_template.structural_fix_set) : OrderedDict{Num, Float64}()
+	residual_fix_set = hasproperty(si_template, :residual_fix_set) ? deepcopy(si_template.residual_fix_set) : OrderedDict{Num, Float64}()
+	template_status_before = hasproperty(si_template, :template_status_before_residual_fix) ? si_template.template_status_before_residual_fix : nothing
+	template_status_after = hasproperty(si_template, :template_status_after_residual_fix) ? si_template.template_status_after_residual_fix : nothing
+	rank_trim_meta = hasproperty(si_template, :rank_trimming_metadata) ? si_template.rank_trimming_metadata : nothing
+	dropped_equations = (!isnothing(rank_trim_meta) && hasproperty(rank_trim_meta, :dropped_equation_indices)) ? copy(rank_trim_meta.dropped_equation_indices) : Int[]
+	practical_status = hasproperty(si_template, :practical_identifiability_status) ? si_template.practical_identifiability_status : :not_assessed
+	return (
+		structural_fix_set = structural_fix_set,
+		residual_fix_set = residual_fix_set,
+		template_status_before_residual_fix = template_status_before,
+		template_status_after_residual_fix = template_status_after,
+		equations_dropped_by_rank_trimming = dropped_equations,
+		practical_identifiability_status = practical_status,
+	)
+end
+
 """
 	solve_parameter_estimation(PEP, setup_data; system_solver, diagnostics, diagnostic_data)
 
@@ -606,6 +627,7 @@ function process_estimation_results(
 	# Use opts as the single source of truth from here on
 	nooutput = opts.nooutput
 	polish_solutions = opts.polish_solutions
+	si_lineage = si_template_lineage_kwargs(hasproperty(setup_data, :si_template) ? setup_data.si_template : nothing)
 
 	function lookup_explicit_fixed_value(dict, candidates)
 		for candidate in candidates
@@ -863,6 +885,7 @@ function process_estimation_results(
 			source_candidate_index = result_entry.source_candidate_index,
 			post_polish_error = err,
 			representative_assignments = result_entry.representative_assignments,
+			; si_lineage...,
 			notes = result_entry.notes,
 		)
 		sync_result_contract!(solved_res[end])

@@ -210,103 +210,23 @@ function construct_multipoint_equation_system!(time_index_set,
 			OrderedODESystem(model, states, params)
 		end
 
-		# ITERATIVE PARAMETER FIXING:
-		# We fix ONE parameter at a time and re-run full SIAN analysis
-		# until the system is determined (equations == variables)
-		pre_fixed_params = OrderedDict{Num, Float64}()
 		max_fix_iterations = 10
-		iteration = 0
-		converged = false
 
-		while iteration < max_fix_iterations && !converged
-			iteration += 1
-			@info "[ITERATIVE-FIX] Iteration $iteration, fixed so far: $(keys(pre_fixed_params))"
+		si_template, _template_structure = prepare_si_template_with_fix_phases(
+			ordered_model,
+			measured_quantities,
+			data_sample,
+			good_DD,
+			diagnostics;
+			states = states,
+			params = params,
+			infolevel = diagnostics ? 1 : 0,
+			placeholder_fail_categories = opts.si_placeholder_fail_categories,
+			max_residual_fix_iterations = max_fix_iterations,
+		)
 
-			# Run SIAN analysis with current pre-fixed parameters
-			template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary = get_si_equation_system(
-				ordered_model,
-				measured_quantities,
-				data_sample;
-				DD = good_DD,
-				infolevel = diagnostics ? 1 : 0,
-				pre_fixed_params = pre_fixed_params,
-				placeholder_fail_categories = opts.si_placeholder_fail_categories,
-			)
-			template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, good_DD, derivative_dict)
-
-			si_template = (
-				equations = template_equations,
-				deriv_dict = derivative_dict,
-				template_DD = template_DD,
-				unidentifiable = unidentifiable,
-				identifiable_funcs = identifiable_funcs,
-				si_variable_role_summary = si_variable_role_summary,
-			)
-
-			# Count equations and variables in the current system
-			# Note: We need to count only UNKNOWN variables, not data values (y_i)
-			# Data variables are of the form y1_0, y2_0, y3_1, etc.
-			n_equations = length(template_equations)
-			vars_in_system = OrderedSet{Any}()
-			for eq in template_equations
-				union!(vars_in_system, Symbolics.get_variables(eq))
-			end
-
-			# Filter out data variables - these are known values, not unknowns
-			# Data variables can be in different formats:
-			#   - Nemo format: y1_0, y2_1 (y followed by digit, underscore, digit)
-			#   - Symbolics format: y1(t), y2(t) (y followed by digit and (t))
-			#   - Symbolics derivatives: y1ˍt(t), y1ˍtt(t) (with derivative markers)
-			unknown_vars = OrderedSet{Any}()
-			data_vars = OrderedSet{Any}()
-			for v in vars_in_system
-				v_name = string(v)
-				# Match y1_0, y2_1 (Nemo) OR y1(t), y2(t), y1ˍt(t), y1ˍtt(t) (Symbolics)
-				if occursin(r"^y\d+_\d+$", v_name) || occursin(r"^y\d+", v_name) && occursin("(t)", v_name)
-					push!(data_vars, v)
-				else
-					push!(unknown_vars, v)
-				end
-			end
-			n_variables = length(unknown_vars)
-			n_data_vars = length(data_vars)
-
-			@info "[ITERATIVE-FIX] System status: $n_equations equations, $n_variables unknowns (+ $n_data_vars data variables)"
-
-			if n_equations == n_variables
-				@info "[ITERATIVE-FIX] CONVERGED: Determined system achieved after $iteration iteration(s)"
-				converged = true
-			elseif n_equations < n_variables
-				# Underdetermined (more unknowns than equations) - fix ONE parameter to reduce unknowns
-				# This is the typical case: SIAN produces fewer equations than variables
-				already_fixed = Set(keys(pre_fixed_params))
-				param_to_fix, fix_value = select_one_parameter_to_fix(
-					si_template, already_fixed, diagnostics; states = states
-				)
-
-				if param_to_fix === nothing
-					@warn "[ITERATIVE-FIX] No parameter available to fix, stopping iteration (still underdetermined)"
-					break
-				end
-
-				@info "[ITERATIVE-FIX] Fixing parameter: $param_to_fix = $fix_value (to reduce unknowns)"
-				pre_fixed_params[param_to_fix] = fix_value
-				# Loop continues - will re-run SIAN with the new fixed param
-			else
-				# Overdetermined (more equations than unknowns) - unusual, cannot proceed
-				@warn "[ITERATIVE-FIX] Overdetermined system ($n_equations eqs > $n_variables vars), cannot fix by adding parameters"
-				break
-			end
-		end
-
-		if !converged && iteration >= max_fix_iterations
-			@warn "[ITERATIVE-FIX] Did not converge after $max_fix_iterations iterations"
-		end
-
-		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after iterative fixing"
+		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural/residual fixing"
 		template_equations = si_template.equations
-
-		# Note: We no longer call handle_unidentifiability here since iterative fixing handles it
 
 		if diagnostics
 			println("[DEBUG-SI] Created SI.jl template with $(length(template_equations)) equations")
@@ -346,6 +266,11 @@ function construct_multipoint_equation_system!(time_index_set,
 				println(io, "# SI variable roles: $(si_template.si_variable_role_summary.counts)")
 				println(io, "# SI auxiliaries: $(si_template.si_variable_role_summary.auxiliary_variables)")
 				println(io, "# Suspicious SI roles: $(si_template.si_variable_role_summary.suspicious_categories)")
+				println(io, "# Structural fix set: $(si_template.structural_fix_set)")
+				println(io, "# Residual fix set: $(si_template.residual_fix_set)")
+				println(io, "# Template status before residual fix: $(si_template.template_status_before_residual_fix)")
+				println(io, "# Template status after residual fix: $(si_template.template_status_after_residual_fix)")
+				println(io, "# Dropped equations by rank trimming: $(si_template.rank_trimming_metadata.dropped_equation_indices)")
 				println(io, "")
 				for (i, eq) in enumerate(template_equations)
 					println(io, "# Equation $i:")
@@ -413,29 +338,9 @@ The number of parameters to fix is determined by the difference between the
 number of unidentifiable parameters and the number of independent identifiable functions.
 """
 
-"""
-	select_one_parameter_to_fix(si_template, already_fixed, diagnostics; states=nothing)
-
-Select ONE unidentifiable parameter to fix based on DOF analysis.
-This is used in iterative parameter fixing - we fix one parameter at a time
-and re-run the full SIAN analysis after each fix.
-
-# Arguments
-- `si_template`: The SI template containing equations, unidentifiable params, identifiable funcs
-- `already_fixed`: Set of parameters already fixed in previous iterations
-- `diagnostics`: Whether to print debug output
-- `states`: Optional state variables (to prefer fixing params over initial conditions)
-
-# Returns
-- `(param_to_fix, fix_value)` or `(nothing, nothing)` if no parameter needs fixing
-"""
-function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostics; states = nothing)
-	unidentifiable_params = si_template.unidentifiable
-	identifiable_funcs = si_template.identifiable_funcs
-
-	# Prepare state name hints if provided
+function _state_base_name_set(states)
 	state_base_names = Set{String}()
-	if states !== nothing
+	if !isnothing(states)
 		for s in states
 			name_str = string(s)
 			if endswith(name_str, "(t)")
@@ -444,256 +349,363 @@ function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostic
 			push!(state_base_names, name_str)
 		end
 	end
+	return state_base_names
+end
 
-	if isempty(unidentifiable_params)
-		if diagnostics
-			println("[SELECT-PARAM] No unidentifiable parameters")
-		end
-		return nothing, nothing
-	end
-
-	# Convert identifiable funcs from Nemo to Symbolics
-	nemo_to_mtk_map = Dict()
-	symbolic_identifiable_funcs = []
-	for f in identifiable_funcs
-		push!(symbolic_identifiable_funcs, nemo_to_symbolics(f, nemo_to_mtk_map))
-	end
-
-	# Prefer fixing MODEL PARAMETERS over state initial conditions
-	# Also filter out already-fixed parameters
-	unident_params_only = Any[]
-	for p in unidentifiable_params
-		pstr = string(p)
-		# Skip state initial conditions
-		if (states !== nothing) && (pstr in state_base_names)
-			continue
-		end
-		# Skip already-fixed parameters
-		if pstr in [string(f) for f in already_fixed]
-			continue
-		end
-		push!(unident_params_only, p)
-	end
-
-	if isempty(unident_params_only)
-		if diagnostics
-			println("[SELECT-PARAM] No unfixed unidentifiable parameters remaining")
-		end
-		return nothing, nothing
-	end
-
-	# Build Symbolics variables for parameters (base names, no _0) for Jacobian
-	param_syms = [Symbolics.variable(Symbol(string(p))) for p in unident_params_only]
-
-	# Keep only identifiable functions that depend on at least one candidate param
-	funcs_filtered = [f for f in symbolic_identifiable_funcs if any(string(v) in Set(string.(unident_params_only)) for v in Symbolics.get_variables(f))]
-
-	# Determine which parameter to fix using DOF analysis via Jacobian rank
-	param_to_fix = nothing
-	if isempty(funcs_filtered)
-		# No identifiable functions involving these params - just fix the first one
-		param_to_fix = unident_params_only[1]
-		if diagnostics
-			println("[SELECT-PARAM] No identifiable funcs for params, selecting first: $param_to_fix")
-		end
-	else
-		J_sym = Symbolics.jacobian(funcs_filtered, param_syms)
-		# Gather all variables in funcs to assign generic nonzero numeric values
-		all_vars = OrderedSet{Any}()
-		for f in funcs_filtered
-			union!(all_vars, Symbolics.get_variables(f))
-		end
-		val_dict = Dict{Num, Float64}()
-		for v in all_vars
-			val_dict[v] = 0.5 + rand()
-		end
-		J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
-		for i in 1:size(J_sym, 1)
-			for j in 1:size(J_sym, 2)
-				entry = Symbolics.substitute(J_sym[i, j], val_dict)
-				J_num[i, j] = Float64(Symbolics.value(entry))
+function _model_symbol_from_name(name::AbstractString, states = nothing, params = nothing)
+	if !isnothing(params)
+		for p in params
+			if string(p) == name
+				return p
 			end
 		end
-		F = LinearAlgebra.qr(J_num, LinearAlgebra.ColumnNorm())
-		R = Array(F.R)
-		tol = 1e-10 * maximum(size(J_num)) * (isempty(R) ? 0.0 : maximum(abs, diag(R)))
-		rnk = sum(abs.(diag(R)) .> tol)
-
-		# The DOF cols are parameters NOT in the pivot set - these are "free" to fix
-		cols_ordered = collect(F.p)
-		pivot_cols = rnk > 0 ? Set(cols_ordered[1:rnk]) : Set{Int}()
-		dof_cols = [j for j in 1:length(param_syms) if !(j in pivot_cols)]
-
-		if !isempty(dof_cols)
-			# Pick the first DOF column parameter to fix
-			param_to_fix = unident_params_only[dof_cols[1]]
-		elseif !isempty(unident_params_only)
-			# Fallback: if all params are in pivot cols, still need to fix one
-			param_to_fix = unident_params_only[1]
-		end
-
-		if diagnostics
-			println("[SELECT-PARAM] Jacobian rank: $rnk, DOF cols: $dof_cols")
-			println("[SELECT-PARAM] Selected parameter to fix: $param_to_fix")
+	end
+	if !isnothing(states)
+		for s in states
+			s_name = endswith(string(s), "(t)") ? string(s)[1:(end-3)] : string(s)
+			if s_name == name
+				return s
+			end
 		end
 	end
+	return Symbolics.variable(Symbol(name))
+end
 
-	if param_to_fix === nothing
+function _symbolic_identifiable_functions(identifiable_funcs)
+	nemo_to_mtk_map = Dict()
+	return [nemo_to_symbolics(f, nemo_to_mtk_map) for f in identifiable_funcs]
+end
+
+function _candidate_fix_variables(unidentifiable_params, already_fixed::Set, states)
+	state_base_names = _state_base_name_set(states)
+	param_like = Any[]
+	state_like = Any[]
+	already_fixed_names = Set(string.(collect(already_fixed)))
+	for p in unidentifiable_params
+		pstr = string(p)
+		pstr in already_fixed_names && continue
+		if pstr in state_base_names
+			push!(state_like, p)
+		else
+			push!(param_like, p)
+		end
+	end
+	return isempty(param_like) ? state_like : param_like
+end
+
+function _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
+	isempty(candidate_vars) && return Any[]
+	param_syms = [Symbolics.variable(Symbol(string(p))) for p in candidate_vars]
+	candidate_names = Set(string.(candidate_vars))
+	funcs_filtered = [
+		f for f in symbolic_identifiable_funcs
+		if any(string(v) in candidate_names for v in Symbolics.get_variables(f))
+	]
+
+	if isempty(funcs_filtered)
+		diagnostics && println("[STRUCTURAL-FIX] No identifiable functions for candidates; selecting first candidate")
+		return Any[candidate_vars[1]]
+	end
+
+	J_sym = Symbolics.jacobian(funcs_filtered, param_syms)
+	all_vars = OrderedSet{Any}()
+	for f in funcs_filtered
+		union!(all_vars, Symbolics.get_variables(f))
+	end
+	val_dict = Dict{Num, Float64}()
+	for v in all_vars
+		val_dict[v] = 0.5 + rand()
+	end
+	J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
+	for i in 1:size(J_sym, 1)
+		for j in 1:size(J_sym, 2)
+			entry = Symbolics.substitute(J_sym[i, j], val_dict)
+			J_num[i, j] = Float64(Symbolics.value(entry))
+		end
+	end
+	F = LinearAlgebra.qr(J_num, LinearAlgebra.ColumnNorm())
+	R = Array(F.R)
+	tol = 1e-10 * maximum(size(J_num)) * (isempty(R) ? 0.0 : maximum(abs, diag(R)))
+	rnk = sum(abs.(diag(R)) .> tol)
+	num_to_fix = max(length(candidate_vars) - rnk, 0)
+	if num_to_fix == 0
+		diagnostics && println("[STRUCTURAL-FIX] Jacobian rank indicates no remaining structural fix variables are required")
+		return Any[]
+	end
+
+	cols_ordered = collect(F.p)
+	pivot_cols = rnk > 0 ? Set(cols_ordered[1:rnk]) : Set{Int}()
+	dof_cols = [j for j in 1:length(param_syms) if !(j in pivot_cols)]
+	selected = Any[]
+	for j in dof_cols
+		push!(selected, candidate_vars[j])
+		length(selected) >= num_to_fix && break
+	end
+	while length(selected) < num_to_fix && length(selected) < length(candidate_vars)
+		for candidate in candidate_vars
+			candidate in selected && continue
+			push!(selected, candidate)
+			length(selected) >= num_to_fix && break
+		end
+	end
+	if diagnostics
+		println("[STRUCTURAL-FIX] Jacobian rank: $rnk, DOF cols: $dof_cols")
+		println("[STRUCTURAL-FIX] Selected structural fix candidates: $selected")
+	end
+	return selected
+end
+
+function derive_structural_fix_set(si_template, diagnostics; states = nothing, params = nothing)
+	unidentifiable_params = si_template.unidentifiable
+	isempty(unidentifiable_params) && return (
+		pre_fixed = OrderedDict{Num, Float64}(),
+		reported = OrderedDict{Num, Float64}(),
+		structural_unidentifiable = Set{Num}(),
+	)
+
+	candidate_vars = _candidate_fix_variables(unidentifiable_params, Set(), states)
+	symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
+	selected = _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
+
+	pre_fixed = OrderedDict{Num, Float64}()
+	reported = OrderedDict{Num, Float64}()
+	for candidate in selected
+		candidate_name = string(candidate)
+		pre_fixed[Symbolics.variable(Symbol(candidate_name))] = 1.0
+		reported[_model_symbol_from_name(candidate_name, states, params)] = 1.0
+	end
+
+	structural_unidentifiable = Set{Num}()
+	for candidate in unidentifiable_params
+		push!(structural_unidentifiable, _model_symbol_from_name(string(candidate), states, params))
+	end
+
+	if diagnostics
+		println("[STRUCTURAL-FIX] Structural unidentifiable set from SI: $structural_unidentifiable")
+		println("[STRUCTURAL-FIX] Representative structural fix set: $reported")
+		println("[STRUCTURAL-FIX] Practical/numerical identifiability status: not_assessed")
+	end
+
+	return (
+		pre_fixed = pre_fixed,
+		reported = reported,
+		structural_unidentifiable = structural_unidentifiable,
+	)
+end
+
+function analyze_si_template_structure(si_template)
+	template_equations = si_template.equations
+	template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing
+	data_vars = isnothing(template_DD) ? Any[] : extract_data_variables_from_DD(template_DD)
+	data_vars_set = Set(data_vars)
+	vars_in_system = OrderedSet{Any}()
+	for eq in template_equations
+		union!(vars_in_system, Symbolics.get_variables(eq))
+	end
+	unknown_vars = OrderedSet{Any}()
+	for v in vars_in_system
+		if !(v in data_vars_set)
+			push!(unknown_vars, v)
+		end
+	end
+	trfn_var_info, real_solve_vars, trfn_only_eq_indices = classify_trfn_in_template(
+		collect(unknown_vars), data_vars_set, template_equations
+	)
+	n_equations = length(template_equations)
+	n_variables = length(unknown_vars)
+	n_data_vars = length(data_vars)
+	n_trfn_vars = length(trfn_var_info)
+	n_trfn_only_eqs = length(trfn_only_eq_indices)
+	n_effective_eqs = n_equations - n_trfn_only_eqs
+	n_effective_vars = n_variables - n_trfn_vars
+	status = if n_effective_eqs == n_effective_vars
+		:determined
+	elseif n_effective_eqs > n_effective_vars && n_effective_eqs <= n_effective_vars + 2
+		:slightly_overdetermined
+	elseif n_effective_eqs < n_effective_vars
+		:residual_underdetermined
+	else
+		:severely_overdetermined
+	end
+	rank_trim_meta = hasproperty(si_template, :rank_trimming_metadata) ? si_template.rank_trimming_metadata : (
+		selected_equation_indices = Int[],
+		dropped_equation_indices = Int[],
+		original_equation_count = n_equations,
+	)
+	return (
+		status = status,
+		n_equations = n_equations,
+		n_variables = n_variables,
+		n_data_vars = n_data_vars,
+		n_effective_eqs = n_effective_eqs,
+		n_effective_vars = n_effective_vars,
+		n_trfn_vars = n_trfn_vars,
+		n_trfn_only_eqs = n_trfn_only_eqs,
+		trfn_var_info = trfn_var_info,
+		real_solve_vars = real_solve_vars,
+		trfn_only_eq_indices = trfn_only_eq_indices,
+		dropped_equation_indices = rank_trim_meta.dropped_equation_indices,
+		selected_equation_indices = rank_trim_meta.selected_equation_indices,
+		original_equation_count = rank_trim_meta.original_equation_count,
+	)
+end
+
+function select_one_parameter_to_fix(si_template, already_fixed::Set, diagnostics; states = nothing)
+	candidate_vars = _candidate_fix_variables(si_template.unidentifiable, already_fixed, states)
+	if isempty(candidate_vars)
+		diagnostics && println("[TEMPLATE-RESIDUAL] No unfixed structural candidates remain for residual template repair")
 		return nothing, nothing
 	end
 
-	# Convert Nemo parameter to Symbolics Num for type consistency
-	# The param_to_fix may be a Nemo.QQMPolyRingElem from SIAN
+	symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
+	selected = _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
+	param_to_fix = isempty(selected) ? candidate_vars[1] : selected[1]
 	param_to_fix_sym = Symbolics.variable(Symbol(string(param_to_fix)))
+	diagnostics && println("[TEMPLATE-RESIDUAL] Selected residual fix variable: $param_to_fix_sym")
+	return param_to_fix_sym, 1.0
+end
 
-	# Return the parameter and the value to fix it to
-	fix_value = 1.0
-	return param_to_fix_sym, fix_value
+function prepare_si_template_with_fix_phases(
+	ordered_model,
+	measured_quantities,
+	data_sample,
+	base_DD,
+	diagnostics;
+	states = nothing,
+	params = nothing,
+	infolevel = diagnostics ? 1 : 0,
+	placeholder_fail_categories = Symbol[],
+	max_residual_fix_iterations = 10,
+)
+	initial_equations, initial_derivative_dict, initial_unidentifiable, initial_identifiable_funcs, initial_role_summary, initial_metadata = get_si_equation_system(
+		ordered_model,
+		measured_quantities,
+		data_sample;
+		DD = base_DD,
+		infolevel = infolevel,
+		pre_fixed_params = OrderedDict{Num, Float64}(),
+		placeholder_fail_categories = placeholder_fail_categories,
+	)
+	initial_template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, initial_derivative_dict)
+	initial_template = (
+		equations = initial_equations,
+		deriv_dict = initial_derivative_dict,
+		template_DD = initial_template_DD,
+		unidentifiable = initial_unidentifiable,
+		identifiable_funcs = initial_identifiable_funcs,
+		si_variable_role_summary = initial_role_summary,
+		rank_trimming_metadata = initial_metadata,
+	)
+
+	structural_fix_info = derive_structural_fix_set(initial_template, diagnostics; states = states, params = params)
+	structural_fix_set = structural_fix_info.pre_fixed
+	structural_fix_report = structural_fix_info.reported
+	structural_unidentifiable = structural_fix_info.structural_unidentifiable
+	current_fixed = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set)
+	residual_fix_set = OrderedDict{Num, Float64}()
+	residual_fix_report = OrderedDict{Num, Float64}()
+	template_status_before_residual_fix = nothing
+	template_status_after_residual_fix = nothing
+	residual_iteration = 0
+	final_template = initial_template
+	final_structure = nothing
+
+	while residual_iteration <= max_residual_fix_iterations
+		template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata = get_si_equation_system(
+			ordered_model,
+			measured_quantities,
+			data_sample;
+			DD = base_DD,
+			infolevel = infolevel,
+			pre_fixed_params = current_fixed,
+			placeholder_fail_categories = placeholder_fail_categories,
+		)
+		template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, derivative_dict)
+		si_template = (
+			equations = template_equations,
+			deriv_dict = derivative_dict,
+			template_DD = template_DD,
+			unidentifiable = unidentifiable,
+			identifiable_funcs = identifiable_funcs,
+			si_variable_role_summary = si_variable_role_summary,
+			rank_trimming_metadata = si_template_metadata,
+		)
+		structure = analyze_si_template_structure(si_template)
+		isnothing(template_status_before_residual_fix) && (template_status_before_residual_fix = structure.status)
+
+		if diagnostics
+			@info "[TEMPLATE-STRUCTURE] System status: $(structure.n_equations) equations, $(structure.n_variables) unknowns (+ $(structure.n_data_vars) data variables)"
+			if structure.n_trfn_vars > 0
+				@info "[TEMPLATE-STRUCTURE] _trfn_ vars: $(structure.n_trfn_vars) known inputs, $(structure.n_trfn_only_eqs) trivial equations"
+				@info "[TEMPLATE-STRUCTURE] Effective system: $(structure.n_effective_eqs) equations, $(structure.n_effective_vars) real unknowns"
+			end
+		end
+
+		final_template = (
+			equations = template_equations,
+			deriv_dict = derivative_dict,
+			template_DD = template_DD,
+			unidentifiable = unidentifiable,
+			identifiable_funcs = identifiable_funcs,
+			si_variable_role_summary = si_variable_role_summary,
+			rank_trimming_metadata = si_template_metadata,
+			structural_unidentifiable = structural_unidentifiable,
+			structural_fix_set = structural_fix_report,
+			residual_fix_set = copy(residual_fix_report),
+			template_status_before_residual_fix = template_status_before_residual_fix,
+			template_status_after_residual_fix = structure.status,
+			practical_identifiability_status = :not_assessed,
+		)
+		final_structure = structure
+		template_status_after_residual_fix = structure.status
+
+		if structure.status in (:determined, :slightly_overdetermined)
+			break
+		elseif structure.status == :residual_underdetermined
+			residual_iteration += 1
+			if residual_iteration > max_residual_fix_iterations
+				@warn "[TEMPLATE-RESIDUAL] Did not converge after $max_residual_fix_iterations residual iterations"
+				break
+			end
+			@info "[TEMPLATE-RESIDUAL] Iteration $residual_iteration, fixed so far: $(keys(residual_fix_set))"
+			param_to_fix, fix_value = select_one_parameter_to_fix(
+				si_template, Set(keys(current_fixed)), diagnostics; states = states
+			)
+			if param_to_fix === nothing
+				@warn "[TEMPLATE-RESIDUAL] No parameter available to fix, stopping residual template repair"
+				break
+			end
+			@info "[TEMPLATE-RESIDUAL] Fixing residual template variable: $param_to_fix = $fix_value"
+			current_fixed[param_to_fix] = fix_value
+			residual_fix_set[param_to_fix] = fix_value
+			residual_fix_report[_model_symbol_from_name(string(param_to_fix), states, params)] = fix_value
+		else
+			@warn "[TEMPLATE-RESIDUAL] Template is severely overdetermined ($(structure.n_effective_eqs) eqs > $(structure.n_effective_vars) vars)"
+			break
+		end
+	end
+
+	return final_template, final_structure
 end
 
 function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
-	template_equations = si_template.equations
-	unidentifiable_params = si_template.unidentifiable
-	identifiable_funcs = si_template.identifiable_funcs
-
-	# Use the identifiable functions directly
-	# The QR decomposition below (line ~407) will handle any redundancy correctly
-	id_funcs_indep_nemo = identifiable_funcs
-
-	# Convert identifiable funcs (independent set) from Nemo to Symbolics for easier processing
-	nemo_to_mtk_map = Dict() # We don't have the full map here, so we'll build it as needed
-	symbolic_identifiable_funcs = []
-	for f in id_funcs_indep_nemo
-		push!(symbolic_identifiable_funcs, nemo_to_symbolics(f, nemo_to_mtk_map))
+	structural_fix_info = derive_structural_fix_set(si_template, diagnostics; states = states, params = params)
+	if isempty(structural_fix_info.pre_fixed)
+		return si_template.equations, si_template
 	end
-
-	# Prepare state name hints if provided
-	state_base_names = Set{String}()
-	if states !== nothing
-		for s in states
-			name_str = string(s)
-			if endswith(name_str, "(t)")
-				name_str = name_str[1:(end-3)]
-			end
-			push!(state_base_names, name_str)
-		end
+	fix_dict = Dict{Any, Float64}()
+	for (param, fix_value) in structural_fix_info.pre_fixed
+		fix_dict[Symbolics.variable(Symbol(string(param) * "_0"))] = fix_value
 	end
-
-	num_unidentifiable = length(unidentifiable_params)
-	if !isempty(unidentifiable_params)
-		if diagnostics
-			println("[DEBUG-SI] SI.jl found $num_unidentifiable unidentifiable params: $unidentifiable_params")
-			println("[DEBUG-SI] Using $(length(symbolic_identifiable_funcs)) independent identifiable functions for DOF analysis")
-		end
-		# Ensure we enter selection; we will refine the actual number to fix below
-		num_to_fix = length(unidentifiable_params)
-
-		if true
-			# Prefer fixing MODEL PARAMETERS over state initial conditions.
-			# Partition unidentifiable into parameter-like vs state-like using state name hints if available.
-			unident_params_only = Any[]
-			for p in unidentifiable_params
-				pstr = string(p)
-				if (states !== nothing) && (pstr in state_base_names)
-					continue
-				end
-				push!(unident_params_only, p)
-			end
-
-			# If no parameter remains to fix, return unchanged template
-			if isempty(unident_params_only)
-				return template_equations, (
-					equations = template_equations,
-					deriv_dict = si_template.deriv_dict,
-					unidentifiable = si_template.unidentifiable,
-					identifiable_funcs = si_template.identifiable_funcs,
-					si_variable_role_summary = si_template.si_variable_role_summary,
-				)
-			end
-
-			# Build Symbolics variables for parameters (base names, no _0) for Jacobian
-			param_syms = [Symbolics.variable(Symbol(string(p))) for p in unident_params_only]
-
-			# Keep only identifiable functions that depend on at least one candidate param
-			funcs_filtered = [f for f in symbolic_identifiable_funcs if any(string(v) in Set(string.(unident_params_only)) for v in Symbolics.get_variables(f))]
-
-			# Determine number of DOFs to fix via Jacobian rank; fallback to one scaling DOF
-			params_to_fix = Any[]
-			if isempty(funcs_filtered)
-				num_to_fix = min(1, length(unident_params_only))
-				params_to_fix = unident_params_only[1:num_to_fix]
-			else
-				J_sym = Symbolics.jacobian(funcs_filtered, param_syms)
-				# Gather all variables in funcs to assign generic nonzero numeric values
-				all_vars = OrderedSet{Any}()
-				for f in funcs_filtered
-					union!(all_vars, Symbolics.get_variables(f))
-				end
-				val_dict = Dict{Num, Float64}()
-				for v in all_vars
-					val_dict[v] = 0.5 + rand()
-				end
-				J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
-				for i in 1:size(J_sym, 1)
-					for j in 1:size(J_sym, 2)
-						entry = Symbolics.substitute(J_sym[i, j], val_dict)
-						J_num[i, j] = Float64(Symbolics.value(entry))
-					end
-				end
-				F = LinearAlgebra.qr(J_num, LinearAlgebra.ColumnNorm())
-				R = Array(F.R)
-				tol = 1e-10 * maximum(size(J_num)) * (isempty(R) ? 0.0 : maximum(abs, diag(R)))
-				rnk = sum(abs.(diag(R)) .> tol)
-				num_to_fix = max(length(unident_params_only) - rnk, 0)
-				if num_to_fix > 0
-					cols_ordered = collect(F.p)
-					pivot_cols = Set(cols_ordered[1:rnk])
-					dof_cols = [j for j in 1:length(param_syms) if !(j in pivot_cols)]
-					for j in dof_cols
-						push!(params_to_fix, unident_params_only[j])
-						if length(params_to_fix) >= num_to_fix
-							break
-						end
-					end
-				end
-			end
-
-			if diagnostics
-				println("[DEBUG-SI] Independent identifiable funcs used: ", id_funcs_indep_nemo)
-				println("[DEBUG-SI] Choosing to fix $(length(params_to_fix)) parameter(s): ", params_to_fix)
-			end
-
-			# Apply substitutions for selected parameters (SI format uses _0 suffix)
-			if !isempty(params_to_fix)
-				fix_dict = Dict()
-				for param in params_to_fix
-					si_name = string(param) * "_0"
-					si_param = Symbolics.variable(Symbol(si_name))
-					fix_value = 1.0
-					fix_dict[si_param] = fix_value
-				end
-
-				if diagnostics
-					println("[DEBUG-SI] Applying substitutions to fix parameters: $fix_dict")
-				end
-
-				# Create a new template with the substituted equations
-				template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
-			end
-		end
-	end
-
-	# Return the (potentially modified) template_equations and the original si_template
-	# We update the equations in the template for consistency
+	template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
 	new_si_template = (
 		equations = template_equations,
-		deriv_dict = si_template.deriv_dict, # old
+		deriv_dict = si_template.deriv_dict,
 		template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing,
-		unidentifiable = si_template.unidentifiable, # old
-		identifiable_funcs = si_template.identifiable_funcs, # old
+		unidentifiable = si_template.unidentifiable,
+		identifiable_funcs = si_template.identifiable_funcs,
 		si_variable_role_summary = si_template.si_variable_role_summary,
 	)
-
 	return template_equations, new_si_template
 end
 
