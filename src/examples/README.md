@@ -2,11 +2,21 @@
 
 This directory is a mix of model definitions, runnable workflows, investigation scripts, and a small amount of parked material. It is now treated as a maintained package surface, but not every file here has the same status.
 
+If you are looking for the current user-facing package workflow rather than the example inventory, start with:
+
+- [README.md](/home/orebas/.julia/dev/ODEParameterEstimation/README.md)
+- [2026-03-17_user_quickstart.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_user_quickstart.md)
+- [2026-03-17_results_and_api.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_results_and_api.md)
+
 ## Categories
 
 ### Model Buckets
 
 Model constructors are still grouped in shared source files under [models](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/models), so the primary categorization now lives in [load_examples.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl) rather than in one-file-per-model moves.
+
+For the current interpretation of the categories and the main known failure classes, see:
+
+- [2026-03-17_model_taxonomy.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_model_taxonomy.md)
 
 - `GREEN_MODELS`
   Straightforward maintained examples that currently run well.
