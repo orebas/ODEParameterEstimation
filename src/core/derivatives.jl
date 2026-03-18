@@ -6,6 +6,22 @@ All interpolators should be callable with a single argument and return the inter
 """
 abstract type AbstractInterpolator end
 
+const TAYLORDIFF_MAX_DERIVATIVE_ORDER = 20
+
+struct UnsupportedDerivativeOrderError <: Exception
+	requested_order::Int
+	supported_order::Int
+	backend::Symbol
+	context::Union{Nothing, String}
+end
+
+function Base.showerror(io::IO, err::UnsupportedDerivativeOrderError)
+	print(io, "Requested derivative order $(err.requested_order) exceeds the supported order $(err.supported_order) ")
+	print(io, "for the $(err.backend) derivative backend.")
+	!isnothing(err.context) && print(io, " Context: $(err.context).")
+	print(io, " High-order SI templates can ask for derivatives beyond what the current interpolation-based numeric derivative path supports.")
+end
+
 """
 	rational_interpolation_coefficients(x, y, n)
 CODE COPIED FROM previous version of ParameterEstimation.jl
@@ -222,6 +238,10 @@ Computes the nth derivative of function f at point t using TaylorDiff.
 function nth_deriv(f::Function, n::Int, t::Real)::Real
 	if n == 0
 		return f(t)
+	end
+
+	if n > TAYLORDIFF_MAX_DERIVATIVE_ORDER
+		throw(UnsupportedDerivativeOrderError(n, TAYLORDIFF_MAX_DERIVATIVE_ORDER, :taylordiff, nothing))
 	end
 
 	# Use TaylorDiff - no silent fallbacks, fail loudly if it doesn't work
@@ -787,42 +807,53 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	initial_log_variance = 0.0  # log(1.0)
 	initial_log_noise = -2.0    # ~0.135
 
-	# Build base kernel using KernelFunctions.jl
+	# Build base kernel using KernelFunctions.jl (used only for final GP posterior)
 	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+	is_matern52 = (kernel_type == :matern52)
+	const_sqrt5 = sqrt(5.0)
 
-	# Loss function using AbstractGPs - Zygote can differentiate through this
-	# NO floors on exp() - this preserves gradients for optimization
-	# Handle numerical issues via try/catch like GaussianProcesses.jl does
+	# Precompute squared distance matrix for manual kernel (ForwardDiff-compatible)
+	n = length(xs_raw)
+	D² = Matrix{Float64}(undef, n, n)
+	for j in 1:n
+		for i in 1:n
+			D²[i, j] = abs2(xs_raw[i] - xs_raw[j])
+		end
+	end
+
+	# Manual negative log marginal likelihood — ForwardDiff-compatible.
+	# Uses log-space parameterization (unconstrained) matching GaussianProcesses.jl.
+	# This replaces the Zygote+AbstractGPs path that segfaults in Julia 1.12.
 	function neg_logpdf_agp(θ)
 		l = exp(θ[1])      # lengthscale
-		σ² = exp(θ[2])     # signal variance - NO floor
-		σₙ² = exp(θ[3])    # noise variance - NO floor
+		σ² = exp(θ[2])     # signal variance
+		σₙ² = exp(θ[3])    # noise variance
 
-		# Build kernel with current hyperparameters
-		k = σ² * (base_kernel ∘ ScaleTransform(1.0 / l))
-		gp = AbstractGPs.GP(k)
+		# Build kernel matrix manually (ForwardDiff-safe: no KernelFunctions dispatch)
+		if is_matern52
+			inv_l = 1 / l
+			R = sqrt.(D²) .* inv_l
+			K = σ² .* (1 .+ const_sqrt5 .* R .+ 5 .* R .^ 2 ./ 3) .* exp.((-const_sqrt5) .* R)
+		else
+			inv_2l² = 1 / (2 * l * l)
+			K = σ² .* exp.((-inv_2l²) .* D²)
+		end
 
-		# Compute negative log marginal likelihood (using raw X)
-		# kernel_jitter added to diagonal for numerical stability
+		# Add noise + jitter to diagonal
+		Kn = K + (σₙ² + kernel_jitter) * I
 		try
-			return -logpdf(gp(xs_raw, σₙ² + kernel_jitter), ys_norm)
+			C = cholesky(Symmetric(Kn))
+			alpha_local = C \ ys_norm
+			data_fit = dot(ys_norm, alpha_local)
+			log_det = 2 * sum(log.(diag(C.U)))
+			return (data_fit + log_det + n * log(2π)) / 2
 		catch e
-			@debug "AbstractGPs log-likelihood evaluation failed" exception = e
-			return Inf
+			@debug "agp_gpr log-likelihood evaluation failed (Cholesky)" exception = e
+			return 1e8 + sum(abs2, θ)
 		end
 	end
 
-	# Gradient function using Zygote
-	function grad_neg_logpdf(θ)
-		g = Zygote.gradient(neg_logpdf_agp, θ)[1]
-		# Handle case where gradient is nothing or has NaN
-		if isnothing(g) || any(isnan, g) || any(isinf, g)
-			return zeros(3)
-		end
-		return g
-	end
-
-	# Initial values
+	# Initial values (log-space, unconstrained)
 	θ0 = [initial_log_lengthscale, initial_log_variance, initial_log_noise]
 
 	# Optimized hyperparameters (defaults in case optimization fails)
@@ -831,21 +862,21 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	σₙ²_opt = exp(initial_log_noise)
 
 	try
-		# Use unbounded LBFGS to match GPR behavior exactly
+		# Use unconstrained LBFGS with ForwardDiff exact gradients.
+		# This matches GaussianProcesses.jl's optimize! behavior.
+		od = Optim.OnceDifferentiable(neg_logpdf_agp, θ0; autodiff = :forward)
 		result = Optim.optimize(
-			neg_logpdf_agp,
-			grad_neg_logpdf,
+			od,
 			θ0,
 			LBFGS(linesearch = LineSearches.BackTracking()),
-			Optim.Options();  # Default iterations (1000)
-			inplace = false
+			Optim.Options(iterations = 1000),
 		)
 		θ_opt = Optim.minimizer(result)
 		l_opt = exp(θ_opt[1])
-		σ²_opt = exp(θ_opt[2])   # NO floor - trust optimizer result
-		σₙ²_opt = exp(θ_opt[3]) # NO floor - trust optimizer result
+		σ²_opt = exp(θ_opt[2])
+		σₙ²_opt = exp(θ_opt[3])
 	catch e
-		@warn "AbstractGPs hyperparameter optimization failed, using defaults" exception = e
+		@warn "agp_gpr hyperparameter optimization failed, using defaults" exception = e
 	end
 
 	# Build final GP with optimized hyperparameters (using raw X)

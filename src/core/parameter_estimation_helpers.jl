@@ -9,42 +9,279 @@ using Statistics
 # Use functions from the current module
 using ..ODEParameterEstimation
 
+const UNSUPPORTED_MODEL_CATEGORY_PRIORITY = (
+	:state_trigonometric,
+	:sqrt_nonlinearity,
+	:unsupported_transcendental,
+	:unsupported_nonlinear_function,
+)
+
+struct UnsupportedModelClassError <: Exception
+	category::Symbol
+	expressions::Vector{String}
+	details::OrderedDict{Symbol, Vector{String}}
+end
+
+function Base.showerror(io::IO, err::UnsupportedModelClassError)
+	print(io, "Unsupported model class $(err.category) in the standard SI estimation flow.")
+	!isempty(err.expressions) && print(io, " Example expression(s): $(join(err.expressions, ", ")).")
+	print(io, " Raw state trigonometric terms and raw sqrt/non-polynomial state dependence are not supported here.")
+	print(io, " Constant-frequency sin(omega*t)/cos(omega*t) time inputs are a separate supported transformed case.")
+end
+
+function _record_unsupported_expr!(
+	found::OrderedDict{Symbol, Vector{String}},
+	category::Symbol,
+	expr,
+)
+	expr_text = replace(string(expr), '\n' => ' ')
+	values = get!(found, category, String[])
+	expr_text in values || push!(values, expr_text)
+	return found
+end
+
+function _num_or_nothing(x)
+	x isa Num && return x
+	try
+		return Num(x)
+	catch
+		return nothing
+	end
+end
+
+function _collect_unsupported_model_constructs!(
+	expr,
+	t_var,
+	found::OrderedDict{Symbol, Vector{String}},
+)
+	num_expr = _num_or_nothing(expr)
+	isnothing(num_expr) && return found
+	val = Symbolics.value(num_expr)
+	Symbolics.iscall(val) || return found
+
+	op = Symbolics.operation(val)
+	args = Symbolics.arguments(val)
+
+	if op === sqrt
+		_record_unsupported_expr!(found, :sqrt_nonlinearity, num_expr)
+		return found
+	elseif op === sin || op === cos
+		if length(args) == 1
+			arg_expr = _num_or_nothing(args[1])
+			if isnothing(arg_expr) || isnothing(_is_constant_times_t(arg_expr, t_var))
+				_record_unsupported_expr!(found, :state_trigonometric, num_expr)
+				return found
+			end
+		else
+			_record_unsupported_expr!(found, :state_trigonometric, num_expr)
+			return found
+		end
+	elseif op === exp
+		if length(args) == 1
+			arg_expr = _num_or_nothing(args[1])
+			if isnothing(arg_expr) || isnothing(_is_constant_times_t(arg_expr, t_var))
+				_record_unsupported_expr!(found, :unsupported_transcendental, num_expr)
+				return found
+			end
+		else
+			_record_unsupported_expr!(found, :unsupported_transcendental, num_expr)
+			return found
+		end
+	elseif op in (log, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh)
+		_record_unsupported_expr!(found, :unsupported_nonlinear_function, num_expr)
+		return found
+	end
+
+	for arg in args
+		_collect_unsupported_model_constructs!(arg, t_var, found)
+	end
+
+	return found
+end
+
+function collect_unsupported_model_constructs(
+	model_system,
+	measured_quantities,
+)
+	t_var = ModelingToolkit.get_iv(model_system)
+	model_equations = ModelingToolkit.equations(model_system)
+	found = OrderedDict{Symbol, Vector{String}}()
+
+	for eq in model_equations
+		_collect_unsupported_model_constructs!(eq.rhs, t_var, found)
+	end
+	for mq in measured_quantities
+		_collect_unsupported_model_constructs!(mq.rhs, t_var, found)
+	end
+
+	return found
+end
+
+function primary_unsupported_model_category(found::OrderedDict{Symbol, Vector{String}})
+	for category in UNSUPPORTED_MODEL_CATEGORY_PRIORITY
+		haskey(found, category) && return category
+	end
+	return first(keys(found))
+end
+
+function validate_supported_model_class(PEP::ParameterEstimationProblem)
+	found = collect_unsupported_model_constructs(PEP.model.system, PEP.measured_quantities)
+	isempty(found) && return nothing
+	category = primary_unsupported_model_category(found)
+	expressions = get(found, category, String[])
+	throw(UnsupportedModelClassError(category, copy(expressions), deepcopy(found)))
+end
+
+function classify_unsupported_substitution_error(expr, substituted)
+	text = string(substituted)
+	category = if occursin("sqrt(", text)
+		:sqrt_nonlinearity
+	elseif occursin("sin(", text) || occursin("cos(", text)
+		:state_trigonometric
+	elseif occursin("exp(", text)
+		:unsupported_transcendental
+	else
+		nothing
+	end
+	isnothing(category) && return nothing
+	details = OrderedDict{Symbol, Vector{String}}(category => [replace(string(expr), '\n' => ' ')])
+	return UnsupportedModelClassError(category, copy(details[category]), details)
+end
+
 """
 	setup_identifiability(PEP::ParameterEstimationProblem; max_num_points, nooutput)
 
-Identifiability-only setup phase. Performs structural identifiability analysis
-without creating interpolants (which are interpolator-dependent).
+Setup phase for the standard SI workflow. Runs best-effort numerical advisory
+heuristics without letting them define structural identifiability, then builds
+derivative support without numerical representative substitutions.
 
 This is the shared, interpolator-independent part of the pipeline.
 
 # Returns
 - Named tuple with identifiability data: states, params, t_vector, derivative levels, etc.
 """
+function practical_status_from_advisory(advisory::Union{Nothing, NumericalIdentifiabilityAdvisory})
+	isnothing(advisory) && return :not_assessed
+	advisory.status == :available && return :advisory_available
+	advisory.status == :failed && return :advisory_failed
+	return :not_assessed
+end
+
+function default_numerical_advisory_heuristics(model, measured_quantities, max_num_points, t_vector, states, params)
+	states_count = length(states)
+	params_count = length(params)
+	obs_count = max(length(measured_quantities), 1)
+	recommended_num_points = min(length(params), max_num_points, length(t_vector))
+	recommended_deriv_order = max(
+		states_count + params_count + 1,
+		Int(ceil((states_count + params_count) / obs_count) + 2),
+		3,
+	)
+	recommended_deriv_level = Dict(i => recommended_deriv_order for i in eachindex(measured_quantities))
+	good_DD = populate_derivatives(
+		model,
+		measured_quantities,
+		recommended_deriv_order + 1,
+		OrderedDict{Num, Float64}(),
+	)
+	good_DD.all_unidentifiable = Set{Num}()
+	return (
+		good_num_points = recommended_num_points,
+		good_deriv_level = recommended_deriv_level,
+		good_udict = OrderedDict{Num, Float64}(),
+		good_varlist = Vector{Num}(vcat(params, states)),
+		good_DD = good_DD,
+	)
+end
+
+function run_numerical_identifiability_advisory(
+	model,
+	measured_quantities,
+	num_points_cap,
+	t_vector,
+	states,
+	params;
+	nooutput = false,
+	advisory_runner = determine_optimal_points_count,
+)
+	fallback = default_numerical_advisory_heuristics(model, measured_quantities, num_points_cap, t_vector, states, params)
+	full_varlist = Set{Num}(vcat(params, states))
+	try
+		good_num_points, good_deriv_level, _good_udict, advisory_varlist, _good_DD =
+			advisory_runner(model, measured_quantities, num_points_cap, t_vector, nooutput)
+		good_DD = populate_derivatives(
+			model,
+			measured_quantities,
+			isempty(good_deriv_level) ? 2 : maximum(values(good_deriv_level)) + 1,
+			OrderedDict{Num, Float64}(),
+		)
+		good_DD.all_unidentifiable = Set{Num}()
+		flagged_variables = setdiff(full_varlist, Set{Num}(advisory_varlist))
+		advisory = NumericalIdentifiabilityAdvisory(
+			status = :available,
+			recommended_num_points = good_num_points,
+			recommended_deriv_level = good_deriv_level,
+			flagged_variables = flagged_variables,
+			notes = isempty(flagged_variables) ? Symbol[] : [:rank_deficient_at_probe],
+		)
+		return (
+			good_num_points = good_num_points,
+			good_deriv_level = good_deriv_level,
+			good_udict = OrderedDict{Num, Float64}(),
+			good_varlist = Vector{Num}(vcat(params, states)),
+			good_DD = good_DD,
+			advisory = advisory,
+		)
+	catch err
+		@warn "Numerical identifiability advisory failed; continuing with deterministic heuristics" exception = err
+		advisory = NumericalIdentifiabilityAdvisory(
+			status = :failed,
+			recommended_num_points = fallback.good_num_points,
+			recommended_deriv_level = fallback.good_deriv_level,
+			flagged_variables = Set{Num}(),
+			notes = [:heuristic_fallback],
+			failure_reason = sprint(showerror, err),
+		)
+		return (; fallback..., advisory = advisory)
+	end
+end
+
 function setup_identifiability(
 	PEP::ParameterEstimationProblem;
 	max_num_points = 1,
 	nooutput = false,
+	advisory_runner = determine_optimal_points_count,
 )
+	validate_supported_model_class(PEP)
+
 	t, eqns, states, params = unpack_ODE(PEP.model.system)
 	t_vector = PEP.data_sample["t"]
 
 	num_points_cap = min(length(params), max_num_points, length(t_vector))
+	advisory_data = run_numerical_identifiability_advisory(
+		PEP.model.system,
+		PEP.measured_quantities,
+		num_points_cap,
+		t_vector,
+		states,
+		params;
+		nooutput = nooutput,
+		advisory_runner = advisory_runner,
+	)
 
-	good_num_points, good_deriv_level, good_udict, good_varlist, good_DD =
-		determine_optimal_points_count(PEP.model.system, PEP.measured_quantities, num_points_cap, t_vector, nooutput)
-
-	@debug "Parameter estimation using $(good_num_points) points"
+	@debug "Parameter estimation using $(advisory_data.good_num_points) points"
 
 	return (
 		states = states,
 		params = params,
 		t_vector = t_vector,
-		good_num_points = good_num_points,
-		good_deriv_level = good_deriv_level,
-		good_udict = good_udict,
-		good_varlist = good_varlist,
-		good_DD = good_DD,
-		all_unidentifiable = good_DD.all_unidentifiable,
+		good_num_points = advisory_data.good_num_points,
+		good_deriv_level = advisory_data.good_deriv_level,
+		good_udict = advisory_data.good_udict,
+		good_varlist = advisory_data.good_varlist,
+		good_DD = advisory_data.good_DD,
+		all_unidentifiable = Set{Num}(),
+		numerical_advisory = advisory_data.advisory,
 	)
 end
 
@@ -95,7 +332,8 @@ function setup_parameter_estimation(
 		good_varlist = ident_data.good_varlist,
 		good_DD = ident_data.good_DD,
 		time_index_set = time_index_set,
-		all_unidentifiable = ident_data.good_DD.all_unidentifiable,
+		all_unidentifiable = ident_data.all_unidentifiable,
+		numerical_advisory = ident_data.numerical_advisory,
 	)
 end
 
@@ -239,7 +477,8 @@ function si_template_lineage_kwargs(si_template)
 	template_status_after = hasproperty(si_template, :template_status_after_residual_fix) ? si_template.template_status_after_residual_fix : nothing
 	rank_trim_meta = hasproperty(si_template, :rank_trimming_metadata) ? si_template.rank_trimming_metadata : nothing
 	dropped_equations = (!isnothing(rank_trim_meta) && hasproperty(rank_trim_meta, :dropped_equation_indices)) ? copy(rank_trim_meta.dropped_equation_indices) : Int[]
-	practical_status = hasproperty(si_template, :practical_identifiability_status) ? si_template.practical_identifiability_status : :not_assessed
+	numerical_advisory = hasproperty(si_template, :numerical_advisory) ? si_template.numerical_advisory : nothing
+	practical_status = hasproperty(si_template, :practical_identifiability_status) ? si_template.practical_identifiability_status : practical_status_from_advisory(numerical_advisory)
 	return (
 		structural_fix_set = structural_fix_set,
 		residual_fix_set = residual_fix_set,
@@ -247,6 +486,7 @@ function si_template_lineage_kwargs(si_template)
 		template_status_after_residual_fix = template_status_after,
 		equations_dropped_by_rank_trimming = dropped_equations,
 		practical_identifiability_status = practical_status,
+		numerical_advisory = numerical_advisory,
 	)
 end
 

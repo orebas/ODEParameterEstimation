@@ -10,8 +10,9 @@ for equation system construction instead of iterative scanning.
 	apply_prefixed_params_to_model(ode, measured_quantities, pre_fixed_params)
 
 Apply pre-fixed parameter substitutions to the model before SIAN analysis.
-This is used for iterative parameter fixing - when we fix one parameter and
-want to re-run the full SIAN analysis with that parameter as a constant.
+This is used for structural representative fixing - when we fix one parameter
+or initial condition and want to re-run the full SIAN analysis with that
+quantity treated as a constant.
 
 # Arguments
 - `ode`: The ODE model (OrderedODESystem or ODESystem)
@@ -236,6 +237,40 @@ strip_time_suffix(name::AbstractString) = replace(String(name), "(t)" => "")
 
 function extract_symbol_base_names(expr)
 	return Set(strip_time_suffix(string(v)) for v in Symbolics.get_variables(expr))
+end
+
+function _sample_collection(values; limit = 5)
+	items = collect(values)
+	length(items) <= limit && return items
+	return items[1:limit]
+end
+
+function _log_si_polynomial_system_summary(;
+	infolevel::Integer,
+	initial_equation_count::Int,
+	initial_variable_count::Int,
+	theta_l_count::Int,
+	phantom_vars,
+	filtered_variable_count::Int,
+	selected_equation_indices,
+	dropped_equation_indices,
+	reduced_equation_count::Int,
+	reduced_variable_count::Int,
+)
+	infolevel > 0 || return nothing
+	@info "[SI-TEMPLATE] Polynomial construction summary" raw_equations = initial_equation_count raw_ring_variables = initial_variable_count locally_identifiable_count = theta_l_count filtered_ring_variables = filtered_variable_count selected_equations = length(selected_equation_indices) dropped_equations = length(dropped_equation_indices)
+	if !isempty(phantom_vars)
+		@info "[SI-TEMPLATE] Filtered phantom ring variables that never appear in the polynomial system" count = length(phantom_vars) sample = _sample_collection(phantom_vars)
+	end
+	if !isempty(dropped_equation_indices)
+		@info "[SI-TEMPLATE] Rank trimming removed polynomial equations" dropped_indices = dropped_equation_indices
+	end
+	if reduced_equation_count == reduced_variable_count
+		@info "[SI-TEMPLATE] Reduced polynomial system is square before data/support-variable accounting" equations = reduced_equation_count ring_variables = reduced_variable_count
+	else
+		@info "[SI-TEMPLATE] Reduced polynomial system is not square before data/support-variable accounting" equations = reduced_equation_count ring_variables = reduced_variable_count
+	end
+	return nothing
 end
 
 function build_si_role_context(ode, measured_quantities)
@@ -650,17 +685,16 @@ function get_si_equation_system(
 	end
 	unidentifiable = Set(keys(unidentifiable_dict))
 
-	@info "SI.jl found $(length(poly_system)) template equations"
-	@info "Derivative variables: $(keys(y_derivative_dict))"
-	@info "Derivative orders in y_derivative_dict: $(y_derivative_dict)"
-	@info "Maximum derivative order needed: $(isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict)))"
-	@info "Non-identifiable parameters: $unidentifiable"
-
 	# Find identifiable combinations of unidentifiable parameters
 	# The main ODE object must be passed, not the result dictionary.
 	# This call finds combinations of all parameters, which is what we need.
 	identifiable_funcs = find_identifiable_functions(si_ode)
-	@info "Identifiable functions of unidentifiable parameters: $identifiable_funcs"
+	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = length(identifiable_funcs)
+	if infolevel > 0
+		@info "[SI-STRUCTURAL] Structural unidentifiable variables from SI" variables = unidentifiable
+		@info "[SI-STRUCTURAL] Observable derivative support requested by SI template" derivative_orders = y_derivative_dict
+		@info "[SI-STRUCTURAL] Identifiable functions returned by SI" functions = identifiable_funcs
+	end
 
 	# Build comprehensive variable mapping including derivatives
 	# SIAN uses variables like y1_0, y1_1, y1_2 for derivatives
@@ -718,10 +752,9 @@ function get_si_equation_system(
 		@debug "Final template_equations[1] type: $(typeof(template_equations[1]))"
 	end
 
-	# Apply pre-fixed parameter substitutions to the polynomial equations
-	# This is for iterative parameter fixing where we fix one parameter at a time
-	# and re-run the analysis. The substitution happens at the polynomial equation
-	# level, which handles both parameters and initial conditions (e.g., C_0, dH_rhoCP_0).
+	# Apply pre-fixed structural representative substitutions at the polynomial
+	# equation level. This handles both parameters and initial conditions
+	# (e.g., C_0, dH_rhoCP_0) without rebuilding separate MTK systems here.
 	if !isempty(pre_fixed_params)
 		@info "[PRE-FIX] Substituting $(length(pre_fixed_params)) fixed parameters in polynomial equations"
 
@@ -924,12 +957,12 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	@info "Built polynomial system with $(length(Et)) equations"
-	@info "[DEBUG-EQ-COUNT] After iterative construction: $(length(Et)) equations, $(length(x_theta_vars)) variables in x_theta_vars"
-	@info "[DEBUG-EQ-COUNT] x_theta_vars list: $(x_theta_vars)"
-	# Log each equation for debugging
-	for (idx, eq) in enumerate(Et)
-		vars_in_eq = Nemo.vars(eq)
-		@info "[DEBUG-EQUATION] Eq$idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
+	if infolevel > 1
+		@info "[SI-TEMPLATE] Raw polynomial variables collected during SIAN construction" variables = x_theta_vars
+		for (idx, eq) in enumerate(Et)
+			vars_in_eq = Nemo.vars(eq)
+			@info "[SI-TEMPLATE] Raw polynomial equation" index = idx ring_variable_count = length(vars_in_eq) ring_variables = vars_in_eq
+		end
 	end
 
 	# Assess local identifiability to find transcendence basis
@@ -951,10 +984,11 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	x_theta_vars_reorder = vcat(theta_l,
 		reverse([x for x in x_theta_vars if !(x in theta_l)]))
 
-	@info "[DEBUG-EQ-COUNT] Before algebraic_independence: $(length(Et_eval_base)) equations, $(length(x_theta_vars_reorder)) variables"
-	@info "[DEBUG-EQ-COUNT] theta_l (locally identifiable): $(length(theta_l)) variables"
-	@info "[DEBUG-EQ-COUNT] theta_l variables: $(theta_l)"
-	@info "[DEBUG-EQ-COUNT] x_theta_vars_reorder: $(x_theta_vars_reorder)"
+	if infolevel > 1
+		@info "[SI-TEMPLATE] Variables before algebraic independence reduction" equations = length(Et_eval_base) reordered_ring_variables = length(x_theta_vars_reorder) locally_identifiable_count = length(theta_l)
+		@info "[SI-TEMPLATE] Locally identifiable ring variables from SIAN Jacobian pruning" variables = theta_l
+		@info "[SI-TEMPLATE] Reordered ring variable list before rank trimming" variables = x_theta_vars_reorder
+	end
 
 	# ==== Filter variables to only those that actually appear in Et ====
 	# This is critical for models where some parameters/states don't affect observed outputs.
@@ -969,10 +1003,6 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 
 	# Log any phantom variables that were filtered out
 	phantom_vars = setdiff(Set(x_theta_vars), vars_in_Et)
-	if !isempty(phantom_vars)
-		@info "[DEBUG-EQ-COUNT] Filtered out $(length(phantom_vars)) phantom variables not in equations: $(phantom_vars)"
-	end
-
 	# Also filter theta_l to only include variables present in equations
 	theta_l_filtered = filter(v -> v in vars_in_Et, theta_l)
 
@@ -980,23 +1010,20 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	x_theta_vars_reorder_filtered = vcat(theta_l_filtered,
 		reverse([x for x in x_theta_vars_filtered if !(x in theta_l_filtered)]))
 
-	@info "[DEBUG-EQ-COUNT] After filtering: $(length(x_theta_vars_filtered)) variables (from $(length(x_theta_vars)))"
-	@info "[DEBUG-EQ-COUNT] x_theta_vars_reorder_filtered: $(x_theta_vars_reorder_filtered)"
+	if infolevel > 1
+		@info "[SI-TEMPLATE] Reordered ring variables after removing phantom support" variables = x_theta_vars_reorder_filtered
+	end
 	# ==== End of filtering block ====
 
 	Et_ids, alg_indep = algebraic_independence(Et_eval_base, x_theta_vars_reorder_filtered,
 		all_x_theta_vars_subs)
 
-	@info "[DEBUG-EQ-COUNT] algebraic_independence returned Et_ids with $(length(Et_ids)) indices: $Et_ids"
-	@info "[DEBUG-EQ-COUNT] alg_indep (transcendence basis): $(length(alg_indep)) variables"
-	@info "[DEBUG-EQ-COUNT] alg_indep list: $(alg_indep)"
-
-	# Log which equations are selected and which are dropped
-	@info "[DEBUG-EQ-COUNT] Selected equations indices: $Et_ids"
 	dropped_ids = setdiff(1:length(Et), Et_ids)
-	@info "[DEBUG-EQ-COUNT] Dropped equations indices: $dropped_ids"
-	for idx in dropped_ids
-		@info "[DEBUG-DROPPED-EQ] Dropped Eq$idx: $(Et[idx])"
+	if infolevel > 1
+		@info "[SI-TEMPLATE] Algebraic independence result" selected_equation_indices = Et_ids transcendence_basis_count = length(alg_indep) transcendence_basis = alg_indep
+		for idx in dropped_ids
+			@info "[SI-TEMPLATE] Dropped polynomial equation" index = idx equation = Et[idx]
+		end
 	end
 
 	# Reduce the system using the computed indices
@@ -1009,15 +1036,23 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	@info "Reduced polynomial system to $(length(reduced_Et)) equations"
-	@info "[DEBUG-EQ-COUNT] Final: $(length(reduced_Et)) equations for $(length(x_theta_vars_filtered)) variables in x_theta_vars_filtered"
-	@info "[DEBUG-EQ-COUNT] Actual variables in reduced system: $(length(reduced_vars))"
-	@info "[DEBUG-EQ-COUNT] Reduced system variables: $(reduced_vars)"
-
-	# Check for mismatch between equations and actual variables
-	if length(reduced_Et) != length(reduced_vars)
-		@warn "[DEBUG-EQ-COUNT] MISMATCH DETECTED: $(length(reduced_Et)) equations but $(length(reduced_vars)) actual variables!"
-		@warn "[DEBUG-EQ-COUNT] Variables in x_theta_vars_filtered but not in equations: $(setdiff(Set(x_theta_vars_filtered), reduced_vars))"
-		@warn "[DEBUG-EQ-COUNT] Variables in equations but not in x_theta_vars_filtered: $(setdiff(reduced_vars, Set(x_theta_vars_filtered)))"
+	_log_si_polynomial_system_summary(
+		infolevel = infolevel,
+		initial_equation_count = length(Et),
+		initial_variable_count = length(x_theta_vars),
+		theta_l_count = length(theta_l),
+		phantom_vars = phantom_vars,
+		filtered_variable_count = length(x_theta_vars_filtered),
+		selected_equation_indices = Et_ids,
+		dropped_equation_indices = dropped_ids,
+		reduced_equation_count = length(reduced_Et),
+		reduced_variable_count = length(reduced_vars),
+	)
+	if infolevel > 1
+		@info "[SI-TEMPLATE] Reduced polynomial ring variables" variables = reduced_vars
+		if length(reduced_Et) != length(reduced_vars)
+			@info "[SI-TEMPLATE] Pre-accounting ring-variable mismatch details" filtered_not_in_equations = setdiff(Set(x_theta_vars_filtered), reduced_vars) equations_not_in_filtered = setdiff(reduced_vars, Set(x_theta_vars_filtered))
+		end
 	end
 
 	# Build the derivative mapping dictionary

@@ -87,6 +87,25 @@ function init_audit_worker!(pid::Int)
 			)]
 		end
 
+		function summarize_unsupported(case_id::AbstractString, err)
+			note = "Unsupported model class $(err.category)"
+			if !isempty(err.expressions)
+				note *= ": " * join(err.expressions, ", ")
+			end
+			return [(;
+				case_id = String(case_id),
+				status = "unsupported_expected",
+				raw_count = -1,
+				best_count = 0,
+				best_err = Inf,
+				identifiable_param_count = -1,
+				median_rel_param_err = NaN,
+				max_rel_param_err = NaN,
+				mean_rel_param_err = NaN,
+				note,
+			)]
+		end
+
 		function best_cluster_solution(analysis)
 			analysis isa Tuple || return nothing
 			length(analysis) >= 1 || return nothing
@@ -187,9 +206,14 @@ function init_audit_worker!(pid::Int)
 			pep = Base.invokelatest(model_fn)
 			opts = Base.invokelatest(Main.default_example_options; smoke = true)
 			opts = ODEParameterEstimation.merge_options(opts, time_interval = default_time_interval(pep))
-			result = quiet_call() do
-				sampled = ODEParameterEstimation.sample_problem_data(pep, opts)
-				ODEParameterEstimation.analyze_parameter_estimation_problem(sampled, opts)
+			result = try
+				quiet_call() do
+					sampled = ODEParameterEstimation.sample_problem_data(pep, opts)
+					ODEParameterEstimation.analyze_parameter_estimation_problem(sampled, opts)
+				end
+			catch err
+				err isa ODEParameterEstimation.UnsupportedModelClassError && return summarize_unsupported("model:$(model_name)", err)
+				rethrow(err)
 			end
 			rows = summarize_leaf("model:$(model_name)", result)
 			best = best_cluster_solution(result[2])

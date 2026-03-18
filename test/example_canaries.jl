@@ -54,6 +54,7 @@ const FAST_DIRECT_OPTS = EstimationOptions(
     save_system = false,
 )
 
+
 @testset "Example canaries" begin
     @testset "simple recovers parameters" begin
         pep, raw_results, analysis, _ = run_canary(ODEParameterEstimation.simple, FAST_STANDARD_OPTS)
@@ -93,7 +94,8 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test analysis[2] < 1e-6
         @test !isempty(best.all_unidentifiable)
         @test Set(best.all_unidentifiable) == Set(keys(pep.p_true))
-        @test !isempty(best.provenance.representative_assignments)
+        @test !isempty(best.provenance.structural_fix_set)
+        @test isempty(best.provenance.representative_assignments)
     end
 
     @testset "measured-quantity linear combinations stay identifiable" begin
@@ -149,7 +151,27 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test isempty(best.provenance.residual_fix_set)
         @test best.provenance.template_status_before_residual_fix == :determined
         @test best.provenance.template_status_after_residual_fix == :determined
-        @test best.provenance.practical_identifiability_status == :not_assessed
+        @test best.provenance.practical_identifiability_status == :advisory_available
+        @test !isnothing(best.provenance.numerical_advisory)
+        @test best.provenance.numerical_advisory.status == :available
+    end
+
+    @testset "unsupported raw model classes fail explicitly" begin
+        for (ctor, expected_category) in (
+            (getfield(ODEParameterEstimation, :cart_pole), :state_trigonometric),
+            (getfield(ODEParameterEstimation, :tank_level), :sqrt_nonlinearity),
+        )
+            pep = ctor()
+            sampled = ODEParameterEstimation.sample_problem_data(pep, FAST_STANDARD_OPTS)
+            err = try
+                ODEParameterEstimation.setup_identifiability(sampled; max_num_points = 1, nooutput = true)
+                nothing
+            catch caught
+                caught
+            end
+            @test err isa ODEParameterEstimation.UnsupportedModelClassError
+            @test err.category == expected_category
+        end
     end
 
     @testset "direct optimization smoke test" begin

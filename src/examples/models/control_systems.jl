@@ -1466,11 +1466,13 @@ function magnetic_levitation()
 		0.0001,  # c: force constant (N·m²/A²)
 		9.81,    # g: gravity (m/s²)
 		0.01,    # L0: nominal inductance (H)
-		5.0,     # V: INPUT - coil voltage (V)
+		1.0,     # V: INPUT - coil voltage (V), matched to the nominal 1 A operating current
 	]
 
-	# Start near equilibrium (where gravity = magnetic force)
-	ic_true = [0.01, 0.0, 1.0]  # z=1cm, at rest, 1A current
+	# Use a physically consistent near-equilibrium operating point.
+	# For i = 1 A, lift balance requires z_eq = sqrt(c / (m * g)) ≈ 3.19 cm.
+	# Start slightly below that height to generate motion without immediately destabilizing the sampling solve.
+	ic_true = [0.033, 0.0, 1.0]  # z≈3.3 cm, at rest, 1 A current
 
 	# Simplified model with constant inductance
 	# Magnetic force: F = c*i²/z²
@@ -1489,7 +1491,7 @@ function magnetic_levitation()
 		model,
 		mq,
 		nothing,
-		[0.0, 0.5],  # Fast dynamics
+		[0.0, 0.1],  # Fast dynamics; keep the raw open-loop model in a short, well-sampled horizon
 		nothing,
 		OrderedDict(parameters .=> p_true),
 		OrderedDict(states .=> ic_true),

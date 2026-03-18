@@ -136,7 +136,15 @@ function construct_equation_system_from_si_template(
 			# Find the corresponding lhs variable in the DD structure
 			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
 				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
-				val = nth_deriv(x -> obs_interp(x), i, t_point)
+				val = try
+					nth_deriv(x -> obs_interp(x), i, t_point)
+				catch err
+					if err isa UnsupportedDerivativeOrderError
+						context = "while instantiating $(lhs_var) for observable $(obs_rhs) at time $(t_point)"
+						throw(UnsupportedDerivativeOrderError(err.requested_order, err.supported_order, err.backend, context))
+					end
+					rethrow()
+				end
 				if isnan(val)
 					@warn "[DEBUG-ODEPE-NaN] NaN detected from interpolator call." observable = obs_rhs deriv_order = i time_point = t_point
 					@warn "[DEBUG-ODEPE-NaN] The failing interpolator object is:" interpolator_object = obs_interp

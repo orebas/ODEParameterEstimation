@@ -91,7 +91,7 @@ include("core/sampling.jl")
 include("examples/load_examples.jl")
 
 # Export types
-export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, DerivativeData
+export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, NumericalIdentifiabilityAdvisory, DerivativeData, UnsupportedModelClassError, SamplingFailureError, UnsupportedDerivativeOrderError, TAYLORDIFF_MAX_DERIVATIVE_ORDER
 
 # Export constants
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS

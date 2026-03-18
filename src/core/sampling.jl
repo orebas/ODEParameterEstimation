@@ -47,6 +47,40 @@ function add_additive_noise(data::OrderedDict, noise_level::Float64)
 	return noisy_data
 end
 
+struct SamplingFailureError <: Exception
+	model_name::String
+	retcode
+	requested_points::Int
+	returned_points::OrderedDict{String, Int}
+end
+
+function Base.showerror(io::IO, err::SamplingFailureError)
+	print(io, "Sampling failed for model $(err.model_name).")
+	print(io, " ODE solve retcode=$(err.retcode).")
+	print(io, " Requested $(err.requested_points) sample points, but observed series lengths were $(Dict(err.returned_points)).")
+	print(io, " The trajectory did not reach the requested save grid; fix the model/ICs/time horizon or use a more appropriate ODE solver/setup.")
+end
+
+function validate_sampled_trajectory!(
+	model::ModelingToolkit.AbstractSystem,
+	measured_data::Vector{ModelingToolkit.Equation},
+	solution_true,
+	requested_points::Int,
+)
+	returned_points = OrderedDict{String, Int}()
+	for measurement in measured_data
+		symbol = Num(measurement.rhs)
+		returned_points[string(symbol)] = length(solution_true[symbol])
+	end
+
+	if !SciMLBase.successful_retcode(solution_true) || any(values(returned_points) .!= requested_points)
+		model_name = string(ModelingToolkit.getname(model))
+		throw(SamplingFailureError(model_name, solution_true.retcode, requested_points, returned_points))
+	end
+
+	return nothing
+end
+
 
 #This is a utility function which fills in observed data by solving an ODE.
 
@@ -89,6 +123,7 @@ function sample_data(model::ModelingToolkit.AbstractSystem,
 	solution_true = ModelingToolkit.solve(problem, solver,
 		saveat = sampling_times;
 		abstol, reltol)
+	validate_sampled_trajectory!(model, measured_data, solution_true, num_points)
 
 	#if false # Plot state variables
 	#	states = ModelingToolkit.unknowns(model)

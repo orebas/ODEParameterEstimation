@@ -1040,6 +1040,8 @@ function multipoint_numerical_jacobian(
 				if val isa Number
 					push!(obs_deriv_vals, T(val))
 				else
+					unsupported_err = classify_unsupported_substitution_error(DD.obs_rhs[i][j], substituted)
+					!isnothing(unsupported_err) && throw(unsupported_err)
 					# If still symbolic, substitution was incomplete - this is a bug
 					# Print debugging info to help diagnose
 					dict_keys = collect(keys(evaluated_subst_dict))
@@ -1544,9 +1546,9 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 end
 
 """
-	lookup_value(var, var_search, soln_index::Int, 
-				good_udict::Dict, trivial_dict::Dict, 
-				final_varlist::Vector, trimmed_varlist::Vector, 
+	lookup_value(var, var_search, soln_index::Int,
+				good_udict::AbstractDict, trivial_dict::AbstractDict,
+				final_varlist::Vector, trimmed_varlist::Vector,
 				solns::Vector) -> Float64
 
 Look up a variable's value from various dictionaries and solution vectors.
@@ -1556,8 +1558,8 @@ This is a helper function for parameter estimation.
 - `var`: Original variable to look up (Num or SymbolicUtils.BasicSymbolic{Real})
 - `var_search`: Symbolic variable to search for
 - `soln_index::Int`: Index in the solutions array
-- `good_udict::Dict`: Dictionary of unidentifiable parameters
-- `trivial_dict::Dict`: Dictionary of trivially determined values
+- `good_udict::AbstractDict`: Dictionary of explicit fixed values
+- `trivial_dict::AbstractDict`: Dictionary of trivially determined values
 - `final_varlist::Vector`: Full list of variables
 - `trimmed_varlist::Vector`: Reduced list of variables
 - `solns::Vector`: Solutions array
@@ -1566,7 +1568,7 @@ This is a helper function for parameter estimation.
 - `Float64`: Value of the variable
 """
 function lookup_value(var, var_search, soln_index::Int,
-	good_udict::Dict, trivial_dict::Dict,
+	good_udict::AbstractDict, trivial_dict::AbstractDict,
 	final_varlist::Vector, trimmed_varlist::Vector,
 	solns::Vector)::Float64
 	# First check if it's in the unidentifiable dictionary

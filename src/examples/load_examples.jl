@@ -98,10 +98,14 @@ const HARD_MODELS = Dict(
 	:bilinear_system_identifiable => bilinear_system_identifiable,
 	:bilinear_system_sinusoidal => bilinear_system_sinusoidal,
 	:cart_pole_linear => cart_pole_linear,
+	:magnetic_levitation => magnetic_levitation,
 	:magnetic_levitation_identifiable => magnetic_levitation_identifiable,
 	:magnetic_levitation_sinusoidal => magnetic_levitation_sinusoidal,
 	:bicycle_model_sinusoidal => bicycle_model_sinusoidal,
 	:dc_motor_sinusoidal => dc_motor_sinusoidal,
+	:cstr_fixed_activation => cstr_fixed_activation,
+	:cstr_reparametrized => cstr_reparametrized,
+	:sirsforced => sirsforced,
 )
 
 """Models retained in-package but currently best treated as limitations or active failure cases."""
@@ -112,14 +116,10 @@ const LIMITATION_MODELS = Dict(
 	:cstr => cstr,
 	:ball_beam => ball_beam,
 	:swing_equation => swing_equation,
-	:magnetic_levitation => magnetic_levitation,
 	:two_tank => two_tank,
 	:boost_converter => boost_converter,
 	:crauste => crauste,
 	:crauste_revised => crauste_revised,
-	:cstr_reparametrized => cstr_reparametrized,
-	:cstr_fixed_activation => cstr_fixed_activation,
-	:sirsforced => sirsforced,
 )
 
 """Default runnable set: green examples plus the explicit structural-unidentifiability demos."""

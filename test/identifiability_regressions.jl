@@ -62,7 +62,9 @@ end
         @test isempty(best.provenance.residual_fix_set)
         @test best.provenance.template_status_before_residual_fix == :determined
         @test best.provenance.template_status_after_residual_fix == :determined
-        @test best.provenance.practical_identifiability_status == :not_assessed
+        @test best.provenance.practical_identifiability_status == :advisory_available
+        @test !isnothing(best.provenance.numerical_advisory)
+        @test best.provenance.numerical_advisory.status == :available
         @test any(
             isapprox(result_value_by_name(result.parameters, "a"), pep.p_true[first(keys(pep.p_true))]; atol = 1e-6, rtol = 1e-6) &&
             isapprox(result_value_by_name(result.parameters, "b"), pep.p_true[collect(keys(pep.p_true))[2]]; atol = 1e-6, rtol = 1e-6)

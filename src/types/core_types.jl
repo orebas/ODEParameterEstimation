@@ -66,6 +66,46 @@ const MAX_SOLUTIONS = 20              # Maximum number of solutions to consider 
 const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale to compute default optimization bounds
 
 """
+    NumericalIdentifiabilityAdvisory
+
+Structured best-effort numerical identifiability diagnostics.
+
+# Fields
+- `status::Symbol`: `:available`, `:failed`, or `:unavailable`
+- `recommended_num_points::Union{Nothing, Int}`: Recommended point count heuristic
+- `recommended_deriv_level::Dict{Int, Int}`: Recommended derivative depth by observable index
+- `flagged_variables::Set{Num}`: Variables flagged as numerically fragile at the probe point
+- `notes::Vector{Symbol}`: Advisory notes such as `:heuristic_fallback`
+- `failure_reason::Union{Nothing, String}`: Best-effort failure summary when advisory analysis failed
+"""
+struct NumericalIdentifiabilityAdvisory
+    status::Symbol
+    recommended_num_points::Union{Nothing, Int}
+    recommended_deriv_level::Dict{Int, Int}
+    flagged_variables::Set{Num}
+    notes::Vector{Symbol}
+    failure_reason::Union{Nothing, String}
+end
+
+function NumericalIdentifiabilityAdvisory(;
+    status::Symbol = :unavailable,
+    recommended_num_points::Union{Nothing, Integer} = nothing,
+    recommended_deriv_level = Dict{Int, Int}(),
+    flagged_variables = Set{Num}(),
+    notes = Symbol[],
+    failure_reason::Union{Nothing, AbstractString} = nothing,
+)
+    return NumericalIdentifiabilityAdvisory(
+        status,
+        isnothing(recommended_num_points) ? nothing : Int(recommended_num_points),
+        Dict{Int, Int}(Int(k) => Int(v) for (k, v) in pairs(recommended_deriv_level)),
+        Set{Num}(flagged_variables),
+        Symbol[notes...],
+        isnothing(failure_reason) ? nothing : String(failure_reason),
+    )
+end
+
+"""
     ResultProvenance
 
 Structured lineage metadata for a parameter-estimation result.
@@ -86,6 +126,7 @@ Structured lineage metadata for a parameter-estimation result.
 - `template_status_after_residual_fix::Union{Nothing, Symbol}`: Final template dimension status after any residual template repair
 - `equations_dropped_by_rank_trimming::Vector{Int}`: Equation indices removed by rank-based template trimming
 - `practical_identifiability_status::Symbol`: Practical/numerical identifiability assessment status for this flow
+- `numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory}`: Best-effort advisory numerical diagnostics and heuristic recommendations
 - `notes::Vector{Symbol}`: Additional lineage/debug notes
 """
 mutable struct ResultProvenance
@@ -104,6 +145,7 @@ mutable struct ResultProvenance
     template_status_after_residual_fix::Union{Nothing, Symbol}
     equations_dropped_by_rank_trimming::Vector{Int}
     practical_identifiability_status::Symbol
+    numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory}
     notes::Vector{Symbol}
 end
 
@@ -123,6 +165,7 @@ function ResultProvenance(;
     template_status_after_residual_fix::Union{Nothing, Symbol} = nothing,
     equations_dropped_by_rank_trimming = Int[],
     practical_identifiability_status::Symbol = :not_assessed,
+    numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory} = nothing,
     notes = Symbol[],
 )
     return ResultProvenance(
@@ -141,6 +184,7 @@ function ResultProvenance(;
         template_status_after_residual_fix,
         Int[equations_dropped_by_rank_trimming...],
         practical_identifiability_status,
+        isnothing(numerical_advisory) ? nothing : deepcopy(numerical_advisory),
         Symbol[notes...],
     )
 end
@@ -162,6 +206,7 @@ function copy_provenance(
     template_status_after_residual_fix = provenance.template_status_after_residual_fix,
     equations_dropped_by_rank_trimming = provenance.equations_dropped_by_rank_trimming,
     practical_identifiability_status = provenance.practical_identifiability_status,
+    numerical_advisory = provenance.numerical_advisory,
     notes = provenance.notes,
 )
     return ResultProvenance(
@@ -180,6 +225,7 @@ function copy_provenance(
         template_status_after_residual_fix = template_status_after_residual_fix,
         equations_dropped_by_rank_trimming = copy(equations_dropped_by_rank_trimming),
         practical_identifiability_status = practical_identifiability_status,
+        numerical_advisory = isnothing(numerical_advisory) ? nothing : deepcopy(numerical_advisory),
         notes = copy(notes),
     )
 end
@@ -224,6 +270,7 @@ function lineage_summary(result)::String
     !isempty(prov.residual_fix_set) && push!(parts, "residual_fix=$(length(prov.residual_fix_set))")
     !isnothing(prov.template_status_after_residual_fix) && push!(parts, "template=$(prov.template_status_after_residual_fix)")
     prov.practical_identifiability_status != :not_assessed && push!(parts, "practical=$(prov.practical_identifiability_status)")
+    !isnothing(prov.numerical_advisory) && push!(parts, "advisory=$(prov.numerical_advisory.status)")
     return join(parts, ", ")
 end
 
