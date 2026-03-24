@@ -1,10 +1,12 @@
 # ODEParameterEstimation.jl Guidelines
 
 ## Build/Test Commands
-- Activate the project: `julia --project`
-- Run tests: `julia --project -e "using Pkg; Pkg.test()"`
-- Run specific test: `julia --project test/specific_test.jl`
-- Run examples: `julia --project -e "include(\"src/examples/run_examples.jl\")"`
+- **Always use `--startup-file=no`** when invoking Julia (Revise.jl causes exit segfaults on Julia 1.12)
+- Use global Julia environment (plain `julia`, NOT `julia --project`) for running tests
+- Run tests: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/fast_core.jl")'`
+- Run feature regressions: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/feature_regressions.jl")'`
+- Run specific test: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/specific_test.jl")'`
+- Run examples: `julia --startup-file=no -e 'using ODEParameterEstimation; include("src/examples/run_examples.jl")'`
 
 ## Code Style Guidelines
 - Imports: Group related packages, with ModelingToolkit, OrdinaryDiffEq first

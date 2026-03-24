@@ -36,6 +36,7 @@ const GREEN_MODELS = Dict(
 	:lotka_volterra => lotka_volterra,
 	:vanderpol => vanderpol,
 	:harmonic => harmonic,
+	:forced_decay => forced_decay,
 
 	:sum_test => sum_test,
 

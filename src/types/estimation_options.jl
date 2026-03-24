@@ -32,11 +32,22 @@ Enum for selecting the data interpolation method.
 	InterpolatorAGPRobustSExRQ # agp_gpr_robust with SE * RQ product kernel
 	InterpolatorAGPRobustMatern52 # agp_gpr_robust with Matérn-5/2 kernel
 	InterpolatorS2AAAMLE           # S2 composite: AAA(raw data) → MLE (no GP)
-	InterpolatorS3SE               # S3 composite: GP(SE) → AAA → MLE
-	InterpolatorS3RQ               # S3 composite: GP(RQ) → AAA → MLE
-	InterpolatorS3SEpRQ            # S3 composite: GP(SE+RQ) → AAA → MLE
-	InterpolatorS3SExRQ            # S3 composite: GP(SE×RQ) → AAA → MLE
-	InterpolatorS3Matern52         # S3 composite: GP(Matérn-5/2) → AAA → MLE
+	InterpolatorS3SE               # S3 composite: GP(SE) → AAA → MLE (deprecated — forwards to AdaptSE)
+	InterpolatorS3RQ               # S3 composite: GP(RQ) → AAA → MLE (deprecated — forwards to AdaptRQ)
+	InterpolatorS3SEpRQ            # S3 composite: GP(SE+RQ) → AAA → MLE (deprecated — forwards to AdaptSEpRQ)
+	InterpolatorS3SExRQ            # S3 composite: GP(SE×RQ) → AAA → MLE (deprecated — forwards to AdaptSExRQ)
+	InterpolatorS3Matern52         # S3 composite: GP(Matérn-5/2) → AAA → MLE (deprecated — forwards to AdaptMatern52)
+	InterpolatorS3AdaptSE          # S3 adaptive-tol: GP(SE) → AAA(adaptive) → MLE
+	InterpolatorS3AdaptRQ          # S3 adaptive-tol: GP(RQ) → AAA(adaptive) → MLE
+	InterpolatorS3AdaptSEpRQ       # S3 adaptive-tol: GP(SE+RQ) → AAA(adaptive) → MLE
+	InterpolatorS3AdaptSExRQ       # S3 adaptive-tol: GP(SE×RQ) → AAA(adaptive) → MLE
+	InterpolatorS3AdaptMatern52    # S3 adaptive-tol: GP(Matérn-5/2) → AAA(adaptive) → MLE
+	InterpolatorS3BICSE            # S3 BIC: GP(SE) → AAA(BIC-selected) → MLE
+	InterpolatorS3BICRQ            # S3 BIC: GP(RQ) → AAA(BIC-selected) → MLE
+	InterpolatorS3BICSEpRQ         # S3 BIC: GP(SE+RQ) → AAA(BIC-selected) → MLE
+	InterpolatorS3BICSExRQ         # S3 BIC: GP(SE×RQ) → AAA(BIC-selected) → MLE
+	InterpolatorS3BICMatern52      # S3 BIC: GP(Matérn-5/2) → AAA(BIC-selected) → MLE
+	InterpolatorAGPUQ          # agp_gpr_uq - GP with full UQ (for calibrated uncertainty)
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -146,7 +157,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
 - `opt_lb::Vector{Float64}`: Lower bounds for optimization (default: fill(-3.0, n_params))
 - `opt_ub::Vector{Float64}`: Upper bounds for optimization (default: fill(3.0, n_params))
-- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:zygote`, `:enzyme`, `:finite`
+- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:enzyme`, `:finite`
 - `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 300.0)
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
 - `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
@@ -313,6 +324,7 @@ Base.@kwdef struct EstimationOptions
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
+	s3_adapt_k::Float64 = 10.0     # Noise multiplier for S3 adaptive tolerance (higher = fewer support points)
 
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
@@ -359,11 +371,13 @@ function get_solver_function(method::SystemSolverMethod)
 end
 
 """
-	get_interpolator_function(method::InterpolatorMethod, custom::Union{Nothing, Function}=nothing) -> Function
+	get_interpolator_function(method::InterpolatorMethod, custom::Union{Nothing, Function}=nothing; s3_adapt_k=10.0) -> Function
 
 Convert InterpolatorMethod enum to actual interpolator function.
+The `s3_adapt_k` keyword controls the noise multiplier for S3 adaptive-tolerance methods.
 """
-function get_interpolator_function(method::InterpolatorMethod, custom::Union{Nothing, Function} = nothing)
+function get_interpolator_function(method::InterpolatorMethod, custom::Union{Nothing, Function} = nothing;
+                                   s3_adapt_k::Float64 = 10.0)
 	if method == InterpolatorCustom
 		if isnothing(custom)
 			error("InterpolatorCustom selected but no custom_interpolator provided")
@@ -383,7 +397,9 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 	elseif method == InterpolatorFHD
 		return fhdn(5)  # Default to degree 5 FHD
 	elseif method == InterpolatorAGP
-		return agp_gpr
+		return agp_gpr_robust
+	elseif method == InterpolatorAGPUQ
+		return agp_gpr_uq
 	elseif method == InterpolatorAGPRobust
 		return agp_gpr_robust
 	elseif method == InterpolatorAGPRobustRQ
@@ -396,16 +412,49 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return (xs, ys) -> agp_gpr_robust(xs, ys; kernel_type=:matern52)
 	elseif method == InterpolatorS2AAAMLE
 		return s2_aaa_mle_interpolator
+	# --- S3 Adaptive tolerance ---
+	elseif method == InterpolatorS3AdaptSE
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_interpolator(xs, ys; k = k)
+	elseif method == InterpolatorS3AdaptRQ
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_rq_interpolator(xs, ys; k = k)
+	elseif method == InterpolatorS3AdaptSEpRQ
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_plus_rq_interpolator(xs, ys; k = k)
+	elseif method == InterpolatorS3AdaptSExRQ
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_times_rq_interpolator(xs, ys; k = k)
+	elseif method == InterpolatorS3AdaptMatern52
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_matern52_interpolator(xs, ys; k = k)
+	# --- S3 BIC model selection ---
+	elseif method == InterpolatorS3BICSE
+		return s3_bic_se_interpolator
+	elseif method == InterpolatorS3BICRQ
+		return s3_bic_rq_interpolator
+	elseif method == InterpolatorS3BICSEpRQ
+		return s3_bic_se_plus_rq_interpolator
+	elseif method == InterpolatorS3BICSExRQ
+		return s3_bic_se_times_rq_interpolator
+	elseif method == InterpolatorS3BICMatern52
+		return s3_bic_matern52_interpolator
+	# --- Old S3 names (deprecated, forward to adaptive) ---
 	elseif method == InterpolatorS3SE
-		return s3_se_interpolator
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_interpolator(xs, ys; k = k)
 	elseif method == InterpolatorS3RQ
-		return s3_rq_interpolator
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_rq_interpolator(xs, ys; k = k)
 	elseif method == InterpolatorS3SEpRQ
-		return s3_se_plus_rq_interpolator
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_plus_rq_interpolator(xs, ys; k = k)
 	elseif method == InterpolatorS3SExRQ
-		return s3_se_times_rq_interpolator
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_se_times_rq_interpolator(xs, ys; k = k)
 	elseif method == InterpolatorS3Matern52
-		return s3_matern52_interpolator
+		k = s3_adapt_k
+		return (xs, ys) -> s3_adapt_matern52_interpolator(xs, ys; k = k)
 	else
 		error("Unknown interpolator method: $method")
 	end
@@ -422,6 +471,7 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorAAADOld && return :aaad_old
 	method == InterpolatorFHD && return :fhd
 	method == InterpolatorAGP && return :agp
+	method == InterpolatorAGPUQ && return :agp_uq
 	method == InterpolatorAGPRobust && return :agp_robust
 	method == InterpolatorAGPRobustRQ && return :agp_robust_rq
 	method == InterpolatorAGPRobustSEpRQ && return :agp_robust_se_plus_rq
@@ -433,6 +483,16 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorS3SEpRQ && return :s3_se_plus_rq
 	method == InterpolatorS3SExRQ && return :s3_se_times_rq
 	method == InterpolatorS3Matern52 && return :s3_matern52
+	method == InterpolatorS3AdaptSE && return :s3_adapt_se
+	method == InterpolatorS3AdaptRQ && return :s3_adapt_rq
+	method == InterpolatorS3AdaptSEpRQ && return :s3_adapt_se_plus_rq
+	method == InterpolatorS3AdaptSExRQ && return :s3_adapt_se_times_rq
+	method == InterpolatorS3AdaptMatern52 && return :s3_adapt_matern52
+	method == InterpolatorS3BICSE && return :s3_bic_se
+	method == InterpolatorS3BICRQ && return :s3_bic_rq
+	method == InterpolatorS3BICSEpRQ && return :s3_bic_se_plus_rq
+	method == InterpolatorS3BICSExRQ && return :s3_bic_se_times_rq
+	method == InterpolatorS3BICMatern52 && return :s3_bic_matern52
 	method == InterpolatorCustom && return :custom
 	return :unknown
 end
@@ -446,7 +506,7 @@ function is_gp_interpolator(method::InterpolatorMethod)::Bool
 	return method in (InterpolatorAGPRobust, InterpolatorAGPRobustRQ,
 	                  InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ,
 	                  InterpolatorAGPRobustMatern52,
-	                  InterpolatorAGP)
+	                  InterpolatorAGP, InterpolatorAGPUQ)
 end
 
 """
@@ -456,7 +516,8 @@ Returns true if the interpolator is Matérn-5/2, which is only C² smooth and
 cannot produce valid 3rd+ order derivatives from raw GP output.
 """
 function is_matern_interpolator(method::InterpolatorMethod)::Bool
-	return method == InterpolatorAGPRobustMatern52
+	return method in (InterpolatorAGPRobustMatern52,
+	                  InterpolatorS3Matern52, InterpolatorS3AdaptMatern52, InterpolatorS3BICMatern52)
 end
 
 """
@@ -465,12 +526,12 @@ end
 Map a GP interpolator method to its S3 companion tag symbol.
 """
 function s3_symbol(method::InterpolatorMethod)::Symbol
-	method == InterpolatorAGPRobust && return :s3_se
-	method == InterpolatorAGPRobustRQ && return :s3_rq
-	method == InterpolatorAGPRobustSEpRQ && return :s3_se_plus_rq
-	method == InterpolatorAGPRobustSExRQ && return :s3_se_times_rq
-	method == InterpolatorAGPRobustMatern52 && return :s3_matern52
-	method == InterpolatorAGP && return :s3_agp
+	method == InterpolatorAGPRobust && return :s3_adapt_se
+	method == InterpolatorAGPRobustRQ && return :s3_adapt_rq
+	method == InterpolatorAGPRobustSEpRQ && return :s3_adapt_se_plus_rq
+	method == InterpolatorAGPRobustSExRQ && return :s3_adapt_se_times_rq
+	method == InterpolatorAGPRobustMatern52 && return :s3_adapt_matern52
+	method == InterpolatorAGP && return :s3_adapt_se
 	return :s3_unknown
 end
 
@@ -501,13 +562,13 @@ function resolve_interpolator_list(opts::EstimationOptions)
 
 	# Backward compat: auto-expand GP methods when gp_s3_refinement=true
 	if opts.gp_s3_refinement
-		@warn "gp_s3_refinement is deprecated. Add InterpolatorS3SE etc. to your interpolators list directly." maxlog=1
+		@warn "gp_s3_refinement is deprecated. Add InterpolatorS3AdaptSE etc. to your interpolators list directly." maxlog=1
 		gp_to_s3 = Dict(
-			InterpolatorAGPRobust => InterpolatorS3SE,
-			InterpolatorAGPRobustRQ => InterpolatorS3RQ,
-			InterpolatorAGPRobustSEpRQ => InterpolatorS3SEpRQ,
-			InterpolatorAGPRobustSExRQ => InterpolatorS3SExRQ,
-			InterpolatorAGPRobustMatern52 => InterpolatorS3Matern52,
+			InterpolatorAGPRobust => InterpolatorS3AdaptSE,
+			InterpolatorAGPRobustRQ => InterpolatorS3AdaptRQ,
+			InterpolatorAGPRobustSEpRQ => InterpolatorS3AdaptSEpRQ,
+			InterpolatorAGPRobustSExRQ => InterpolatorS3AdaptSExRQ,
+			InterpolatorAGPRobustMatern52 => InterpolatorS3AdaptMatern52,
 		)
 		for (m, _) in copy(result)
 			haskey(gp_to_s3, m) && push!(result, (gp_to_s3[m], nothing))
@@ -515,7 +576,7 @@ function resolve_interpolator_list(opts::EstimationOptions)
 	end
 
 	# Inject GP caching for shared kernels
-	_inject_gp_caching!(result)
+	_inject_gp_caching!(result; s3_adapt_k = opts.s3_adapt_k)
 
 	return result
 end
@@ -531,11 +592,24 @@ function _gp_kernel_of(method::InterpolatorMethod)::Union{Nothing, Symbol}
 	method == InterpolatorAGPRobustSEpRQ && return :se_plus_rq
 	method == InterpolatorAGPRobustSExRQ && return :se_times_rq
 	method == InterpolatorAGPRobustMatern52 && return :matern52
+	# Old S3 names
 	method == InterpolatorS3SE && return :se
 	method == InterpolatorS3RQ && return :rq
 	method == InterpolatorS3SEpRQ && return :se_plus_rq
 	method == InterpolatorS3SExRQ && return :se_times_rq
 	method == InterpolatorS3Matern52 && return :matern52
+	# S3 Adaptive
+	method == InterpolatorS3AdaptSE && return :se
+	method == InterpolatorS3AdaptRQ && return :rq
+	method == InterpolatorS3AdaptSEpRQ && return :se_plus_rq
+	method == InterpolatorS3AdaptSExRQ && return :se_times_rq
+	method == InterpolatorS3AdaptMatern52 && return :matern52
+	# S3 BIC
+	method == InterpolatorS3BICSE && return :se
+	method == InterpolatorS3BICRQ && return :rq
+	method == InterpolatorS3BICSEpRQ && return :se_plus_rq
+	method == InterpolatorS3BICSExRQ && return :se_times_rq
+	method == InterpolatorS3BICMatern52 && return :matern52
 	return nothing
 end
 
@@ -546,7 +620,33 @@ Returns true if the interpolator method is an S3 composite (GP→AAA→MLE).
 """
 function _is_s3_method(method::InterpolatorMethod)::Bool
 	return method in (InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ,
+	                  InterpolatorS3SExRQ, InterpolatorS3Matern52,
+	                  InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ,
+	                  InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52,
+	                  InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ,
+	                  InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52)
+end
+
+"""
+	_is_s3_adapt_method(method::InterpolatorMethod) -> Bool
+
+Returns true for S3 adaptive-tolerance methods (including deprecated old S3 names).
+"""
+function _is_s3_adapt_method(method::InterpolatorMethod)::Bool
+	return method in (InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ,
+	                  InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52,
+	                  InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ,
 	                  InterpolatorS3SExRQ, InterpolatorS3Matern52)
+end
+
+"""
+	_is_s3_bic_method(method::InterpolatorMethod) -> Bool
+
+Returns true for S3 BIC model-selection methods.
+"""
+function _is_s3_bic_method(method::InterpolatorMethod)::Bool
+	return method in (InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ,
+	                  InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52)
 end
 
 """
@@ -568,8 +668,18 @@ end
 
 Create a closure that reuses a cached GP (if available) for S3 refinement.
 On cache miss, fits the GP internally.
+DEPRECATED: use `_make_cached_s3_adapt_func` instead.
 """
 function _make_cached_s3_func(kernel_type::Symbol, cache::Dict{UInt64, Any})
+	return _make_cached_s3_adapt_func(kernel_type, cache)
+end
+
+"""
+	_make_cached_s3_adapt_func(kernel_type, cache; k=10.0) -> Function
+
+Create a closure that reuses a cached GP for S3 adaptive-tolerance refinement.
+"""
+function _make_cached_s3_adapt_func(kernel_type::Symbol, cache::Dict{UInt64, Any}; k::Float64 = 10.0)
 	return function(xs, ys)
 		key = hash(ys)
 		t_vec = Vector{Float64}(xs)
@@ -578,17 +688,36 @@ function _make_cached_s3_func(kernel_type::Symbol, cache::Dict{UInt64, Any})
 		if gp === nothing
 			gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
 		end
-		return s3_refine_gp(gp, t_vec, y_vec)
+		return s3_refine_gp_adaptive(gp, t_vec, y_vec; k = k)
 	end
 end
 
 """
-	_inject_gp_caching!(interpolator_list)
+	_make_cached_s3_bic_func(kernel_type, cache) -> Function
+
+Create a closure that reuses a cached GP for S3 BIC model-selection refinement.
+"""
+function _make_cached_s3_bic_func(kernel_type::Symbol, cache::Dict{UInt64, Any})
+	return function(xs, ys)
+		key = hash(ys)
+		t_vec = Vector{Float64}(xs)
+		y_vec = Vector{Float64}(ys)
+		gp = get(cache, key, nothing)
+		if gp === nothing
+			gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
+		end
+		return s3_refine_gp_bic(gp, t_vec, y_vec)
+	end
+end
+
+"""
+	_inject_gp_caching!(interpolator_list; s3_adapt_k=10.0)
 
 For interpolator methods that share a GP kernel (e.g., AGPRobust + S3SE both use SE),
 inject closure-wrapped functions that share a `Dict` cache so the GP is fitted only once.
 """
-function _inject_gp_caching!(interpolator_list::Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}})
+function _inject_gp_caching!(interpolator_list::Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}};
+                              s3_adapt_k::Float64 = 10.0)
 	# Count how many methods share each GP kernel
 	kernel_counts = Dict{Symbol, Int}()
 	for (method, _) in interpolator_list
@@ -609,8 +738,10 @@ function _inject_gp_caching!(interpolator_list::Vector{Tuple{InterpolatorMethod,
 		kt === nothing && continue
 		kt ∉ shared_kernels && continue
 		cache = caches[kt]
-		if _is_s3_method(method)
-			interpolator_list[i] = (method, _make_cached_s3_func(kt, cache))
+		if _is_s3_bic_method(method)
+			interpolator_list[i] = (method, _make_cached_s3_bic_func(kt, cache))
+		elseif _is_s3_method(method)  # covers adapt + old S3
+			interpolator_list[i] = (method, _make_cached_s3_adapt_func(kt, cache; k = s3_adapt_k))
 		else
 			interpolator_list[i] = (method, _make_cached_gp_func(kt, cache))
 		end
@@ -677,16 +808,18 @@ Convert AD backend symbol to an Optimization.jl AD type.
 
 # Supported backends
 - `:forward` → `AutoForwardDiff()` (default, works with most problems)
-- `:zygote` → `AutoZygote()` (reverse-mode, good for large parameter counts)
 - `:enzyme` → `AutoEnzyme()` (compiler-based AD)
 - `:finite` → `AutoFiniteDiff()` (fallback, no AD required)
+
+Note: `:zygote` was removed — Zygote segfaults Julia 1.12's JIT compiler.
+ForwardDiff is the recommended backend (only one that works through adaptive ODE solvers).
 """
 function get_ad_backend(backend::Symbol)
 	backend === :forward && return Optimization.AutoForwardDiff()
-	backend === :zygote && return Optimization.AutoZygote()
+	# backend === :zygote && return Optimization.AutoZygote()  # Disabled: segfaults Julia 1.12
 	backend === :enzyme && return Optimization.AutoEnzyme()
 	backend === :finite && return Optimization.AutoFiniteDiff()
-	error("Unknown AD backend :$backend. Supported backends: :forward, :zygote, :enzyme, :finite")
+	error("Unknown AD backend :$backend. Supported backends: :forward, :enzyme, :finite")
 end
 
 """

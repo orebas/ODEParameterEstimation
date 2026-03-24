@@ -407,12 +407,17 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		end
 		# Use the best solution for UQ
 		best_solution = first(filter(x -> !isnothing(x.err), sort(solved_res, by = x -> isnothing(x.err) ? Inf : x.err)))
+		# Map estimation kernel to UQ kernel (UQ only supports :se and :matern52)
+		_uq_kernel = let k = _gp_kernel_of(opts.interpolator)
+			(k === :matern52) ? :matern52 : :se
+		end
 		uq_result = estimate_parameter_uncertainty(
 			PEP,
 			best_solution,
 			PEP.data_sample;
 			max_deriv_order = 2,
 			n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
+			kernel_type = _uq_kernel,
 		)
 		uq_result = apply_uq_failure_policy(uq_result, opts)
 		if !opts.nooutput

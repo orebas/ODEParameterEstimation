@@ -103,7 +103,6 @@ se_kernel_derivative(1.0, 0.5, 0.0, 0, 2)  # = -σ²/ℓ² = -4.0
 """
 function se_kernel_derivative(σ²::Real, ℓ::Real, Δt::Real, i::Int, j::Int)::Float64
 	@assert i >= 0 && j >= 0 "Derivative orders must be non-negative"
-	@assert i + j <= 4 "Total derivative order $(i+j) > 4 not implemented"
 
 	# Normalized distance
 	u = Δt / ℓ
@@ -137,22 +136,15 @@ function se_kernel_derivative(σ²::Real, ℓ::Real, Δt::Real, i::Int, j::Int):
 			# ∂²k/∂t² or ∂²k/∂t'² = σ²/ℓ² (u² - 1) exp(-u²/2)
 			return base / ℓ^2 * (u² - 1)
 		end
-
-	elseif n == 3
-		# Third derivatives: (-1)^i · σ²/ℓ³ · He₃(u) · exp(-u²/2)
-		# He₃(u) = u³ - 3u = u(u² - 3)
-		# General sign: (-1)^i because ∂/∂t = +∂/∂Δ, ∂/∂t' = -∂/∂Δ
-		He3 = u * (u² - 3)
-		return (iseven(i) ? 1 : -1) * base / ℓ^3 * He3
-
-	elseif n == 4
-		# Fourth derivatives: (-1)^i · σ²/ℓ⁴ · He₄(u) · exp(-u²/2)
-		# He₄(u) = u⁴ - 6u² + 3
-		He4 = u²^2 - 6 * u² + 3
-		return (iseven(i) ? 1 : -1) * base / ℓ^4 * He4
 	end
 
-	error("Total derivative order $(i+j) not implemented")
+	# For n ≥ 3: general formula (-1)^i · σ²/ℓⁿ · Heₙ(u) · exp(-u²/2)
+	# Hermite recurrence: He₀=1, He₁=u, He_{k+1} = u·Heₖ - k·He_{k-1}
+	He_prev, He_curr = 1.0, u
+	for k in 1:(n - 1)
+		He_prev, He_curr = He_curr, u * He_curr - k * He_prev
+	end
+	return (iseven(i) ? 1 : -1) * base / ℓ^n * He_curr
 end
 
 """
@@ -259,6 +251,20 @@ struct AGPInterpolatorUQ <: AbstractInterpolator
 	noise_var::Float64
 	y_mean::Float64
 	y_std::Float64
+	cholesky_jitter::Float64
+	hyperparams_optimized::Bool
+end
+
+# Backward-compatible 11-arg constructor (defaults: jitter=0.0, optimized=true)
+function AGPInterpolatorUQ(
+	mean_function, std_function, xs_train, ys_train, alpha, chol,
+	lengthscale, signal_var, noise_var, y_mean, y_std,
+)
+	return AGPInterpolatorUQ(
+		mean_function, std_function, xs_train, ys_train, alpha, chol,
+		lengthscale, signal_var, noise_var, y_mean, y_std,
+		0.0, true,
+	)
 end
 
 # Make it callable like other interpolators
@@ -290,6 +296,23 @@ function _build_K_star_n(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int)::Ma
 	end
 
 	return K_star_n
+end
+
+"""
+	nth_deriv(f::AGPInterpolatorUQ, n::Int, t::Real) -> Real
+
+Analytic nth derivative of the GP posterior mean. Uses the closed-form SE kernel
+derivative formula via `_build_K_star_n` — avoids TaylorDiff and is exact.
+
+The GP posterior mean is: μ(t) = y_std * K_*n(t) · α + y_mean
+Its nth derivative is:  μ^(n)(t) = y_std * K_*n[n+1, :] · α
+"""
+function nth_deriv(f::AGPInterpolatorUQ, n::Int, t::Real)::Real
+	if n == 0
+		return f(t)
+	end
+	K_star_n = _build_K_star_n(f, t, n)
+	return f.y_std * dot(K_star_n[n+1, :], f.alpha)
 end
 
 """
@@ -589,6 +612,7 @@ function compute_parameter_covariance(
 	# Sensitivity matrix: ∂θ/∂z = -J_θ⁻¹ J_z
 	# Use pseudo-inverse for robustness
 	if cond_J > 1e6
+		@warn "[UQ] Jacobian condition number $(round(cond_J; sigdigits=3)) > 1e6 — using pseudo-inverse. Some parameters may be unidentifiable."
 		S = -pinv(J_θ) * J_z
 	else
 		S = -J_θ \ J_z
@@ -599,6 +623,12 @@ function compute_parameter_covariance(
 
 	# Ensure symmetry
 	Σ_θ = Symmetric(Σ_θ)
+
+	# Warn on negative variance before clipping
+	neg_diag = findall(d -> d < -1e-10, diag(Σ_θ))
+	if !isempty(neg_diag)
+		@warn "[UQ] Negative variance at indices $neg_diag (values: $(diag(Σ_θ)[neg_diag])) — numerical breakdown, clipping to zero"
+	end
 
 	# Standard deviations
 	std_θ = sqrt.(max.(diag(Σ_θ), 0.0))
@@ -964,86 +994,43 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 
 	# Use raw X values (no normalization) like the standard agp_gpr
 	xs_raw = collect(Float64, xs)
+	n = length(xs_raw)
 
 	# Standardize Y (zero mean, unit variance)
 	y_mean = mean(ys)
 	y_std = max(y_std_raw, 1e-8)
 	ys_norm = (collect(Float64, ys) .- y_mean) ./ y_std
 
-	# Add small jitter
-	jitter = 1e-8
-	ys_norm = ys_norm .+ jitter * randn(length(ys_norm))
+	# No data jitter — adding noise to observations destroys high-order derivatives.
+	# Numerical stability is handled by adaptive Cholesky jitter on the kernel matrix.
 
-	# Initial hyperparameters
-	initial_log_lengthscale = log(std(xs_raw) / 8)
-	initial_log_variance = 0.0
-	initial_log_noise = -2.0
-
-	# Build base kernel
-	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
-
-	# Loss function for optimization
-	function neg_logpdf_agp(θ)
-		l = exp(θ[1])
-		σ² = exp(θ[2])
-		σₙ² = exp(θ[3])
-
-		k = σ² * (base_kernel ∘ ScaleTransform(1.0 / l))
-		gp = AbstractGPs.GP(k)
-
-		try
-			return -logpdf(gp(xs_raw, σₙ²), ys_norm)
-		catch e
-			@debug "UQ GP log-likelihood evaluation failed" exception = e
-			return Inf
-		end
-	end
-
-	# Gradient function
-	function grad_neg_logpdf(θ)
-		g = Zygote.gradient(neg_logpdf_agp, θ)[1]
-		if isnothing(g) || any(isnan, g) || any(isinf, g)
-			return zeros(3)
-		end
-		return g
-	end
-
-	θ0 = [initial_log_lengthscale, initial_log_variance, initial_log_noise]
-
-	# Defaults
-	l_opt = exp(initial_log_lengthscale)
-	σ²_opt = 1.0
-	σₙ²_opt = exp(initial_log_noise)
-
-	try
-		result = Optim.optimize(
-			neg_logpdf_agp,
-			grad_neg_logpdf,
-			θ0,
-			LBFGS(linesearch = LineSearches.BackTracking()),
-			Optim.Options();
-			inplace = false,
-		)
-		θ_opt = Optim.minimizer(result)
-		l_opt = exp(θ_opt[1])
-		σ²_opt = exp(θ_opt[2])
-		σₙ²_opt = exp(θ_opt[3])
-	catch e
-		@warn "Hyperparameter optimization failed, using defaults" exception = e
+	# Use shared SE hyperparameter optimizer (same as agp_gpr_robust :se path)
+	D_sq = [abs2(xs_raw[i] - xs_raw[j]) for i in 1:n, j in 1:n]
+	hp = _optimize_se_hyperparams(xs_raw, ys_norm, D_sq)
+	l_opt, σ²_opt, σₙ²_opt, hp_optimized = hp.l, hp.sigma2, hp.noise, hp.converged
+	if !hp_optimized
+		@warn "[UQ] GP hyperparameter optimization did not converge"
 	end
 
 	# Build kernel matrix and Cholesky factorization
-	n = length(xs_raw)
+	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
 	I_n = Matrix{Float64}(I, n, n)
 	scaled_kernel = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 	K_train = σ²_opt * kernelmatrix(scaled_kernel, xs_raw)
 	K_noisy = K_train + σₙ²_opt * I_n
-	C = cholesky(Symmetric(K_noisy))
+	C, jitter_used = _cholesky_adaptive(K_noisy)
 	alpha = C \ ys_norm
 
+	if jitter_used > 1e-6
+		@warn "[UQ] GP kernel matrix required large Cholesky jitter ($jitter_used)" lengthscale = l_opt
+	end
+
 	# Prediction functions
-	function mean_pred(x::Real)
-		k_star = [σ²_opt * scaled_kernel(x, xi) for xi in xs_raw]
+	# mean_pred uses explicit SE kernel math (no KernelFunctions dependency)
+	# so that TaylorDiff can differentiate through it for the estimation pipeline.
+	inv_2l2 = 1.0 / (2.0 * l_opt^2)
+	function mean_pred(x)
+		k_star = [σ²_opt * exp(-(x - xi)^2 * inv_2l2) for xi in xs_raw]
 		return y_std * dot(k_star, alpha) + y_mean
 	end
 
@@ -1061,6 +1048,7 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 		xs_raw, ys_norm, alpha, C,
 		l_opt, σ²_opt, σₙ²_opt,
 		y_mean, y_std,
+		jitter_used, hp_optimized,
 	)
 end
 
@@ -1170,23 +1158,31 @@ function estimate_parameter_uncertainty(
 		end
 
 		# Step 1: Fit UQ-enabled GP interpolators to each observable
+		# Skip failed observables instead of aborting the whole pipeline
 		interpolators = OrderedDict{Num, AGPInterpolatorUQ}()
+		failed_obs = String[]
 		for obs_key in obs_keys
 			ys = collect(data_sample[obs_key])
 			try
 				interpolators[obs_key] = agp_gpr_uq(ts, ys)
 			catch e
-				@warn "Failed to fit GP for observable $obs_key: $e"
-				return (
-					param_covariance = nothing,
-					param_std = nothing,
-					param_names = nothing,
-					obs_covariance = nothing,
-					interpolators = nothing,
-					success = false,
-					message = "GP fitting failed for observable $obs_key: $e",
-				)
+				@warn "[UQ] GP fitting failed for observable $obs_key — skipping (not aborting)" exception = e
+				push!(failed_obs, string(obs_key))
 			end
+		end
+
+		if isempty(interpolators)
+			return (
+				param_covariance = nothing,
+				param_std = nothing,
+				param_names = nothing,
+				obs_covariance = nothing,
+				interpolators = nothing,
+				success = false,
+				message = "GP fitting failed for ALL observables: $(join(failed_obs, ", "))",
+			)
+		elseif !isempty(failed_obs)
+			@warn "[UQ] GP fitting succeeded for $(length(interpolators))/$(n_obs) observables; failed: $(join(failed_obs, ", "))"
 		end
 
 		# Step 2: Select time points for constraint evaluation
@@ -1238,6 +1234,11 @@ function estimate_parameter_uncertainty(
 		)
 
 		if result.success
+			# Warn on negative variance before clipping
+			neg_diag = findall(d -> d < -1e-10, diag(result.param_covariance))
+			if !isempty(neg_diag)
+				@warn "[UQ] Negative variance at indices $neg_diag (values: $(diag(result.param_covariance)[neg_diag])) — numerical breakdown, clipping to zero"
+			end
 			# Extract standard deviations from diagonal
 			param_std = sqrt.(max.(diag(result.param_covariance), 0.0))
 

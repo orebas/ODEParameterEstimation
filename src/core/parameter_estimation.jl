@@ -143,6 +143,12 @@ function create_interpolants(
 
 	for j in measured_quantities
 		r = j.rhs
+		# Skip _trfn_ auxiliary observables — their interpolated values are always
+		# overwritten by analytical evaluation in the SI template, so fitting an
+		# interpolant is pure waste.
+		if _is_trfn_observable(Symbolics.wrap(r))
+			continue
+		end
 		# Look up data in data_sample - use rhs if available, otherwise use lhs
 		key = haskey(data_sample, r) ? r : Symbolics.wrap(j.lhs)
 		y_vector = data_sample[key]

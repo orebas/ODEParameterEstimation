@@ -627,9 +627,24 @@ function convert_to_hc_format(poly_system, varlist)
 		variable_string_mapping[orig_name] = "hmcs(\"" * sanitized_name * "\")"
 	end
 
-	# Apply textual replacement so parsed expressions call hmcs(...) for variables
+	# Apply textual replacement so parsed expressions call hmcs(...) for variables.
+	# Two-pass replacement: first replace variable names with unique placeholders (longest first
+	# to avoid substring collisions like "x2_0" matching inside "x2_0_pt2"), then replace
+	# placeholders with hmcs("...") calls.
+	sorted_keys = sort(collect(keys(variable_string_mapping)); by = length, rev = true)
+	placeholders = Dict{String, String}()
+	for (idx, k) in enumerate(sorted_keys)
+		placeholders[k] = "\x01HCVAR$(idx)\x01"
+	end
 	for i in eachindex(string_target)
-		string_target[i] = replace(string_target[i], variable_string_mapping...)
+		local s = string_target[i]
+		for k in sorted_keys
+			s = replace(s, k => placeholders[k])
+		end
+		for k in sorted_keys
+			s = replace(s, placeholders[k] => variable_string_mapping[k])
+		end
+		string_target[i] = s
 	end
 
 	# Parse and eval into HC expressions; hmcs returns ModelKit.Variable
@@ -848,9 +863,21 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 		variable_string_mapping[orig_name] = "hmcs(\"p_" * sanitized_name * "\")"
 	end
 
-	# Apply textual replacement
+	# Apply textual replacement (two-pass, longest-first to avoid substring collisions)
+	sorted_keys = sort(collect(keys(variable_string_mapping)); by = length, rev = true)
+	placeholders = Dict{String, String}()
+	for (idx, k) in enumerate(sorted_keys)
+		placeholders[k] = "\x01HCVAR$(idx)\x01"
+	end
 	for i in eachindex(string_target)
-		string_target[i] = replace(string_target[i], variable_string_mapping...)
+		local s = string_target[i]
+		for k in sorted_keys
+			s = replace(s, k => placeholders[k])
+		end
+		for k in sorted_keys
+			s = replace(s, placeholders[k] => variable_string_mapping[k])
+		end
+		string_target[i] = s
 	end
 
 	# Parse and eval into HC expressions

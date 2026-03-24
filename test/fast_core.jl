@@ -42,7 +42,7 @@ using OrderedCollections
         merged = ODEParameterEstimation.merge_options(
             base;
             shooting_points = 2,
-            interpolators = [InterpolatorAGPRobust, InterpolatorS3SE],
+            interpolators = [InterpolatorAGPRobust, InterpolatorS3AdaptSE],
             terminal_fallback = :direct_opt,
             backsolve_recovery = :algebraic_resolve,
             t0_state_completion = :strict,
@@ -54,7 +54,7 @@ using OrderedCollections
 
         resolved = ODEParameterEstimation.resolve_interpolator_list(merged)
         @test length(resolved) == 2
-        @test first.(resolved) == [InterpolatorAGPRobust, InterpolatorS3SE]
+        @test first.(resolved) == [InterpolatorAGPRobust, InterpolatorS3AdaptSE]
 
         @test ODEParameterEstimation.compute_shooting_indices(0, 21) == [10]
         @test ODEParameterEstimation.compute_shooting_indices(3, 21; warp = false) == [1, 11, 21]

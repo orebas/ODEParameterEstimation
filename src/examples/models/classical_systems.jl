@@ -122,3 +122,39 @@ function harmonic()
 		0,                 # model ID or additional flags
 	)
 end
+
+"""
+    forced_decay()
+
+Minimal 1-state model with sinusoidal forcing: dx/dt = -a*x + b*sin(0.5*t).
+The sin(0.5t) term triggers the `_obs_trfn_` transcendental transformation machinery,
+making this a fast test model for transcendental UQ (runs in seconds vs minutes for CSTR).
+"""
+function forced_decay()
+	parameters = @parameters a b
+	states = @variables x(t)
+	observables = @variables y1(t)
+
+	p_true = [0.5, 2.0]
+	ic_true = [1.0]
+
+	equations = [
+		D(x) ~ -a * x + b * sin(0.5 * t),
+	]
+
+	measured_quantities = [y1 ~ x]
+
+	model, mq = create_ordered_ode_system("forced_decay", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"forced_decay",
+		model,
+		mq,
+		nothing,
+		[0.0, 10.0],
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end

@@ -162,11 +162,11 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T}) where {T}
 	initial_noise = -2.0
 
 	kernel = SEIso(initial_lengthscale, initial_variance)
-	jitter = 1e-8
-	ys_jitter = ys_normalized .+ jitter * randn(length(ys))
+	# No data jitter — adding noise to observations destroys high-order derivatives.
+	# GaussianProcesses.jl handles kernel matrix regularization internally.
 
 	# 2. Do GPR approximation on normalized data
-	gp = GP(xs, ys_jitter, MeanZero(), kernel, initial_noise)
+	gp = GP(xs, ys_normalized, MeanZero(), kernel, initial_noise)
 	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
 
 	noise_level = exp(gp.logNoise.value)

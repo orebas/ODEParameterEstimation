@@ -34,7 +34,7 @@ using TaylorDiff
 using NonlinearSolve, Symbolics, ForwardDiff, FiniteDiff, LinearAlgebra
 using NLopt, Optim, NLsolve
 using SciMLSensitivity
-using Zygote
+# using Zygote  # Disabled: segfaults Julia 1.12 JIT compiler. ForwardDiff is used instead.
 using Enzyme
 #using OptimizationEnzyme
 using SymbolicUtils
@@ -88,6 +88,8 @@ include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("core/derivatives.jl")
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
 include("core/sampling.jl")
+include("core/svg_plots.jl")
+include("core/diagnostics.jl")
 include("examples/load_examples.jl")
 
 # Export types
@@ -107,7 +109,7 @@ export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
-export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv_at, aaad_gpr_pivot, fhdn
+export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
 export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
 export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
 export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
@@ -121,6 +123,12 @@ export calculate_higher_derivatives, calculate_higher_derivative_terms
 # Export transcendental handling
 export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
 
+# Export diagnostic functions and types
+export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
+export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport
+export EstimationResultsReport, BacksolveUQReport, UncertaintyReport
+export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
+
 # Export UQ (Uncertainty Quantification) functions
 export AGPInterpolatorUQ, agp_gpr_uq
 export se_kernel_derivative, se_kernel_prior_covariance_matrix, se_kernel_cross_time_covariance_matrix
@@ -131,7 +139,7 @@ export estimate_parameter_uncertainty, print_uncertainty_results
 # Export example models
 # Simple models
 export simple, simple_linear_combination, onesp_cubed, threesp_cubed
-export lotka_volterra, vanderpol, brusselator, harmonic, fitzhugh_nagumo
+export lotka_volterra, vanderpol, brusselator, harmonic, fitzhugh_nagumo, forced_decay
 export seir, treatment, biohydrogenation, repressilator
 export crauste, seir, daisy_mamil3, daisy_mamil4, hiv
 export substr_test, global_unident_test, sum_test, trivial_unident
@@ -141,11 +149,11 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
 export FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorCustom
+export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorAGPUQ, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52, InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52, InterpolatorCustom
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
-export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp
+export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp, s3_refine_gp_adaptive, s3_refine_gp_bic
 export merge_options, validate_options, print_options, get_solver_options_dict
 export compatibility_return_code, sync_result_contract!, lineage_summary
 export optimized_multishot_parameter_estimation

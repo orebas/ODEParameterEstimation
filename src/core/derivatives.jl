@@ -599,6 +599,133 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 end
 
 """
+	_cholesky_adaptive(K; base_jitter=1e-14, max_steps=12)
+
+Attempt Cholesky factorization with adaptive jitter escalation.
+Tries `cholesky(Symmetric(K))` first; on failure, adds escalating diagonal
+jitter starting from `base_jitter` (×10 each step) until success.
+
+Returns `(C, jitter_used)` where `C` is the Cholesky factor and
+`jitter_used` is the actual jitter added (0.0 if none needed).
+"""
+function _cholesky_adaptive(K::AbstractMatrix; base_jitter = 1e-14, max_steps = 12)
+	n = size(K, 1)
+	# Try without jitter first
+	try
+		return cholesky(Symmetric(K)), 0.0
+	catch
+	end
+	# Escalate jitter
+	jitter = base_jitter
+	K_work = copy(K)
+	for step in 1:max_steps
+		K_work .= K
+		for i in 1:n
+			K_work[i, i] += jitter
+		end
+		try
+			return cholesky(Symmetric(K_work)), jitter
+		catch
+			jitter *= 10.0
+		end
+	end
+	error("_cholesky_adaptive: Cholesky failed even with jitter=$jitter")
+end
+
+# --- Softplus helpers (overflow-safe, module-level for sharing) ---
+_softplus(x::Real) = x > 34.0 ? x : log(1.0 + exp(x))
+_inv_softplus(y::Real) = y > 34.0 ? y : log(exp(y) - 1.0)
+
+"""
+	_optimize_se_hyperparams(xs_raw, ys_norm, D_sq; init_noise_override=nothing)
+
+Shared SE-kernel hyperparameter optimization used by both `agp_gpr_robust` and `agp_gpr_uq`.
+Uses softplus reparameterization, Fminbox-bounded LBFGS, and ForwardDiff exact gradients.
+
+# Arguments
+- `xs_raw::Vector{Float64}`: Raw (unnormalized) x coordinates
+- `ys_norm::Vector{Float64}`: Standardized y values (zero mean, unit variance)
+- `D_sq::Matrix{Float64}`: Precomputed pairwise squared distances
+- `init_noise_override::Union{Nothing,Float64}`: Override initial noise (default: roughness-adaptive)
+
+# Returns
+- NamedTuple `(l, sigma2, noise, converged)` with optimized hyperparameters
+"""
+function _optimize_se_hyperparams(
+	xs_raw::Vector{Float64},
+	ys_norm::Vector{Float64},
+	D_sq::Matrix{Float64};
+	init_noise_override::Union{Nothing, Float64} = nothing,
+)
+	n = length(xs_raw)
+
+	# --- Smoothness detection via second finite differences ---
+	if n >= 3
+		d2 = [ys_norm[i+2] - 2.0 * ys_norm[i+1] + ys_norm[i] for i in 1:(n-2)]
+		roughness = mean(abs.(d2))
+	else
+		roughness = 1.0
+	end
+
+	if !isnothing(init_noise_override)
+		init_noise = init_noise_override
+	elseif roughness < 0.1
+		init_noise = 1e-6    # very smooth data
+	elseif roughness < 1.0
+		init_noise = 1e-4    # moderate
+	else
+		init_noise = 0.01    # noisy
+	end
+
+	init_lengthscale = std(xs_raw) / 8.0
+	init_signal_var = 1.0
+
+	θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise)]
+	θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(1e-14)]
+	θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0)]
+
+	# Allocating NLL — ForwardDiff-compatible (no in-place mutation on captured matrix)
+	function neg_logpdf_se(θ)
+		l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
+		inv_2l² = 1.0 / (2.0 * l * l)
+		K = σ² .* exp.((-inv_2l²) .* D_sq)
+		for i in 1:n
+			K[i, i] += σₙ²
+		end
+		try
+			C = cholesky(Symmetric(K))
+			α = C \ ys_norm
+			return 0.5 * (dot(ys_norm, α) + 2.0 * sum(log.(diag(C.U))) + n * log(2π))
+		catch
+			return 1e8 + sum(abs2, θ)  # smooth penalty for ForwardDiff
+		end
+	end
+
+	l_opt = init_lengthscale
+	σ²_opt = init_signal_var
+	σₙ²_opt = init_noise
+	converged = false
+
+	try
+		od = Optim.OnceDifferentiable(neg_logpdf_se, θ0; autodiff = :forward)
+		result = Optim.optimize(
+			od, θ_lower, θ_upper, θ0,
+			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
+			Optim.Options(iterations = 1000),
+		)
+		θ_opt = Optim.minimizer(result)
+		l_opt = _softplus(θ_opt[1])
+		σ²_opt = _softplus(θ_opt[2])
+		σₙ²_opt = _softplus(θ_opt[3])
+		converged = Optim.converged(result)
+	catch e
+		@warn "_optimize_se_hyperparams: optimization failed, using adaptive defaults" exception = e
+	end
+
+	return (l = l_opt, sigma2 = σ²_opt, noise = σₙ²_opt, converged = converged)
+end
+
+"""
 	agp_gpr_manual(xs, ys; kernel_type=:se) -> AGPInterpolator
 
 BACKUP: Manual GP implementation using direct kernel matrix computation.
@@ -664,29 +791,25 @@ function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
 	I_n = Matrix{Float64}(I, n, n)
 	ys_norm_vec = collect(ys_norm)  # Ensure it's a Vector
 
-	# Optimize hyperparameters using direct kernel matrix computation
-	# This avoids creating new GP objects on every optimization iteration
+	# Precompute squared distance matrix for ForwardDiff-compatible NLL
+	D²_norm = [abs2(xs_norm[i] - xs_norm[j]) for i in 1:n, j in 1:n]
+
+	# Manual NLL — ForwardDiff-compatible (allocating, no KernelFunctions dispatch)
 	function neg_logpdf(θ)
 		l = exp(θ[1])      # lengthscale
 		σ² = exp(θ[2])     # signal variance
 		σₙ² = exp(θ[3])    # noise variance
 
-		# Build kernel matrix directly (no GP object needed)
-		scaled_kernel = base_kernel ∘ ScaleTransform(1.0 / l)
-		K = σ² * kernelmatrix(scaled_kernel, xs_norm)
-		K_noisy = K + σₙ² * I_n
+		inv_2l² = 1.0 / (2.0 * l * l)
+		K = σ² .* exp.((-inv_2l²) .* D²_norm) + σₙ² * I_n
 
 		try
-			# Cholesky factorization for log-likelihood
-			C = cholesky(Symmetric(K_noisy))
+			C = cholesky(Symmetric(K))
 			α = C \ ys_norm_vec
-
-			# Log marginal likelihood: -0.5 * (y'α + logdet(K) + n*log(2π))
-			loglik = -0.5 * (dot(ys_norm_vec, α) + logdet(C) + n * log(2π))
-			return -loglik
+			return 0.5 * (dot(ys_norm_vec, α) + 2.0 * sum(log.(diag(C.U))) + n * log(2π))
 		catch e
 			@debug "GP log-likelihood evaluation failed (Cholesky)" exception = e
-			return Inf
+			return 1e8 + sum(abs2, θ)  # smooth penalty for ForwardDiff
 		end
 	end
 
@@ -703,8 +826,9 @@ function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
 	σₙ²_opt = initial_noise_var
 
 	try
-		# Use bounded LBFGS with BackTracking line search for robustness
-		result = Optim.optimize(neg_logpdf, lower, upper, θ0,
+		# Use bounded LBFGS with ForwardDiff exact gradients
+		od = Optim.OnceDifferentiable(neg_logpdf, θ0; autodiff = :forward)
+		result = Optim.optimize(od, lower, upper, θ0,
 			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
 			Optim.Options(iterations = 100))
 		θ_opt = Optim.minimizer(result)
@@ -719,13 +843,14 @@ function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
 	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_norm)
 	K_noisy = K_train + σₙ²_opt * I_n
-	C_opt = cholesky(Symmetric(K_noisy))
+	C_opt, _jitter_used = _cholesky_adaptive(K_noisy)
 	alpha = C_opt \ ys_norm_vec  # Pre-computed weights for mean prediction
 
 	# Also create posterior for variance computation (needed for std_pred)
 	kernel_opt = σ²_opt * scaled_kernel_opt
 	f_opt = AbstractGPs.GP(kernel_opt)
-	f_posterior = AbstractGPs.posterior(f_opt(xs_norm, σₙ²_opt), ys_norm)
+	effective_noise_manual = σₙ²_opt + _jitter_used
+	f_posterior = AbstractGPs.posterior(f_opt(xs_norm, effective_noise_manual), ys_norm)
 
 	# Prediction functions using cached alpha (PERFORMANCE: O(n) per prediction)
 	function mean_pred(x::Real)
@@ -796,10 +921,11 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	y_std = max(y_std_raw, 1e-8)
 	ys_norm = (collect(ys) .- y_mean) ./ y_std
 
-	# Kernel matrix jitter for numerical stability (added to K diagonal, NOT to data).
-	# Adding noise to data destroys high-order derivatives: with cond(K) ~ 10^12,
-	# a 1e-8 data perturbation gets amplified to ~10^4 error in alpha coefficients.
-	kernel_jitter = 1e-8
+	# No fixed jitter in the NLL — let the optimizer find the true noise level.
+	# Adaptive jitter (_cholesky_adaptive) is used only for the final Cholesky
+	# factorization after optimization, purely for numerical stability.
+	# Previously kernel_jitter=1e-8 here created an artificial noise floor that
+	# over-regularized the GP by ~100x at low noise, inflating derivative errors.
 
 	# Initial hyperparameters (in log space for unconstrained optimization)
 	# Match GPR: use raw xs std (not normalized)
@@ -839,8 +965,8 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 			K = σ² .* exp.((-inv_2l²) .* D²)
 		end
 
-		# Add noise + jitter to diagonal
-		Kn = K + (σₙ² + kernel_jitter) * I
+		# Add noise variance to diagonal (no fixed jitter — let optimizer find true σₙ²)
+		Kn = K + σₙ² * I
 		try
 			C = cholesky(Symmetric(Kn))
 			alpha_local = C \ ys_norm
@@ -883,17 +1009,19 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 	kernel_opt = σ²_opt * scaled_kernel_opt
 	f_opt = AbstractGPs.GP(kernel_opt)
-	effective_noise = σₙ²_opt + kernel_jitter
-	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
 
 	# Pre-compute cached alpha for TaylorDiff-compatible predictions
 	# This avoids going through AbstractGPs/KernelFunctions/Distances which don't support TaylorScalar
 	n = length(xs_raw)
 	I_n = Matrix{Float64}(I, n, n)
 	K_train = σ²_opt * kernelmatrix(scaled_kernel_opt, xs_raw)
-	K_noisy = K_train + effective_noise * I_n
-	C_opt = cholesky(Symmetric(K_noisy))
+	K_noisy = K_train + σₙ²_opt * I_n
+	C_opt, _jitter_used = _cholesky_adaptive(K_noisy)
 	alpha = C_opt \ collect(ys_norm)  # Pre-computed weights for mean prediction
+
+	# Build posterior for variance predictions (needs effective noise including any jitter)
+	effective_noise = σₙ²_opt + _jitter_used
+	f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
 
 	# Prediction using cached alpha - TaylorDiff compatible (only basic arithmetic)
 	# This is O(n) per prediction and works with TaylorScalar because kernel(x, xi)
@@ -941,9 +1069,11 @@ end
 Robust GP interpolator that fixes failures on smooth/noiseless data.
 
 Uses softplus reparameterization (hyperparams are always strictly positive),
-bounded optimization via Fminbox(LBFGS), and direct Cholesky log-likelihood
-(avoids ScaledKernel in the optimization loop). Automatically detects smooth
-data and initializes noise variance low.
+bounded optimization via Fminbox(LBFGS), ForwardDiff exact gradients, and
+direct Cholesky log-likelihood (avoids ScaledKernel in the optimization loop).
+Automatically detects smooth data and initializes noise variance low.
+
+For SE kernel, delegates to `_optimize_se_hyperparams` (shared with `agp_gpr_uq`).
 
 Returns an `AGPInterpolator` compatible with TaylorDiff for derivative computation.
 
@@ -959,10 +1089,6 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
                         kernel_type::Symbol = :se)::AGPInterpolator where {T}
 	@assert length(xs) == length(ys) "Input arrays must have same length"
 	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
-
-	# --- Softplus helpers (overflow-safe) ---
-	_softplus(x::Real) = x > 34.0 ? x : log(1.0 + exp(x))
-	_inv_softplus(y::Real) = y > 34.0 ? y : log(exp(y) - 1.0)
 
 	# Handle constant data edge case (same as agp_gpr)
 	y_std_raw = std(ys)
@@ -985,68 +1111,6 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 	y_std = max(y_std_raw, 1e-8)
 	ys_norm = (collect(Float64, ys) .- y_mean) ./ y_std
 
-	# Kernel matrix jitter for numerical stability (added to K diagonal, NOT to data).
-	# Adding noise to data destroys high-order derivatives: with cond(K) ~ 10^12,
-	# a 1e-8 data perturbation gets amplified to ~10^4 error in alpha coefficients,
-	# catastrophically corrupting 3rd+ order derivatives on stiff systems like ERK.
-	kernel_jitter = 1e-8
-
-	# --- Smoothness detection via second finite differences ---
-	if n >= 3
-		d2 = [ys_norm[i+2] - 2.0 * ys_norm[i+1] + ys_norm[i] for i in 1:(n-2)]
-		roughness = mean(abs.(d2))
-	else
-		roughness = 1.0
-	end
-
-	if roughness < 0.1
-		init_noise = 1e-6    # very smooth data
-	elseif roughness < 1.0
-		init_noise = 1e-4    # moderate
-	else
-		init_noise = 0.01    # noisy
-	end
-
-	# Initial hyperparameters (shared across all kernels)
-	init_lengthscale = std(xs_raw) / 8.0
-	init_signal_var = 1.0
-	init_alpha = 2.0  # RQ shape parameter (small = more multi-scale)
-
-	# --- Optimization in softplus-reparameterized space ---
-	# θ layout depends on kernel_type:
-	#   :se / :matern52  -> [l, σ², σₙ²]                    (3 params)
-	#   :rq              -> [l, σ², σₙ², α]                  (4 params)
-	#   :se_plus_rq      -> [l₁, σ²₁, σₙ², l₂, σ²₂, α]    (6 params)
-	#   :se_times_rq     -> [l₁, σ², σₙ², l₂, α]            (5 params)
-	if kernel_type in (:se, :matern52)
-		θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise)]
-		θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(1e-10)]
-		θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0)]
-	elseif kernel_type == :rq
-		θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise), _inv_softplus(init_alpha)]
-		θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(1e-10), _inv_softplus(0.1)]
-		θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0), _inv_softplus(100.0)]
-	elseif kernel_type == :se_plus_rq
-		θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var / 2), _inv_softplus(init_noise),
-		       _inv_softplus(init_lengthscale), _inv_softplus(init_signal_var / 2), _inv_softplus(init_alpha)]
-		θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(1e-10),
-		            _inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(0.1)]
-		θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0),
-		            _inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(100.0)]
-	elseif kernel_type == :se_times_rq
-		θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise),
-		       _inv_softplus(init_lengthscale), _inv_softplus(init_alpha)]
-		θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-8), _inv_softplus(1e-10),
-		            _inv_softplus(1e-3), _inv_softplus(0.1)]
-		θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0),
-		            _inv_softplus(150.0), _inv_softplus(100.0)]
-	else
-		error("agp_gpr_robust: unknown kernel_type=$kernel_type. Supported: :se, :matern52, :rq, :se_plus_rq, :se_times_rq")
-	end
-
-	# Identity matrix (pre-allocate)
-	I_n = Matrix{Float64}(I, n, n)
-
 	# Precompute squared distance matrix (done once, reused across all iterations)
 	D² = Matrix{Float64}(undef, n, n)
 	for j in 1:n
@@ -1055,160 +1119,198 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 		end
 	end
 
-	# Preallocate working matrix for kernel (avoids allocation per iteration)
-	K_work = Matrix{Float64}(undef, n, n)
+	# Identity matrix (pre-allocate for post-optimization)
+	I_n = Matrix{Float64}(I, n, n)
 
-	# Constants for Matern52
-	is_matern52 = (kernel_type == :matern52)
-	const_sqrt5 = sqrt(5.0)
+	# Initial hyperparameters (shared across all kernels)
+	init_lengthscale = std(xs_raw) / 8.0
+	init_signal_var = 1.0
+	init_alpha = 2.0  # RQ shape parameter (small = more multi-scale)
 
-	# Negative log marginal likelihood using direct Cholesky (no ScaledKernel)
-	# Uses precomputed D² and in-place K_work to avoid allocations
-	function neg_logpdf_robust(θ)
-		# Extract hyperparameters based on kernel type
-		if kernel_type in (:se, :matern52)
-			l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
-			if is_matern52
-				inv_l = 1.0 / l
-				@. K_work = sqrt(D²) * inv_l
-				@. K_work = σ² * (1.0 + const_sqrt5 * K_work + 5.0 * K_work^2 / 3.0) * exp(-const_sqrt5 * K_work)
-			else
-				inv_2l² = 1.0 / (2.0 * l * l)
-				@. K_work = σ² * exp(-D² * inv_2l²)
-			end
-		elseif kernel_type == :rq
-			l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3]); α = _softplus(θ[4])
-			inv_2αl² = 1.0 / (2.0 * α * l * l)
-			@. K_work = σ² * (1.0 + D² * inv_2αl²)^(-α)
-		elseif kernel_type == :se_plus_rq
-			l₁ = _softplus(θ[1]); σ²₁ = _softplus(θ[2]); σₙ² = _softplus(θ[3])
-			l₂ = _softplus(θ[4]); σ²₂ = _softplus(θ[5]); α = _softplus(θ[6])
-			inv_2l₁² = 1.0 / (2.0 * l₁ * l₁)
-			inv_2αl₂² = 1.0 / (2.0 * α * l₂ * l₂)
-			@. K_work = σ²₁ * exp(-D² * inv_2l₁²) + σ²₂ * (1.0 + D² * inv_2αl₂²)^(-α)
-		elseif kernel_type == :se_times_rq
-			l₁ = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
-			l₂ = _softplus(θ[4]); α = _softplus(θ[5])
-			inv_2l₁² = 1.0 / (2.0 * l₁ * l₁)
-			inv_2αl₂² = 1.0 / (2.0 * α * l₂ * l₂)
-			@. K_work = σ² * exp(-D² * inv_2l₁²) .* (1.0 + D² * inv_2αl₂²)^(-α)
-		end
+	# ---- SE kernel: delegate to shared helper ----
+	if kernel_type == :se
+		hp = _optimize_se_hyperparams(xs_raw, ys_norm, D²)
+		l_opt = hp.l; σ²_opt = hp.sigma2; σₙ²_opt = hp.noise
 
-		# Add noise variance + kernel jitter to diagonal for numerical stability
-		@inbounds for i in 1:n
-			K_work[i, i] += σₙ² + kernel_jitter
-		end
-
-		try
-			C = cholesky(Symmetric(K_work))
-			alpha_local = C \ ys_norm
-			data_fit = dot(ys_norm, alpha_local)
-			log_det = 2.0 * sum(log.(diag(C.U)))
-			return 0.5 * (data_fit + log_det + n * log(2π))
-		catch e
-			@debug "Robust GP log-likelihood evaluation failed (Cholesky)" exception = e
-			return Inf
-		end
-	end
-
-	# Defaults in case optimization fails
-	l_opt = init_lengthscale
-	σ²_opt = init_signal_var
-	σₙ²_opt = init_noise
-	α_opt = init_alpha
-	l2_opt = init_lengthscale
-	σ²_1_opt = init_signal_var / 2
-	σ²_2_opt = init_signal_var / 2
-
-	try
-		result = Optim.optimize(
-			neg_logpdf_robust,
-			θ_lower,
-			θ_upper,
-			θ0,
-			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
-			Optim.Options(iterations = 1000);
-		)
-		θ_opt = Optim.minimizer(result)
-		if kernel_type in (:se, :matern52)
-			l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
-		elseif kernel_type == :rq
-			l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
-			α_opt = _softplus(θ_opt[4])
-		elseif kernel_type == :se_plus_rq
-			l_opt = _softplus(θ_opt[1]); σ²_1_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
-			l2_opt = _softplus(θ_opt[4]); σ²_2_opt = _softplus(θ_opt[5]); α_opt = _softplus(θ_opt[6])
-		elseif kernel_type == :se_times_rq
-			l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
-			l2_opt = _softplus(θ_opt[4]); α_opt = _softplus(θ_opt[5])
-		end
-	catch e
-		@warn "agp_gpr_robust: hyperparameter optimization failed, using adaptive defaults" exception = e
-	end
-
-	# --- Build final GP with optimized hyperparameters ---
-	# Construct AbstractGPs-compatible kernel for posterior/std_pred
-	if kernel_type in (:se, :matern52)
-		base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+		base_kernel = SqExponentialKernel()
 		scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 		kernel_opt = σ²_opt * scaled_kernel_opt
-	elseif kernel_type == :rq
-		rq_scaled = RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l_opt)
-		kernel_opt = σ²_opt * rq_scaled
-	elseif kernel_type == :se_plus_rq
-		se_part = σ²_1_opt * (SqExponentialKernel() ∘ ScaleTransform(1.0 / l_opt))
-		rq_part = σ²_2_opt * (RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l2_opt))
-		kernel_opt = se_part + rq_part
-	elseif kernel_type == :se_times_rq
-		se_raw = SqExponentialKernel() ∘ ScaleTransform(1.0 / l_opt)
-		rq_raw = RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l2_opt)
-		kernel_opt = σ²_opt * (se_raw * rq_raw)
+
+	# ---- Non-SE kernels: inline optimization with ForwardDiff ----
+	else
+		# --- Smoothness detection via second finite differences ---
+		if n >= 3
+			d2 = [ys_norm[i+2] - 2.0 * ys_norm[i+1] + ys_norm[i] for i in 1:(n-2)]
+			roughness = mean(abs.(d2))
+		else
+			roughness = 1.0
+		end
+
+		if roughness < 0.1
+			init_noise = 1e-6
+		elseif roughness < 1.0
+			init_noise = 1e-4
+		else
+			init_noise = 0.01
+		end
+
+		# Constants for Matern52
+		is_matern52 = (kernel_type == :matern52)
+		const_sqrt5 = sqrt(5.0)
+
+		# --- Optimization in softplus-reparameterized space ---
+		if kernel_type == :matern52
+			θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise)]
+			θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(1e-14)]
+			θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0)]
+		elseif kernel_type == :rq
+			θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise), _inv_softplus(init_alpha)]
+			θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(1e-14), _inv_softplus(0.1)]
+			θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0), _inv_softplus(100.0)]
+		elseif kernel_type == :se_plus_rq
+			θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var / 2), _inv_softplus(init_noise),
+			       _inv_softplus(init_lengthscale), _inv_softplus(init_signal_var / 2), _inv_softplus(init_alpha)]
+			θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(1e-14),
+			            _inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(0.1)]
+			θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0),
+			            _inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(100.0)]
+		elseif kernel_type == :se_times_rq
+			θ0 = [_inv_softplus(init_lengthscale), _inv_softplus(init_signal_var), _inv_softplus(init_noise),
+			       _inv_softplus(init_lengthscale), _inv_softplus(init_alpha)]
+			θ_lower = [_inv_softplus(1e-3), _inv_softplus(1e-14), _inv_softplus(1e-14),
+			            _inv_softplus(1e-3), _inv_softplus(0.1)]
+			θ_upper = [_inv_softplus(150.0), _inv_softplus(150.0), _inv_softplus(10.0),
+			            _inv_softplus(150.0), _inv_softplus(100.0)]
+		else
+			error("agp_gpr_robust: unknown kernel_type=$kernel_type. Supported: :se, :matern52, :rq, :se_plus_rq, :se_times_rq")
+		end
+
+		# Allocating NLL — ForwardDiff-compatible (no in-place mutation on captured matrix)
+		function neg_logpdf_robust(θ)
+			if kernel_type == :matern52
+				l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
+				inv_l = 1.0 / l
+				R = sqrt.(D²) .* inv_l
+				K = σ² .* (1.0 .+ const_sqrt5 .* R .+ 5.0 .* R .^ 2 ./ 3.0) .* exp.((-const_sqrt5) .* R)
+			elseif kernel_type == :rq
+				l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3]); α = _softplus(θ[4])
+				inv_2αl² = 1.0 / (2.0 * α * l * l)
+				K = σ² .* (1.0 .+ D² .* inv_2αl²) .^ (-α)
+			elseif kernel_type == :se_plus_rq
+				l₁ = _softplus(θ[1]); σ²₁ = _softplus(θ[2]); σₙ² = _softplus(θ[3])
+				l₂ = _softplus(θ[4]); σ²₂ = _softplus(θ[5]); α = _softplus(θ[6])
+				inv_2l₁² = 1.0 / (2.0 * l₁ * l₁)
+				inv_2αl₂² = 1.0 / (2.0 * α * l₂ * l₂)
+				K = σ²₁ .* exp.((-inv_2l₁²) .* D²) .+ σ²₂ .* (1.0 .+ D² .* inv_2αl₂²) .^ (-α)
+			elseif kernel_type == :se_times_rq
+				l₁ = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
+				l₂ = _softplus(θ[4]); α = _softplus(θ[5])
+				inv_2l₁² = 1.0 / (2.0 * l₁ * l₁)
+				inv_2αl₂² = 1.0 / (2.0 * α * l₂ * l₂)
+				K = σ² .* exp.((-inv_2l₁²) .* D²) .* (1.0 .+ D² .* inv_2αl₂²) .^ (-α)
+			end
+
+			for i in 1:n
+				K[i, i] += σₙ²
+			end
+
+			try
+				C = cholesky(Symmetric(K))
+				alpha_local = C \ ys_norm
+				data_fit = dot(ys_norm, alpha_local)
+				log_det = 2.0 * sum(log.(diag(C.U)))
+				return 0.5 * (data_fit + log_det + n * log(2π))
+			catch
+				return 1e8 + sum(abs2, θ)  # smooth penalty for ForwardDiff
+			end
+		end
+
+		# Defaults in case optimization fails
+		l_opt = init_lengthscale
+		σ²_opt = init_signal_var
+		σₙ²_opt = init_noise
+		α_opt = init_alpha
+		l2_opt = init_lengthscale
+		σ²_1_opt = init_signal_var / 2
+		σ²_2_opt = init_signal_var / 2
+
+		try
+			od = Optim.OnceDifferentiable(neg_logpdf_robust, θ0; autodiff = :forward)
+			result = Optim.optimize(
+				od, θ_lower, θ_upper, θ0,
+				Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
+				Optim.Options(iterations = 1000),
+			)
+			θ_opt = Optim.minimizer(result)
+			if kernel_type == :matern52
+				l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
+			elseif kernel_type == :rq
+				l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
+				α_opt = _softplus(θ_opt[4])
+			elseif kernel_type == :se_plus_rq
+				l_opt = _softplus(θ_opt[1]); σ²_1_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
+				l2_opt = _softplus(θ_opt[4]); σ²_2_opt = _softplus(θ_opt[5]); α_opt = _softplus(θ_opt[6])
+			elseif kernel_type == :se_times_rq
+				l_opt = _softplus(θ_opt[1]); σ²_opt = _softplus(θ_opt[2]); σₙ²_opt = _softplus(θ_opt[3])
+				l2_opt = _softplus(θ_opt[4]); α_opt = _softplus(θ_opt[5])
+			end
+		catch e
+			@warn "agp_gpr_robust: hyperparameter optimization failed, using adaptive defaults" exception = e
+		end
+
+		# Build AbstractGPs-compatible kernel for posterior/std_pred
+		if kernel_type == :matern52
+			base_kernel = Matern52Kernel()
+			scaled_kernel_opt = base_kernel ∘ ScaleTransform(1.0 / l_opt)
+			kernel_opt = σ²_opt * scaled_kernel_opt
+		elseif kernel_type == :rq
+			rq_scaled = RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l_opt)
+			kernel_opt = σ²_opt * rq_scaled
+		elseif kernel_type == :se_plus_rq
+			se_part = σ²_1_opt * (SqExponentialKernel() ∘ ScaleTransform(1.0 / l_opt))
+			rq_part = σ²_2_opt * (RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l2_opt))
+			kernel_opt = se_part + rq_part
+		elseif kernel_type == :se_times_rq
+			se_raw = SqExponentialKernel() ∘ ScaleTransform(1.0 / l_opt)
+			rq_raw = RationalQuadraticKernel(alpha = α_opt) ∘ ScaleTransform(1.0 / l2_opt)
+			kernel_opt = σ²_opt * (se_raw * rq_raw)
+		end
 	end
 
 	f_opt = AbstractGPs.GP(kernel_opt)
 
-	# Try building posterior with increasing jitter if needed
-	jitter_levels = [kernel_jitter, 1e-6, 1e-4, 1e-2]
-	f_posterior = nothing
-	effective_noise = σₙ²_opt + kernel_jitter
-
-	for jitter in jitter_levels
-		try
-			effective_noise = σₙ²_opt + jitter
-			f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
-			break
-		catch e
-			if jitter == jitter_levels[end]
-				@warn "agp_gpr_robust: posterior failed even with maximum jitter" σₙ²_opt jitter
-				rethrow(e)
-			end
-			@debug "agp_gpr_robust: posterior failed with jitter=$jitter, trying more" exception = e
-		end
-	end
-
 	# Pre-compute alpha for TaylorDiff-compatible mean predictions
+	# Use adaptive Cholesky: try K + σₙ²*I first, escalate jitter from 1e-14 if needed
 	K_train = kernelmatrix(kernel_opt, xs_raw)
-	K_noisy = K_train + effective_noise * I_n
+	K_noisy = K_train + σₙ²_opt * I_n
+	C_opt, _jitter_used = _cholesky_adaptive(K_noisy)
+	alpha = C_opt \ collect(ys_norm)
 
-	# Apply same jitter fallback for alpha computation
-	C_opt = nothing
-	for jitter in jitter_levels
-		try
-			C_opt = cholesky(Symmetric(K_noisy + jitter * I_n))
-			break
-		catch e
-			if jitter == jitter_levels[end]
-				@warn "agp_gpr_robust: alpha computation failed even with maximum jitter"
-				rethrow(e)
+	# Build posterior for variance predictions (needs effective noise including any jitter)
+	effective_noise = σₙ²_opt + _jitter_used
+	f_posterior = nothing
+	try
+		f_posterior = AbstractGPs.posterior(f_opt(xs_raw, effective_noise), ys_norm)
+	catch e
+		@warn "agp_gpr_robust: posterior failed" σₙ²_opt _jitter_used exception = e
+		# Fallback: try larger jitter for posterior only
+		for extra_jitter in [1e-6, 1e-4, 1e-2]
+			try
+				f_posterior = AbstractGPs.posterior(f_opt(xs_raw, σₙ²_opt + extra_jitter), ys_norm)
+				break
+			catch
 			end
 		end
+		if isnothing(f_posterior)
+			rethrow(e)
+		end
 	end
-	alpha = C_opt \ collect(ys_norm)
 
 	# Prediction using cached alpha - TaylorDiff compatible (inline arithmetic, no KF dispatch)
 	function mean_pred(x::Real)
-		if kernel_type in (:se, :matern52)
-			# SE/Matern52: known to work with KernelFunctions dispatch
+		if kernel_type == :se
+			k_star = [σ²_opt * exp(-(x - xi)^2 / (2.0 * l_opt^2)) for xi in xs_raw]
+		elseif kernel_type == :matern52
 			k_star = [σ²_opt * scaled_kernel_opt(x, xi) for xi in xs_raw]
 		elseif kernel_type == :rq
 			k_star = [σ²_opt * (1.0 + (x - xi)^2 / (2.0 * α_opt * l_opt^2))^(-α_opt) for xi in xs_raw]
@@ -1347,6 +1449,66 @@ function s3_refine_gp(gp_interpolant::AbstractInterpolator,
 end
 
 """
+	s3_refine_gp_adaptive(gp_interpolant, t_vector, y_raw; k, mmax, maxiter, g_tol) -> AAADapprox
+
+Adaptive-tolerance S3 strategy: estimate noise from GP residuals, then set
+`aaa_tol = max(k * noise_std / data_scale, 1e-14)`.  Higher `k` → fewer support
+points (more aggressive denoising).  `k=10` is the validated default.
+"""
+function s3_refine_gp_adaptive(gp_interpolant::AbstractInterpolator,
+                                t_vector::Vector{Float64}, y_raw::Vector{Float64};
+                                k::Float64 = 10.0, mmax::Int = 200,
+                                maxiter::Int = 20000, g_tol::Float64 = 1e-15)
+	y_gp = [gp_interpolant(t) for t in t_vector]
+	noise_std = std(y_raw .- y_gp)
+	data_scale = max(maximum(abs.(y_gp)), 1e-15)
+	aaa_tol = max(k * noise_std / data_scale, 1e-14)
+	return s3_refine_gp(gp_interpolant, t_vector, y_raw;
+	                     aaa_tol = aaa_tol, mmax = mmax, maxiter = maxiter, g_tol = g_tol)
+end
+
+"""
+	s3_refine_gp_bic(gp_interpolant, t_vector, y_raw; mmax, maxiter, g_tol) -> AAADapprox
+
+BIC model-selection S3 strategy: sweep 12 AAA tolerances (1e-3 … 1e-14), pick
+the one minimising `BIC = n_params * log(M) + M * log(SSR / M)` against the raw
+data.  Parameter-free alternative to adaptive tolerance.
+"""
+function s3_refine_gp_bic(gp_interpolant::AbstractInterpolator,
+                           t_vector::Vector{Float64}, y_raw::Vector{Float64};
+                           mmax::Int = 200, maxiter::Int = 20000, g_tol::Float64 = 1e-15)
+	y_gp = [gp_interpolant(t) for t in t_vector]
+	M = length(t_vector)
+	best_bic = Inf
+	best_z, best_w, best_f = Float64[], Float64[], Float64[]
+
+	for log_tol in -3:-1:-14
+		tol = 10.0^log_tol
+		try
+			aaa_result = BaryRational.aaa(t_vector, y_gp; tol = tol, mmax = mmax)
+			z, w, f = copy(aaa_result.x), copy(aaa_result.w), copy(aaa_result.f)
+			predicted = [baryEval(t, f, z, w) for t in t_vector]
+			SSR = sum(abs2.(y_raw .- predicted))
+			n_params = 2 * length(z)
+			bic = n_params * log(M) + M * log(SSR / M + 1e-100)
+			if bic < best_bic
+				best_bic = bic
+				best_z, best_w, best_f = z, w, f
+			end
+		catch
+			continue
+		end
+	end
+
+	if isempty(best_z)
+		return s3_refine_gp(gp_interpolant, t_vector, y_raw; mmax = mmax, maxiter = maxiter, g_tol = g_tol)
+	end
+
+	z, w, f = _mle_refine_bary(best_z, best_w, best_f, t_vector, y_raw; maxiter = maxiter, g_tol = g_tol)
+	return AAADapprox(_BaryResult(z, w, f))
+end
+
+"""
 	s2_aaa_mle_interpolator(xs, ys; aaa_tol, mmax, maxiter, g_tol) -> AAADapprox
 
 S2 strategy: run AAA directly on raw (noisy) data to harvest support points,
@@ -1377,18 +1539,55 @@ end
 """
 	_s3_interpolator(xs, ys; kernel_type=:se) -> AAADapprox
 
-Standalone S3 composite interpolator factory.
+Standalone S3 composite interpolator factory (DEPRECATED — use `_s3_adapt_interpolator`).
 Fits a GP with the given kernel, then refines via AAA + MLE barycentric weights.
 """
 function _s3_interpolator(xs::AbstractArray, ys::AbstractArray; kernel_type::Symbol = :se)
+	Base.depwarn("`_s3_interpolator` is deprecated, use `_s3_adapt_interpolator` instead.", :_s3_interpolator)
+	return _s3_adapt_interpolator(xs, ys; kernel_type = kernel_type)
+end
+
+"""
+	_s3_adapt_interpolator(xs, ys; kernel_type=:se, k=10.0) -> AAADapprox
+
+Adaptive-tolerance S3 factory. GP → AAA(adaptive tol) → MLE.
+"""
+function _s3_adapt_interpolator(xs::AbstractArray, ys::AbstractArray; kernel_type::Symbol = :se, k::Float64 = 10.0)
 	t_vec = Vector{Float64}(xs)
 	y_vec = Vector{Float64}(ys)
 	gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
-	return s3_refine_gp(gp, t_vec, y_vec)
+	return s3_refine_gp_adaptive(gp, t_vec, y_vec; k = k)
 end
 
-s3_se_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se)
-s3_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :rq)
-s3_se_plus_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se_plus_rq)
-s3_se_times_rq_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :se_times_rq)
-s3_matern52_interpolator(xs, ys) = _s3_interpolator(xs, ys; kernel_type = :matern52)
+"""
+	_s3_bic_interpolator(xs, ys; kernel_type=:se) -> AAADapprox
+
+BIC model-selection S3 factory. GP → AAA(BIC-selected tol) → MLE.
+"""
+function _s3_bic_interpolator(xs::AbstractArray, ys::AbstractArray; kernel_type::Symbol = :se)
+	t_vec = Vector{Float64}(xs)
+	y_vec = Vector{Float64}(ys)
+	gp = agp_gpr_robust(t_vec, y_vec; kernel_type = kernel_type)
+	return s3_refine_gp_bic(gp, t_vec, y_vec)
+end
+
+# --- Adaptive tolerance convenience aliases (recommended) ---
+s3_adapt_se_interpolator(xs, ys; k = 10.0) = _s3_adapt_interpolator(xs, ys; kernel_type = :se, k = k)
+s3_adapt_rq_interpolator(xs, ys; k = 10.0) = _s3_adapt_interpolator(xs, ys; kernel_type = :rq, k = k)
+s3_adapt_se_plus_rq_interpolator(xs, ys; k = 10.0) = _s3_adapt_interpolator(xs, ys; kernel_type = :se_plus_rq, k = k)
+s3_adapt_se_times_rq_interpolator(xs, ys; k = 10.0) = _s3_adapt_interpolator(xs, ys; kernel_type = :se_times_rq, k = k)
+s3_adapt_matern52_interpolator(xs, ys; k = 10.0) = _s3_adapt_interpolator(xs, ys; kernel_type = :matern52, k = k)
+
+# --- BIC model selection convenience aliases ---
+s3_bic_se_interpolator(xs, ys) = _s3_bic_interpolator(xs, ys; kernel_type = :se)
+s3_bic_rq_interpolator(xs, ys) = _s3_bic_interpolator(xs, ys; kernel_type = :rq)
+s3_bic_se_plus_rq_interpolator(xs, ys) = _s3_bic_interpolator(xs, ys; kernel_type = :se_plus_rq)
+s3_bic_se_times_rq_interpolator(xs, ys) = _s3_bic_interpolator(xs, ys; kernel_type = :se_times_rq)
+s3_bic_matern52_interpolator(xs, ys) = _s3_bic_interpolator(xs, ys; kernel_type = :matern52)
+
+# --- Deprecated old S3 names (forward to adaptive with default k=10) ---
+s3_se_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :se))
+s3_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :rq))
+s3_se_plus_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :se_plus_rq))
+s3_se_times_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :se_times_rq))
+s3_matern52_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :matern52))

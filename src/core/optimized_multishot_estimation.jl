@@ -1202,7 +1202,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# For backward compat, create setup_data with interpolants from the first interpolator
 		# (used by process_estimation_results which needs the named tuple shape)
-		first_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2])
+		first_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2]; s3_adapt_k = opts.s3_adapt_k)
 		first_interpolants = create_interpolants(PEP.measured_quantities, PEP.data_sample, t_vector, first_interp_func)
 		setup_data = (
 			states = states,
@@ -1343,7 +1343,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# The SI template and shooting points are shared across all interpolators.
 		# ============================================================================
 		for (interp_idx, (interp_method, interp_custom)) in enumerate(interpolator_list)
-			interp_func = get_interpolator_function(interp_method, interp_custom)
+			interp_func = get_interpolator_function(interp_method, interp_custom; s3_adapt_k = opts.s3_adapt_k)
 			interp_sym = interpolator_method_to_symbol(interp_method)
 
 			# Create interpolants for this interpolator
@@ -2098,7 +2098,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 	# Create interpolants for the data (non-SI-template path uses first interpolator)
 	t_vector = PEP.data_sample["t"]
-	non_si_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2])
+	non_si_interp_func = get_interpolator_function(interpolator_list[1][1], interpolator_list[1][2]; s3_adapt_k = opts.s3_adapt_k)
 	interpolants = create_interpolants(
 		PEP.measured_quantities, PEP.data_sample, t_vector, non_si_interp_func,
 	)

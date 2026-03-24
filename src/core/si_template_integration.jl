@@ -130,7 +130,12 @@ function construct_equation_system_from_si_template(
 	# For each measured quantity, populate all derivatives up to the max required order.
 	for (obs_idx, obs_eqn) in enumerate(measured_quantities_in)
 		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
-		obs_interp = precomputed_interpolants[obs_rhs]
+		# Skip _trfn_ observables — no interpolant exists (skipped in create_interpolants),
+		# and values are always set analytically by the _trfn_ substitution block below.
+		if _is_trfn_observable(Symbolics.wrap(obs_rhs))
+			continue
+		end
+		obs_interp = interpolants[obs_rhs]
 
 		for i in 0:max_required_deriv
 			# Find the corresponding lhs variable in the DD structure
@@ -174,13 +179,16 @@ function construct_equation_system_from_si_template(
 	for v in vars_in_template
 		var_name = string(v)
 		trfn_val = evaluate_trfn_template_variable(var_name, t_point)
+		if isnothing(trfn_val)
+			trfn_val = evaluate_obs_trfn_template_variable(var_name, t_point)
+		end
 		if !isnothing(trfn_val)
 			interpolated_values_dict[v] = trfn_val
 			n_trfn_substituted += 1
 		end
 	end
 	if n_trfn_substituted > 0
-		@info "[TEMPLATE] Substituted $n_trfn_substituted _trfn_ variable(s) at t=$t_point"
+		@info "[TEMPLATE] Substituted $n_trfn_substituted _trfn_/_obs_trfn_ variable(s) at t=$t_point"
 	end
 
 	if diagnostics
@@ -438,12 +446,16 @@ function resolve_states_with_fixed_params(
 	if n_eqs == n_vars && n_vars > 0
 		@info "[RESOLVE] Solving square system with HC.jl"
 		hc_status = :attempted
-		solutions, _, _, _ = solve_with_hc(equations, state_vars)
+		solutions, _hc_varlist, _, _ = solve_with_hc(equations, state_vars)
 		if isempty(solutions)
 			@warn "[RESOLVE] HC.jl found no solutions for square system"
 			hc_status = :no_solutions
 			push!(resolve_notes, :hc_no_solutions)
 		else
+			# Assert that HC returned solutions in the expected variable order
+			for sol in solutions
+				@assert length(sol) == length(state_vars) "[RESOLVE] HC.jl solution length $(length(sol)) != variable count $(length(state_vars))"
+			end
 			@info "[RESOLVE] HC.jl found $(length(solutions)) solution(s)"
 			missing_vars_per_solution = [Any[] for _ in 1:length(solutions)]
 			hc_status = :success
@@ -561,6 +573,11 @@ function resolve_states_with_fixed_params(
 					# Underdetermined — HC.jl would throw FiniteException
 					@warn "[RESOLVE] Remaining system is underdetermined ($n_rem_eqs eqs, $n_rem_vars vars) — skipping HC.jl"
 					push!(resolve_notes, :remaining_system_underdetermined)
+				end
+
+				# Assert HC solution length matches variable count
+				for sol in hc_solutions
+					@assert length(sol) == n_rem_vars "[RESOLVE] HC.jl solution length $(length(sol)) != remaining variable count $n_rem_vars"
 				end
 
 				if !isempty(hc_solutions)
