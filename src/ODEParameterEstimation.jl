@@ -85,6 +85,7 @@ include("core/pointpicker.jl")
 include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
+include("core/multipoint_template.jl")  # Multi-point polynomial template system
 include("core/derivatives.jl")
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
 include("core/sampling.jl")
@@ -113,6 +114,8 @@ export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDappro
 export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
 export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
 export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
+export MultiPointTemplate, MultiPointEvaluation, build_multipoint_template, evaluate_multipoint_template, solve_multipoint_direct, solve_multipoint_parameterized, select_time_point_pairs
+export select_time_point_pairs_gp_quality, select_time_point_pairs_sensitivity, select_time_point_pairs_homotopy_probed
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict

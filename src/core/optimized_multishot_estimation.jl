@@ -1332,7 +1332,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		solution_time_indices = Int[]
 		solution_interpolator_sources = Symbol[]  # track which interpolator produced each solution
 
-		# Check if we should use parameter homotopy
+		# Check if we should use parameter homotopy and/or multi-point template.
+		# Both can run — single-point always runs, multipoint adds solutions to the pool.
+		_has_trfn = any(startswith(replace(string(k), "(t)" => ""), "_trfn_") for k in keys(PEP.p_true))
+		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC && !_has_trfn
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
 		_record_phase!(phase_stats, "Equation construction + Solving") do
@@ -1364,6 +1367,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		try  # Catch errors in individual interpolators so one crash doesn't lose all results
 
+		# ════════════════════════════════════════════════════════════════════
+		# SINGLE-POINT PATH (always runs)
+		# ════════════════════════════════════════════════════════════════════
 		if use_param_homotopy
 			# ============================================================================
 			# PARAMETER HOMOTOPY PATH
@@ -1667,7 +1673,87 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				all_trimmed_vars = trimmed_vars
 				all_final_varlists = final_varlist_point
 			end
-		end  # end if use_param_homotopy
+		end  # end if use_param_homotopy (single-point path)
+
+		# ════════════════════════════════════════════════════════════════════
+		# MULTI-POINT PATH (runs AFTER single-point, adds solutions to pool)
+		# ════════════════════════════════════════════════════════════════════
+		if use_multipoint
+			_mpt_setup = (
+				good_deriv_level = good_deriv_level,
+				good_udict = good_udict,
+				good_varlist = good_varlist,
+				good_DD = good_DD,
+				interpolants = interpolants,
+			)
+			mpt = try
+				build_multipoint_template(PEP, _mpt_setup, si_template;
+					n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
+			catch e
+				opts.diagnostics && @warn "[MULTIPOINT] Template build failed" exception = e
+				nothing
+			end
+
+			if !isnothing(mpt) && length(mpt.stripped_equations) == length(mpt.solve_vars)
+				# Generate N-tuples from existing shooting points, capped at max_pairs
+				n_pts = opts.multipoint_n_points
+				all_combos = Vector{Vector{Int}}()
+				_generate_combinations!(all_combos, point_indices, n_pts)
+				# Sort by total spread (sum of pairwise distances) for diversity
+				sort!(all_combos; by = c -> -sum(abs(c[i] - c[j]) for i in 1:length(c) for j in i+1:length(c)))
+				combos = all_combos[1:min(opts.multipoint_max_pairs, length(all_combos))]
+
+				if !opts.nooutput || opts.diagnostics
+					println("  [MULTIPOINT] $(length(combos)) $(n_pts)-point combos from $(length(point_indices)) shooting points")
+				end
+
+				evals = MultiPointEvaluation[]
+				for combo in combos
+					try
+						ev = evaluate_multipoint_template(mpt, combo, interpolants, PEP.data_sample)
+						all(isfinite, ev.data_values) && push!(evals, ev)
+					catch; end
+				end
+
+				if !isempty(evals)
+					solutions_by_combo = try
+						solve_multipoint_parameterized(mpt, evals;
+							options = Dict(:show_progress => opts.hc_show_progress, :real_tol => opts.hc_real_tol))
+					catch e
+						opts.diagnostics && @warn "[MULTIPOINT] HC solve failed" exception = e
+						nothing
+					end
+
+					if !isnothing(solutions_by_combo) && !isempty(all_final_varlists)
+						# Project multipoint solutions to single-point varlist ordering.
+						# Build index mapping: for each var in single-point final_varlist,
+						# find its position in mpt.solve_vars.
+						sp_varlist = all_final_varlists
+						mp_to_sp = Int[]
+						for v in sp_varlist
+							idx = findfirst(isequal(v), mpt.solve_vars)
+							push!(mp_to_sp, isnothing(idx) ? 0 : idx)
+						end
+
+						n_projected = 0
+						for (pidx, combo_sols) in enumerate(solutions_by_combo)
+							for sol in combo_sols
+								# Project: extract only the components matching single-point vars
+								projected = Float64[idx > 0 ? sol[idx] : 0.0 for idx in mp_to_sp]
+								push!(interp_solutions, projected)
+								push!(interp_time_indices, evals[pidx].time_indices[1])
+								n_projected += 1
+							end
+						end
+
+						if !opts.nooutput || opts.diagnostics
+							total = sum(length(s) for s in solutions_by_combo)
+							println("  [MULTIPOINT] $(length(evals)) combos → $total solutions ($n_projected projected)")
+						end
+					end
+				end
+			end
+		end  # end multipoint
 
 		catch e
 			@error "Interpolator $interp_sym failed" exception=(e, catch_backtrace())

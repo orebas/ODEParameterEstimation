@@ -634,3 +634,52 @@ struct BacksolveUQReport
     amplification::Float64           # max singular value of J_g
     success::Bool
 end
+
+# ─── Multi-point template types ──────────────────────────────────────
+
+"""
+    MultiPointTemplate
+
+Pre-computed multi-point polynomial template. Built once per model from the
+single-point SI template. Stores the structural recipe (which equations to keep)
+so that evaluation at specific time points is cheap.
+
+The template stores equations in **symbolic** form (data variables not substituted),
+enabling HC.jl parameter homotopy across different time point pairs.
+
+Invariant: `length(stripped_equations) == length(solve_vars)` (square system).
+"""
+struct MultiPointTemplate
+    n_points::Int
+    base_si_template::Any  # NamedTuple from prepare_si_template_with_structural_fix
+
+    # Combined symbolic system (N copies, renamed, stripped to square)
+    stripped_equations::Vector{Num}
+    solve_vars::Vector{Any}    # Shared params + per-point state derivs (HC variables)
+    data_vars::Vector{Any}     # Per-point observable derivs + _trfn_ vars (HC parameters)
+
+    # Metadata for parameter extraction
+    param_var_indices::Vector{Int}     # Indices into solve_vars that are shared parameters
+    param_names::Vector{String}        # Clean parameter names (e.g., "a", "b") for error scoring
+
+    # Equation metadata
+    eq_metadata::Vector{@NamedTuple{point::Int, is_data::Bool, order::Int}}
+
+    # For data evaluation at arbitrary time points
+    per_point_data_var_ranges::Vector{UnitRange{Int}}  # data_vars[range] for each point
+    template_DD::Any           # DerivativeData for observable → variable mapping
+    measured_quantities::Vector{ModelingToolkit.Equation}
+end
+
+"""
+    MultiPointEvaluation
+
+Result of evaluating a MultiPointTemplate at specific time point indices.
+Contains the data variable values needed for HC.jl parameter substitution or homotopy.
+"""
+struct MultiPointEvaluation
+    template::MultiPointTemplate
+    time_indices::Vector{Int}
+    t_values::Vector{Float64}
+    data_values::Vector{Float64}  # Ordered to match template.data_vars
+end

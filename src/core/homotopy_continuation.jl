@@ -975,18 +975,21 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 
 			all_solutions = HomotopyContinuation.solutions(result)
 
-			# Check if tracking lost significant solutions
-			if length(all_solutions) < length(prev_all_solutions) * 0.9  # Lost more than 10%
-				@warn "Parameter homotopy: solution count dropped from $(length(prev_all_solutions)) to $(length(all_solutions)) at point $i. Falling back to fresh solve."
+			# Check if tracking lost ANY solutions or is below the initial count
+			if length(all_solutions) < initial_solution_count
+				if debug
+					println("[HC-PARAM] Point $i: Tracking lost paths ($(length(all_solutions)) < $initial_solution_count). Fresh solve.")
+				end
 
 				# Fresh solve fallback
 				result = HomotopyContinuation.solve(hc_system;
 					target_parameters = current_params,
 					show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result)
+				initial_solution_count = max(initial_solution_count, length(all_solutions))
 
 				if debug
-					println("[HC-PARAM] Point $i: Fallback fresh solve found $(length(all_solutions)) solutions")
+					println("[HC-PARAM] Point $i: Fresh solve found $(length(all_solutions)) solutions")
 				end
 			elseif debug
 				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))

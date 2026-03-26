@@ -332,6 +332,11 @@ Base.@kwdef struct EstimationOptions
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
 
+	# Multi-point template (combines polynomial systems from N time points)
+	use_multipoint::Bool = false  # Enable multi-point polynomial template system
+	multipoint_n_points::Int = 2  # Number of time points per evaluation (2 recommended)
+	multipoint_max_pairs::Int = 20  # Maximum number of time point pairs to solve
+
 	# StructuralIdentifiability Parameters
 	si_probability::Float64 = 0.99
 	si_p_mod::Float64 = 0.0
@@ -1036,7 +1041,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
 			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
-		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress]),
+		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),
 		("Limits", [:max_solutions]),
