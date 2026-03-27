@@ -48,6 +48,8 @@ Enum for selecting the data interpolation method.
 	InterpolatorS3BICSExRQ         # S3 BIC: GP(SE×RQ) → AAA(BIC-selected) → MLE
 	InterpolatorS3BICMatern52      # S3 BIC: GP(Matérn-5/2) → AAA(BIC-selected) → MLE
 	InterpolatorAGPUQ          # agp_gpr_uq - GP with full UQ (for calibrated uncertainty)
+	InterpolatorChebyshevAICc  # Chebyshev polynomial with AICc degree selection (spectral)
+	InterpolatorFourierAdaptive # FFT spectral differentiation with adaptive filtering
 	InterpolatorCustom         # User-provided custom interpolator
 end
 
@@ -460,6 +462,10 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 	elseif method == InterpolatorS3Matern52
 		k = s3_adapt_k
 		return (xs, ys) -> s3_adapt_matern52_interpolator(xs, ys; k = k)
+	elseif method == InterpolatorChebyshevAICc
+		return chebyshev_aicc
+	elseif method == InterpolatorFourierAdaptive
+		return fourier_adaptive
 	else
 		error("Unknown interpolator method: $method")
 	end
@@ -498,6 +504,8 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorS3BICSEpRQ && return :s3_bic_se_plus_rq
 	method == InterpolatorS3BICSExRQ && return :s3_bic_se_times_rq
 	method == InterpolatorS3BICMatern52 && return :s3_bic_matern52
+	method == InterpolatorChebyshevAICc && return :chebyshev_aicc
+	method == InterpolatorFourierAdaptive && return :fourier_adaptive
 	method == InterpolatorCustom && return :custom
 	return :unknown
 end

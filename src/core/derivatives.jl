@@ -248,6 +248,7 @@ function nth_deriv(f::Function, n::Int, t::Real)::Real
 	return TaylorDiff.derivative(f, t, Val(n))
 end
 
+
 """
 	aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) -> AAADapprox
 
@@ -1591,3 +1592,270 @@ s3_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :rq))
 s3_se_plus_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :se_plus_rq))
 s3_se_times_rq_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :se_times_rq))
 s3_matern52_interpolator(xs, ys) = (_s3_adapt_interpolator(xs, ys; kernel_type = :matern52))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Chebyshev polynomial interpolation with AICc degree selection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+"""
+    ChebyshevApprox <: AbstractInterpolator
+
+Chebyshev polynomial least-squares fit with automatic degree selection.
+Derivatives are exact via Chebyshev coefficient recurrence.
+"""
+struct ChebyshevApprox <: AbstractInterpolator
+	coeffs::Vector{Float64}   # Chebyshev coefficients in mapped [-1,1] domain
+	x_min::Float64
+	x_max::Float64
+	degree::Int
+end
+
+function _chebyshev_vandermonde(u::Vector{Float64}, deg::Int)
+	n = length(u)
+	V = zeros(n, deg + 1)
+	V[:, 1] .= 1.0
+	if deg >= 1
+		V[:, 2] .= u
+	end
+	for j in 3:(deg + 1)
+		@. V[:, j] = 2 * u * V[:, j-1] - V[:, j-2]
+	end
+	return V
+end
+
+function _clenshaw_eval(c::Vector{Float64}, u)
+	d = length(c) - 1
+	d < 0 && return zero(u)
+	d == 0 && return c[1] * one(u)
+	b_next = zero(u)
+	b_curr = zero(u)
+	for k in d:-1:1
+		b_prev = 2 * u * b_curr - b_next + c[k+1]
+		b_next = b_curr
+		b_curr = b_prev
+	end
+	return u * b_curr - b_next + c[1]
+end
+
+function (cf::ChebyshevApprox)(x)
+	L = cf.x_max - cf.x_min
+	u = 2 * (x - cf.x_min) / L - 1
+	return _clenshaw_eval(cf.coeffs, u)
+end
+
+function _chebyshev_deriv_coeffs(c::Vector{Float64})
+	d = length(c) - 1
+	d <= 0 && return [0.0]
+	dc = zeros(d)
+	for j in d:-1:1
+		k = j - 1
+		c_prime_k_plus_2 = (j + 2 <= d) ? dc[j+2] : 0.0
+		dc[j] = c_prime_k_plus_2 + 2 * (k + 1) * c[k + 2]
+	end
+	dc[1] /= 2
+	return dc
+end
+
+function _select_degree_aicc(x::Vector{Float64}, y::Vector{Float64}; min_deg::Int = 3, max_deg::Int = 30)
+	n = length(x)
+	x_min, x_max = extrema(x)
+	x_max == x_min && return min_deg, Inf
+	u = @. 2 * (x - x_min) / (x_max - x_min) - 1
+	max_deg_safe = min(max_deg, n - 2)
+	min_deg_safe = max(min(min_deg, max_deg_safe), 1)
+	V_full = _chebyshev_vandermonde(u, max_deg_safe)
+	best_aicc = Inf
+	best_deg = min_deg_safe
+	for deg in min_deg_safe:max_deg_safe
+		try
+			V = @view V_full[:, 1:(deg+1)]
+			coeffs = V \ y
+			rss = sum((y - V * coeffs) .^ 2)
+			k = deg + 2
+			if n - k - 1 > 0
+				aicc = n * log(rss / n + 1e-12) + 2k + 2k * (k + 1) / (n - k - 1)
+			else
+				aicc = Inf
+			end
+			if aicc < best_aicc
+				best_aicc = aicc
+				best_deg = deg
+			end
+		catch
+			continue
+		end
+	end
+	return best_deg, best_aicc
+end
+
+"""
+    chebyshev_aicc(xs, ys) -> ChebyshevApprox
+
+Fit a Chebyshev polynomial to data with automatic degree selection via AICc.
+"""
+function chebyshev_aicc(xs::AbstractArray{T}, ys::AbstractArray{T})::ChebyshevApprox where {T}
+	x = Float64.(xs)
+	y = Float64.(ys)
+	deg, _ = _select_degree_aicc(x, y; min_deg = 3, max_deg = min(30, length(x) - 1))
+	x_min, x_max = extrema(x)
+	u = @. 2 * (x - x_min) / (x_max - x_min) - 1
+	V = _chebyshev_vandermonde(u, deg)
+	coeffs = V \ y
+	return ChebyshevApprox(coeffs, x_min, x_max, deg)
+end
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Fourier spectral interpolation with adaptive low-pass filtering
+# ═══════════════════════════════════════════════════════════════════════════════
+
+"""
+    FourierApprox <: AbstractInterpolator
+
+FFT-based spectral interpolation with symmetric extension for non-periodic data.
+Derivatives use spectral differentiation (ik)^n with low-pass filtering.
+
+Since TaylorDiff through linear interpolation only gives piecewise-constant
+derivatives, this struct precomputes derivative grids at construction time.
+"""
+struct FourierApprox <: AbstractInterpolator
+	x_grid::Vector{Float64}
+	y_grid::Vector{Float64}
+	deriv_grids::Dict{Int, Vector{Float64}}  # order => derivative values on x_grid
+	max_precomputed_order::Int
+end
+
+function (fa::FourierApprox)(x)
+	# Linear interpolation on original grid
+	idx = searchsortedfirst(fa.x_grid, x)
+	idx <= 1 && return fa.y_grid[1]
+	idx > length(fa.x_grid) && return fa.y_grid[end]
+	t = (x - fa.x_grid[idx-1]) / (fa.x_grid[idx] - fa.x_grid[idx-1])
+	return (1 - t) * fa.y_grid[idx-1] + t * fa.y_grid[idx]
+end
+
+"""
+    _fourier_deriv_grid(x, y, order, filter_frac)
+
+Compute the `order`-th derivative on the grid via spectral differentiation.
+Uses symmetric extension + DFT + (ik)^n + low-pass filter + IDFT.
+Pure Julia implementation (no FFTW dependency).
+"""
+function _fourier_deriv_grid(x::Vector{Float64}, y::Vector{Float64}, order::Int, filter_frac::Float64)
+	N = length(y)
+	# Symmetric extension to reduce edge effects
+	y_ext = vcat(reverse(y[2:end]), y, reverse(y[1:end-1]))
+	N_ext = length(y_ext)
+
+	# DFT (pure Julia — O(N²) but fine for N≤500)
+	y_fft = zeros(ComplexF64, N_ext)
+	for k in 0:(N_ext-1)
+		for j in 0:(N_ext-1)
+			y_fft[k+1] += y_ext[j+1] * exp(-2π * im * k * j / N_ext)
+		end
+	end
+
+	# Wavenumber array
+	dx = mean(diff(x))
+	freqs = [(k <= N_ext ÷ 2 ? k : k - N_ext) / (N_ext * dx) for k in 0:(N_ext-1)]
+	angular_k = 2π .* freqs
+
+	# Spectral differentiation with low-pass filter
+	k_max = maximum(abs.(angular_k))
+	k_cutoff = filter_frac * k_max
+	for i in eachindex(y_fft)
+		if abs(angular_k[i]) <= k_cutoff
+			y_fft[i] *= (im * angular_k[i])^order
+		else
+			y_fft[i] = 0.0
+		end
+	end
+
+	# IDFT
+	deriv_ext = zeros(Float64, N_ext)
+	for j in 0:(N_ext-1)
+		val = zero(ComplexF64)
+		for k in 0:(N_ext-1)
+			val += y_fft[k+1] * exp(2π * im * k * j / N_ext)
+		end
+		deriv_ext[j+1] = real(val) / N_ext
+	end
+
+	# Extract middle section (original domain)
+	offset = N - 1
+	return deriv_ext[(offset+1):(offset+N)]
+end
+
+"""
+    _estimate_noise_fraction(y)
+
+Estimate the fraction of energy in high-frequency noise from the DFT spectrum.
+Returns a value in [0, 1] where 0 = noiseless, 1 = pure noise.
+"""
+function _estimate_noise_fraction(y::Vector{Float64})
+	N = length(y)
+	N < 10 && return 0.5
+
+	# Simple DFT magnitude spectrum
+	mags = zeros(N)
+	for k in 0:(N-1)
+		val = zero(ComplexF64)
+		for j in 0:(N-1)
+			val += y[j+1] * exp(-2π * im * k * j / N)
+		end
+		mags[k+1] = abs(val)
+	end
+
+	# Compare energy in top quarter vs total
+	half = N ÷ 2
+	quarter = N ÷ 4
+	total_energy = sum(mags[2:half] .^ 2)
+	high_energy = sum(mags[(half-quarter+1):half] .^ 2)
+	total_energy < 1e-15 && return 0.0
+	return clamp(high_energy / total_energy, 0.0, 1.0)
+end
+
+"""
+    fourier_adaptive(xs, ys) -> FourierApprox
+
+Fit a Fourier spectral interpolant with adaptive low-pass filter.
+Precomputes derivatives up to order 8 on the data grid.
+"""
+function fourier_adaptive(xs::AbstractArray{T}, ys::AbstractArray{T})::FourierApprox where {T}
+	x = Float64.(xs)
+	y = Float64.(ys)
+
+	# Adaptive filter fraction based on noise estimation
+	noise_frac = _estimate_noise_fraction(y)
+	filter_frac = clamp(0.5 - 0.3 * noise_frac, 0.15, 0.5)
+
+	# Precompute derivative grids
+	max_order = 8
+	deriv_grids = Dict{Int, Vector{Float64}}()
+	for order in 1:max_order
+		try
+			deriv_grids[order] = _fourier_deriv_grid(x, y, order, filter_frac)
+		catch
+			deriv_grids[order] = fill(NaN, length(x))
+		end
+	end
+
+	return FourierApprox(x, y, deriv_grids, max_order)
+end
+
+"""
+    nth_deriv_at(fa::FourierApprox, n::Int, t::Float64) -> Float64
+
+Evaluate nth derivative of FourierApprox at point t using precomputed grids.
+"""
+function nth_deriv_at(fa::FourierApprox, n::Int, t::Float64)
+	n == 0 && return fa(t)
+	!haskey(fa.deriv_grids, n) && return NaN
+
+	grid = fa.deriv_grids[n]
+	# Linear interpolation on the derivative grid
+	idx = searchsortedfirst(fa.x_grid, t)
+	idx <= 1 && return grid[1]
+	idx > length(fa.x_grid) && return grid[end]
+	frac = (t - fa.x_grid[idx-1]) / (fa.x_grid[idx] - fa.x_grid[idx-1])
+	return (1 - frac) * grid[idx-1] + frac * grid[idx]
+end

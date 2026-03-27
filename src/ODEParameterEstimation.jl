@@ -111,6 +111,12 @@ export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
 export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
+export ChebyshevApprox, chebyshev_aicc, FourierApprox, fourier_adaptive
+export InterpolatorMethod, InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD
+export InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52
+export InterpolatorS2AAAMLE, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52
+export InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52
+export InterpolatorChebyshevAICc, InterpolatorFourierAdaptive, InterpolatorAGPUQ, InterpolatorCustom
 export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
 export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_nlopt_testing, solve_with_nlopt_quick, solve_with_fast_nlopt
 export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
