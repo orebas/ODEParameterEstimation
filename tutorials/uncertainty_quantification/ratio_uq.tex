@@ -1,0 +1,442 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+
+\title{Uncertainty Propagation for a Ratio of GP Derivatives:\\
+From Posterior Covariance to Parameter Confidence Intervals}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We work through a concrete example of how Gaussian-process (GP) posterior uncertainty propagates to an ODE parameter that is determined by a ratio of derivatives.
+Suppose an observable $g(t)$ is fitted by a GP, and a parameter satisfies the algebraic relation
+\[
+a = \frac{g''(t_*)}{g'''(t_*)}.
+\]
+We show how to compute $\mathrm{Var}(a)$ from the GP posterior, starting from the kernel and ending at a closed-form expression.
+The calculation illustrates the general IFT/GLS pipeline of the \texttt{ODEParameterEstimation.jl} package in a setting simple enough to follow every step.
+\end{abstract}
+
+\tableofcontents
+
+\section{Setup: One Observable, One Parameter}
+
+We observe noisy samples of a smooth function $g$:
+\[
+y_i = g(t_i) + \varepsilon_i, \qquad \varepsilon_i \sim \mathcal{N}(0, \sigma_n^2), \qquad i = 1, \dots, N.
+\]
+We fit a GP with squared-exponential (SE) kernel
+\[
+k(\Delta t) = \sigma^2 \exp\!\left( -\frac{\Delta t^2}{2\ell^2} \right), \qquad \Delta t = t - t'.
+\]
+After conditioning on the data, the GP posterior gives us not just $g(t_*)$ but also all derivatives $g'(t_*), g''(t_*), g'''(t_*), \dots$ as jointly Gaussian random variables.
+
+The ODE model tells us that a parameter $a$ satisfies
+\[
+a = \frac{g''(t_*)}{g'''(t_*)}.
+\]
+Our goal: compute $\mathrm{Var}(a)$ as a function of the GP posterior.
+
+\section{Step 1: GP Posterior for Function Values}
+
+\subsection{Standard GP conditioning}
+
+Define the training kernel matrix
+\[
+K \in \mathbb{R}^{N \times N}, \qquad K_{ij} = k(t_i - t_j),
+\]
+and the noisy kernel matrix
+\[
+\tilde{K} = K + \sigma_n^2 I.
+\]
+Let $\mathbf{y} = (y_1, \dots, y_N)^\top$ be the observed data vector.
+
+At any test point $t_*$, the posterior of the latent function value $g(t_*)$ is Gaussian:
+\begin{align}
+\mu(t_*) &= \mathbf{k}_*^\top \tilde{K}^{-1} \mathbf{y}, \label{eq:post-mean} \\
+\sigma^2_{\mathrm{post}}(t_*) &= k(0) - \mathbf{k}_*^\top \tilde{K}^{-1} \mathbf{k}_*, \label{eq:post-var}
+\end{align}
+where
+\[
+\mathbf{k}_* = \begin{bmatrix} k(t_* - t_1) \\ \vdots \\ k(t_* - t_N) \end{bmatrix} \in \mathbb{R}^N.
+\]
+
+\subsection{Key observation}
+
+The posterior \emph{mean} \eqref{eq:post-mean} depends on the data values $\mathbf{y}$.
+
+The posterior \emph{variance} \eqref{eq:post-var} depends only on the kernel hyperparameters $(\sigma^2, \ell, \sigma_n^2)$ and the training point locations $\{t_i\}$---not on $\mathbf{y}$ itself.
+
+However, in practice we estimate the hyperparameters from the data by maximizing the marginal likelihood, so the variance indirectly depends on $\mathbf{y}$ through $(\hat\sigma^2, \hat\ell, \hat\sigma_n^2)$.
+
+\section{Step 2: GP Posterior for Derivatives}
+
+\subsection{Derivatives of a GP are a GP}
+
+Since the SE kernel is infinitely differentiable, the GP posterior for any derivative $g^{(p)}(t_*)$ is also Gaussian.
+The key identity is:
+\[
+\mathrm{Cov}\bigl(g^{(p)}(t),\; g^{(q)}(t')\bigr)
+=
+\frac{\partial^{p+q}}{\partial t^p \,\partial t'^{\,q}}\, k(t, t').
+\]
+We denote this derivative kernel as
+\[
+k^{(p,q)}(t, t') = \frac{\partial^{p+q}}{\partial t^p \,\partial t'^{\,q}}\, k(t, t').
+\]
+
+\subsection{SE kernel derivatives via Hermite polynomials}
+
+For the SE kernel with normalized distance $u = \Delta t / \ell$, we have
+\[
+k(\Delta t) = \sigma^2 e^{-u^2/2}.
+\]
+The $n$-th derivative of $e^{-u^2/2}$ with respect to $u$ introduces the probabilist's Hermite polynomial:
+\[
+\frac{d^n}{du^n} e^{-u^2/2} = (-1)^n\, \mathrm{He}_n(u)\, e^{-u^2/2},
+\]
+where the Hermite polynomials satisfy the recurrence
+\[
+\mathrm{He}_0(u) = 1, \qquad \mathrm{He}_1(u) = u, \qquad \mathrm{He}_{n+1}(u) = u\,\mathrm{He}_n(u) - n\,\mathrm{He}_{n-1}(u).
+\]
+
+Accounting for the chain rule ($\partial/\partial t = (1/\ell)\, \partial/\partial u$ and $\partial/\partial t' = -(1/\ell)\, \partial/\partial u$ since $u = (t-t')/\ell$), the general formula is
+\begin{equation}
+k^{(p,q)}(\Delta t) = (-1)^p \cdot \frac{\sigma^2}{\ell^{p+q}} \cdot \mathrm{He}_{p+q}(u) \cdot e^{-u^2/2}.
+\label{eq:kernel-deriv}
+\end{equation}
+
+For reference, the first several Hermite polynomials are:
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+$n$ & $\mathrm{He}_n(u)$ \\
+\midrule
+0 & $1$ \\
+1 & $u$ \\
+2 & $u^2 - 1$ \\
+3 & $u^3 - 3u$ \\
+4 & $u^4 - 6u^2 + 3$ \\
+5 & $u^5 - 10u^3 + 15u$ \\
+6 & $u^6 - 15u^4 + 45u^2 - 15$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Prior covariance at the same point ($\Delta t = 0$, i.e.\ $u = 0$)}
+
+At $\Delta t = 0$:
+\[
+k^{(p,q)}(0) = (-1)^p \cdot \frac{\sigma^2}{\ell^{p+q}} \cdot \mathrm{He}_{p+q}(0).
+\]
+
+Since $\mathrm{He}_n(0) = 0$ for odd $n$ and $\mathrm{He}_n(0) = (-1)^{n/2} (n-1)!!$ for even $n$, we get:
+
+\begin{itemize}
+\item If $p + q$ is odd: $k^{(p,q)}(0) = 0$. (Prior covariance vanishes by symmetry.)
+\item If $p + q$ is even: $k^{(p,q)}(0) = (-1)^p \cdot \dfrac{\sigma^2}{\ell^{p+q}} \cdot (-1)^{(p+q)/2} \cdot (p+q-1)!!$
+\end{itemize}
+
+Concretely, the prior covariance matrix for $[g, g', g'', g''']$ at a single point is:
+\[
+\Sigma_{\mathrm{prior}} =
+\sigma^2
+\begin{bmatrix}
+1 & 0 & -\ell^{-2} & 0 \\[4pt]
+0 & \ell^{-2} & 0 & -3\ell^{-4} \\[4pt]
+-\ell^{-2} & 0 & 3\ell^{-4} & 0 \\[4pt]
+0 & -3\ell^{-4} & 0 & 15\ell^{-6}
+\end{bmatrix}.
+\]
+
+\textbf{Important observation:} Under the prior, $\mathrm{Cov}(g'', g''') = 0$ because $2 + 3 = 5$ is odd.
+This will \emph{not} remain zero after conditioning on data.
+
+\subsection{Posterior covariance of the derivative vector}
+
+Define the derivative vector at test point $t_*$:
+\[
+\mathbf{f}_* = \begin{bmatrix} g(t_*) \\ g'(t_*) \\ g''(t_*) \\ g'''(t_*) \end{bmatrix}.
+\]
+
+The cross-covariance between $\mathbf{f}_*$ and the training function values $\mathbf{g} = (g(t_1), \dots, g(t_N))^\top$ is:
+\[
+K_{*n} \in \mathbb{R}^{4 \times N}, \qquad
+(K_{*n})_{p+1,\, j} = k^{(p,0)}(t_* - t_j) = \frac{\partial^p}{\partial t^p} k(t_* - t_j),
+\]
+for $p = 0, 1, 2, 3$ and $j = 1, \dots, N$.
+
+The prior covariance of $\mathbf{f}_*$ is $\Sigma_{\mathrm{prior}} \in \mathbb{R}^{4\times 4}$ as above.
+
+The GP posterior of $\mathbf{f}_*$ given data $\mathbf{y}$ is:
+\begin{align}
+\boldsymbol{\mu}_* &= K_{*n}\, \tilde{K}^{-1}\, \mathbf{y},
+\label{eq:deriv-mean} \\
+\Sigma_{\mathrm{post}} &= \Sigma_{\mathrm{prior}} - K_{*n}\, \tilde{K}^{-1}\, K_{*n}^\top.
+\label{eq:deriv-cov}
+\end{align}
+
+Equation~\eqref{eq:deriv-mean} says: \emph{the posterior mean of each derivative is a weighted combination of the observed data}, with weights derived from the kernel derivatives.
+
+Equation~\eqref{eq:deriv-cov} says: \emph{conditioning on data reduces uncertainty from the prior}. The reduction is encoded in the $K_{*n}\, \tilde{K}^{-1}\, K_{*n}^\top$ term. This term depends on how informative the training points are about the derivatives at $t_*$.
+
+\subsection{Why the posterior cross-covariance $\mathrm{Cov}(g'', g''')$ is nonzero}
+
+Even though the prior gives $\mathrm{Cov}_{\mathrm{prior}}(g'', g''') = 0$, the data-reduction term
+\[
+\bigl(K_{*n}\, \tilde{K}^{-1}\, K_{*n}^\top\bigr)_{3,4}
+\]
+is generically nonzero. Intuitively, the training data near $t_*$ provide information that correlates even- and odd-order derivatives: observing $g$ at asymmetrically placed points around $t_*$ breaks the symmetry that made the prior cross-covariance vanish.
+
+\section{Step 3: Extracting the Relevant 2$\times$2 Block}
+
+For the ratio $a = g''(t_*) / g'''(t_*)$, we only need the subvector
+\[
+\mathbf{z} = \begin{bmatrix} g''(t_*) \\ g'''(t_*) \end{bmatrix} = \begin{bmatrix} u \\ v \end{bmatrix},
+\]
+which has posterior distribution
+\[
+\mathbf{z} \sim \mathcal{N}\!\left(
+\begin{bmatrix} \mu_u \\ \mu_v \end{bmatrix},\;
+\Sigma_z = \begin{bmatrix} \sigma_{uu} & \sigma_{uv} \\ \sigma_{uv} & \sigma_{vv} \end{bmatrix}
+\right),
+\]
+where $\Sigma_z$ is the $(3{:}4,\; 3{:}4)$ subblock of $\Sigma_{\mathrm{post}}$ from \eqref{eq:deriv-cov}.
+
+Explicitly:
+\begin{align}
+\sigma_{uu} &= \underbrace{k^{(2,2)}(0)}_{\text{prior}} - \sum_{i,j} k^{(2,0)}(t_*-t_i)\,[\tilde K^{-1}]_{ij}\, k^{(2,0)}(t_*-t_j), \label{eq:sigma-uu}\\[6pt]
+\sigma_{vv} &= k^{(3,3)}(0) - \sum_{i,j} k^{(3,0)}(t_*-t_i)\,[\tilde K^{-1}]_{ij}\, k^{(3,0)}(t_*-t_j), \label{eq:sigma-vv}\\[6pt]
+\sigma_{uv} &= \underbrace{k^{(2,3)}(0)}_{=\,0\text{ (prior)}} - \sum_{i,j} k^{(2,0)}(t_*-t_i)\,[\tilde K^{-1}]_{ij}\, k^{(3,0)}(t_*-t_j). \label{eq:sigma-uv}
+\end{align}
+
+The prior term in \eqref{eq:sigma-uv} vanishes (odd total order), but the data-reduction sum does not.
+
+\section{Step 4: Delta Method for the Ratio}
+
+\subsection{The general delta method}
+
+If $\mathbf{z} \sim \mathcal{N}(\boldsymbol{\mu}, \Sigma_z)$ and $h(\mathbf{z})$ is a smooth scalar function, then to first order:
+\[
+h(\mathbf{z}) \approx h(\boldsymbol{\mu}) + \nabla h(\boldsymbol{\mu})^\top (\mathbf{z} - \boldsymbol{\mu}),
+\]
+and therefore
+\[
+\mathrm{Var}\bigl(h(\mathbf{z})\bigr) \approx \nabla h(\boldsymbol{\mu})^\top \,\Sigma_z\, \nabla h(\boldsymbol{\mu}).
+\]
+
+\subsection{Application to $h(u,v) = u/v$}
+
+The partial derivatives are:
+\[
+\frac{\partial h}{\partial u} = \frac{1}{v}, \qquad
+\frac{\partial h}{\partial v} = -\frac{u}{v^2}.
+\]
+Evaluated at the posterior means:
+\[
+\nabla h\big|_{\boldsymbol{\mu}} = \begin{bmatrix} 1/\mu_v \\[3pt] -\mu_u/\mu_v^2 \end{bmatrix}.
+\]
+
+\subsection{Expanding the variance}
+
+\begin{align}
+\mathrm{Var}(a)
+&\approx \nabla h^\top \Sigma_z\, \nabla h \notag \\[6pt]
+&= \frac{1}{\mu_v^2}\,\sigma_{uu}
+\;-\; \frac{2\mu_u}{\mu_v^3}\,\sigma_{uv}
+\;+\; \frac{\mu_u^2}{\mu_v^4}\,\sigma_{vv}.
+\label{eq:var-a-expanded}
+\end{align}
+
+Equivalently, factoring out $\hat{a}^2 = \mu_u^2/\mu_v^2$:
+\begin{equation}
+\boxed{\;
+\mathrm{Var}(a) \approx \hat{a}^2 \left[
+\frac{\sigma_{uu}}{\mu_u^2}
+\;-\; 2\rho\,\frac{\sqrt{\sigma_{uu}}}{\mu_u}\,\frac{\sqrt{\sigma_{vv}}}{\mu_v}
+\;+\; \frac{\sigma_{vv}}{\mu_v^2}
+\right]
+= \hat{a}^2 \bigl[\mathrm{CV}_u^2 - 2\rho\,\mathrm{CV}_u\,\mathrm{CV}_v + \mathrm{CV}_v^2\bigr]
+\;}
+\label{eq:var-a-cv}
+\end{equation}
+where $\mathrm{CV}_u = \sqrt{\sigma_{uu}}/|\mu_u|$, $\mathrm{CV}_v = \sqrt{\sigma_{vv}}/|\mu_v|$, and $\rho = \sigma_{uv}/\sqrt{\sigma_{uu}\sigma_{vv}}$.
+
+\subsection{Interpreting the three terms}
+
+\begin{enumerate}
+\item $\sigma_{uu}/\mu_v^2$: uncertainty in the \textbf{numerator} $g''$, scaled by the denominator.
+\item $\mu_u^2 \sigma_{vv}/\mu_v^4$: uncertainty in the \textbf{denominator} $g'''$, amplified by $1/\mu_v^2$.
+This is typically the dominant term because GP derivative variance grows rapidly with order.
+\item $-2\mu_u \sigma_{uv}/\mu_v^3$: the \textbf{correlation correction}. If $g''$ and $g'''$ are positively correlated (and $\hat{a} > 0$), this term is negative and \emph{reduces} the variance. Intuitively, when numerator and denominator fluctuate together, the ratio is more stable.
+\end{enumerate}
+
+\section{Step 5: Connection to the IFT/GLS Framework}
+
+The \texttt{ODEParameterEstimation.jl} package does not compute $\mathrm{Var}(a)$ using the ratio formula directly. Instead, it uses the implicit function theorem (IFT), which gives the same answer through a different route. We show the equivalence.
+
+\subsection{Rewriting the constraint}
+
+Instead of $a = u/v$, write the constraint as
+\[
+F(a, u, v) = a \cdot v - u = 0.
+\]
+
+\subsection{Jacobians}
+
+The constraint Jacobians are:
+\begin{align}
+J_\theta &= \frac{\partial F}{\partial a} = v = \mu_v \quad (\text{scalar, since one parameter}), \\[4pt]
+J_z &= \left[\frac{\partial F}{\partial u},\; \frac{\partial F}{\partial v}\right] = [-1,\; a] = \left[-1,\; \frac{\mu_u}{\mu_v}\right].
+\end{align}
+
+\subsection{Sensitivity matrix}
+
+The sensitivity of $a$ to perturbations in the data is
+\[
+S = -J_\theta^{-1}\, J_z = -\frac{1}{\mu_v}\bigl[-1,\; \mu_u/\mu_v\bigr] = \left[\frac{1}{\mu_v},\; -\frac{\mu_u}{\mu_v^2}\right].
+\]
+This is exactly $\nabla h^\top$ from the delta method.
+
+\subsection{Parameter covariance}
+
+\[
+\Sigma_a = S\, \Sigma_z\, S^\top
+= \frac{\sigma_{uu}}{\mu_v^2}
+- \frac{2\mu_u\,\sigma_{uv}}{\mu_v^3}
++ \frac{\mu_u^2\,\sigma_{vv}}{\mu_v^4}.
+\]
+
+This is identical to \eqref{eq:var-a-expanded}. The IFT and delta method are two views of the same linearization.
+
+\subsection{The GLS formula for overdetermined systems}
+
+In this example, we had exactly one constraint for one parameter (a square system), so $J_\theta^{-1}$ exists and the IFT formula applies directly.
+
+In general, SIAN produces more equations than unknowns ($m > p$). The correct generalization is the GLS (generalized least squares) formula:
+\[
+\Sigma_\theta = \left(J_\theta^\top\, \Sigma_z^{-1}\, J_\theta\right)^{-1}.
+\]
+For the square case, this reduces to $J_\theta^{-1}\, \Sigma_z\, J_\theta^{-\top}$, recovering the IFT result.
+
+\section{Step 6: Numerical Scaling --- Why the Denominator Hurts}
+
+\subsection{Prior variance growth with derivative order}
+
+From the prior covariance matrix, the marginal prior variances are:
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+Quantity & Prior variance & Scales as \\
+\midrule
+$g(t)$ & $\sigma^2$ & $\sigma^2$ \\
+$g'(t)$ & $\sigma^2/\ell^2$ & $\sigma^2 \ell^{-2}$ \\
+$g''(t)$ & $3\sigma^2/\ell^4$ & $\sigma^2 \ell^{-4}$ \\
+$g'''(t)$ & $15\sigma^2/\ell^6$ & $\sigma^2 \ell^{-6}$ \\
+$g^{(k)}(t)$ & $\sigma^2 (2k{-}1)!!/\ell^{2k}$ & $\sigma^2 \ell^{-2k}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The double factorial and $\ell^{-2k}$ growth means higher-order derivative uncertainty explodes, especially for short lengthscales.
+
+\subsection{Posterior variance is smaller, but follows the same trend}
+
+Conditioning on data reduces each variance by the $K_{*n}\tilde{K}^{-1}K_{*n}^\top$ term. But the reduction is less effective for higher derivatives: the cross-covariance vectors $k^{(p,0)}(t_*-t_j)$ oscillate more rapidly and the effective number of informative training points decreases.
+
+As a rough rule: if the data reduce the function-value variance by a factor of $100$ (from prior $\sigma^2$ to posterior $\sigma^2/100$), they might only reduce $g'''$ variance by a factor of $5$--$20$, depending on data density relative to $\ell$.
+
+\subsection{Consequence for the ratio}
+
+In \eqref{eq:var-a-expanded}, the denominator term $\mu_u^2\sigma_{vv}/\mu_v^4$ involves $\sigma_{vv}$ (order-3 variance), which can be 1--2 orders of magnitude larger than $\sigma_{uu}$ (order-2 variance). This makes the uncertainty in $g'''$ the dominant contributor to $\mathrm{Var}(a)$ in most practical cases.
+
+\section{Step 7: A Complete Numerical Example}
+
+\subsection{Setting}
+
+Consider a GP with hyperparameters $\sigma^2 = 1$, $\ell = 1$, $\sigma_n^2 = 0.01$, fitted to $N=50$ equally spaced points on $[0, 5]$.
+
+At $t_* = 2.5$ (center of the domain), suppose the posterior gives:
+\begin{align*}
+\mu_u = g''(2.5) &= -0.8, \\
+\mu_v = g'''(2.5) &= 0.4.
+\end{align*}
+So $\hat{a} = -0.8/0.4 = -2.0$.
+
+The posterior covariance block (from \eqref{eq:deriv-cov}) is:
+\[
+\Sigma_z = \begin{bmatrix} 0.020 & -0.005 \\ -0.005 & 0.180 \end{bmatrix}.
+\]
+Note $\sigma_{vv} = 0.180 \gg \sigma_{uu} = 0.020$, consistent with the scaling discussion.
+
+\subsection{Computing $\mathrm{Var}(a)$}
+
+From \eqref{eq:var-a-expanded}:
+\begin{align*}
+\mathrm{Var}(a)
+&= \frac{0.020}{0.4^2} - \frac{2(-0.8)(-0.005)}{0.4^3} + \frac{(-0.8)^2 \cdot 0.180}{0.4^4} \\[6pt]
+&= \frac{0.020}{0.16} - \frac{0.008}{0.064} + \frac{0.1152}{0.0256} \\[6pt]
+&= 0.125 - 0.125 + 4.500 \\[6pt]
+&= 4.500.
+\end{align*}
+
+So $\sigma_a = \sqrt{4.500} \approx 2.12$, and a 95\% confidence interval is
+\[
+a \in \hat{a} \pm 1.96\,\sigma_a = -2.0 \pm 4.16 = [-6.16, \; 2.16].
+\]
+
+\subsection{Breakdown by term}
+
+\begin{center}
+\begin{tabular}{llr}
+\toprule
+Term & Interpretation & Value \\
+\midrule
+$\sigma_{uu}/\mu_v^2$ & Numerator uncertainty & $0.125$ \\
+$-2\mu_u\sigma_{uv}/\mu_v^3$ & Correlation correction & $-0.125$ \\
+$\mu_u^2\sigma_{vv}/\mu_v^4$ & Denominator uncertainty & $4.500$ \\
+\midrule
+Total & $\mathrm{Var}(a)$ & $4.500$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The denominator (order-3) term contributes over 97\% of the total variance, with the correlation term providing some cancellation against the numerator term.
+
+\section{Summary}
+
+The complete chain from data to parameter confidence interval is:
+
+\begin{enumerate}
+\item \textbf{Fit GP} to noisy observations $\{(t_i, y_i)\}$, obtaining hyperparameters $(\hat\sigma^2, \hat\ell, \hat\sigma_n^2)$ and the Cholesky factor of $\tilde{K}$.
+
+\item \textbf{Compute kernel derivative vectors} $k^{(p,0)}(t_* - t_j)$ for $p = 2, 3$ and $j = 1, \dots, N$, using the Hermite recurrence \eqref{eq:kernel-deriv}.
+
+\item \textbf{Form the posterior covariance} of $(g'', g''')$ at $t_*$ via
+\[
+\Sigma_z = \Sigma_{\mathrm{prior}}^{(2:3)} - K_{*n}^{(2:3)}\, \tilde{K}^{-1}\, (K_{*n}^{(2:3)})^\top.
+\]
+
+\item \textbf{Compute the posterior means} $\mu_u, \mu_v$ via \eqref{eq:deriv-mean}, and the point estimate $\hat{a} = \mu_u / \mu_v$.
+
+\item \textbf{Propagate uncertainty} via the delta method / IFT:
+\[
+\mathrm{Var}(a)
+= \frac{\sigma_{uu}}{\mu_v^2}
+- \frac{2\mu_u\,\sigma_{uv}}{\mu_v^3}
++ \frac{\mu_u^2\,\sigma_{vv}}{\mu_v^4}.
+\]
+
+\item \textbf{Form confidence interval}: $\hat{a} \pm z_{\alpha/2}\sqrt{\mathrm{Var}(a)}$.
+\end{enumerate}
+
+The dominant source of uncertainty is almost always the highest-order derivative in the denominator, because GP derivative variance grows as $\sigma^2(2k-1)!!/\ell^{2k}$ with derivative order $k$, and conditioning on data provides diminishing reduction for higher orders.
+
+\end{document}

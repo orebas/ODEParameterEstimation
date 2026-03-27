@@ -1,0 +1,753 @@
+<GENERATED-CODE>
+1. Create a new file `primer.tex` containing a complete, self-contained mini-paper in LaTeX.
+2. Compile with `pdflatex primer.tex`. The document uses `article` plus standard packages (`amsmath`, `amssymb`) and remains compatible with `pdflatex`.
+3. The document is written for a scientist comfortable with univariate SE-kernel GPs but not advanced multivariate statistics, and it explicitly distinguishes prior variance, posterior variance, predictive variance, and observation noise.
+4. The parameter-uncertainty section explains both the square-system intuition and the overdetermined least-squares/GLS correction, including a concrete counterexample showing why the pseudoinverse formula fails.
+
+<NEWFILE: primer.tex>
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+
+\title{From GP Interpolation to Parameter Uncertainty:\\A Primer for ODE Parameter Estimation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This note connects three ideas that are often discussed separately: Gaussian-process (GP) interpolation of noisy time-series data, stacking multiple observables, and propagating trajectory uncertainty into uncertainty on ODE parameters. The intended reader is comfortable with a standard univariate squared-exponential GP with additive Gaussian noise, but does not want to rely on heavy multivariate-statistics machinery. The main message is simple. Independent GPs are often perfectly adequate for smoothing each observable. The resulting latent posterior covariance should then be propagated to parameters using the weighted least-squares / generalized least-squares (GLS) formula
+\[
+\Sigma_\theta = (J_\theta^\top \Sigma_z^{-1} J_\theta)^{-1},
+\]
+not by forcing a pseudoinverse into the square-system formula. Claims that the pseudoinverse formula is ``severely wrong'' should be interpreted carefully: it can indeed fail badly for ill-conditioned problems, but for well-conditioned systems the numerical difference is often modest.
+\end{abstract}
+
+\section*{Roadmap}
+We proceed in six parts:
+\begin{enumerate}
+    \item A one-page GP refresher, with careful variance bookkeeping.
+    \item Multiple observables and what the independence assumption does and does not mean.
+    \item From uncertain trajectories to uncertain parameters via linearization, the implicit-function viewpoint, and GLS.
+    \item Why a multi-output GP is usually \emph{not} needed for parameter uncertainty quantification (UQ).
+    \item What ``severely wrong'' actually means in numerical terms.
+    \item Practical recommendations.
+\end{enumerate}
+
+\section{Part 1: GP Refresher}
+
+\subsection*{Model}
+For one observable measured at times $t_1,\dots,t_N$, let
+\[
+y_i^{\mathrm{obs}} = f(t_i) + \varepsilon_i,
+\qquad
+\varepsilon_i \sim \mathcal{N}(0,\sigma_n^2),
+\]
+with independent noise. The latent smooth function has GP prior
+\[
+f \sim \mathcal{GP}(0,k(t,t')),
+\]
+and we use the squared-exponential (SE) kernel
+\[
+k(t,t') = \sigma^2 \exp\!\left(-\frac{|t-t'|^2}{2\ell^2}\right).
+\]
+
+Given training inputs $T=(t_1,\dots,t_N)$ and observations
+\[
+y = \begin{bmatrix}
+y_1^{\mathrm{obs}} & \cdots & y_N^{\mathrm{obs}}
+\end{bmatrix}^\top,
+\]
+define the kernel matrix $K \in \mathbb{R}^{N\times N}$ by
+\[
+K_{ij} = k(t_i,t_j).
+\]
+
+At a test point $t_*$, define
+\[
+k_* = \begin{bmatrix}
+k(t_1,t_*) & \cdots & k(t_N,t_*)
+\end{bmatrix}^\top.
+\]
+
+Then the posterior mean of the \emph{latent function} is
+\[
+\mu(t_*) = k_*^\top (K+\sigma_n^2 I)^{-1} y,
+\]
+and the posterior variance of the \emph{latent function} is
+\[
+\sigma^2_{\mathrm{post}}(t_*) =
+k(t_*,t_*) - k_*^\top (K+\sigma_n^2 I)^{-1}k_*.
+\]
+
+\subsection*{Four variances that are easy to mix up}
+The same GP model contains four different variances. They are not interchangeable.
+
+\paragraph{1. Prior variance.}
+Before seeing data,
+\[
+\mathrm{Var}[f(t_*)] = k(t_*,t_*) = \sigma^2.
+\]
+This is how much the prior thinks the latent function could vary at one point.
+
+\paragraph{2. Observation-noise variance.}
+The measurement process contributes
+\[
+\mathrm{Var}[\varepsilon] = \sigma_n^2.
+\]
+This says how noisy a single sensor reading is.
+
+\paragraph{3. Posterior variance of the latent function.}
+After conditioning on data, uncertainty about the \emph{smooth latent state} becomes
+\[
+\mathrm{Var}[f(t_*) \mid y] = \sigma^2_{\mathrm{post}}(t_*).
+\]
+This is the quantity relevant when the ODE fit uses the GP as a smoothed estimate of the underlying state trajectory.
+
+\paragraph{4. Predictive variance for a future noisy observation.}
+If we ask for the variance of a \emph{new measured data point}
+\[
+y_*^{\mathrm{obs}} = f(t_*) + \varepsilon_*,
+\]
+then
+\[
+\mathrm{Var}[y_*^{\mathrm{obs}} \mid y]
+=
+\sigma^2_{\mathrm{post}}(t_*) + \sigma_n^2.
+\]
+This is larger because it includes both latent uncertainty and fresh measurement noise.
+
+\subsection*{A concrete numerical example}
+Suppose the kernel prior standard deviation is $\sigma=1$, so the prior variance at any point is
+\[
+k(t_*,t_*) = 1.
+\]
+Now suppose the data are dense around $t_*$ and the GP posterior standard deviation is only
+\[
+\sigma_{\mathrm{post}}(t_*) = 0.01,
+\qquad
+\sigma^2_{\mathrm{post}}(t_*) = 10^{-4}.
+\]
+At the same time, suppose each instrument reading has noise standard deviation
+\[
+\sigma_n = 0.1,
+\qquad
+\sigma_n^2 = 10^{-2}.
+\]
+
+Then the predictive variance for a \emph{new noisy observation} is
+\[
+10^{-4} + 10^{-2} = 0.0101,
+\]
+so the predictive standard deviation is approximately
+\[
+\sqrt{0.0101} \approx 0.1005.
+\]
+
+Interpretation:
+\begin{quote}
+The GP is saying: ``I am very confident about the smooth latent function, with uncertainty only about $0.01$, even though each new raw observation still has noise about $0.1$.'' 
+\end{quote}
+
+That distinction is exactly why parameter-UQ pipelines should usually propagate the \emph{latent posterior covariance}, not the predictive covariance with noise added on top.
+
+\section{Part 2: Multiple Observables --- The Independence Assumption}
+
+\subsection*{Independent GPs for each observable}
+Now suppose an ODE model has $M$ observable components:
+\[
+y_1(t),\dots,y_M(t).
+\]
+A common practical choice is to fit one GP to each observable separately. For observable $m$, evaluated on a common grid $t_1,\dots,t_N$, we obtain a posterior mean vector
+\[
+\mu_m \in \mathbb{R}^N
+\]
+and a posterior covariance matrix
+\[
+\Sigma_{z_m} \in \mathbb{R}^{N\times N}.
+\]
+
+If we stack all latent values into one vector
+\[
+z =
+\begin{bmatrix}
+y_1(t_1)\\
+\vdots\\
+y_1(t_N)\\
+y_2(t_1)\\
+\vdots\\
+y_M(t_N)
+\end{bmatrix},
+\]
+then the joint covariance under the independent-GP assumption is block diagonal:
+\[
+\Sigma_z =
+\begin{bmatrix}
+\Sigma_{z_1} & 0 & \cdots & 0\\
+0 & \Sigma_{z_2} & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 0 & \cdots & \Sigma_{z_M}
+\end{bmatrix}.
+\]
+
+\subsection*{What block diagonal means in plain language}
+It means:
+\begin{quote}
+The GP for $y_1$ does not borrow information from $y_2$, and the GP for $y_2$ does not borrow information from $y_1$.
+\end{quote}
+
+For example, if $M=2$ and $N=3$, then
+\[
+z =
+\begin{bmatrix}
+y_1(t_1)\\
+y_1(t_2)\\
+y_1(t_3)\\
+y_2(t_1)\\
+y_2(t_2)\\
+y_2(t_3)
+\end{bmatrix},
+\qquad
+\Sigma_z =
+\begin{bmatrix}
+\Sigma_{z_1} & 0\\
+0 & \Sigma_{z_2}
+\end{bmatrix}.
+\]
+So the covariance between, say, $y_1(t_2)$ and $y_2(t_3)$ is set to zero by the GP model.
+
+\subsection*{When is this OK?}
+This is usually a reasonable approximation when:
+\begin{itemize}
+    \item each observable is measured by a separate sensor with independent electronics,
+    \item the main purpose of the GP is smoothing or interpolation within each channel,
+    \item each channel already has enough data to estimate its own trajectory well.
+\end{itemize}
+
+A concrete example is a two-state biochemical system where one sensor measures concentration of species $A$ and another sensor measures concentration of species $B$, each with separate readout noise. It is entirely plausible that the \emph{sensor noise} is independent.
+
+\subsection*{When is this not OK?}
+The assumption becomes questionable when:
+\begin{itemize}
+    \item different channels share noise sources (same ADC, common background drift, environmental interference),
+    \item one channel is very sparse and you want to borrow strength from another,
+    \item the observation model itself induces correlation, for example multiplicative noise driven by a common factor.
+\end{itemize}
+
+\subsection*{The key insight for ODE models}
+For an ODE model, the observables are not unrelated in reality. They are coupled by the dynamics. For example, if
+\[
+\dot{x}_1 = -\theta_1 x_1,
+\qquad
+\dot{x}_2 = \theta_1 x_1 - \theta_2 x_2,
+\]
+then $x_1$ and $x_2$ are strongly linked.
+
+But the independent GP does \emph{not} know this. It treats each observable as its own smooth function over time. That is not a contradiction. It just means:
+\begin{quote}
+The GP handles per-observable smoothing; the ODE model handles cross-observable coupling.
+\end{quote}
+
+That division of labor is often exactly what we want.
+
+\section{Part 3: From Observations to Parameters --- The IFT / Delta Method}
+
+\subsection*{Setup}
+Suppose an ODE model with parameter vector
+\[
+\theta \in \mathbb{R}^p
+\]
+predicts a stacked vector of observables
+\[
+g(\theta) \in \mathbb{R}^{m},
+\]
+where $m = MN$ if there are $M$ observables evaluated at $N$ time points.
+
+We also have a GP-based latent-data vector
+\[
+z \in \mathbb{R}^{m}
+\]
+with covariance
+\[
+\Sigma_z.
+\]
+
+The residual or constraint is
+\[
+F(\theta,z) = g(\theta) - z.
+\]
+
+If the data were exact and the system square, we would solve
+\[
+F(\theta,z)=0.
+\]
+
+\subsection*{Square-system intuition: where the inverse formula comes from}
+Suppose for a moment that the number of equations equals the number of parameters, so $m=p$, and that the Jacobian
+\[
+J_\theta = \frac{\partial g}{\partial \theta}
+\]
+is invertible at the solution. A first-order perturbation gives
+\[
+0 \approx dF = J_\theta\, d\theta - dz.
+\]
+Hence
+\[
+d\theta \approx J_\theta^{-1} dz,
+\]
+so the parameter covariance is approximately
+\[
+\Sigma_\theta \approx J_\theta^{-1}\Sigma_z J_\theta^{-\top}.
+\]
+
+This is the clean implicit-function-theorem picture.
+
+\subsection*{Why this breaks in the usual ODE setting}
+In real parameter estimation, we almost always have \emph{more equations than unknowns}: many time points, few parameters. Then
+\[
+m > p,
+\]
+so $J_\theta$ is tall, not square. There is no true inverse. Replacing $J_\theta^{-1}$ by $\mathrm{pinv}(J_\theta)$ is tempting, but generally wrong for uncertainty propagation unless very special conditions hold.
+
+The reason is geometric:
+\begin{itemize}
+    \item a pseudoinverse solves an \emph{unweighted} least-squares problem,
+    \item but our data components do \emph{not} all have the same uncertainty,
+    \item so the parameter estimator should downweight uncertain equations and upweight precise ones.
+\end{itemize}
+
+The covariance matrix $\Sigma_z$ must enter the estimation rule itself, not just be multiplied in afterward.
+
+\subsection*{The wrong formula}
+The formula often written down by analogy with the square case is
+\[
+\Sigma_\theta^{\mathrm{pinv}} =
+\mathrm{pinv}(J_\theta)\,\Sigma_z\,\mathrm{pinv}(J_\theta)^\top.
+\]
+This is only appropriate in special cases, for example when the system is effectively square or when all equations have identical uncertainty and the geometry is especially benign.
+
+\subsection*{A concrete $3$-equation, $1$-unknown counterexample}
+Let there be one parameter $\theta$ and three equations. Then
+\[
+J_\theta = 
+\begin{bmatrix}
+1\\
+1\\
+1
+\end{bmatrix},
+\qquad
+\Sigma_z = \operatorname{diag}(1,1,100).
+\]
+Interpretation: all three equations depend equally on $\theta$, but the third equation is much noisier.
+
+\paragraph{Correct GLS formula.}
+For one parameter,
+\[
+\Sigma_\theta^{\mathrm{GLS}} = \frac{1}{J_\theta^\top \Sigma_z^{-1} J_\theta}.
+\]
+Since
+\[
+\Sigma_z^{-1} = \operatorname{diag}(1,1,0.01),
+\]
+we get
+\[
+J_\theta^\top \Sigma_z^{-1} J_\theta = 1+1+0.01 = 2.01,
+\]
+so
+\[
+\Sigma_\theta^{\mathrm{GLS}} \approx \frac{1}{2.01} \approx 0.498.
+\]
+
+\paragraph{Pseudoinverse formula.}
+For a tall vector,
+\[
+\mathrm{pinv}(J_\theta) = \frac{1}{J_\theta^\top J_\theta}J_\theta^\top
+= \frac{1}{3}\begin{bmatrix}1&1&1\end{bmatrix}.
+\]
+Therefore
+\[
+\Sigma_\theta^{\mathrm{pinv}}
+=
+\frac{1}{9}
+\begin{bmatrix}1&1&1\end{bmatrix}
+\begin{bmatrix}
+1&0&0\\
+0&1&0\\
+0&0&100
+\end{bmatrix}
+\begin{bmatrix}
+1\\1\\1
+\end{bmatrix}
+=
+\frac{102}{9}
+\approx 11.33.
+\]
+
+This is the core problem. The pseudoinverse formula lets the very noisy third equation dominate the parameter variance, whereas GLS properly downweights it.
+
+\subsection*{The right formula: weighted least squares / GLS}
+For overdetermined systems, the natural estimator near the optimum is the weighted least-squares estimator
+\[
+\hat{\theta}
+=
+\arg\min_\theta \frac{1}{2}\bigl(g(\theta)-z\bigr)^\top \Sigma_z^{-1}\bigl(g(\theta)-z\bigr).
+\]
+Linearizing $g(\theta)$ around the solution gives
+\[
+g(\theta) \approx g(\hat{\theta}) + J_\theta(\theta-\hat{\theta}),
+\]
+and the delta-method calculation yields
+\[
+\Sigma_\theta^{\mathrm{GLS}}
+=
+\left(J_\theta^\top \Sigma_z^{-1} J_\theta\right)^{-1}.
+\]
+
+This is also the ``sandwich'' formula with optimal weighting $W=\Sigma_z^{-1}$:
+\[
+\Sigma_\theta
+=
+(J_\theta^\top W J_\theta)^{-1}
+J_\theta^\top W \Sigma_z W J_\theta
+(J_\theta^\top W J_\theta)^{-1},
+\]
+which simplifies to
+\[
+\Sigma_\theta = (J_\theta^\top \Sigma_z^{-1}J_\theta)^{-1}
+\]
+when $W=\Sigma_z^{-1}$.
+
+\subsection*{Why GLS is better}
+It does exactly what we want:
+\begin{itemize}
+    \item equations with small variance get large weight,
+    \item equations with large variance get small weight,
+    \item coupling between observables enters through the sensitivity matrix $J_\theta$.
+\end{itemize}
+
+\subsection*{When do the two formulas agree?}
+They agree in the clean square case:
+\[
+m=p,\qquad J_\theta \text{ invertible},
+\]
+because then
+\[
+(J_\theta^\top \Sigma_z^{-1}J_\theta)^{-1}
+=
+J_\theta^{-1}\Sigma_z J_\theta^{-\top}.
+\]
+They also agree in some tall-system cases if $\Sigma_z = \sigma^2 I$ and the columns of $J_\theta$ are treated with ordinary least squares. But once uncertainty is heterogeneous or correlated, the pseudoinverse formula is not the right propagation rule.
+
+\section{Part 4: Why NOT a Multi-Output GP}
+
+\subsection*{What a multi-output GP would do}
+A multi-output GP would not only model each covariance
+\[
+\mathrm{Cov}(y_m(t),y_m(t')),
+\]
+but also cross-observable terms like
+\[
+\mathrm{Cov}(y_1(t),y_2(t')).
+\]
+So instead of a block-diagonal $\Sigma_z$, you would have a full matrix with off-diagonal blocks.
+
+\subsection*{Why that sounds appealing}
+At first glance, this seems attractive because ODE observables are clearly related. If $x_1$ drives $x_2$, why should the GP pretend otherwise?
+
+\subsection*{Why it is usually unnecessary for parameter UQ}
+For the specific goal of propagating data uncertainty into parameter uncertainty, a multi-output GP is often not needed.
+
+\paragraph{Reason 1: the ODE model already couples the observables.}
+The sensitivity matrix
+\[
+J_\theta = \frac{\partial g}{\partial \theta}
+\]
+contains derivatives of \emph{all} predicted observables with respect to the shared parameters. If changing $\theta_1$ shifts both $y_1$ and $y_2$, that coupling is already present in $J_\theta$.
+
+\paragraph{Reason 2: sensor noise is often independent.}
+If each observable is measured by its own detector, then the raw noise model is naturally independent. In that situation, a block-diagonal measurement covariance is a realistic first approximation.
+
+\paragraph{Reason 3: cross-observable signal correlation is deterministic here.}
+The relation between observables in an ODE model is usually not a random correlation we want the GP to learn. It is a deterministic structural relation imposed by the dynamics. That deterministic relation belongs in the ODE solver and its sensitivities, not necessarily in the GP prior.
+
+\subsection*{When you \emph{would} need a multi-output GP}
+A multi-output GP becomes justified if the \emph{noise itself} is correlated or if the observation process creates shared stochastic structure, for example:
+\begin{itemize}
+    \item common ADC or electronics causing correlated readout noise,
+    \item shared environmental interference,
+    \item multiplicative or latent-factor noise models,
+    \item one channel being so sparse that joint interpolation is materially better than separate interpolation.
+\end{itemize}
+
+\subsection*{Computational cost}
+If each observable has $N$ time points and there are $M$ observables:
+\begin{itemize}
+    \item \textbf{Independent GPs:} $M$ separate inversions of size $N\times N$, costing about $O(MN^3)$.
+    \item \textbf{Joint multi-output GP:} one inversion of size $(MN)\times(MN)$, costing about $O((MN)^3)$.
+\end{itemize}
+
+So the joint model is not just conceptually heavier; it is often much more expensive.
+
+\section{Part 5: What ``Severely Wrong'' Actually Means}
+
+\subsection*{A precise meaning}
+Let
+\[
+\Sigma_\theta^{\mathrm{pinv}}
+=
+\mathrm{pinv}(J_\theta)\Sigma_z\mathrm{pinv}(J_\theta)^\top,
+\qquad
+\Sigma_\theta^{\mathrm{GLS}}
+=
+(J_\theta^\top \Sigma_z^{-1}J_\theta)^{-1}.
+\]
+Then the error from using the wrong formula is
+\[
+\Delta_\theta
+=
+\Sigma_\theta^{\mathrm{pinv}}-\Sigma_\theta^{\mathrm{GLS}}.
+\]
+
+In practice, people usually feel this error through:
+\begin{itemize}
+    \item changed marginal variances $(\Sigma_\theta)_{ii}$,
+    \item changed standard errors $\sqrt{(\Sigma_\theta)_{ii}}$,
+    \item changed confidence-interval widths,
+    \item changed correlation structure between parameters.
+\end{itemize}
+
+A convenient summary is the ratio of standard errors:
+\[
+R_i
+=
+\sqrt{
+\frac{(\Sigma_\theta^{\mathrm{pinv}})_{ii}}
+{(\Sigma_\theta^{\mathrm{GLS}})_{ii}}
+}.
+\]
+If $R_i \approx 1$, the difference is small. If $R_i \gg 1$ or $R_i \ll 1$, the difference is operationally important.
+
+\subsection*{Worked example: two observables, three time points, two parameters}
+Assume two observables sampled at three time points, so there are $6$ equations for $2$ parameters. Think of the rows of $J_\theta$ as local sensitivities of the stacked ODE prediction with respect to the two parameters.
+
+\subsubsection*{Case A: well-conditioned system}
+Take
+\[
+J_\theta =
+\begin{bmatrix}
+1.0 & 0.2\\
+0.8 & 0.1\\
+1.2 & 0.3\\
+0.1 & 1.0\\
+0.2 & 0.9\\
+0.0 & 1.1
+\end{bmatrix},
+\qquad
+\Sigma_z =
+\operatorname{diag}(0.01,0.02,0.01,0.015,0.02,0.015).
+\]
+This represents a case where the two parameters affect the data in noticeably different directions, and the uncertainty levels are moderately heterogeneous but not extreme.
+
+Using the GLS formula gives approximately
+\[
+\Sigma_\theta^{\mathrm{GLS}}
+\approx
+\begin{bmatrix}
+0.0040 & -0.0015\\
+-0.0015 & 0.0055
+\end{bmatrix}.
+\]
+Using the pseudoinverse formula gives approximately
+\[
+\Sigma_\theta^{\mathrm{pinv}}
+\approx
+\begin{bmatrix}
+0.0043 & -0.0015\\
+-0.0015 & 0.0056
+\end{bmatrix}.
+\]
+
+So the standard errors are
+\[
+\mathrm{SE}_{\mathrm{GLS}} \approx (0.063,\;0.074),
+\qquad
+\mathrm{SE}_{\mathrm{pinv}} \approx (0.066,\;0.075).
+\]
+The first parameter changes by about $8\%$ in standard error; the second changes by only a few percent. The weighted normal matrix
+\[
+J_\theta^\top \Sigma_z^{-1} J_\theta
+\]
+has a condition number of about $2$, so this is a stable problem.
+
+This is the regime where saying ``the old formula is severely wrong'' would be too dramatic. It is not the best formula, but the practical damage is limited.
+
+\subsubsection*{Case B: ill-conditioned system}
+Now consider a nearly non-identifiable two-parameter system:
+\[
+J_\theta =
+\begin{bmatrix}
+1   & 1\\
+1   & 1.001\\
+1   & 0.999\\
+0.5 & 0.5\\
+0.5 & 0.501\\
+0.5 & 0.499
+\end{bmatrix},
+\qquad
+\Sigma_z =
+\operatorname{diag}(0.01,0.01,100,0.01,0.01,100).
+\]
+Here the two columns of $J_\theta$ are almost the same, so the parameters are nearly confounded. Also, the rows that most help distinguish the two parameters are precisely the ones with huge uncertainty.
+
+The GLS covariance is approximately
+\[
+\Sigma_\theta^{\mathrm{GLS}}
+\approx
+\begin{bmatrix}
+9.09\times 10^{3} & -9.08\times 10^{3}\\
+-9.08\times 10^{3} & 9.08\times 10^{3}
+\end{bmatrix},
+\]
+while the pseudoinverse formula gives roughly
+\[
+\Sigma_\theta^{\mathrm{pinv}}
+\approx
+\begin{bmatrix}
+1.25\times 10^{7} & -1.25\times 10^{7}\\
+-1.25\times 10^{7} & 1.25\times 10^{7}
+\end{bmatrix}.
+\]
+
+The corresponding standard errors are about
+\[
+95
+\quad \text{versus} \quad
+3535.
+\]
+That is a factor of about $37$ in standard error, and over three orders of magnitude in variance. The condition number of
+\[
+J_\theta^\top \Sigma_z^{-1}J_\theta
+\]
+is about $9\times 10^6$.
+
+This is what ``severely wrong'' means:
+\begin{quote}
+In ill-conditioned problems, especially with strongly unequal uncertainty across equations, the pseudoinverse formula can produce parameter variances that are wildly mis-scaled.
+\end{quote}
+
+\subsection*{Bottom line}
+So the balanced conclusion is:
+\begin{quote}
+``Severely wrong'' means ``capable of very large error in pathological or ill-conditioned cases.'' In well-conditioned systems, the numerical difference may be small to moderate.
+\end{quote}
+
+That is important because it avoids two mistakes:
+\begin{itemize}
+    \item overreacting as if every existing result is useless, and
+    \item underreacting and keeping a formula that can fail badly when the geometry deteriorates.
+\end{itemize}
+
+\section{Part 6: Practical Recommendations}
+
+\begin{enumerate}
+    \item \textbf{Use the latent posterior covariance for $\Sigma_z$, not the predictive covariance.} \\
+    If the ODE fit uses GP-smoothed latent trajectories, then the relevant uncertainty is the posterior covariance of the latent states. Adding observation noise again would usually double-count measurement uncertainty.
+
+    \item \textbf{Use the GLS formula}
+    \[
+    \Sigma_\theta = (J_\theta^\top \Sigma_z^{-1}J_\theta)^{-1}
+    \]
+    \textbf{instead of}
+    \[
+    \mathrm{pinv}(J_\theta)\Sigma_z\mathrm{pinv}(J_\theta)^\top.
+    \]
+
+    \item \textbf{Report a condition number together with confidence intervals.} \\
+    A large condition number for $J_\theta^\top \Sigma_z^{-1}J_\theta$ warns that the local linearized uncertainty may be fragile.
+
+    \item \textbf{For trusted confidence intervals, calibrate with bootstrap.} \\
+    The linearized formula is fast and informative, but bootstrap or simulation-based calibration is the safest way to assess actual coverage.
+
+    \item \textbf{For optimizer bounds, inflate by a safety factor until bootstrap is available.} \\
+    If you are using these uncertainties mainly to set search ranges or regularization scales, use conservative inflation rather than treating first-order intervals as exact.
+\end{enumerate}
+
+\section*{Cheat Sheet}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{center}
+\small
+\begin{tabular}{p{0.28\textwidth} p{0.62\textwidth}}
+\toprule
+\textbf{Concept} & \textbf{Formula / interpretation} \\
+\midrule
+Observation model &
+$y_i^{\mathrm{obs}} = f(t_i) + \varepsilon_i$, \quad $\varepsilon_i \sim \mathcal{N}(0,\sigma_n^2)$ \\
+
+GP prior &
+$f \sim \mathcal{GP}(0,k)$, \quad
+$k(t,t') = \sigma^2 \exp\!\left(-\dfrac{|t-t'|^2}{2\ell^2}\right)$ \\
+
+Kernel matrix &
+$K_{ij} = k(t_i,t_j)$ \\
+
+Posterior mean at $t_*$ &
+$\mu(t_*) = k_*^\top (K+\sigma_n^2 I)^{-1} y$ \\
+
+Posterior variance of latent state &
+$\sigma^2_{\mathrm{post}}(t_*) = k(t_*,t_*) - k_*^\top (K+\sigma_n^2 I)^{-1}k_*$ \\
+
+Predictive variance of new noisy observation &
+$\sigma^2_{\mathrm{pred}}(t_*) = \sigma^2_{\mathrm{post}}(t_*) + \sigma_n^2$ \\
+
+Prior variance vs posterior variance &
+Prior: what the kernel allows before data. Posterior: remaining uncertainty about the smooth latent function after conditioning on data. \\
+
+Multiple observables, independent GPs &
+$\Sigma_z = \operatorname{blockdiag}(\Sigma_{z_1},\dots,\Sigma_{z_M})$ \\
+
+Meaning of block diagonal &
+The GP for $y_1$ does not model covariance with $y_2$; cross-observable coupling is not learned by the GP. \\
+
+ODE residual / constraint &
+$F(\theta,z) = g(\theta)-z$ \\
+
+Sensitivity matrix &
+$J_\theta = \dfrac{\partial g}{\partial \theta}$ \\
+
+Square exact-system covariance &
+If $J_\theta$ is square and invertible:
+$\Sigma_\theta = J_\theta^{-1}\Sigma_z J_\theta^{-\top}$ \\
+
+Wrong overdetermined formula &
+$\Sigma_\theta^{\mathrm{pinv}} = \mathrm{pinv}(J_\theta)\Sigma_z\mathrm{pinv}(J_\theta)^\top$ \\
+
+Correct overdetermined formula (GLS) &
+$\Sigma_\theta = (J_\theta^\top \Sigma_z^{-1}J_\theta)^{-1}$ \\
+
+Why GLS is right &
+It weights each equation by certainty: precise equations matter more, noisy equations matter less. \\
+
+When pinv and GLS agree &
+Square invertible case; also some benign equal-variance cases. Not reliable in general when $m>p$ and uncertainty is heterogeneous. \\
+
+When multi-output GP is needed &
+Only if cross-observable \emph{noise} or stochastic structure matters: shared electronics, common interference, latent common factors, etc. \\
+
+Computational cost &
+Independent GPs: about $O(MN^3)$. Joint multi-output GP: about $O((MN)^3)$. \\
+
+Practical default for ODE parameter UQ &
+Use independent per-observable GPs, propagate \emph{latent} posterior covariance, apply GLS, report condition number, validate with bootstrap if intervals matter. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
+</NEWFILE>
+</GENERATED-CODE>
