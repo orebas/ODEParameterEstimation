@@ -49,6 +49,7 @@ Enum for selecting the data interpolation method.
 	InterpolatorS3BICMatern52      # S3 BIC: GP(Matérn-5/2) → AAA(BIC-selected) → MLE
 	InterpolatorAGPUQ          # agp_gpr_uq - GP with full UQ (for calibrated uncertainty)
 	InterpolatorChebyshevAICc  # Chebyshev polynomial with AICc degree selection (spectral)
+	InterpolatorChebyshevBIC   # Chebyshev polynomial with BIC degree selection (spectral)
 	InterpolatorFourierAdaptive # FFT spectral differentiation with adaptive filtering
 	InterpolatorCustom         # User-provided custom interpolator
 end
@@ -464,6 +465,8 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return (xs, ys) -> s3_adapt_matern52_interpolator(xs, ys; k = k)
 	elseif method == InterpolatorChebyshevAICc
 		return chebyshev_aicc
+	elseif method == InterpolatorChebyshevBIC
+		return chebyshev_bic
 	elseif method == InterpolatorFourierAdaptive
 		return fourier_adaptive
 	else
@@ -505,6 +508,7 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorS3BICSExRQ && return :s3_bic_se_times_rq
 	method == InterpolatorS3BICMatern52 && return :s3_bic_matern52
 	method == InterpolatorChebyshevAICc && return :chebyshev_aicc
+	method == InterpolatorChebyshevBIC && return :chebyshev_bic
 	method == InterpolatorFourierAdaptive && return :fourier_adaptive
 	method == InterpolatorCustom && return :custom
 	return :unknown

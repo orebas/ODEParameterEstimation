@@ -1,0 +1,21 @@
+{
+    "NUM_TESTS"               : 8,
+    "TIME_INTERVAL"           : [-1.0, 1.0],
+    "PARAM_INTERVAL"          : [0.1, 0.9],
+    "NUM_PTS"                 : 1501,
+    "ODEPE_POLISH"            : "true",
+    "NOISE_LEVEL"             : {"0" : 0, "1em4" : 1e-4, "1em2" : 1e-2},
+    "SEARCH_BOUNDS"           : [1e-5, 10.0],
+    "POLISH_MAXTIME"          : 1200.0,
+    "POLISH_DIVERGENCE_FACTOR": 10.0,
+    "POLISH_STAGNATION_WINDOW": 50,
+    "POLISH_ODE_MAXITERS"     : 20000,
+    "NOISE_TYPE"              : "ADDITIVE",
+    "DATA_GENERATION_DIR"     : "data_generation",
+    "DATA_DIR"                : "data_original",
+    "DATA_DIR_NOISY"          : "data_noisy",
+    "FILETREE"                : "filetree",
+    "TEMPLATE_GENERATION"     : "templates/julia_template_for_data_generation.jl",
+    "MODELS_SUBSET"           : ["forced_lotka_volterra", "dc_motor", "repressilator", "daisy_mamil3"],
+    "_COMMENT"                : "Stingy subset: models where AMIGO2 >> ODEPE in bilby benchmark. 3 noise levels, 8 tests each."
+}

@@ -1704,6 +1704,51 @@ function chebyshev_aicc(xs::AbstractArray{T}, ys::AbstractArray{T})::ChebyshevAp
 	return ChebyshevApprox(coeffs, x_min, x_max, deg)
 end
 
+function _select_degree_bic(x::Vector{Float64}, y::Vector{Float64}; min_deg::Int = 3, max_deg::Int = 30)
+	n = length(x)
+	x_min, x_max = extrema(x)
+	x_max == x_min && return min_deg, Inf
+	u = @. 2 * (x - x_min) / (x_max - x_min) - 1
+	max_deg_safe = min(max_deg, n - 2)
+	min_deg_safe = max(min(min_deg, max_deg_safe), 1)
+	V_full = _chebyshev_vandermonde(u, max_deg_safe)
+	best_bic = Inf
+	best_deg = min_deg_safe
+	for deg in min_deg_safe:max_deg_safe
+		try
+			V = @view V_full[:, 1:(deg+1)]
+			coeffs = V \ y
+			rss = sum((y - V * coeffs) .^ 2)
+			k = deg + 2
+			bic = n * log(rss / n + 1e-12) + k * log(n)
+			if bic < best_bic
+				best_bic = bic
+				best_deg = deg
+			end
+		catch
+			continue
+		end
+	end
+	return best_deg, best_bic
+end
+
+"""
+    chebyshev_bic(xs, ys) -> ChebyshevApprox
+
+Fit a Chebyshev polynomial to data with automatic degree selection via BIC.
+BIC penalizes complexity more than AICc — may prefer lower degree on noisy data.
+"""
+function chebyshev_bic(xs::AbstractArray{T}, ys::AbstractArray{T})::ChebyshevApprox where {T}
+	x = Float64.(xs)
+	y = Float64.(ys)
+	deg, _ = _select_degree_bic(x, y; min_deg = 3, max_deg = min(30, length(x) - 1))
+	x_min, x_max = extrema(x)
+	u = @. 2 * (x - x_min) / (x_max - x_min) - 1
+	V = _chebyshev_vandermonde(u, deg)
+	coeffs = V \ y
+	return ChebyshevApprox(coeffs, x_min, x_max, deg)
+end
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fourier spectral interpolation with adaptive low-pass filtering
 # ═══════════════════════════════════════════════════════════════════════════════
