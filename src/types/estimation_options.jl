@@ -154,7 +154,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## Optimization Parameters
 - `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
-- `polish_solver_solutions::Bool`: Polish raw solver solutions with fast NLLS (default: false)
+- `polish_solver_solutions::Bool`: Polish raw solver solutions with fast NLLS (default: true)
 - `polish_method::PolishMethod`: Optimization method for polishing (default: `PolishNewtonTrust`)
 - `polish_maxiters::Int`: Maximum iterations for solution polishing (default: 10)
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
@@ -165,7 +165,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
 - `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
 - `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
-- `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:none`)
+- `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:direct_opt`)
 - `backsolve_recovery::Symbol`: Recovery policy for blown backsolves: `:none` or `:algebraic_resolve` (default: `:algebraic_resolve`)
 - `t0_state_completion::Symbol`: State completion policy during `t=0` rescue: `:strict` or `:seed_for_polish` (default: `:strict`)
 
@@ -199,7 +199,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## HomotopyContinuation Specific
 - `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
-- `use_parameter_homotopy::Bool`: Use parameter homotopy for multi-shot estimation (default: false). When enabled, tracks solutions between shooting points instead of solving from scratch at each point. Can provide 2-20x speedup for shooting_points >= 3.
+- `use_parameter_homotopy::Bool`: Use parameter homotopy for multi-shot estimation (default: true). When enabled, tracks solutions between shooting points instead of solving from scratch at each point. Can provide 2-20x speedup for shooting_points >= 3.
 - `hc_real_tol::Float64`: Tolerance for real solutions in HC (default: 1e-9)
 - `hc_show_progress::Bool`: Show HC solving progress (default: false)
 
@@ -254,7 +254,17 @@ Base.@kwdef struct EstimationOptions
 	custom_interpolator::Union{Nothing, Function} = nothing
 
 	# Multi-interpolator support: when non-empty, overrides `interpolator` field
-	interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[]
+	interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[
+		InterpolatorAGPRobust,        # SE kernel — robust GP baseline
+		InterpolatorAGPRobustSExRQ,   # SE×RQ kernel — captures non-stationary features
+		InterpolatorS3AdaptSE,        # GP→AAA(adaptive)→MLE
+		InterpolatorS3AdaptSExRQ,     # GP→AAA(adaptive)→MLE with SE×RQ kernel
+		InterpolatorChebyshevBIC,     # Spectral, BIC degree selection
+		InterpolatorChebyshevAICc,    # Spectral, AICc degree selection
+		InterpolatorAAADGPR,          # GPR-pivoted AAA — proven for ill-conditioned systems
+		InterpolatorAAAD,             # Pure AAA rational interpolation
+		InterpolatorS2AAAMLE,         # AAA→MLE (no GP step)
+	]
 	custom_interpolators::Vector{Function} = Function[]
 
 	# Numerical Tolerances
@@ -295,7 +305,7 @@ Base.@kwdef struct EstimationOptions
 	polish_divergence_factor::Float64 = 10.0 # Stop if loss > initial_loss * this
 	polish_stagnation_window::Int = 50       # Stop if no improvement in N iters
 	polish_ode_maxiters::Int = 5000          # ODE solver maxiters inside polish loss (DiffEq default: 100000)
-	terminal_fallback::Symbol = :none        # :none | :direct_opt
+	terminal_fallback::Symbol = :direct_opt   # :none | :direct_opt
 	backsolve_recovery::Symbol = :algebraic_resolve  # :none | :algebraic_resolve
 	t0_state_completion::Symbol = :strict    # :strict | :seed_for_polish
 
@@ -336,7 +346,7 @@ Base.@kwdef struct EstimationOptions
 	hc_show_progress::Bool = false
 
 	# Multi-point template (combines polynomial systems from N time points)
-	use_multipoint::Bool = false  # Enable multi-point polynomial template system
+	use_multipoint::Bool = true   # Enable multi-point polynomial template system
 	multipoint_n_points::Int = 2  # Number of time points per evaluation (2 recommended)
 	multipoint_max_pairs::Int = 20  # Maximum number of time point pairs to solve
 

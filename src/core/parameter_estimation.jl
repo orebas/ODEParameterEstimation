@@ -2226,6 +2226,9 @@ function _polish_batch_from_context(
 					post_polish_error = polished_result.err,
 					polish_applied = true,
 					notes = candidate.provenance.notes,
+					source_type = candidate.provenance.source_type,
+					multipoint_time_indices = candidate.provenance.multipoint_time_indices,
+					multipoint_combo_index = candidate.provenance.multipoint_combo_index,
 				)
 				if !opts.nooutput
 					err_before = isnothing(candidate.err) ? Inf : candidate.err

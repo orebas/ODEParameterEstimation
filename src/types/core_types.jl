@@ -147,6 +147,10 @@ mutable struct ResultProvenance
     practical_identifiability_status::Symbol
     numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory}
     notes::Vector{Symbol}
+    # Multipoint provenance (SP/MP origin tracking)
+    source_type::Symbol                                    # :single_point or :multipoint
+    multipoint_time_indices::Union{Nothing, Vector{Int}}   # time indices in combo, e.g. [376, 1126]
+    multipoint_combo_index::Union{Nothing, Int}            # which combo (1-based) produced this solution
 end
 
 function ResultProvenance(;
@@ -167,6 +171,9 @@ function ResultProvenance(;
     practical_identifiability_status::Symbol = :not_assessed,
     numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory} = nothing,
     notes = Symbol[],
+    source_type::Symbol = :single_point,
+    multipoint_time_indices::Union{Nothing, Vector{Int}} = nothing,
+    multipoint_combo_index::Union{Nothing, Int} = nothing,
 )
     return ResultProvenance(
         primary_method,
@@ -186,6 +193,9 @@ function ResultProvenance(;
         practical_identifiability_status,
         isnothing(numerical_advisory) ? nothing : deepcopy(numerical_advisory),
         Symbol[notes...],
+        source_type,
+        isnothing(multipoint_time_indices) ? nothing : Int[multipoint_time_indices...],
+        multipoint_combo_index,
     )
 end
 
@@ -208,6 +218,9 @@ function copy_provenance(
     practical_identifiability_status = provenance.practical_identifiability_status,
     numerical_advisory = provenance.numerical_advisory,
     notes = provenance.notes,
+    source_type = provenance.source_type,
+    multipoint_time_indices = provenance.multipoint_time_indices,
+    multipoint_combo_index = provenance.multipoint_combo_index,
 )
     return ResultProvenance(
         primary_method = primary_method,
@@ -227,6 +240,9 @@ function copy_provenance(
         practical_identifiability_status = practical_identifiability_status,
         numerical_advisory = isnothing(numerical_advisory) ? nothing : deepcopy(numerical_advisory),
         notes = copy(notes),
+        source_type = source_type,
+        multipoint_time_indices = isnothing(multipoint_time_indices) ? nothing : copy(multipoint_time_indices),
+        multipoint_combo_index = multipoint_combo_index,
     )
 end
 
@@ -260,6 +276,11 @@ Compact human-readable summary of result provenance for logs and diagnostics.
 function lineage_summary(result)::String
     prov = result.provenance
     parts = String["method=$(prov.primary_method)"]
+    push!(parts, "source=$(prov.source_type)")
+    if prov.source_type == :multipoint
+        !isnothing(prov.multipoint_combo_index) && push!(parts, "combo=$(prov.multipoint_combo_index)")
+        !isnothing(prov.multipoint_time_indices) && push!(parts, "mp_times=$(prov.multipoint_time_indices)")
+    end
     prov.rescue_path != :none && push!(parts, "rescue=$(prov.rescue_path)")
     !isnothing(prov.source_shooting_index) && push!(parts, "shoot=$(prov.source_shooting_index)")
     !isnothing(prov.source_candidate_index) && push!(parts, "candidate=$(prov.source_candidate_index)")
@@ -421,9 +442,54 @@ struct PolynomialFeasibilityReport
     variable_names::Vector{String}
     equation_strings::Vector{String}
     variable_roles::Dict{String, Symbol}
+    closest_solution_production::Vector{Float64}  # per-variable x_HC values (closest to truth)
+    true_values::Vector{Float64}                   # per-variable x_true (oracle)
+    # Data variable values for signed IFT validation
+    data_var_labels::Vector{String}                # data variable names (d_1, d_2, ...)
+    data_var_prod::Vector{Float64}                 # d_prod (from production interpolants)
+    data_var_true::Vector{Float64}                 # d_true (from oracle Taylor coefficients)
 end
 
-# Backward-compatible constructor (no equation_strings or variable_roles)
+# Backward-compatible 15-arg constructor (no data variable values)
+function PolynomialFeasibilityReport(
+    model_name, n_equations, n_variables, is_square,
+    n_solutions_perfect, n_solutions_production,
+    true_residual_perfect, true_residual_production,
+    closest_distance_perfect, closest_distance_production,
+    variable_names, equation_strings, variable_roles,
+    closest_solution_production, true_values,
+)
+    return PolynomialFeasibilityReport(
+        model_name, n_equations, n_variables, is_square,
+        n_solutions_perfect, n_solutions_production,
+        true_residual_perfect, true_residual_production,
+        closest_distance_perfect, closest_distance_production,
+        variable_names, equation_strings, variable_roles,
+        closest_solution_production, true_values,
+        String[], Float64[], Float64[],
+    )
+end
+
+# Backward-compatible 13-arg constructor (no per-variable solution data or data vars)
+function PolynomialFeasibilityReport(
+    model_name, n_equations, n_variables, is_square,
+    n_solutions_perfect, n_solutions_production,
+    true_residual_perfect, true_residual_production,
+    closest_distance_perfect, closest_distance_production,
+    variable_names, equation_strings, variable_roles,
+)
+    return PolynomialFeasibilityReport(
+        model_name, n_equations, n_variables, is_square,
+        n_solutions_perfect, n_solutions_production,
+        true_residual_perfect, true_residual_production,
+        closest_distance_perfect, closest_distance_production,
+        variable_names, equation_strings, variable_roles,
+        Float64[], Float64[],
+        String[], Float64[], Float64[],
+    )
+end
+
+# Backward-compatible 11-arg constructor (minimal)
 function PolynomialFeasibilityReport(
     model_name, n_equations, n_variables, is_square,
     n_solutions_perfect, n_solutions_production,
@@ -437,7 +503,49 @@ function PolynomialFeasibilityReport(
         true_residual_perfect, true_residual_production,
         closest_distance_perfect, closest_distance_production,
         variable_names, String[], Dict{String, Symbol}(),
+        Float64[], Float64[],
+        String[], Float64[], Float64[],
     )
+end
+
+"""
+    ErrorBudgetEntry
+
+Per-unknown signed IFT validation: Δx_predicted = S·Δd vs Δx_actual = x_HC - x_true.
+"""
+struct ErrorBudgetEntry
+    unknown_label::String
+    unknown_role::Symbol                # :parameter, :state_ic, :state_derivative
+    delta_x_actual::Float64             # x_HC[i] - x_true[i] (signed)
+    delta_x_predicted::Float64          # Σⱼ S[i,j]·Δd[j] (signed)
+    prediction_ratio::Float64           # |predicted|/|actual| (1.0 = perfect IFT)
+    blame::Vector{@NamedTuple{data_label::String, s_times_dd::Float64, pct_of_predicted::Float64}}
+end
+
+"""
+    ErrorBudgetReport
+
+Signed IFT validation: explains HC solution errors (Δx = x_HC - x_true) as a linear
+function of data errors (Δd = d_prod - d_true) via the sensitivity matrix S.
+
+Also checks nonlinearity by comparing S evaluated at (x_true, d_true) vs (x_HC, d_prod).
+"""
+struct ErrorBudgetReport
+    model_name::String
+    mode::Symbol                        # :single_point or :multipoint
+    t_eval::Union{Float64, Vector{Float64}}
+    interpolator_name::String
+    entries::Vector{ErrorBudgetEntry}
+    # Data variable details (signed)
+    data_labels::Vector{String}
+    data_true::Vector{Float64}          # oracle data values
+    data_prod::Vector{Float64}          # production interpolant values
+    delta_d::Vector{Float64}            # d_prod - d_true (signed)
+    max_deriv_order_used::Int
+    # Nonlinearity and concentration diagnostics
+    sensitivity_nonlinearity::Float64   # ‖S_true - S_prod‖_F / ‖S_true‖_F
+    sensitivity_concentration::Float64  # max column norm of S / ‖S‖_F
+    is_pathological::Bool               # concentration > 0.5
 end
 
 """
@@ -510,6 +618,12 @@ struct DiagnosticReport
     difficulty::Symbol          # :easy, :moderate, :hard, :infeasible
     bottleneck::String          # human-readable summary
     timestamp::Dates.DateTime
+    error_budget::Union{Nothing, ErrorBudgetReport}
+end
+
+# Backward-compatible 7-arg constructor (no error_budget)
+function DiagnosticReport(name, da, pf, sr, diff, bn, ts)
+    DiagnosticReport(name, da, pf, sr, diff, bn, ts, nothing)
 end
 
 """
@@ -528,6 +642,18 @@ struct ComprehensiveDiagnosticReport
     eval_points::Vector{Float64}
     best_interpolator::String
     best_eval_point::Float64
+    multipoint_error_budget::Union{Nothing, ErrorBudgetReport}
+    multipoint_derivative_accuracy::Vector{DerivativeAccuracyReport}  # per MP eval point
+end
+
+# Backward-compatible 8-arg constructor (no MP derivative accuracy)
+function ComprehensiveDiagnosticReport(name, frs, dg, ins, eps, bi, bep, mp_eb)
+    ComprehensiveDiagnosticReport(name, frs, dg, ins, eps, bi, bep, mp_eb, DerivativeAccuracyReport[])
+end
+
+# Backward-compatible 7-arg constructor (no multipoint at all)
+function ComprehensiveDiagnosticReport(name, frs, dg, ins, eps, bi, bep)
+    ComprehensiveDiagnosticReport(name, frs, dg, ins, eps, bi, bep, nothing, DerivativeAccuracyReport[])
 end
 
 """Access the best (first) full diagnostic report."""

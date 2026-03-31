@@ -122,6 +122,7 @@ export calculate_observable_derivatives, create_interpolants, AbstractInterpolat
 export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
 export MultiPointTemplate, MultiPointEvaluation, build_multipoint_template, evaluate_multipoint_template, solve_multipoint_direct, solve_multipoint_parameterized, select_time_point_pairs
 export select_time_point_pairs_gp_quality, select_time_point_pairs_sensitivity, select_time_point_pairs_homotopy_probed
+export select_time_points_by_conditioning, solve_multipoint_overdetermined
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict
@@ -136,6 +137,7 @@ export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
 export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
 export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport
 export EstimationResultsReport, BacksolveUQReport, UncertaintyReport
+export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
 
 # Export UQ (Uncertainty Quantification) functions

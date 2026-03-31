@@ -435,6 +435,9 @@ function set_result_lineage!(
 	post_polish_error = nothing,
 	polish_applied::Union{Nothing, Bool} = nothing,
 	notes::Vector{Symbol} = Symbol[],
+	source_type::Union{Nothing, Symbol} = nothing,
+	multipoint_time_indices::Union{Nothing, Vector{Int}} = nothing,
+	multipoint_combo_index::Union{Nothing, Int} = nothing,
 )
 	prov = result.provenance
 	if !isnothing(primary_method)
@@ -459,6 +462,15 @@ function set_result_lineage!(
 	end
 	if !isnothing(polish_applied)
 		prov.polish_applied = polish_applied
+	end
+	if !isnothing(source_type)
+		prov.source_type = source_type
+	end
+	if !isnothing(multipoint_time_indices)
+		prov.multipoint_time_indices = copy(multipoint_time_indices)
+	end
+	if !isnothing(multipoint_combo_index)
+		prov.multipoint_combo_index = multipoint_combo_index
 	end
 	for note in notes
 		note_provenance!(prov, note)
@@ -924,6 +936,10 @@ function process_estimation_results(
 		shoot_idx = hasfield(typeof(solution_data), :solution_time_indices) && soln_index <= length(solution_data.solution_time_indices) ? solution_data.solution_time_indices[soln_index] : lowest_time_index
 		t_shoot = t_vector[shoot_idx]
 		source_interp = hasfield(typeof(solution_data), :solution_interpolator_sources) && soln_index <= length(solution_data.solution_interpolator_sources) ? solution_data.solution_interpolator_sources[soln_index] : nothing
+		# Multipoint provenance
+		soln_source_type = hasfield(typeof(solution_data), :solution_source_types) && soln_index <= length(solution_data.solution_source_types) ? solution_data.solution_source_types[soln_index] : :single_point
+		soln_mp_time_indices = hasfield(typeof(solution_data), :solution_mp_time_indices) && soln_index <= length(solution_data.solution_mp_time_indices) ? solution_data.solution_mp_time_indices[soln_index] : nothing
+		soln_mp_combo_index = hasfield(typeof(solution_data), :solution_mp_combo_indices) && soln_index <= length(solution_data.solution_mp_combo_indices) ? solution_data.solution_mp_combo_indices[soln_index] : nothing
 		representative_assignments = OrderedDict{Num, Float64}()
 		provenance_notes = Symbol[]
 
@@ -1094,6 +1110,9 @@ function process_estimation_results(
 			source_candidate_index = soln_index,
 			representative_assignments = deepcopy(representative_assignments),
 			notes = copy(provenance_notes),
+			source_type = soln_source_type,
+			mp_time_indices = soln_mp_time_indices,
+			mp_combo_index = soln_mp_combo_index,
 		))
 	end
 
@@ -1125,6 +1144,9 @@ function process_estimation_results(
 			source_candidate_index = result_entry.source_candidate_index,
 			post_polish_error = err,
 			representative_assignments = result_entry.representative_assignments,
+			source_type = result_entry.source_type,
+			multipoint_time_indices = result_entry.mp_time_indices,
+			multipoint_combo_index = result_entry.mp_combo_index,
 			; si_lineage...,
 			notes = result_entry.notes,
 		)

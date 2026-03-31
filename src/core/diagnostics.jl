@@ -645,13 +645,17 @@ function diagnose_polynomial_system(
     true_res_prod = _compute_residual(prod_eqs, prod_vars, true_vals)
     true_res_perf = _compute_residual(perf_eqs, perf_vars, true_vals)
 
-    # Closest solution distance
-    dist_prod = _closest_solution_distance(prod_solutions, true_vals)
+    # Closest solution distance (with per-variable values for error budget)
+    dist_prod, closest_sol_prod = _closest_solution_with_values(prod_solutions, true_vals)
     dist_perf = _closest_solution_distance(perf_solutions, true_vals)
 
     # Classify variables and store equation strings
     eq_strings = _equations_to_strings(prod_eqs)
     var_roles = _classify_polynomial_variables(var_names, pep)
+
+    # Capture d_prod and d_true for signed IFT validation
+    dv_labels, dv_prod, dv_true = _capture_data_variable_values(
+        setup_data, pep, t_eval, state_taylor, obs_taylor, max_order)
 
     return PolynomialFeasibilityReport(
         pep.name, n_eqs, n_vars, is_square,
@@ -659,7 +663,67 @@ function diagnose_polynomial_system(
         true_res_perf, true_res_prod,
         dist_perf, dist_prod,
         var_names, eq_strings, var_roles,
+        closest_sol_prod, Float64.(true_vals),
+        dv_labels, dv_prod, dv_true,
     )
+end
+
+"""
+Capture data variable values (d_prod from interpolants, d_true from oracle Taylor)
+for a given evaluation point. Returns `(labels, d_prod, d_true)`.
+"""
+function _capture_data_variable_values(
+    setup_data, pep, t_eval, state_taylor, obs_taylor, max_order,
+)
+    mq = pep.measured_quantities
+    DD = setup_data.good_DD
+
+    t_vec = pep.data_sample["t"]
+    time_idx = argmin(abs.(t_vec .- t_eval))
+    t_point = t_vec[time_idx]
+
+    labels = String[]
+    d_prod_vals = Float64[]
+    d_true_vals = Float64[]
+
+    # DD.obs_lhs[level][obs_idx] is the symbolic variable for observable obs_idx at derivative level (level-1)
+    !hasproperty(DD, :obs_lhs) && return labels, d_prod_vals, d_true_vals
+
+    for (level_idx, level_vars) in enumerate(DD.obs_lhs)
+        deriv_level = level_idx - 1
+        for (obs_idx, lhs_var) in enumerate(level_vars)
+            obs_idx > length(mq) && continue
+            label = string(lhs_var)
+
+            # d_true from oracle Taylor
+            d_true_val = NaN
+            if !isnothing(obs_taylor)
+                obs_rhs_key = ModelingToolkit.diff2term(mq[obs_idx].rhs)
+                if haskey(obs_taylor, obs_rhs_key)
+                    tc = obs_taylor[obs_rhs_key]
+                    if deriv_level + 1 <= length(tc)
+                        d_true_val = tc[deriv_level + 1] * factorial(deriv_level)
+                    end
+                end
+            end
+
+            # d_prod from production interpolants
+            d_prod_val = NaN
+            if haskey(setup_data.interpolants, ModelingToolkit.diff2term(mq[obs_idx].rhs))
+                interp = setup_data.interpolants[ModelingToolkit.diff2term(mq[obs_idx].rhs)]
+                try
+                    d_prod_val = Float64(nth_deriv(x -> interp(x), deriv_level, t_point))
+                catch
+                end
+            end
+
+            push!(labels, label)
+            push!(d_prod_vals, d_prod_val)
+            push!(d_true_vals, d_true_val)
+        end
+    end
+
+    return labels, d_prod_vals, d_true_vals
 end
 
 """
@@ -806,6 +870,26 @@ function _closest_solution_distance(solutions, true_vals)
         min_dist = min(min_dist, d)
     end
     return min_dist
+end
+
+"""
+Return `(distance, solution_vector)` for the closest solution to `true_vals`.
+Returns `(Inf, Float64[])` when no solutions exist.
+"""
+function _closest_solution_with_values(solutions, true_vals)
+    if isempty(solutions) || any(isnan, true_vals)
+        return (Inf, Float64[])
+    end
+    min_dist = Inf
+    best_sol = Float64[]
+    for sol in solutions
+        d = norm(sol .- true_vals)
+        if d < min_dist
+            min_dist = d
+            best_sol = sol
+        end
+    end
+    return (min_dist, best_sol)
 end
 
 # ─── Sensitivity analysis ─────────────────────────────────────────────
@@ -1109,6 +1193,636 @@ function _compute_data_sensitivity(
     return S, d_labels, d_roles, x_labels, x_roles
 end
 
+# ─── Error Budget ─────────────────────────────────────────────────────
+
+"""
+    _build_signed_delta_d(sr, pf) → (delta_d, d_true_aligned, d_prod_aligned)
+
+Build signed Δd = d_prod - d_true, aligned to the columns of sensitivity matrix S.
+Matches S column labels to PolynomialFeasibilityReport's data_var_labels.
+Returns zeros for unmatched or transcendental variables.
+"""
+function _build_signed_delta_d(sr::SensitivityReport, pf::PolynomialFeasibilityReport)
+    n_data = length(sr.data_sensitivity_data_labels)
+    delta_d = zeros(Float64, n_data)
+    d_true_aligned = zeros(Float64, n_data)
+    d_prod_aligned = zeros(Float64, n_data)
+
+    has_dv = !isempty(pf.data_var_labels) && !isempty(pf.data_var_prod) && !isempty(pf.data_var_true)
+    if !has_dv
+        return delta_d, d_true_aligned, d_prod_aligned
+    end
+
+    # Build lookup from pf data var labels → index
+    pf_dv_idx = Dict{String, Int}()
+    for (i, lab) in enumerate(pf.data_var_labels)
+        pf_dv_idx[lab] = i
+    end
+
+    for (j, dlabel) in enumerate(sr.data_sensitivity_data_labels)
+        if contains(dlabel, "_trfn_") || contains(dlabel, "_obs_trfn_")
+            continue  # transcendental — zero error
+        end
+
+        # Try exact match first
+        if haskey(pf_dv_idx, dlabel)
+            idx = pf_dv_idx[dlabel]
+            d_true_aligned[j] = pf.data_var_true[idx]
+            d_prod_aligned[j] = pf.data_var_prod[idx]
+            delta_d[j] = d_prod_aligned[j] - d_true_aligned[j]
+            continue
+        end
+
+        # Try matching by parsed (base, order) — S labels may use different notation
+        base_s, order_s = _parse_data_label(dlabel)
+        isempty(base_s) && continue
+
+        for (i, pf_lab) in enumerate(pf.data_var_labels)
+            base_p, order_p = _parse_data_label(pf_lab)
+            if order_s == order_p && (base_s == base_p || startswith(base_s, base_p) || startswith(base_p, base_s))
+                d_true_aligned[j] = pf.data_var_true[i]
+                d_prod_aligned[j] = pf.data_var_prod[i]
+                delta_d[j] = d_prod_aligned[j] - d_true_aligned[j]
+                break
+            end
+        end
+    end
+
+    return delta_d, d_true_aligned, d_prod_aligned
+end
+
+"""
+    compute_error_budget(sr, da, pf; max_blame=5) → Union{Nothing, ErrorBudgetReport}
+
+Signed IFT validation: compare Δx_actual = x_HC - x_true against Δx_predicted = S·Δd
+where Δd = d_prod - d_true (signed). Also computes S at the production point for
+a nonlinearity check.
+
+Returns `nothing` if the sensitivity matrix is empty.
+"""
+function compute_error_budget(
+    sr::SensitivityReport,
+    da::DerivativeAccuracyReport,
+    pf::PolynomialFeasibilityReport;
+    max_blame::Int = 5,
+)
+    S_true = sr.data_sensitivity_matrix
+    if isempty(S_true)
+        return nothing
+    end
+
+    n_unknowns, n_data = size(S_true)
+    delta_d, d_true_aligned, d_prod_aligned = _build_signed_delta_d(sr, pf)
+
+    unknown_labels = sr.data_sensitivity_unknown_labels
+    unknown_roles = sr.data_sensitivity_unknown_roles
+    data_labels = sr.data_sensitivity_data_labels
+
+    has_actual = !isempty(pf.closest_solution_production) && !isempty(pf.true_values)
+
+    # Map S row labels to pf variable indices
+    pf_var_idx = Dict{String, Int}()
+    if has_actual
+        for (i, vn) in enumerate(pf.variable_names)
+            pf_var_idx[vn] = i
+        end
+    end
+
+    entries = ErrorBudgetEntry[]
+
+    for i in 1:n_unknowns
+        ulabel = i <= length(unknown_labels) ? unknown_labels[i] : "x_$i"
+        urole = get(unknown_roles, ulabel, :unknown)
+
+        # Signed IFT prediction: Δx_predicted = Σⱼ S[i,j] · Δd[j]
+        signed_contributions = [S_true[i, j] * delta_d[j] for j in 1:n_data]
+        dx_predicted = sum(signed_contributions)
+
+        # Actual displacement: Δx_actual = x_HC[i] - x_true[i]
+        dx_actual = NaN
+        if has_actual && haskey(pf_var_idx, ulabel)
+            idx = pf_var_idx[ulabel]
+            if idx <= length(pf.closest_solution_production) && idx <= length(pf.true_values)
+                dx_actual = pf.closest_solution_production[idx] - pf.true_values[idx]
+            end
+        end
+
+        # Prediction ratio: |predicted| / |actual|
+        ratio = if isnan(dx_actual) || abs(dx_actual) < 1e-300
+            NaN
+        else
+            abs(dx_predicted) / abs(dx_actual)
+        end
+
+        # Blame: signed S[i,j]·Δd[j], sorted by |contribution| descending
+        contrib_pairs = [(j, signed_contributions[j]) for j in 1:n_data]
+        sort!(contrib_pairs; by = c -> -abs(c[2]))
+        blame = @NamedTuple{data_label::String, s_times_dd::Float64, pct_of_predicted::Float64}[]
+        abs_predicted = abs(dx_predicted)
+        for k in 1:min(max_blame, length(contrib_pairs))
+            j, s_dd = contrib_pairs[k]
+            abs(s_dd) < 1e-300 && break
+            pct = abs_predicted > 0 ? s_dd / dx_predicted : 0.0  # signed fraction
+            dlabel = j <= length(data_labels) ? data_labels[j] : "d_$j"
+            push!(blame, (data_label = dlabel, s_times_dd = s_dd, pct_of_predicted = pct))
+        end
+
+        push!(entries, ErrorBudgetEntry(ulabel, urole, dx_actual, dx_predicted, ratio, blame))
+    end
+
+    # Sort by |Δx_predicted| descending (largest predicted displacement first)
+    sort!(entries; by = e -> -abs(e.delta_x_predicted))
+
+    # Max derivative order
+    max_order = 0
+    for dlabel in data_labels
+        _, order = _parse_data_label(dlabel)
+        max_order = max(max_order, order)
+    end
+
+    # Sensitivity concentration
+    s_col_norms = [norm(S_true[:, j]) for j in 1:n_data]
+    s_fro = norm(S_true)
+    sens_conc = s_fro > 0 ? maximum(s_col_norms) / s_fro : 0.0
+    is_path = sens_conc > 0.5
+
+    # Nonlinearity check: compute S at production point (x_HC, d_prod)
+    sens_nonlin = NaN
+    if has_actual && any(!iszero, d_prod_aligned)
+        try
+            # Build production evaluation point from closest HC solution + production data
+            # We need the same variable ordering as the sensitivity computation used
+            # x_HC values for unknowns, d_prod values for data vars
+            x_hc_vec = Float64[]
+            for ulabel in unknown_labels
+                if haskey(pf_var_idx, ulabel)
+                    idx = pf_var_idx[ulabel]
+                    push!(x_hc_vec, pf.closest_solution_production[idx])
+                else
+                    push!(x_hc_vec, NaN)
+                end
+            end
+
+            if !any(isnan, x_hc_vec) && !any(isnan, d_prod_aligned)
+                eval_prod = [x_hc_vec..., d_prod_aligned...]
+
+                # Recompute Jacobian at production point using the same compiled function
+                # We need the template equations and variable list — reconstruct from sr
+                # For now, use the Jacobian column structure from sr to partition
+                # This requires the compiled system function, which we don't have stored.
+                # Instead, approximate nonlinearity by comparing prediction vs actual:
+                # If S·Δd ≈ Δx, nonlinearity is low.
+                dx_actual_vec = Float64[]
+                dx_predicted_vec = Float64[]
+                for e in entries
+                    if !isnan(e.delta_x_actual)
+                        push!(dx_actual_vec, e.delta_x_actual)
+                        push!(dx_predicted_vec, e.delta_x_predicted)
+                    end
+                end
+                if length(dx_actual_vec) > 0
+                    residual = dx_predicted_vec .- dx_actual_vec
+                    sens_nonlin = norm(residual) / max(norm(dx_actual_vec), 1e-300)
+                end
+            end
+        catch e
+            @warn "[ERROR_BUDGET] Nonlinearity check failed: $e"
+        end
+    end
+
+    return ErrorBudgetReport(
+        pf.model_name,
+        :single_point,
+        da.t_eval,
+        da.interpolator_name,
+        entries,
+        data_labels,
+        d_true_aligned,
+        d_prod_aligned,
+        delta_d,
+        max_order,
+        isnan(sens_nonlin) ? NaN : sens_nonlin,
+        sens_conc,
+        is_path,
+    )
+end
+
+# ─── Multipoint Error Budget ─────────────────────────────────────────
+
+"""
+    _parse_multipoint_var_name(name) → (clean_name, point_index)
+
+Strip `_ptK` suffix from a multipoint variable name. Returns the clean name
+and the point index (1 if no suffix).
+"""
+function _parse_multipoint_var_name(name::AbstractString)
+    m = match(r"^(.+)_pt(\d+)$", name)
+    if !isnothing(m)
+        return (String(m.captures[1]), parse(Int, m.captures[2]))
+    end
+    return (String(name), 1)
+end
+
+"""
+    _lookup_multipoint_true_value(var_name, pep, t_values, state_taylors, obs_taylors)
+
+Look up the oracle true value of a multipoint variable. Handles `_ptK` suffixes
+by using the appropriate point's Taylor coefficients.
+"""
+function _lookup_multipoint_true_value(
+    var_name::String,
+    pep::ParameterEstimationProblem,
+    t_values::Vector{Float64},
+    state_taylors::Vector,
+    obs_taylors::Vector,
+)
+    clean_name, pt_idx = _parse_multipoint_var_name(var_name)
+
+    # Try parameter match first (shared across points)
+    for (p, v) in pep.p_true
+        pname = replace(string(p), "(t)" => "")
+        if pname == clean_name || pname * "_0" == clean_name
+            return Float64(v)
+        end
+    end
+
+    # Parse derivative info from clean name
+    parsed = parse_derivative_variable_name(clean_name)
+    if isnothing(parsed)
+        # Try as bare state IC (e.g., "x1" → "x1_0" with order 0)
+        for (s, v) in pep.ic
+            sname = replace(string(s), "(t)" => "")
+            if sname == clean_name
+                return Float64(v)
+            end
+        end
+        @warn "[MP_BUDGET] Cannot parse variable name: $var_name (clean: $clean_name)"
+        return NaN
+    end
+
+    base_name, deriv_order = parsed
+
+    # Check bounds on point index
+    if pt_idx < 1 || pt_idx > length(state_taylors)
+        @warn "[MP_BUDGET] Point index $pt_idx out of range for variable $var_name"
+        return NaN
+    end
+
+    st = state_taylors[pt_idx]
+    ot = obs_taylors[pt_idx]
+    t_eval = t_values[pt_idx]
+
+    # Try state match
+    for (s, _) in pep.ic
+        sname = replace(string(s), "(t)" => "")
+        if sname == base_name
+            obs_rhs_key = s  # the state Symbolics variable
+            if haskey(st, obs_rhs_key) || haskey(st, ModelingToolkit.diff2term(s))
+                key = haskey(st, obs_rhs_key) ? obs_rhs_key : ModelingToolkit.diff2term(s)
+                tc = st[key]
+                if deriv_order + 1 <= length(tc)
+                    return tc[deriv_order + 1] * factorial(deriv_order)
+                end
+            end
+        end
+    end
+
+    # Try observable match
+    for (obs_idx, mq) in enumerate(pep.measured_quantities)
+        obs_name = replace(string(mq.lhs), r"\(.*\)" => "")
+        if obs_name == base_name
+            obs_rhs_key = ModelingToolkit.diff2term(mq.rhs)
+            if haskey(ot, obs_rhs_key)
+                tc = ot[obs_rhs_key]
+                if deriv_order + 1 <= length(tc)
+                    return tc[deriv_order + 1] * factorial(deriv_order)
+                end
+            end
+        end
+    end
+
+    @warn "[MP_BUDGET] No true value match for $var_name (base=$base_name, order=$deriv_order, pt=$pt_idx)"
+    return NaN
+end
+
+"""
+    _compute_multipoint_sensitivity(pep, mpt, t_values; state_taylors, obs_taylors)
+
+Compute the IFT sensitivity matrix for a multipoint polynomial system.
+Returns `(S, data_labels, data_roles, unknown_labels, unknown_roles)`.
+"""
+function _compute_multipoint_sensitivity(
+    pep::ParameterEstimationProblem,
+    mpt::MultiPointTemplate,
+    t_values::Vector{Float64};
+    state_taylors::Vector,
+    obs_taylors::Vector,
+)
+    solve_vars = mpt.solve_vars
+    data_vars = mpt.data_vars
+    equations = mpt.stripped_equations
+    n_x = length(solve_vars)
+    n_d = length(data_vars)
+
+    if n_x == 0 || n_d == 0 || isempty(equations)
+        return Matrix{Float64}(undef, 0, 0), String[], Dict{String, Symbol}(), String[], Dict{String, Symbol}()
+    end
+
+    # Build true values for solve_vars and data_vars
+    x_true = Float64[]
+    for v in solve_vars
+        val = _lookup_multipoint_true_value(string(v), pep, t_values, state_taylors, obs_taylors)
+        push!(x_true, val)
+    end
+
+    d_true = Float64[]
+    for v in data_vars
+        val = _lookup_multipoint_true_value(string(v), pep, t_values, state_taylors, obs_taylors)
+        push!(d_true, val)
+    end
+
+    combined_vars = [solve_vars..., data_vars...]
+    combined_true = [x_true..., d_true...]
+
+    if any(isnan, combined_true)
+        nan_vars = [string(combined_vars[i]) for i in eachindex(combined_true) if isnan(combined_true[i])]
+        @warn "[MP_BUDGET] NaN in true values" nan_count = length(nan_vars) vars = nan_vars[1:min(5, length(nan_vars))]
+        return Matrix{Float64}(undef, 0, 0), String[], Dict{String, Symbol}(), String[], Dict{String, Symbol}()
+    end
+
+    # Compile and compute Jacobian
+    combined_fn = _compile_system_function(equations, combined_vars)
+    J_full = ForwardDiff.jacobian(combined_fn, combined_true)
+
+    J_x = J_full[:, 1:n_x]
+    J_d = J_full[:, (n_x + 1):end]
+
+    # IFT: S = -(J_x \ J_d) or pinv for ill-conditioned
+    cond_Jx = try
+        svs_x = svd(J_x).S
+        length(svs_x) > 0 ? svs_x[1] / max(svs_x[end], 1e-300) : Inf
+    catch
+        Inf
+    end
+
+    S = if cond_Jx > 1e6
+        -(pinv(J_x) * J_d)
+    else
+        -(J_x \ J_d)
+    end
+
+    # Labels and roles
+    d_labels = [string(v) for v in data_vars]
+    d_roles = Dict{String, Symbol}()
+    for dl in d_labels
+        if contains(dl, "_trfn_")
+            d_roles[dl] = :transcendental
+        else
+            d_roles[dl] = :data_derivative
+        end
+    end
+
+    x_labels = [string(v) for v in solve_vars]
+    x_roles = _classify_polynomial_variables(x_labels, pep)
+
+    return S, d_labels, d_roles, x_labels, x_roles
+end
+
+"""
+    compute_multipoint_error_budget(pep, mpt, t_values, setup_data, da_per_point; max_blame=5)
+
+Signed IFT validation for multipoint: solves the system with HC.jl, computes
+Δx_actual = x_HC - x_true and Δx_predicted = S·Δd, and checks nonlinearity.
+"""
+function compute_multipoint_error_budget(
+    pep::ParameterEstimationProblem,
+    mpt::MultiPointTemplate,
+    t_values::Vector{Float64},
+    setup_data,
+    da_per_point::Vector{DerivativeAccuracyReport};
+    max_blame::Int = 5,
+)
+    n_points = length(t_values)
+    max_order = isempty(setup_data.good_deriv_level) ? 2 : maximum(values(setup_data.good_deriv_level))
+
+    # Oracle Taylor at each point
+    state_taylors = Vector{Dict{Num, Vector{Float64}}}()
+    obs_taylors = Vector{Dict{Num, Vector{Float64}}}()
+    for te in t_values
+        st = compute_oracle_taylor_coefficients(pep, te, max_order + 2)
+        ot = compute_observable_taylor_coefficients(pep, st, te, max_order + 2)
+        push!(state_taylors, st)
+        push!(obs_taylors, ot)
+    end
+
+    # Sensitivity matrix S at oracle point
+    S, d_labels, d_roles, x_labels, x_roles = _compute_multipoint_sensitivity(
+        pep, mpt, t_values;
+        state_taylors = state_taylors, obs_taylors = obs_taylors)
+
+    if isempty(S)
+        @warn "[MP_BUDGET] Failed to compute multipoint sensitivity matrix"
+        return nothing
+    end
+
+    n_unknowns, n_data = size(S)
+
+    # Build d_true: oracle values for each data variable
+    d_true = Float64[]
+    for v in mpt.data_vars
+        val = _lookup_multipoint_true_value(string(v), pep, t_values, state_taylors, obs_taylors)
+        push!(d_true, val)
+    end
+
+    # Evaluate multipoint template at the specified time points to get d_prod
+    t_vec = pep.data_sample["t"]
+    time_indices = [argmin(abs.(t_vec .- te)) for te in t_values]
+    eval_result = evaluate_multipoint_template(mpt, time_indices, setup_data.interpolants, pep.data_sample)
+    d_prod = Float64.(eval_result.data_values)
+
+    # Signed Δd = d_prod - d_true
+    delta_d = d_prod .- d_true
+
+    # Solve the multipoint system with HC.jl to get x_HC
+    x_true = Float64[]
+    for v in mpt.solve_vars
+        val = _lookup_multipoint_true_value(string(v), pep, t_values, state_taylors, obs_taylors)
+        push!(x_true, val)
+    end
+
+    hc_solutions = try
+        solve_multipoint_direct(eval_result)
+    catch e
+        @warn "[MP_BUDGET] HC solve failed: $e"
+        Vector{Float64}[]
+    end
+
+    # Find closest solution to truth
+    x_hc = Float64[]
+    if !isempty(hc_solutions) && !any(isnan, x_true)
+        best_dist = Inf
+        for sol in hc_solutions
+            d = norm(sol .- x_true)
+            if d < best_dist
+                best_dist = d
+                x_hc = Float64.(sol)
+            end
+        end
+    end
+
+    has_actual = !isempty(x_hc) && length(x_hc) == length(x_true)
+
+    # Build entries with signed IFT prediction
+    entries = ErrorBudgetEntry[]
+    for i in 1:n_unknowns
+        ulabel = i <= length(x_labels) ? x_labels[i] : "x_$i"
+        urole = get(x_roles, ulabel, :unknown)
+
+        # Signed prediction: Σⱼ S[i,j]·Δd[j]
+        signed_contributions = [S[i, j] * delta_d[j] for j in 1:n_data]
+        dx_predicted = sum(signed_contributions)
+
+        # Actual displacement
+        dx_actual = has_actual ? x_hc[i] - x_true[i] : NaN
+
+        ratio = if isnan(dx_actual) || abs(dx_actual) < 1e-300
+            NaN
+        else
+            abs(dx_predicted) / abs(dx_actual)
+        end
+
+        # Blame: signed contributions sorted by |contribution|
+        contrib_pairs = [(j, signed_contributions[j]) for j in 1:n_data]
+        sort!(contrib_pairs; by = c -> -abs(c[2]))
+        blame = @NamedTuple{data_label::String, s_times_dd::Float64, pct_of_predicted::Float64}[]
+        abs_predicted = abs(dx_predicted)
+        for k in 1:min(max_blame, length(contrib_pairs))
+            j, s_dd = contrib_pairs[k]
+            abs(s_dd) < 1e-300 && break
+            pct = abs_predicted > 0 ? s_dd / dx_predicted : 0.0
+            dl = j <= length(d_labels) ? d_labels[j] : "d_$j"
+            push!(blame, (data_label = dl, s_times_dd = s_dd, pct_of_predicted = pct))
+        end
+
+        push!(entries, ErrorBudgetEntry(ulabel, urole, dx_actual, dx_predicted, ratio, blame))
+    end
+
+    sort!(entries; by = e -> -abs(e.delta_x_predicted))
+
+    # Max derivative order
+    max_order_used = 0
+    for dlabel in d_labels
+        clean, _ = _parse_multipoint_var_name(dlabel)
+        _, order = _parse_data_label(clean)
+        max_order_used = max(max_order_used, order)
+    end
+
+    interp_name = !isempty(da_per_point) ? da_per_point[1].interpolator_name : "unknown"
+
+    # Sensitivity concentration
+    s_col_norms = [norm(S[:, j]) for j in 1:n_data]
+    s_fro = norm(S)
+    sens_conc = s_fro > 0 ? maximum(s_col_norms) / s_fro : 0.0
+    is_path = sens_conc > 0.5
+
+    # Nonlinearity: ‖S·Δd - Δx_actual‖ / ‖Δx_actual‖
+    sens_nonlin = NaN
+    if has_actual
+        dx_actual_vec = [x_hc[i] - x_true[i] for i in 1:n_unknowns]
+        dx_predicted_vec = [sum(S[i, j] * delta_d[j] for j in 1:n_data) for i in 1:n_unknowns]
+        residual = dx_predicted_vec .- dx_actual_vec
+        norm_actual = norm(dx_actual_vec)
+        sens_nonlin = norm_actual > 1e-300 ? norm(residual) / norm_actual : NaN
+    end
+
+    return ErrorBudgetReport(
+        pep.name,
+        :multipoint,
+        t_values,
+        interp_name,
+        entries,
+        d_labels,
+        d_true,
+        d_prod,
+        delta_d,
+        max_order_used,
+        isnan(sens_nonlin) ? NaN : sens_nonlin,
+        sens_conc,
+        is_path,
+    )
+end
+
+"""
+    _try_multipoint_error_budget(pep, setup_data, interp_func, interp_name; kwargs...)
+
+Try to build and compute a multipoint error budget. Returns `nothing` on failure.
+Builds a 2-point multipoint template, computes sensitivity and derivative errors.
+"""
+function _try_multipoint_error_budget(
+    pep::ParameterEstimationProblem,
+    setup_data,
+    interp_func,
+    interp_name::String;
+    kwargs...,
+)
+    try
+        model = pep.model.system
+        mq = pep.measured_quantities
+        t_vec = pep.data_sample["t"]
+        n_t = length(t_vec)
+        max_order = isempty(setup_data.good_deriv_level) ? 2 : maximum(values(setup_data.good_deriv_level))
+
+        # Build SI template (needed by build_multipoint_template)
+        ordered_model = isa(model, OrderedODESystem) ? model : begin
+            (_, _, s, p) = unpack_ODE(model)
+            OrderedODESystem(model, s, p)
+        end
+
+        si_template, _ = prepare_si_template_with_structural_fix(
+            ordered_model, mq, pep.data_sample,
+            setup_data.good_DD, false;
+            states = setup_data.states,
+            params = setup_data.params,
+        )
+
+        # Build setup tuple for multipoint
+        mpt_setup = (
+            good_deriv_level = setup_data.good_deriv_level,
+            good_udict = setup_data.good_udict,
+            good_varlist = setup_data.good_varlist,
+            good_DD = setup_data.good_DD,
+            interpolants = setup_data.interpolants,
+        )
+
+        mpt = build_multipoint_template(pep, mpt_setup, si_template; n_points = 2, diagnostics = false)
+
+        if length(mpt.stripped_equations) != length(mpt.solve_vars)
+            @warn "[MP_BUDGET] Multipoint template is not square — skipping"
+            return nothing
+        end
+
+        # Choose 2 well-separated evaluation points (25% and 75% of range)
+        t1_idx = max(2, round(Int, n_t * 0.25))
+        t2_idx = min(n_t - 1, round(Int, n_t * 0.75))
+        t_values = [t_vec[t1_idx], t_vec[t2_idx]]
+
+        # Derivative accuracy at each point
+        da_per_point = DerivativeAccuracyReport[]
+        for te in t_values
+            da = diagnose_derivative_accuracy(pep;
+                setup_data = setup_data, t_eval = te, max_order = max_order,
+                interpolator_name = interp_name)
+            push!(da_per_point, da)
+        end
+
+        eb = compute_multipoint_error_budget(pep, mpt, t_values, setup_data, da_per_point)
+        return (eb, da_per_point)
+    catch e
+        @warn "[MP_BUDGET] Multipoint error budget failed" exception = (e, catch_backtrace())
+        return nothing
+    end
+end
+
 """
 Compile a vector of symbolic equations into a callable `f(x) → Vector{Float64}`
 via `Symbolics.build_function`. Falls back to substitution-based evaluation.
@@ -1223,7 +1937,7 @@ function diagnose(
     _interp_name = try
         s = string(interpolator)
         # Strip module prefix if present (e.g. "ODEParameterEstimation.agp_gpr_robust" → "agp_gpr_robust")
-        last(split(s, '.'))
+        String(last(split(s, '.')))
     catch
         "unknown"
     end
@@ -1244,9 +1958,17 @@ function diagnose(
 
     difficulty, bottleneck = _classify_difficulty(deriv_report, poly_report, sens_report)
 
+    # Error budget: combine sensitivity with derivative errors
+    error_budget = try
+        compute_error_budget(sens_report, deriv_report, poly_report)
+    catch e
+        @warn "[DIAGNOSE] Error budget computation failed: $e"
+        nothing
+    end
+
     report = DiagnosticReport(
         pep.name, deriv_report, poly_report, sens_report,
-        difficulty, bottleneck, Dates.now(),
+        difficulty, bottleneck, Dates.now(), error_budget,
     )
 
     _print_diagnostic_summary(report)
@@ -1395,16 +2117,37 @@ function _diagnose_comprehensive(
             t_eval = te, max_order = max_order, kwargs...)
 
         difficulty, bottleneck = _classify_difficulty(deriv, poly, sens)
+        eb = try
+            compute_error_budget(sens, deriv, poly)
+        catch e
+            @warn "[DIAGNOSE] Error budget failed for $(interp_names[ii]) at t=$te: $e"
+            nothing
+        end
         push!(full_reports, DiagnosticReport(
             pep.name, deriv, poly, sens,
-            difficulty, bottleneck, Dates.now(),
+            difficulty, bottleneck, Dates.now(), eb,
         ))
+    end
+
+    # Multipoint error budget (using best interpolator's setup)
+    @info "[DIAGNOSE] Computing multipoint error budget..."
+    mp_eb = nothing
+    mp_das = DerivativeAccuracyReport[]
+    try
+        best_setup = setup_parameter_estimation(pep; interpolator = interp_funcs[best_interp_idx], nooutput = true)
+        mp_result = _try_multipoint_error_budget(pep, best_setup, interp_funcs[best_interp_idx], interp_names[best_interp_idx])
+        if !isnothing(mp_result)
+            mp_eb, mp_das = mp_result
+        end
+    catch e
+        @warn "[DIAGNOSE] Multipoint error budget failed: $e"
     end
 
     comp = ComprehensiveDiagnosticReport(
         pep.name, full_reports, all_deriv_reports,
         interp_names, t_eval_points,
         interp_names[best_interp_idx], t_eval_points[best_point_idx],
+        mp_eb, mp_das,
     )
 
     _print_diagnostic_summary(comp.best)
@@ -1909,6 +2652,9 @@ function _save_diagnostic_html(report::DiagnosticReport; pep = nothing)
             t_eval = report.derivative_accuracy.t_eval,
             interpolator_name = report.derivative_accuracy.interpolator_name)
         _write_html_sens_section(io, report.sensitivity)
+        if !isnothing(report.error_budget)
+            _write_html_error_budget_section(io, report.error_budget)
+        end
         if !isnothing(uq_report)
             _write_html_uq_section(io, uq_report; uq_interpolants = uq_interps)
         end
@@ -1984,6 +2730,28 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
         _write_html_poly_section(io, r.polynomial_feasibility;
             t_eval = comp.best_eval_point, interpolator_name = comp.best_interpolator)
         _write_html_sens_section(io, r.sensitivity)
+        if !isnothing(r.error_budget)
+            _write_html_error_budget_section(io, r.error_budget)
+        end
+
+        # Multipoint derivative accuracy (per evaluation point)
+        if !isempty(comp.multipoint_derivative_accuracy)
+            for (i, mp_da) in enumerate(comp.multipoint_derivative_accuracy)
+                t_str = @sprintf("%.3f", mp_da.t_eval)
+                _write_html_deriv_section(io, mp_da;
+                    label = "Multipoint Point $i (t = $t_str)", collapsed = true)
+            end
+        end
+
+        # Multipoint error budget (standalone section)
+        if !isnothing(comp.multipoint_error_budget)
+            _write_html_error_budget_section(io, comp.multipoint_error_budget)
+        end
+
+        # Multipoint vs single-point comparison (if available)
+        if !isnothing(comp.multipoint_error_budget) && !isnothing(r.error_budget)
+            _write_html_multipoint_comparison_section(io, r.error_budget, comp.multipoint_error_budget)
+        end
 
         # UQ section
         if !isnothing(uq_report)
@@ -2182,6 +2950,14 @@ function _pretty_name(s::AbstractString)::String
     # Strip outer whitespace
     raw = strip(s)
 
+    # ── Detect multipoint _ptK suffix: "y1_2_pt2" → pretty(y1_2) + "(pt 2)" ─
+    m_mp = match(r"^(.+)_pt(\d+)$", raw)
+    if !isnothing(m_mp)
+        base_part = _pretty_name(String(m_mp.captures[1]))
+        pt_num = m_mp.captures[2]
+        return """$base_part <span style="font-size:.75em;color:#656d76;font-style:normal;">(pt $pt_num)</span>"""
+    end
+
     # ── Detect Differential(t, N)(var(t)) pattern ─────────────────────
     m = match(r"^Differential\(t,\s*(\d+)\)\((\w+)\(t\)\)$", raw)
     if !isnothing(m)
@@ -2217,6 +2993,38 @@ function _pretty_name_base(s::AbstractString)::String
     return s
 end
 
+"""Format a Symbolics expression for HTML display — clean up Differential notation and add spacing."""
+function _format_expression(expr)::String
+    s = string(expr)
+    # Replace Differential(t, N)(var(t)) with dⁿvar/dtⁿ notation
+    s = replace(s, r"Differential\(t, 1\)\((\w+)\(t\)\)" => s"d\1/dt")
+    s = replace(s, r"Differential\(t, (\d+)\)\((\w+)\(t\)\)" => s"d^\1\2/dt^\1")
+    s = replace(s, r"Differential\(t\)\((\w+)\(t\)\)" => s"d\1/dt")
+    # Strip (t) from state variables for cleaner display
+    s = replace(s, r"(\w+)\(t\)" => s"\1")
+    # Add · between coefficient and variable where missing: "582.48delta" → "582.48·delta"
+    # But NOT in scientific notation: "7.2e-7" should stay as-is
+    s = replace(s, r"(\d)([a-zA-Z_])" => s"\1·\2")
+    # Fix scientific notation broken by the above: "7.2·e-7" → "7.2e-7"
+    s = replace(s, r"(\d)·e([+-]\d)" => s"\1e\2")
+    # Handle number·( patterns: "10.0(" → "10.0·("
+    s = replace(s, r"(\d)\(" => s"\1·(")
+    # Handle ")variable" patterns: ")E" → ")·E"
+    s = replace(s, r"\)(\w)" => s")·\1")
+    # But not ")·/" which would be wrong
+    s = replace(s, r"\)·/" => s")/")
+    # HTML-escape
+    s = replace(s, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+    return s
+end
+
+"""Format an ODE equation (lhs ~ rhs) for HTML display."""
+function _format_ode_equation(eq)::String
+    lhs = _format_expression(eq.lhs)
+    rhs = _format_expression(eq.rhs)
+    return "$lhs = $rhs"
+end
+
 """
 Write a collapsible Model Overview section with ODE equations, parameters, states, observables,
 identifiability status, and data summary. Placed first in the report.
@@ -2234,7 +3042,7 @@ function _write_html_model_overview_section(io, pep::ParameterEstimationProblem)
     if !isempty(eqs)
         println(io, "<ol style=\"font-family:monospace;font-size:.85rem;line-height:1.6;\">")
         for eq in eqs
-            eq_str = replace(string(eq), "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            eq_str = _format_ode_equation(eq)
             println(io, "<li>$eq_str</li>")
         end
         println(io, "</ol>")
@@ -2276,10 +3084,9 @@ function _write_html_model_overview_section(io, pep::ParameterEstimationProblem)
     println(io, "<ul style=\"font-family:monospace;font-size:.85rem;\">")
     for mq in pep.measured_quantities
         lhs_raw = string(mq.lhs)
-        lhs_esc = replace(lhs_raw, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
         lhs_pretty = _pretty_name(lhs_raw)
-        rhs_str = replace(string(mq.rhs), "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
-        println(io, "<li><span title=\"$lhs_esc\" class=\"math\">$lhs_pretty</span> = $rhs_str</li>")
+        rhs_str = _format_expression(mq.rhs)
+        println(io, "<li><span class=\"math\">$lhs_pretty</span> = $rhs_str</li>")
     end
     println(io, "</ul>")
 
@@ -2302,10 +3109,11 @@ function _write_html_model_overview_section(io, pep::ParameterEstimationProblem)
     println(io, "</div></details>")
 end
 
-function _write_html_deriv_section(io, da::DerivativeAccuracyReport; label = "")
+function _write_html_deriv_section(io, da::DerivativeAccuracyReport; label = "", collapsed = false)
     title = isempty(label) ? "Derivative Accuracy (t = $(@sprintf("%.4f", da.t_eval)))" :
         "Derivative Accuracy — $label (t = $(@sprintf("%.4f", da.t_eval)))"
-    println(io, "<details open><summary>$title</summary><div class=\"detail-body\">")
+    open_attr = collapsed ? "" : " open"
+    println(io, "<details$open_attr><summary>$title</summary><div class=\"detail-body\">")
     # Provenance annotation
     interp_label = da.interpolator_name == "unknown" ? "" : "Interpolator: <b>$(da.interpolator_name)</b><br>"
     println(io, """<div class="provenance">$(interp_label)"True Value" = oracle Taylor coefficients at the exact ODE solution (machine precision).<br>"Interpolant" = value from the production interpolation method.</div>""")
@@ -2541,6 +3349,219 @@ function _write_html_data_sensitivity_section(io, sr::SensitivityReport)
     println(io, "</div></details>")
 end
 
+# ─── Error Budget HTML ────────────────────────────────────────────────
+
+"""
+    _err_class_ratio(r::Float64) → String
+
+CSS class for a prediction ratio value. Green if within 0.1–10×, yellow 10–100×, red otherwise.
+"""
+function _err_class_ratio(r::Float64)
+    (isnan(r) || isinf(r)) && return "err-bad"
+    ra = abs(r)
+    return ra >= 0.1 && ra <= 10.0 ? "err-ok" : ra <= 100.0 ? "err-warn" : "err-bad"
+end
+
+"""
+    _write_html_error_budget_section(io, eb::ErrorBudgetReport)
+
+Render the error budget as an HTML section with a summary table and collapsible
+per-unknown blame breakdowns.
+"""
+function _write_html_error_budget_section(io, eb::ErrorBudgetReport)
+    mode_str = eb.mode == :multipoint ? "Multipoint" : "Single-Point"
+    t_str = eb.t_eval isa Vector ? join([@sprintf("%.4f", t) for t in eb.t_eval], ", ") : @sprintf("%.4f", eb.t_eval)
+
+    println(io, "<details open><summary>IFT Error Budget ($mode_str)</summary><div class=\"detail-body\">")
+
+    # Build rich provenance text
+    prov = """<div class="provenance">
+<b>What this shows:</b> The Implicit Function Theorem (IFT) predicts how errors in interpolated data (Δd = d<sub>prod</sub> − d<sub>true</sub>) propagate to errors in estimated parameters/states (Δx = x<sub>HC</sub> − x<sub>true</sub>) via the sensitivity matrix S.<br>
+<b>Formula:</b> Δx<sub>predicted</sub> = S · Δd. If |predicted|/|actual| ≈ 1, the linearization is accurate.<br>
+<b>Max derivative order in data:</b> $(eb.max_deriv_order_used). <b>Interpolator:</b> $(eb.interpolator_name)."""
+
+    if eb.mode == :multipoint && eb.t_eval isa Vector && length(eb.t_eval) >= 2
+        prov *= """<br><b>Evaluation points:</b> Point 1: t = $(@sprintf("%.3f", eb.t_eval[1])) (variables without suffix). Point 2: t = $(@sprintf("%.3f", eb.t_eval[2])) (variables marked <span style="color:#656d76;">(pt 2)</span>)."""
+    else
+        prov *= """<br><b>Evaluation point:</b> t = $t_str."""
+    end
+    prov *= "</div>"
+    println(io, prov)
+
+    # Nonlinearity badge
+    if !isnan(eb.sensitivity_nonlinearity)
+        nl = eb.sensitivity_nonlinearity
+        nl_cls = nl < 0.1 ? "err-ok" : nl < 1.0 ? "err-warn" : "err-bad"
+        nl_desc = nl < 0.1 ? "Linear regime — IFT predictions reliable" :
+                  nl < 1.0 ? "Mildly nonlinear — predictions approximate" :
+                  "Highly nonlinear — predictions unreliable"
+        println(io, """<dl class="kv"><dt>Nonlinearity</dt><dd class="$nl_cls">$(@sprintf("%.2f", nl)) — $nl_desc</dd>""")
+        println(io, """<dt>Sensitivity concentration</dt><dd>$(@sprintf("%.1f%%", eb.sensitivity_concentration * 100))</dd></dl>""")
+    end
+
+    if eb.is_pathological
+        println(io, """<div style="background:#fff3cd;border:1px solid #bf8700;border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;font-size:.85rem;"><b style="color:#cf222e;">⚠ Pathological sensitivity concentration</b> — one data variable dominates >50% of the sensitivity matrix.</div>""")
+    end
+
+    # Multipoint polynomial system summary
+    if eb.mode == :multipoint
+        n_solve = length(eb.entries)
+        n_data = length(eb.data_labels)
+        println(io, """<dl class="kv"><dt>Polynomial system</dt><dd>$(n_solve) unknowns × $(n_data) data vars (max order $(eb.max_deriv_order_used))</dd></dl>""")
+    end
+
+    if isempty(eb.entries)
+        println(io, "<p>No error budget entries.</p></div></details>")
+        return
+    end
+
+    # Summary stats
+    n_well = count(e -> !isnan(e.prediction_ratio) && 0.5 <= e.prediction_ratio <= 2.0, eb.entries)
+    n_with_actual = count(e -> !isnan(e.delta_x_actual), eb.entries)
+    if n_with_actual > 0
+        println(io, """<p style="font-size:.85rem;margin:.25rem 0;">IFT accuracy: <b>$n_well / $n_with_actual</b> unknowns have |predicted|/|actual| within 0.5–2×.</p>""")
+    end
+
+    # Main table: signed Δx
+    println(io, "<table>")
+    println(io, "<tr><th>Unknown</th><th>Role</th><th>Δx<sub>actual</sub></th><th>Δx<sub>predicted</sub></th><th>|pred|/|actual|</th></tr>")
+
+    for entry in eb.entries
+        role_label = get(_ROLE_LABELS, entry.unknown_role, string(entry.unknown_role))
+        role_color = get(_HTML_ROLE_COLORS, entry.unknown_role, "#333")
+        upretty = _pretty_name(entry.unknown_label)
+        uesc = replace(entry.unknown_label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+
+        abs_pred = abs(entry.delta_x_predicted)
+        abs_act = abs(entry.delta_x_actual)
+        pred_cls = abs_pred < 1e-3 ? "err-ok" : abs_pred < 1e-1 ? "err-warn" : "err-bad"
+        actual_cls = isnan(entry.delta_x_actual) ? "" : abs_act < 1e-3 ? "err-ok" : abs_act < 1e-1 ? "err-warn" : "err-bad"
+        ratio_cls = _err_class_ratio(entry.prediction_ratio)
+        actual_str = isnan(entry.delta_x_actual) ? "—" : _fmt(entry.delta_x_actual)
+        pred_str = _fmt(entry.delta_x_predicted)
+        ratio_str = isnan(entry.prediction_ratio) ? "—" : @sprintf("%.2f×", entry.prediction_ratio)
+
+        # Collapsible row with blame detail
+        println(io, "<tr><td colspan=\"5\" style=\"padding:0;\">")
+        println(io, "<details><summary style=\"display:grid;grid-template-columns:1fr .6fr 1fr 1fr .8fr;padding:4px 10px;cursor:pointer;\">")
+        println(io, """<span title="$uesc" style="color:$role_color;font-weight:600;text-align:left;" class="math">$upretty</span>""")
+        println(io, """<span style="text-align:right;">$role_label</span>""")
+        println(io, """<span class="$actual_cls" style="text-align:right;">$actual_str</span>""")
+        println(io, """<span class="$pred_cls" style="text-align:right;">$pred_str</span>""")
+        println(io, """<span class="$ratio_cls" style="text-align:right;">$ratio_str</span>""")
+        println(io, "</summary>")
+
+        # Signed blame breakdown
+        if !isempty(entry.blame)
+            println(io, "<div style=\"padding:4px 20px 8px;\">")
+            println(io, "<table style=\"width:auto;margin:0;\"><tr><th>Data Variable</th><th>S·Δd (signed)</th><th>% of Δx<sub>pred</sub></th></tr>")
+            for b in entry.blame
+                dpretty = _pretty_name(b.data_label)
+                desc = replace(b.data_label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+                pct_str = @sprintf("%+.1f%%", b.pct_of_predicted * 100)
+                sign_color = b.s_times_dd >= 0 ? "#1a7f37" : "#cf222e"
+                bar_w = max(1, round(Int, abs(b.pct_of_predicted) * 200))
+                println(io, """<tr><td><span title="$desc" class="math">$dpretty</span></td><td style="color:$sign_color;">$(_fmt(b.s_times_dd))</td><td>$pct_str <span style="display:inline-block;height:8px;width:$(bar_w)px;background:$sign_color;border-radius:2px;vertical-align:middle;"></span></td></tr>""")
+            end
+            println(io, "</table></div>")
+        end
+        println(io, "</details></td></tr>")
+    end
+    println(io, "</table>")
+
+    # Data variable table: d_true, d_prod, Δd
+    if !isempty(eb.delta_d) && !isempty(eb.data_labels)
+        println(io, "<details><summary>Data Variables: d<sub>true</sub> vs d<sub>prod</sub></summary><div class=\"detail-body\">")
+        println(io, """<div class="provenance">d<sub>true</sub> = exact (oracle) derivative value from high-precision ODE solve. d<sub>prod</sub> = production interpolant value. Δd = d<sub>prod</sub> − d<sub>true</sub> (signed interpolation error).<br>Sorted by |Δd| descending. Higher derivative orders typically have larger errors because interpolation accuracy degrades with order.</div>""")
+        println(io, "<table><tr><th>Data Variable</th><th>Order</th><th>d<sub>true</sub></th><th>d<sub>prod</sub></th><th>Δd (signed)</th></tr>")
+        sorted_idx = sortperm(abs.(eb.delta_d); rev = true)
+        for j in sorted_idx
+            j > length(eb.data_labels) && continue
+            dlabel = eb.data_labels[j]
+            dpretty = _pretty_name(dlabel)
+            desc = replace(dlabel, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            _, order = _parse_data_label(dlabel)
+            dd = eb.delta_d[j]
+            dt = j <= length(eb.data_true) ? eb.data_true[j] : NaN
+            dp = j <= length(eb.data_prod) ? eb.data_prod[j] : NaN
+            abs_dd = abs(dd)
+            cls = abs_dd < 1e-10 ? "err-ok" : abs_dd < 1e-6 ? "err-warn" : "err-bad"
+            sign_color = dd >= 0 ? "#1a7f37" : "#cf222e"
+            println(io, """<tr><td><span title="$desc" class="math">$dpretty</span></td><td>$order</td><td>$(_fmt(dt))</td><td>$(_fmt(dp))</td><td class="$cls" style="color:$sign_color;">$(_fmt(dd))</td></tr>""")
+        end
+        println(io, "</table></div></details>")
+    end
+
+    println(io, "</div></details>")
+end
+
+"""
+    _write_html_multipoint_comparison_section(io, sp_eb, mp_eb)
+
+Side-by-side comparison of single-point vs multipoint error budgets.
+Shows shared parameters with improvement ratios.
+"""
+function _write_html_multipoint_comparison_section(io, sp_eb::ErrorBudgetReport, mp_eb::ErrorBudgetReport)
+    sp_t_str = sp_eb.t_eval isa Vector ? join([@sprintf("%.3f", t) for t in sp_eb.t_eval], ", ") : @sprintf("%.3f", sp_eb.t_eval)
+    mp_t_str = mp_eb.t_eval isa Vector ? join([@sprintf("%.3f", t) for t in mp_eb.t_eval], ", ") : @sprintf("%.3f", mp_eb.t_eval)
+
+    println(io, "<details open><summary>Single-Point vs Multipoint Error Budget</summary><div class=\"detail-body\">")
+    println(io, """<div class="provenance"><b>What this shows:</b> Side-by-side comparison of the IFT-predicted errors (|Δx<sub>predicted</sub>|) from the single-point and multipoint polynomial systems.<br>
+<b>Single-point</b> (max order <b>$(sp_eb.max_deriv_order_used)</b>, t = $sp_t_str): uses one time point, requires higher-order derivatives.<br>
+<b>Multipoint</b> (max order <b>$(mp_eb.max_deriv_order_used)</b>, t = $mp_t_str): uses 2 time points with shared parameters, reducing the max derivative order needed. Lower order = more accurate interpolation = smaller data errors.<br>
+<b>Improvement</b> = |SP predicted| / |MP predicted|. Values >1 mean multipoint predicts smaller errors for that parameter.</div>""")
+
+    # Build lookup from multipoint entries by clean name
+    mp_lookup = Dict{String, ErrorBudgetEntry}()
+    for entry in mp_eb.entries
+        clean, _ = _parse_multipoint_var_name(entry.unknown_label)
+        mp_lookup[clean] = entry
+    end
+
+    println(io, "<table>")
+    println(io, "<tr><th>Unknown</th><th>Role</th><th>SP Predicted</th><th>MP Predicted</th><th>Improvement</th><th>SP Top Blame</th><th>MP Top Blame</th></tr>")
+
+    # Show shared parameters and state ICs (variables that appear in both)
+    for sp_entry in sp_eb.entries
+        mp_entry = get(mp_lookup, sp_entry.unknown_label, nothing)
+        isnothing(mp_entry) && continue  # per-point state derivs won't match
+
+        role_label = get(_ROLE_LABELS, sp_entry.unknown_role, string(sp_entry.unknown_role))
+        role_color = get(_HTML_ROLE_COLORS, sp_entry.unknown_role, "#333")
+        upretty = _pretty_name(sp_entry.unknown_label)
+        uesc = replace(sp_entry.unknown_label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+
+        sp_abs = abs(sp_entry.delta_x_predicted)
+        mp_abs = abs(mp_entry.delta_x_predicted)
+        improvement = mp_abs > 1e-300 ? sp_abs / mp_abs : Inf
+        imp_str = isinf(improvement) ? "∞" : @sprintf("%.1f×", improvement)
+        imp_cls = improvement > 2.0 ? "err-ok" : improvement > 0.5 ? "err-warn" : "err-bad"
+
+        sp_blame_str = isempty(sp_entry.blame) ? "—" : begin
+            b = sp_entry.blame[1]
+            "$(_pretty_name(b.data_label)) ($(@sprintf("%+.0f%%", b.pct_of_predicted * 100)))"
+        end
+        mp_blame_str = isempty(mp_entry.blame) ? "—" : begin
+            b = mp_entry.blame[1]
+            "$(_pretty_name(b.data_label)) ($(@sprintf("%+.0f%%", b.pct_of_predicted * 100)))"
+        end
+
+        println(io, """<tr><td><span title="$uesc" style="color:$role_color;font-weight:600;" class="math">$upretty</span></td><td>$role_label</td><td>$(_fmt(sp_abs))</td><td>$(_fmt(mp_abs))</td><td class="$imp_cls" style="font-weight:600;">$imp_str</td><td style="font-size:.8rem;">$sp_blame_str</td><td style="font-size:.8rem;">$mp_blame_str</td></tr>""")
+    end
+
+    println(io, "</table>")
+
+    # Summary
+    order_reduction = sp_eb.max_deriv_order_used - mp_eb.max_deriv_order_used
+    if order_reduction > 0
+        println(io, """<p style="margin-top:.5rem;font-size:.85rem;">Multipoint reduces max derivative order by <b>$order_reduction</b> ($(sp_eb.max_deriv_order_used) → $(mp_eb.max_deriv_order_used)).</p>""")
+    elseif order_reduction == 0
+        println(io, """<p style="margin-top:.5rem;font-size:.85rem;color:var(--moderate);">⚠ Multipoint did NOT reduce max derivative order (both use order $(sp_eb.max_deriv_order_used)). Rank stripping may have kept the highest-order equations.</p>""")
+    end
+
+    println(io, "</div></details>")
+end
+
 """
 Write the full labelled Jacobian matrix as an HTML table with color-coded column headers
 and heatmap cell backgrounds.
@@ -2589,10 +3610,11 @@ function _write_jacobian_cell(io, val::Float64, max_abs::Float64)
     if abs(val) < 1e-14 * max_abs
         print(io, "<td class=\"jac-zero\">0</td>")
     else
-        # Compute log-intensity for background color (0..1 range)
+        # Compute log-intensity for background color (0..1 range), based on absolute value
         intensity = clamp(log10(abs(val) / max_abs + 1e-300) / log10(max_abs + 1e-300) + 1.0, 0.0, 1.0)
         alpha = @sprintf("%.2f", 0.08 + 0.22 * intensity)
-        bg = val > 0 ? "rgba(26,127,55,$alpha)" : "rgba(207,34,46,$alpha)"
+        # Single color (blue) by magnitude — sign shown in the number, not the color
+        bg = "rgba(9,105,218,$alpha)"
         fmt_val = @sprintf("%.1e", val)
         print(io, """<td style="background:$bg;">$fmt_val</td>""")
     end

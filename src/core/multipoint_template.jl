@@ -11,6 +11,8 @@ using OrderedCollections
 using LinearAlgebra
 using ForwardDiff
 using Symbolics
+using NonlinearSolve
+using Printf: @sprintf
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Helper: parse derivative order, stripping _ptK suffix first
@@ -246,6 +248,347 @@ function _rank_aware_topdown_strip(equations::Vector, variables::Vector,
 end
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Sensitivity-aware greedy stripping
+# ═══════════════════════════════════════════════════════════════════════════════
+
+"""
+    _sensitivity_aware_strip(equations, variables, eq_metadata; rank_atol, diagnostics, n_rank_probes)
+
+Greedy equation stripping that minimizes Jacobian condition number at each step,
+rather than blindly removing highest-order equations. Returns a `BitVector` mask.
+
+Algorithm:
+1. Compute Jacobian at random probe points (like topdown)
+2. Greedy loop: at each step, try removing each candidate equation
+   and pick the removal that results in the lowest κ(J_x_remaining)
+3. Cascade orphaned data equations (same as topdown)
+4. Stop when square and full rank
+"""
+function _sensitivity_aware_strip(equations::Vector, variables::Vector,
+        eq_metadata::Vector; rank_atol::Float64 = 1e-8, diagnostics::Bool = false,
+        n_rank_probes::Int = 3)
+
+    n_eq = length(equations)
+    n_var = length(variables)
+
+    # Pre-compute Jacobian at multiple random points, keep best
+    f_combined = _compile_system_function(equations, variables)
+    J_full = nothing
+    best_full_rank = 0
+    for _ in 1:n_rank_probes
+        rand_point = randn(n_var) .* 10.0
+        J_probe = ForwardDiff.jacobian(f_combined, rand_point)
+        r = rank(J_probe; atol = rank_atol)
+        if r > best_full_rank
+            best_full_rank = r
+            J_full = J_probe
+        end
+    end
+
+    if diagnostics
+        println("  [MPT-SA] Full Jacobian: $(size(J_full)), rank=$best_full_rank / $n_var")
+    end
+
+    struct_indices = Set(i for (i, m) in enumerate(eq_metadata) if !m.is_data)
+    data_indices = [i for (i, m) in enumerate(eq_metadata) if m.is_data]
+
+    kept = trues(n_eq)
+
+    # Helper: compute condition number for a given kept mask
+    # Uses the kept rows of J_full, considering only columns with significant entries
+    function _cond_for_kept(mask)
+        rows = findall(mask)
+        isempty(rows) && return Inf
+        J_sub = J_full[rows, :]
+        # Keep columns where max abs value > threshold (avoid pure-zero columns)
+        col_max = vec(maximum(abs, J_sub; dims = 1))
+        thresh = maximum(col_max) * 1e-14
+        col_mask = col_max .> thresh
+        count(col_mask) == 0 && return Inf
+        J_active = J_sub[:, col_mask]
+        n_r, n_c = size(J_active)
+        n_r < n_c && return Inf  # underdetermined
+        svs = try
+            svdvals(J_active)
+        catch
+            return Inf
+        end
+        isempty(svs) && return Inf
+        # Use ratio of largest to smallest singular value
+        # Even if rank-deficient, return the ratio (large but finite) so we can compare
+        return svs[1] / max(svs[end], 1e-300)
+    end
+
+    # Helper: cascade orphaned data equations and compute remaining variable count
+    function _cascade_and_count!(mask)
+        struct_vars = Set{Any}()
+        for i in 1:n_eq
+            mask[i] && !eq_metadata[i].is_data && union!(struct_vars, Symbolics.get_variables(equations[i]))
+        end
+        cascaded = 0
+        for di in data_indices
+            !mask[di] && continue
+            data_var = first(Symbolics.get_variables(equations[di]))
+            if !(data_var in struct_vars)
+                mask[di] = false
+                cascaded += 1
+            end
+        end
+        remaining_var_set = OrderedCollections.OrderedSet{Any}()
+        for i in 1:n_eq
+            mask[i] && union!(remaining_var_set, Symbolics.get_variables(equations[i]))
+        end
+        return length(remaining_var_set), count(mask), cascaded
+    end
+
+    max_iters = n_eq  # safety bound
+    for iter in 1:max_iters
+        remaining_eq_count = count(kept)
+        remaining_var_set = OrderedCollections.OrderedSet{Any}()
+        for i in 1:n_eq
+            kept[i] && union!(remaining_var_set, Symbolics.get_variables(equations[i]))
+        end
+        remaining_var_count = length(remaining_var_set)
+
+        if remaining_eq_count <= remaining_var_count
+            break  # square or underdetermined — done
+        end
+
+        # Try removing each candidate structural equation, score by κ
+        best_idx = -1
+        best_cond = Inf
+        best_mask = nothing
+
+        candidates = [i for i in 1:n_eq if kept[i] && i in struct_indices]
+        for idx in candidates
+            trial = copy(kept)
+            trial[idx] = false
+            # Cascade orphaned data equations
+            nv, neq, casc = _cascade_and_count!(trial)
+
+            if neq < nv
+                continue  # would make underdetermined — skip
+            end
+
+            # Check rank — use multiple probes if available, accept if rank >= nv
+            trial_rows = findall(trial)
+            trial_rank = rank(J_full[trial_rows, :]; atol = rank_atol)
+            if trial_rank < nv
+                continue  # rank drop at all probes — skip
+            end
+
+            c = _cond_for_kept(trial)
+            if c < best_cond
+                best_cond = c
+                best_idx = idx
+                best_mask = trial
+            end
+        end
+
+        if best_idx < 0
+            # No safe removal found — fall back to topdown for remaining equations
+            if diagnostics
+                println("  [MPT-SA] No safe removal at iter $iter ($(count(kept)) eqs, $remaining_var_count vars) — falling back to topdown for remaining")
+            end
+            # Use topdown logic for remaining stripping: remove highest-order structural equation
+            fallback_candidates = sort(
+                [i for i in 1:n_eq if kept[i] && i in struct_indices];
+                by = i -> -eq_metadata[i].order)
+            fallback_done = false
+            for idx in fallback_candidates
+                saved = copy(kept)
+                kept[idx] = false
+                nv2, neq2, _ = _cascade_and_count!(kept)
+                trial_rows = findall(kept)
+                trial_rank = isempty(trial_rows) ? 0 : rank(J_full[trial_rows, :]; atol = rank_atol)
+                if trial_rank < nv2
+                    kept .= saved
+                    continue
+                end
+                if neq2 == nv2
+                    if diagnostics
+                        println("    [MPT-SA] topdown fallback -eq$idx (ord=$(eq_metadata[idx].order)) → $neq2 eqs, $nv2 vars → SQUARE!")
+                    end
+                    fallback_done = true
+                    break
+                elseif neq2 < nv2
+                    kept .= saved
+                    continue
+                else
+                    if diagnostics
+                        println("    [MPT-SA] topdown fallback -eq$idx (ord=$(eq_metadata[idx].order)) → $neq2 eqs, $nv2 vars")
+                    end
+                end
+            end
+            if !fallback_done
+                break  # truly stuck
+            end
+            # Check if we're square now
+            nv_final = 0
+            for i in 1:n_eq
+                kept[i] && (nv_final += 1)
+            end
+            remaining_var_set_f = OrderedCollections.OrderedSet{Any}()
+            for i in 1:n_eq
+                kept[i] && union!(remaining_var_set_f, Symbolics.get_variables(equations[i]))
+            end
+            if nv_final <= length(remaining_var_set_f)
+                break
+            end
+            continue  # keep going with sensitivity-aware for next iteration
+        end
+
+        m = eq_metadata[best_idx]
+        kept .= best_mask
+        remaining_eq_count = count(kept)
+        remaining_var_set2 = OrderedCollections.OrderedSet{Any}()
+        for i in 1:n_eq
+            kept[i] && union!(remaining_var_set2, Symbolics.get_variables(equations[i]))
+        end
+        remaining_var_count = length(remaining_var_set2)
+
+        if diagnostics
+            println("    [MPT-SA] -eq$best_idx (pt$(m.point) ord=$(m.order)) → $remaining_eq_count eqs, $remaining_var_count vars, κ=$(@sprintf("%.2e", best_cond))$(remaining_eq_count == remaining_var_count ? " → SQUARE!" : "")")
+        end
+
+        if remaining_eq_count == remaining_var_count
+            break  # square — done
+        end
+    end
+
+    # If still overdetermined, use the same greedy fallback as topdown
+    remaining_eq_count = count(kept)
+    remaining_var_set = OrderedCollections.OrderedSet{Any}()
+    for i in 1:n_eq
+        kept[i] && union!(remaining_var_set, Symbolics.get_variables(equations[i]))
+    end
+    remaining_var_count = length(remaining_var_set)
+
+    if remaining_eq_count > remaining_var_count
+        if diagnostics
+            println("  [MPT-SA] Greedy fallback: $remaining_eq_count eqs → $remaining_var_count vars")
+        end
+        kept_rows = findall(kept)
+        sorted_kept = sort(kept_rows; by = i -> (eq_metadata[i].is_data ? -1 : 0, eq_metadata[i].order, eq_metadata[i].point))
+        final_sel = Int[]
+        cur_rows = zeros(eltype(J_full), 0, size(J_full, 2))
+        cur_rank = 0
+        for idx in sorted_kept
+            test = vcat(cur_rows, J_full[idx:idx, :])
+            r = rank(test; atol = rank_atol)
+            if r > cur_rank
+                push!(final_sel, idx)
+                cur_rows = test
+                cur_rank = r
+            end
+            cur_rank == remaining_var_count && break
+        end
+        kept .= false
+        for idx in final_sel
+            kept[idx] = true
+        end
+        if diagnostics
+            println("  [MPT-SA] Greedy selected $(length(final_sel)) / $remaining_var_count equations")
+        end
+    end
+
+    return kept
+end
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Time point selection by Jacobian conditioning
+# ═══════════════════════════════════════════════════════════════════════════════
+
+"""
+    select_time_points_by_conditioning(pep_data, setup, si_template; n_candidates=15,
+        n_points=2, strip_strategy=:sensitivity, diagnostics=false)
+
+Scan candidate time point pairs and return the pair whose multipoint system
+has the lowest Jacobian condition number κ(J_x).
+
+Returns `(best_indices::Vector{Int}, best_cond::Float64, all_results::Vector)`.
+"""
+function select_time_points_by_conditioning(
+    pep_data::ParameterEstimationProblem,
+    setup::NamedTuple,
+    si_template;
+    n_candidates::Int = 15,
+    n_points::Int = 2,
+    strip_strategy::Symbol = :sensitivity,
+    margin::Float64 = 0.05,
+    diagnostics::Bool = false,
+)
+    t_vec = pep_data.data_sample["t"]
+    n_t = length(t_vec)
+
+    # Generate candidate time index pairs
+    lo = max(2, round(Int, n_t * margin))
+    hi = min(n_t - 1, round(Int, n_t * (1.0 - margin)))
+
+    candidates = Vector{Int}[]
+    # Evenly spaced candidates
+    for f1 in range(0.1, 0.45; length = 5)
+        for f2 in range(0.55, 0.9; length = 5)
+            i1 = clamp(round(Int, n_t * f1), lo, hi)
+            i2 = clamp(round(Int, n_t * f2), lo, hi)
+            i1 != i2 && push!(candidates, [i1, i2])
+        end
+    end
+    # Deduplicate
+    unique!(candidates)
+    # Limit
+    if length(candidates) > n_candidates
+        candidates = candidates[1:n_candidates]
+    end
+
+    results = @NamedTuple{indices::Vector{Int}, t_values::Vector{Float64}, cond::Float64}[]
+    best_cond = Inf
+    best_indices = candidates[1]
+
+    for (ci, idx_pair) in enumerate(candidates)
+        t_values = [t_vec[i] for i in idx_pair]
+        try
+            # Build template with this pair's probe points
+            mpt = build_multipoint_template(pep_data, setup, si_template;
+                n_points = n_points, diagnostics = false, strip_strategy = strip_strategy)
+
+            # Evaluate Jacobian at these specific time points
+            f_sys = _compile_system_function(mpt.stripped_equations, vcat(mpt.solve_vars, mpt.data_vars))
+            # Use random solve vars but realistic data magnitude
+            x_probe = vcat(randn(length(mpt.solve_vars)) .* 10.0, randn(length(mpt.data_vars)) .* 10.0)
+            J = ForwardDiff.jacobian(f_sys, x_probe)
+            n_solve = length(mpt.solve_vars)
+            J_x = J[:, 1:n_solve]
+            svs = svdvals(J_x)
+            c = isempty(svs) ? Inf : svs[1] / max(svs[end], 1e-300)
+
+            push!(results, (indices = idx_pair, t_values = t_values, cond = c))
+
+            if diagnostics
+                println("  [TP-SCAN] pair $(idx_pair) → t=$(round.(t_values; digits=2)), κ=$(@sprintf("%.2e", c))")
+            end
+
+            if c < best_cond
+                best_cond = c
+                best_indices = idx_pair
+            end
+        catch e
+            if diagnostics
+                println("  [TP-SCAN] pair $(idx_pair) → FAILED: $e")
+            end
+        end
+    end
+
+    sort!(results; by = r -> r.cond)
+
+    if diagnostics
+        println("  [TP-SCAN] Best: indices=$(best_indices), t=$(round.([t_vec[i] for i in best_indices]; digits=2)), κ=$(@sprintf("%.2e", best_cond))")
+    end
+
+    return best_indices, best_cond, results
+end
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Build: construct multi-point template
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -270,6 +613,7 @@ function build_multipoint_template(
         n_points::Int = 2,
         diagnostics::Bool = false,
         rank_atol::Float64 = 1e-8,
+        strip_strategy::Symbol = :topdown,  # :topdown or :sensitivity
 )
     model = pep_data.model.system
     mq = pep_data.measured_quantities
@@ -454,10 +798,15 @@ function build_multipoint_template(
 
     # ── Step 5: Strip (using instantiated system for Jacobian) ────────
     if diagnostics
-        println("[MPT] Running rank-aware top-down stripping...")
+        println("[MPT] Running $(strip_strategy == :sensitivity ? "sensitivity-aware" : "rank-aware top-down") stripping...")
     end
-    kept = _rank_aware_topdown_strip(combined_inst_eqs, combined_inst_vars, eq_meta;
-        rank_atol = rank_atol, diagnostics = diagnostics)
+    kept = if strip_strategy == :sensitivity
+        _sensitivity_aware_strip(combined_inst_eqs, combined_inst_vars, eq_meta;
+            rank_atol = rank_atol, diagnostics = diagnostics)
+    else
+        _rank_aware_topdown_strip(combined_inst_eqs, combined_inst_vars, eq_meta;
+            rank_atol = rank_atol, diagnostics = diagnostics)
+    end
 
     n_kept = count(kept)
     if diagnostics
@@ -698,6 +1047,95 @@ function solve_multipoint_parameterized(
         param_values_list;
         options = options,
     )
+end
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Overdetermined solve: HC core + GN/LM refinement
+# ═══════════════════════════════════════════════════════════════════════════════
+
+"""
+    solve_multipoint_overdetermined(mpt, eval_result, all_equations, all_vars;
+        diagnostics=false)
+
+Solve using HC on the stripped (square) system, then refine each solution against
+the full overdetermined (pre-strip) system using Levenberg-Marquardt.
+
+Returns refined solution vectors in `mpt.solve_vars` order.
+"""
+function solve_multipoint_overdetermined(
+    mpt::MultiPointTemplate,
+    eval_result::MultiPointEvaluation,
+    all_equations::Vector,
+    all_vars::Vector;
+    diagnostics::Bool = false,
+)
+    # Step 1: solve the square stripped system via HC
+    hc_solutions = solve_multipoint_direct(eval_result)
+    if isempty(hc_solutions)
+        diagnostics && println("  [MP-OD] HC found 0 solutions on square core")
+        return Vector{Float64}[]
+    end
+    diagnostics && println("  [MP-OD] HC found $(length(hc_solutions)) solutions on square core")
+
+    # Step 2: build the overdetermined residual function
+    # Substitute data values into all_equations (not just stripped)
+    data_subst = Dict{Any, Float64}()
+    for (j, dv) in enumerate(mpt.data_vars)
+        if j <= length(eval_result.data_values)
+            data_subst[dv] = eval_result.data_values[j]
+        end
+    end
+
+    # Substitute data into all equations
+    inst_all_eqs = [Symbolics.substitute(eq, data_subst) for eq in all_equations]
+
+    # Collect remaining variables (should be solve_vars)
+    remaining_vars = mpt.solve_vars
+
+    # Compile overdetermined residual
+    f_od = try
+        _compile_system_function(inst_all_eqs, remaining_vars)
+    catch e
+        diagnostics && println("  [MP-OD] Failed to compile overdetermined system: $e")
+        return hc_solutions  # fall back to HC solutions
+    end
+
+    n_eqs = length(inst_all_eqs)
+    n_vars = length(remaining_vars)
+    diagnostics && println("  [MP-OD] Overdetermined system: $n_eqs eqs × $n_vars vars")
+
+    # Step 3: refine each HC solution using LM
+    refined = Vector{Float64}[]
+    for (si, sol) in enumerate(hc_solutions)
+        x0 = Float64.(sol)
+        try
+            # Use NonlinearSolve.jl with LevenbergMarquardt
+            residual! = (du, u, p) -> begin
+                du .= f_od(u)
+            end
+            nf = NonlinearFunction(residual!)
+            prob = NonlinearLeastSquaresProblem(nf, x0)
+            lm_sol = NonlinearSolve.solve(prob, LevenbergMarquardt();
+                abstol = 1e-12, reltol = 1e-12, maxiters = 100)
+
+            refined_x = Float64.(lm_sol.u)
+            # Check improvement
+            res_hc = norm(f_od(x0))
+            res_lm = norm(f_od(refined_x))
+            if res_lm <= res_hc
+                push!(refined, refined_x)
+                diagnostics && println("  [MP-OD] Solution $si: HC residual=$(@sprintf("%.2e", res_hc)) → LM residual=$(@sprintf("%.2e", res_lm))")
+            else
+                push!(refined, x0)  # LM diverged, keep HC
+                diagnostics && println("  [MP-OD] Solution $si: LM diverged ($(@sprintf("%.2e", res_lm)) > $(@sprintf("%.2e", res_hc))), keeping HC")
+            end
+        catch e
+            push!(refined, x0)  # LM failed, keep HC
+            diagnostics && println("  [MP-OD] Solution $si: LM failed ($e), keeping HC")
+        end
+    end
+
+    return refined
 end
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -1330,6 +1330,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		all_reverse_subst_dicts = []
 		all_final_varlists = []
 		solution_time_indices = Int[]
+		solution_source_types = Symbol[]           # :single_point or :multipoint
+		solution_mp_time_indices = Vector{Union{Nothing, Vector{Int}}}()
+		solution_mp_combo_indices = Union{Nothing, Int}[]
 		solution_interpolator_sources = Symbol[]  # track which interpolator produced each solution
 
 		# Check if we should use parameter homotopy and/or multi-point template.
@@ -1364,6 +1367,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			# Per-interpolator solution accumulators
 			interp_solutions = []
 			interp_time_indices = Int[]
+			interp_source_types = Symbol[]
+			interp_mp_time_indices = Vector{Union{Nothing, Vector{Int}}}()
+			interp_mp_combo_indices = Union{Nothing, Int}[]
 
 		try  # Catch errors in individual interpolators so one crash doesn't lose all results
 
@@ -1561,6 +1567,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				append!(interp_solutions, point_solutions)
 				for _ in 1:length(point_solutions)
+					push!(interp_source_types, :single_point)
+					push!(interp_mp_time_indices, nothing)
+					push!(interp_mp_combo_indices, nothing)
+				end
+				for _ in 1:length(point_solutions)
 					push!(interp_time_indices, point_idx)
 				end
 			end
@@ -1664,6 +1675,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				append!(interp_solutions, solutions)
 				for _ in 1:length(solutions)
+					push!(interp_source_types, :single_point)
+					push!(interp_mp_time_indices, nothing)
+					push!(interp_mp_combo_indices, nothing)
+				end
+				for _ in 1:length(solutions)
 					push!(interp_time_indices, point_idx)
 				end
 				all_hc_vars = hc_vars
@@ -1742,6 +1758,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								projected = Float64[idx > 0 ? sol[idx] : 0.0 for idx in mp_to_sp]
 								push!(interp_solutions, projected)
 								push!(interp_time_indices, evals[pidx].time_indices[1])
+								push!(interp_source_types, :multipoint)
+								push!(interp_mp_time_indices, copy(evals[pidx].time_indices))
+								push!(interp_mp_combo_indices, pidx)
 								n_projected += 1
 							end
 						end
@@ -1772,6 +1791,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			# Accumulate this pass's solutions into the global pool
 			append!(all_solutions, interp_solutions)
 			append!(solution_time_indices, interp_time_indices)
+			append!(solution_source_types, interp_source_types)
+			append!(solution_mp_time_indices, interp_mp_time_indices)
+			append!(solution_mp_combo_indices, interp_mp_combo_indices)
 			for _ in 1:length(interp_solutions)
 				push!(solution_interpolator_sources, interp_sym)
 			end
@@ -1812,6 +1834,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			good_udict = good_udict,
 			solution_time_indices = solution_time_indices,
 			solution_interpolator_sources = solution_interpolator_sources,
+			solution_source_types = solution_source_types,
+			solution_mp_time_indices = solution_mp_time_indices,
+			solution_mp_combo_indices = solution_mp_combo_indices,
 		)
 
 		# Reuse existing processing pipeline (without polish — polish gets its own phase below)
