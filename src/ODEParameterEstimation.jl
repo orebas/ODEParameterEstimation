@@ -138,6 +138,7 @@ export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomi
 export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport
 export EstimationResultsReport, BacksolveUQReport, UncertaintyReport
 export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget
+export ParameterSpreadEntry, CrossSolutionSpread, compute_cross_solution_spread
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
 
 # Export UQ (Uncertainty Quantification) functions

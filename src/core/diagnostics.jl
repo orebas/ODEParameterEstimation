@@ -4314,11 +4314,78 @@ end
 # ─── Estimation Results Report Builder ──────────────────────────────────
 
 """
-    _build_estimation_report(pep, analyzed_results, uq_report, elapsed) → EstimationResultsReport
+    compute_cross_solution_spread(pep, results) → CrossSolutionSpread
 
-Build an `EstimationResultsReport` from estimation pipeline outputs.
-`analyzed_results` is the vector of `ParameterEstimationResult` from `analyze_estimation_result`.
+Compute per-parameter statistics across all HC solutions to measure
+practical identifiability. Small CV → tight. Large CV → loose.
 """
+function compute_cross_solution_spread(
+    pep::ParameterEstimationProblem,
+    results::AbstractVector,
+)
+    valid = filter(r -> !isnothing(r.err) && isfinite(r.err), results)
+    n_sol = length(valid)
+
+    unident_names = Set{String}()
+    if n_sol > 0
+        for u in first(valid).all_unidentifiable
+            push!(unident_names, replace(string(u), "(t)" => ""))
+        end
+    end
+
+    function _spread_entry(name::String, true_val::Float64, values::Vector{Float64}, is_unident::Bool)
+        n = length(values)
+        if n == 0
+            return ParameterSpreadEntry(name, true_val, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, 0, is_unident, :unknown)
+        end
+        sorted = sort(values)
+        med = n % 2 == 1 ? sorted[div(n + 1, 2)] : 0.5 * (sorted[div(n, 2)] + sorted[div(n, 2) + 1])
+        mn = sum(values) / n
+        sd = n > 1 ? sqrt(sum((v - mn)^2 for v in values) / (n - 1)) : 0.0
+        cv = abs(med) > 1e-15 ? sd / abs(med) : (sd > 1e-15 ? Inf : 0.0)
+        q25 = sorted[max(1, round(Int, 0.25 * n))]
+        q75 = sorted[max(1, min(n, round(Int, 0.75 * n)))]
+        cls = is_unident ? :unidentifiable : cv < 0.05 ? :tight : cv < 0.5 ? :moderate : :loose
+        return ParameterSpreadEntry(name, true_val, med, mn, sd, cv, q25, q75, minimum(values), maximum(values), n, is_unident, cls)
+    end
+
+    # Parameter spread
+    param_spread = ParameterSpreadEntry[]
+    for (p, true_val) in pep.p_true
+        p_name = replace(string(p), "(t)" => "")
+        values = Float64[]
+        for r in valid
+            for (ep, ev) in r.parameters
+                if replace(string(ep), "(t)" => "") == p_name
+                    isfinite(ev) && push!(values, ev)
+                    break
+                end
+            end
+        end
+        is_unident = p_name in unident_names
+        push!(param_spread, _spread_entry(p_name, Float64(true_val), values, is_unident))
+    end
+
+    # State spread
+    state_spread = ParameterSpreadEntry[]
+    for (s, true_val) in pep.ic
+        s_name = replace(string(s), "(t)" => "")
+        startswith(s_name, "_trfn_") && continue
+        values = Float64[]
+        for r in valid
+            for (es, ev) in r.states
+                if replace(string(es), "(t)" => "") == s_name
+                    isfinite(ev) && push!(values, ev)
+                    break
+                end
+            end
+        end
+        push!(state_spread, _spread_entry(s_name, Float64(true_val), values, false))
+    end
+
+    return CrossSolutionSpread(pep.name, n_sol, param_spread, state_spread)
+end
+
 function _build_estimation_report(pep::ParameterEstimationProblem,
     analyzed_results, uq_report, elapsed::Float64)
 
@@ -4395,9 +4462,17 @@ function _build_estimation_report(pep::ParameterEstimationProblem,
         end
     end
 
+    # Cross-solution spread (practical identifiability)
+    spread = try
+        compute_cross_solution_spread(pep, valid)
+    catch e
+        @warn "[DIAG] Cross-solution spread failed: $e"
+        nothing
+    end
+
     return EstimationResultsReport(
         pep.name, length(valid), best_error, elapsed,
-        param_comparison, state_comparison, best,
+        param_comparison, state_comparison, best, spread,
     )
 end
 
@@ -4789,6 +4864,47 @@ function _write_html_estimation_section(io, est::EstimationResultsReport;
         println(io, "</table>")
     end
 
+    # Cross-solution spread (practical identifiability)
+    if !isnothing(est.spread) && est.spread.n_solutions > 1
+        _write_html_spread_section(io, est.spread)
+    end
+
+    println(io, "</div></details>")
+end
+
+"""
+Write the cross-solution spread table showing practical identifiability.
+"""
+function _write_html_spread_section(io, spread::CrossSolutionSpread)
+    println(io, "<details open><summary>Practical Identifiability (Cross-Solution Spread, N=$(spread.n_solutions))</summary><div class=\"detail-body\">")
+    println(io, """<div class="provenance"><b>What this shows:</b> How much each parameter/state varies across all $(spread.n_solutions) HC solutions from different interpolators and shooting points. Small CV (coefficient of variation) = practically identifiable at this noise level. Large CV = practically non-identifiable — multiple parameter values fit the data equally well.<br><b>Classification:</b> <span class="err-ok">tight</span> (CV &lt; 5%), <span class="err-warn">moderate</span> (5–50%), <span class="err-bad">loose</span> (CV &gt; 50%).</div>""")
+
+    for (label, entries) in [("Parameters", spread.param_spread), ("Initial Conditions", spread.state_spread)]
+        isempty(entries) && continue
+        println(io, "<h4>$label</h4>")
+        println(io, "<table><tr><th>Name</th><th>True</th><th>Median</th><th>CV</th><th>IQR</th><th>Range</th><th>N</th><th>Class</th></tr>")
+        for e in entries
+            cls_str = e.classification == :tight ? "tight" :
+                      e.classification == :moderate ? "moderate" :
+                      e.classification == :loose ? "LOOSE" :
+                      e.classification == :unidentifiable ? "unident." : "?"
+            cls_css = e.classification == :tight ? "err-ok" :
+                      e.classification == :moderate ? "err-warn" : "err-bad"
+            cv_str = isinf(e.cv) ? "∞" : isnan(e.cv) ? "—" : @sprintf("%.1f%%", e.cv * 100)
+            row_style = e.is_unidentifiable ? " style=\"opacity:0.6;\"" : ""
+            pretty = _pretty_name(e.name)
+
+            println(io, """<tr$row_style><td class="math" style="font-weight:600;">$pretty</td>""" *
+                "<td>$(_fmt(e.true_val))</td>" *
+                "<td>$(_fmt(e.median))</td>" *
+                """<td class="$cls_css">$cv_str</td>""" *
+                "<td>[$(_fmt(e.iqr_low)), $(_fmt(e.iqr_high))]</td>" *
+                "<td>[$(_fmt(e.min_val)), $(_fmt(e.max_val))]</td>" *
+                "<td>$(e.n_solutions)</td>" *
+                """<td class="$cls_css" style="font-weight:600;">$cls_str</td></tr>""")
+        end
+        println(io, "</table>")
+    end
     println(io, "</div></details>")
 end
 

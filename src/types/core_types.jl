@@ -712,20 +712,41 @@ function UncertaintyReport(
 end
 
 """
-    EstimationResultsReport
+    ParameterSpreadEntry
 
-Summary of estimation results for inclusion in diagnostic reports.
-Compares estimated parameter/state values against known truth.
-
-# Fields
-- `model_name::String`: Name of the model
-- `n_results::Int`: Total number of estimation results returned
-- `best_error::Float64`: Error of the best (lowest-error) result
-- `estimation_time_seconds::Float64`: Wall-clock time for estimation
-- `param_comparison`: Per-parameter comparison (name, true, estimated, relative error, CI coverage)
-- `state_comparison`: Per-state comparison (name, true, estimated, relative error, CI coverage)
-- `best_result::ParameterEstimationResult`: The full best result object
+Per-parameter statistics across multiple HC solutions — measures practical
+identifiability through cross-solution agreement.
 """
+struct ParameterSpreadEntry
+    name::String
+    true_val::Float64
+    median::Float64
+    mean::Float64
+    std::Float64
+    cv::Float64              # std / |median| (coefficient of variation)
+    iqr_low::Float64         # 25th percentile
+    iqr_high::Float64        # 75th percentile
+    min_val::Float64
+    max_val::Float64
+    n_solutions::Int
+    is_unidentifiable::Bool
+    classification::Symbol   # :tight (CV<5%), :moderate (5-50%), :loose (>50%)
+end
+
+"""
+    CrossSolutionSpread
+
+Practical identifiability report: how much do parameter estimates vary across
+all HC solutions from different interpolators, shooting points, and SP/MP combos?
+Small spread → practically identifiable. Large spread → practically non-identifiable.
+"""
+struct CrossSolutionSpread
+    model_name::String
+    n_solutions::Int
+    param_spread::Vector{ParameterSpreadEntry}
+    state_spread::Vector{ParameterSpreadEntry}
+end
+
 struct EstimationResultsReport
     model_name::String
     n_results::Int
@@ -738,6 +759,12 @@ struct EstimationResultsReport
         name::String, true_val::Float64, est_val::Float64,
         rel_error::Float64, within_ci::Bool}}
     best_result::ParameterEstimationResult
+    spread::Union{Nothing, CrossSolutionSpread}
+end
+
+# Backward-compatible 7-arg constructor (no spread)
+function EstimationResultsReport(name, n, err, time, pc, sc, best)
+    EstimationResultsReport(name, n, err, time, pc, sc, best, nothing)
 end
 
 """
