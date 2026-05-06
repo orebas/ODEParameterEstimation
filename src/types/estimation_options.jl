@@ -275,9 +275,9 @@ Base.@kwdef struct EstimationOptions
 	# Multi-interpolator support: when non-empty, overrides `interpolator` field
 	interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[
 		InterpolatorAGPRobust,        # SE kernel — robust GP baseline
-		InterpolatorAGPRobustSExRQ,   # SE×RQ kernel — captures non-stationary features
+		InterpolatorAGPRobustRQ,      # RQ kernel — Rational Quadratic (heavier-tail length-scale mixture)
 		InterpolatorS3AdaptSE,        # GP→AAA(adaptive)→MLE
-		InterpolatorS3AdaptSExRQ,     # GP→AAA(adaptive)→MLE with SE×RQ kernel
+		InterpolatorS3AdaptRQ,        # GP→AAA(adaptive)→MLE with RQ kernel
 		InterpolatorChebyshevBIC,     # Spectral, BIC degree selection
 		InterpolatorChebyshevAICc,    # Spectral, AICc degree selection
 		InterpolatorAAADGPR,          # GPR-pivoted AAA — proven for ill-conditioned systems
