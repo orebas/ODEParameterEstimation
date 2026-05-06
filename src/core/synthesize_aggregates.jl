@@ -200,6 +200,386 @@ function _synthesize_per_sp_full_aggregate(
 	)
 end
 
+# ─── Outlier rejection (per-component MAD) ─────────────────────────────────────
+
+"""
+    _filter_outliers_per_component(candidates, k_mad=3.0) -> Vector
+
+Drop candidates where ANY parameter is more than `k_mad` MADs from the
+per-parameter median. The rejection criterion is per-parameter (a candidate
+is rejected if it's an outlier on any single component), more aggressive
+than per-vector MAD. Returns the surviving candidates plus the indices that
+were kept (relative to the input order).
+"""
+function _filter_outliers_per_component(candidates::Vector; k_mad::Float64 = 3.0)
+	isempty(candidates) && return candidates, Int[]
+	length(candidates) < 4 && return candidates, collect(1:length(candidates))
+	# Per-parameter median + MAD across the pool
+	param_keys = collect(keys(first(candidates).parameters))
+	medians = Dict{Num, Float64}()
+	mads = Dict{Num, Float64}()
+	for p in param_keys
+		vals = Float64[]
+		for c in candidates
+			haskey(c.parameters, p) || continue
+			v = c.parameters[p]
+			isfinite(v) && push!(vals, Float64(v))
+		end
+		isempty(vals) && continue
+		med = Statistics.median(vals)
+		mad = Statistics.median(abs.(vals .- med))
+		medians[p] = med
+		mads[p] = mad
+	end
+	keep_indices = Int[]
+	keep_candidates = eltype(candidates)[]
+	for (i, c) in enumerate(candidates)
+		ok = true
+		for p in param_keys
+			haskey(medians, p) || continue
+			haskey(c.parameters, p) || continue
+			v = Float64(c.parameters[p])
+			isfinite(v) || (ok = false; break)
+			mad_p = mads[p]
+			# Skip MAD check when MAD is exactly zero (all values identical → no spread to measure)
+			mad_p == 0 && continue
+			if abs(v - medians[p]) > k_mad * mad_p
+				ok = false
+				break
+			end
+		end
+		if ok
+			push!(keep_indices, i)
+			push!(keep_candidates, c)
+		end
+	end
+	return keep_candidates, keep_indices
+end
+
+# ─── Category A: global parameter-only aggregate (uses resolve) ───────────────
+
+"""
+    _synthesize_global_param_aggregate(PEP, candidates_with_indices, strategy,
+        grouping, setup_data, opts) -> Union{Nothing, ParameterEstimationResult}
+
+For Category A: aggregate parameters per-component over the supplied
+candidates, then call `resolve_states_with_fixed_params` to recover state
+ICs at the first shooting point. Build a candidate via the resolve result.
+
+`candidates_with_indices` is a Vector{Tuple{Int, ParameterEstimationResult}}:
+the Int is the index into the original pool (used for provenance).
+"""
+function _synthesize_global_param_aggregate(
+	PEP, candidates_with_indices::Vector, strategy::Symbol, grouping::Symbol,
+	setup_data, opts::EstimationOptions,
+)
+	length(candidates_with_indices) < 2 && return nothing
+	# For :sp_and_mp_outlier_rejected, drop outliers first
+	if grouping == :sp_and_mp_outlier_rejected
+		raw_cands = [e[2] for e in candidates_with_indices]
+		raw_idxs = [e[1] for e in candidates_with_indices]
+		kept_cands, kept_local_idxs = _filter_outliers_per_component(raw_cands)
+		length(kept_cands) < 2 && return nothing
+		candidates_with_indices = [(raw_idxs[i], kept_cands[k]) for (k, i) in enumerate(kept_local_idxs)]
+	end
+	source_candidates = [e[2] for e in candidates_with_indices]
+	source_indices = [e[1] for e in candidates_with_indices]
+	# Aggregate parameters per-component
+	param_dicts = OrderedDict{Num, Float64}[c.parameters for c in source_candidates]
+	agg_params = _per_component_aggregate(param_dicts, strategy)
+	isempty(agg_params) && return nothing
+	# Convert to OrderedDict for resolve_states (needs Num keys with Float64 vals)
+	known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in agg_params)
+	# Call resolve at first SP (time_index=1)
+	resolve_result = try
+		resolve_states_with_fixed_params(
+			PEP.model.system,
+			PEP.measured_quantities,
+			PEP.data_sample,
+			setup_data.good_deriv_level,
+			Dict{Num, Float64}(),  # empty unident_dict for synth
+			setup_data.good_varlist,
+			setup_data.good_DD,
+			known_param_dict,
+			setup_data.interpolants;
+			time_index = 1,
+			diagnostics = false,
+		)
+	catch err
+		@warn "[SYNTH-A] resolve failed for grouping=$grouping strategy=$strategy" exception = err
+		return nothing
+	end
+	(isempty(resolve_result.solutions) || isempty(resolve_result.state_vars)) && return nothing
+	# Pick first solution
+	state_sol = resolve_result.solutions[1]
+	state_vars = resolve_result.state_vars
+	# Build a state IC dict at t=0. Match each MTK unknown to its resolve output
+	# at order 0 (e.g. SIAN var "C_0" → MTK state C(t)). Fall back via existing
+	# helpers: parse_derivative_variable_name pulls the base name.
+	mtk_unknowns = ModelingToolkit.unknowns(PEP.model.system)
+	sian_base_to_val = Dict{String, Float64}()
+	for j in eachindex(state_vars)
+		vname = replace(string(state_vars[j]), "(t)" => "")
+		parsed = parse_derivative_variable_name(vname)
+		isnothing(parsed) && continue
+		base, order = parsed
+		order == 0 && (sian_base_to_val[String(base)] = state_sol[j])
+	end
+	states_dict = OrderedDict{Num, Float64}()
+	t0 = Float64(PEP.data_sample["t"][1])
+	for s in mtk_unknowns
+		sname = replace(string(s), "(t)" => "")
+		if haskey(sian_base_to_val, sname)
+			states_dict[s] = sian_base_to_val[sname]
+		elseif startswith(sname, "_trfn_")
+			# Auxiliary trfn states are known functions of time; reuse evaluator.
+			tval = evaluate_trfn_template_variable(sname, t0)
+			isnothing(tval) || (states_dict[s] = tval)
+		else
+			# State is missing from resolve output — skip this synth candidate
+			# (matches Change 1 skip-on-failure semantics).
+			return nothing
+		end
+	end
+	cat_notes = grouping == :sp_only ?
+		Symbol[:global_param_only, :sp_only] :
+		grouping == :mp_only ? Symbol[:global_param_only, :mp_only] :
+		Symbol[:global_param_only, :sp_and_mp, :outlier_rejected]
+	return _build_synth_candidate(
+		agg_params, states_dict, t0,
+		length(PEP.data_sample["t"]),
+		Int[source_indices...],
+		strategy,
+		cat_notes,
+	)
+end
+
+# ─── Category D extras ─────────────────────────────────────────────────────────
+
+"""
+    _aggregate_and_resolve_to_candidate(PEP, candidates_with_indices, strategy,
+        cat_notes, setup_data, opts; weights=nothing) -> Union{Nothing, ParameterEstimationResult}
+
+Helper used by Category D extras. Aggregates parameters per-component over
+the supplied (idx, candidate) tuples using `strategy`, optionally weighted
+by per-candidate weights, then calls resolve_states_with_fixed_params and
+builds a candidate. Returns nothing on failure.
+"""
+function _aggregate_and_resolve_to_candidate(
+	PEP, candidates_with_indices::Vector, strategy::Symbol, cat_notes::Vector{Symbol},
+	setup_data, opts::EstimationOptions; weights::Union{Nothing, Vector{Float64}} = nothing,
+)
+	length(candidates_with_indices) < 2 && return nothing
+	source_candidates = [e[2] for e in candidates_with_indices]
+	source_indices = Int[e[1] for e in candidates_with_indices]
+	param_dicts = OrderedDict{Num, Float64}[c.parameters for c in source_candidates]
+	# For weighted mode: replicate each candidate's contribution proportional to
+	# its weight (works for median/trim25_mean/mean uniformly). We compute weights
+	# normalized to sum to length(param_dicts) for stability.
+	agg_params = if isnothing(weights)
+		_per_component_aggregate(param_dicts, strategy)
+	else
+		# Weighted aggregation: for each parameter, sort values by parameter value;
+		# the weighted median is the value where cumulative weight crosses 50%.
+		_per_component_weighted_aggregate(param_dicts, strategy, weights)
+	end
+	isempty(agg_params) && return nothing
+	known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in agg_params)
+	resolve_result = try
+		resolve_states_with_fixed_params(
+			PEP.model.system, PEP.measured_quantities, PEP.data_sample,
+			setup_data.good_deriv_level, Dict{Num, Float64}(),
+			setup_data.good_varlist, setup_data.good_DD,
+			known_param_dict, setup_data.interpolants;
+			time_index = 1, diagnostics = false,
+		)
+	catch err
+		@warn "[SYNTH-D] resolve failed for $cat_notes" exception = err
+		return nothing
+	end
+	(isempty(resolve_result.solutions) || isempty(resolve_result.state_vars)) && return nothing
+	state_sol = resolve_result.solutions[1]
+	state_vars = resolve_result.state_vars
+	# Map SIAN order-0 names to Float64 values
+	sian_base_to_val = Dict{String, Float64}()
+	for j in eachindex(state_vars)
+		vname = replace(string(state_vars[j]), "(t)" => "")
+		parsed = parse_derivative_variable_name(vname)
+		isnothing(parsed) && continue
+		base, order = parsed
+		order == 0 && (sian_base_to_val[String(base)] = state_sol[j])
+	end
+	mtk_unknowns = ModelingToolkit.unknowns(PEP.model.system)
+	t0 = Float64(PEP.data_sample["t"][1])
+	states_dict = OrderedDict{Num, Float64}()
+	for s in mtk_unknowns
+		sname = replace(string(s), "(t)" => "")
+		if haskey(sian_base_to_val, sname)
+			states_dict[s] = sian_base_to_val[sname]
+		elseif startswith(sname, "_trfn_")
+			tval = evaluate_trfn_template_variable(sname, t0)
+			isnothing(tval) || (states_dict[s] = tval)
+		else
+			return nothing  # missing state — skip this candidate
+		end
+	end
+	return _build_synth_candidate(
+		agg_params, states_dict, t0,
+		length(PEP.data_sample["t"]),
+		source_indices, strategy, cat_notes,
+	)
+end
+
+"""
+    _per_component_weighted_aggregate(dicts, strategy, weights) -> OrderedDict
+
+Weighted per-component aggregator. Weights are per-candidate; same weight
+applied across all parameters. For `:median`, computes a weighted median
+(value at cumulative-weight-fraction 0.5). For `:mean`, a weighted mean.
+"""
+function _per_component_weighted_aggregate(
+	dicts::AbstractVector, strategy::Symbol, weights::Vector{Float64},
+)
+	@assert length(dicts) == length(weights) "weights/dicts mismatch"
+	out = OrderedDict{Num, Float64}()
+	isempty(dicts) && return out
+	for k in keys(first(dicts))
+		vals = Float64[]
+		ws = Float64[]
+		for (i, d) in enumerate(dicts)
+			haskey(d, k) || continue
+			v = Float64(d[k])
+			isfinite(v) && weights[i] > 0 || continue
+			push!(vals, v)
+			push!(ws, weights[i])
+		end
+		isempty(vals) && continue
+		total_w = sum(ws)
+		total_w == 0 && continue
+		if strategy == :mean
+			out[k] = sum(vals .* ws) / total_w
+		else  # :median or :trim25_mean — fall back to weighted median for both
+			perm = sortperm(vals)
+			cw = cumsum(ws[perm]) ./ total_w
+			idx = findfirst(>=(0.5), cw)
+			out[k] = vals[perm[idx]]
+		end
+	end
+	return out
+end
+
+"""
+    _category_d_per_interpolator(PEP, solved_res, setup_data, opts) -> Vector
+
+For each interpolator that produced ≥ 2 candidates in the SP pool,
+synthesize a per-component median candidate.
+"""
+function _category_d_per_interpolator(PEP, solved_res, setup_data, opts)
+	out = ParameterEstimationResult[]
+	by_interp = Dict{Symbol, Vector{Tuple{Int, Any}}}()
+	for (i, c) in enumerate(solved_res)
+		_is_sp_candidate(c) || continue
+		src = c.provenance.interpolator_source
+		isnothing(src) && continue
+		push!(get!(by_interp, src, Tuple{Int, Any}[]), (i, c))
+	end
+	for (src, entries) in by_interp
+		length(entries) < 2 && continue
+		cand = try
+			_aggregate_and_resolve_to_candidate(
+				PEP, entries, :median,
+				Symbol[:per_interpolator, Symbol(src)], setup_data, opts,
+			)
+		catch err
+			@warn "[SYNTH-D-per-interp] $src failed" exception = err
+			nothing
+		end
+		!isnothing(cand) && push!(out, cand)
+	end
+	return out
+end
+
+"""
+    _category_d_interior_only(PEP, solved_res, setup_data, opts) -> Vector
+
+Per-component median of SP candidates from interior shooting points only
+(drop boundary SPs at fraction ∉ [0.10, 0.90]).
+"""
+function _category_d_interior_only(PEP, solved_res, setup_data, opts)
+	t_vec = PEP.data_sample["t"]
+	t0 = first(t_vec); t_end = last(t_vec); span = t_end - t0
+	span <= 0 && return ParameterEstimationResult[]
+	interior_lo = t0 + 0.10 * span
+	interior_hi = t0 + 0.90 * span
+	entries = Tuple{Int, Any}[]
+	for (i, c) in enumerate(solved_res)
+		_is_sp_candidate(c) || continue
+		sp_idx = c.provenance.source_shooting_index
+		isnothing(sp_idx) && continue
+		(sp_idx < 1 || sp_idx > length(t_vec)) && continue
+		t_sp = t_vec[sp_idx]
+		(t_sp < interior_lo || t_sp > interior_hi) && continue
+		push!(entries, (i, c))
+	end
+	length(entries) < 2 && return ParameterEstimationResult[]
+	cand = try
+		_aggregate_and_resolve_to_candidate(
+			PEP, entries, :median,
+			Symbol[:interior_only], setup_data, opts,
+		)
+	catch err
+		@warn "[SYNTH-D-interior-only] failed" exception = err
+		nothing
+	end
+	return isnothing(cand) ? ParameterEstimationResult[] : ParameterEstimationResult[cand]
+end
+
+"""
+    _category_d_spread_weighted(PEP, solved_res, setup_data, opts) -> Vector
+
+Cross-source-spread weighted per-component median. Per-candidate weight =
+1/(1 + total_normalized_deviation_across_params). Down-weights candidates
+whose parameters are outliers relative to pool consensus, without dropping
+them entirely.
+"""
+function _category_d_spread_weighted(PEP, solved_res, setup_data, opts)
+	algebraic_entries = [(i, c) for (i, c) in enumerate(solved_res)
+	                    if _is_sp_candidate(c) || _is_mp_candidate(c)]
+	length(algebraic_entries) < 4 && return ParameterEstimationResult[]
+	candidates = [e[2] for e in algebraic_entries]
+	# Compute per-candidate weight = 1 / (1 + total |z_score| across params)
+	param_keys = collect(keys(first(candidates).parameters))
+	medians = Dict{Num, Float64}(); mads = Dict{Num, Float64}()
+	for p in param_keys
+		vals = Float64[Float64(c.parameters[p]) for c in candidates if haskey(c.parameters, p) && isfinite(c.parameters[p])]
+		isempty(vals) && continue
+		medians[p] = Statistics.median(vals)
+		mads[p] = max(Statistics.median(abs.(vals .- medians[p])), 1e-12)
+	end
+	weights = Float64[]
+	for c in candidates
+		total_dev = 0.0
+		for p in param_keys
+			(haskey(medians, p) && haskey(c.parameters, p)) || continue
+			v = Float64(c.parameters[p])
+			isfinite(v) || (total_dev = Inf; break)
+			total_dev += abs(v - medians[p]) / mads[p]
+		end
+		push!(weights, isfinite(total_dev) ? 1.0 / (1.0 + total_dev) : 0.0)
+	end
+	all(iszero, weights) && return ParameterEstimationResult[]
+	cand = try
+		_aggregate_and_resolve_to_candidate(
+			PEP, algebraic_entries, :median,
+			Symbol[:cross_source_weighted], setup_data, opts; weights = weights,
+		)
+	catch err
+		@warn "[SYNTH-D-weighted] failed" exception = err
+		nothing
+	end
+	return isnothing(cand) ? ParameterEstimationResult[] : ParameterEstimationResult[cand]
+end
+
 # ─── Sidecar CSV writer ────────────────────────────────────────────────────────
 
 """
@@ -312,9 +692,16 @@ closure (so downstream cluster/branch-consensus paths see a finite Float64
 err and don't trip on `nothing`).
 
 Categories implemented:
-  B — Per-SP aggregate of (params + states), 2 strategies × n_sps
-  C — Same as B but including MP-anchored-here candidates per SP
-  (Categories A and D added in Phases 2-3.)
+  A — Global parameter-only per-component aggregate × 3 strategies × 3 groupings = 9 candidates
+      (each requires resolve_states_with_fixed_params to recover ICs at first SP)
+  B — Per-SP aggregate of (params + states), 2 strategies × n_sps (no resolve)
+  C — Same as B but including MP-anchored-here candidates per SP (no resolve)
+  D — Cheap extras (each requires resolve):
+      • per-interpolator per-component median (≤ n_interp candidates)
+      • interior-only per-component median (1 candidate)
+      • cross-source-spread weighted per-component median (1 candidate)
+  (Resolve template cache added in Phase 4 to amortize the ~22 resolve calls
+  in A+D across one estimation run.)
 """
 function _maybe_synthesize_aggregate_candidates(
 	PEP, solved_res::Vector, setup_data, opts::EstimationOptions;
@@ -340,6 +727,34 @@ function _maybe_synthesize_aggregate_candidates(
 		anchor = _mp_anchor_sp(c)
 		isnothing(anchor) && continue
 		push!(get!(mp_groups, anchor, Tuple{Int, Any}[]), (i, c))
+	end
+
+	# ── Category A: global parameter-only aggregates × 3 strategies × 3 groupings ──
+	# Build SP-only, MP-only, SP+MP-outlier-rejected groupings of (idx, candidate).
+	all_sp_entries = Tuple{Int, Any}[]
+	for entries in values(sp_groups)
+		append!(all_sp_entries, entries)
+	end
+	all_mp_entries = Tuple{Int, Any}[]
+	for entries in values(mp_groups)
+		append!(all_mp_entries, entries)
+	end
+	all_combined_entries = vcat(all_sp_entries, all_mp_entries)
+	for (grouping, entries) in (
+		(:sp_only, all_sp_entries),
+		(:mp_only, all_mp_entries),
+		(:sp_and_mp_outlier_rejected, all_combined_entries),
+	)
+		length(entries) < 2 && continue
+		for strategy in (:median, :trim25_mean, :mean)
+			cand = try
+				_synthesize_global_param_aggregate(PEP, entries, strategy, grouping, setup_data, opts)
+			catch err
+				@warn "[SYNTH-A] grouping=$grouping strategy=$strategy failed" exception = err
+				nothing
+			end
+			!isnothing(cand) && push!(new_candidates, cand)
+		end
 	end
 
 	# Category B: per-SP, SP-only
@@ -386,6 +801,24 @@ function _maybe_synthesize_aggregate_candidates(
 		end
 	end
 
+	# ── Category D extras ─────────────────────────────────────────────────────
+	# Per-interpolator median, interior-only median, cross-source-spread
+	# weighted median. Each individually robust on per-failure (returns empty
+	# vec on resolve fail), so total D output ranges from 0 to ~n_interp+2.
+	for (label, fn) in (
+		(:per_interpolator, _category_d_per_interpolator),
+		(:interior_only, _category_d_interior_only),
+		(:cross_source_weighted, _category_d_spread_weighted),
+	)
+		extras = try
+			fn(PEP, solved_res, setup_data, opts)
+		catch err
+			@warn "[SYNTH-D] $label failed" exception = err
+			ParameterEstimationResult[]
+		end
+		append!(new_candidates, extras)
+	end
+
 	# Evaluate each new candidate's err via polish-context loss closure.
 	# This mirrors sensitivity_seeds.jl and ensures downstream consumers
 	# (branch consensus, tryhard finalists) see a finite Float64 err rather
@@ -412,7 +845,7 @@ function _maybe_synthesize_aggregate_candidates(
 
 	if !opts.nooutput && !isempty(new_candidates)
 		println("[Synthesize aggregates] $(length(solved_res)) → $(length(solved_res) + length(new_candidates)) candidates " *
-			"(B/C: $(length(new_candidates)))")
+			"(A/B/C/D synthesized)")
 	end
 
 	return vcat(solved_res, new_candidates)
