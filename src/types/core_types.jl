@@ -148,9 +148,12 @@ mutable struct ResultProvenance
     numerical_advisory::Union{Nothing, NumericalIdentifiabilityAdvisory}
     notes::Vector{Symbol}
     # Multipoint provenance (SP/MP origin tracking)
-    source_type::Symbol                                    # :single_point or :multipoint
+    source_type::Symbol                                    # :single_point | :multipoint | :synthesized_aggregate | :imported | ...
     multipoint_time_indices::Union{Nothing, Vector{Int}}   # time indices in combo, e.g. [376, 1126]
     multipoint_combo_index::Union{Nothing, Int}            # which combo (1-based) produced this solution
+    # Synthesized-aggregate provenance (set when source_type == :synthesized_aggregate)
+    aggregation_strategy::Symbol                           # :median, :trim25_mean, :mean, :weighted_median, ... ; :none for non-synthesized candidates
+    aggregation_source_indices::Vector{Int}                # indices into the upstream candidate pool that were aggregated
 end
 
 function ResultProvenance(;
@@ -174,6 +177,8 @@ function ResultProvenance(;
     source_type::Symbol = :single_point,
     multipoint_time_indices::Union{Nothing, Vector{Int}} = nothing,
     multipoint_combo_index::Union{Nothing, Int} = nothing,
+    aggregation_strategy::Symbol = :none,
+    aggregation_source_indices::AbstractVector = Int[],
 )
     return ResultProvenance(
         primary_method,
@@ -196,6 +201,8 @@ function ResultProvenance(;
         source_type,
         isnothing(multipoint_time_indices) ? nothing : Int[multipoint_time_indices...],
         multipoint_combo_index,
+        aggregation_strategy,
+        Int[aggregation_source_indices...],
     )
 end
 
@@ -221,6 +228,8 @@ function copy_provenance(
     source_type = provenance.source_type,
     multipoint_time_indices = provenance.multipoint_time_indices,
     multipoint_combo_index = provenance.multipoint_combo_index,
+    aggregation_strategy = provenance.aggregation_strategy,
+    aggregation_source_indices = provenance.aggregation_source_indices,
 )
     return ResultProvenance(
         primary_method = primary_method,
@@ -243,6 +252,8 @@ function copy_provenance(
         source_type = source_type,
         multipoint_time_indices = isnothing(multipoint_time_indices) ? nothing : copy(multipoint_time_indices),
         multipoint_combo_index = multipoint_combo_index,
+        aggregation_strategy = aggregation_strategy,
+        aggregation_source_indices = copy(aggregation_source_indices),
     )
 end
 

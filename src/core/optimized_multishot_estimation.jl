@@ -2265,6 +2265,24 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end
 
+		# PHASE: Synthesize aggregate candidates (default on; opt-out via opts.synthesize_aggregate_candidates=false).
+		# Per-component median/mean/trim25 of SP and MP candidates (Categories B/C/A/D);
+		# tagged with provenance.source_type = :synthesized_aggregate. Sidecar log at
+		# artifacts/diagnostics/<model>/synthesis_log.csv.
+		if opts.synthesize_aggregate_candidates && !isempty(solved_res)
+			solved_res = _record_phase!(phase_stats, "Synthesize aggregates") do
+				try
+					_maybe_synthesize_aggregate_candidates(
+						PEP, solved_res, setup_data, opts;
+						interpolant_cache = interpolant_cache_for_seeds,
+					)
+				catch err
+					@warn "[Synthesize aggregates] failed; using unaugmented pool" exception = (err, catch_backtrace())
+					solved_res
+				end
+			end
+		end
+
 		# PHASE: Polish solutions (separate phase for profiling visibility)
 		if opts.polish_solutions || (opts.terminal_fallback == :direct_opt && isempty(solved_res))
 			solved_res = _record_phase!(phase_stats, "Polish (BFGS)") do

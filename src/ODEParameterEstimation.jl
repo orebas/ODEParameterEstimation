@@ -92,6 +92,7 @@ include("core/multipoint_template.jl")  # Multi-point polynomial template system
 include("core/derivatives.jl")
 include("core/sigma_d.jl")  # Per-(observable, order) derivative uncertainty σ_d
 include("core/sensitivity_seeds.jl")  # σ_d-aware seed generation (Layer 2)
+include("core/synthesize_aggregates.jl")  # Per-component median/mean/trim25 synthesis of SP+MP aggregates
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
 include("core/sampling.jl")
 include("core/svg_plots.jl")

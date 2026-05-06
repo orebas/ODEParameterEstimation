@@ -215,6 +215,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 - `auto_filter_interpolators::Bool`: When true, filters AAA-family interpolators (S2AAAMLE, AAAD, AAADOld) out of the user's `interpolators` list when the data's estimated relative noise σ̂ exceeds method-specific thresholds (1e-4 for S2, 1e-5 for AAAD/AAADOld). These methods produce catastrophic derivative errors at noise > threshold (verified empirically); GP-family methods are kept regardless. If filtering empties the list, falls back to `InterpolatorAAADGPR`. Default: `true`. Set to `false` to bypass and run all user-specified methods unconditionally.
+- `synthesize_aggregate_candidates::Bool`: When true, injects extra synthetic candidates derived by per-component aggregating (median / mean / 25%-trimmed mean) of the existing SP and MP candidates' parameters and ICs. Each synthetic candidate is tagged with `provenance.source_type = :synthesized_aggregate` and `provenance.aggregation_strategy`; full lineage written to `artifacts/diagnostics/<model>/synthesis_log.csv`. Default: `true`. Set to `false` to skip synthesis entirely.
 
 ## HomotopyContinuation Specific
 - `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
@@ -400,6 +401,7 @@ Base.@kwdef struct EstimationOptions
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	auto_filter_interpolators::Bool = true  # Filter AAA-family interpolators (S2/AAAD/AAADOld) by data-driven σ̂ before the SP loop
+	synthesize_aggregate_candidates::Bool = true  # Inject per-component median/mean/trim25 aggregates of SP, MP, SP∪MP candidates as extra polish seeds before clustering. Sidecar at artifacts/diagnostics/<model>/synthesis_log.csv.
 	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
 	s3_adapt_k::Float64 = 10.0     # Noise multiplier for S3 adaptive tolerance (higher = fewer support points)
 

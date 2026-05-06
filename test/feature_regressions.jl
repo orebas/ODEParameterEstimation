@@ -115,6 +115,7 @@ const SAVE_SYSTEM_OFF_OPTS = EstimationOptions(
     use_parameter_homotopy = false,
     polish_solver_solutions = false,
     polish_solutions = false,
+    synthesize_aggregate_candidates = false,
 )
 
 const MULTI_INTERP_FAST_OPTS = EstimationOptions(
@@ -131,6 +132,7 @@ const MULTI_INTERP_FAST_OPTS = EstimationOptions(
     use_parameter_homotopy = false,
     polish_solver_solutions = false,
     polish_solutions = false,
+    synthesize_aggregate_candidates = false,  # this test asserts on per-interpolator provenance; synthesis would inject :synthesized entries
 )
 
 const SMALL_SAMPLE_OPTS = EstimationOptions(
@@ -698,5 +700,39 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
             list_only_s2, pep_high, opts_default)
         @test length(result_fallback) == 1
         @test result_fallback[1][1] == InterpolatorAAADGPR
+    end
+
+    @testset "Synthesize aggregate candidates (Phase 1: B/C)" begin
+        # Run a small estimation with synthesis on; verify synthesized candidates
+        # appear with correct provenance. Use simple() at noise=0 which produces
+        # a clean pool that aggregates predictably.
+        opts_on = EstimationOptions(
+            datasize = 11, noise_level = 0.0,
+            system_solver = SolverHC, flow = FlowStandard,
+            use_si_template = true, shooting_points = 0,
+            nooutput = true, diagnostics = false, save_system = false,
+            polish_solver_solutions = false, polish_solutions = false,
+            interpolators = MULTI_INTERP_TEMPLATE_LIST,
+            synthesize_aggregate_candidates = true,
+        )
+        opts_off = ODEParameterEstimation.merge_options(opts_on;
+            synthesize_aggregate_candidates = false)
+
+        _, raw_on, _ = run_feature_canary(ODEParameterEstimation.simple, opts_on)
+        _, raw_off, _ = run_feature_canary(ODEParameterEstimation.simple, opts_off)
+
+        n_synth = count(c -> c.provenance.source_type == :synthesized_aggregate, raw_on[1])
+        @test length(raw_on[1]) >= length(raw_off[1])             # synth never reduces pool size
+        # Categories B/C only fire when ≥ 2 candidates per SP/anchor, which
+        # `simple()` may or may not produce at shooting_points=0. Just verify
+        # provenance shape on any synthesized candidate that DID get added.
+        if n_synth > 0
+            synth = first(c for c in raw_on[1]
+                          if c.provenance.source_type == :synthesized_aggregate)
+            @test synth.provenance.aggregation_strategy in (:median, :trim25_mean)
+            @test !isempty(synth.provenance.aggregation_source_indices)
+            @test :synthesized_aggregate in synth.provenance.notes
+            @test isnothing(synth.provenance.interpolator_source)  # synthesized → no specific source
+        end
     end
 end
