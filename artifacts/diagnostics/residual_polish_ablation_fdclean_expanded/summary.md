@@ -1,0 +1,1053 @@
+# Residual-Vector Polish Ablation
+
+- Generated: `2026-04-22 22:32:24`
+- Basis: imported bilby `odepe_nopolish` pools
+- Comparison: scalar SSE polish vs residual-vector least-squares polish on the same pool
+- Residual solver roster: `LevenbergMarquardt()`, `TrustRegion()`, `LeastSquaresOptimJL(:lm)`, `LeastSquaresOptimJL(:dogleg)`, `FastLevenbergMarquardt.lmsolve!()`
+- Benchmark success tolerance: `10%` max relative error
+
+| Case | Saved `amigo2` RMSE | Saved `odepe_polish` RMSE | Scalar log best | residual LM log best | residual TrustRegion log best | residual LeastSquaresOptim LM log best | residual LeastSquaresOptim Dogleg log best | residual FastLevenbergMarquardt log best |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `sirt_treatment_0_1em4` | 0.01% | 0.01% | 0.01% | 1.22% | 0.01% | 0.01% | 0.01% | 0.01% |
+| `crauste_7_1em4` | 19.62% | 167.02% | 331.47% | 414.05% | 394.46% | 414.05% | 414.05% | 1209.35% |
+| `fitzhugh_nagumo_2_1em4` | 1.31% | 3.20% | 1.31% | 6.11% | 1.31% | 1.31% | 1.31% | 1.31% |
+| `seir_4_1em4` | 0.05% | 0.63% | 0.05% | 75.65% | 96.58% | 109.53% | 22.00% | 0.05% |
+| `flexible_arm_0_1em4` | 0.54% | 3.60% | 30.93% | 32.61% | 32.61% | 18.75% | 32.61% | 32.61% |
+| `daisy_mamil3_7_1em4` | 0.00% | 0.40% | 0.00% | 3.37% | 0.00% | 0.00% | 0.00% | 0.00% |
+| `daisy_mamil4_6_1em4` | 0.33% | 0.31% | 6.48% | 27.86% | 0.33% | 25.02% | 0.33% | 1.72% |
+| `brusselator_5_1em4` | 0.03% | 0.05% | Inf | 0.24% | 0.24% | 0.24% | 0.24% | 0.24% |
+| `forced_lotka_volterra_0_1em4` | 0.00% | 0.00% | 0.00% | 4.10% | 0.00% | 0.00% | 0.00% | 0.00% |
+
+## Solver Summary vs `scalar + log`
+
+| Arm | Best-in-set vs `scalar_log` | Selected vs `scalar_log` | Median runtime ratio |
+| --- | --- | --- | ---: |
+| `LevenbergMarquardt()` | 0 better / 0 tie / 8 worse / 1 unsupported | 0 better / 0 tie / 8 worse / 1 unsupported | 0.469x |
+| `TrustRegion()` | 1 better / 4 tie / 3 worse / 1 unsupported | 1 better / 4 tie / 3 worse / 1 unsupported | 0.399x |
+| `LeastSquaresOptimJL(:lm)` | 1 better / 4 tie / 3 worse / 1 unsupported | 0 better / 4 tie / 4 worse / 1 unsupported | 0.428x |
+| `LeastSquaresOptimJL(:dogleg)` | 1 better / 4 tie / 3 worse / 1 unsupported | 0 better / 4 tie / 4 worse / 1 unsupported | 0.392x |
+| `FastLevenbergMarquardt.lmsolve!()` | 1 better / 5 tie / 2 worse / 1 unsupported | 1 better / 5 tie / 2 worse / 1 unsupported | 0.349x |
+
+## Case Notes
+
+### `sirt_treatment_0_1em4`
+
+- Imported raw candidate count: `28`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.01%
+  - `odepe_nopolish` RMSE: 1.22%
+  - `odepe_polish` RMSE: 0.01%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `69.633 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `34.732 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.22%
+  - best-in-set benchmark RMSE: 1.22%
+  - selected local relative RMSE: 1.77%
+  - best-in-set local relative RMSE: 1.77%
+  - runtime: `39.461 s`
+  - polished representative count: `28`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.22%
+  - best-in-set benchmark RMSE: 1.22%
+  - selected local relative RMSE: 1.77%
+  - best-in-set local relative RMSE: 1.77%
+  - runtime: `15.746 s`
+  - polished representative count: `28`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `7.726 s`
+  - polished representative count: `28`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `6.937 s`
+  - polished representative count: `28`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `7.779 s`
+  - polished representative count: `28`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `6.091 s`
+  - polished representative count: `28`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `7.269 s`
+  - polished representative count: `28`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `5.388 s`
+  - polished representative count: `28`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `6.294 s`
+  - polished representative count: `28`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.01%
+  - best-in-set benchmark RMSE: 0.01%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `6.144 s`
+  - polished representative count: `28`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `tie`
+
+### `crauste_7_1em4`
+
+- Imported raw candidate count: `20`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 19.62%
+  - `odepe_nopolish` RMSE: 6445.99%
+  - `odepe_polish` RMSE: 167.02%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 198638.81%
+  - best-in-set benchmark RMSE: 6445.99%
+  - selected local relative RMSE: 554724.09%
+  - best-in-set local relative RMSE: 18726.84%
+  - runtime: `293.179 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1385.50%
+  - best-in-set benchmark RMSE: 331.47%
+  - selected local relative RMSE: 6127.80%
+  - best-in-set local relative RMSE: 1088.54%
+  - runtime: `281.459 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 463991.90%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 624462.69%
+  - best-in-set local relative RMSE: 1365.96%
+  - runtime: `82.499 s`
+  - polished representative count: `20`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 163909.75%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 220465.73%
+  - best-in-set local relative RMSE: 1356.23%
+  - runtime: `14.704 s`
+  - polished representative count: `20`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 486.75%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 1536.71%
+  - best-in-set local relative RMSE: 1356.23%
+  - runtime: `83.250 s`
+  - polished representative count: `20`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 486.84%
+  - best-in-set benchmark RMSE: 394.46%
+  - selected local relative RMSE: 1649.32%
+  - best-in-set local relative RMSE: 1306.42%
+  - runtime: `31.016 s`
+  - polished representative count: `20`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 5775.27%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 21084.57%
+  - best-in-set local relative RMSE: 1365.96%
+  - runtime: `216.149 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 106274.32%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 393570.34%
+  - best-in-set local relative RMSE: 1449.12%
+  - runtime: `59.674 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 486.75%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 1536.71%
+  - best-in-set local relative RMSE: 1356.23%
+  - runtime: `98.245 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 163909.75%
+  - best-in-set benchmark RMSE: 414.05%
+  - selected local relative RMSE: 220465.73%
+  - best-in-set local relative RMSE: 1365.96%
+  - runtime: `34.770 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 73762.77%
+  - best-in-set benchmark RMSE: 2137.72%
+  - selected local relative RMSE: 206033.81%
+  - best-in-set local relative RMSE: 6304.63%
+  - runtime: `105.877 s`
+  - polished representative count: `20`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1209.35%
+  - best-in-set benchmark RMSE: 1209.35%
+  - selected local relative RMSE: 5251.97%
+  - best-in-set local relative RMSE: 5251.97%
+  - runtime: `51.636 s`
+  - polished representative count: `20`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `worse`
+
+### `fitzhugh_nagumo_2_1em4`
+
+- Imported raw candidate count: `186`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 1.31%
+  - `odepe_nopolish` RMSE: 6.94%
+  - `odepe_polish` RMSE: 3.20%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `115.416 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `23.791 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 6.94%
+  - best-in-set benchmark RMSE: 6.11%
+  - selected local relative RMSE: 7.83%
+  - best-in-set local relative RMSE: 7.08%
+  - runtime: `75.540 s`
+  - polished representative count: `184`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 6.94%
+  - best-in-set benchmark RMSE: 6.11%
+  - selected local relative RMSE: 7.83%
+  - best-in-set local relative RMSE: 7.08%
+  - runtime: `61.508 s`
+  - polished representative count: `184`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `26.938 s`
+  - polished representative count: `184`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `27.527 s`
+  - polished representative count: `184`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `19.499 s`
+  - polished representative count: `184`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `40.450 s`
+  - polished representative count: `184`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `23.706 s`
+  - polished representative count: `184`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `38.327 s`
+  - polished representative count: `184`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `21.355 s`
+  - polished representative count: `184`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 1.31%
+  - best-in-set benchmark RMSE: 1.31%
+  - selected local relative RMSE: 1.48%
+  - best-in-set local relative RMSE: 1.48%
+  - runtime: `26.429 s`
+  - polished representative count: `184`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `tie`
+
+### `seir_4_1em4`
+
+- Imported raw candidate count: `114`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.05%
+  - `odepe_nopolish` RMSE: 34.09%
+  - `odepe_polish` RMSE: 0.63%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 37.08%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 99.64%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `84.164 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.05%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 0.10%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `52.845 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 5763.67%
+  - best-in-set benchmark RMSE: 109.53%
+  - selected local relative RMSE: 16327.56%
+  - best-in-set local relative RMSE: 162.25%
+  - runtime: `75.391 s`
+  - polished representative count: `114`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 109.53%
+  - best-in-set benchmark RMSE: 75.65%
+  - selected local relative RMSE: 162.25%
+  - best-in-set local relative RMSE: 155.55%
+  - runtime: `25.579 s`
+  - polished representative count: `114`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 37.08%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 99.64%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `64.001 s`
+  - polished representative count: `114`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 109.94%
+  - best-in-set benchmark RMSE: 96.58%
+  - selected local relative RMSE: 162.87%
+  - best-in-set local relative RMSE: 155.55%
+  - runtime: `37.201 s`
+  - polished representative count: `114`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 37.08%
+  - best-in-set benchmark RMSE: 37.08%
+  - selected local relative RMSE: 99.64%
+  - best-in-set local relative RMSE: 99.64%
+  - runtime: `75.142 s`
+  - polished representative count: `114`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 3927675226114354.50%
+  - best-in-set benchmark RMSE: 109.53%
+  - selected local relative RMSE: 21462706153630360.00%
+  - best-in-set local relative RMSE: 162.25%
+  - runtime: `59.174 s`
+  - polished representative count: `114`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 37.08%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 99.64%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `47.862 s`
+  - polished representative count: `114`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 22.00%
+  - best-in-set benchmark RMSE: 22.00%
+  - selected local relative RMSE: 47.44%
+  - best-in-set local relative RMSE: 47.44%
+  - runtime: `42.087 s`
+  - polished representative count: `114`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 37.08%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 99.64%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `49.510 s`
+  - polished representative count: `114`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.05%
+  - best-in-set benchmark RMSE: 0.05%
+  - selected local relative RMSE: 0.10%
+  - best-in-set local relative RMSE: 0.10%
+  - runtime: `36.307 s`
+  - polished representative count: `114`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `tie`
+
+### `flexible_arm_0_1em4`
+
+- Imported raw candidate count: `62`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.54%
+  - `odepe_nopolish` RMSE: 7.50%
+  - `odepe_polish` RMSE: 3.60%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 32.64%
+  - best-in-set benchmark RMSE: 32.64%
+  - selected local relative RMSE: 85.58%
+  - best-in-set local relative RMSE: 85.58%
+  - runtime: `128.730 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 30.93%
+  - best-in-set benchmark RMSE: 30.93%
+  - selected local relative RMSE: 68.75%
+  - best-in-set local relative RMSE: 68.75%
+  - runtime: `165.268 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 34.94%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 102.30%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `27.466 s`
+  - polished representative count: `62`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 38.87%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 141.70%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `36.136 s`
+  - polished representative count: `62`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 32.61%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 85.12%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `20.844 s`
+  - polished representative count: `62`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 32.61%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 85.12%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `37.086 s`
+  - polished representative count: `62`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 35.26%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 104.13%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `9.643 s`
+  - polished representative count: `62`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 32.84%
+  - best-in-set benchmark RMSE: 18.75%
+  - selected local relative RMSE: 93.71%
+  - best-in-set local relative RMSE: 50.41%
+  - runtime: `28.231 s`
+  - polished representative count: `62`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 32.61%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 85.12%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `7.753 s`
+  - polished representative count: `62`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 34.22%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 95.82%
+  - best-in-set local relative RMSE: 81.71%
+  - runtime: `18.073 s`
+  - polished representative count: `62`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 32.61%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 85.12%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `6.842 s`
+  - polished representative count: `62`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 34.03%
+  - best-in-set benchmark RMSE: 32.61%
+  - selected local relative RMSE: 93.94%
+  - best-in-set local relative RMSE: 85.12%
+  - runtime: `25.281 s`
+  - polished representative count: `62`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `worse`
+
+### `daisy_mamil3_7_1em4`
+
+- Imported raw candidate count: `89`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.00%
+  - `odepe_nopolish` RMSE: 4.11%
+  - `odepe_polish` RMSE: 0.40%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `245.122 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `39.281 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 4.11%
+  - best-in-set benchmark RMSE: 3.37%
+  - selected local relative RMSE: 5.73%
+  - best-in-set local relative RMSE: 5.73%
+  - runtime: `69.443 s`
+  - polished representative count: `89`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 4.11%
+  - best-in-set benchmark RMSE: 3.37%
+  - selected local relative RMSE: 5.73%
+  - best-in-set local relative RMSE: 5.73%
+  - runtime: `52.603 s`
+  - polished representative count: `89`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `24.481 s`
+  - polished representative count: `89`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `21.729 s`
+  - polished representative count: `89`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `18.566 s`
+  - polished representative count: `89`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `16.867 s`
+  - polished representative count: `89`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `35.078 s`
+  - polished representative count: `89`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `21.655 s`
+  - polished representative count: `89`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `16.622 s`
+  - polished representative count: `89`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.01%
+  - best-in-set local relative RMSE: 0.01%
+  - runtime: `20.185 s`
+  - polished representative count: `89`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `tie`
+
+### `daisy_mamil4_6_1em4`
+
+- Imported raw candidate count: `119`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.33%
+  - `odepe_nopolish` RMSE: 33.82%
+  - `odepe_polish` RMSE: 0.31%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 25.31%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 53.41%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `324.357 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 23.65%
+  - best-in-set benchmark RMSE: 6.48%
+  - selected local relative RMSE: 48.11%
+  - best-in-set local relative RMSE: 13.60%
+  - runtime: `218.608 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 66.08%
+  - best-in-set benchmark RMSE: 33.82%
+  - selected local relative RMSE: 148.28%
+  - best-in-set local relative RMSE: 48.02%
+  - runtime: `110.577 s`
+  - polished representative count: `119`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 27.86%
+  - best-in-set benchmark RMSE: 27.86%
+  - selected local relative RMSE: 59.08%
+  - best-in-set local relative RMSE: 48.02%
+  - runtime: `71.777 s`
+  - polished representative count: `119`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 25.31%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 53.41%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `75.857 s`
+  - polished representative count: `119`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 25.31%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 53.41%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `53.588 s`
+  - polished representative count: `119`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.33%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 0.77%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `113.191 s`
+  - polished representative count: `119`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 25.02%
+  - best-in-set benchmark RMSE: 25.02%
+  - selected local relative RMSE: 71.61%
+  - best-in-set local relative RMSE: 48.02%
+  - runtime: `93.150 s`
+  - polished representative count: `119`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 25.31%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 53.41%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `73.149 s`
+  - polished representative count: `119`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 25.31%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 53.41%
+  - best-in-set local relative RMSE: 0.77%
+  - runtime: `50.872 s`
+  - polished representative count: `119`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.33%
+  - best-in-set benchmark RMSE: 0.02%
+  - selected local relative RMSE: 0.77%
+  - best-in-set local relative RMSE: 0.04%
+  - runtime: `75.782 s`
+  - polished representative count: `119`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 24.17%
+  - best-in-set benchmark RMSE: 1.72%
+  - selected local relative RMSE: 49.82%
+  - best-in-set local relative RMSE: 4.14%
+  - runtime: `37.752 s`
+  - polished representative count: `119`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `better`
+
+### `brusselator_5_1em4`
+
+- Imported raw candidate count: `123`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.03%
+  - `odepe_nopolish` RMSE: 0.34%
+  - `odepe_polish` RMSE: 0.05%
+- scalar linear:
+  - status: `error`
+  - reason: `MethodError: no method matching _best_fit_raw_candidate(::Vector{Any})
+The function `_best_fit_raw_candidate` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  _best_fit_raw_candidate(!Matched::Vector{ParameterEstimationResult})
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/benchmark_sweeps.jl:570
+`
+- scalar log-positive:
+  - status: `error`
+  - reason: `MethodError: no method matching _best_fit_raw_candidate(::Vector{Any})
+The function `_best_fit_raw_candidate` exists, but no method is defined for this combination of argument types.
+
+Closest candidates are:
+  _best_fit_raw_candidate(!Matched::Vector{ParameterEstimationResult})
+   @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/benchmark_sweeps.jl:570
+`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `28.990 s`
+  - polished representative count: `42`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `10.917 s`
+  - polished representative count: `42`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `better`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `5.569 s`
+  - polished representative count: `42`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `4.925 s`
+  - polished representative count: `42`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `2.657 s`
+  - polished representative count: `42`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `2.105 s`
+  - polished representative count: `42`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `2.527 s`
+  - polished representative count: `42`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `2.087 s`
+  - polished representative count: `42`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `2.210 s`
+  - polished representative count: `42`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.24%
+  - best-in-set benchmark RMSE: 0.24%
+  - selected local relative RMSE: 0.80%
+  - best-in-set local relative RMSE: 0.80%
+  - runtime: `1.640 s`
+  - polished representative count: `42`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `better`
+
+### `forced_lotka_volterra_0_1em4`
+
+- Imported raw candidate count: `70`
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.00%
+  - `odepe_nopolish` RMSE: 5.27%
+  - `odepe_polish` RMSE: 0.00%
+- scalar linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `87.433 s`
+- scalar log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `9.581 s`
+- residual LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 4.10%
+  - best-in-set benchmark RMSE: 4.10%
+  - selected local relative RMSE: 11.00%
+  - best-in-set local relative RMSE: 10.86%
+  - runtime: `42.739 s`
+  - polished representative count: `52`
+- residual LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 4.10%
+  - best-in-set benchmark RMSE: 4.10%
+  - selected local relative RMSE: 11.00%
+  - best-in-set local relative RMSE: 10.86%
+  - runtime: `26.861 s`
+  - polished representative count: `52`
+- residual LM linear vs scalar linear best-in-set benchmark RMSE: `worse`
+- residual LM log vs scalar log best-in-set benchmark RMSE: `worse`
+- residual TrustRegion linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `11.633 s`
+  - polished representative count: `52`
+- residual TrustRegion log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `11.433 s`
+  - polished representative count: `52`
+- residual TrustRegion linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual TrustRegion log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `7.114 s`
+  - polished representative count: `52`
+- residual LeastSquaresOptim LM log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `10.100 s`
+  - polished representative count: `52`
+- residual LeastSquaresOptim LM linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `7.933 s`
+  - polished representative count: `52`
+- residual LeastSquaresOptim Dogleg log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `15.705 s`
+  - polished representative count: `52`
+- residual LeastSquaresOptim Dogleg linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim Dogleg log vs scalar log best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt linear:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `5.703 s`
+  - polished representative count: `52`
+- residual FastLevenbergMarquardt log-positive:
+  - status: `ok`
+  - selected benchmark RMSE: 0.00%
+  - best-in-set benchmark RMSE: 0.00%
+  - selected local relative RMSE: 0.00%
+  - best-in-set local relative RMSE: 0.00%
+  - runtime: `10.162 s`
+  - polished representative count: `52`
+- residual FastLevenbergMarquardt linear vs scalar linear best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt log vs scalar log best-in-set benchmark RMSE: `tie`
+

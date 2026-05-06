@@ -1,0 +1,1273 @@
+# Residual-Vector Polish Ablation
+
+- Generated: `2026-04-24 12:39:54`
+- Basis: imported bilby `odepe_nopolish` pools
+- Comparison: scalar SSE polish vs residual-vector least-squares polish on the same pool
+- Research analysis mode: `ungated`
+- Residual solver roster: `LeastSquaresOptim.optimize!(LevenbergMarquardt(); lower/upper)`, `FastLevenbergMarquardt.lmsolve!() with lb/ub`
+- Benchmark success tolerance: `10%` max relative error
+
+| Case | Imported best RMSE | Analyzed imported best RMSE | Saved `amigo2` RMSE | Saved `odepe_polish` RMSE | Scalar log best | residual LeastSquaresOptim LM bounded log best | residual FastLevenbergMarquardt bounded log best |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `crauste_5_1em4` | 1094.98% | 1094.98% | 0.94% | 134.08% | 70.21% | 32.17% | 25.33% |
+| `seir_6_1em4` | 162.09% | 162.09% | 1.33% | 82.04% | 33.66% | 11.51% | 0.95% |
+| `crauste_6_1em4` | 187.73% | 187.73% | 5.35% | 199.55% | 187.73% | 30.41% | 33.63% |
+| `daisy_mamil4_1_1em4` | 42.13% | 42.13% | 1.17% | 41.05% | 18.28% | 0.63% | 6.77% |
+| `seir_7_1em4` | 149.27% | 149.27% | 4.80% | 149.27% | 9.44% | 12.65% | 10.70% |
+| `crauste_1_1em4` | 36378.43% | 4009638.38% | 14.93% | 336.70% | 537.39% | 48.17% | 329.36% |
+| `crauste_0_1em4` | 429.57% | 429.57% | 9.96% | 214.81% | 14.32% | 9.96% | 9.96% |
+| `hiv_5_1em4` | 650.76% | 650.76% | 5.52% | 78.88% | 5.81% | 2.54% | 4.89% |
+| `brusselator_0_1em4` | Inf | Inf | 54.30% | 633.03% | Inf | Inf | Inf |
+| `crauste_7_1em4` | 6445.99% | 18751.98% | 19.62% | 167.02% | 333.74% | 35.66% | 222.38% |
+| `brusselator_4_1em4` | 2033.43% | 2033.43% | 267.65% | 2033.43% | 2033.43% | 676.89% | 676.89% |
+| `hiv_2_1em4` | 225.67% | 225.67% | 14.98% | 110.31% | 7.95% | 0.33% | 2.79% |
+| `hiv_7_1em4` | 540.40% | 540.40% | 19.46% | 135.65% | 4.96% | 13.83% | 15.36% |
+| `crauste_4_1em4` | 21.65% | 21.65% | 18.66% | 126.63% | 14.73% | 15.28% | 15.48% |
+| `crauste_2_1em4` | 2597.41% | 2597.41% | 28.77% | 173.50% | 224.56% | 60.71% | 98.54% |
+| `brusselator_3_1em4` | 226.46% | 226.46% | 45.93% | 226.46% | 226.46% | 226.46% | 226.46% |
+| `seir_3_1em4` | 322.86% | 322.86% | 7.04% | 30.19% | 1.04% | 27.90% | 3.89% |
+| `biohydrogenation_4_1em4` | 28.69% | 28.69% | 11.99% | 43.18% | 16.73% | 12.37% | 16.77% |
+| `brusselator_7_1em4` | Inf | Inf | 210.62% | 613.69% | Inf | Inf | Inf |
+| `hiv_4_1em4` | 1268.10% | 1268.10% | 90.37% | 180.79% | 39.70% | 15.31% | 90.35% |
+
+## Solver Summary vs `scalar + log`
+
+| Arm | Best-in-set vs `scalar_log` | Selected vs `scalar_log` | Median runtime ratio |
+| --- | --- | --- | ---: |
+| `LeastSquaresOptim.optimize!(LevenbergMarquardt(); lower/upper)` | 13 better / 2 tie / 4 worse / 1 unsupported | 13 better / 2 tie / 4 worse / 1 unsupported | 0.732x |
+| `FastLevenbergMarquardt.lmsolve!() with lb/ub` | 11 better / 2 tie / 6 worse / 1 unsupported | 13 better / 2 tie / 4 worse / 1 unsupported | 0.546x |
+
+## Case Notes
+
+### `crauste_5_1em4`
+
+- Imported raw candidate count: `18`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 1094.98%
+  - analyzed imported selected benchmark RMSE: 1752.38%
+  - analyzed imported best benchmark RMSE: 1094.98%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 0.94%
+  - `odepe_nopolish` RMSE: 1094.98%
+  - `odepe_polish` RMSE: 134.08%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5262.08%
+  - best-in-set benchmark RMSE: 1094.96%
+  - selected local relative RMSE: 10828.03%
+  - best-in-set local relative RMSE: 2106.15%
+  - runtime: `320.567 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 70.21%
+  - best-in-set benchmark RMSE: 70.21%
+  - selected local relative RMSE: 111.16%
+  - best-in-set local relative RMSE: 111.16%
+  - runtime: `308.701 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 87.46%
+  - best-in-set benchmark RMSE: 38.42%
+  - selected local relative RMSE: 180.20%
+  - best-in-set local relative RMSE: 60.35%
+  - runtime: `135.915 s`
+  - polished representative count: `18`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 32.17%
+  - best-in-set benchmark RMSE: 32.17%
+  - selected local relative RMSE: 51.75%
+  - best-in-set local relative RMSE: 51.75%
+  - runtime: `147.028 s`
+  - polished representative count: `18`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 257.13%
+  - best-in-set benchmark RMSE: 214.69%
+  - selected local relative RMSE: 355.27%
+  - best-in-set local relative RMSE: 282.86%
+  - runtime: `67.810 s`
+  - polished representative count: `18`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 25.33%
+  - best-in-set benchmark RMSE: 25.33%
+  - selected local relative RMSE: 40.79%
+  - best-in-set local relative RMSE: 40.79%
+  - runtime: `71.478 s`
+  - polished representative count: `18`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `seir_6_1em4`
+
+- Imported raw candidate count: `276`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 162.09%
+  - analyzed imported selected benchmark RMSE: 1296.64%
+  - analyzed imported best benchmark RMSE: 162.09%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 1.33%
+  - `odepe_nopolish` RMSE: 162.09%
+  - `odepe_polish` RMSE: 82.04%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 129.17%
+  - best-in-set benchmark RMSE: 129.17%
+  - selected local relative RMSE: 186.97%
+  - best-in-set local relative RMSE: 186.97%
+  - runtime: `179.501 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 34.31%
+  - best-in-set benchmark RMSE: 33.66%
+  - selected local relative RMSE: 81.00%
+  - best-in-set local relative RMSE: 68.15%
+  - runtime: `126.590 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 32.48%
+  - best-in-set benchmark RMSE: 32.48%
+  - selected local relative RMSE: 76.08%
+  - best-in-set local relative RMSE: 64.72%
+  - runtime: `164.622 s`
+  - polished representative count: `266`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 11.51%
+  - best-in-set benchmark RMSE: 11.51%
+  - selected local relative RMSE: 21.68%
+  - best-in-set local relative RMSE: 21.68%
+  - runtime: `99.605 s`
+  - polished representative count: `266`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 4.92%
+  - best-in-set benchmark RMSE: 4.92%
+  - selected local relative RMSE: 9.71%
+  - best-in-set local relative RMSE: 9.71%
+  - runtime: `107.674 s`
+  - polished representative count: `266`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 1.33%
+  - best-in-set benchmark RMSE: 0.95%
+  - selected local relative RMSE: 2.57%
+  - best-in-set local relative RMSE: 1.85%
+  - runtime: `112.768 s`
+  - polished representative count: `266`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `crauste_6_1em4`
+
+- Imported raw candidate count: `15`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 187.73%
+  - analyzed imported selected benchmark RMSE: 5076.39%
+  - analyzed imported best benchmark RMSE: 187.73%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 5.35%
+  - `odepe_nopolish` RMSE: 187.73%
+  - `odepe_polish` RMSE: 199.55%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5075.69%
+  - best-in-set benchmark RMSE: 180.28%
+  - selected local relative RMSE: 9697.74%
+  - best-in-set local relative RMSE: 416.99%
+  - runtime: `318.970 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 264.06%
+  - best-in-set benchmark RMSE: 187.73%
+  - selected local relative RMSE: 606.23%
+  - best-in-set local relative RMSE: 431.36%
+  - runtime: `312.971 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 99.62%
+  - best-in-set benchmark RMSE: 99.62%
+  - selected local relative RMSE: 267.01%
+  - best-in-set local relative RMSE: 267.01%
+  - runtime: `140.043 s`
+  - polished representative count: `15`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 33.91%
+  - best-in-set benchmark RMSE: 30.41%
+  - selected local relative RMSE: 64.72%
+  - best-in-set local relative RMSE: 57.29%
+  - runtime: `126.344 s`
+  - polished representative count: `15`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 102.47%
+  - best-in-set benchmark RMSE: 102.47%
+  - selected local relative RMSE: 266.86%
+  - best-in-set local relative RMSE: 266.86%
+  - runtime: `117.462 s`
+  - polished representative count: `15`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 80.89%
+  - best-in-set benchmark RMSE: 33.63%
+  - selected local relative RMSE: 140.66%
+  - best-in-set local relative RMSE: 59.68%
+  - runtime: `78.168 s`
+  - polished representative count: `15`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `daisy_mamil4_1_1em4`
+
+- Imported raw candidate count: `132`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 42.13%
+  - analyzed imported selected benchmark RMSE: 132.17%
+  - analyzed imported best benchmark RMSE: 42.13%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 1.17%
+  - `odepe_nopolish` RMSE: 42.13%
+  - `odepe_polish` RMSE: 41.05%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 100.04%
+  - best-in-set benchmark RMSE: 42.13%
+  - selected local relative RMSE: 837.96%
+  - best-in-set local relative RMSE: 74.39%
+  - runtime: `396.733 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 45.73%
+  - best-in-set benchmark RMSE: 18.28%
+  - selected local relative RMSE: 74.35%
+  - best-in-set local relative RMSE: 34.28%
+  - runtime: `146.001 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 1.17%
+  - best-in-set benchmark RMSE: 1.17%
+  - selected local relative RMSE: 2.00%
+  - best-in-set local relative RMSE: 2.00%
+  - runtime: `118.661 s`
+  - polished representative count: `132`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 29.92%
+  - best-in-set benchmark RMSE: 0.63%
+  - selected local relative RMSE: 156.18%
+  - best-in-set local relative RMSE: 1.06%
+  - runtime: `106.929 s`
+  - polished representative count: `132`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 22.56%
+  - best-in-set benchmark RMSE: 22.56%
+  - selected local relative RMSE: 38.50%
+  - best-in-set local relative RMSE: 38.50%
+  - runtime: `81.423 s`
+  - polished representative count: `132`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 6.77%
+  - best-in-set benchmark RMSE: 6.77%
+  - selected local relative RMSE: 11.63%
+  - best-in-set local relative RMSE: 11.63%
+  - runtime: `87.007 s`
+  - polished representative count: `132`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `seir_7_1em4`
+
+- Imported raw candidate count: `298`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 149.27%
+  - analyzed imported selected benchmark RMSE: 6023.01%
+  - analyzed imported best benchmark RMSE: 149.27%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 4.80%
+  - `odepe_nopolish` RMSE: 149.27%
+  - `odepe_polish` RMSE: 149.27%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 122.08%
+  - best-in-set benchmark RMSE: 84.07%
+  - selected local relative RMSE: 241.66%
+  - best-in-set local relative RMSE: 235.73%
+  - runtime: `144.690 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 11.80%
+  - best-in-set benchmark RMSE: 9.44%
+  - selected local relative RMSE: 43.17%
+  - best-in-set local relative RMSE: 35.58%
+  - runtime: `141.581 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 43.95%
+  - best-in-set benchmark RMSE: 28.01%
+  - selected local relative RMSE: 197.84%
+  - best-in-set local relative RMSE: 52.43%
+  - runtime: `150.596 s`
+  - polished representative count: `295`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 12.65%
+  - best-in-set benchmark RMSE: 12.65%
+  - selected local relative RMSE: 45.76%
+  - best-in-set local relative RMSE: 45.76%
+  - runtime: `116.211 s`
+  - polished representative count: `295`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 37.94%
+  - best-in-set benchmark RMSE: 33.71%
+  - selected local relative RMSE: 169.73%
+  - best-in-set local relative RMSE: 69.69%
+  - runtime: `120.336 s`
+  - polished representative count: `295`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 14.18%
+  - best-in-set benchmark RMSE: 10.70%
+  - selected local relative RMSE: 60.94%
+  - best-in-set local relative RMSE: 39.70%
+  - runtime: `121.960 s`
+  - polished representative count: `295`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
+### `crauste_1_1em4`
+
+- Imported raw candidate count: `15`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 36378.43%
+  - analyzed imported selected benchmark RMSE: 4009638.38%
+  - analyzed imported best benchmark RMSE: 4009638.38%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 14.93%
+  - `odepe_nopolish` RMSE: 36378.43%
+  - `odepe_polish` RMSE: 336.70%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 55020.18%
+  - best-in-set benchmark RMSE: 36378.48%
+  - selected local relative RMSE: 64478.89%
+  - best-in-set local relative RMSE: 42933.61%
+  - runtime: `127.560 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 1819.02%
+  - best-in-set benchmark RMSE: 537.39%
+  - selected local relative RMSE: 4074.64%
+  - best-in-set local relative RMSE: 1006.16%
+  - runtime: `240.552 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 500.55%
+  - best-in-set benchmark RMSE: 402.83%
+  - selected local relative RMSE: 1209.58%
+  - best-in-set local relative RMSE: 704.92%
+  - runtime: `37.107 s`
+  - polished representative count: `15`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 48.17%
+  - best-in-set benchmark RMSE: 48.17%
+  - selected local relative RMSE: 69.56%
+  - best-in-set local relative RMSE: 69.56%
+  - runtime: `60.454 s`
+  - polished representative count: `15`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 588.42%
+  - best-in-set benchmark RMSE: 402.83%
+  - selected local relative RMSE: 1111.08%
+  - best-in-set local relative RMSE: 789.62%
+  - runtime: `47.474 s`
+  - polished representative count: `15`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 380.37%
+  - best-in-set benchmark RMSE: 329.36%
+  - selected local relative RMSE: 661.52%
+  - best-in-set local relative RMSE: 459.17%
+  - runtime: `39.362 s`
+  - polished representative count: `15`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `crauste_0_1em4`
+
+- Imported raw candidate count: `3`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 429.57%
+  - analyzed imported selected benchmark RMSE: 429.57%
+  - analyzed imported best benchmark RMSE: 429.57%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 9.96%
+  - `odepe_nopolish` RMSE: 429.57%
+  - `odepe_polish` RMSE: 214.81%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 416.65%
+  - best-in-set benchmark RMSE: 416.65%
+  - selected local relative RMSE: 1128.08%
+  - best-in-set local relative RMSE: 1128.08%
+  - runtime: `240.896 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.19%
+  - best-in-set benchmark RMSE: 14.32%
+  - selected local relative RMSE: 92.44%
+  - best-in-set local relative RMSE: 59.83%
+  - runtime: `258.559 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 12.10%
+  - best-in-set benchmark RMSE: 12.10%
+  - selected local relative RMSE: 43.79%
+  - best-in-set local relative RMSE: 43.79%
+  - runtime: `22.028 s`
+  - polished representative count: `3`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 9.96%
+  - best-in-set benchmark RMSE: 9.96%
+  - selected local relative RMSE: 26.63%
+  - best-in-set local relative RMSE: 26.63%
+  - runtime: `43.496 s`
+  - polished representative count: `3`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 11.19%
+  - best-in-set benchmark RMSE: 11.19%
+  - selected local relative RMSE: 37.12%
+  - best-in-set local relative RMSE: 37.12%
+  - runtime: `15.235 s`
+  - polished representative count: `3`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 9.96%
+  - best-in-set benchmark RMSE: 9.96%
+  - selected local relative RMSE: 26.63%
+  - best-in-set local relative RMSE: 26.61%
+  - runtime: `21.349 s`
+  - polished representative count: `3`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `hiv_5_1em4`
+
+- Imported raw candidate count: `379`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 650.76%
+  - analyzed imported selected benchmark RMSE: 15107.75%
+  - analyzed imported best benchmark RMSE: 650.76%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 5.52%
+  - `odepe_nopolish` RMSE: 650.76%
+  - `odepe_polish` RMSE: 78.88%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 4015.65%
+  - best-in-set benchmark RMSE: 650.76%
+  - selected local relative RMSE: 20806.43%
+  - best-in-set local relative RMSE: 3357.71%
+  - runtime: `784.056 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5.81%
+  - best-in-set benchmark RMSE: 5.81%
+  - selected local relative RMSE: 25.57%
+  - best-in-set local relative RMSE: 25.57%
+  - runtime: `399.582 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5.52%
+  - best-in-set benchmark RMSE: 5.52%
+  - selected local relative RMSE: 26.21%
+  - best-in-set local relative RMSE: 26.20%
+  - runtime: `4.5492e+03 s`
+  - polished representative count: `378`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5.52%
+  - best-in-set benchmark RMSE: 2.54%
+  - selected local relative RMSE: 26.21%
+  - best-in-set local relative RMSE: 5.14%
+  - runtime: `1.5728e+03 s`
+  - polished representative count: `378`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 21.51%
+  - best-in-set benchmark RMSE: 5.37%
+  - selected local relative RMSE: 44.74%
+  - best-in-set local relative RMSE: 26.13%
+  - runtime: `1.5371e+03 s`
+  - polished representative count: `378`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5.52%
+  - best-in-set benchmark RMSE: 4.89%
+  - selected local relative RMSE: 26.21%
+  - best-in-set local relative RMSE: 24.59%
+  - runtime: `1.0217e+03 s`
+  - polished representative count: `378`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `brusselator_0_1em4`
+
+- Imported raw candidate count: `0`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: Inf
+  - analyzed imported selected benchmark RMSE: Inf
+  - analyzed imported best benchmark RMSE: Inf
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 54.30%
+  - `odepe_nopolish` RMSE: 2.17%
+  - `odepe_polish` RMSE: 633.03%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.006 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.004 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.004 s`
+  - polished representative count: `0`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.004 s`
+  - polished representative count: `0`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.004 s`
+  - polished representative count: `0`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: Inf
+  - best-in-set benchmark RMSE: Inf
+  - selected local relative RMSE: Inf
+  - best-in-set local relative RMSE: Inf
+  - runtime: `0.004 s`
+  - polished representative count: `0`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+
+### `crauste_7_1em4`
+
+- Imported raw candidate count: `20`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 6445.99%
+  - analyzed imported selected benchmark RMSE: 163909.75%
+  - analyzed imported best benchmark RMSE: 18751.98%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 19.62%
+  - `odepe_nopolish` RMSE: 6445.99%
+  - `odepe_polish` RMSE: 167.02%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 198638.81%
+  - best-in-set benchmark RMSE: 6445.99%
+  - selected local relative RMSE: 554724.09%
+  - best-in-set local relative RMSE: 18726.84%
+  - runtime: `309.524 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 1257.51%
+  - best-in-set benchmark RMSE: 333.74%
+  - selected local relative RMSE: 5554.14%
+  - best-in-set local relative RMSE: 1096.10%
+  - runtime: `303.849 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 264.94%
+  - best-in-set benchmark RMSE: 264.94%
+  - selected local relative RMSE: 1061.44%
+  - best-in-set local relative RMSE: 871.26%
+  - runtime: `110.936 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 244.57%
+  - best-in-set benchmark RMSE: 35.66%
+  - selected local relative RMSE: 1054.20%
+  - best-in-set local relative RMSE: 68.07%
+  - runtime: `78.046 s`
+  - polished representative count: `20`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 377.96%
+  - best-in-set benchmark RMSE: 212.30%
+  - selected local relative RMSE: 1253.69%
+  - best-in-set local relative RMSE: 561.67%
+  - runtime: `53.368 s`
+  - polished representative count: `20`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 238.55%
+  - best-in-set benchmark RMSE: 222.38%
+  - selected local relative RMSE: 779.95%
+  - best-in-set local relative RMSE: 643.44%
+  - runtime: `46.576 s`
+  - polished representative count: `20`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `brusselator_4_1em4`
+
+- Imported raw candidate count: `20`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 2033.43%
+  - analyzed imported selected benchmark RMSE: 7827225.99%
+  - analyzed imported best benchmark RMSE: 2033.43%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 267.65%
+  - `odepe_nopolish` RMSE: 0.05%
+  - `odepe_polish` RMSE: 2033.43%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 7827225.99%
+  - best-in-set benchmark RMSE: 2033.43%
+  - selected local relative RMSE: 9895355.24%
+  - best-in-set local relative RMSE: 10465.02%
+  - runtime: `53.855 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 625245.84%
+  - best-in-set benchmark RMSE: 2033.43%
+  - selected local relative RMSE: 3222916.68%
+  - best-in-set local relative RMSE: 10465.02%
+  - runtime: `25.452 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 835.75%
+  - best-in-set benchmark RMSE: 829.08%
+  - selected local relative RMSE: 3055.33%
+  - best-in-set local relative RMSE: 2997.85%
+  - runtime: `22.748 s`
+  - polished representative count: `16`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 676.89%
+  - best-in-set benchmark RMSE: 676.89%
+  - selected local relative RMSE: 1717.61%
+  - best-in-set local relative RMSE: 1717.61%
+  - runtime: `5.329 s`
+  - polished representative count: `16`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 676.89%
+  - best-in-set benchmark RMSE: 668.64%
+  - selected local relative RMSE: 1717.61%
+  - best-in-set local relative RMSE: 1613.15%
+  - runtime: `4.197 s`
+  - polished representative count: `16`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 676.89%
+  - best-in-set benchmark RMSE: 676.89%
+  - selected local relative RMSE: 1717.61%
+  - best-in-set local relative RMSE: 1717.61%
+  - runtime: `5.206 s`
+  - polished representative count: `16`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `hiv_2_1em4`
+
+- Imported raw candidate count: `251`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 225.67%
+  - analyzed imported selected benchmark RMSE: 23576.67%
+  - analyzed imported best benchmark RMSE: 225.67%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 14.98%
+  - `odepe_nopolish` RMSE: 225.67%
+  - `odepe_polish` RMSE: 110.31%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 169207.58%
+  - best-in-set benchmark RMSE: 225.67%
+  - selected local relative RMSE: 291737.41%
+  - best-in-set local relative RMSE: 731.79%
+  - runtime: `604.826 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 11.41%
+  - best-in-set benchmark RMSE: 7.95%
+  - selected local relative RMSE: 35.76%
+  - best-in-set local relative RMSE: 29.12%
+  - runtime: `335.085 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 14.98%
+  - best-in-set benchmark RMSE: 14.98%
+  - selected local relative RMSE: 25.82%
+  - best-in-set local relative RMSE: 25.82%
+  - runtime: `2.3336e+03 s`
+  - polished representative count: `251`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 14.98%
+  - best-in-set benchmark RMSE: 0.33%
+  - selected local relative RMSE: 25.82%
+  - best-in-set local relative RMSE: 0.49%
+  - runtime: `817.658 s`
+  - polished representative count: `251`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 63.57%
+  - best-in-set benchmark RMSE: 14.98%
+  - selected local relative RMSE: 125.72%
+  - best-in-set local relative RMSE: 25.83%
+  - runtime: `984.781 s`
+  - polished representative count: `251`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 14.98%
+  - best-in-set benchmark RMSE: 2.79%
+  - selected local relative RMSE: 25.82%
+  - best-in-set local relative RMSE: 4.51%
+  - runtime: `866.422 s`
+  - polished representative count: `251`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `hiv_7_1em4`
+
+- Imported raw candidate count: `256`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 540.40%
+  - analyzed imported selected benchmark RMSE: 9626.29%
+  - analyzed imported best benchmark RMSE: 540.40%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 19.46%
+  - `odepe_nopolish` RMSE: 540.40%
+  - `odepe_polish` RMSE: 135.65%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 140547.80%
+  - best-in-set benchmark RMSE: 540.40%
+  - selected local relative RMSE: 187147.85%
+  - best-in-set local relative RMSE: 893.92%
+  - runtime: `494.424 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.46%
+  - best-in-set benchmark RMSE: 4.96%
+  - selected local relative RMSE: 26.47%
+  - best-in-set local relative RMSE: 11.94%
+  - runtime: `604.939 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.46%
+  - best-in-set benchmark RMSE: 18.79%
+  - selected local relative RMSE: 26.47%
+  - best-in-set local relative RMSE: 25.61%
+  - runtime: `2.1101e+03 s`
+  - polished representative count: `256`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.46%
+  - best-in-set benchmark RMSE: 13.83%
+  - selected local relative RMSE: 26.47%
+  - best-in-set local relative RMSE: 25.95%
+  - runtime: `679.145 s`
+  - polished representative count: `256`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.46%
+  - best-in-set benchmark RMSE: 19.46%
+  - selected local relative RMSE: 26.47%
+  - best-in-set local relative RMSE: 26.47%
+  - runtime: `819.901 s`
+  - polished representative count: `256`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 19.46%
+  - best-in-set benchmark RMSE: 15.36%
+  - selected local relative RMSE: 26.47%
+  - best-in-set local relative RMSE: 21.16%
+  - runtime: `487.742 s`
+  - polished representative count: `256`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
+### `crauste_4_1em4`
+
+- Imported raw candidate count: `1`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 21.65%
+  - analyzed imported selected benchmark RMSE: 21.65%
+  - analyzed imported best benchmark RMSE: 21.65%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 18.66%
+  - `odepe_nopolish` RMSE: 21.65%
+  - `odepe_polish` RMSE: 126.63%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 16.70%
+  - best-in-set benchmark RMSE: 16.70%
+  - selected local relative RMSE: 29.70%
+  - best-in-set local relative RMSE: 29.70%
+  - runtime: `178.292 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 14.73%
+  - best-in-set benchmark RMSE: 14.73%
+  - selected local relative RMSE: 26.19%
+  - best-in-set local relative RMSE: 26.19%
+  - runtime: `208.987 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 18.66%
+  - best-in-set benchmark RMSE: 18.66%
+  - selected local relative RMSE: 33.19%
+  - best-in-set local relative RMSE: 33.19%
+  - runtime: `10.421 s`
+  - polished representative count: `1`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 15.28%
+  - best-in-set benchmark RMSE: 15.28%
+  - selected local relative RMSE: 27.18%
+  - best-in-set local relative RMSE: 27.18%
+  - runtime: `17.861 s`
+  - polished representative count: `1`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `worse`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 23.16%
+  - best-in-set benchmark RMSE: 21.65%
+  - selected local relative RMSE: 59.21%
+  - best-in-set local relative RMSE: 41.10%
+  - runtime: `6.013 s`
+  - polished representative count: `1`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 15.48%
+  - best-in-set benchmark RMSE: 15.48%
+  - selected local relative RMSE: 27.52%
+  - best-in-set local relative RMSE: 27.52%
+  - runtime: `9.693 s`
+  - polished representative count: `1`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
+### `crauste_2_1em4`
+
+- Imported raw candidate count: `19`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 2597.41%
+  - analyzed imported selected benchmark RMSE: 527852816.74%
+  - analyzed imported best benchmark RMSE: 2597.41%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 28.77%
+  - `odepe_nopolish` RMSE: 2597.41%
+  - `odepe_polish` RMSE: 173.50%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5004.89%
+  - best-in-set benchmark RMSE: 2597.41%
+  - selected local relative RMSE: 17138.13%
+  - best-in-set local relative RMSE: 4945.47%
+  - runtime: `293.355 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 224.56%
+  - best-in-set benchmark RMSE: 224.56%
+  - selected local relative RMSE: 1055.33%
+  - best-in-set local relative RMSE: 594.58%
+  - runtime: `297.342 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 165.99%
+  - best-in-set benchmark RMSE: 165.99%
+  - selected local relative RMSE: 739.41%
+  - best-in-set local relative RMSE: 269.95%
+  - runtime: `205.142 s`
+  - polished representative count: `19`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 62.43%
+  - best-in-set benchmark RMSE: 60.71%
+  - selected local relative RMSE: 226.57%
+  - best-in-set local relative RMSE: 114.53%
+  - runtime: `252.594 s`
+  - polished representative count: `19`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 237.93%
+  - best-in-set benchmark RMSE: 237.93%
+  - selected local relative RMSE: 317.37%
+  - best-in-set local relative RMSE: 317.37%
+  - runtime: `109.223 s`
+  - polished representative count: `19`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 225.43%
+  - best-in-set benchmark RMSE: 98.54%
+  - selected local relative RMSE: 293.40%
+  - best-in-set local relative RMSE: 164.08%
+  - runtime: `126.421 s`
+  - polished representative count: `19`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+
+### `brusselator_3_1em4`
+
+- Imported raw candidate count: `20`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 226.46%
+  - analyzed imported selected benchmark RMSE: 436.36%
+  - analyzed imported best benchmark RMSE: 226.46%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 45.93%
+  - `odepe_nopolish` RMSE: 2033.43%
+  - `odepe_polish` RMSE: 226.46%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 254362.06%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 637498.89%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `1.042 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 1285748.58%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 2729827.14%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `24.563 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 684.40%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 2132.16%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `4.179 s`
+  - polished representative count: `19`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 682.87%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 2129.08%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `5.199 s`
+  - polished representative count: `19`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 832.32%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 2356.64%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `3.164 s`
+  - polished representative count: `19`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 682.87%
+  - best-in-set benchmark RMSE: 226.46%
+  - selected local relative RMSE: 2129.08%
+  - best-in-set local relative RMSE: 523.75%
+  - runtime: `4.415 s`
+  - polished representative count: `19`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+
+### `seir_3_1em4`
+
+- Imported raw candidate count: `345`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 322.86%
+  - analyzed imported selected benchmark RMSE: 364.62%
+  - analyzed imported best benchmark RMSE: 322.86%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 7.04%
+  - `odepe_nopolish` RMSE: 322.86%
+  - `odepe_polish` RMSE: 30.19%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 127.50%
+  - best-in-set benchmark RMSE: 112.95%
+  - selected local relative RMSE: 308.43%
+  - best-in-set local relative RMSE: 294.99%
+  - runtime: `176.453 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 8.11%
+  - best-in-set benchmark RMSE: 1.04%
+  - selected local relative RMSE: 13.93%
+  - best-in-set local relative RMSE: 1.96%
+  - runtime: `162.600 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 20.20%
+  - best-in-set benchmark RMSE: 20.20%
+  - selected local relative RMSE: 47.88%
+  - best-in-set local relative RMSE: 47.88%
+  - runtime: `209.517 s`
+  - polished representative count: `344`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 27.90%
+  - best-in-set benchmark RMSE: 27.90%
+  - selected local relative RMSE: 68.22%
+  - best-in-set local relative RMSE: 67.95%
+  - runtime: `167.336 s`
+  - polished representative count: `344`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 22.56%
+  - best-in-set benchmark RMSE: 9.00%
+  - selected local relative RMSE: 39.64%
+  - best-in-set local relative RMSE: 17.10%
+  - runtime: `165.694 s`
+  - polished representative count: `344`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 5.05%
+  - best-in-set benchmark RMSE: 3.89%
+  - selected local relative RMSE: 8.88%
+  - best-in-set local relative RMSE: 6.91%
+  - runtime: `146.447 s`
+  - polished representative count: `344`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
+### `biohydrogenation_4_1em4`
+
+- Imported raw candidate count: `189`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 28.69%
+  - analyzed imported selected benchmark RMSE: 60.65%
+  - analyzed imported best benchmark RMSE: 28.69%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 11.99%
+  - `odepe_nopolish` RMSE: 28.69%
+  - `odepe_polish` RMSE: 43.18%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 33.88%
+  - best-in-set benchmark RMSE: 28.69%
+  - selected local relative RMSE: 109.43%
+  - best-in-set local relative RMSE: 70.01%
+  - runtime: `289.939 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 30.58%
+  - best-in-set benchmark RMSE: 16.73%
+  - selected local relative RMSE: 48.74%
+  - best-in-set local relative RMSE: 48.39%
+  - runtime: `147.674 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 12.14%
+  - best-in-set benchmark RMSE: 12.14%
+  - selected local relative RMSE: 19.90%
+  - best-in-set local relative RMSE: 19.90%
+  - runtime: `126.633 s`
+  - polished representative count: `189`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 25.58%
+  - best-in-set benchmark RMSE: 12.37%
+  - selected local relative RMSE: 47.08%
+  - best-in-set local relative RMSE: 34.03%
+  - runtime: `92.250 s`
+  - polished representative count: `189`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 66.21%
+  - best-in-set benchmark RMSE: 25.09%
+  - selected local relative RMSE: 84.25%
+  - best-in-set local relative RMSE: 48.98%
+  - runtime: `83.641 s`
+  - polished representative count: `189`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 26.23%
+  - best-in-set benchmark RMSE: 16.77%
+  - selected local relative RMSE: 36.21%
+  - best-in-set local relative RMSE: 36.20%
+  - runtime: `80.589 s`
+  - polished representative count: `189`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
+### `brusselator_7_1em4`
+
+- Imported raw candidate count: `0`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: Inf
+  - analyzed imported selected benchmark RMSE: Inf
+  - analyzed imported best benchmark RMSE: Inf
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 210.62%
+  - `odepe_nopolish` RMSE: Inf
+  - `odepe_polish` RMSE: 613.69%
+- scalar original-space:
+  - status: `missing`
+  - reason: `missing`
+- scalar log-space:
+  - status: `missing`
+  - reason: `missing`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `missing`
+  - reason: `missing`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `missing`
+  - reason: `missing`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `missing`
+  - reason: `missing`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `missing`
+  - reason: `missing`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `tie`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `tie`
+
+### `hiv_4_1em4`
+
+- Imported raw candidate count: `172`
+- Imported pool stage metrics:
+  - imported best benchmark RMSE: 1268.10%
+  - analyzed imported selected benchmark RMSE: 18825.79%
+  - analyzed imported best benchmark RMSE: 1268.10%
+- Research box override: `script_standard_positive_box` (`[1e-5, 10]` on all polished coordinates)
+- Saved references:
+  - `amigo2_run` RMSE: 90.37%
+  - `odepe_nopolish` RMSE: 1268.10%
+  - `odepe_polish` RMSE: 180.79%
+- scalar original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 101429.00%
+  - best-in-set benchmark RMSE: 1257.05%
+  - selected local relative RMSE: 169897.85%
+  - best-in-set local relative RMSE: 1928.49%
+  - runtime: `549.654 s`
+- scalar log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 13642.52%
+  - best-in-set benchmark RMSE: 39.70%
+  - selected local relative RMSE: 22852.63%
+  - best-in-set local relative RMSE: 65.17%
+  - runtime: `316.875 s`
+- residual LeastSquaresOptim LM bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 90.35%
+  - best-in-set benchmark RMSE: 16.11%
+  - selected local relative RMSE: 151.35%
+  - best-in-set local relative RMSE: 26.94%
+  - runtime: `1.0194e+03 s`
+  - polished representative count: `172`
+- residual LeastSquaresOptim LM bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 90.35%
+  - best-in-set benchmark RMSE: 15.31%
+  - selected local relative RMSE: 151.35%
+  - best-in-set local relative RMSE: 25.65%
+  - runtime: `363.419 s`
+  - polished representative count: `172`
+- residual LeastSquaresOptim LM bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual LeastSquaresOptim LM bounded log-space vs scalar log-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded original-space:
+  - status: `ok`
+  - selected benchmark RMSE: 90.35%
+  - best-in-set benchmark RMSE: 16.85%
+  - selected local relative RMSE: 151.35%
+  - best-in-set local relative RMSE: 28.13%
+  - runtime: `654.131 s`
+  - polished representative count: `172`
+- residual FastLevenbergMarquardt bounded log-space:
+  - status: `ok`
+  - selected benchmark RMSE: 90.35%
+  - best-in-set benchmark RMSE: 90.35%
+  - selected local relative RMSE: 151.35%
+  - best-in-set local relative RMSE: 151.35%
+  - runtime: `273.224 s`
+  - polished representative count: `172`
+- residual FastLevenbergMarquardt bounded original-space vs scalar original-space best-in-set benchmark RMSE: `better`
+- residual FastLevenbergMarquardt bounded log-space vs scalar log-space best-in-set benchmark RMSE: `worse`
+
