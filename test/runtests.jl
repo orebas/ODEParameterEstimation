@@ -8,4 +8,5 @@ using Test
     include("identifiability_regressions.jl")
     include("result_processing_helpers.jl")
     include("feature_regressions.jl")
+    include("test_shade_lm.jl")
 end

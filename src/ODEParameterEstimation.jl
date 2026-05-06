@@ -17,6 +17,7 @@ using LinearAlgebra
 using Logging
 using StructuralIdentifiability
 using Nemo#using GLPK
+import Metaheuristics  # SHADE+LM baseline (`src/baselines/shade_lm.jl`); imported, not used, to avoid clobbering `optimize`/`minimum`/`minimizer` from Optim
 using NonlinearSolve
 using Optim, LineSearches
 using Optimization, OptimizationOptimJL
@@ -88,6 +89,7 @@ include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
 include("core/polish_residual.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
+include("baselines/shade_lm.jl")                   # SHADE+LM hybrid baseline (uses _build_polish_context, _polish_single_from_context)
 include("core/multipoint_template.jl")  # Multi-point polynomial template system
 include("core/derivatives.jl")
 include("core/sigma_d.jl")  # Per-(observable, order) derivative uncertainty σ_d
@@ -115,6 +117,7 @@ export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOL
 export solve_with_hc
 export optimized_multishot_parameter_estimation, solve_with_robust
 export direct_optimization_parameter_estimation
+export shade_lm_estimate
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
