@@ -1,5 +1,18 @@
 # ODEParameterEstimation.jl Guidelines
 
+## Open investigations (read before starting reconditioning / numerical-stability work)
+
+- **Variable (column) scaling of the polynomial system.** Diagnostics on
+  the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)
+  show Jacobian condition numbers of 1e+6 to 1e+10 at low noise, driving
+  recovery error far above what derivative accuracy alone would predict.
+  HC.jl already does Skeel **row** scaling automatically; ODEPE does not
+  do **column** scaling. Implementing variable rescaling at the earliest
+  level possible is on the wishlist. Three implementation levels and the
+  diagnostic numbers are in
+  [`docs/2026-05-01_variable_scaling_investigation.md`](docs/2026-05-01_variable_scaling_investigation.md).
+  See also the top entry in `TODO`.
+
 ## Build/Test Commands
 - **Always use `--startup-file=no`** when invoking Julia (Revise.jl causes exit segfaults on Julia 1.12)
 - Use global Julia environment (plain `julia`, NOT `julia --project`) for running tests

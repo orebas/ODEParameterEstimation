@@ -20,6 +20,8 @@ using Nemo#using GLPK
 using NonlinearSolve
 using Optim, LineSearches
 using Optimization, OptimizationOptimJL
+using LeastSquaresOptim
+using FastLevenbergMarquardt
 using OrderedCollections
 using OrdinaryDiffEq
 using PolynomialRoots
@@ -84,13 +86,22 @@ include("core/pointpicker.jl")
 
 include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
+include("core/polish_residual.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("core/multipoint_template.jl")  # Multi-point polynomial template system
 include("core/derivatives.jl")
+include("core/sigma_d.jl")  # Per-(observable, order) derivative uncertainty σ_d
+include("core/sensitivity_seeds.jl")  # σ_d-aware seed generation (Layer 2)
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
 include("core/sampling.jl")
 include("core/svg_plots.jl")
 include("core/diagnostics.jl")
+include("core/consensus_estimation.jl")
+include("core/consensus_reporting.jl")
+include("core/synthesized_finalizer.jl")
+include("core/branch_consensus_v1.jl")
+include("core/benchmark_sweeps.jl")
+include("core/block_consensus_v2.jl")
 include("examples/load_examples.jl")
 
 # Export types
@@ -100,20 +111,19 @@ export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, 
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
 
 # Export core functions
-export solve_with_hc, solve_with_monodromy
+export solve_with_hc
 export optimized_multishot_parameter_estimation, solve_with_robust
 export direct_optimization_parameter_estimation
-export estimate
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
-export aaad, aaad_in_testing, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
+export aaad, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
 export ChebyshevApprox, chebyshev_aicc, chebyshev_bic, FourierApprox, fourier_adaptive
 export InterpolatorMethod, InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD
-export InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52
+export InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52
 export InterpolatorS2AAAMLE, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52
 export InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52
 export InterpolatorChebyshevAICc, InterpolatorChebyshevBIC, InterpolatorFourierAdaptive, InterpolatorAGPUQ, InterpolatorCustom
@@ -135,11 +145,19 @@ export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
 
 # Export diagnostic functions and types
 export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
-export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport
+export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport, MultipointDiagnosticAnalysis
 export EstimationResultsReport, BacksolveUQReport, UncertaintyReport
+export DerivativeUncertaintyEstimate, compute_sigma_d, get_sigma_d, sigma_d_diagonal
+export SensitivitySeedReport, generate_sensitivity_seeds, seed_vectors_to_candidates
 export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget
 export ParameterSpreadEntry, CrossSolutionSpread, compute_cross_solution_spread
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
+export ConsensusOptions, CandidateEvidence, CandidateFamily, ConsensusEstimationReport, research_consensus_estimation
+export SynthesizedFinalizerOptions, SynthesizedSeed, SynthesizedFinalizerReport, research_synthesized_finalizer
+export TimingPhaseEntry, TimingBreakdown
+export BranchConsensusOptions, BranchVariableSupport, BranchBlockSupport, BranchHypothesis, BranchConsensusReport, research_branch_consensus_v1
+export BlockConsensusOptions, BlockCluster, BlockDecomposition, BlockVariableConfidence, AssembledHypothesis, BlockConsensusReport, research_block_consensus_v2
+export TryhardFinalistOptions, TryhardFinalist, TryhardFinalistReport, research_tryhard_finalists
 
 # Export UQ (Uncertainty Quantification) functions
 export AGPInterpolatorUQ, agp_gpr_uq
@@ -161,8 +179,9 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
 export FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGP, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorAGPUQ, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52, InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52, InterpolatorCustom
-export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS
+export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorAGPUQ, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52, InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52, InterpolatorCustom
+export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS,
+       PolishLSOBoundedLog, PolishFastLMBoundedLog
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
 export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp, s3_refine_gp_adaptive, s3_refine_gp_bic
@@ -201,7 +220,6 @@ export optimized_multishot_parameter_estimation
 		noise_level = 0.0,
 		system_solver = SolverHC,
 		interpolator = InterpolatorAAAD,
-		max_num_points = 1,
 		shooting_points = 0,
 		nooutput = true,
 		diagnostics = false,

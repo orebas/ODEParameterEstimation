@@ -809,6 +809,8 @@ function build_multipoint_template(
     end
 
     n_kept = count(kept)
+    kept_equation_indices = findall(kept)
+    dropped_equation_indices = findall(.!kept)
     if diagnostics
         println("[MPT] Stripping result: $n_kept / $(length(combined_inst_eqs)) equations kept")
     end
@@ -881,12 +883,16 @@ function build_multipoint_template(
     return MultiPointTemplate(
         n_points,
         si_template,
+        combined_symb_eqs,
         stripped_symb_eqs,
         solve_vars,
         data_vars,
         param_indices,
         param_names,
         stripped_meta,
+        length(combined_inst_eqs),
+        Int[kept_equation_indices...],
+        Int[dropped_equation_indices...],
         per_point_ranges,
         template_DD,
         mq,

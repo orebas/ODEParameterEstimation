@@ -250,6 +250,8 @@ function compute_oracle_taylor_coefficients(
     solver = AutoVern9(Rodas4P()),
     abstol = 1e-14,
     reltol = 1e-14,
+    completed_sys = nothing,
+    base_ode_problem = nothing,
 )
     model = pep.model
     sys = model.system
@@ -258,27 +260,33 @@ function compute_oracle_taylor_coefficients(
     params = ModelingToolkit.parameters(sys)
     eqs = ModelingToolkit.equations(sys)
 
-    # Step 1: Solve ODE at high accuracy to get state values at t_eval
-    tspan = pep.recommended_time_interval
-    if isnothing(tspan) || isnothing(pep.data_sample)
-        tspan = [-0.5, 0.5]
-    else
-        t_vec = pep.data_sample["t"]
-        tspan = [first(t_vec), last(t_vec)]
+    # Step 1: Solve ODE at high accuracy to get state values at t_eval.
+    # The data sample's t-vector is the canonical source of the integration range
+    # and covers the requested t_eval by construction. We previously fell back to
+    # `pep.recommended_time_interval` and then to `[-0.5, 0.5]`, but every callsite
+    # in the codebase passes a sampled PEP, so those fallbacks were dead code that
+    # silently masked configuration errors. Refuse to integrate without a data sample.
+    if isnothing(pep.data_sample) || !haskey(pep.data_sample, "t")
+        error("compute_oracle_taylor_coefficients requires `pep.data_sample` with a \"t\" key (got nothing or no t-vector)")
     end
+    t_vec = pep.data_sample["t"]
+    tspan = [first(t_vec), last(t_vec)]
 
-    completed_sys = ModelingToolkit.complete(sys)
+    completed_sys = isnothing(completed_sys) ? ModelingToolkit.complete(sys) : completed_sys
     ordered_params = [pep.p_true[p] for p in params]
     ordered_ic = [pep.ic[s] for s in states]
+    u0_map = Dict(ModelingToolkit.unknowns(completed_sys) .=> ordered_ic)
+    p_map = Dict(ModelingToolkit.parameters(completed_sys) .=> ordered_params)
 
-    prob = ODEProblem(
-        completed_sys,
-        merge(
-            Dict(ModelingToolkit.unknowns(completed_sys) .=> ordered_ic),
-            Dict(ModelingToolkit.parameters(completed_sys) .=> ordered_params),
-        ),
-        tspan,
-    )
+    prob = if isnothing(base_ode_problem)
+        ODEProblem(
+            completed_sys,
+            merge(u0_map, p_map),
+            tspan,
+        )
+    else
+        remake(base_ode_problem; u0 = u0_map, p = p_map, build_initializeprob = false)
+    end
     sol = ModelingToolkit.solve(prob, solver; abstol, reltol, dense = true)
 
     # Step 2: Extract state values at t_eval
@@ -392,8 +400,17 @@ function diagnose_derivative_accuracy(
     interpolator_name::String = "unknown",
     kwargs...,
 )
-    # Get setup data (SIAN + interpolants) if not provided
+    # Get setup data (SIAN + interpolants) if not provided.
+    # When building setup_data here, also auto-handle transcendentals so direct
+    # callers don't need to pre-transform. transform_pep_for_estimation is idempotent.
     if isnothing(setup_data)
+        t_var_for_trfn = ModelingToolkit.get_iv(pep.model.system)
+        pep, _ = try
+            transform_pep_for_estimation(pep, t_var_for_trfn)
+        catch e
+            @warn "[DIAGNOSE_DERIV] Transcendental transform failed (may not be needed): $e"
+            (pep, nothing)
+        end
         setup_data = setup_parameter_estimation(pep; interpolator = interpolator, nooutput = true)
     end
 
@@ -441,8 +458,14 @@ function diagnose_derivative_accuracy(
                 NaN
             end
 
-            denom = max(abs(true_val), 1e-15)
-            rel_err = abs(true_val - interp_val) / denom
+            # Relative error guard: when the true value is effectively zero
+            # (e.g. derivatives of conserved quantities), dividing by a tiny
+            # epsilon inflates pure numerical noise into "10500%" artefacts.
+            # Fall back to absolute error in that regime — the metric is
+            # consumed via thresholds like 1%/10%, and ~1e-13 absolute is
+            # correctly classified as "easy".
+            abs_err = abs(true_val - interp_val)
+            rel_err = abs(true_val) < 1e-10 ? abs_err : abs_err / abs(true_val)
 
             push!(entries, (obs = obs_name, order = order, true_val = true_val, interp_val = interp_val, rel_error = rel_err))
 
@@ -568,6 +591,13 @@ function diagnose_polynomial_system(
     kwargs...,
 )
     if isnothing(setup_data)
+        t_var_for_trfn = ModelingToolkit.get_iv(pep.model.system)
+        pep, _ = try
+            transform_pep_for_estimation(pep, t_var_for_trfn)
+        catch e
+            @warn "[DIAGNOSE_POLY] Transcendental transform failed (may not be needed): $e"
+            (pep, nothing)
+        end
         setup_data = setup_parameter_estimation(pep; interpolator = interpolator, nooutput = true)
     end
 
@@ -910,6 +940,13 @@ function diagnose_sensitivity(
     kwargs...,
 )
     if isnothing(setup_data)
+        t_var_for_trfn = ModelingToolkit.get_iv(pep.model.system)
+        pep, _ = try
+            transform_pep_for_estimation(pep, t_var_for_trfn)
+        catch e
+            @warn "[DIAGNOSE_SENS] Transcendental transform failed (may not be needed): $e"
+            (pep, nothing)
+        end
         setup_data = setup_parameter_estimation(pep; interpolator = interpolator, nooutput = true)
     end
 
@@ -1255,8 +1292,8 @@ end
     compute_error_budget(sr, da, pf; max_blame=5) → Union{Nothing, ErrorBudgetReport}
 
 Signed IFT validation: compare Δx_actual = x_HC - x_true against Δx_predicted = S·Δd
-where Δd = d_prod - d_true (signed). Also computes S at the production point for
-a nonlinearity check.
+where Δd = d_prod - d_true (signed). The nonlinearity metric is the normalized
+prediction mismatch ‖Δx_predicted - Δx_actual‖ / ‖Δx_actual‖.
 
 Returns `nothing` if the sensitivity matrix is empty.
 """
@@ -1346,44 +1383,22 @@ function compute_error_budget(
     sens_conc = s_fro > 0 ? maximum(s_col_norms) / s_fro : 0.0
     is_path = sens_conc > 0.5
 
-    # Nonlinearity check: compute S at production point (x_HC, d_prod)
+    # Nonlinearity check: normalized mismatch between first-order prediction
+    # and the observed displacement at the closest production root.
     sens_nonlin = NaN
     if has_actual && any(!iszero, d_prod_aligned)
         try
-            # Build production evaluation point from closest HC solution + production data
-            # We need the same variable ordering as the sensitivity computation used
-            # x_HC values for unknowns, d_prod values for data vars
-            x_hc_vec = Float64[]
-            for ulabel in unknown_labels
-                if haskey(pf_var_idx, ulabel)
-                    idx = pf_var_idx[ulabel]
-                    push!(x_hc_vec, pf.closest_solution_production[idx])
-                else
-                    push!(x_hc_vec, NaN)
+            dx_actual_vec = Float64[]
+            dx_predicted_vec = Float64[]
+            for e in entries
+                if !isnan(e.delta_x_actual)
+                    push!(dx_actual_vec, e.delta_x_actual)
+                    push!(dx_predicted_vec, e.delta_x_predicted)
                 end
             end
-
-            if !any(isnan, x_hc_vec) && !any(isnan, d_prod_aligned)
-                eval_prod = [x_hc_vec..., d_prod_aligned...]
-
-                # Recompute Jacobian at production point using the same compiled function
-                # We need the template equations and variable list — reconstruct from sr
-                # For now, use the Jacobian column structure from sr to partition
-                # This requires the compiled system function, which we don't have stored.
-                # Instead, approximate nonlinearity by comparing prediction vs actual:
-                # If S·Δd ≈ Δx, nonlinearity is low.
-                dx_actual_vec = Float64[]
-                dx_predicted_vec = Float64[]
-                for e in entries
-                    if !isnan(e.delta_x_actual)
-                        push!(dx_actual_vec, e.delta_x_actual)
-                        push!(dx_predicted_vec, e.delta_x_predicted)
-                    end
-                end
-                if length(dx_actual_vec) > 0
-                    residual = dx_predicted_vec .- dx_actual_vec
-                    sens_nonlin = norm(residual) / max(norm(dx_actual_vec), 1e-300)
-                end
+            if !isempty(dx_actual_vec)
+                residual = dx_predicted_vec .- dx_actual_vec
+                sens_nonlin = norm(residual) / max(norm(dx_actual_vec), 1e-300)
             end
         catch e
             @warn "[ERROR_BUDGET] Nonlinearity check failed: $e"
@@ -1421,6 +1436,315 @@ function _parse_multipoint_var_name(name::AbstractString)
         return (String(m.captures[1]), parse(Int, m.captures[2]))
     end
     return (String(name), 1)
+end
+
+function _multipoint_var_order(name::AbstractString)
+    clean_name, _ = _parse_multipoint_var_name(name)
+    parsed = parse_derivative_variable_name(clean_name)
+    return isnothing(parsed) ? 0 : parsed[2]
+end
+
+function _multipoint_template_max_order(mpt::MultiPointTemplate)
+    max_order = 0
+    for v in mpt.solve_vars
+        max_order = max(max_order, _multipoint_var_order(string(v)))
+    end
+    for v in mpt.data_vars
+        max_order = max(max_order, _multipoint_var_order(string(v)))
+    end
+    return max_order
+end
+
+function _multipoint_point_data_labels(mpt::MultiPointTemplate)
+    groups = [String[] for _ in 1:mpt.n_points]
+    for pt in 1:min(mpt.n_points, length(mpt.per_point_data_var_ranges))
+        for idx in mpt.per_point_data_var_ranges[pt]
+            idx > length(mpt.data_vars) && continue
+            push!(groups[pt], string(mpt.data_vars[idx]))
+        end
+    end
+    return groups
+end
+
+function _lookup_production_data_value(
+    label::AbstractString,
+    pep::ParameterEstimationProblem,
+    setup_data,
+    t_eval::Float64,
+)
+    clean_name, _ = _parse_multipoint_var_name(label)
+
+    trfn_val = evaluate_trfn_template_variable(clean_name, t_eval)
+    if isnothing(trfn_val)
+        trfn_val = evaluate_obs_trfn_template_variable(clean_name, t_eval)
+    end
+    if !isnothing(trfn_val)
+        return Float64(trfn_val)
+    end
+
+    parsed = parse_derivative_variable_name(clean_name)
+    isnothing(parsed) && return NaN
+    base_name, deriv_order = parsed
+
+    for mq in pep.measured_quantities
+        obs_name = replace(string(mq.lhs), r"\(.*\)$" => "")
+        obs_name == string(base_name) || continue
+        obs_rhs = ModelingToolkit.diff2term(mq.rhs)
+        if haskey(setup_data.interpolants, obs_rhs)
+            interp = setup_data.interpolants[obs_rhs]
+            return try
+                Float64(nth_deriv(x -> interp(x), deriv_order, t_eval))
+            catch
+                NaN
+            end
+        end
+    end
+
+    return NaN
+end
+
+function _diagnose_derivative_accuracy_for_labels(
+    pep::ParameterEstimationProblem;
+    setup_data,
+    t_eval::Float64,
+    labels::Vector{String},
+    interpolator_name::String,
+)
+    entry_type = @NamedTuple{obs::String, order::Int, true_val::Float64, interp_val::Float64, rel_error::Float64}
+    entries = entry_type[]
+    isempty(labels) && return DerivativeAccuracyReport(pep.name, t_eval, 0, entries, "", 0, 0.0, interpolator_name)
+
+    max_order = maximum(_multipoint_var_order(label) for label in labels)
+    state_taylor = compute_oracle_taylor_coefficients(pep, t_eval, max_order + 2)
+    obs_taylor = compute_observable_taylor_coefficients(pep, state_taylor, t_eval, max_order + 2)
+
+    worst_obs = ""
+    worst_order = 0
+    worst_rel_error = -Inf
+
+    for label in labels
+        clean_name, _ = _parse_multipoint_var_name(label)
+        order = _multipoint_var_order(label)
+        true_val = Float64(_lookup_true_value(pep, clean_name;
+            state_taylor = state_taylor, obs_taylor = obs_taylor, t_eval = t_eval))
+        interp_val = _lookup_production_data_value(clean_name, pep, setup_data, t_eval)
+        rel_err = if isfinite(true_val) && isfinite(interp_val)
+            # See _diagnose_derivative_accuracy_for_labels' sibling computation:
+            # avoid inflating numerical noise into bogus relative error when the
+            # true value is effectively zero (e.g. conserved-quantity derivatives).
+            abs_err = abs(true_val - interp_val)
+            abs(true_val) < 1e-10 ? abs_err : abs_err / abs(true_val)
+        else
+            Inf
+        end
+
+        push!(entries, (obs = label, order = order, true_val = true_val, interp_val = interp_val, rel_error = rel_err))
+        if rel_err > worst_rel_error
+            worst_rel_error = rel_err
+            worst_obs = label
+            worst_order = order
+        end
+    end
+
+    if !isfinite(worst_rel_error)
+        worst_rel_error = Inf
+    end
+
+    return DerivativeAccuracyReport(
+        pep.name,
+        t_eval,
+        max_order,
+        entries,
+        worst_obs,
+        worst_order,
+        worst_rel_error,
+        interpolator_name,
+    )
+end
+
+function _index_combinations(indices::Vector{Int}, k::Int)
+    results = Vector{Vector{Int}}()
+    if k <= 0
+        push!(results, Int[])
+        return results
+    end
+    if length(indices) < k
+        return results
+    end
+
+    function _rec(start_idx::Int, acc::Vector{Int})
+        if length(acc) == k
+            push!(results, copy(acc))
+            return
+        end
+        remaining = k - length(acc)
+        last_start = length(indices) - remaining + 1
+        for i in start_idx:last_start
+            push!(acc, indices[i])
+            _rec(i + 1, acc)
+            pop!(acc)
+        end
+    end
+
+    _rec(1, Int[])
+    return results
+end
+
+function _build_multipoint_combo_metrics(
+    pep::ParameterEstimationProblem,
+    mpt::MultiPointTemplate,
+    setup_data,
+    time_indices::Vector{Int},
+    interp_name::String,
+    point_data_labels::Vector{Vector{String}},
+    oracle_order::Int,
+)
+    t_vec = pep.data_sample["t"]
+    t_values = Float64[t_vec[idx] for idx in time_indices]
+
+    da_per_point = DerivativeAccuracyReport[]
+    for pt in 1:mpt.n_points
+        labels = pt <= length(point_data_labels) ? point_data_labels[pt] : String[]
+        push!(da_per_point, _diagnose_derivative_accuracy_for_labels(
+            pep;
+            setup_data = setup_data,
+            t_eval = t_values[pt],
+            labels = labels,
+            interpolator_name = interp_name,
+        ))
+    end
+    worst_err = isempty(da_per_point) ? Inf : maximum(dr.worst_rel_error for dr in da_per_point)
+
+    state_taylors = Vector{Dict{Num, Vector{Float64}}}()
+    obs_taylors = Vector{Dict{Num, Vector{Float64}}}()
+    for te in t_values
+        st = compute_oracle_taylor_coefficients(pep, te, oracle_order + 2)
+        ot = compute_observable_taylor_coefficients(pep, st, te, oracle_order + 2)
+        push!(state_taylors, st)
+        push!(obs_taylors, ot)
+    end
+
+    eval_result = evaluate_multipoint_template(mpt, time_indices, setup_data.interpolants, pep.data_sample)
+    data_subst = Dict{Any, Float64}()
+    for (j, dv) in enumerate(mpt.data_vars)
+        j <= length(eval_result.data_values) || continue
+        data_subst[dv] = eval_result.data_values[j]
+    end
+    inst_eqs = [Symbolics.substitute(eq, data_subst) for eq in mpt.stripped_equations]
+
+    x_true = Float64[]
+    for v in mpt.solve_vars
+        push!(x_true, _lookup_multipoint_true_value(string(v), pep, t_values, state_taylors, obs_taylors))
+    end
+
+    true_residual = _compute_residual(inst_eqs, mpt.solve_vars, x_true)
+
+    hc_solutions = try
+        solve_multipoint_direct(eval_result)
+    catch e
+        @warn "[MP_BUDGET] HC solve failed for combo $(time_indices): $e"
+        Vector{Float64}[]
+    end
+    closest_distance, _ = _closest_solution_with_values(hc_solutions, x_true)
+
+    return (
+        time_indices = Int[time_indices...],
+        t_values = Float64[t_values...],
+        derivative_reports = da_per_point,
+        worst_derivative_error = worst_err,
+        true_residual = true_residual,
+        closest_distance = closest_distance,
+        solution_count = length(hc_solutions),
+        solved = !isempty(hc_solutions),
+    )
+end
+
+function _candidate_sort_tuple(candidate)
+    return (
+        isfinite(candidate.worst_derivative_error) ? candidate.worst_derivative_error : Inf,
+        isfinite(candidate.true_residual) ? candidate.true_residual : Inf,
+        isfinite(candidate.closest_distance) ? candidate.closest_distance : Inf,
+    )
+end
+
+function _select_multipoint_candidate(candidates, selection_policy::Symbol)
+    isempty(candidates) && return nothing, "no candidate multipoint combinations were available"
+
+    if selection_policy == :fixed_quartiles
+        return candidates[1], "selected the legacy fixed-quartiles multipoint combination"
+    end
+
+    if selection_policy == :best_derivative_combo
+        idx = argmin([_candidate_sort_tuple(c) for c in candidates])
+        return candidates[idx], "selected the lowest derivative-error multipoint combination"
+    end
+
+    solved = [c for c in candidates if c.solved]
+    if !isempty(solved)
+        idx = argmin([_candidate_sort_tuple(c) for c in solved])
+        return solved[idx], "selected the best solved multipoint combination by derivative error, residual, and distance to truth"
+    end
+
+    idx = argmin([_candidate_sort_tuple(c) for c in candidates])
+    return candidates[idx], "no solved multipoint combination was found, so the lowest derivative-error combination was selected as a fallback"
+end
+
+function _default_multipoint_time_indices(t_vec::Vector{Float64}, n_points::Int)
+    n_t = length(t_vec)
+    if n_points == 2
+        t1_idx = max(2, round(Int, n_t * 0.25))
+        t2_idx = min(n_t - 1, round(Int, n_t * 0.75))
+        if t1_idx == t2_idx
+            t2_idx = min(n_t, t1_idx + 1)
+        end
+        return unique(Int[t1_idx, t2_idx])
+    end
+
+    fracs = collect(range(0.15, 0.85; length = n_points))
+    return unique(Int[max(2, min(n_t - 1, round(Int, n_t * frac))) for frac in fracs])
+end
+
+function _build_multipoint_analysis(
+    mpt::MultiPointTemplate,
+    selected_candidate,
+    candidate_combo_count::Int,
+    solved_combo_count::Int,
+    selection_policy::Symbol,
+    compare_policy::Symbol,
+    selection_reason::String,
+    compare_is_valid::Bool,
+    compare_invalid_reason::String,
+    comparable_unknown_labels::Vector{String},
+)
+    actual_labels = string.(mpt.data_vars)
+    actual_max_order = isempty(actual_labels) ? 0 : maximum(_multipoint_var_order(label) for label in actual_labels)
+
+    return MultipointDiagnosticAnalysis(
+        selection_policy,
+        compare_policy,
+        selection_reason,
+        isnothing(selected_candidate) ? Int[] : selected_candidate.time_indices,
+        isnothing(selected_candidate) ? Float64[] : selected_candidate.t_values,
+        candidate_combo_count,
+        solved_combo_count,
+        !isnothing(selected_candidate) && selected_candidate.solved,
+        isnothing(selected_candidate) ? 0 : selected_candidate.solution_count,
+        isnothing(selected_candidate) ? Inf : selected_candidate.worst_derivative_error,
+        isnothing(selected_candidate) ? Inf : selected_candidate.true_residual,
+        isnothing(selected_candidate) ? Inf : selected_candidate.closest_distance,
+        compare_is_valid,
+        compare_invalid_reason,
+        comparable_unknown_labels,
+        actual_labels,
+        actual_max_order,
+        mpt.total_equation_count,
+        length(mpt.stripped_equations),
+        length(mpt.solve_vars),
+        length(mpt.data_vars),
+        copy(mpt.kept_equation_indices),
+        copy(mpt.dropped_equation_indices),
+        copy(mpt.eq_metadata),
+    )
 end
 
 """
@@ -1603,7 +1927,7 @@ function compute_multipoint_error_budget(
     max_blame::Int = 5,
 )
     n_points = length(t_values)
-    max_order = isempty(setup_data.good_deriv_level) ? 2 : maximum(values(setup_data.good_deriv_level))
+    max_order = _multipoint_template_max_order(mpt)
 
     # Oracle Taylor at each point
     state_taylors = Vector{Dict{Num, Vector{Float64}}}()
@@ -1755,22 +2079,25 @@ end
 """
     _try_multipoint_error_budget(pep, setup_data, interp_func, interp_name; kwargs...)
 
-Try to build and compute a multipoint error budget. Returns `nothing` on failure.
-Builds a 2-point multipoint template, computes sensitivity and derivative errors.
+Build the multipoint diagnostic payload: choose a multipoint combination,
+compute per-point derivative accuracy for the actual template inputs, compute
+the selected error budget, and return structured selection metadata.
 """
 function _try_multipoint_error_budget(
     pep::ParameterEstimationProblem,
     setup_data,
     interp_func,
     interp_name::String;
+    t_eval_points::Vector{Float64} = Float64[],
+    sp_error_budget::Union{Nothing, ErrorBudgetReport} = nothing,
+    selection_policy::Symbol = :best_solved_combo,
+    compare_policy::Symbol = :gate_invalid,
     kwargs...,
 )
     try
         model = pep.model.system
         mq = pep.measured_quantities
         t_vec = pep.data_sample["t"]
-        n_t = length(t_vec)
-        max_order = isempty(setup_data.good_deriv_level) ? 2 : maximum(values(setup_data.good_deriv_level))
 
         # Build SI template (needed by build_multipoint_template)
         ordered_model = isa(model, OrderedODESystem) ? model : begin
@@ -1801,22 +2128,81 @@ function _try_multipoint_error_budget(
             return nothing
         end
 
-        # Choose 2 well-separated evaluation points (25% and 75% of range)
-        t1_idx = max(2, round(Int, n_t * 0.25))
-        t2_idx = min(n_t - 1, round(Int, n_t * 0.75))
-        t_values = [t_vec[t1_idx], t_vec[t2_idx]]
+        point_data_labels = _multipoint_point_data_labels(mpt)
+        oracle_order = _multipoint_template_max_order(mpt)
 
-        # Derivative accuracy at each point
-        da_per_point = DerivativeAccuracyReport[]
-        for te in t_values
-            da = diagnose_derivative_accuracy(pep;
-                setup_data = setup_data, t_eval = te, max_order = max_order,
-                interpolator_name = interp_name)
-            push!(da_per_point, da)
+        candidates = NamedTuple[]
+        if selection_policy == :fixed_quartiles
+            time_indices = _default_multipoint_time_indices(t_vec, mpt.n_points)
+            if length(time_indices) == mpt.n_points
+                push!(candidates, _build_multipoint_combo_metrics(
+                    pep, mpt, setup_data, time_indices, interp_name, point_data_labels, oracle_order))
+            end
+        else
+            candidate_times = isempty(t_eval_points) ? collect(t_vec) : t_eval_points
+            resolved_indices = unique(sort(Int[argmin(abs.(t_vec .- te)) for te in candidate_times]))
+            for combo in _index_combinations(resolved_indices, mpt.n_points)
+                push!(candidates, _build_multipoint_combo_metrics(
+                    pep, mpt, setup_data, combo, interp_name, point_data_labels, oracle_order))
+            end
         end
 
-        eb = compute_multipoint_error_budget(pep, mpt, t_values, setup_data, da_per_point)
-        return (eb, da_per_point)
+        selected_candidate, selection_reason = _select_multipoint_candidate(candidates, selection_policy)
+
+        mp_eb = nothing
+        da_per_point = DerivativeAccuracyReport[]
+        if !isnothing(selected_candidate)
+            da_per_point = selected_candidate.derivative_reports
+            mp_eb = compute_multipoint_error_budget(
+                pep, mpt, selected_candidate.t_values, setup_data, da_per_point)
+        end
+
+        comparable_unknowns = String[]
+        compare_is_valid = true
+        compare_invalid_reason = ""
+        if isnothing(mp_eb)
+            compare_is_valid = false
+            compare_invalid_reason = "multipoint error budget could not be computed for the selected combination"
+        elseif isnothing(sp_error_budget)
+            compare_is_valid = false
+            compare_invalid_reason = "single-point error budget is unavailable, so no direct comparison can be made"
+        else
+            mp_clean = Set(String[])
+            for entry in mp_eb.entries
+                clean, _ = _parse_multipoint_var_name(entry.unknown_label)
+                push!(mp_clean, clean)
+            end
+            comparable_unknowns = [entry.unknown_label for entry in sp_error_budget.entries if entry.unknown_label in mp_clean]
+
+            if isnothing(selected_candidate) || !selected_candidate.solved
+                compare_is_valid = false
+                compare_invalid_reason = "the selected multipoint combination has no HC solution, so the comparison is not apples-to-apples"
+            elseif isempty(comparable_unknowns)
+                compare_is_valid = false
+                compare_invalid_reason = "no overlapping unknowns exist between the single-point and multipoint error budgets"
+            elseif !isfinite(mp_eb.sensitivity_nonlinearity)
+                compare_is_valid = false
+                compare_invalid_reason = "the multipoint nonlinearity metric is unavailable"
+            elseif mp_eb.sensitivity_nonlinearity > 1.0
+                compare_is_valid = false
+                compare_invalid_reason = "the multipoint system is too nonlinear at the selected combination for a trustworthy first-order comparison"
+            end
+        end
+
+        analysis = _build_multipoint_analysis(
+            mpt,
+            selected_candidate,
+            length(candidates),
+            count(c -> c.solved, candidates),
+            selection_policy,
+            compare_policy,
+            selection_reason,
+            compare_is_valid,
+            compare_invalid_reason,
+            comparable_unknowns,
+        )
+
+        return (error_budget = mp_eb, derivative_reports = da_per_point, analysis = analysis)
     catch e
         @warn "[MP_BUDGET] Multipoint error budget failed" exception = (e, catch_backtrace())
         return nothing
@@ -1903,12 +2289,29 @@ function diagnose(
     interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[],
     t_eval_points::Vector{Float64} = Float64[],
     full_analysis::Union{Symbol, Int, Vector{Float64}} = :best,
+    multipoint_selection::Symbol = :best_solved_combo,
+    multipoint_compare_policy::Symbol = :gate_invalid,
     save_to_disk = true,
     html_report = true,
     estimation_report::Union{Nothing, EstimationResultsReport} = nothing,
     data_config::Union{Nothing, NamedTuple} = nothing,
     kwargs...,
 )
+    # Auto-handle transcendental forcings (sin/cos/exp). Mirrors what
+    # diagnose_model and analyze_parameter_estimation_problem already do.
+    # transform_pep_for_estimation is idempotent: short-circuits to (pep, nothing)
+    # when no transcendentals are detected, so this is a no-op for polynomial models.
+    t_var_for_trfn = ModelingToolkit.get_iv(pep.model.system)
+    pep, _tr_info = try
+        transform_pep_for_estimation(pep, t_var_for_trfn)
+    catch e
+        @warn "[DIAGNOSE] Transcendental transform failed (may not be needed): $e"
+        (pep, nothing)
+    end
+    if !isnothing(_tr_info)
+        @info "[DIAGNOSE] Transformed $(length(_tr_info.entries)) transcendental(s) before analysis"
+    end
+
     multi_mode = !isempty(interpolators) || !isempty(t_eval_points)
 
     if multi_mode
@@ -1917,6 +2320,8 @@ function diagnose(
             interpolators = interpolators,
             t_eval_points = t_eval_points,
             full_analysis = full_analysis,
+            multipoint_selection = multipoint_selection,
+            multipoint_compare_policy = multipoint_compare_policy,
             save_to_disk = save_to_disk,
             html_report = html_report,
             estimation_report = estimation_report,
@@ -1990,6 +2395,8 @@ function _diagnose_comprehensive(
     interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[],
     t_eval_points::Vector{Float64} = Float64[],
     full_analysis::Union{Symbol, Int, Vector{Float64}} = :best,
+    multipoint_selection::Symbol = :best_solved_combo,
+    multipoint_compare_policy::Symbol = :gate_invalid,
     save_to_disk = true,
     html_report = true,
     estimation_report::Union{Nothing, EstimationResultsReport} = nothing,
@@ -1997,6 +2404,10 @@ function _diagnose_comprehensive(
     kwargs...,
 )
     @info "[DIAGNOSE] Comprehensive diagnostic for model: $(pep.name)"
+    multipoint_selection in (:best_solved_combo, :best_derivative_combo, :fixed_quartiles) ||
+        throw(ArgumentError("invalid multipoint_selection=$(multipoint_selection); expected :best_solved_combo, :best_derivative_combo, or :fixed_quartiles"))
+    multipoint_compare_policy in (:gate_invalid, :warn_only, :always_show) ||
+        throw(ArgumentError("invalid multipoint_compare_policy=$(multipoint_compare_policy); expected :gate_invalid, :warn_only, or :always_show"))
 
     # Run SIAN once (structural, interpolator-independent)
     ident_data = setup_identifiability(pep; nooutput = true)
@@ -2133,11 +2544,23 @@ function _diagnose_comprehensive(
     @info "[DIAGNOSE] Computing multipoint error budget..."
     mp_eb = nothing
     mp_das = DerivativeAccuracyReport[]
+    mp_analysis = nothing
     try
         best_setup = setup_parameter_estimation(pep; interpolator = interp_funcs[best_interp_idx], nooutput = true)
-        mp_result = _try_multipoint_error_budget(pep, best_setup, interp_funcs[best_interp_idx], interp_names[best_interp_idx])
+        mp_result = _try_multipoint_error_budget(
+            pep,
+            best_setup,
+            interp_funcs[best_interp_idx],
+            interp_names[best_interp_idx];
+            t_eval_points = t_eval_points,
+            sp_error_budget = full_reports[1].error_budget,
+            selection_policy = multipoint_selection,
+            compare_policy = multipoint_compare_policy,
+        )
         if !isnothing(mp_result)
-            mp_eb, mp_das = mp_result
+            mp_eb = mp_result.error_budget
+            mp_das = mp_result.derivative_reports
+            mp_analysis = mp_result.analysis
         end
     catch e
         @warn "[DIAGNOSE] Multipoint error budget failed: $e"
@@ -2147,7 +2570,7 @@ function _diagnose_comprehensive(
         pep.name, full_reports, all_deriv_reports,
         interp_names, t_eval_points,
         interp_names[best_interp_idx], t_eval_points[best_point_idx],
-        mp_eb, mp_das,
+        mp_eb, mp_das, mp_analysis,
     )
 
     _print_diagnostic_summary(comp.best)
@@ -2688,6 +3111,11 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
             result = diagnose_uncertainty(pep, setup_data, comp.best_eval_point, r.sensitivity)
             if !isnothing(result)
                 uq_report, uq_interps = result
+                uq_interp_name = "agp_gpr_uq"
+                if comp.best_interpolator != uq_interp_name
+                    push!(uq_report.warnings,
+                        "UQ covariance was computed with $(uq_interp_name), while the best diagnostic interpolator was $(comp.best_interpolator). The covariance section therefore uses a different interpolator family than the best-fit derivative audit.")
+                end
                 @info "[DIAGNOSE] UQ computed: max CV = $(_fmt_pct(uq_report.max_cv)), status = $(uq_report.status)"
             end
         catch e
@@ -2725,6 +3153,10 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
         # Grid section
         _write_html_grid_section(io, comp)
 
+        if !isnothing(comp.multipoint_analysis)
+            _write_html_multipoint_selection_section(io, comp.multipoint_analysis)
+        end
+
         # Best-combination detail sections
         _write_html_deriv_section(io, r.derivative_accuracy; label = "Best Combination")
         _write_html_poly_section(io, r.polynomial_feasibility;
@@ -2750,7 +3182,7 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
 
         # Multipoint vs single-point comparison (if available)
         if !isnothing(comp.multipoint_error_budget) && !isnothing(r.error_budget)
-            _write_html_multipoint_comparison_section(io, r.error_budget, comp.multipoint_error_budget)
+            _write_html_multipoint_comparison_section(io, r.error_budget, comp.multipoint_error_budget, comp.multipoint_analysis)
         end
 
         # UQ section
@@ -3131,6 +3563,14 @@ function _write_html_deriv_section(io, da::DerivativeAccuracyReport; label = "",
     println(io, "</div></details>")
 end
 
+function _derivative_grid_lookup(comp::ComprehensiveDiagnosticReport)
+    lookup = Dict{Tuple{String, Float64}, DerivativeAccuracyReport}()
+    for dr in comp.derivative_grid
+        lookup[(dr.interpolator_name, dr.t_eval)] = dr
+    end
+    return lookup
+end
+
 function _write_html_poly_section(io, pf::PolynomialFeasibilityReport;
     pep = nothing, t_eval::Float64 = NaN, interpolator_name::String = "")
     println(io, "<details><summary>Polynomial Feasibility ($(pf.n_equations) eqs × $(pf.n_variables) vars)</summary><div class=\"detail-body\">")
@@ -3377,7 +3817,7 @@ function _write_html_error_budget_section(io, eb::ErrorBudgetReport)
     # Build rich provenance text
     prov = """<div class="provenance">
 <b>What this shows:</b> The Implicit Function Theorem (IFT) predicts how errors in interpolated data (Δd = d<sub>prod</sub> − d<sub>true</sub>) propagate to errors in estimated parameters/states (Δx = x<sub>HC</sub> − x<sub>true</sub>) via the sensitivity matrix S.<br>
-<b>Formula:</b> Δx<sub>predicted</sub> = S · Δd. If |predicted|/|actual| ≈ 1, the linearization is accurate.<br>
+<b>Formula:</b> Δx<sub>predicted</sub> = S · Δd. If |predicted|/|actual| ≈ 1, the linearization is accurate. The nonlinearity metric below is ‖Δx<sub>predicted</sub> − Δx<sub>actual</sub>‖ / ‖Δx<sub>actual</sub>‖.<br>
 <b>Max derivative order in data:</b> $(eb.max_deriv_order_used). <b>Interpolator:</b> $(eb.interpolator_name)."""
 
     if eb.mode == :multipoint && eb.t_eval isa Vector && length(eb.t_eval) >= 2
@@ -3480,7 +3920,7 @@ function _write_html_error_budget_section(io, eb::ErrorBudgetReport)
             dlabel = eb.data_labels[j]
             dpretty = _pretty_name(dlabel)
             desc = replace(dlabel, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
-            _, order = _parse_data_label(dlabel)
+            order = _multipoint_var_order(dlabel)
             dd = eb.delta_d[j]
             dt = j <= length(eb.data_true) ? eb.data_true[j] : NaN
             dp = j <= length(eb.data_prod) ? eb.data_prod[j] : NaN
@@ -3496,20 +3936,40 @@ function _write_html_error_budget_section(io, eb::ErrorBudgetReport)
 end
 
 """
-    _write_html_multipoint_comparison_section(io, sp_eb, mp_eb)
+    _write_html_multipoint_comparison_section(io, sp_eb, mp_eb, mpa)
 
 Side-by-side comparison of single-point vs multipoint error budgets.
 Shows shared parameters with improvement ratios.
 """
-function _write_html_multipoint_comparison_section(io, sp_eb::ErrorBudgetReport, mp_eb::ErrorBudgetReport)
+function _write_html_multipoint_comparison_section(
+    io,
+    sp_eb::ErrorBudgetReport,
+    mp_eb::ErrorBudgetReport,
+    mpa::Union{Nothing, MultipointDiagnosticAnalysis} = nothing,
+)
     sp_t_str = sp_eb.t_eval isa Vector ? join([@sprintf("%.3f", t) for t in sp_eb.t_eval], ", ") : @sprintf("%.3f", sp_eb.t_eval)
     mp_t_str = mp_eb.t_eval isa Vector ? join([@sprintf("%.3f", t) for t in mp_eb.t_eval], ", ") : @sprintf("%.3f", mp_eb.t_eval)
+    compare_policy = isnothing(mpa) ? :always_show : mpa.compare_policy
+    compare_is_valid = isnothing(mpa) ? true : mpa.compare_is_valid
+    compare_reason = isnothing(mpa) ? "" : mpa.compare_invalid_reason
 
     println(io, "<details open><summary>Single-Point vs Multipoint Error Budget</summary><div class=\"detail-body\">")
     println(io, """<div class="provenance"><b>What this shows:</b> Side-by-side comparison of the IFT-predicted errors (|Δx<sub>predicted</sub>|) from the single-point and multipoint polynomial systems.<br>
 <b>Single-point</b> (max order <b>$(sp_eb.max_deriv_order_used)</b>, t = $sp_t_str): uses one time point, requires higher-order derivatives.<br>
 <b>Multipoint</b> (max order <b>$(mp_eb.max_deriv_order_used)</b>, t = $mp_t_str): uses 2 time points with shared parameters, reducing the max derivative order needed. Lower order = more accurate interpolation = smaller data errors.<br>
 <b>Improvement</b> = |SP predicted| / |MP predicted|. Values >1 mean multipoint predicts smaller errors for that parameter.</div>""")
+
+    if !compare_is_valid
+        reason = replace(compare_reason, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+        if compare_policy == :gate_invalid
+            println(io, """<div style="background:#fff3cd;border:1px solid #bf8700;border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;font-size:.85rem;"><b>Comparison withheld:</b> $reason</div>""")
+            println(io, "</div></details>")
+            return
+        else
+            prefix = compare_policy == :warn_only ? "Comparison warning" : "Comparison note"
+            println(io, """<div style="background:#fff3cd;border:1px solid #bf8700;border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;font-size:.85rem;"><b>$prefix:</b> $reason</div>""")
+        end
+    end
 
     # Build lookup from multipoint entries by clean name
     mp_lookup = Dict{String, ErrorBudgetEntry}()
@@ -3522,6 +3982,7 @@ function _write_html_multipoint_comparison_section(io, sp_eb::ErrorBudgetReport,
     println(io, "<tr><th>Unknown</th><th>Role</th><th>SP Predicted</th><th>MP Predicted</th><th>Improvement</th><th>SP Top Blame</th><th>MP Top Blame</th></tr>")
 
     # Show shared parameters and state ICs (variables that appear in both)
+    n_rows = 0
     for sp_entry in sp_eb.entries
         mp_entry = get(mp_lookup, sp_entry.unknown_label, nothing)
         isnothing(mp_entry) && continue  # per-point state derivs won't match
@@ -3547,9 +4008,13 @@ function _write_html_multipoint_comparison_section(io, sp_eb::ErrorBudgetReport,
         end
 
         println(io, """<tr><td><span title="$uesc" style="color:$role_color;font-weight:600;" class="math">$upretty</span></td><td>$role_label</td><td>$(_fmt(sp_abs))</td><td>$(_fmt(mp_abs))</td><td class="$imp_cls" style="font-weight:600;">$imp_str</td><td style="font-size:.8rem;">$sp_blame_str</td><td style="font-size:.8rem;">$mp_blame_str</td></tr>""")
+        n_rows += 1
     end
 
     println(io, "</table>")
+    if n_rows == 0
+        println(io, """<p class="meta">No overlapping unknown labels were available for a direct single-point vs multipoint comparison.</p>""")
+    end
 
     # Summary
     order_reduction = sp_eb.max_deriv_order_used - mp_eb.max_deriv_order_used
@@ -3621,6 +4086,7 @@ function _write_jacobian_cell(io, val::Float64, max_abs::Float64)
 end
 
 function _write_html_grid_section(io, comp::ComprehensiveDiagnosticReport)
+    lookup = _derivative_grid_lookup(comp)
     println(io, "<details open><summary>Interpolator × Evaluation Point Grid</summary><div class=\"detail-body\">")
     println(io, """<div class="provenance">Each cell = max<sub>obs,order</sub> |true − interp| / max(|true|, ε). Green highlight = best combination.</div>""")
     println(io, "<table><tr><th>Interpolator</th>")
@@ -3633,11 +4099,12 @@ function _write_html_grid_section(io, comp::ComprehensiveDiagnosticReport)
     for (ii, iname) in enumerate(comp.interpolator_names)
         println(io, "<tr><td>$iname</td>")
         for pi in 1:n_points
-            grid_idx = (ii - 1) * n_points + pi
-            if grid_idx <= length(comp.derivative_grid)
-                dr = comp.derivative_grid[grid_idx]
+            te = comp.eval_points[pi]
+            key = (iname, te)
+            if haskey(lookup, key)
+                dr = lookup[key]
                 err = dr.worst_rel_error
-                is_best = (iname == comp.best_interpolator && comp.eval_points[pi] ≈ comp.best_eval_point)
+                is_best = (iname == comp.best_interpolator && te ≈ comp.best_eval_point)
                 cls = _err_class(err) * (is_best ? " best-cell" : "")
                 println(io, "<td class=\"$cls\">$(_fmt(err))</td>")
             else
@@ -3650,18 +4117,66 @@ function _write_html_grid_section(io, comp::ComprehensiveDiagnosticReport)
 end
 
 function _write_html_all_deriv_details(io, comp::ComprehensiveDiagnosticReport)
+    lookup = _derivative_grid_lookup(comp)
     println(io, "<details><summary>All Derivative Accuracy Tables</summary><div class=\"detail-body\">")
-    n_points = length(comp.eval_points)
     for (ii, iname) in enumerate(comp.interpolator_names)
         for (pi, te) in enumerate(comp.eval_points)
-            grid_idx = (ii - 1) * n_points + pi
-            if grid_idx <= length(comp.derivative_grid)
-                dr = comp.derivative_grid[grid_idx]
+            key = (iname, te)
+            if haskey(lookup, key)
+                dr = lookup[key]
                 _write_html_deriv_section(io, dr;
                     label = "$iname")
             end
         end
     end
+    println(io, "</div></details>")
+end
+
+function _write_html_multipoint_selection_section(io, mpa::MultipointDiagnosticAnalysis)
+    println(io, "<details open><summary>Multipoint Selection & Template Summary</summary><div class=\"detail-body\">")
+
+    times_str = isempty(mpa.selected_t_values) ? "—" : join((@sprintf("%.3f", t) for t in mpa.selected_t_values), ", ")
+    cmp_status = mpa.compare_is_valid ? """<span class="badge badge-easy">comparison valid</span>""" :
+        """<span class="badge badge-moderate">comparison withheld</span>"""
+    println(io, """<div class="provenance"><b>Selection policy:</b> $(mpa.selection_policy). <b>Comparison policy:</b> $(mpa.compare_policy). <b>Selected times:</b> [$times_str]. $cmp_status</div>""")
+    println(io, "<dl class=\"kv\">")
+    println(io, "<dt>Selection reason</dt><dd>$(replace(mpa.selection_reason, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;"))</dd>")
+    println(io, "<dt>Combos examined</dt><dd>$(mpa.candidate_combo_count) total, $(mpa.solved_combo_count) solved</dd>")
+    println(io, "<dt>Selected combo</dt><dd>$(mpa.selected_combo_solved ? "solved" : "unsolved") with $(mpa.selected_combo_solution_count) HC solution(s)</dd>")
+    println(io, "<dt>Worst derivative error</dt><dd>$(_fmt(mpa.selected_combo_worst_derivative_error))</dd>")
+    println(io, "<dt>True residual</dt><dd>$(_fmt(mpa.selected_combo_true_residual))</dd>")
+    println(io, "<dt>Closest distance to truth</dt><dd>$(_fmt(mpa.selected_combo_closest_distance))</dd>")
+    println(io, "<dt>Actual max derivative order</dt><dd>$(mpa.actual_max_deriv_order)</dd>")
+    println(io, "<dt>Template strip summary</dt><dd>$(mpa.total_equation_count) total eqs → $(mpa.stripped_equation_count) kept; $(mpa.solve_var_count) solve vars, $(mpa.data_var_count) data vars</dd>")
+    println(io, "</dl>")
+
+    if !mpa.compare_is_valid && !isempty(mpa.compare_invalid_reason)
+        reason = replace(mpa.compare_invalid_reason, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+        println(io, """<div style="background:#fff3cd;border:1px solid #bf8700;border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;font-size:.85rem;"><b>Comparison withheld:</b> $reason</div>""")
+    end
+
+    if !isempty(mpa.actual_data_labels)
+        println(io, "<details><summary>Actual Multipoint Data Labels</summary><div class=\"detail-body\">")
+        println(io, "<table><tr><th>#</th><th>Label</th><th>Order</th></tr>")
+        for (i, label) in enumerate(mpa.actual_data_labels)
+            raw = replace(label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            println(io, "<tr><td>$i</td><td><span title=\"$raw\" class=\"math\">$(_pretty_name(label))</span></td><td>$(_multipoint_var_order(label))</td></tr>")
+        end
+        println(io, "</table></div></details>")
+    end
+
+    println(io, "<details><summary>Template Strip Details</summary><div class=\"detail-body\">")
+    println(io, "<p class=\"meta\">Kept equation indices: $(join(mpa.kept_equation_indices, ", "))</p>")
+    println(io, "<p class=\"meta\">Dropped equation indices: $(join(mpa.dropped_equation_indices, ", "))</p>")
+    if !isempty(mpa.eq_metadata)
+        println(io, "<table><tr><th>Kept Row</th><th>Point</th><th>Data-only</th><th>Max Order</th></tr>")
+        for (i, meta) in enumerate(mpa.eq_metadata)
+            println(io, "<tr><td>$i</td><td>$(meta.point)</td><td>$(meta.is_data)</td><td>$(meta.order)</td></tr>")
+        end
+        println(io, "</table>")
+    end
+    println(io, "</div></details>")
+
     println(io, "</div></details>")
 end
 

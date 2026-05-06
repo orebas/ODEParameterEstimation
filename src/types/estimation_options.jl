@@ -25,7 +25,6 @@ Enum for selecting the data interpolation method.
 	InterpolatorAAADGPR        # aaad_gpr_pivot - GPR-based AAA (default)
 	InterpolatorAAADOld        # aaad_old_reliable - Conservative AAA
 	InterpolatorFHD            # Floater-Hormann interpolation
-	InterpolatorAGP            # agp_gpr - AbstractGPs.jl GP interpolation with uncertainty
 	InterpolatorAGPRobust      # agp_gpr_robust - Robust GP that handles smooth/noiseless data
 	InterpolatorAGPRobustRQ    # agp_gpr_robust with Rational Quadratic kernel
 	InterpolatorAGPRobustSEpRQ # agp_gpr_robust with SE + RQ sum kernel
@@ -61,11 +60,27 @@ Enum for selecting the optimization method for solution polishing.
 Note: These correspond to NonlinearSolve.jl and Optim.jl methods.
 """
 @enum PolishMethod begin
-	PolishNewtonTrust      # NewtonTrustRegion from NonlinearSolve (default)
-	PolishLevenberg        # LevenbergMarquardt 
+	PolishNewtonTrust      # NewtonTrustRegion from NonlinearSolve (legacy default)
+	PolishLevenberg        # LevenbergMarquardt
 	PolishGaussNewton      # GaussNewton
 	PolishBFGS             # BFGS from Optim.jl
 	PolishLBFGS            # LBFGS from Optim.jl
+	# Residual-mode polishers operating in per-variable transformed coordinates
+	# (`:auto` policy: log for positive bounds, shifted-log for signed bounds, linear
+	# for unbounded). Switch back to `PolishNewtonTrust` to restore the legacy scalar
+	# polish path; the dispatch is fully reversible at runtime.
+	PolishLSOBoundedLog        # LeastSquaresOptim.LevenbergMarquardt() with bounds
+	PolishFastLMBoundedLog     # FastLevenbergMarquardt.lmsolve!() with bounds
+end
+
+"""
+	is_residual_polish_method(method::PolishMethod) -> Bool
+
+True when `method` uses the residual-vector polish path (`_polish_single_residual`)
+rather than the scalar-loss `Optimization.solve` path.
+"""
+function is_residual_polish_method(method::PolishMethod)
+	return method === PolishLSOBoundedLog || method === PolishFastLMBoundedLog
 end
 
 """
@@ -140,8 +155,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `verification_threshold::Float64`: Threshold for solution verification (default: 1e-8)
 - `complex_threshold::Float64`: Threshold for detecting complex numbers (default: 1e-10)
 
-## Multi-point and Multi-shot Parameters
-- `max_num_points::Int`: Maximum number of points for multi-point estimation (default: 1)
+## Multi-shot Parameters
 - `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 12)
 - `shooting_warp::Bool`: Use exponential warp to cluster points near t=0 (default: true)
 - `shooting_warp_beta::Float64`: Warp strength; 0≈uniform, 3=default (default: 3.0)
@@ -155,16 +169,20 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Optimization Parameters
 - `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
 - `polish_solver_solutions::Bool`: Polish raw solver solutions with fast NLLS (default: true)
-- `polish_method::PolishMethod`: Optimization method for polishing (default: `PolishNewtonTrust`)
-- `polish_maxiters::Int`: Maximum iterations for solution polishing (default: 10)
+- `polish_method::PolishMethod`: Optimization method for polishing (default: `PolishLSOBoundedLog` — bounded LSO LevenbergMarquardt in per-variable log-space, recommended after the 2026-05 polish bake-off; pass `PolishNewtonTrust` to restore the legacy scalar polish)
+- `polish_maxiters::Int`: Maximum iterations for solution polishing (default: 100)
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
-- `opt_lb::Vector{Float64}`: Lower bounds for optimization (default: fill(-3.0, n_params))
-- `opt_ub::Vector{Float64}`: Upper bounds for optimization (default: fill(3.0, n_params))
+- `opt_lb::Union{Nothing, Vector{Float64}}`: Lower bounds for optimization (default: nothing)
+- `opt_ub::Union{Nothing, Vector{Float64}}`: Upper bounds for optimization (default: nothing)
 - `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:enzyme`, `:finite`
 - `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 300.0)
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
 - `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
 - `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
+- `polish_coordinate_policy::Symbol`: per-variable transform policy for the polish step: `:auto` (default), `:linear`, `:log_only`, `:shifted_log_only`.
+- `polish_regularization_lambda::Float64`: optional L2 regularization on internal coordinates for residual-mode polish (default: 0.0). Nonzero values can help on ill-conditioned cases but hurt well-posed ones.
+- `polish_lso_delta::Float64`: LSO trust-region radius (default: 10.0).
+- `polish_lso_x_tol::Float64`/`polish_lso_f_tol::Float64`/`polish_lso_g_tol::Float64`: LSO/FastLM tolerances (default: -1.0 = inherit from `reltol`/`abstol`).
 - `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:direct_opt`)
 - `backsolve_recovery::Symbol`: Recovery policy for blown backsolves: `:none` or `:algebraic_resolve` (default: `:algebraic_resolve`)
 - `t0_state_completion::Symbol`: State completion policy during `t=0` rescue: `:strict` or `:seed_for_polish` (default: `:strict`)
@@ -196,6 +214,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
 - `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
+- `auto_filter_interpolators::Bool`: When true, filters AAA-family interpolators (S2AAAMLE, AAAD, AAADOld) out of the user's `interpolators` list when the data's estimated relative noise σ̂ exceeds method-specific thresholds (1e-4 for S2, 1e-5 for AAAD/AAADOld). These methods produce catastrophic derivative errors at noise > threshold (verified empirically); GP-family methods are kept regardless. If filtering empties the list, falls back to `InterpolatorAAADGPR`. Default: `true`. Set to `false` to bypass and run all user-specified methods unconditionally.
 
 ## HomotopyContinuation Specific
 - `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
@@ -213,7 +232,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `save_filepath::String`: Path for saving polynomial systems (default: "")
 
 ## Solution Limits
-- `max_solutions::Int`: Maximum number of solutions to consider (default: 20)
+- `max_solutions::Int`: Maximum number of solutions to consider (default: 100)
 
 # Constructors
 
@@ -280,8 +299,7 @@ Base.@kwdef struct EstimationOptions
 	verification_threshold::Float64 = 1e-8
 	complex_threshold::Float64 = 1e-10
 
-	# Multi-point and Multi-shot Parameters
-	max_num_points::Int = 1
+	# Multi-shot Parameters
 	shooting_points::Int = 12
 	shooting_warp::Bool = true                   # true = exponential warp, false = equidistant
 	shooting_warp_beta::Float64 = 3.0            # warp strength (0≈uniform, 3=default)
@@ -295,7 +313,11 @@ Base.@kwdef struct EstimationOptions
 	# Optimization Parameters
 	polish_solutions::Bool = false
 	polish_solver_solutions::Bool = true
-	polish_method::PolishMethod = PolishNewtonTrust
+	# Default chosen 2026-05 after the polish bake-off
+	# (see temp_plans/2026-05-01_local_polish_default_recommendation.md): bounded
+	# LeastSquaresOptim Levenberg-Marquardt in per-variable transformed coordinates.
+	# Switch to `PolishNewtonTrust` to restore the legacy scalar-loss polish path.
+	polish_method::PolishMethod = PolishLSOBoundedLog
 	polish_maxiters::Int = 100
 	opt_maxiters::Int = 10000
 	opt_lb::Union{Nothing, Vector{Float64}} = nothing
@@ -305,9 +327,50 @@ Base.@kwdef struct EstimationOptions
 	polish_divergence_factor::Float64 = 10.0 # Stop if loss > initial_loss * this
 	polish_stagnation_window::Int = 50       # Stop if no improvement in N iters
 	polish_ode_maxiters::Int = 5000          # ODE solver maxiters inside polish loss (DiffEq default: 100000)
+
+	# Per-variable polish coordinate transform policy. `:auto` selects per variable:
+	#  - `:log` for `lb > 0 && isfinite(ub)`
+	#  - `:shifted_log` for finite signed bounds
+	#  - `:linear` for unbounded variables
+	# Other accepted values: `:linear`, `:log_only`, `:shifted_log_only`.
+	polish_coordinate_policy::Symbol = :auto
+
+	# Optional log-space L2 regularization for residual-mode polish. Augments the
+	# residual with `√λ · x_internal`, pulling toward `x = 1` (or `x = -shift+1`)
+	# in scaled coordinates. Default off; nonzero values can rescue ill-conditioned
+	# `crauste`/`seir`/`hiv`-style cases at the cost of bias on well-posed ones.
+	# No robust auto-selection across models exists yet.
+	polish_regularization_lambda::Float64 = 0.0
+
+	# LSO (LeastSquaresOptim.LevenbergMarquardt) trust-region & tolerance knobs.
+	# Negative tolerances mean "use `reltol`/`abstol`". `polish_lso_delta` is the
+	# initial trust-region radius (LSO default is 1.0; the bake-off used 10.0).
+	polish_lso_delta::Float64 = 10.0
+	polish_lso_x_tol::Float64 = -1.0
+	polish_lso_f_tol::Float64 = -1.0
+	polish_lso_g_tol::Float64 = -1.0
+
 	terminal_fallback::Symbol = :direct_opt   # :none | :direct_opt
 	backsolve_recovery::Symbol = :algebraic_resolve  # :none | :algebraic_resolve
 	t0_state_completion::Symbol = :strict    # :strict | :seed_for_polish
+
+	# Sensitivity-based seed generation (σ_d-aware probing). Off by default until
+	# validation sweep confirms it captures the existing synthesized_finalizer wins.
+	# When enabled, computes per-candidate Σ_x = S · diag(σ_d²) · S' and emits
+	# additional polish seeds along significant eigenvectors (sloppy directions),
+	# plus pairwise Mahalanobis-gated blends between candidates.
+	use_sensitivity_seeds::Bool = false
+	# Multiplier on √λ for eigenvector probes. 1.0 emits ±1σ along sloppy directions;
+	# larger values explore farther at the cost of more polish budget.
+	sensitivity_seed_probe_scale::Float64 = 1.0
+	# Eigenvalue significance: only emit probes for eigenvalues with λ_i / λ_max above
+	# this fraction. Tighter = fewer probes.
+	sensitivity_seed_eigenvalue_threshold::Float64 = 0.01
+	# Mahalanobis distance² threshold for cross-candidate blending. Negative means
+	# "use chi² 95% quantile for n_unknowns degrees of freedom."
+	sensitivity_seed_mahalanobis_threshold::Float64 = -1.0
+	# Order-decay floor parameter for σ_d construction: σ_d_floor(order) = noise_level · κ^order.
+	sensitivity_sigma_d_kappa::Float64 = 2.0
 
 	# Data Sampling Parameters
 	datasize::Int = 21
@@ -336,6 +399,7 @@ Base.@kwdef struct EstimationOptions
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
+	auto_filter_interpolators::Bool = true  # Filter AAA-family interpolators (S2/AAAD/AAADOld) by data-driven σ̂ before the SP loop
 	gp_s3_refinement::Bool = false  # If true, each GP interpolator also produces an S3 (GP→AAA→MLE) barycentric
 	s3_adapt_k::Float64 = 10.0     # Noise multiplier for S3 adaptive tolerance (higher = fewer support points)
 
@@ -414,8 +478,6 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
 		return aaad_old_reliable
 	elseif method == InterpolatorFHD
 		return fhdn(5)  # Default to degree 5 FHD
-	elseif method == InterpolatorAGP
-		return agp_gpr_robust
 	elseif method == InterpolatorAGPUQ
 		return agp_gpr_uq
 	elseif method == InterpolatorAGPRobust
@@ -494,7 +556,6 @@ function interpolator_method_to_symbol(method::InterpolatorMethod)
 	method == InterpolatorAAADGPR && return :aaad_gpr
 	method == InterpolatorAAADOld && return :aaad_old
 	method == InterpolatorFHD && return :fhd
-	method == InterpolatorAGP && return :agp
 	method == InterpolatorAGPUQ && return :agp_uq
 	method == InterpolatorAGPRobust && return :agp_robust
 	method == InterpolatorAGPRobustRQ && return :agp_robust_rq
@@ -533,7 +594,7 @@ function is_gp_interpolator(method::InterpolatorMethod)::Bool
 	return method in (InterpolatorAGPRobust, InterpolatorAGPRobustRQ,
 	                  InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ,
 	                  InterpolatorAGPRobustMatern52,
-	                  InterpolatorAGP, InterpolatorAGPUQ)
+	                  InterpolatorAGPUQ)
 end
 
 """
@@ -558,7 +619,6 @@ function s3_symbol(method::InterpolatorMethod)::Symbol
 	method == InterpolatorAGPRobustSEpRQ && return :s3_adapt_se_plus_rq
 	method == InterpolatorAGPRobustSExRQ && return :s3_adapt_se_times_rq
 	method == InterpolatorAGPRobustMatern52 && return :s3_adapt_matern52
-	method == InterpolatorAGP && return :s3_adapt_se
 	return :s3_unknown
 end
 
@@ -606,6 +666,38 @@ function resolve_interpolator_list(opts::EstimationOptions)
 	_inject_gp_caching!(result; s3_adapt_k = opts.s3_adapt_k)
 
 	return result
+end
+
+"""
+	_apply_noise_filter(list, σ̂) -> Vector
+
+Remove AAA-family interpolators that produce catastrophic derivative errors
+above their respective noise thresholds. Logs a `@warn` for each method
+dropped. Returns the filtered list (possibly empty — caller is responsible
+for fallback).
+
+Thresholds (empirically calibrated on `forced_lotka_volterra_0_1em2`,
+2026-05-05):
+- `InterpolatorS2AAAMLE`: drop when σ̂ > 1e-4
+- `InterpolatorAAAD`, `InterpolatorAAADOld`: drop when σ̂ > 1e-5
+"""
+function _apply_noise_filter(list::AbstractVector, σ̂::Float64)
+	THRESHOLD_S2     = 1e-4
+	THRESHOLD_AAAD   = 1e-5
+	out = empty(list)
+	for entry in list
+		method = entry[1]
+		if method == InterpolatorS2AAAMLE && σ̂ > THRESHOLD_S2
+			@warn "[INTERP-GATE] Skipping S2AAAMLE: σ̂=$σ̂ > threshold $THRESHOLD_S2"
+			continue
+		end
+		if (method == InterpolatorAAAD || method == InterpolatorAAADOld) && σ̂ > THRESHOLD_AAAD
+			@warn "[INTERP-GATE] Skipping $method: σ̂=$σ̂ > threshold $THRESHOLD_AAAD"
+			continue
+		end
+		push!(out, entry)
+	end
+	return out
 end
 
 """
@@ -810,7 +902,14 @@ end
 	get_polish_optimizer(method::PolishMethod)
 
 Convert PolishMethod enum to actual optimizer object/type.
-Returns the optimizer constructor that can be used with NonlinearSolve or Optim.
+
+For scalar `Optimization.solve`-based methods (legacy default `PolishNewtonTrust`,
+plus `PolishLevenberg`/`PolishGaussNewton`/`PolishBFGS`/`PolishLBFGS`) returns a
+zero-arg constructor — the call site does `optimizer_type()` to instantiate.
+
+For residual-mode methods (`PolishLSOBoundedLog`, `PolishFastLMBoundedLog`) returns
+a tagged tuple `(kind::Symbol, factory)` consumed by `_polish_single_residual`.
+The kinds are `:lso_direct` (LeastSquaresOptim) and `:fastlm_direct` (FastLevenbergMarquardt).
 """
 function get_polish_optimizer(method::PolishMethod)
 	if method == PolishNewtonTrust
@@ -823,6 +922,10 @@ function get_polish_optimizer(method::PolishMethod)
 		return BFGS
 	elseif method == PolishLBFGS
 		return LBFGS
+	elseif method == PolishLSOBoundedLog
+		return (:lso_direct, () -> LeastSquaresOptim.LevenbergMarquardt())
+	elseif method == PolishFastLMBoundedLog
+		return (:fastlm_direct, () -> nothing)
 	else
 		error("Unknown polish method: $method")
 	end
@@ -908,12 +1011,6 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	# Check multi-point parameters
-	if opts.max_num_points < 1
-		@error "max_num_points must be at least 1"
-		valid = false
-	end
-
 	if opts.shooting_points < 0
 		@error "shooting_points must be non-negative"
 		valid = false
@@ -953,6 +1050,37 @@ function validate_options(opts::EstimationOptions)
 	end
 	if opts.polish_stagnation_window < 5
 		@warn "polish_stagnation_window < 5 is too aggressive; may stop prematurely"
+	end
+
+	# Polish coordinate transform policy
+	if !(opts.polish_coordinate_policy in (:auto, :linear, :log_only, :shifted_log_only))
+		@error "polish_coordinate_policy must be one of :auto, :linear, :log_only, :shifted_log_only (got $(opts.polish_coordinate_policy))"
+		valid = false
+	end
+
+	# Polish regularization
+	if opts.polish_regularization_lambda < 0
+		@error "polish_regularization_lambda must be non-negative (got $(opts.polish_regularization_lambda))"
+		valid = false
+	end
+
+	# LSO trust-region delta must be positive
+	if opts.polish_lso_delta <= 0
+		@error "polish_lso_delta must be positive (got $(opts.polish_lso_delta))"
+		valid = false
+	end
+
+	# Sensitivity-seed parameters
+	if opts.sensitivity_seed_probe_scale <= 0
+		@error "sensitivity_seed_probe_scale must be positive (got $(opts.sensitivity_seed_probe_scale))"
+		valid = false
+	end
+	if opts.sensitivity_seed_eigenvalue_threshold < 0 || opts.sensitivity_seed_eigenvalue_threshold > 1
+		@error "sensitivity_seed_eigenvalue_threshold must be in [0, 1] (got $(opts.sensitivity_seed_eigenvalue_threshold))"
+		valid = false
+	end
+	if opts.sensitivity_sigma_d_kappa < 1.0
+		@warn "sensitivity_sigma_d_kappa < 1.0 implies higher derivatives are MORE certain than lower (got $(opts.sensitivity_sigma_d_kappa))"
 	end
 	if !(opts.terminal_fallback in (:none, :direct_opt))
 		@error "terminal_fallback must be :none or :direct_opt"
@@ -998,8 +1126,7 @@ function validate_options(opts::EstimationOptions)
 	end
 
 	if opts.terminal_fallback != :none && opts.flow == FlowDirectOpt
-		@error "terminal_fallback only applies to FlowStandard. FlowDirectOpt already is the terminal optimizer."
-		valid = false
+		@warn "terminal_fallback is ignored when flow=FlowDirectOpt (FlowDirectOpt already is the terminal optimizer)"
 	end
 
 	if opts.backsolve_recovery != :none && opts.flow != FlowStandard
@@ -1052,10 +1179,10 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Tolerances", [:abstol, :reltol, :rtol, :output_precision]),
 		("Solution Validation", [:imag_threshold, :clustering_threshold, :max_error_threshold,
 			:verification_threshold, :complex_threshold]),
-		("Multi-point/Multi-shot", [:max_num_points, :shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
+		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
 		("Derivatives and Reconstruction", [:max_deriv_level, :max_reconstruction_attempts, :digits]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
-			:opt_lb, :opt_ub, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
+			:opt_lb, :opt_ub, :opt_ad_backend, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
 		("Rescue Policy", [:terminal_fallback, :backsolve_recovery, :t0_state_completion]),
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),

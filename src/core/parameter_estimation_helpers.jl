@@ -511,7 +511,7 @@ this constructs and solves the system of equations to estimate parameters.
 # Arguments
 - `PEP`: Parameter estimation problem
 - `setup_data`: Data from the setup phase
-- `system_solver`: Function to solve the system (default: solve_with_rs)
+- `system_solver`: Legacy solver hook (unsupported)
 - `diagnostics`: Whether to output diagnostic information
 - `diagnostic_data`: Additional diagnostic data
 
@@ -521,7 +521,7 @@ this constructs and solves the system of equations to estimate parameters.
 function solve_parameter_estimation(
 	PEP::ParameterEstimationProblem,
 	setup_data;
-	system_solver = solve_with_rs,
+	system_solver = nothing,
 	interpolator = nothing,
 	diagnostics = false,
 	diagnostic_data = nothing,
@@ -533,295 +533,7 @@ function solve_parameter_estimation(
 	debug_dimensional_analysis = false,
 	polish_solver_solutions::Bool = false,
 )
-	# Extract settings from setup data
-	states = setup_data.states
-	params = setup_data.params
-	t_vector = setup_data.t_vector
-	interpolants = setup_data.interpolants
-	good_deriv_level = setup_data.good_deriv_level
-	good_udict = setup_data.good_udict
-	good_varlist = setup_data.good_varlist
-	good_DD = setup_data.good_DD
-	time_index_set = setup_data.time_index_set
-
-	# Construct the multipoint equation system
-	full_target, full_varlist, forward_subst_dict, reverse_subst_dict =
-		construct_multipoint_equation_system!(
-			time_index_set,
-			PEP.model.system,
-			PEP.measured_quantities,
-			PEP.data_sample,
-			good_deriv_level,
-			good_udict,
-			good_varlist,
-			good_DD,
-			interpolator,
-			interpolants,
-			diagnostics,
-			diagnostic_data,
-			states,
-			params,
-		)
-
-	# Combine all equations into a single target
-	final_target = reduce(vcat, full_target)
-
-	# Create the final list of variables to solve for
-	# final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-	# FINAL FIX: Correctly extract variables from the final symbolic system *after* all substitutions
-	final_vars_set = OrderedSet()
-	for eq in final_target
-		union!(final_vars_set, Symbolics.get_variables(eq))
-	end
-	final_varlist = collect(final_vars_set)
-
-
-	# Print diagnostic information if requested
-	if diagnostics && !isnothing(diagnostic_data)
-		log_diagnostic_info(
-			PEP,
-			time_index_set,
-			good_deriv_level,
-			good_udict,
-			good_varlist,
-			good_DD,
-			interpolator,
-			interpolants,
-			diagnostic_data,
-			states,
-			params,
-			final_target,
-			forward_subst_dict,
-			reverse_subst_dict,
-		)
-	end
-
-	# Solve the system with reconstruction loop for non-zero-dimensional cases
-	@debug "Solving system..."
-
-	# Define a container for the results
-	solve_result, hcvarlist, trivial_dict, trimmed_varlist = nothing, nothing, nothing, nothing
-
-	# Initialize reconstruction tracking
-	reconstruction_attempts = 0
-	attempted_increments = Set{Tuple{Int, Int}}()
-	current_deriv_level = deepcopy(good_deriv_level)
-
-	# Main solving loop with reconstruction capability
-	while reconstruction_attempts < max_reconstruction_attempts
-		# Reconstruct the equation system if this is not the first attempt
-		if reconstruction_attempts > 0
-			@info "Reconstruction attempt $reconstruction_attempts: Re-constructing equation system with updated derivative levels"
-			if diagnostics
-				println("[DEBUG-ODEPE] Previous deriv_level: ", good_deriv_level)
-				println("[DEBUG-ODEPE] Current deriv_level: ", current_deriv_level)
-			end
-
-			# Save the previous system for comparison
-			prev_num_equations = length(final_target)
-			prev_num_variables = length(final_varlist)
-
-			# Need to recompute DerivativeData with the new deriv_level
-			# The max derivative level needs to accommodate the highest derivative we're using
-			max_deriv_needed = maximum(values(current_deriv_level)) + 2  # Add buffer for safety
-
-			# Recompute the derivative data with the updated requirements
-			updated_DD = ODEParameterEstimation.populate_derivatives(PEP.model.system, PEP.measured_quantities, max_deriv_needed, good_udict)
-
-			# Reconstruct the multipoint equation system with new deriv_level and updated DD
-			full_target, full_varlist, forward_subst_dict, reverse_subst_dict =
-				construct_multipoint_equation_system!(
-					time_index_set,
-					PEP.model.system,
-					PEP.measured_quantities,
-					PEP.data_sample,
-					current_deriv_level,  # Use updated deriv_level
-					good_udict,
-					good_varlist,
-					updated_DD,  # Use recomputed derivative data
-					interpolator,
-					interpolants,
-					diagnostics,
-					diagnostic_data,
-					states,
-					params,
-				)
-
-			# Combine all equations into a single target
-			final_target = reduce(vcat, full_target)
-
-			# Create the final list of variables to solve for
-			final_varlist = collect(OrderedDict{eltype(first(full_varlist)), Nothing}(v => nothing for v in reduce(vcat, full_varlist)).keys)
-
-			# Report the changes
-			if diagnostics
-				println("[DEBUG-ODEPE] System size changed from $prev_num_equations equations, $prev_num_variables variables")
-				println("[DEBUG-ODEPE]                     to $(length(final_target)) equations, $(length(final_varlist)) variables")
-			end
-
-			# Save both systems for debugging if requested
-			if save_system
-				# Save the reconstructed polynomial system
-				save_filepath = "saved_systems/system_reconstruction_$(reconstruction_attempts)_$(now()).jl"
-				mkpath(dirname(save_filepath)) # Ensure directory exists
-				save_poly_system(save_filepath, final_target, final_varlist,
-					metadata = Dict(
-						"timestamp" => string(now()),
-						"num_equations" => length(final_target),
-						"num_variables" => length(final_varlist),
-						"reconstruction_attempt" => reconstruction_attempts,
-						"deriv_level" => current_deriv_level,
-						"description" => "Reconstructed system after incrementing derivatives",
-					),
-				)
-				@info "Saved reconstructed polynomial system to $save_filepath"
-			end
-		end
-
-		if save_system
-			# Save the polynomial system before attempting to solve it
-			if reconstruction_attempts == 0
-				save_filepath = "saved_systems/system_$(now()).jl"
-			else
-				save_filepath = "saved_systems/system_attempt_$(reconstruction_attempts)_$(now()).jl"
-			end
-			mkpath(dirname(save_filepath)) # Ensure directory exists
-			save_poly_system(save_filepath, final_target, final_varlist,
-				metadata = Dict(
-					"timestamp" => string(now()),
-					"num_equations" => length(final_target),
-					"num_variables" => length(final_varlist),
-					"reconstruction_attempt" => reconstruction_attempts,
-					"deriv_level" => current_deriv_level,
-				),
-			)
-			@info "Saved polynomial system to $save_filepath"
-
-			# Also save in a simple text format for external analysis
-			txt_filepath = replace(save_filepath, ".jl" => ".txt")
-			open(txt_filepath, "w") do f
-				println(f, "# Polynomial System")
-				println(f, "# Equations: ", length(final_target))
-				println(f, "# Variables: ", length(final_varlist))
-				println(f, "# Variables list: ", final_varlist)
-				println(f, "\n# Equations:")
-				for (i, eq) in enumerate(final_target)
-					println(f, "Eq$i: ", eq)
-				end
-			end
-			@info "Also saved as text to $txt_filepath"
-		end
-
-		# Debug: Print polynomial system details
-		if diagnostics
-			println("\n[DEBUG-ODEPE] POLYNOMIAL SYSTEM DETAILS (attempt $reconstruction_attempts):")
-			println("[DEBUG-ODEPE] Number of equations: ", length(final_target))
-			println("[DEBUG-ODEPE] Number of variables: ", length(final_varlist))
-			if reconstruction_attempts == 0
-				println("[DEBUG-ODEPE] Variables: ", final_varlist)
-
-				# Only print equations in deep debug mode
-				if get(ENV, "ODEPE_DEEP_DEBUG", "false") == "true"
-					println("[DEBUG-ODEPE] Equations:")
-					for (i, eq) in enumerate(final_target)
-						println("[DEBUG-ODEPE]   Eq $i: ", eq)
-					end
-				end
-			end
-		end
-
-		# Attempt to solve the system
-		local solver_result
-		try
-			# Prepare options for the solver
-			solver_options = Dict(
-				:debug_solver => debug_solver,
-				:debug_cas_diagnostics => debug_cas_diagnostics,
-				:debug_dimensional_analysis => debug_dimensional_analysis,
-			)
-			solver_result = system_solver(final_target, final_varlist; options = solver_options)
-
-
-		catch e
-			# Handle old-style exceptions for backward compatibility
-			if isa(e, DomainError) && occursin("zerodimensional ideal", string(e))
-				@warn "System is not zero-dimensional (via exception). Will attempt reconstruction."
-				solver_result = (:needs_reconstruction, final_varlist, Dict(), final_varlist)
-			else
-				# Rethrow other errors
-				rethrow(e)
-			end
-		end
-
-		# Check if we got a special status indicating reconstruction is needed
-		if isa(solver_result, Tuple) && length(solver_result) == 4 && solver_result[1] == :needs_reconstruction
-			@info "System is not zero-dimensional. Attempting to add constraints via higher derivative levels."
-
-			# Find next observable to increment
-			next_increment = get_next_deriv_increment(current_deriv_level, attempted_increments; max_deriv_level = max_deriv_level)
-
-			if isnothing(next_increment)
-				@error "Cannot increment any more derivative levels. All observables at maximum or already attempted."
-				error("Failed to achieve zero-dimensional system after exhausting all derivative increments.")
-			end
-
-			obs_idx, new_level = next_increment
-			push!(attempted_increments, (obs_idx, new_level))
-
-			@info "Incrementing derivative level for observable $obs_idx from $(current_deriv_level[obs_idx]) to $new_level"
-			current_deriv_level[obs_idx] = new_level
-
-			reconstruction_attempts += 1
-			continue  # Try again with updated deriv_level
-		else
-			# Normal solution found
-			solve_result, hcvarlist, trivial_dict, trimmed_varlist = solver_result
-			@info "Successfully solved system" * (reconstruction_attempts > 0 ? " after $reconstruction_attempts reconstruction attempt(s)" : "")
-
-			# Optional local polish pass using fast NL least-squares if enabled
-			if polish_solver_solutions && !isempty(solve_result)
-				polished = Vector{Vector{Float64}}()
-				for sol in solve_result
-					start_pt = real.(sol)
-					p_solutions, _, _, _ = solve_with_fast_nlopt(final_target, final_varlist;
-						start_point = start_pt,
-						polish_only = true,
-						options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug_solver => diagnostics, :log_every => 5),
-					)
-					if !isempty(p_solutions)
-						push!(polished, p_solutions[1])
-					else
-						push!(polished, sol)
-					end
-				end
-				solve_result = polished
-			end
-
-			break
-		end
-	end
-
-	# Check if we exhausted attempts
-	if reconstruction_attempts >= max_reconstruction_attempts
-		@error "Exhausted maximum reconstruction attempts ($max_reconstruction_attempts)"
-		error("Failed to solve system after $max_reconstruction_attempts reconstruction attempts")
-	end
-
-	# Check if a solution was found
-	if isnothing(solve_result)
-		error("Failed to solve the system, even after modifications.")
-	end
-
-	return (
-		solns = solve_result,
-		hcvarlist = hcvarlist,
-		trivial_dict = trivial_dict,
-		trimmed_varlist = trimmed_varlist,
-		forward_subst_dict = forward_subst_dict,
-		reverse_subst_dict = reverse_subst_dict,
-		final_varlist = final_varlist,
-		good_udict = good_udict,
-	)
+	throw(ArgumentError("solve_parameter_estimation is no longer supported. Use analyze_parameter_estimation_problem or optimized_multishot_parameter_estimation with EstimationOptions."))
 end
 
 """
@@ -841,6 +553,40 @@ Backsolves for the original model parameters and creates ParameterEstimationResu
 # Returns
 - Vector of ParameterEstimationResult objects
 """
+
+"""
+	_clamp_params_for_backsolve(p_map, opts, param_order, n_states) -> AbstractDict
+
+When `opts.opt_lb` and `opts.opt_ub` are provided AND have length `n_states + n_params`,
+clamp the parameter portion of `p_map` to those bounds and return a new dict (same
+concrete type as the input). Otherwise returns `p_map` unchanged. The bounds vector
+is laid out as `[state_ic_bounds; param_bounds]` (matches `compute_default_bounds`),
+so parameter `i` maps to bound index `n_states + i`. Complex values are reduced to
+their real part before clamping.
+
+This is an opt-in extension of the polish-side bounds (`opts.opt_lb` / `opts.opt_ub`)
+to ALSO apply at backward ODE integration. Particularly useful for cases like
+cstr_1_0 where HC.jl produces spurious candidates with parameters at zero (a
+degenerate solution branch where a coupling vanishes), making the backsolve diverge.
+"""
+function _clamp_params_for_backsolve(p_map, opts, param_order, n_states::Int)
+	(isnothing(opts) || isnothing(opts.opt_lb) || isnothing(opts.opt_ub)) && return p_map
+	n_params = length(param_order)
+	expected_len = n_states + n_params
+	(length(opts.opt_lb) != expected_len || length(opts.opt_ub) != expected_len) && return p_map
+
+	out = copy(p_map)
+	for (i, p) in enumerate(param_order)
+		if haskey(out, p)
+			idx = n_states + i
+			v_in = out[p]
+			v_real = isa(v_in, Complex) ? real(v_in) : v_in
+			out[p] = clamp(Float64(v_real), Float64(opts.opt_lb[idx]), Float64(opts.opt_ub[idx]))
+		end
+	end
+	return out
+end
+
 function process_estimation_results(
 	PEP::ParameterEstimationProblem,
 	solution_data,
@@ -1076,6 +822,10 @@ function process_estimation_results(
 		tspan = (t_vector[shoot_idx], t_vector[1])
 		u0_map = Dict(states .=> initial_conditions)
 		p_map = Dict(params .=> parameter_values)
+		# Opt-in pre-backsolve parameter clamp: when opts.opt_lb / opts.opt_ub are
+		# user-provided, enforce them on parameters before backward integration.
+		# No-op when bounds aren't provided.
+		p_map = _clamp_params_for_backsolve(p_map, opts, params, length(states))
 
 		prob = ODEProblem(new_model, merge(u0_map, p_map), tspan)
 		ode_solution = try

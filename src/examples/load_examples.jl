@@ -166,7 +166,8 @@ Run parameter estimation examples on the specified models.
 		   Use :all for all models, :hard for challenging models only,
 		   or specify individual models like [:simple, :hiv]
 - `opts`: EstimationOptions struct containing all estimation parameters
-- Additional keyword arguments for backward compatibility (will be merged into opts)
+- `log_dir`: Directory where per-model logs should be written
+- `doskip`: Skip models whose existing log already contains `SUCCESS`
 
 # Available models
 Use `available_models()` to get the full list. Models are organized into:
@@ -178,63 +179,9 @@ Use `available_models()` to get the full list. Models are organized into:
 function run_parameter_estimation_examples(;
 	models = :all,
 	opts::EstimationOptions = EstimationOptions(),
-	datasize = nothing,
-	noise_level = nothing,
-	interpolator = nothing,
-	system_solver = nothing,
 	log_dir = "logs",
 	doskip = true,
-	shooting_points = nothing,
-	use_new_flow = nothing,
-	use_si_template = nothing,
 )
-	# Merge any provided keyword arguments with EstimationOptions
-	if !isnothing(datasize) || !isnothing(noise_level) || !isnothing(interpolator) ||
-	   !isnothing(system_solver) || !isnothing(shooting_points) ||
-	   !isnothing(use_new_flow) || !isnothing(use_si_template)
-		# Build keyword dict for merging
-		merge_kwargs = Dict{Symbol, Any}()
-		!isnothing(datasize) && (merge_kwargs[:datasize] = datasize)
-		!isnothing(noise_level) && (merge_kwargs[:noise_level] = noise_level)
-		!isnothing(shooting_points) && (merge_kwargs[:shooting_points] = shooting_points)
-		!isnothing(use_new_flow) && (merge_kwargs[:use_new_flow] = use_new_flow)
-		!isnothing(use_si_template) && (merge_kwargs[:use_si_template] = use_si_template)
-
-		# Handle special cases for interpolator and system_solver
-		if !isnothing(interpolator)
-			if interpolator == aaad_gpr_pivot
-				merge_kwargs[:interpolator] = InterpolatorAAADGPR
-			elseif interpolator == aaad
-				merge_kwargs[:interpolator] = InterpolatorAAAD
-			else
-				merge_kwargs[:custom_interpolator] = interpolator
-			end
-		end
-
-		if !isnothing(system_solver)
-			# Check if RS extension is loaded for RS solver comparison
-			if isdefined(ODEParameterEstimation, :solve_with_rs) &&
-			   (system_solver == solve_with_rs || system_solver == solve_with_rs_new)
-				merge_kwargs[:system_solver] = SolverRS
-			elseif system_solver == solve_with_hc
-				merge_kwargs[:system_solver] = SolverHC
-			elseif system_solver == solve_with_nlopt
-				merge_kwargs[:system_solver] = SolverNLOpt
-			elseif system_solver == solve_with_fast_nlopt
-				merge_kwargs[:system_solver] = SolverFastNLOpt
-			end
-		end
-
-		# Backward-compat: map the old boolean onto the supported flow enum
-		if haskey(merge_kwargs, :use_new_flow)
-			merge_kwargs[:use_new_flow] || error("use_new_flow=false is no longer supported. Use flow=FlowStandard or flow=FlowDirectOpt explicitly.")
-			merge_kwargs[:flow] = FlowStandard
-			delete!(merge_kwargs, :use_new_flow)
-		end
-
-		opts = merge_options(opts; merge_kwargs...)
-	end
-
 	# Create log directory if it doesn't exist
 	!isdir(log_dir) && mkpath(log_dir)
 
@@ -318,12 +265,12 @@ end
 
 # Example usage:
 # Run all models:
-#run_parameter_estimation_examples(datasize = 1501, noise_level = 0.0)
-#run_parameter_estimation_examples(datasize = 1501, noise_level = 0.0, models = :hard)
-#run_parameter_estimation_examples(datasize = 201, noise_level = 0.01, interpolator = test_gpr_function)
+#run_parameter_estimation_examples(opts = EstimationOptions(datasize = 1501, noise_level = 0.0))
+#run_parameter_estimation_examples(models = :hard, opts = EstimationOptions(datasize = 1501, noise_level = 0.0))
+#run_parameter_estimation_examples(opts = EstimationOptions(datasize = 201, noise_level = 0.01, interpolator = InterpolatorCustom, custom_interpolator = test_gpr_function))
 
 # Run specific models:
 # run_parameter_estimation_examples(models=[:simple, :hiv])
 
 # Run with different parameters:
-# run_parameter_estimation_examples(datasize=1001, noise_level=0.05) 
+# run_parameter_estimation_examples(opts = EstimationOptions(datasize = 1001, noise_level = 0.05))

@@ -74,7 +74,7 @@ function run_first_example()
         polish_maxiters = 50,
         polish_method = PolishLBFGS,
         opt_ad_backend = :enzyme,
-        #interpolator = InterpolatorAGP,
+        #interpolator = InterpolatorAGPRobust,
         #interpolator = InterpolatorAAADGPR,
         interpolator = InterpolatorAAAD,
         diagnostics = true)

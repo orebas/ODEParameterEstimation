@@ -128,6 +128,85 @@ function apply_uq_failure_policy(uq_result, opts::EstimationOptions)
 	return uq_result
 end
 
+_result_err_key(candidate) = (isnothing(candidate.err) || !isfinite(candidate.err)) ? Inf : candidate.err
+
+function _scored_results(results)
+	return filter(results) do candidate
+		err = candidate.err
+		!isnothing(err) && isfinite(err)
+	end
+end
+
+function _best_scored_result(results)
+	scored = _scored_results(results)
+	isempty(scored) && return nothing
+	return first(sort(scored, by = _result_err_key))
+end
+
+const _UQ_MATERN_INTERPOLATOR_SOURCES = Set((
+	:agp_robust_matern52,
+	:s3_matern52,
+	:s3_adapt_matern52,
+	:s3_bic_matern52,
+))
+
+function _default_uq_interpolator_source(opts::EstimationOptions)
+	if !isempty(opts.interpolators)
+		return interpolator_method_to_symbol(first(opts.interpolators))
+	end
+	return interpolator_method_to_symbol(opts.interpolator)
+end
+
+_uq_kernel_from_interpolator_source(source::Union{Nothing, Symbol}) =
+	source in _UQ_MATERN_INTERPOLATOR_SOURCES ? :matern52 : :se
+
+function _uq_kernel_for_result(candidate, opts::EstimationOptions)::Symbol
+	source = if hasproperty(candidate, :provenance) && !isnothing(candidate.provenance.interpolator_source)
+		candidate.provenance.interpolator_source
+	elseif hasproperty(candidate, :interpolator_source) && !isnothing(candidate.interpolator_source)
+		candidate.interpolator_source
+	else
+		_default_uq_interpolator_source(opts)
+	end
+	return _uq_kernel_from_interpolator_source(source)
+end
+
+function _compute_uq_result(
+	PEP::ParameterEstimationProblem,
+	solved_res,
+	opts::EstimationOptions,
+)
+	if !(opts.compute_uncertainty && !isempty(solved_res))
+		return nothing
+	end
+
+	best_solution = _best_scored_result(solved_res)
+	if isnothing(best_solution)
+		if !opts.nooutput
+			println("\nSkipping parameter uncertainty: no finite-error solution available.")
+		end
+		return nothing
+	end
+
+	if !opts.nooutput
+		println("\nComputing parameter uncertainty (experimental)...")
+	end
+
+	uq_result = estimate_parameter_uncertainty(
+		PEP,
+		best_solution,
+		PEP.data_sample;
+		max_deriv_order = 2,
+		n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
+		kernel_type = _uq_kernel_for_result(best_solution, opts),
+	)
+	uq_result = apply_uq_failure_policy(uq_result, opts)
+	if !opts.nooutput
+		print_uncertainty_results(uq_result)
+	end
+	return uq_result
+end
+
 """
 	print_stats_table(io, name, stats)
 
@@ -167,23 +246,29 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		println("\n=== Model: $(problem.name) ===")
 	end
 
-	# Filter out solutions with no error or error > threshold
-	valid_results = filter(x -> !isnothing(x.err) && x.err < MAX_ERROR_THRESHOLD, result)
-
-	# If no good solutions found, take top solutions
-	if isempty(valid_results)
-		valid_results = sort(result, by = x -> isnothing(x.err) ? Inf : x.err)[1:min(MAX_SOLUTIONS, length(result))]
+	scored_results = _scored_results(result)
+	sorted_results = if isempty(scored_results)
+		Any[]
+	else
+		sort(scored_results, by = _result_err_key)
 	end
 
-	# Sort results by error
-	sorted_results = sort(valid_results, by = x -> x.err, rev = true)
-
-	# Cluster solutions
+	# Cluster ALL candidates first; rely on clustering (CLUSTERING_THRESHOLD = 1e-5
+	# relative parameter distance) to produce the set of distinct algebraic-basin
+	# representatives. The legacy `err < MAX_ERROR_THRESHOLD` gate silently dropped
+	# truth-near candidates whose trajectory loss was high (e.g. on practical-non-
+	# identifiability cases like flexible_arm where fit-best is anticorrelated with
+	# truth-best). Cluster-first preserves them as separate basin reps.
+	#
+	# We do NOT cap cluster count: the legacy code's MAX_SOLUTIONS cap applied only
+	# to raw candidates in the rare fallback branch (when no candidate had err<0.5).
+	# Capping clusters too aggressively drops truth-near reps when the natural
+	# cluster count exceeds the cap (flex_arm has 83 natural clusters).
 	clusters = cluster_solutions(sorted_results)
 
 	# Show unidentifiable parameters if any
 	if !isempty(sorted_results)
-		first_result = last(sorted_results)
+		first_result = first(sorted_results)
 
 		# First show all structurally unidentifiable parameters
 		if hasfield(typeof(first_result), :all_unidentifiable) && !isempty(first_result.all_unidentifiable)
@@ -225,7 +310,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 		println("\nFound $(length(clusters)) distinct solution clusters:")
 	end
 	for (i, cluster) in enumerate(clusters)
-		best_solution = last(cluster)  # cluster is sorted by error
+		best_solution = first(cluster)  # cluster is sorted by error
 		if !nooutput
 			println("\nCluster $i: $(length(cluster)) similar solutions")
 			println("Best solution (Error: $(round(best_solution.err, digits=6))):")
@@ -288,11 +373,13 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 					max_var_len, var, true_val, est_str, rel_err)
 			end
 		end
-		println()
+		if !nooutput
+			println()
+		end
 	end
 
 	# Print best approximation error summary line
-	best_approximation_error = isempty(sorted_results) ? Inf : last(sorted_results).err
+	best_approximation_error = isempty(sorted_results) ? Inf : first(sorted_results).err
 	if !nooutput
 		println("\nBest approximation error for $(problem.name): $(round(best_approximation_error, digits=6))")
 	end
@@ -305,15 +392,17 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	best_max_error = Inf
 	best_rms_error = Inf
 
-	for each in result
-		stats = oracle_error_stats(problem, each)
-		if !isnothing(stats)
-			besterror = min(besterror, stats.maximum)
-			best_min_error = min(best_min_error, stats.minimum)
-			best_mean_error = min(best_mean_error, stats.mean)
-			best_median_error = min(best_median_error, stats.median)
-			best_max_error = min(best_max_error, stats.maximum)
-			best_rms_error = min(best_rms_error, stats.rms)
+	if !isempty(scored_results)
+		for each in result
+			stats = oracle_error_stats(problem, each)
+			if !isnothing(stats)
+				besterror = min(besterror, stats.maximum)
+				best_min_error = min(best_min_error, stats.minimum)
+				best_mean_error = min(best_mean_error, stats.mean)
+				best_median_error = min(best_median_error, stats.median)
+				best_max_error = min(best_max_error, stats.maximum)
+				best_rms_error = min(best_rms_error, stats.rms)
+			end
 		end
 	end
 	if !nooutput
@@ -334,7 +423,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result; 
 	# - Best approximation error across all results
 	# - Best RMS relative error across all results
 	return (
-		sort([last(cluster) for cluster in clusters], by = candidate -> oracle_sort_key(problem, candidate)),
+		sort([first(cluster) for cluster in clusters], by = candidate -> oracle_sort_key(problem, candidate)),
 		besterror,
 		best_min_error,
 		best_mean_error,
@@ -399,31 +488,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput)
 
-	# Compute uncertainty quantification if requested
-	uq_result = nothing
-	if opts.compute_uncertainty && !isempty(solved_res)
-		if !opts.nooutput
-			println("\nComputing parameter uncertainty (experimental)...")
-		end
-		# Use the best solution for UQ
-		best_solution = first(filter(x -> !isnothing(x.err), sort(solved_res, by = x -> isnothing(x.err) ? Inf : x.err)))
-		# Map estimation kernel to UQ kernel (UQ only supports :se and :matern52)
-		_uq_kernel = let k = _gp_kernel_of(opts.interpolator)
-			(k === :matern52) ? :matern52 : :se
-		end
-		uq_result = estimate_parameter_uncertainty(
-			PEP,
-			best_solution,
-			PEP.data_sample;
-			max_deriv_order = 2,
-			n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
-			kernel_type = _uq_kernel,
-		)
-		uq_result = apply_uq_failure_policy(uq_result, opts)
-		if !opts.nooutput
-			print_uncertainty_results(uq_result)
-		end
-	end
+	uq_result = _compute_uq_result(PEP, solved_res, opts)
 
 	return results_tuple, results_tuple_to_return, uq_result
 

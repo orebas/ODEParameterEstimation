@@ -67,6 +67,7 @@ function construct_equation_system_from_si_template(
 
 		si_template = (
 			equations = template_equations,
+			all_equations = hasproperty(si_template_metadata, :full_equations) ? si_template_metadata.full_equations : template_equations,
 			deriv_dict = derivative_dict,
 			template_DD = template_DD,
 			unidentifiable = unidentifiable,
@@ -387,6 +388,7 @@ function resolve_states_with_fixed_params(
 
 	new_si_template = (
 		equations = new_template_eqs,
+		all_equations = hasproperty(new_si_template_metadata, :full_equations) ? new_si_template_metadata.full_equations : new_template_eqs,
 		deriv_dict = new_deriv_dict,
 		template_DD = new_template_DD,
 		unidentifiable = new_unident,

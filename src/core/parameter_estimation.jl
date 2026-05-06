@@ -613,6 +613,7 @@ function build_si_template_for_fixed_params(
 	template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, derivative_dict)
 	return (
 		equations = template_equations,
+		all_equations = hasproperty(si_template_metadata, :full_equations) ? si_template_metadata.full_equations : template_equations,
 		deriv_dict = derivative_dict,
 		template_DD = template_DD,
 		unidentifiable = unidentifiable,
@@ -683,6 +684,7 @@ function prepare_si_template_with_structural_fix(
 
 	final_template = (
 		equations = final_template.equations,
+		all_equations = hasproperty(final_template, :all_equations) ? final_template.all_equations : final_template.equations,
 		deriv_dict = final_template.deriv_dict,
 		template_DD = final_template.template_DD,
 		unidentifiable = final_template.unidentifiable,
@@ -760,6 +762,7 @@ function prepare_si_template_with_legacy_square_repair(
 
 		final_template = (
 			equations = si_template.equations,
+			all_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : si_template.equations,
 			deriv_dict = si_template.deriv_dict,
 			template_DD = si_template.template_DD,
 			unidentifiable = si_template.unidentifiable,
@@ -817,6 +820,7 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 	template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
 	new_si_template = (
 		equations = template_equations,
+		all_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : template_equations,
 		deriv_dict = si_template.deriv_dict,
 		template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing,
 		unidentifiable = si_template.unidentifiable,
@@ -1815,7 +1819,7 @@ reused across all polish/optimization runs. This avoids redundant calls to
 - `ub`: Optional upper bounds
 - `polish_ode_maxiters`: ODE solver iteration cap inside loss function (fails fast on hopeless regions)
 """
-struct PolishContext
+Base.@kwdef struct PolishContext
 	unknown_syms::Vector
 	param_syms::Vector
 	n_ic::Int
@@ -1835,9 +1839,203 @@ struct PolishContext
 	param_syms_out::Vector
 	state_index::Dict
 	param_index::Dict
-	lb::Union{Nothing, Vector{Float64}}
-	ub::Union{Nothing, Vector{Float64}}
-	polish_ode_maxiters::Int
+	lb::Union{Nothing, Vector{Float64}} = nothing
+	ub::Union{Nothing, Vector{Float64}} = nothing
+	internal_lb::Union{Nothing, Vector{Float64}} = nothing
+	internal_ub::Union{Nothing, Vector{Float64}} = nothing
+	coordinate_transforms::Vector{Symbol} = Symbol[]
+	# Per-variable shift used by :shifted_log entries; 0.0 for :log/:linear entries.
+	coordinate_shifts::Vector{Float64} = Float64[]
+	polish_ode_maxiters::Int = 5000
+	# Optional: per-variable LSO-style regularization weight (sqrt(λ) is applied to internal coords).
+	regularization_lambda::Float64 = 0.0
+end
+
+const _POLISH_SHIFT_EPS = 1e-6
+const _POLISH_VALID_TRANSFORMS = Set([:linear, :log, :shifted_log])
+
+"""
+	_choose_polish_transforms(lb, ub; policy = :auto) -> (Vector{Symbol}, Vector{Float64})
+
+Per-variable selection of coordinate transform.
+
+- `:log` when `lb > 0 && isfinite(ub)`. Forward `log(x)`, inverse `exp(x_int)`. Shift = 0.
+- `:shifted_log` when both bounds finite and `lb <= 0` (also handles `lb >= 0` near zero).
+  Shift `s = max(ε·M, -lb + ε·M)` where `M = max(|lb|, |ub|, 1)`. Forward `log(x + s)`.
+- `:linear` when either bound is `±Inf`, when bounds are missing, or when `policy != :auto`
+  forces it. Shift = 0.
+
+`policy`:
+- `:auto`         (default) — per-variable selection per the rules above.
+- `:linear`       — force `:linear` for every variable (legacy linear polish).
+- `:log_only`     — `:log` where bounds permit; otherwise `:linear`.
+- `:shifted_log_only` — `:shifted_log` where bounds permit; otherwise `:linear`.
+"""
+function _choose_polish_transforms(
+	lb::Union{Nothing, AbstractVector{<:Real}},
+	ub::Union{Nothing, AbstractVector{<:Real}};
+	policy::Symbol = :auto,
+)
+	(isnothing(lb) || isnothing(ub)) && throw(ArgumentError(
+		"_choose_polish_transforms requires both lb and ub (use compute_default_bounds first)"))
+	length(lb) == length(ub) || throw(ArgumentError("lb and ub must have equal length"))
+	n = length(lb)
+	transforms = Vector{Symbol}(undef, n)
+	shifts = zeros(Float64, n)
+	for i in 1:n
+		lbi = Float64(lb[i])
+		ubi = Float64(ub[i])
+		bounds_finite = isfinite(lbi) && isfinite(ubi)
+		if policy == :linear
+			transforms[i] = :linear
+		elseif policy == :log_only
+			# Strict: every variable must admit `:log` (lb > 0 && finite ub).
+			# This mirrors the legacy `:log_positive` semantics — error rather
+			# than silently fall back to `:linear`. Use `:auto` if you want
+			# graceful per-variable fallback.
+			(lbi > 0.0 && bounds_finite) || throw(ArgumentError(
+				"variable $i: :log_only requires strictly positive finite bounds (lb=$lbi, ub=$ubi)"))
+			transforms[i] = :log
+		elseif !bounds_finite
+			# `:auto` and `:shifted_log_only` fall through to :linear when unbounded
+			transforms[i] = :linear
+		elseif policy == :shifted_log_only
+			transforms[i] = :shifted_log
+			shifts[i] = _shifted_log_shift(lbi, ubi)
+		else
+			# :auto
+			if lbi > 0.0
+				transforms[i] = :log
+			else
+				transforms[i] = :shifted_log
+				shifts[i] = _shifted_log_shift(lbi, ubi)
+			end
+		end
+	end
+	return transforms, shifts
+end
+
+function _shifted_log_shift(lb::Real, ub::Real)
+	M = max(abs(lb), abs(ub), 1.0)
+	εM = _POLISH_SHIFT_EPS * M
+	# `s` keeps the shift on a meaningful scale even when `lb` is barely negative
+	return max(εM, -lb + εM)
+end
+
+"""
+	_polish_coordinate_bounds(transforms, shifts, lb, ub) -> (Vector, Vector)
+
+Per-variable map from external bounds to internal bounds, given the chosen transform
+and shift for each coordinate. Unbounded entries are passed through as `±Inf` —
+LSO/FastLM accept those natively. Returns `(internal_lb, internal_ub)` of the same
+length as `lb`/`ub`.
+"""
+function _polish_coordinate_bounds(
+	transforms::Vector{Symbol},
+	shifts::Vector{Float64},
+	lb::Union{Nothing, Vector{Float64}},
+	ub::Union{Nothing, Vector{Float64}},
+)
+	(isnothing(lb) || isnothing(ub)) && return lb, ub
+	n = length(lb)
+	@assert length(transforms) == n "transforms length mismatch with bounds"
+	@assert length(shifts) == n "shifts length mismatch with bounds"
+	internal_lb = similar(lb)
+	internal_ub = similar(ub)
+	for i in 1:n
+		t = transforms[i]
+		if t === :linear
+			internal_lb[i] = lb[i]
+			internal_ub[i] = ub[i]
+		elseif t === :log
+			lb[i] > 0.0 || throw(ArgumentError("variable $i: :log requires lb > 0 (got $(lb[i]))"))
+			isfinite(ub[i]) || throw(ArgumentError("variable $i: :log requires finite ub"))
+			internal_lb[i] = log(lb[i])
+			internal_ub[i] = log(ub[i])
+		elseif t === :shifted_log
+			s = shifts[i]
+			lb[i] + s > 0.0 || throw(ArgumentError("variable $i: :shifted_log shift produces non-positive lb (lb=$(lb[i]) s=$s)"))
+			isfinite(ub[i]) || throw(ArgumentError("variable $i: :shifted_log requires finite ub"))
+			internal_lb[i] = log(lb[i] + s)
+			internal_ub[i] = log(ub[i] + s)
+		else
+			throw(ArgumentError("Unknown polish coordinate transform '$t' at index $i"))
+		end
+	end
+	return internal_lb, internal_ub
+end
+
+"""
+	_polish_external_to_internal(values, transforms, shifts) -> Vector
+
+Forward map external (user-space) values to internal (optimizer-space) coordinates,
+per variable.
+"""
+function _polish_external_to_internal(
+	values::AbstractVector{<:Real},
+	transforms::Vector{Symbol},
+	shifts::Vector{Float64},
+)
+	n = length(values)
+	out = similar(values, float(eltype(values)))
+	@inbounds for i in 1:n
+		t = transforms[i]
+		v = values[i]
+		out[i] = if t === :linear
+			v
+		elseif t === :log
+			log(v)
+		elseif t === :shifted_log
+			log(v + shifts[i])
+		else
+			throw(ArgumentError("Unknown polish coordinate transform '$t' at index $i"))
+		end
+	end
+	return out
+end
+
+"""
+	_polish_internal_to_external(values, transforms, shifts) -> Vector
+
+Inverse map internal (optimizer-space) values back to external (user-space)
+coordinates, per variable.
+"""
+function _polish_internal_to_external(
+	values::AbstractVector{<:Real},
+	transforms::Vector{Symbol},
+	shifts::Vector{Float64},
+)
+	n = length(values)
+	out = similar(values, float(eltype(values)))
+	@inbounds for i in 1:n
+		t = transforms[i]
+		v = values[i]
+		out[i] = if t === :linear
+			v
+		elseif t === :log
+			exp(v)
+		elseif t === :shifted_log
+			exp(v) - shifts[i]
+		else
+			throw(ArgumentError("Unknown polish coordinate transform '$t' at index $i"))
+		end
+	end
+	return out
+end
+
+"""
+	_polish_policy_from_legacy(coordinate_transform::Symbol) -> Symbol
+
+Map the legacy single-symbol `coordinate_transform` keyword (`:linear` or `:log_positive`)
+to the new per-variable policy used by `_choose_polish_transforms`. Internal use only.
+"""
+function _polish_policy_from_legacy(coordinate_transform::Symbol)
+	coordinate_transform == :linear && return :linear
+	coordinate_transform == :log_positive && return :log_only
+	coordinate_transform == :auto && return :auto
+	coordinate_transform == :shifted_log_safe && return :shifted_log_only
+	throw(ArgumentError("Unsupported polish coordinate transform '$coordinate_transform'. " *
+		"Supported: :linear, :log_positive, :auto, :shifted_log_safe."))
 end
 
 """
@@ -1851,7 +2049,22 @@ Call this once, then pass the result to `_polish_single_from_context` or
 function _build_polish_context(
 	PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions(),
+	coordinate_transform::Union{Nothing, Symbol} = nothing,
 )
+	# When the caller leaves `coordinate_transform` unset, residual polish methods
+	# pick up `opts.polish_coordinate_policy` (default `:auto` = per-variable);
+	# scalar polish methods default to `:linear` to preserve byte-equivalent legacy
+	# behavior. Explicit `coordinate_transform = :linear` / `:log_positive` keeps
+	# its meaning regardless of `polish_method` (used by tests and bounds-aware
+	# callers in benchmark scripts).
+	resolved_transform = if !isnothing(coordinate_transform)
+		coordinate_transform
+	elseif is_residual_polish_method(opts.polish_method)
+		opts.polish_coordinate_policy
+	else
+		:linear
+	end
+	coordinate_transform = resolved_transform
 	# Stable variable ordering from the system
 	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
 	param_syms = ModelingToolkit.parameters(PEP.model.system)
@@ -1898,12 +2111,16 @@ function _build_polish_context(
 		lb = lb_auto
 		ub = ub_auto
 	end
+	policy = _polish_policy_from_legacy(coordinate_transform)
+	transforms, shifts = _choose_polish_transforms(lb, ub; policy = policy)
+	internal_lb, internal_ub = _polish_coordinate_bounds(transforms, shifts, lb, ub)
 
 	# ODE solver iteration cap — fail fast on hopeless parameter regions
 	ode_maxiters = opts.polish_ode_maxiters
 
 	# Loss closure capturing all invariants — uses remake for efficiency
-	function loss(p_all)
+	function loss(p_internal)
+		p_all = _polish_internal_to_external(p_internal, transforms, shifts)
 		ic_guess = @view p_all[1:n_ic]
 		param_guess = @view p_all[(n_ic+1):end]
 
@@ -1939,13 +2156,33 @@ function _build_polish_context(
 	param_index = Dict(p => i for (i, p) in enumerate(param_syms))
 
 	return PolishContext(
-		unknown_syms, param_syms, n_ic, n_param,
-		new_model, obs_funcs, data_targets,
-		t_vector, tspan, solver, abstol, reltol, adtype, optf,
-		base_ode_prob,
-		state_syms_out, param_syms_out, state_index, param_index,
-		lb, ub,
-		ode_maxiters,
+		unknown_syms = unknown_syms,
+		param_syms = param_syms,
+		n_ic = n_ic,
+		n_param = n_param,
+		new_model = new_model,
+		obs_funcs = obs_funcs,
+		data_targets = data_targets,
+		t_vector = t_vector,
+		tspan = tspan,
+		solver = solver,
+		abstol = abstol,
+		reltol = reltol,
+		adtype = adtype,
+		optf = optf,
+		base_ode_prob = base_ode_prob,
+		state_syms_out = state_syms_out,
+		param_syms_out = param_syms_out,
+		state_index = state_index,
+		param_index = param_index,
+		lb = lb,
+		ub = ub,
+		internal_lb = internal_lb,
+		internal_ub = internal_ub,
+		coordinate_transforms = transforms,
+		coordinate_shifts = shifts,
+		polish_ode_maxiters = ode_maxiters,
+		regularization_lambda = opts.polish_regularization_lambda,
 	)
 end
 
@@ -1968,27 +2205,61 @@ function _polish_single_from_context(
 	ctx::PolishContext,
 	p0::AbstractVector{<:Real};
 	optimizer = BFGS(),
+	polish_method::Union{Nothing, PolishMethod} = nothing,
 	maxiters::Int = 200000,
 	maxtime::Float64 = 300.0,
 	divergence_factor::Float64 = 10.0,
 	stagnation_window::Int = 50,
+	lso_delta::Float64 = 10.0,
+	lso_x_tol::Float64 = -1.0,
+	lso_f_tol::Float64 = -1.0,
+	lso_g_tol::Float64 = -1.0,
 )
+	# Residual-mode polish (LSO / FastLM) uses a separate solver path with native
+	# bound support and a revert guard. Dispatch early so the rest of this body
+	# remains a clean scalar-loss path.
+	if !isnothing(polish_method) && is_residual_polish_method(polish_method)
+		token = get_polish_optimizer(polish_method)
+		isa(token, Tuple) || error("Residual polish method $(polish_method) did not return a tagged token")
+		kind, factory = token
+		return _polish_single_residual(
+			ctx, p0;
+			solver_kind = kind,
+			optimizer_factory = factory,
+			maxiters = maxiters,
+			maxtime = maxtime,
+			lso_delta = lso_delta,
+			lso_x_tol = lso_x_tol,
+			lso_f_tol = lso_f_tol,
+			lso_g_tol = lso_g_tol,
+		)
+	end
+
 	# Only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
 	# (NewtonTrustRegion, LevenbergMarquardt, GaussNewton) don't.
-	use_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub) &&
+	use_bounds = !isnothing(ctx.internal_lb) && !isnothing(ctx.internal_ub) &&
 		optimizer isa Union{Optim.BFGS, Optim.LBFGS}
+	has_external_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub)
+	# Any non-`:linear` entry means we have an active coordinate transform that requires
+	# the seed to live inside the external bounds before we can map to internal.
+	any_nontrivial_transform = any(!=(:linear), ctx.coordinate_transforms)
 
-	p0_clamped = use_bounds ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
+	p0_external = if any_nontrivial_transform
+		has_external_bounds ? clamp.(Float64.(p0), ctx.lb, ctx.ub) : Float64.(p0)
+	else
+		use_bounds ? clamp.(Float64.(p0), ctx.lb, ctx.ub) : Float64.(p0)
+	end
+	p0_internal = _polish_external_to_internal(p0_external, ctx.coordinate_transforms, ctx.coordinate_shifts)
 
 	optprob = if use_bounds
-		Optimization.OptimizationProblem(ctx.optf, p0_clamped; lb = ctx.lb, ub = ctx.ub)
+		Optimization.OptimizationProblem(ctx.optf, p0_internal; lb = ctx.internal_lb, ub = ctx.internal_ub)
 	else
-		Optimization.OptimizationProblem(ctx.optf, p0_clamped)
+		Optimization.OptimizationProblem(ctx.optf, p0_internal)
 	end
 
 	# Evaluate initial loss for divergence baseline
 	initial_loss = try
-		ctx.optf.f(p0_clamped, nothing)
+		ctx.optf.f(p0_internal, nothing)
 	catch
 		Inf
 	end
@@ -1997,7 +2268,7 @@ function _polish_single_from_context(
 	opt_verbose = get(ENV, "ODEPE_OPT_VERBOSE", "false") == "true"
 	iter_count = Ref(0)
 	best_loss = Ref(isfinite(initial_loss) ? initial_loss : Inf)
-	best_p = Ref(copy(p0_clamped))
+	best_p = Ref(copy(p0_internal))
 	iters_since_improvement = Ref(0)
 	start_time = time()
 	last_log_time = Ref(start_time)
@@ -2054,6 +2325,7 @@ function _polish_single_from_context(
 		println("[polish] Starting optimization with $(typeof(optimizer))")
 		println("[polish]  n_states=$(ctx.n_ic), n_params=$(ctx.n_param), data_points=$(length(ctx.t_vector))")
 		println("[polish]  solver=$(typeof(ctx.solver)), abstol=$(ctx.abstol), reltol=$(ctx.reltol), maxiters=$(maxiters)")
+		println("[polish]  coordinate_transforms=$(ctx.coordinate_transforms)")
 		println("[polish]  safeguards: maxtime=$(maxtime)s, divergence=$(divergence_factor)x, stagnation=$(stagnation_window) iters")
 		println("[polish]  initial_loss=$(initial_loss)")
 	end
@@ -2065,7 +2337,7 @@ function _polish_single_from_context(
 	end
 
 	# Recover best solution if optimizer wandered past the minimum
-	p_opt = if isfinite(best_loss[]) && best_loss[] < result.objective
+	p_opt_internal = if isfinite(best_loss[]) && best_loss[] < result.objective
 		if opt_verbose
 			println("[polish]  recovering best iterate: loss $(round(best_loss[]; sigdigits=6)) < final $(round(result.objective; sigdigits=6))")
 		end
@@ -2073,6 +2345,7 @@ function _polish_single_from_context(
 	else
 		result.u
 	end
+	p_opt = _polish_internal_to_external(p_opt_internal, ctx.coordinate_transforms, ctx.coordinate_shifts)
 	ic_opt = p_opt[1:ctx.n_ic]
 	param_opt = p_opt[(ctx.n_ic+1):end]
 	prob_final = remake(ctx.base_ode_prob;
@@ -2109,27 +2382,26 @@ function _polish_single_from_context(
 	return final_result, result
 end
 
-"""
-	_polish_batch_from_context(ctx, candidates; opts) -> Vector{ParameterEstimationResult}
-
-Polish all candidate solutions using a shared PolishContext. For each candidate,
-extracts the p0 vector, calls `_polish_single_from_context`, and returns the
-combined list of original + polished results.
-"""
-function _polish_batch_from_context(
+function _polish_cluster_metadata(
 	ctx::PolishContext,
 	candidates::AbstractVector;
 	opts::EstimationOptions = EstimationOptions(),
+	cluster_threshold::Float64 = 0.001,
 )
-	optimizer_type = get_polish_optimizer(opts.polish_method)
-	optimizer = optimizer_type()
-	maxiters = opts.polish_maxiters
-	n_candidates = length(candidates)
-
-	# --- Pre-polish clustering: deduplicate candidates that clamp to the same point ---
-	# Build clamped p0 vectors for all candidates
-	use_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub) &&
+	residual_mode = is_residual_polish_method(opts.polish_method)
+	# For scalar methods, only BFGS/LBFGS support Fminbox bounds wrapping. For
+	# residual methods (LSO / FastLM), bounds are passed natively to the solver,
+	# so we always clamp the seed to the external bounds first.
+	scalar_uses_bounds = if residual_mode
+		false
+	else
+		optimizer_type = get_polish_optimizer(opts.polish_method)
+		optimizer = optimizer_type()
 		optimizer isa Union{Optim.BFGS, Optim.LBFGS}
+	end
+	n_candidates = length(candidates)
+	use_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub) &&
+		(residual_mode || scalar_uses_bounds)
 
 	clamped_p0s = Vector{Vector{Float64}}(undef, n_candidates)
 	for (i, candidate) in enumerate(candidates)
@@ -2139,17 +2411,12 @@ function _polish_batch_from_context(
 		clamped_p0s[i] = use_bounds ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
 	end
 
-	# Cluster by max relative component-wise distance (same metric as solution_distance)
-	cluster_threshold = 0.001  # 0.1% relative difference
-	# cluster_rep[k] = index of representative candidate for cluster k
 	cluster_reps = Int[]
-	# candidate_cluster[i] = which cluster candidate i belongs to
 	candidate_cluster = zeros(Int, n_candidates)
 
 	for i in 1:n_candidates
 		merged = false
 		for (k, rep) in enumerate(cluster_reps)
-			# Max relative component-wise distance
 			dist = zero(Float64)
 			for j in eachindex(clamped_p0s[i])
 				a = clamped_p0s[i][j]
@@ -2159,7 +2426,6 @@ function _polish_batch_from_context(
 			end
 			if dist <= cluster_threshold
 				candidate_cluster[i] = k
-				# Pick the candidate with better (lower) error as representative
 				err_i = isnothing(candidates[i].err) ? Inf : candidates[i].err
 				err_rep = isnothing(candidates[rep].err) ? Inf : candidates[rep].err
 				if err_i < err_rep
@@ -2174,6 +2440,42 @@ function _polish_batch_from_context(
 			candidate_cluster[i] = length(cluster_reps)
 		end
 	end
+
+	return (
+		cluster_reps = cluster_reps,
+		candidate_cluster = candidate_cluster,
+		clamped_p0s = clamped_p0s,
+		use_bounds = use_bounds,
+		cluster_threshold = cluster_threshold,
+	)
+end
+
+"""
+	_polish_batch_from_context(ctx, candidates; opts) -> Vector{ParameterEstimationResult}
+
+Polish all candidate solutions using a shared PolishContext. For each candidate,
+extracts the p0 vector, calls `_polish_single_from_context`, and returns the
+combined list of original + polished results.
+"""
+function _polish_batch_from_context(
+	ctx::PolishContext,
+	candidates::AbstractVector;
+	opts::EstimationOptions = EstimationOptions(),
+)
+	residual_mode = is_residual_polish_method(opts.polish_method)
+	# Build the legacy scalar optimizer instance only when actually needed; residual
+	# methods route through `_polish_single_residual` and don't take an `optimizer` arg.
+	optimizer = if residual_mode
+		nothing
+	else
+		optimizer_type = get_polish_optimizer(opts.polish_method)
+		optimizer_type()
+	end
+	maxiters = opts.polish_maxiters
+	n_candidates = length(candidates)
+	cluster_meta = _polish_cluster_metadata(ctx, candidates; opts = opts)
+	cluster_reps = cluster_meta.cluster_reps
+	clamped_p0s = cluster_meta.clamped_p0s
 
 	n_unique = length(cluster_reps)
 	if !opts.nooutput && n_unique < n_candidates
@@ -2199,11 +2501,16 @@ function _polish_batch_from_context(
 
 				polished_result, opt_result = _polish_single_from_context(
 					ctx, p0;
-					optimizer = optimizer,
+					optimizer = isnothing(optimizer) ? BFGS() : optimizer,
+					polish_method = opts.polish_method,
 					maxiters = maxiters,
 					maxtime = opts.polish_maxtime,
 					divergence_factor = opts.polish_divergence_factor,
 					stagnation_window = opts.polish_stagnation_window,
+					lso_delta = opts.polish_lso_delta,
+					lso_x_tol = opts.polish_lso_x_tol,
+					lso_f_tol = opts.polish_lso_f_tol,
+					lso_g_tol = opts.polish_lso_g_tol,
 				)
 				dt = time() - t0
 				n_iters = try; opt_result.original.iterations; catch; -1; end

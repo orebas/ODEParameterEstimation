@@ -727,6 +727,49 @@ function _optimize_se_hyperparams(
 end
 
 """
+	estimate_relative_noise(pep) -> Float64
+
+Data-driven relative-noise estimate using SE-kernel GP hyperparameter
+optimization on the first observable's data. Returns σₙ in normalized-y
+units (so it's scale-invariant — `sqrt(σₙ²_opt)` where the GP fit was
+on z-scored data). Returns 0.0 on failure (interpreted as "couldn't
+estimate; treat as zero noise"). Used by the noise-based interpolator
+filter in `maybe_filter_interpolators_by_noise`.
+
+This is one extra SE-kernel GP fit (~50ms) per estimation run. Skipped
+entirely by callers when the interpolator list contains no AAA-family
+methods (since only those are noise-gated).
+"""
+function estimate_relative_noise(pep)
+	isnothing(pep.data_sample) && return 0.0
+	t_vec = try
+		Float64.(pep.data_sample["t"])
+	catch
+		return 0.0
+	end
+	# Pick the first non-"t" key in data_sample as the noise-probe observable
+	y_vec = nothing
+	for (k, v) in pep.data_sample
+		k == "t" && continue
+		y_vec = Float64.(v)
+		break
+	end
+	isnothing(y_vec) && return 0.0
+	(length(y_vec) != length(t_vec) || length(t_vec) < 4) && return 0.0
+	try
+		y_std = Statistics.std(y_vec)
+		y_std < 1e-12 && return 0.0
+		ys_norm = (y_vec .- Statistics.mean(y_vec)) ./ y_std
+		D_sq = [(t_vec[i] - t_vec[j])^2 for i in eachindex(t_vec), j in eachindex(t_vec)]
+		result = _optimize_se_hyperparams(t_vec, ys_norm, D_sq)
+		return sqrt(max(result.noise, 0.0))
+	catch e
+		@warn "[INTERP-NOISE-ESTIMATE] Falling back to σ̂=0 due to error: $e"
+		return 0.0
+	end
+end
+
+"""
 	agp_gpr_manual(xs, ys; kernel_type=:se) -> AGPInterpolator
 
 BACKUP: Manual GP implementation using direct kernel matrix computation.

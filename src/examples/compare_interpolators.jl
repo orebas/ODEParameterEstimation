@@ -96,7 +96,7 @@ opts_default = EstimationOptions(;
 
 opts_agp = EstimationOptions(;
 	base_opts...,
-	interpolator = InterpolatorAGP,  # New: AbstractGPs.jl
+	interpolator = InterpolatorAGPRobust,  # AbstractGPs.jl robust GP
 )
 
 # Store results for comparison

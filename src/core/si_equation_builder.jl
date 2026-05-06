@@ -664,6 +664,7 @@ function get_si_equation_system(
 
 	# Extract the polynomial system and derivative info
 	poly_system = result["polynomial_system"]
+	full_poly_system = get(result, "full_polynomial_system", poly_system)
 	y_derivative_dict = result["Y_eq"]
 	DD = ensure_si_template_dd_support(ode, measured_quantities, DD, y_derivative_dict)
 
@@ -729,11 +730,17 @@ function get_si_equation_system(
 		end
 	end
 
-	# Convert polynomial system to Symbolics format
+	# Convert polynomial systems to Symbolics format
+	full_template_equations = []
 	template_equations = []
 
 	if infolevel > 0
 		@info "Converting $(length(poly_system)) polynomials from Nemo to Symbolics"
+	end
+
+	for poly in full_poly_system
+		poly_sym = nemo_to_symbolics(poly, nemo2mtk; fail_categories = placeholder_fail_categories)
+		push!(full_template_equations, poly_sym)
 	end
 
 	for poly in poly_system
@@ -799,17 +806,22 @@ function get_si_equation_system(
 
 		# Apply substitutions to all template equations
 		if !isempty(subst_dict)
-			new_template_equations = []
-			for eq in template_equations
-				new_eq = Symbolics.substitute(eq, subst_dict)
-				# Only keep non-trivial equations (not 0 = 0)
-				if !isequal(Symbolics.simplify(new_eq), 0)
-					push!(new_template_equations, new_eq)
-				else
-					@info "[PRE-FIX] Removed trivial equation after substitution"
+			function _apply_prefixed_substitutions(equations)
+				new_equations = eltype(equations)[]
+				for eq in equations
+					new_eq = Symbolics.substitute(eq, subst_dict)
+					# Only keep non-trivial equations (not 0 = 0)
+					if !isequal(Symbolics.simplify(new_eq), 0)
+						push!(new_equations, new_eq)
+					else
+						@info "[PRE-FIX] Removed trivial equation after substitution"
+					end
 				end
+				return new_equations
 			end
-			template_equations = new_template_equations
+
+			full_template_equations = _apply_prefixed_substitutions(full_template_equations)
+			template_equations = _apply_prefixed_substitutions(template_equations)
 			@info "[PRE-FIX] After substitution: $(length(template_equations)) equations"
 
 			# Also update the unidentifiable set to remove fixed parameters
@@ -831,6 +843,7 @@ function get_si_equation_system(
 		selected_equation_indices = get(result, "selected_equation_indices", collect(1:length(poly_system))),
 		dropped_equation_indices = get(result, "dropped_equation_indices", Int[]),
 		original_equation_count = get(result, "original_equation_count", length(poly_system)),
+		full_equations = full_template_equations,
 	)
 
 	# Return identifiable_funcs as well
@@ -1065,6 +1078,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# Return result with the full polynomial system Et
 	return Dict(
 		"polynomial_system" => reduced_Et,  # Return the REDUCED system
+		"full_polynomial_system" => Et,
 		"Y_eq" => y_derivative_dict,  # Maps derivative variables to orders
 		"X_eq" => X_eq,
 		"Y" => Y,  # Keep the full Y structure for reference
