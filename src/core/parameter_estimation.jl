@@ -887,11 +887,20 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
 	prob = ODEProblem(complete(model.system), merge(ordered_states, ordered_params), tspan)
-	ode_solution = ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+	# Catch exceptions thrown from inside the integrator (e.g. SingularException from
+	# implicit-Newton step on rank-deficient candidate Jacobians at high noise on
+	# stiff systems). Existing retcode-based blowup handling below treats `nothing`
+	# the same as `retcode != Success`, rejecting the candidate via err = 1e+15.
+	ode_solution = try
+		ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+	catch e
+		@warn "ODE integration of HC candidate threw $(typeof(e)); rejecting candidate" exception = e
+		nothing
+	end
 
 	# Calculate error
 	err = 0
-	if ode_solution.retcode == ReturnCode.Success
+	if ode_solution !== nothing && ode_solution.retcode == ReturnCode.Success
 		err = 0
 		for (key, sample) in data_sample
 			if isequal(key, "t")
