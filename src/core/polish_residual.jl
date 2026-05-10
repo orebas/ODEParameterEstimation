@@ -22,6 +22,14 @@ The residual fill value used when an ODE solve fails inside the LM loop.
 """
 _residual_sentinel(res::AbstractVector{T}) where {T} = convert(T, _RESIDUAL_SENTINEL_VALUE)
 
+# Thrown from inside `residual!` when the wall-clock deadline passes. Caught
+# around the LSO/FastLM call below; on catch, the polish returns the best
+# iterate seen so far. LeastSquaresOptim and FastLevenbergMarquardt expose no
+# iteration callback or time limit of their own, so this is the only way to
+# enforce `maxtime` on the residual-mode polish path. Its scope is intentionally
+# private to this file.
+struct _PolishTimeoutSignal <: Exception end
+
 """
 	_polish_single_residual(ctx, p0; ...) -> (ParameterEstimationResult, opt_result)
 
@@ -53,8 +61,6 @@ function _polish_single_residual(
 	p0_external = has_external_bounds ? clamp.(Float64.(p0), ctx.lb, ctx.ub) : Float64.(p0)
 	p0_internal = _polish_external_to_internal(p0_external, ctx.coordinate_transforms, ctx.coordinate_shifts)
 
-	# Bounds on internal coords are honored by LSO/FastLM directly; pass through ±Inf
-	# entries verbatim — both backends accept unbounded coordinates.
 	internal_lb = ctx.internal_lb
 	internal_ub = ctx.internal_ub
 
@@ -67,8 +73,21 @@ function _polish_single_residual(
 	residual_count = n_obs_residual + (use_regularization ? n_unknowns : 0)
 	residual_count == 0 && throw(ArgumentError("Residual polish requires at least one observed datum"))
 
+	# Wall-clock deadline + best-iterate tracking. The deadline is held in a Ref
+	# so we can disarm it (set to `Inf`) before the post-solve revert-guard
+	# residual evaluation. `best_p_seen` records the best Float64-path iterate so
+	# that on timeout we return that iterate rather than discarding all progress;
+	# Dual-typed Jacobian evaluations are skipped from the comparison.
+	deadline_ref = Ref(Inf)
+	best_norm_seen = Ref(Inf)
+	best_p_seen = copy(p0_internal)
+
 	# --- Residual closure ---
 	function residual!(res, p_internal, _ = nothing)
+		if time() > deadline_ref[]
+			throw(_PolishTimeoutSignal())
+		end
+
 		p_all = _polish_internal_to_external(p_internal, ctx.coordinate_transforms, ctx.coordinate_shifts)
 		ic_guess = @view p_all[1:ctx.n_ic]
 		param_guess = @view p_all[(ctx.n_ic + 1):end]
@@ -80,6 +99,11 @@ function _polish_single_residual(
 			build_initializeprob = false,
 		)
 
+		# `unstable_check` lets the integrator bail mid-step the moment the polish
+		# deadline passes. Without this, one ForwardDiff Jacobian call (Dual-typed
+		# ODE solve at tight tolerances) can burn many seconds past `deadline_ref`
+		# before the next residual!-entry check fires. With it, the integrator
+		# returns ReturnCode.Unstable promptly and we sentinel-fill the residual.
 		sol_opt = try
 			ModelingToolkit.solve(
 				prob_opt,
@@ -88,6 +112,7 @@ function _polish_single_residual(
 				abstol = ctx.abstol,
 				reltol = ctx.reltol,
 				maxiters = ctx.polish_ode_maxiters,
+				unstable_check = (dt, u, p, ti) -> time() > deadline_ref[],
 			)
 		catch
 			fill!(res, _residual_sentinel(res))
@@ -113,6 +138,20 @@ function _polish_single_residual(
 				idx += 1
 			end
 		end
+
+		# Update best-seen only on the Float64 trial-evaluation path; ForwardDiff
+		# Jacobian calls use Dual eltypes and would compare apples-to-oranges.
+		if eltype(res) === Float64 && eltype(p_internal) === Float64
+			full_norm = zero(Float64)
+			@inbounds for k in 1:residual_count
+				full_norm += res[k] * res[k]
+			end
+			full_norm = sqrt(full_norm)
+			if isfinite(full_norm) && full_norm < best_norm_seen[]
+				best_norm_seen[] = full_norm
+				copyto!(best_p_seen, p_internal)
+			end
+		end
 		return nothing
 	end
 
@@ -124,13 +163,22 @@ function _polish_single_residual(
 	end
 
 	# --- Initial residual for revert guard ---
+	# Run with the deadline disarmed so an absurdly small `maxtime` doesn't fire
+	# before we've even evaluated the seed. The Float64-path tracker inside
+	# residual! seeds best_norm_seen / best_p_seen from this call.
 	initial_residual = zeros(residual_count)
 	residual!(initial_residual, p0_internal)
 	initial_norm = norm(initial_residual)
 
+	# --- Arm the deadline ---
+	# `maxtime <= 0` or non-finite disables enforcement (Inf deadline). Otherwise
+	# residual! throws _PolishTimeoutSignal once `time() > deadline_ref[]`.
+	deadline_ref[] = (isfinite(maxtime) && maxtime > 0) ? time() + maxtime : Inf
+
 	# --- Solve ---
 	candidate_internal = p0_internal
 	solver_result = nothing
+	timed_out = false
 
 	if solver_kind === :fastlm_direct
 		J0 = zeros(eltype(p0_internal), residual_count, n_unknowns)
@@ -145,21 +193,28 @@ function _polish_single_residual(
 			jacobian!(J, u, p)
 			return J
 		end
-		result = FastLevenbergMarquardt.lmsolve!(
-			fastlm_residual!,
-			fastlm_jacobian!,
-			workspace,
-			nothing,
-			internal_lb,
-			internal_ub;
-			solver = linear_solver,
-			xtol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
-			ftol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
-			gtol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
-			maxit = maxiters,
-		)
-		solver_result = result
-		candidate_internal = result[1]
+		try
+			result = FastLevenbergMarquardt.lmsolve!(
+				fastlm_residual!,
+				fastlm_jacobian!,
+				workspace,
+				nothing,
+				internal_lb,
+				internal_ub;
+				solver = linear_solver,
+				xtol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
+				ftol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
+				gtol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
+				maxit = maxiters,
+			)
+			solver_result = result
+			candidate_internal = result[1]
+		catch e
+			isa(e, _PolishTimeoutSignal) || rethrow(e)
+			timed_out = true
+			solver_result = nothing
+			candidate_internal = best_p_seen
+		end
 
 	elseif solver_kind === :lso_direct
 		problem = LeastSquaresOptim.LeastSquaresProblem(
@@ -169,24 +224,34 @@ function _polish_single_residual(
 			output_length = residual_count,
 		)
 		opt = optimizer_factory()
-		result = LeastSquaresOptim.optimize!(
-			problem,
-			opt;
-			x_tol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
-			f_tol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
-			g_tol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
-			iterations = maxiters,
-			Δ = lso_delta,
-			lower = isnothing(internal_lb) ? eltype(p0_internal)[] : internal_lb,
-			upper = isnothing(internal_ub) ? eltype(p0_internal)[] : internal_ub,
-		)
-		solver_result = result
-		candidate_internal = result.minimizer
+		try
+			result = LeastSquaresOptim.optimize!(
+				problem,
+				opt;
+				x_tol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
+				f_tol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
+				g_tol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
+				iterations = maxiters,
+				Δ = lso_delta,
+				lower = isnothing(internal_lb) ? eltype(p0_internal)[] : internal_lb,
+				upper = isnothing(internal_ub) ? eltype(p0_internal)[] : internal_ub,
+			)
+			solver_result = result
+			candidate_internal = result.minimizer
+		catch e
+			isa(e, _PolishTimeoutSignal) || rethrow(e)
+			timed_out = true
+			solver_result = nothing
+			candidate_internal = best_p_seen
+		end
 	else
 		throw(ArgumentError("Unknown residual polish solver_kind '$solver_kind' (expected :lso_direct or :fastlm_direct)"))
 	end
 
 	# --- Revert guard: keep the seed if the solver made things worse ---
+	# Disarm the deadline first; we want this final residual evaluation to run to
+	# completion regardless of how much wall-clock the LSO/FastLM call burned.
+	deadline_ref[] = Inf
 	final_residual = similar(initial_residual)
 	residual!(final_residual, candidate_internal)
 	final_norm = norm(final_residual)
@@ -238,6 +303,9 @@ function _polish_single_residual(
 		primary_method = :direct_opt,
 		post_polish_error = final_obj,
 	)
+	if timed_out
+		push!(final_result.provenance.notes, :polish_maxtime_exceeded)
+	end
 	sync_result_contract!(final_result)
 	return final_result, solver_result
 end
