@@ -2294,10 +2294,22 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							println("No algebraic solutions found. Running explicit direct-optimization fallback from a random start.")
 						end
 						p_size = ctx.n_ic + ctx.n_param
-						p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
-							ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
-						else
-							randn(p_size)
+						# Draw on unit scale and clamp into bounds when present — uniform-in-bounds
+						# under ±1e9 default bounds almost always blows up the ODE and Optim 2's
+						# Fminbox hard-errors on the resulting NaN initial mu.
+						_draw = scale -> begin
+							raw = scale .* randn(p_size)
+							(isnothing(ctx.lb) || isnothing(ctx.ub)) ? raw : clamp.(raw, ctx.lb, ctx.ub)
+						end
+						p0 = _draw(1.0)
+						for attempt in 1:30
+							loss0 = try
+								ctx.optf.f(p0, nothing)
+							catch
+								Inf
+							end
+							isfinite(loss0) && break
+							p0 = _draw(1.0 * 1.3^attempt)
 						end
 						result, _ = _polish_single_from_context(ctx, p0;
 							optimizer = LBFGS(), maxiters = opts.polish_maxiters,

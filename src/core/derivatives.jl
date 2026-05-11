@@ -708,7 +708,7 @@ function _optimize_se_hyperparams(
 	converged = false
 
 	try
-		od = Optim.OnceDifferentiable(neg_logpdf_se, θ0; autodiff = :forward)
+		od = Optim.OnceDifferentiable(neg_logpdf_se, θ0; autodiff = AutoForwardDiff())
 		result = Optim.optimize(
 			od, θ_lower, θ_upper, θ0,
 			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
@@ -871,7 +871,7 @@ function agp_gpr_manual(xs::AbstractArray{T}, ys::AbstractArray{T};
 
 	try
 		# Use bounded LBFGS with ForwardDiff exact gradients
-		od = Optim.OnceDifferentiable(neg_logpdf, θ0; autodiff = :forward)
+		od = Optim.OnceDifferentiable(neg_logpdf, θ0; autodiff = AutoForwardDiff())
 		result = Optim.optimize(od, lower, upper, θ0,
 			Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
 			Optim.Options(iterations = 100))
@@ -1034,7 +1034,7 @@ function agp_gpr(xs::AbstractArray{T}, ys::AbstractArray{T};
 	try
 		# Use unconstrained LBFGS with ForwardDiff exact gradients.
 		# This matches GaussianProcesses.jl's optimize! behavior.
-		od = Optim.OnceDifferentiable(neg_logpdf_agp, θ0; autodiff = :forward)
+		od = Optim.OnceDifferentiable(neg_logpdf_agp, θ0; autodiff = AutoForwardDiff())
 		result = Optim.optimize(
 			od,
 			θ0,
@@ -1279,7 +1279,7 @@ function agp_gpr_robust(xs::AbstractArray{T}, ys::AbstractArray{T};
 		σ²_2_opt = init_signal_var / 2
 
 		try
-			od = Optim.OnceDifferentiable(neg_logpdf_robust, θ0; autodiff = :forward)
+			od = Optim.OnceDifferentiable(neg_logpdf_robust, θ0; autodiff = AutoForwardDiff())
 			result = Optim.optimize(
 				od, θ_lower, θ_upper, θ0,
 				Fminbox(LBFGS(linesearch = LineSearches.BackTracking())),
@@ -1446,7 +1446,7 @@ function _mle_refine_bary(z::Vector{Float64}, w_init::Vector{Float64}, f_init::V
 		return loss
 	end
 
-	od = Optim.OnceDifferentiable(Optim.only_fg!(fg!), θ0)
+	od = Optim.OnceDifferentiable(NLSolversBase.only_fg!(fg!), θ0)
 	opts = Optim.Options(iterations = maxiter, g_tol = g_tol,
 	                     f_reltol = 1e-16, x_reltol = 1e-16, show_trace = false)
 	result = Optim.optimize(od, θ0, Optim.LBFGS(), opts)

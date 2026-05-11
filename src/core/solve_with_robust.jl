@@ -274,32 +274,25 @@ function solve_with_robust(poly_system, varlist;
 				success = SciMLBase.successful_retcode(sol)
 
 			else
-				# Fallback to NLsolve trust region
-				function f!(F, x)
-					residual!(F, x)
-				end
-
+				# Fallback: NonlinearSolve.TrustRegion
 				if jac_func !== nothing
-					function j!(J, x)
-						jac_func(J, x)
-					end
-					result = NLsolve.nlsolve(f!, j!, x0,
-						method = :trust_region,
-						autodiff = :forward,
-						ftol = abstol,
-						iterations = maxiters)
+					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u))
 				else
-					result = NLsolve.nlsolve(f!, x0,
-						method = :trust_region,
-						autodiff = :forward,
-						ftol = abstol,
-						iterations = maxiters)
+					nf = NonlinearFunction(residual!)
 				end
 
-				sol = (u = result.zero,
-					resid = result.residual_norm,
-					retcode = result.f_converged ? :Success : :MaxIters)
-				success = result.f_converged
+				prob = if m == n
+					NonlinearProblem(nf, x0)
+				else
+					NonlinearLeastSquaresProblem(nf, x0)
+				end
+
+				sol = NonlinearSolve.solve(prob, TrustRegion();
+					abstol = abstol,
+					reltol = reltol,
+					maxiters = maxiters)
+
+				success = SciMLBase.successful_retcode(sol)
 			end
 
 			# Check solution quality

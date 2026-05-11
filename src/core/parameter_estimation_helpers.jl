@@ -965,7 +965,7 @@ function log_diagnostic_info(
 		)
 
 		ideal_sol = ModelingToolkit.solve(
-			local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14,
+			local_prob, AutoVern9(Rodas5P()), abstol = 1e-14, reltol = 1e-14,
 			saveat = PEP.data_sample["t"],
 		)
 

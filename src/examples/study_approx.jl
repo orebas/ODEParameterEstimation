@@ -335,7 +335,7 @@ function generate_comparison_datasets(example_func, petab_dir;
 
 	# Create and solve ODE problem with derivatives
 	prob = ODEProblem(structural_simplify(new_sys), pep.ic, (time_interval[1], time_interval[2]), pep.p_true)
-	sol = solve(prob, AutoVern9(Rodas4P()), abstol = tolerance, reltol = tolerance, saveat = range(time_interval[1], time_interval[2], length = datasize))
+	sol = solve(prob, AutoVern9(Rodas5P()), abstol = tolerance, reltol = tolerance, saveat = range(time_interval[1], time_interval[2], length = datasize))
 
 	# 1. Generate clean data with derivatives
 	clean_data = OrderedDict{Any, Vector{Float64}}()

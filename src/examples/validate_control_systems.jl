@@ -105,7 +105,7 @@ function validate_system(name, pep_fn)
 
     # Check solution status
     println("\nSolution status: $(sol.retcode)")
-    if sol.retcode != :Success && sol.retcode != SciMLBase.ReturnCode.Success
+    if !SciMLBase.successful_retcode(sol)
         println("WARNING: Solution did not converge successfully!")
     end
 

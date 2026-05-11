@@ -840,7 +840,7 @@ function _solve_ode_at_true_params(pep)
         tspan = (t_data[1], t_data[end])
 
         prob = ODEProblem(sys, merge(u0_dict, p_dict), tspan)
-        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas4P()); abstol = 1e-12, reltol = 1e-12, saveat = Float64[])
+        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas5P()); abstol = 1e-12, reltol = 1e-12, saveat = Float64[])
         return sol.retcode == SciMLBase.ReturnCode.Success ? sol : nothing
     catch e
         @warn "[SVG] ODE solve at true params failed: $e"
@@ -885,7 +885,7 @@ function _solve_ode_at_estimated_params(pep, est_result::ParameterEstimationResu
         tspan = (t_data[1], t_data[end])
 
         prob = ODEProblem(sys, merge(u0_dict, p_dict), tspan)
-        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas4P()); abstol = 1e-12, reltol = 1e-12, saveat = Float64[])
+        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas5P()); abstol = 1e-12, reltol = 1e-12, saveat = Float64[])
         return sol.retcode == SciMLBase.ReturnCode.Success ? sol : nothing
     catch e
         @debug "[SVG] ODE solve at estimated params failed: $e"

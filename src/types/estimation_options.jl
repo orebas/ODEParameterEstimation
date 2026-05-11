@@ -138,7 +138,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## Solver and Algorithm Selection
 - `system_solver::SystemSolverMethod`: Main polynomial system solver (default: `SolverHC`)
-- `ode_solver`: ODE solver for simulation (default: `AutoVern9(Rodas4P())`)
+- `ode_solver`: ODE solver for simulation (default: `AutoVern9(Rodas5P())`)
 - `interpolator::InterpolatorMethod`: Data interpolation method (default: `InterpolatorAAADGPR`)
 - `custom_interpolator::Union{Nothing, Function}`: Custom interpolation function when `interpolator=InterpolatorCustom`
 
@@ -269,7 +269,7 @@ opts = EstimationOptions(
 Base.@kwdef struct EstimationOptions
 	# Solver and Algorithm Selection
 	system_solver::SystemSolverMethod = SolverHC
-	ode_solver::Any = AutoVern9(Rodas4P())  # Any type due to ODE solver type complexity
+	ode_solver::Any = AutoVern9(Rodas5P())  # Any type due to ODE solver type complexity
 	interpolator::InterpolatorMethod = InterpolatorAAADGPR
 	custom_interpolator::Union{Nothing, Function} = nothing
 

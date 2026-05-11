@@ -38,7 +38,7 @@ model, mq = create_ordered_ode_system(
 )
 
 # Generate synthetic data
-solver = AutoVern9(Rodas4P())
+solver = AutoVern9(Rodas5P())
 prob = ODEProblem(
     model,
     OrderedDict(states .=> ic),

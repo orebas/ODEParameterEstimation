@@ -35,7 +35,7 @@ using TaylorDiff
 
 
 using NonlinearSolve, Symbolics, ForwardDiff, FiniteDiff, LinearAlgebra
-using NLopt, Optim, NLsolve
+using NLopt, Optim, NLSolversBase
 using SciMLSensitivity
 # using Zygote  # Disabled: segfaults Julia 1.12 JIT compiler. ForwardDiff is used instead.
 using Enzyme
@@ -60,7 +60,7 @@ LinearAlgebra.ldiv!(A::PDMats.PDMat, B::AbstractVecOrMat) = ldiv!(A.chol, B)
 
 const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
-const package_wide_default_ode_solver = AutoVern9(Rodas4P())
+const package_wide_default_ode_solver = AutoVern9(Rodas5P())
 #const package_wide_default_ode_solver = Vern9()
 
 

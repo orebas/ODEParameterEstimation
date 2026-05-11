@@ -437,10 +437,10 @@ function run_optimization_analysis()
                 prob = ODEProblem(ModelingToolkit.complete(pep.model.system), u0_vec, (time_interval[1], time_interval[2]), p_vec)
                 
                 # Solve with a robust default solver
-                sol = solve(prob, AutoVern9(Rodas4P()), saveat = data_sample["t"])
+                sol = solve(prob, AutoVern9(Rodas5P()), saveat = data_sample["t"])
 
                 # If the solver failed, return Inf so that the optimizer steers away
-                sol.retcode == :Success || return Inf
+                SciMLBase.successful_retcode(sol) || return Inf
 
                 loss = 0.0
                 for (obs, measured) in data_sample

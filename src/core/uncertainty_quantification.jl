@@ -834,7 +834,7 @@ function compute_constraint_jacobians(
 
 			merged_dict = merge(ic_dict, param_dict)
 			prob = ODEProblem(completed_sys, merged_dict, tspan)
-			sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas4P()), saveat = times, abstol = 1e-10, reltol = 1e-10)
+			sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas5P()), saveat = times, abstol = 1e-10, reltol = 1e-10)
 
 			if sol.retcode != ReturnCode.Success
 				@warn "ODE solve returned non-Success retcode in predict_observables" retcode=sol.retcode
@@ -860,7 +860,7 @@ function compute_constraint_jacobians(
 
 				for (ti, t) in enumerate(times)
 					# Get state value at this time
-					state_val = sol[state_idx, ti]
+					state_val = sol.u[ti][state_idx]
 
 					# For derivative order 0 (the value itself)
 					predictions[idx] = state_val

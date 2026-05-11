@@ -247,7 +247,7 @@ function compute_oracle_taylor_coefficients(
     pep::ParameterEstimationProblem,
     t_eval::Float64,
     max_order::Int;
-    solver = AutoVern9(Rodas4P()),
+    solver = AutoVern9(Rodas5P()),
     abstol = 1e-14,
     reltol = 1e-14,
     completed_sys = nothing,
@@ -5111,7 +5111,7 @@ function propagate_backsolve_uncertainty(pep::ParameterEstimationProblem,
         p_dict = Dict(completed_params .=> p_vals)
 
         prob = ODEProblem(completed_sys, merge(u0_dict, p_dict), (t_shoot, t0))
-        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas4P());
+        sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas5P());
             abstol = 1e-12, reltol = 1e-12, saveat = Float64[])
 
         # Extract states at t0
@@ -5146,7 +5146,7 @@ function propagate_backsolve_uncertainty(pep::ParameterEstimationProblem,
             u0_dict = Dict(completed_states .=> all_ics)
             p_dict = Dict(completed_params .=> est_params)
             prob = ODEProblem(completed_sys, merge(u0_dict, p_dict), (t0, t_shoot))
-            sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas4P()); abstol = 1e-12, reltol = 1e-12)
+            sol = OrdinaryDiffEq.solve(prob, AutoVern9(Rodas5P()); abstol = 1e-12, reltol = 1e-12)
             [sol(t_shoot)[i] for i in eachindex(states)]
         end
     catch e

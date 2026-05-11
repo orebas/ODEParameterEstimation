@@ -1418,7 +1418,7 @@ function construct_equation_system(model::ModelingToolkit.AbstractSystem, measur
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
 			@named new_sys = ModelingToolkit.System(equations(model), t; observed = expanded_mq)
 			local_prob = ODEProblem(mtkcompile(new_sys), diagnostic_data.ic, (time_interval[1], time_interval[2]), diagnostic_data.p_true)
-			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas4P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
+			sol = ModelingToolkit.solve(local_prob, AutoVern9(Rodas5P()), abstol = 1e-14, reltol = 1e-14, saveat = t_vector)
 		else
 			expanded_mq, obs_derivs = calculate_observable_derivatives(equations(model), measured_quantities, max_deriv)
 		end
@@ -2593,11 +2593,26 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 	ctx = _build_polish_context(PEP; opts = opts)
 	p_size = ctx.n_ic + ctx.n_param
 
-	# Generate random initial guess, respecting bounds if set
-	p0 = if !isnothing(ctx.lb) && !isnothing(ctx.ub)
-		ctx.lb .+ rand(p_size) .* (ctx.ub .- ctx.lb)
-	else
-		rand(p_size)
+	# Generate random initial guess. Optim 2's Fminbox raises ArgumentError when the
+	# initial gradient is NaN, which happens whenever the random point is far enough out
+	# that the ODE solve fails (loss = Inf → ForwardDiff returns zero gradient → mu0 = 0/0).
+	# Default detection bounds are ±1e9 — uniform-in-bounds almost always blows up the ODE,
+	# so we draw on a small unit-scale and clamp into bounds when present, then retry until
+	# the loss is finite.
+	function _draw_p0(scale)
+		raw = scale .* randn(p_size)
+		(isnothing(ctx.lb) || isnothing(ctx.ub)) ? raw : clamp.(raw, ctx.lb, ctx.ub)
+	end
+	p0 = _draw_p0(1.0)
+	for attempt in 1:30
+		loss0 = try
+			ctx.optf.f(p0, nothing)
+		catch
+			Inf
+		end
+		isfinite(loss0) && break
+		# Widen scale modestly each retry; bounds clamp keeps things sane.
+		p0 = _draw_p0(1.0 * 1.3^attempt)
 	end
 
 	if !opts.nooutput
