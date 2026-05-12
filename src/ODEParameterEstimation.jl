@@ -43,12 +43,6 @@ using Enzyme
 using SymbolicUtils
 using PDMats
 
-# Disambiguation for GaussianProcesses.jl / PDMats.jl ldiv! conflict
-# Both packages define ldiv! methods that overlap for PDMat with Matrix arguments
-# GaussianProcesses uses the pre-computed Cholesky factor (A.chol) which is more efficient
-import LinearAlgebra: ldiv!
-LinearAlgebra.ldiv!(A::PDMats.PDMat, B::AbstractVecOrMat) = ldiv!(A.chol, B)
-
 #using CSV
 #using DataFrames
 #using DelimitedFiles
