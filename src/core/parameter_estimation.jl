@@ -2420,6 +2420,124 @@ function _polish_cluster_metadata(
 		clamped_p0s[i] = use_bounds ? clamp.(p0, ctx.lb, ctx.ub) : Float64.(p0)
 	end
 
+	# Phase B branch-detection path: pre-polish err filter + L-inf normalized
+	# clustering in identifiable-only variable space. When opts.branch_detection
+	# is false, fall through to the legacy uniform-max-rel-dist code below.
+	if opts.branch_detection && n_candidates >= 2
+		# 1) Err filter: drop candidates with err > branch_err_factor × min_finite_err.
+		# This kills algebraic_resolve_t0 blown rescues (err > 1.0 typically), which
+		# dominate the pool but cannot recover via polish.
+		finite_errs = Float64[]
+		for c in candidates
+			e = isnothing(c.err) ? Inf : c.err
+			if isfinite(e)
+				push!(finite_errs, e)
+			end
+		end
+		# If we have no finite errors, fall through to legacy path
+		if !isempty(finite_errs)
+			min_err = minimum(finite_errs)
+			err_cap = opts.branch_err_factor * max(min_err, eps(Float64))
+			keep_mask = falses(n_candidates)
+			for i in 1:n_candidates
+				e = isnothing(candidates[i].err) ? Inf : candidates[i].err
+				if isfinite(e) && e <= err_cap
+					keep_mask[i] = true
+				end
+			end
+			n_kept = count(keep_mask)
+			# Safety: if filter is too aggressive (everything dropped), keep top-5 by err
+			if n_kept == 0
+				idx_by_err = sortperm([isnothing(candidates[i].err) ? Inf : candidates[i].err for i in 1:n_candidates])
+				for i in idx_by_err[1:min(5, n_candidates)]
+					keep_mask[i] = true
+				end
+				n_kept = count(keep_mask)
+			end
+
+			# 2) Identifiable-mask on the (states ∪ params) vector
+			# all_unidentifiable lives on each candidate; use first kept candidate's set.
+			first_kept = candidates[findfirst(keep_mask)]
+			all_unid = first_kept.all_unidentifiable
+			id_mask = Bool[]
+			for s in ctx.unknown_syms
+				push!(id_mask, !(s in all_unid))
+			end
+			for p in ctx.param_syms
+				push!(id_mask, !(p in all_unid))
+			end
+			# If everything flagged non-id, fall through to legacy path
+			if any(id_mask)
+				# 3) Build per-candidate id-only vector + robust per-axis scale
+				kept_indices = findall(keep_mask)
+				d_total = length(clamped_p0s[1])
+				d_id = count(id_mask)
+				id_positions = [j for j in 1:d_total if id_mask[j]]
+
+				# Per-axis median and MAD on kept set
+				med_vec = zeros(Float64, d_id)
+				for (jj, j) in enumerate(id_positions)
+					vals = [clamped_p0s[i][j] for i in kept_indices]
+					med_vec[jj] = median(vals)
+				end
+				mad_vec = zeros(Float64, d_id)
+				for (jj, j) in enumerate(id_positions)
+					abs_dev = [abs(clamped_p0s[i][j] - med_vec[jj]) for i in kept_indices]
+					mad_vec[jj] = median(abs_dev)
+				end
+				scale_vec = [max(abs(med_vec[jj]), mad_vec[jj], 1e-10) for jj in 1:d_id]
+
+				# 4) Cluster kept candidates only, using L-inf normalized id-only dist
+				cluster_reps = Int[]
+				candidate_cluster = zeros(Int, n_candidates)
+				for i in 1:n_candidates
+					if !keep_mask[i]
+						# Dropped by err filter; not assigned to any cluster
+						continue
+					end
+					merged = false
+					for (k, rep) in enumerate(cluster_reps)
+						dist = 0.0
+						for (jj, j) in enumerate(id_positions)
+							a = (clamped_p0s[i][j] - med_vec[jj]) / scale_vec[jj]
+							b = (clamped_p0s[rep][j] - med_vec[jj]) / scale_vec[jj]
+							diff = abs(a - b)
+							if diff > dist
+								dist = diff
+							end
+							if dist >= opts.branch_cluster_eps
+								break
+							end
+						end
+						if dist < opts.branch_cluster_eps
+							candidate_cluster[i] = k
+							err_i = isnothing(candidates[i].err) ? Inf : candidates[i].err
+							err_rep = isnothing(candidates[rep].err) ? Inf : candidates[rep].err
+							if err_i < err_rep
+								cluster_reps[k] = i
+							end
+							merged = true
+							break
+						end
+					end
+					if !merged
+						push!(cluster_reps, i)
+						candidate_cluster[i] = length(cluster_reps)
+					end
+				end
+
+				return (
+					cluster_reps = cluster_reps,
+					candidate_cluster = candidate_cluster,
+					clamped_p0s = clamped_p0s,
+					use_bounds = use_bounds,
+					cluster_threshold = opts.branch_cluster_eps,
+				)
+			end
+		end
+	end
+
+	# Legacy code path (branch_detection=false, or fallthrough on degeneracy)
 	cluster_reps = Int[]
 	candidate_cluster = zeros(Int, n_candidates)
 

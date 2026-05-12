@@ -300,6 +300,21 @@ Base.@kwdef struct EstimationOptions
 	verification_threshold::Float64 = 1e-8
 	complex_threshold::Float64 = 1e-10
 
+	# Branch detection (Phase B candidate-reduction). When enabled, replaces the
+	# legacy "cluster threshold 0.001 + oracle sort" pipeline with two stages:
+	#   pre-polish: drop candidates with err > branch_err_factor × min(err);
+	#               L-inf normalized clustering in identifiable-only variable space
+	#               at branch_cluster_eps; one rep per cluster polished.
+	#   post-polish: re-cluster polished reps in id-only space; drop clusters with
+	#                median_err > branch_resid_factor × best_cluster_median_err;
+	#                drop clusters with size < branch_min_size; each surviving
+	#                cluster surfaces as one "algebraic branch", branch_size attached.
+	branch_detection::Bool = true
+	branch_cluster_eps::Float64 = 0.05
+	branch_err_factor::Float64 = 100.0
+	branch_resid_factor::Float64 = 100.0
+	branch_min_size::Int = 1
+
 	# Multi-shot Parameters
 	shooting_points::Int = 12
 	shooting_warp::Bool = true                   # true = exponential warp, false = equidistant

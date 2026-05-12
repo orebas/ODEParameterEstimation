@@ -338,9 +338,11 @@ mutable struct ParameterEstimationResult
     solution::Union{Nothing, SciMLBase.AbstractODESolution}
     interpolator_source::Union{Nothing, Symbol}   # Which interpolator produced this result
     provenance::ResultProvenance
+    branch_size::Int   # Phase B candidate-reduction: cluster size at output time (1 = singleton or undetected)
 end
 
-# Backward-compatible constructor (interpolator_source defaults to nothing, provenance to an empty record)
+# Backward-compatible constructor (interpolator_source defaults to nothing, provenance to an empty record,
+# branch_size to 1 = singleton)
 # Note: parameter types are relaxed to allow MTK 11's BasicSymbolicImpl keys
 # (Julia's inner struct constructor handles convert() to the declared field types)
 function ParameterEstimationResult(
@@ -349,7 +351,21 @@ function ParameterEstimationResult(
 )
     return ParameterEstimationResult(
         parameters, states, at_time, err, return_code, datasize,
-        report_time, unident_dict, all_unidentifiable, solution, nothing, ResultProvenance(),
+        report_time, unident_dict, all_unidentifiable, solution, nothing, ResultProvenance(), 1,
+    )
+end
+
+# Constructor with interpolator_source + provenance (no branch_size) — for callers that
+# already populate those but were written before branch_size was added.
+function ParameterEstimationResult(
+    parameters, states, at_time, err, return_code, datasize,
+    report_time, unident_dict, all_unidentifiable, solution,
+    interpolator_source, provenance,
+)
+    return ParameterEstimationResult(
+        parameters, states, at_time, err, return_code, datasize,
+        report_time, unident_dict, all_unidentifiable, solution,
+        interpolator_source, provenance, 1,
     )
 end
 
