@@ -133,7 +133,8 @@ function _build_synth_candidate(
 	n_total::Int,
 	source_indices::Vector{Int},
 	strategy::Symbol,
-	category_notes::Vector{Symbol},
+	category_notes::Vector{Symbol};
+	all_unidentifiable::Set{Num} = Set{Num}(),
 )
 	result = ParameterEstimationResult(
 		params,
@@ -144,7 +145,7 @@ function _build_synth_candidate(
 		n_total,
 		Float64(t0),
 		OrderedDict{Num, Float64}(),     # known/auxiliary states
-		Set{Num}(),                       # all_unidentifiable
+		all_unidentifiable,
 		nothing,                          # ode_solution
 	)
 	# Note: interpolator_source is intentionally `nothing` for synthesized candidates.
@@ -196,7 +197,8 @@ function _synthesize_per_sp_full_aggregate(
 		length(t_vec),
 		source_indices,
 		strategy,
-		cat_notes,
+		cat_notes;
+		all_unidentifiable = copy(first(candidates_for_sp).all_unidentifiable),
 	)
 end
 
@@ -350,7 +352,8 @@ function _synthesize_global_param_aggregate(
 		length(PEP.data_sample["t"]),
 		Int[source_indices...],
 		strategy,
-		cat_notes,
+		cat_notes;
+		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
 	)
 end
 
@@ -426,7 +429,8 @@ function _aggregate_and_resolve_to_candidate(
 	return _build_synth_candidate(
 		agg_params, states_dict, t0,
 		length(PEP.data_sample["t"]),
-		source_indices, strategy, cat_notes,
+		source_indices, strategy, cat_notes;
+		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
 	)
 end
 
