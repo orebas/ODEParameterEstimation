@@ -2600,6 +2600,30 @@ function _polish_batch_from_context(
 	end
 	maxiters = opts.polish_maxiters
 	n_candidates = length(candidates)
+
+	# Optional instrumentation: dump the raw HC candidate list (input to clustering)
+	# to a CSV. Idempotent overwrite per call. Used for offline branch-clustering analysis.
+	if !isnothing(opts.dump_raw_candidates_path) && n_candidates > 0
+		try
+			state_keys = collect(keys(candidates[1].states))
+			param_keys = collect(keys(candidates[1].parameters))
+			open(opts.dump_raw_candidates_path, "w") do io
+				header_state = join(["s::$(string(k))" for k in state_keys], ",")
+				header_param = join(["p::$(string(k))" for k in param_keys], ",")
+				println(io, "hc_idx,$(header_state),$(header_param),err,all_unidentifiable")
+				for (i, c) in enumerate(candidates)
+					sv = join((string(get(c.states, k, NaN)) for k in state_keys), ",")
+					pv = join((string(get(c.parameters, k, NaN)) for k in param_keys), ",")
+					ev = isnothing(c.err) ? "" : string(c.err)
+					unid = join((string(u) for u in c.all_unidentifiable), ";")
+					println(io, "$(i),$(sv),$(pv),$(ev),$(unid)")
+				end
+			end
+		catch e
+			@warn "dump_raw_candidates_path write failed: $e"
+		end
+	end
+
 	cluster_meta = _polish_cluster_metadata(ctx, candidates; opts = opts)
 	cluster_reps = cluster_meta.cluster_reps
 	clamped_p0s = cluster_meta.clamped_p0s
@@ -2609,89 +2633,129 @@ function _polish_batch_from_context(
 		println("Deduplicated $n_candidates candidates → $n_unique unique starting points for polish")
 	end
 
+	# Bounded-concurrency dispatch: spawning all cluster_reps simultaneously via
+	# Threads.@spawn lets Julia oversubscribe — each polish does heavy ForwardDiff
+	# Jacobian assembly (residual_count × n_unknowns ODE integrations under
+	# Rodas5P/AutoVern9), so N polishes on T threads each run ~N/T-times slower
+	# than serial. With polish_maxtime enforced (216e548), polishes hit the wall
+	# before converging. Cap at `opts.polish_max_concurrency` (default = nthreads()).
+	n_workers = min(max(opts.polish_max_concurrency, 1), n_unique)
+
 	if !opts.nooutput
 		n_threads = Threads.nthreads()
-		println("Polishing $n_unique solutions (maxiters=$maxiters, threads=$n_threads)...")
+		println("Polishing $n_unique solutions (maxiters=$maxiters, nthreads=$n_threads, concurrency=$n_workers)...")
 	end
 
 	polish_start = time()
 	print_lock = ReentrantLock()
 
-	# Only polish the cluster representatives
-	tasks = map(enumerate(cluster_reps)) do (task_idx, rep_idx)
-		Threads.@spawn begin
-			t0 = time()
-			candidate = candidates[rep_idx]
-			local_results = ParameterEstimationResult[]
-			try
-				p0 = clamped_p0s[rep_idx]
+	# Preallocate per-task result slots so we can collect in input order.
+	task_results = [ParameterEstimationResult[] for _ in 1:n_unique]
+	work_chan = Channel{Tuple{Int, Int}}(n_unique)
+	for (i, rep_idx) in enumerate(cluster_reps)
+		put!(work_chan, (i, rep_idx))
+	end
+	close(work_chan)
 
-				polished_result, opt_result = _polish_single_from_context(
-					ctx, p0;
-					optimizer = isnothing(optimizer) ? BFGS() : optimizer,
-					polish_method = opts.polish_method,
-					maxiters = maxiters,
-					maxtime = opts.polish_maxtime,
-					divergence_factor = opts.polish_divergence_factor,
-					stagnation_window = opts.polish_stagnation_window,
-					lso_delta = opts.polish_lso_delta,
-					lso_x_tol = opts.polish_lso_x_tol,
-					lso_f_tol = opts.polish_lso_f_tol,
-					lso_g_tol = opts.polish_lso_g_tol,
-				)
-				dt = time() - t0
-				n_iters = try; opt_result.original.iterations; catch; -1; end
-				polished_result.unident_dict = deepcopy(candidate.unident_dict)
-				polished_result.all_unidentifiable = copy(candidate.all_unidentifiable)
-				polished_result.provenance = copy_provenance(
-					candidate.provenance;
-					pre_polish_error = candidate.err,
-					post_polish_error = polished_result.err,
-					polish_applied = true,
-				)
-				set_result_lineage!(
-					polished_result;
-					primary_method = candidate.provenance.primary_method,
-					interpolator_source = candidate.provenance.interpolator_source,
-					rescue_path = candidate.provenance.rescue_path,
-					source_shooting_index = candidate.provenance.source_shooting_index,
-					source_candidate_index = candidate.provenance.source_candidate_index,
-					pre_polish_error = candidate.err,
-					post_polish_error = polished_result.err,
-					polish_applied = true,
-					notes = candidate.provenance.notes,
-					source_type = candidate.provenance.source_type,
-					multipoint_time_indices = candidate.provenance.multipoint_time_indices,
-					multipoint_combo_index = candidate.provenance.multipoint_combo_index,
-				)
-				if !opts.nooutput
-					err_before = isnothing(candidate.err) ? Inf : candidate.err
-					err_after = isnothing(polished_result.err) ? Inf : polished_result.err
-					lock(print_lock) do
-						println("  Polish $task_idx/$n_unique (candidate $rep_idx): $(round(dt; digits=1))s, $(n_iters) iters, err $(round(err_before; sigdigits=3)) → $(round(err_after; sigdigits=3))")
-					end
+	function _polish_one(task_idx::Int, rep_idx::Int)
+		t0 = time()
+		candidate = candidates[rep_idx]
+		try
+			p0 = clamped_p0s[rep_idx]
+			polished_result, opt_result = _polish_single_from_context(
+				ctx, p0;
+				optimizer = isnothing(optimizer) ? BFGS() : optimizer,
+				polish_method = opts.polish_method,
+				maxiters = maxiters,
+				maxtime = opts.polish_maxtime,
+				divergence_factor = opts.polish_divergence_factor,
+				stagnation_window = opts.polish_stagnation_window,
+				lso_delta = opts.polish_lso_delta,
+				lso_x_tol = opts.polish_lso_x_tol,
+				lso_f_tol = opts.polish_lso_f_tol,
+				lso_g_tol = opts.polish_lso_g_tol,
+			)
+			dt = time() - t0
+			n_iters = try; opt_result.original.iterations; catch; -1; end
+			polished_result.unident_dict = deepcopy(candidate.unident_dict)
+			polished_result.all_unidentifiable = copy(candidate.all_unidentifiable)
+			polished_result.provenance = copy_provenance(
+				candidate.provenance;
+				pre_polish_error = candidate.err,
+				post_polish_error = polished_result.err,
+				polish_applied = true,
+				polish_source_hc_idx = rep_idx,
+			)
+			set_result_lineage!(
+				polished_result;
+				primary_method = candidate.provenance.primary_method,
+				interpolator_source = candidate.provenance.interpolator_source,
+				rescue_path = candidate.provenance.rescue_path,
+				source_shooting_index = candidate.provenance.source_shooting_index,
+				source_candidate_index = candidate.provenance.source_candidate_index,
+				pre_polish_error = candidate.err,
+				post_polish_error = polished_result.err,
+				polish_applied = true,
+				notes = candidate.provenance.notes,
+				source_type = candidate.provenance.source_type,
+				multipoint_time_indices = candidate.provenance.multipoint_time_indices,
+				multipoint_combo_index = candidate.provenance.multipoint_combo_index,
+			)
+			if !opts.nooutput
+				err_before = isnothing(candidate.err) ? Inf : candidate.err
+				err_after = isnothing(polished_result.err) ? Inf : polished_result.err
+				lock(print_lock) do
+					println("  Polish $task_idx/$n_unique (candidate $rep_idx): $(round(dt; digits=1))s, $(n_iters) iters, err $(round(err_before; sigdigits=3)) → $(round(err_after; sigdigits=3))")
 				end
-
-				push!(local_results, polished_result)
-			catch e
-				dt = time() - t0
-				@warn "Failed to polish solution $rep_idx ($(round(dt; digits=1))s): $e"
 			end
-			local_results
+			push!(task_results[task_idx], polished_result)
+		catch e
+			dt = time() - t0
+			@warn "Failed to polish solution $rep_idx ($(round(dt; digits=1))s): $e"
 		end
+		return nothing
 	end
 
-	# Collect results: all original candidates (unpolished baselines) + polished results
-	polished_results = ParameterEstimationResult[]
+	workers = [Threads.@spawn begin
+		for (task_idx, rep_idx) in work_chan
+			_polish_one(task_idx, rep_idx)
+		end
+	end for _ in 1:n_workers]
+	foreach(wait, workers)
 
-	# First, include all original candidates as unpolished baselines
+	# Collect results: all original candidates (unpolished baselines) + polished results, in input order.
+	polished_results = ParameterEstimationResult[]
 	for candidate in candidates
 		push!(polished_results, candidate)
 	end
+	polished_only = ParameterEstimationResult[]
+	for slot in task_results
+		append!(polished_results, slot)
+		append!(polished_only, slot)
+	end
 
-	# Then append polished results from cluster representatives
-	for task in tasks
-		append!(polished_results, fetch(task))
+	# Optional instrumentation: dump the polished-only outputs (one per cluster rep,
+	# before any downstream clustering steps). Each row carries polish_source_hc_idx.
+	if !isnothing(opts.dump_polished_path) && !isempty(polished_only)
+		try
+			state_keys = collect(keys(polished_only[1].states))
+			param_keys = collect(keys(polished_only[1].parameters))
+			open(opts.dump_polished_path, "w") do io
+				header_state = join(["s::$(string(k))" for k in state_keys], ",")
+				header_param = join(["p::$(string(k))" for k in param_keys], ",")
+				println(io, "polish_idx,polish_source_hc_idx,$(header_state),$(header_param),err,post_polish_error")
+				for (i, c) in enumerate(polished_only)
+					sv = join((string(get(c.states, k, NaN)) for k in state_keys), ",")
+					pv = join((string(get(c.parameters, k, NaN)) for k in param_keys), ",")
+					ev = isnothing(c.err) ? "" : string(c.err)
+					ppe = (hasproperty(c, :provenance) && !isnothing(c.provenance.post_polish_error)) ? string(c.provenance.post_polish_error) : ""
+					psh = (hasproperty(c, :provenance) && !isnothing(c.provenance.polish_source_hc_idx)) ? string(c.provenance.polish_source_hc_idx) : ""
+					println(io, "$(i),$(psh),$(sv),$(pv),$(ev),$(ppe)")
+				end
+			end
+		catch e
+			@warn "dump_polished_path write failed: $e"
+		end
 	end
 
 	if !opts.nooutput

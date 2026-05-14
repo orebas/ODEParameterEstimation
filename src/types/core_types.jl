@@ -154,6 +154,10 @@ mutable struct ResultProvenance
     # Synthesized-aggregate provenance (set when source_type == :synthesized_aggregate)
     aggregation_strategy::Symbol                           # :median, :trim25_mean, :mean, :weighted_median, ... ; :none for non-synthesized candidates
     aggregation_source_indices::Vector{Int}                # indices into the upstream candidate pool that were aggregated
+    # Polish-stage HC source index (set by _polish_batch_from_context after polish);
+    # 1-based index into the raw HC candidate list passed to _polish_cluster_metadata.
+    # Used for offline branch-clustering analysis (paired with EstimationOptions.dump_raw_candidates_path).
+    polish_source_hc_idx::Union{Nothing, Int}
 end
 
 function ResultProvenance(;
@@ -179,6 +183,7 @@ function ResultProvenance(;
     multipoint_combo_index::Union{Nothing, Int} = nothing,
     aggregation_strategy::Symbol = :none,
     aggregation_source_indices::AbstractVector = Int[],
+    polish_source_hc_idx::Union{Nothing, Int} = nothing,
 )
     return ResultProvenance(
         primary_method,
@@ -203,6 +208,7 @@ function ResultProvenance(;
         multipoint_combo_index,
         aggregation_strategy,
         Int[aggregation_source_indices...],
+        polish_source_hc_idx,
     )
 end
 
@@ -230,6 +236,7 @@ function copy_provenance(
     multipoint_combo_index = provenance.multipoint_combo_index,
     aggregation_strategy = provenance.aggregation_strategy,
     aggregation_source_indices = provenance.aggregation_source_indices,
+    polish_source_hc_idx = provenance.polish_source_hc_idx,
 )
     return ResultProvenance(
         primary_method = primary_method,
@@ -254,6 +261,7 @@ function copy_provenance(
         multipoint_combo_index = multipoint_combo_index,
         aggregation_strategy = aggregation_strategy,
         aggregation_source_indices = copy(aggregation_source_indices),
+        polish_source_hc_idx = polish_source_hc_idx,
     )
 end
 

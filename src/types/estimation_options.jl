@@ -175,7 +175,8 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `opt_lb::Union{Nothing, Vector{Float64}}`: Lower bounds for optimization (default: nothing)
 - `opt_ub::Union{Nothing, Vector{Float64}}`: Upper bounds for optimization (default: nothing)
 - `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:enzyme`, `:finite`
-- `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 300.0)
+- `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 3600.0)
+- `polish_max_concurrency::Int`: Cap on the number of polish tasks running in parallel (default: `Threads.nthreads()`). With too many candidates spawned at once, each polish's ForwardDiff-Jacobian step contends for cores and slows ~N/T× — the per-polish deadline then fires before convergence. Set to a smaller number to cap concurrency below `nthreads()`.
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
 - `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
 - `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
@@ -310,10 +311,22 @@ Base.@kwdef struct EstimationOptions
 	#                drop clusters with size < branch_min_size; each surviving
 	#                cluster surfaces as one "algebraic branch", branch_size attached.
 	branch_detection::Bool = true
-	branch_cluster_eps::Float64 = 0.05
+	branch_cluster_eps::Float64 = 0.001            # Tightened 0.05→0.001 in 2026-05-13: read as a "target precision in MAD-normalized identifiable space." The 0.05 default was merging truth-near clusters with non-truth-near ones for low-noise cells; 0.001 preserves distinct basins (cost: roughly 2× more rows in nopolish result.csv, mitigated by branch_top_k).
 	branch_err_factor::Float64 = 100.0
 	branch_resid_factor::Float64 = 100.0
 	branch_min_size::Int = 1
+	branch_top_k::Int = 20                         # Maximum cluster reps to return after _detect_branches. Sorted by err (ascending) before slicing. Caps result.csv row count without sacrificing accuracy — top-20 captured truth in 6/6 polish + 3/3 nopolish probes in the 2026-05 numbat verification. Set to 0 to disable (return all surviving clusters).
+
+	# Instrumentation (opt-in): if non-nothing, dump the raw HC candidate list
+	# (after process_raw_solution err computation, before pre-polish clustering)
+	# as a CSV to this path. Used for offline branch-clustering analysis.
+	dump_raw_candidates_path::Union{Nothing, String} = nothing
+
+	# Instrumentation (opt-in): if non-nothing, dump the full polished candidate
+	# list from `_polish_batch_from_context` (one row per polished cluster rep)
+	# BEFORE any downstream clustering (cluster_solutions / _detect_branches).
+	# Each row carries `polish_source_hc_idx` linking back to a raw_candidates.csv row.
+	dump_polished_path::Union{Nothing, String} = nothing
 
 	# Multi-shot Parameters
 	shooting_points::Int = 12
@@ -339,7 +352,8 @@ Base.@kwdef struct EstimationOptions
 	opt_lb::Union{Nothing, Vector{Float64}} = nothing
 	opt_ub::Union{Nothing, Vector{Float64}} = nothing
 	opt_ad_backend::Symbol = :forward
-	polish_maxtime::Float64 = 300.0          # Per-solution wall-clock timeout (seconds)
+	polish_maxtime::Float64 = 3600.0         # Per-solution wall-clock timeout (seconds). Bumped 300→3600 in 2026-05-13: with bounded concurrency each polish sees a fair CPU share and converges in <100s on most cells, but stiff/multi-basin cases (flexible_arm, fhn) need substantially more wall-time to escape singular limits.
+	polish_max_concurrency::Int = Threads.nthreads()  # Maximum number of polish tasks running in parallel. Defaults to Threads.nthreads() so each polish gets a fair CPU share. Prevents thread contention from slowing each polish ~N/T× when many candidates are submitted at once (each polish does heavy ForwardDiff Jacobian assembly via ODE integration; competing for cores left every polish stuck at maxtime in the 2026-05 numbat benchmark).
 	polish_divergence_factor::Float64 = 10.0 # Stop if loss > initial_loss * this
 	polish_stagnation_window::Int = 50       # Stop if no improvement in N iters
 	polish_ode_maxiters::Int = 5000          # ODE solver maxiters inside polish loss (DiffEq default: 100000)
@@ -1074,10 +1088,13 @@ function validate_options(opts::EstimationOptions)
 
 	# Check polish safeguard parameters
 	if opts.polish_maxtime <= 0
-		@warn "polish_maxtime must be positive; using default (300s)"
+		@warn "polish_maxtime must be positive; using default (3600s)"
 	end
 	if opts.polish_stagnation_window < 5
 		@warn "polish_stagnation_window < 5 is too aggressive; may stop prematurely"
+	end
+	if opts.polish_max_concurrency < 1
+		@warn "polish_max_concurrency must be ≥ 1 (got $(opts.polish_max_concurrency)); will treat as 1"
 	end
 
 	# Polish coordinate transform policy

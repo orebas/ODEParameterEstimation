@@ -312,6 +312,13 @@ function _detect_branches(reps::AbstractVector, opts::EstimationOptions)
 
 	# Sort by cluster median err (ascending)
 	sort!(out, by = c -> (isnothing(c.err) || !isfinite(c.err)) ? Inf : c.err)
+
+	# Cap result count at branch_top_k (0 = disabled). Truth-near rep is in the
+	# top of the err-sorted list in 6/6 polish + 3/3 nopolish cases verified in
+	# the 2026-05 numbat probes; 20 is a defensible default.
+	if opts.branch_top_k > 0 && length(out) > opts.branch_top_k
+		out = out[1:opts.branch_top_k]
+	end
 	return out
 end
 
