@@ -315,7 +315,7 @@ Base.@kwdef struct EstimationOptions
 	branch_err_factor::Float64 = 100.0
 	branch_resid_factor::Float64 = 100.0
 	branch_min_size::Int = 1
-	branch_top_k::Int = 20                         # Maximum cluster reps to return after _detect_branches. Sorted by err (ascending) before slicing. Caps result.csv row count without sacrificing accuracy — top-20 captured truth in 6/6 polish + 3/3 nopolish probes in the 2026-05 numbat verification. Set to 0 to disable (return all surviving clusters).
+	branch_top_k::Int = 100                        # Maximum cluster reps to return at the output stage. Sorted by err (ascending) before slicing. Bumped 20→100 in 2026-05-14: offline simulation on 101 regression cells (results/numbat_analysis/three_way/offline_fix_sim.csv) showed K=20 recovered 74% to within 2× of the legacy 2026-05-06 benchmark, K=100 → 77%, K=200 → 79% (diminishing returns past 100). Set to 0 to disable (return all reps).
 
 	# Instrumentation (opt-in): if non-nothing, dump the raw HC candidate list
 	# (after process_raw_solution err computation, before pre-polish clustering)

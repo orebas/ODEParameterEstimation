@@ -625,18 +625,32 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 	# - Best approximation error across all results
 	# - Best RMS relative error across all results
 	#
-	# Phase B: when opts.branch_detection is true (default), the returned
-	# representatives are filtered to "algebraic branches" — clusters with median
-	# residual within resid_factor of best and size ≥ min_size — and annotated
-	# with `branch_size`. Sort order is by data residual, not by oracle.
-	# When false, fall back to the legacy oracle-based sort (the cheat).
+	# When opts.branch_detection is true (default), the returned representatives
+	# are err-sorted cluster reps capped at branch_top_k. cluster_reps comes from
+	# cluster_solutions(sorted_results) which preserves err order (lowest first),
+	# so a simple slice gives top-K by data residual. branch_size is annotated below.
+	#
+	# Historically this stage called _detect_branches to do additional L∞-MAD
+	# clustering on identifiable axes and filter by branch_resid_factor / branch_min_size.
+	# The 2026-05-14 numbat regression eval (results/numbat_analysis/three_way/) found
+	# _detect_branches drops the truth-near candidate in 43% of regression cells:
+	# MAD-normalization can compress near-truth and far-from-truth into one cluster,
+	# whose err-best rep then misses truth. Skipping it improves recovery from 3% to
+	# 77% (within 2× of the legacy "06" benchmark's oracle) on 101 probe cells.
+	# _detect_branches is still callable for diagnostics; just not used for output.
+	#
+	# When opts.branch_detection is false, fall back to legacy oracle-based sort (the
+	# cheat) — retained for old-benchmark reproducibility.
 	cluster_reps = [first(cluster) for cluster in clusters]
-	# Also annotate raw cluster sizes (will be overwritten by _detect_branches if branch_detection)
 	for (i, c) in enumerate(clusters)
 		cluster_reps[i].branch_size = length(c)
 	end
 	returned_results = if opts.branch_detection
-		_detect_branches(cluster_reps, opts)
+		if opts.branch_top_k > 0 && length(cluster_reps) > opts.branch_top_k
+			cluster_reps[1:opts.branch_top_k]
+		else
+			cluster_reps
+		end
 	else
 		sort(cluster_reps, by = candidate -> oracle_sort_key(problem, candidate))
 	end
