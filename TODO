@@ -8,6 +8,20 @@ investigate / implement variable (column) rescaling for the polynomial system
     -- HC.jl already does Skeel row scaling internally; column scaling is the gap
     -- biohydrogenation / daisy_mamil4 diagnostics show cond(J) of 1e6 to 1e10 at low noise
     -- design notes + three implementation levels in docs/2026-05-01_variable_scaling_investigation.md
+    -- numbat-empirical case + concrete test cells (brusselator_6_0, etc.):
+       <PEB>/results/numbat_analysis/three_way/INVESTIGATION_column_scaling.md
+
+numbat 2026-05 investigation — three-doc package
+    -- <PEB>/results/numbat_analysis/three_way/HANDOFF.md
+       findings: polish concurrency bug, _detect_branches over-clustering,
+       practical non-identifiability, ODE-solver-induced polish failures,
+       err filter. Full repro recipes.
+    -- <PEB>/results/numbat_analysis/three_way/INVESTIGATION_column_scaling.md
+       open investigation 1 (linked above).
+    -- <PEB>/results/numbat_analysis/three_way/INVESTIGATION_denoised_polish_target.md
+       open investigation 2: polish against GP-smoothed or blended target
+       instead of raw noisy data. Speculative — see doc's "What could go
+       wrong" section. Recommend attempting AFTER column scaling.
 
 add tests against SI.jl (local vs structural identifiability)
 test  all examples from SI.jl, and whatever other sources are available
