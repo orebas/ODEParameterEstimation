@@ -11,6 +11,8 @@
 # - revert guard (return p0 when ‖r(p_solved)‖ > ‖r(p0)‖)
 # - sentinel residual fill (1e6) for failed ODE solves — `Inf` would poison LM Jacobian
 # - optional λ‖x_internal‖² regularization via augmented residual
+# - optional soft-wall penalty near bounds via augmented residual
+#   (zero in central interval, grows quadratically as parameters approach either bound)
 # - native bound support (LSO/FastLM accept `lower=`/`upper=` directly)
 
 const _RESIDUAL_SENTINEL_VALUE = 1.0e6
@@ -43,6 +45,12 @@ in that case.
 
 Optional λ regularization (`ctx.regularization_lambda > 0`) appends `√λ · x_internal`
 rows to the residual. Default is off (λ = 0) per the recommendation memo.
+
+Optional soft-wall penalty (`ctx.softwall_lambda > 0`) appends one row per parameter:
+zero in the central `(1 - 2·ε_sw)·halfrange` band of the internal-coord interval,
+quadratic in SSR (linear in residual) as the parameter approaches either bound.
+Targets bound-saturation pathologies (e.g. biohydrogenation k10) without biasing
+interior solutions. Default off (λ_sw = 0).
 """
 function _polish_single_residual(
 	ctx::PolishContext,
@@ -70,7 +78,30 @@ function _polish_single_residual(
 	penalty_scale = use_regularization ? sqrt(λ) : 0.0
 	n_unknowns = length(p0_internal)
 	n_obs_residual = sum(length(target) for target in ctx.data_targets)
-	residual_count = n_obs_residual + (use_regularization ? n_unknowns : 0)
+
+	# Soft-wall penalty (one residual row per parameter when active).
+	# Active only when bounds exist (internal_lb / internal_ub set) AND λ_sw > 0.
+	λ_sw = max(ctx.softwall_lambda, 0.0)
+	ε_sw = ctx.softwall_epsilon
+	use_softwall = λ_sw > 0.0 && !isnothing(internal_lb) && !isnothing(internal_ub) && 0.0 <= ε_sw < 0.5
+	softwall_scale = use_softwall ? sqrt(λ_sw) : 0.0
+	# Pre-compute per-parameter midpoint, halfrange and activation threshold in internal coords.
+	if use_softwall
+		sw_midpoint = Vector{Float64}(undef, n_unknowns)
+		sw_halfrange = Vector{Float64}(undef, n_unknowns)
+		sw_threshold = Vector{Float64}(undef, n_unknowns)
+		@inbounds for i in 1:n_unknowns
+			sw_midpoint[i] = (internal_lb[i] + internal_ub[i]) / 2
+			sw_halfrange[i] = (internal_ub[i] - internal_lb[i]) / 2
+			sw_threshold[i] = (1.0 - ε_sw) * sw_halfrange[i]
+		end
+	else
+		sw_midpoint = Float64[]
+		sw_halfrange = Float64[]
+		sw_threshold = Float64[]
+	end
+
+	residual_count = n_obs_residual + (use_regularization ? n_unknowns : 0) + (use_softwall ? n_unknowns : 0)
 	residual_count == 0 && throw(ArgumentError("Residual polish requires at least one observed datum"))
 
 	# Wall-clock deadline + best-iterate tracking. The deadline is held in a Ref
@@ -135,6 +166,25 @@ function _polish_single_residual(
 		if use_regularization
 			@inbounds for i in eachindex(p_internal)
 				res[idx] = penalty_scale * p_internal[i]
+				idx += 1
+			end
+		end
+		if use_softwall
+			# Per-parameter soft-wall: zero in the central (1 - 2ε_sw)·halfrange band,
+			# grows linearly in the augmented residual (= quadratically in SSR) as
+			# the parameter moves past `threshold = (1 - ε_sw)·halfrange` toward
+			# either bound. Penalty in SSR is λ_sw · over² where
+			# over = (|p_internal - midpoint| - threshold) / halfrange.
+			@inbounds for i in eachindex(p_internal)
+				deviation = abs(p_internal[i] - sw_midpoint[i])
+				thresh = sw_threshold[i]
+				half = sw_halfrange[i]
+				if deviation > thresh && half > 0
+					over = (deviation - thresh) / half
+					res[idx] = softwall_scale * over
+				else
+					res[idx] = zero(eltype(res))
+				end
 				idx += 1
 			end
 		end

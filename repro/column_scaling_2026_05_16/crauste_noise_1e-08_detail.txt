@@ -1,0 +1,185 @@
+System: crauste, noise = 1.0e-8
+n_eqs × n_vars: 43 × 43 (eff_rank = 38)
+cond_raw         = 3.666111872809688e81
+cond_colnorm     = 3.1063442189119136e17  (improvement 1.1802014247132757e64x)
+cond_truth_mag   = 1.212377149860076e21  (improvement 3.0239038019091705e60x)
+
+Singular values (raw):
+  σ[ 1] = 1.924743e+04
+  σ[ 2] = 1.245901e+04
+  σ[ 3] = 4.874880e+03
+  σ[ 4] = 1.692888e+02
+  σ[ 5] = 1.082674e+02
+  σ[ 6] = 7.798896e+01
+  σ[ 7] = 7.217298e+01
+  σ[ 8] = 5.667970e+01
+  σ[ 9] = 2.213897e+01
+  σ[10] = 2.264351e+00
+  σ[11] = 1.959556e+00
+  σ[12] = 1.864741e+00
+  σ[13] = 1.747372e+00
+  σ[14] = 1.658715e+00
+  σ[15] = 1.469116e+00
+  σ[16] = 1.460465e+00
+  σ[17] = 1.303339e+00
+  σ[18] = 1.213401e+00
+  σ[19] = 1.164366e+00
+  σ[20] = 1.057203e+00
+  σ[21] = 1.001296e+00
+  σ[22] = 1.000040e+00
+  σ[23] = 1.000001e+00
+  σ[24] = 1.000000e+00
+  σ[25] = 1.000000e+00
+  σ[26] = 1.000000e+00
+  σ[27] = 9.998975e-01
+  σ[28] = 9.543900e-01
+  σ[29] = 9.177057e-01
+  σ[30] = 8.943214e-01
+  σ[31] = 7.345337e-01
+  σ[32] = 6.652177e-01
+  σ[33] = 2.437202e-01
+  σ[34] = 1.721557e-01
+  σ[35] = 5.662725e-02
+  σ[36] = 1.474675e-02
+  σ[37] = 6.318462e-03
+  σ[38] = 1.696488e-05
+  σ[39] = 1.914514e-77
+  σ[40] = 1.740636e-77
+  σ[41] = 1.300865e-77
+  σ[42] = 8.366709e-78
+  σ[43] = 5.250094e-78
+
+Per-column norms (raw J):
+  [ 1] e_0                       role=state_ic        norm=1.006e+00  truth_proxy=0.000e+00
+  [ 2] deltaEL_0                 role=parameter       norm=7.695e+01  truth_proxy=5.900e-01
+  [ 3] e_1                       role=state_derivative norm=1.424e+00  truth_proxy=1.000e+00
+  [ 4] n_0                       role=state_ic        norm=1.256e+00  truth_proxy=8.090e+03
+  [ 5] p_0                       role=state_ic        norm=1.018e+02  truth_proxy=1.000e+00
+  [ 6] deltaNE_0                 role=parameter       norm=1.095e+04  truth_proxy=9.000e-03
+  [ 7] rhoE_0                    role=parameter       norm=7.647e+01  truth_proxy=6.400e-01
+  [ 8] muEE_0                    role=parameter       norm=1.908e+04  truth_proxy=2.160e-05
+  [ 9] n_1                       role=state_derivative norm=1.605e+00  truth_proxy=1.000e+00
+  [10] muN_0                     role=parameter       norm=8.079e+03  truth_proxy=7.500e-01
+  [11] p_1                       role=state_derivative norm=1.484e+02  truth_proxy=1.000e+00
+  [12] s_0                       role=state_ic        norm=1.149e+00  truth_proxy=0.000e+00
+  [13] rhoP_0                    role=parameter       norm=1.129e+00  truth_proxy=1.500e-01
+  [14] muPL_0                    role=parameter       norm=0.000e+00  truth_proxy=1.800e-05
+  [15] muPE_0                    role=parameter       norm=7.798e+01  truth_proxy=1.800e-07
+  [16] muP_0                     role=parameter       norm=1.055e+00  truth_proxy=5.500e-02
+  [17] m_0                       role=state_ic        norm=1.000e+00  truth_proxy=0.000e+00
+  [18] muM_0                     role=parameter       norm=0.000e+00  truth_proxy=0.000e+00
+  [19] deltaLM_0                 role=parameter       norm=0.000e+00  truth_proxy=2.500e-02
+  [20] m_1                       role=state_derivative norm=1.414e+00  truth_proxy=1.000e+00
+  [21] muLL_0                    role=parameter       norm=0.000e+00  truth_proxy=7.500e-06
+  [22] muLE_0                    role=parameter       norm=0.000e+00  truth_proxy=3.600e-08
+  [23] s_1                       role=state_derivative norm=1.523e+00  truth_proxy=1.000e+00
+  [24] e_2                       role=state_derivative norm=1.435e+00  truth_proxy=1.000e+00
+  [25] n_2                       role=state_derivative norm=1.605e+00  truth_proxy=1.000e+00
+  [26] p_2                       role=state_derivative norm=1.578e+02  truth_proxy=1.000e+00
+  [27] s_2                       role=state_derivative norm=1.523e+00  truth_proxy=1.000e+00
+  [28] m_2                       role=state_derivative norm=1.414e+00  truth_proxy=1.000e+00
+  [29] e_3                       role=state_derivative norm=1.441e+00  truth_proxy=1.000e+00
+  [30] n_3                       role=state_derivative norm=1.256e+00  truth_proxy=1.000e+00
+  [31] p_3                       role=state_derivative norm=8.691e+01  truth_proxy=1.000e+00
+  [32] s_3                       role=state_derivative norm=1.523e+00  truth_proxy=1.000e+00
+  [33] m_3                       role=state_derivative norm=1.414e+00  truth_proxy=1.000e+00
+  [34] e_4                       role=state_derivative norm=1.003e+00  truth_proxy=1.000e+00
+  [35] p_4                       role=state_derivative norm=7.006e+01  truth_proxy=1.000e+00
+  [36] s_4                       role=state_derivative norm=1.523e+00  truth_proxy=1.000e+00
+  [37] m_4                       role=state_derivative norm=1.414e+00  truth_proxy=1.000e+00
+  [38] p_5                       role=state_derivative norm=1.438e+00  truth_proxy=1.000e+00
+  [39] m_5                       role=state_derivative norm=1.000e+00  truth_proxy=1.000e+00
+  [40] s_5                       role=state_derivative norm=1.000e+00  truth_proxy=1.000e+00
+  [41] p_6                       role=state_derivative norm=1.000e+00  truth_proxy=1.000e+00
+  [42] e_5                       role=state_derivative norm=1.000e+00  truth_proxy=1.000e+00
+  [43] n_4                       role=state_derivative norm=1.000e+00  truth_proxy=1.000e+00
+
+Singular values (after column-norm rescaling):
+  σ[ 1] = 2.149818e+00
+  σ[ 2] = 1.737948e+00
+  σ[ 3] = 1.592394e+00
+  σ[ 4] = 1.550335e+00
+  σ[ 5] = 1.456177e+00
+  σ[ 6] = 1.400088e+00
+  σ[ 7] = 1.315183e+00
+  σ[ 8] = 1.256523e+00
+  σ[ 9] = 1.244021e+00
+  σ[10] = 1.195301e+00
+  σ[11] = 1.187984e+00
+  σ[12] = 1.142002e+00
+  σ[13] = 1.137066e+00
+  σ[14] = 1.106672e+00
+  σ[15] = 1.041232e+00
+  σ[16] = 1.027868e+00
+  σ[17] = 1.000000e+00
+  σ[18] = 1.000000e+00
+  σ[19] = 9.830845e-01
+  σ[20] = 9.097873e-01
+  σ[21] = 8.237950e-01
+  σ[22] = 7.622020e-01
+  σ[23] = 7.355312e-01
+  σ[24] = 7.221576e-01
+  σ[25] = 6.517354e-01
+  σ[26] = 5.830532e-01
+  σ[27] = 5.325067e-01
+  σ[28] = 4.820014e-01
+  σ[29] = 3.703839e-01
+  σ[30] = 2.913898e-01
+  σ[31] = 2.186540e-01
+  σ[32] = 9.476644e-02
+  σ[33] = 5.563181e-02
+  σ[34] = 1.408207e-02
+  σ[35] = 8.583899e-03
+  σ[36] = 7.008355e-03
+  σ[37] = 3.131369e-03
+  σ[38] = 4.677883e-06
+  σ[39] = 1.171656e-16
+  σ[40] = 6.902641e-17
+  σ[41] = 5.679653e-17
+  σ[42] = 4.056586e-17
+  σ[43] = 6.920733e-18
+
+Singular values (after truth-magnitude rescaling):
+  σ[ 1] = 1.925244e+04
+  σ[ 2] = 1.358401e+04
+  σ[ 3] = 8.646889e+03
+  σ[ 4] = 4.765369e+03
+  σ[ 5] = 1.636038e+02
+  σ[ 6] = 1.077530e+02
+  σ[ 7] = 7.798777e+01
+  σ[ 8] = 7.207190e+01
+  σ[ 9] = 5.426512e+01
+  σ[10] = 2.155627e+01
+  σ[11] = 2.215357e+00
+  σ[12] = 1.959556e+00
+  σ[13] = 1.864741e+00
+  σ[14] = 1.747372e+00
+  σ[15] = 1.658715e+00
+  σ[16] = 1.469073e+00
+  σ[17] = 1.460465e+00
+  σ[18] = 1.303169e+00
+  σ[19] = 1.213401e+00
+  σ[20] = 1.164366e+00
+  σ[21] = 1.057203e+00
+  σ[22] = 1.001250e+00
+  σ[23] = 1.000038e+00
+  σ[24] = 1.000000e+00
+  σ[25] = 1.000000e+00
+  σ[26] = 1.000000e+00
+  σ[27] = 9.999118e-01
+  σ[28] = 9.544600e-01
+  σ[29] = 9.178650e-01
+  σ[30] = 8.943214e-01
+  σ[31] = 7.345337e-01
+  σ[32] = 6.664177e-01
+  σ[33] = 2.437202e-01
+  σ[34] = 1.721563e-01
+  σ[35] = 5.662725e-02
+  σ[36] = 1.474675e-02
+  σ[37] = 6.318462e-03
+  σ[38] = 1.696488e-05
+  σ[39] = 1.530708e-16
+  σ[40] = 1.297669e-16
+  σ[41] = 1.117635e-16
+  σ[42] = 8.715596e-17
+  σ[43] = 1.587991e-17

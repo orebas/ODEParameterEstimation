@@ -69,6 +69,15 @@ claude_analysis/
 # Retained iterative-fixing audit artifacts
 artifacts/iterfix_audit/
 
+# Repro session run logs / intermediate artifacts — keep code + final results,
+# skip the verbose Julia stdout/stderr and the per-cell intermediate artifacts
+# subdirectories produced during diagnostic runs.
+repro/**/stdout.txt
+repro/**/stderr.txt
+repro/**/artifacts/
+*_06_lost_recheck.out
+*_06_lost_recheck.err
+
 # LaTeX build artifacts
 *.aux
 *.toc

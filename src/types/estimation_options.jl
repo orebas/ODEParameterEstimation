@@ -182,6 +182,8 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
 - `polish_coordinate_policy::Symbol`: per-variable transform policy for the polish step: `:auto` (default), `:linear`, `:log_only`, `:shifted_log_only`.
 - `polish_regularization_lambda::Float64`: optional L2 regularization on internal coordinates for residual-mode polish (default: 0.0). Nonzero values can help on ill-conditioned cases but hurt well-posed ones.
+- `polish_softwall_lambda::Float64`: soft-wall penalty strength for residual-mode polish (default: 1e-2). When > 0, augments the residual with a penalty that activates when a parameter is within `polish_softwall_epsilon` of either bound (measured in transformed internal coords). Targets bound-saturation pathologies (e.g. biohydrogenation k10) without biasing interior solutions. **Verified safe on 2026-05-15 fresh-look investigation**: zero penalty for typical benchmark truth values (which sit well inside the bound interval). Set to 0.0 to disable entirely.
+- `polish_softwall_epsilon::Float64`: width of the soft-wall band in transformed internal coords, as a fraction of the half-range (default: 0.10). Parameters with `|p_internal - midpoint| > (1 - epsilon) * halfrange` incur the penalty. With benchmark bounds `[1e-5, 10]`, ε=0.10 means values outside roughly `[3e-5, 5]` start incurring penalty — outside the typical truth range.
 - `polish_lso_delta::Float64`: LSO trust-region radius (default: 10.0).
 - `polish_lso_x_tol::Float64`/`polish_lso_f_tol::Float64`/`polish_lso_g_tol::Float64`: LSO/FastLM tolerances (default: -1.0 = inherit from `reltol`/`abstol`).
 - `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:direct_opt`)
@@ -315,7 +317,43 @@ Base.@kwdef struct EstimationOptions
 	branch_err_factor::Float64 = 100.0
 	branch_resid_factor::Float64 = 100.0
 	branch_min_size::Int = 1
-	branch_top_k::Int = 100                        # Maximum cluster reps to return at the output stage. Sorted by err (ascending) before slicing. Bumped 20→100 in 2026-05-14: offline simulation on 101 regression cells (results/numbat_analysis/three_way/offline_fix_sim.csv) showed K=20 recovered 74% to within 2× of the legacy 2026-05-06 benchmark, K=100 → 77%, K=200 → 79% (diminishing returns past 100). Set to 0 to disable (return all reps).
+	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default S2 = (saturation_count, is_neg1, err)) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps).
+
+	# Ranking strategy for the top-K cluster reps returned in result.csv.
+	# Options:
+	#   :sat_neg1_err     — DEFAULT. (saturation_count, is_neg1, err). Rows with
+	#                       parameters pegged at bounds get demoted, then untagged
+	#                       provenance, then by data residual. 275-cell sample:
+	#                       rank-1 oracle ≤1% rose 71.6% → 77.8%, ≤10% rose
+	#                       82.2% → 88.0%. Requires user-provided opt_lb/opt_ub
+	#                       to fully activate; silently degrades to (is_neg1, err)
+	#                       when bounds are missing.
+	#   :lognorm_err      — (Σ log²(p), err). Bound-free; same prior as
+	#                       polish_regularization_lambda but applied at sort time
+	#                       not in the polish loss. Symmetric to upper-/lower-
+	#                       bound saturation. EXPERIMENTAL — added 2026-05-17 for
+	#                       comparison study (probe4b).
+	#   :lognorm_neg1_err — (Σ log²(p), is_neg1, err). lognorm primary with the
+	#                       same is_neg1 secondary as :sat_neg1_err. EXPERIMENTAL.
+	#   :err_only         — Legacy err-only sort. For backward comparison.
+	rank_strategy::Symbol = :sat_neg1_err
+
+	# Output-stage clustering method. `:identifiable_subspace` (default) does
+	# two-stage clustering: rough basin separation at a coarse threshold, then
+	# within-basin MAD-normalized L∞ merging at `subspace_cluster_eps`. This
+	# collapses 50+ near-duplicate rows along practical-non-identifiability axes
+	# (e.g. slow_fast's 50 mirror-basin rows that differ only on xA/xB/eB) while
+	# preserving algebraically-distinct basins. `:bit_identical` restores the
+	# legacy 1e-5 relative-distance dedup. See `cluster_solutions_identifiable_subspace`.
+	cluster_method::Symbol = :identifiable_subspace
+	# Rough-cluster threshold for stage-1 (basin identification). 1.0 = parameters
+	# differ by more than the mean magnitude (i.e. different basins). Tight
+	# enough that distinct algebraic solutions stay separate.
+	rough_cluster_eps::Float64 = 1.0
+	# Stage-2 within-basin MAD-normalized L∞ threshold. 0.05 ≈ "5% of MAD-scaled
+	# spread" — coarser than the 1e-5 bit-identical dedup but tight enough to
+	# preserve genuine sub-basin structure.
+	subspace_cluster_eps::Float64 = 0.05
 
 	# Instrumentation (opt-in): if non-nothing, dump the raw HC candidate list
 	# (after process_raw_solution err computation, before pre-polish clustering)
@@ -371,6 +409,23 @@ Base.@kwdef struct EstimationOptions
 	# `crauste`/`seir`/`hiv`-style cases at the cost of bias on well-posed ones.
 	# No robust auto-selection across models exists yet.
 	polish_regularization_lambda::Float64 = 0.0
+
+	# Soft-wall penalty near bounds for residual-mode polish. When
+	# `polish_softwall_lambda > 0`, augments the residual with one row per parameter:
+	# zero in the interior of the bound interval, growing quadratically as the
+	# parameter approaches either bound. Targets bound-saturation pathologies
+	# (e.g. biohydrogenation k10 hitting upper bound) without biasing interior
+	# solutions. Default ON after 2026-05-15 fresh-look investigation showed:
+	# (1) on bioh_6_1em6, eliminates k10 saturation 97/100 → 0/100 and lifts
+	#     rank-1 oracle 9.18 → 4.19 (2.2× improvement);
+	# (2) λ is essentially on/off — any nonzero value past ~1e-4 gives the same
+	#     effect; ε is the dominant knob;
+	# (3) the penalty zone (at ε=0.10 with bounds [1e-5, 10]) is values outside
+	#     roughly [3e-5, 5] — well outside typical benchmark truth values, so
+	#     this is a no-op on cells without saturation pathology.
+	# Set both to 0.0 to disable. See polish_residual.jl for the exact form.
+	polish_softwall_lambda::Float64 = 1e-2
+	polish_softwall_epsilon::Float64 = 0.10
 
 	# LSO (LeastSquaresOptim.LevenbergMarquardt) trust-region & tolerance knobs.
 	# Negative tolerances mean "use `reltol`/`abstol`". `polish_lso_delta` is the
@@ -1109,6 +1164,16 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
+	# Polish soft-wall
+	if opts.polish_softwall_lambda < 0
+		@error "polish_softwall_lambda must be non-negative (got $(opts.polish_softwall_lambda))"
+		valid = false
+	end
+	if !(0.0 <= opts.polish_softwall_epsilon < 0.5)
+		@error "polish_softwall_epsilon must be in [0, 0.5) (got $(opts.polish_softwall_epsilon))"
+		valid = false
+	end
+
 	# LSO trust-region delta must be positive
 	if opts.polish_lso_delta <= 0
 		@error "polish_lso_delta must be positive (got $(opts.polish_lso_delta))"
@@ -1151,6 +1216,22 @@ function validate_options(opts::EstimationOptions)
 	end
 	if !(opts.terminal_fallback in (:none, :direct_opt))
 		@error "terminal_fallback must be :none or :direct_opt"
+		valid = false
+	end
+	if !(opts.rank_strategy in (:sat_neg1_err, :err_only, :lognorm_err, :lognorm_neg1_err))
+		@error "rank_strategy must be one of :sat_neg1_err, :err_only, :lognorm_err, :lognorm_neg1_err (got $(opts.rank_strategy))"
+		valid = false
+	end
+	if !(opts.cluster_method in (:identifiable_subspace, :bit_identical))
+		@error "cluster_method must be :identifiable_subspace or :bit_identical (got $(opts.cluster_method))"
+		valid = false
+	end
+	if opts.rough_cluster_eps <= 0
+		@error "rough_cluster_eps must be positive (got $(opts.rough_cluster_eps))"
+		valid = false
+	end
+	if opts.subspace_cluster_eps <= 0
+		@error "subspace_cluster_eps must be positive (got $(opts.subspace_cluster_eps))"
 		valid = false
 	end
 	if !(opts.backsolve_recovery in (:none, :algebraic_resolve))

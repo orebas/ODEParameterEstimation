@@ -68,6 +68,143 @@ function cluster_solutions(sorted_results)
 	return clusters
 end
 
+"""
+	cluster_solutions_identifiable_subspace(sorted_results; rough_eps, subspace_eps) → Vector{Vector}
+
+Two-stage clustering that collapses near-duplicate rows along
+practical-non-identifiability axes while preserving algebraically-distinct
+basins.
+
+# Stages
+
+1. **Rough basin separation** at relative-distance `rough_eps` (default 1.0):
+   uses the same metric as `cluster_solutions` but at a much coarser scale.
+   Candidates whose parameter vectors differ by more than ≈`rough_eps` of the
+   typical magnitude land in different rough clusters. This step preserves
+   genuine basin-to-basin separation (e.g. slow_fast's truth vs mirror).
+2. **Within-basin MAD-normalized L∞ merging** at `subspace_eps` (default
+   0.05): for each rough cluster of size ≥ 3, compute per-axis MAD across
+   the cluster's rows; the L∞ distance in MAD-normalized log/linear space
+   then expresses "spread relative to within-basin noise." Axes with large
+   MAD (= near-null directions of the residual within this basin) get
+   compressed; axes with tight MAD (= identifiable directions) remain
+   discriminating. Rough clusters with < 3 rows skip stage 2.
+
+# Why not global MAD-normalization
+
+Global MAD across all candidates is what `_branch_cluster_linf` does in
+`_detect_branches`; the 2026-05-14 numbat regression eval found this drops
+truth-near candidates in 43% of regression cells because MAD is inflated by
+between-basin separation, which then compresses within-basin near-truth
+distinctions. The per-basin MAD here is computed only within an
+already-similar group, so it reflects practical non-identifiability noise
+rather than basin separation.
+
+# Returns
+
+Vector of clusters; within each cluster, sorted by input order (which is
+err-ascending upstream). The first element of each cluster is the err-best
+candidate.
+"""
+function cluster_solutions_identifiable_subspace(sorted_results;
+	rough_eps::Float64 = 1.0,
+	subspace_eps::Float64 = 0.05)
+	# Stage 1: rough basin clustering using existing relative-distance metric
+	rough_clusters = Vector{Vector{Any}}()
+	for sol in sorted_results
+		cluster_idx = findfirst(cluster ->
+				solution_distance(sol, cluster[1]) < rough_eps,
+			rough_clusters)
+		if isnothing(cluster_idx)
+			push!(rough_clusters, [sol])
+		else
+			push!(rough_clusters[cluster_idx], sol)
+		end
+	end
+
+	# Stage 2: within each rough cluster of size ≥ 3, MAD-normalize and re-cluster
+	fine_clusters = Vector{Vector{Any}}()
+	for rough in rough_clusters
+		if length(rough) < 3
+			push!(fine_clusters, rough)
+			continue
+		end
+		sub_clusters = _within_basin_subspace_cluster(rough, subspace_eps)
+		append!(fine_clusters, sub_clusters)
+	end
+	return fine_clusters
+end
+
+"""
+Within-basin MAD-normalized L∞ clustering. Internal helper for
+`cluster_solutions_identifiable_subspace`. Operates on a single rough cluster
+where global basin-separation is not a concern.
+"""
+function _within_basin_subspace_cluster(rough_cluster::Vector, subspace_eps::Float64)
+	n = length(rough_cluster)
+	sample = first(rough_cluster)
+	state_keys = collect(keys(sample.states))
+	param_keys = collect(keys(sample.parameters))
+	all_keys = vcat(state_keys, param_keys)
+	d = length(all_keys)
+	if d == 0
+		return [rough_cluster]
+	end
+
+	# Build (n × d) matrix. Use log10 for axes where all entries are positive
+	# (matches the log-space polish coordinate convention for positive-bounded
+	# parameters); linear otherwise.
+	X = Matrix{Float64}(undef, n, d)
+	for (i, r) in enumerate(rough_cluster)
+		for (j, k) in enumerate(all_keys)
+			v = haskey(r.states, k) ? r.states[k] : r.parameters[k]
+			X[i, j] = Float64(v)
+		end
+	end
+	for v in 1:d
+		col = @view X[:, v]
+		if all(c -> c > 0, col)
+			X[:, v] .= log10.(col)
+		end
+	end
+
+	# Per-axis median + MAD (within this rough basin)
+	med = [median(X[:, v]) for v in 1:d]
+	mad = [median(abs.(X[:, v] .- med[v])) for v in 1:d]
+	scale = [max(abs(med[v]), mad[v], 1e-10) for v in 1:d]
+	Xn = similar(X)
+	for v in 1:d
+		Xn[:, v] = (X[:, v] .- med[v]) ./ scale[v]
+	end
+
+	# Greedy single-link L∞ clustering in row order
+	sub_clusters = Vector{Vector{Any}}()
+	rep_rows = Int[]
+	for i in 1:n
+		merged = false
+		for (k, rep_row) in enumerate(rep_rows)
+			d_inf = 0.0
+			for v in 1:d
+				diff = abs(Xn[i, v] - Xn[rep_row, v])
+				d_inf = max(d_inf, diff)
+				if d_inf >= subspace_eps
+					break
+				end
+			end
+			if d_inf < subspace_eps
+				push!(sub_clusters[k], rough_cluster[i])
+				merged = true
+				break
+			end
+		end
+		if !merged
+			push!(sub_clusters, [rough_cluster[i]])
+			push!(rep_rows, i)
+		end
+	end
+	return sub_clusters
+end
+
 function relative_error_value(est, true_val)
 	if !isfinite(est)
 		return NaN
@@ -119,6 +256,123 @@ function oracle_sort_key(problem::ParameterEstimationProblem, candidate)
 		return (Inf, Inf, isnothing(candidate.err) ? Inf : candidate.err)
 	end
 	return (stats.maximum, stats.median, isnothing(candidate.err) ? Inf : candidate.err)
+end
+
+"""
+	saturation_count(candidate, opt_lb, opt_ub; eps_sat = 0.02) → Int
+
+Count parameters within `eps_sat * log10(ub/lb)` of either log-bound in log
+space. Rows with several parameters pegged at the bounds are typically
+artifacts of an unbounded numerical ridge (probe 2 evidence on
+biohydrogenation_6_1em6: k10 hit upper bound in 97/100 rows under the legacy
+polish). Returns 0 if bounds are missing or the candidate has no positive
+parameter values.
+
+For uniform bounds (the common benchmark case where `opt_lb = fill(1e-5, N)`,
+`opt_ub = fill(10.0, N)`), the scalar comparison is exact. For per-parameter
+heterogeneous bounds, falls back to `[min(opt_lb), max(opt_ub)]` — a
+conservative envelope that never under-counts saturation but may include
+parameters that are only saturated against the *tightest* bound. Aligning by
+position is intentionally not done because `candidate.parameters` ordering
+(user-facing) differs from `opt_lb` ordering (MTK).
+"""
+function saturation_count(candidate, opt_lb, opt_ub; eps_sat::Float64 = 0.02)
+	(opt_lb === nothing || opt_ub === nothing) && return 0
+	(isempty(opt_lb) || isempty(opt_ub)) && return 0
+	lb_min = minimum(opt_lb)
+	ub_max = maximum(opt_ub)
+	(lb_min <= 0 || ub_max <= 0 || ub_max <= lb_min) && return 0
+	log_lb = log10(lb_min)
+	log_ub = log10(ub_max)
+	threshold = eps_sat * (log_ub - log_lb)
+	count = 0
+	for (_, value) in candidate.parameters
+		(isfinite(value) && value > 0) || continue
+		lv = log10(value)
+		if (lv - log_lb) < threshold || (log_ub - lv) < threshold
+			count += 1
+		end
+	end
+	return count
+end
+
+"""
+	s2_sort_key(candidate, opt_lb, opt_ub) → Tuple{Int, Int, Float64}
+
+Scheme S2 sort: primary = saturation_count (fewer is better), secondary =
+is_neg1/is_untagged (rows with provenance `-1` or `nothing` sorted after real
+HC-tagged rows), tertiary = err (lower is better).
+"""
+function s2_sort_key(candidate, opt_lb, opt_ub)
+	sat = saturation_count(candidate, opt_lb, opt_ub)
+	provenance_idx = if hasproperty(candidate, :provenance)
+		candidate.provenance.polish_source_hc_idx
+	else
+		nothing
+	end
+	is_untagged = (provenance_idx === nothing || provenance_idx == -1) ? 1 : 0
+	err = (candidate.err === nothing || !isfinite(candidate.err)) ? Inf : candidate.err
+	return (sat, is_untagged, err)
+end
+
+"""
+	lognorm_score(candidate) → Float64
+
+Sum of squared log10-magnitudes of the candidate's positive parameters:
+`Σ_i (log10 p_i)²`. Acts as a smooth, bound-free proxy for "how far from
+p_i=1 is this candidate, in log space?". Rows with parameters pegged near
+either bound (k_i ≈ 10 or k_i ≈ 1e-5) score high; rows with all parameters
+near O(1) score low. Symmetric to upper- and lower-bound saturation —
+no `opt_lb`/`opt_ub` required.
+
+Same prior as `polish_regularization_lambda` (L2 toward x=1 in log-coords)
+but applied at output-sort time rather than inside the polish loss, so it
+doesn't bias well-conditioned cells (polish still converges to the data
+optimum); it only tiebreaks among data-equivalent rows toward typical-
+magnitude parameters.
+
+Returns `Inf` if the candidate has no positive parameters.
+"""
+function lognorm_score(candidate)
+	total = 0.0
+	n = 0
+	for (_, value) in candidate.parameters
+		(isfinite(value) && value > 0) || continue
+		total += log10(value)^2
+		n += 1
+	end
+	return n == 0 ? Inf : total
+end
+
+"""
+	lognorm_sort_key(candidate) → Tuple{Float64, Float64}
+
+Two-key sort: primary = `lognorm_score` (lower better, i.e., parameters
+near O(1) preferred), secondary = err (lower better).
+"""
+function lognorm_sort_key(candidate)
+	err = (candidate.err === nothing || !isfinite(candidate.err)) ? Inf : candidate.err
+	return (lognorm_score(candidate), err)
+end
+
+"""
+	lognorm_neg1_sort_key(candidate) → Tuple{Float64, Int, Float64}
+
+Three-key sort: primary = `lognorm_score`, secondary = `is_neg1`
+(provenance `-1` or `nothing` sorted after HC-tagged rows), tertiary = err.
+Mirrors S2's three-key structure but with `lognorm_score` replacing
+`saturation_count` as the primary signal.
+"""
+function lognorm_neg1_sort_key(candidate)
+	score = lognorm_score(candidate)
+	provenance_idx = if hasproperty(candidate, :provenance)
+		candidate.provenance.polish_source_hc_idx
+	else
+		nothing
+	end
+	is_untagged = (provenance_idx === nothing || provenance_idx == -1) ? 1 : 0
+	err = (candidate.err === nothing || !isfinite(candidate.err)) ? Inf : candidate.err
+	return (score, is_untagged, err)
 end
 
 # ──────────── Branch detection (Phase B candidate-reduction) ────────────────
@@ -455,18 +709,29 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		sort(scored_results, by = _result_err_key)
 	end
 
-	# Cluster ALL candidates first; rely on clustering (CLUSTERING_THRESHOLD = 1e-5
-	# relative parameter distance) to produce the set of distinct algebraic-basin
-	# representatives. The legacy `err < MAX_ERROR_THRESHOLD` gate silently dropped
-	# truth-near candidates whose trajectory loss was high (e.g. on practical-non-
-	# identifiability cases like flexible_arm where fit-best is anticorrelated with
-	# truth-best). Cluster-first preserves them as separate basin reps.
+	# Cluster ALL candidates first; rely on clustering to produce the set of
+	# distinct algebraic-basin representatives. The legacy
+	# `err < MAX_ERROR_THRESHOLD` gate silently dropped truth-near candidates
+	# whose trajectory loss was high (e.g. on practical-non-identifiability
+	# cases like flexible_arm where fit-best is anticorrelated with truth-best).
+	# Cluster-first preserves them as separate basin reps.
 	#
-	# We do NOT cap cluster count: the legacy code's MAX_SOLUTIONS cap applied only
-	# to raw candidates in the rare fallback branch (when no candidate had err<0.5).
-	# Capping clusters too aggressively drops truth-near reps when the natural
-	# cluster count exceeds the cap (flex_arm has 83 natural clusters).
-	clusters = cluster_solutions(sorted_results)
+	# We do NOT cap cluster count: the legacy code's MAX_SOLUTIONS cap applied
+	# only to raw candidates in the rare fallback branch (when no candidate had
+	# err<0.5). Capping clusters too aggressively drops truth-near reps when the
+	# natural cluster count exceeds the cap (flex_arm has 83 natural clusters).
+	#
+	# `cluster_method` selects between two-stage rough/within-basin clustering
+	# (default `:identifiable_subspace`, collapses near-duplicates along
+	# practical-non-identifiability axes; see RECOMMENDATIONS.md Tier 3.2) and
+	# the legacy 1e-5 bit-identical dedup (`:bit_identical`).
+	clusters = if opts.cluster_method === :identifiable_subspace
+		cluster_solutions_identifiable_subspace(sorted_results;
+			rough_eps = opts.rough_cluster_eps,
+			subspace_eps = opts.subspace_cluster_eps)
+	else
+		cluster_solutions(sorted_results)
+	end
 
 	# Show unidentifiable parameters if any
 	if !isempty(sorted_results)
@@ -646,10 +911,25 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		cluster_reps[i].branch_size = length(c)
 	end
 	returned_results = if opts.branch_detection
-		if opts.branch_top_k > 0 && length(cluster_reps) > opts.branch_top_k
-			cluster_reps[1:opts.branch_top_k]
-		else
+		# Apply rank_strategy before top-K slicing. Default :sat_neg1_err sorts by
+		# (saturation_count, is_neg1, err) — demotes bound-saturated rows and rows
+		# without HC provenance to elevate truth-near candidates that would
+		# otherwise be lost in the tail under pure err-sort (Tier 1.1 recommendation
+		# from the 2026-05-15 fresh-look investigation, RECOMMENDATIONS.md).
+		# Legacy `:err_only` preserves the upstream err order verbatim.
+		sorted_reps = if opts.rank_strategy === :sat_neg1_err
+			sort(cluster_reps, by = c -> s2_sort_key(c, opts.opt_lb, opts.opt_ub))
+		elseif opts.rank_strategy === :lognorm_err
+			sort(cluster_reps, by = lognorm_sort_key)
+		elseif opts.rank_strategy === :lognorm_neg1_err
+			sort(cluster_reps, by = lognorm_neg1_sort_key)
+		else  # :err_only
 			cluster_reps
+		end
+		if opts.branch_top_k > 0 && length(sorted_reps) > opts.branch_top_k
+			sorted_reps[1:opts.branch_top_k]
+		else
+			sorted_reps
 		end
 	else
 		sort(cluster_reps, by = candidate -> oracle_sort_key(problem, candidate))

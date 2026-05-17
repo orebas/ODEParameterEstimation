@@ -1858,6 +1858,11 @@ Base.@kwdef struct PolishContext
 	polish_ode_maxiters::Int = 5000
 	# Optional: per-variable LSO-style regularization weight (sqrt(λ) is applied to internal coords).
 	regularization_lambda::Float64 = 0.0
+	# Optional soft-wall penalty near bounds. When `softwall_lambda > 0`, each parameter
+	# contributes one residual row that is zero in the central (1 - 2·softwall_epsilon)
+	# fraction of the internal-coord interval and grows quadratically outside that band.
+	softwall_lambda::Float64 = 0.0
+	softwall_epsilon::Float64 = 0.05
 end
 
 const _POLISH_SHIFT_EPS = 1e-6
@@ -2192,6 +2197,8 @@ function _build_polish_context(
 		coordinate_shifts = shifts,
 		polish_ode_maxiters = ode_maxiters,
 		regularization_lambda = opts.polish_regularization_lambda,
+		softwall_lambda = opts.polish_softwall_lambda,
+		softwall_epsilon = opts.polish_softwall_epsilon,
 	)
 end
 
