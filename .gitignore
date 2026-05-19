@@ -24,6 +24,9 @@ docs/site/
 # committed for packages, but should be committed for applications that require a static
 # environment.
 Manifest.toml
+# Exception: probe/repro envs DO need their Manifest.toml committed for reproducibility
+# (they pin exact package versions to reproduce specific benchmark states).
+!repro/polish_regression_2026_05_19/env_*/Manifest.toml
 
 # Temporary test files and output
 *.log

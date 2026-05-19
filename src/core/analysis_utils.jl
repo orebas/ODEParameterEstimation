@@ -919,11 +919,19 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		# Legacy `:err_only` preserves the upstream err order verbatim.
 		sorted_reps = if opts.rank_strategy === :sat_neg1_err
 			sort(cluster_reps, by = c -> s2_sort_key(c, opts.opt_lb, opts.opt_ub))
+		elseif opts.rank_strategy === :sat_err
+			# (saturation_count, err) — S2 without the is_neg1 secondary. Wallaby
+			# evidence (2026-05-19): is_neg1 systematically demotes truth-near
+			# rows with psh=-1 below worse HC-tagged rows; this key drops the
+			# offender while keeping saturation-count demotion.
+			sort(cluster_reps,
+				by = c -> (saturation_count(c, opts.opt_lb, opts.opt_ub),
+				          (c.err === nothing || !isfinite(c.err)) ? Inf : c.err))
 		elseif opts.rank_strategy === :lognorm_err
 			sort(cluster_reps, by = lognorm_sort_key)
 		elseif opts.rank_strategy === :lognorm_neg1_err
 			sort(cluster_reps, by = lognorm_neg1_sort_key)
-		else  # :err_only
+		else  # :err_only (default — cluster_reps already err-sorted upstream)
 			cluster_reps
 		end
 		if opts.branch_top_k > 0 && length(sorted_reps) > opts.branch_top_k

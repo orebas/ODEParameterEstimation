@@ -321,22 +321,31 @@ Base.@kwdef struct EstimationOptions
 
 	# Ranking strategy for the top-K cluster reps returned in result.csv.
 	# Options:
-	#   :sat_neg1_err     — DEFAULT. (saturation_count, is_neg1, err). Rows with
-	#                       parameters pegged at bounds get demoted, then untagged
-	#                       provenance, then by data residual. 275-cell sample:
-	#                       rank-1 oracle ≤1% rose 71.6% → 77.8%, ≤10% rose
-	#                       82.2% → 88.0%. Requires user-provided opt_lb/opt_ub
-	#                       to fully activate; silently degrades to (is_neg1, err)
-	#                       when bounds are missing.
-	#   :lognorm_err      — (Σ log²(p), err). Bound-free; same prior as
-	#                       polish_regularization_lambda but applied at sort time
-	#                       not in the polish loss. Symmetric to upper-/lower-
-	#                       bound saturation. EXPERIMENTAL — added 2026-05-17 for
-	#                       comparison study (probe4b).
-	#   :lognorm_neg1_err — (Σ log²(p), is_neg1, err). lognorm primary with the
-	#                       same is_neg1 secondary as :sat_neg1_err. EXPERIMENTAL.
-	#   :err_only         — Legacy err-only sort. For backward comparison.
-	rank_strategy::Symbol = :sat_neg1_err
+	#   :err_only         — DEFAULT (since 2026-05-19). Sort by data residual `err`
+	#                       ascending. The 282fe1a-era S2 default introduced a
+	#                       ranking regression on the wallaby benchmark: under S2's
+	#                       (saturation_count, is_neg1, err) sort, the is_neg1
+	#                       secondary key systematically demoted truth-near rows
+	#                       with provenance `-1` (synthesized aggregates, multipoint,
+	#                       rescues) below worse HC-tagged rows. Wallaby polish
+	#                       comparison: `:err_only` beats `:sat_neg1_err` by
+	#                       -9.5pp at ≤1e-4, -11.4pp at ≤1e-3. See
+	#                       repro/polish_regression_2026_05_19/FINDINGS.md.
+	#   :sat_err          — (saturation_count, err). Saturation-demotion without
+	#                       the is_neg1 secondary. Essentially matches `:err_only`
+	#                       on wallaby (≤1e-9: 36.3% vs 36.3%; ≤1e-4: 69.6% vs 69.7%).
+	#                       Useful when bound-saturated rows are expected.
+	#   :sat_neg1_err     — (saturation_count, is_neg1, err). Was the 282fe1a default
+	#                       (2026-05-15→2026-05-19). 275-cell offline re-sort of
+	#                       14-era data showed rank-1 oracle ≤1% rose 71.6% → 77.8%
+	#                       under S2, but that gain didn't survive the 282fe1a
+	#                       candidate-distribution shift — the new pipeline produces
+	#                       more psh=-1 truth-finder rows that S2 actively demotes.
+	#   :lognorm_err      — (Σ log²(p), err). Bound-free experimental. Falsified
+	#                       in probe4b for general use (truth values genuinely far
+	#                       from 1 get penalized).
+	#   :lognorm_neg1_err — (Σ log²(p), is_neg1, err). Same is_neg1 caveat as S2.
+	rank_strategy::Symbol = :err_only
 
 	# Output-stage clustering method. `:identifiable_subspace` (default) does
 	# two-stage clustering: rough basin separation at a coarse threshold, then
@@ -1218,8 +1227,8 @@ function validate_options(opts::EstimationOptions)
 		@error "terminal_fallback must be :none or :direct_opt"
 		valid = false
 	end
-	if !(opts.rank_strategy in (:sat_neg1_err, :err_only, :lognorm_err, :lognorm_neg1_err))
-		@error "rank_strategy must be one of :sat_neg1_err, :err_only, :lognorm_err, :lognorm_neg1_err (got $(opts.rank_strategy))"
+	if !(opts.rank_strategy in (:sat_neg1_err, :sat_err, :err_only, :lognorm_err, :lognorm_neg1_err))
+		@error "rank_strategy must be one of :sat_neg1_err, :sat_err, :err_only, :lognorm_err, :lognorm_neg1_err (got $(opts.rank_strategy))"
 		valid = false
 	end
 	if !(opts.cluster_method in (:identifiable_subspace, :bit_identical))
