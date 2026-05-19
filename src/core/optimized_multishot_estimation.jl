@@ -60,7 +60,11 @@ end
 
 Lightweight phase profiling helper. When `stats` is `nothing`, simply calls `f()`
 with zero overhead. When `stats` is an OrderedDict, wraps `f()` with `@timed`
-and records time, bytes, and GC time.
+and records time, bytes, GC time, and peak RSS at phase end (+ Δ since phase
+start). The RSS fields are observability-only -- they're not propagated to
+`TimingPhaseEntry` (struct API stays stable) and are dropped silently by
+`_phase_stats_to_breakdown`. To see them, print `phase_stats` directly via
+`_print_phase_profile`.
 
 The `f` argument comes first to support Julia's `do` block syntax:
 ```julia
@@ -74,8 +78,19 @@ function _record_phase!(f::Function, stats::Nothing, name::String)
 end
 
 function _record_phase!(f::Function, stats::OrderedDict{String, NamedTuple}, name::String)
+	rss_start = Sys.maxrss()
 	result = @timed f()
-	stats[name] = (time = result.time, bytes = result.bytes, gctime = result.gctime)
+	rss_end = Sys.maxrss()
+	# Sys.maxrss returns bytes (high-water since process start, monotone).
+	rss_mb = rss_end / (1024 * 1024)
+	rss_delta_mb = (rss_end - rss_start) / (1024 * 1024)
+	stats[name] = (
+		time = result.time,
+		bytes = result.bytes,
+		gctime = result.gctime,
+		rss_mb = rss_mb,
+		rss_delta_mb = rss_delta_mb,
+	)
 	return result.value
 end
 
@@ -137,23 +152,50 @@ function _print_phase_profile(stats::OrderedDict{String, NamedTuple})
 	total_gc = sum(s.gctime for s in values(stats))
 	total_gc_pct = total_time > 0 ? 100.0 * total_gc / total_time : 0.0
 
+	# RSS aggregates. Sys.maxrss is monotone non-decreasing within a process,
+	# so the high-water mark across phases is just the last phase's rss_mb.
+	# Total ΔRSS is the sum of per-phase deltas (== end_last - start_first).
+	has_rss = !isempty(stats) && haskey(first(values(stats)), :rss_mb)
+	peak_rss_mb = has_rss ? maximum(s.rss_mb for s in values(stats)) : 0.0
+	total_rss_delta_mb = has_rss ? sum(s.rss_delta_mb for s in values(stats)) : 0.0
+
 	# Column widths
 	name_w = max(47, maximum(length(k) + 4 for k in keys(stats)))  # +4 for "N. " prefix
 
 	println()
-	println("╔", "═"^name_w, "╤══════════╤═════════════╤═══════╗")
-	@printf("║ %-*s│ %8s │ %11s │ %5s ║\n", name_w - 1, "Phase", "Time (s)", "Allocs", "GC %")
-	println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╣")
+	if has_rss
+		println("╔", "═"^name_w, "╤══════════╤═════════════╤═══════╤══════════╤═════════╗")
+		@printf("║ %-*s│ %8s │ %11s │ %5s │ %8s │ %7s ║\n",
+			name_w - 1, "Phase", "Time (s)", "Allocs", "GC %", "RSS (MB)", "ΔRSS")
+		println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╪══════════╪═════════╣")
 
-	for (i, (name, s)) in enumerate(stats)
-		gc_pct = s.time > 0 ? 100.0 * s.gctime / s.time : 0.0
-		label = "$i. $name"
-		@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% ║\n", name_w - 1, label, s.time, _format_bytes(s.bytes), gc_pct)
+		for (i, (name, s)) in enumerate(stats)
+			gc_pct = s.time > 0 ? 100.0 * s.gctime / s.time : 0.0
+			label = "$i. $name"
+			@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% │ %8.1f │ %+7.1f ║\n",
+				name_w - 1, label, s.time, _format_bytes(s.bytes), gc_pct, s.rss_mb, s.rss_delta_mb)
+		end
+
+		println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╪══════════╪═════════╣")
+		@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% │ %8.1f │ %+7.1f ║\n",
+			name_w - 1, "TOTAL", total_time, _format_bytes(total_bytes), total_gc_pct, peak_rss_mb, total_rss_delta_mb)
+		println("╚", "═"^name_w, "╧══════════╧═════════════╧═══════╧══════════╧═════════╝")
+	else
+		# Back-compat path for callers using the old 3-field NamedTuple shape.
+		println("╔", "═"^name_w, "╤══════════╤═════════════╤═══════╗")
+		@printf("║ %-*s│ %8s │ %11s │ %5s ║\n", name_w - 1, "Phase", "Time (s)", "Allocs", "GC %")
+		println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╣")
+
+		for (i, (name, s)) in enumerate(stats)
+			gc_pct = s.time > 0 ? 100.0 * s.gctime / s.time : 0.0
+			label = "$i. $name"
+			@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% ║\n", name_w - 1, label, s.time, _format_bytes(s.bytes), gc_pct)
+		end
+
+		println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╣")
+		@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% ║\n", name_w - 1, "TOTAL", total_time, _format_bytes(total_bytes), total_gc_pct)
+		println("╚", "═"^name_w, "╧══════════╧═════════════╧═══════╝")
 	end
-
-	println("╠", "═"^name_w, "╪══════════╪═════════════╪═══════╣")
-	@printf("║ %-*s│ %8.2f │ %11s │ %4.1f%% ║\n", name_w - 1, "TOTAL", total_time, _format_bytes(total_bytes), total_gc_pct)
-	println("╚", "═"^name_w, "╧══════════╧═════════════╧═══════╝")
 end
 
 function filter_finite_shooting_point_params(point_indices, param_values_list)
