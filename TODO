@@ -4,101 +4,71 @@
 
 
 
-cache the SI template + symbolic Jacobian per cell (refactor — high impact)
-    -- Symptom: hard cells (crauste at 1em8, biohydrogenation at 1em6,
-       similar low-noise multipoint-heavy cases) rebuild the SI template
-       from scratch hundreds of times per cell. Measured on wallaby 2026-05-17:
-         * biohydrogenation_3_1em6 nopolish: 78 instances of
-           "[DEBUG-SI-VARS] Final variables list (39)" in stderr — i.e.
-           the full symbolic template was instantiated 78 times for the
-           same (39 eq, 39 var) system.
-         * crauste_2_1em4 nopolish: 222 "Computing IO-equations", 220
-           "Getting equation system from SI", 1543 "Floating point value
-           0.5 will be converted to 1//2" warnings from rational
-           conversion. (Stderr is in
-           <PEB>/benchmark_wallaby_2026-05-17/filetree/odepe_v2_nopolish_run/
-           {biohydrogenation_3_1em6,crauste_2_1em4}/stderr.txt for now —
-           they may rotate.)
-         * crauste_3_1em8 nopolish OOM-killed at MaxRSS = 8.36 GB after
-           16h 54min of wall (sacct: 67613_283, ExitCode 0:125). Same
-           cell's polish run finished in 1h54min at 5.5 GB. The wall-time
-           and memory gap is the template-rebuild loop, not the polish step
-           itself.
+cache the per-candidate symbolic Jacobian build (CPU win; memory side shipped)
+    -- 2026-05-19 status: MEMORY side shipped via commit e85a9f4
+       (`solve_with_robust.jl:38` defaults to `:forwarddiff` instead of
+       `:symbolic`). Wallaby's per-iter ~1 MB RSS growth was driven by
+       `Symbolics.jacobian + 2× build_function` in `solve_with_robust:98-103`,
+       not the structural SI template rebuild — that one is already
+       cached once per cell at `optimized_multishot_estimation.jl:1327`.
+       MWE in `repro/memory_audit_2026_05_19/symbolics_jac_mwe.jl`
+       shows 370× reduction in per-iter RSS slope post-fix. The original
+       "intern table holds strong refs" diagnosis was wrong; the leak is
+       in the LLVM JIT code cache from `build_function(expression=Val(false))`.
+       Full diagnosis at `repro/memory_audit_2026_05_19/FINDINGS.md`.
 
-    -- What's actually invariant per cell:
-         1. The SI template's variable list (the `Any[M_0, L_0, ...]`
-            symbol vector). Function of model + measured quantities only.
-         2. The symbolic Jacobian of that template (the
-            "[ROBUST] Building symbolic Jacobian..." step). Same inputs.
-       What varies per shooting point / per multipoint pair / per
-       aggregate-candidate restart:
-         3. The numeric polynomial-instance coefficients (data values
-            plugged into the symbolic template).
-       Only (3) needs to be redone. The current code re-derives (1) and
-       (2) every iteration of the resolve loop.
+    -- What still remains (CPU side):
+       Even with `:forwarddiff` defaults, every `solve_with_robust` call
+       pays the symbolic-build + native-compile cost for the *residual*
+       once (line 60-66) — same as the other `homotopy_continuation.jl`
+       solvers (audit: 1× build_function per call there too, not a leak).
+       For long-multipoint cells (78 candidates on bioh, 220 on crauste)
+       that's still N× the cost of a one-shot build.
 
-    -- Memory mechanism: each symbolic rebuild allocates fresh Term/Sym
-       objects into the global Symbolics.jl intern table; those don't
-       reliably GC because the table holds strong refs. 200+ rebuilds
-       → linear growth in the intern table → eventual OOM on long-wall
-       hard cells. Polish doesn't OOM as readily because LM termination
-       caps the outer loop earlier.
+    -- Proposed refactor (deferred, real ROI):
+         * Build symbolic residual + Jacobian of the *template*
+           (variables-only; data as parameters) once per cell, right
+           after `prepare_si_template_with_structural_fix` returns at
+           `optimized_multishot_estimation.jl:1326`.
+         * Compile to a `(varlist, data_values)` closure via
+           `Symbolics.build_function(expr, vars, data; expression=Val(false))`.
+         * For each candidate: `solve_with_robust` gets the cached
+           compiled functions instead of re-building. Plumb via an
+           optional `cached_funcs::NamedTuple` kwarg.
+         * Cache key: (sorted varlist, sorted equation hashes). Rank
+           trimming changes the active equation set on some cells —
+           fall back to fresh build if the key misses.
 
-    -- Proposed refactor (concrete-ish):
-         * Build SI template + symbolic Jacobian ONCE per cell at the
-           top of `process_raw_solution` / wherever
-           `Building symbolic Jacobian` is currently emitted (search:
-           `[ROBUST] Building symbolic Jacobian` in source).
-         * Cache the result under a key derived from the SI template
-           signature: (sorted variable list, sorted equation polynomial
-           hashes). This handles the rare case where rank trimming changes
-           the active equation set between resolve iterations.
-         * For each shooting point / multipoint pair, substitute the new
-           numeric coefficients into the cached symbolic structure rather
-           than re-deriving. If the cache key changes (e.g. a rank-deficient
-           shooting point produces a different reduced template), fall back
-           to a fresh build for that iteration only.
-         * Guard with explicit `Symbolics.unwrap_freevars()` or
-           `Base.finalize` after the cell completes, to release the intern
-           table at end-of-cell rather than at end-of-Julia-process.
-
-    -- Why this is "reusable in principle":
-       The math is unchanged. Per-iteration we still get the same set of
-       solutions to the same numeric polynomial system; we just don't pay
-       the symbolic-derivation cost again. The "[ROBUST]" annotation in
-       the current path is defensive against the rank-collapse edge case;
-       a cache-with-fallback preserves the defense while paying the symbolic
-       cost once instead of N times.
-
-    -- Expected impact:
-         * Memory: nopolish on crauste/bioh-at-low-noise should drop from
-           5-8 GB peak to ~1-2 GB peak. Fits in 4 GB SLURM allocations,
-           removes the OOM class entirely.
-         * Wall time: nopolish hard cells should drop 5-10× (the
-           symbolic rebuild is dominating wall, not the numeric solve).
-           crauste_3_1em8 might go from 17 hr → 2-3 hr.
-         * Polish: smaller win (polish's outer loop terminates faster
-           already), but probably 1.5-3× faster on hard cells.
+    -- Expected impact (CPU only):
+         * Wall time on long-multipoint cells: per the original TODO
+           estimate, 5-10× faster (e.g. crauste_3_1em8 might drop from
+           17 hr → 2-3 hr). The estimate predates Phase 1; with `:forwarddiff`
+           the per-candidate cost is just `build_function(residual)` —
+           still substantial but smaller than the old 3× build_function.
+           Realistic post-Phase-1 estimate: 2-4× wall on long cells.
+         * Memory: already fixed; expect no further reduction.
+         * Polish: marginal — polish loop terminates faster anyway.
 
     -- Risks / caveats:
-         * The cache key needs to capture more than just var list if
-           equation rank-trimming or aggregate-candidate generation can
-           swap in different polynomial equations. Tests against
-           crauste/biohydrogenation/daisy_mamil4 cells across all 5 noise
-           levels would be the minimum acceptance gate.
-         * If the wallaby polish regressions (see
-           <PEB>/results/wallaby_analysis/INVESTIGATION_polish_regression_root_cause.md)
-           turn out to be OrdinaryDiffEq-7.0.0-related, the same fix may
-           uncover or fix subtle convergence dependencies in the polish
-           pipeline. Worth re-baselining wallaby after this lands.
+         * Cache invalidation across rank-trimming variants. crauste +
+           biohydrogenation + daisy_mamil4 at all 5 noise levels is the
+           minimum acceptance gate.
+         * If a future benchmark shows wall regressions on small cells
+           (cache lookup overhead > rebuild cost on small systems),
+           gate the cache on system size.
 
-    -- Files most likely involved (search and verify):
-         * src/core/parameter_estimation.jl (resolve loops, multipoint
-           iteration, aggregate-candidate generation)
-         * src/core/analysis_utils.jl (template instantiation,
-           synthesize_aggregate_candidates)
-         * Wherever "[ROBUST] Building symbolic Jacobian" is emitted —
-           this is the actual hot path.
+    -- Files involved:
+         * src/core/solve_with_robust.jl (signature: accept cached funcs)
+         * src/core/optimized_multishot_estimation.jl (build + plumb cache;
+           the existing `reusable_system_cache` at line 1276 is for
+           evaluated systems, separate concern)
+         * src/core/parameter_estimation.jl (resolve loops)
+
+    -- Out of scope for the immediate next step:
+         * `Symbolics.substitute` per-candidate in
+           `si_template_integration.jl:207` is a smaller per-call
+           contributor (verified via MWE delta in `mwe_run.txt`).
+           Defer.
 
 investigate / implement variable (column) rescaling for the polynomial system
     -- HC.jl already does Skeel row scaling internally; column scaling is the gap

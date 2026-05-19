@@ -48,7 +48,6 @@ function solve_with_robust(poly_system, varlist;
 	algorithm = get(options, :algorithm, :auto)
 	multistart = get(options, :multistart, !polish_only && isnothing(start_point))
 	timeout = get(options, :timeout, 300.0)
-	debug = true
 
 	# System dimensions
 	m = length(poly_system)

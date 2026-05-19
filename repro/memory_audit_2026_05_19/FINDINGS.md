@@ -119,10 +119,45 @@ template Jacobian cache (the original TODO intent) would optimize CPU,
 not memory. **Disposition: deferred.** Reconsider if benchmark wall-time
 regressions emerge on long-multipoint cells.
 
+## Audit: other `Symbolics.jacobian` / `build_function` call sites
+
+Checked all four `solve_with_*` functions in
+`src/core/homotopy_continuation.jl`:
+
+| Function | Line | `:jacobian` default | `build_function` per call | Verdict |
+|---|---|---|---|---|
+| `solve_with_nlopt` | 44 | `:none` | 1× (residual only) | clean |
+| `solve_with_nlopt_quick` | 168 | `:none` | 1× (residual only) | clean |
+| `solve_with_fast_nlopt` | 289 | n/a (ForwardDiff hardcoded) | 1× (residual only) | clean |
+| `solve_with_robust_fast` | 443 | n/a | 1× (residual only) | clean |
+
+None of them call `Symbolics.jacobian` per invocation. The 3× pattern
+(`jacobian + 2× build_function` for J + grad) was unique to
+`solve_with_robust.jl:98-103` and has been removed by the `:forwarddiff`
+default.
+
+The remaining 1× `build_function` per call for the residual is the
+irreducible cost given the current architecture (each candidate has a
+freshly substituted polynomial system). Per the MWE, this contributes
+only ~2.6 KB/iter to peak RSS — well within noise. Eliminating it
+would require Phase 3 (cache compiled functions per template); see
+`TODO` for the deferred plan.
+
+## Drive-by cleanup (same session)
+
+`solve_with_robust.jl:51` previously had a hardcoded `debug = true`
+that overrode the `debug = get(options, :debug, false)` line above
+it. Removed — callers' `:debug` option is now honored. This also
+silences the `[ROBUST] ...` log spam on wallaby's hard cells (~3 MB
+of console writes per cell that contributed to disk and notification
+overhead without adding actionable signal).
+
 ## Files changed
 
 - `src/core/solve_with_robust.jl:38` — default Jacobian → `:forwarddiff` + explanatory comment
 - `src/core/solve_with_robust.jl:18` — docstring updated
+- `src/core/solve_with_robust.jl:51` — removed `debug = true` hardcode (honor caller's `:debug`)
+- `TODO` — SI-template-cache entry rewritten: memory side marked shipped, CPU side scoped as deferred Phase 3
 - `repro/memory_audit_2026_05_19/symbolics_jac_mwe.jl` — new diagnostic MWE
 - `repro/memory_audit_2026_05_19/mwe_run.txt` — MWE run output
 - `repro/memory_audit_2026_05_19/FINDINGS.md` — this document
