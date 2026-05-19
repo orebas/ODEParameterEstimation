@@ -320,32 +320,46 @@ Base.@kwdef struct EstimationOptions
 	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default S2 = (saturation_count, is_neg1, err)) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps).
 
 	# Ranking strategy for the top-K cluster reps returned in result.csv.
+	#
+	# Threshold-dependent trade-off (wallaby 2026-05-17, n=1147 polish cells):
+	#
+	#   threshold    :err_only   :sat_err   :sat_neg1_err (S2)
+	#   ≤1e-9          36.3%      36.3%      32.2%       err_only wins fine
+	#   ≤1e-4          69.7%      69.6%      60.2%       err_only wins fine
+	#   ≤1e-3          79.3%      78.6%      67.9%       err_only wins fine
+	#   ≤1e-2 (≈1%)    ~83.6%     ~82.5%     ~86.6%      S2 wins coarse
+	#   ≤0.1                                             S2 wins coarse
+	#   ≤0.5  (≈50%)                                     S2 wins coarse
+	#
+	# Coarse thresholds (≤50%, ≤10%, ≤1%) are the paper-reported metrics; S2 wins
+	# those by ~3-5pp. Fine thresholds (≤1e-4, ≤1e-3) favor `:err_only` by
+	# ~10pp. Default kept at S2 for paper-metric alignment; flip to `:err_only`
+	# if downstream consumers need rank-1 precision below 1e-3.
+	# See repro/polish_regression_2026_05_19/FINDINGS.md for the full investigation.
+	#
 	# Options:
-	#   :err_only         — DEFAULT (since 2026-05-19). Sort by data residual `err`
-	#                       ascending. The 282fe1a-era S2 default introduced a
-	#                       ranking regression on the wallaby benchmark: under S2's
-	#                       (saturation_count, is_neg1, err) sort, the is_neg1
-	#                       secondary key systematically demoted truth-near rows
-	#                       with provenance `-1` (synthesized aggregates, multipoint,
-	#                       rescues) below worse HC-tagged rows. Wallaby polish
-	#                       comparison: `:err_only` beats `:sat_neg1_err` by
-	#                       -9.5pp at ≤1e-4, -11.4pp at ≤1e-3. See
-	#                       repro/polish_regression_2026_05_19/FINDINGS.md.
+	#   :sat_neg1_err     — DEFAULT. (saturation_count, is_neg1, err). Rows with
+	#                       parameters pegged at bounds get demoted first, then
+	#                       untagged provenance (`polish_source_hc_idx == -1`),
+	#                       then by data residual. Wins paper-relevant coarse
+	#                       thresholds. Requires user-provided opt_lb/opt_ub to
+	#                       fully activate; silently degrades to (is_neg1, err)
+	#                       when bounds are missing.
+	#   :err_only         — Sort by data residual `err` ascending. Wins fine
+	#                       (≤1e-4, ≤1e-3) thresholds — the is_neg1 secondary in
+	#                       S2 demotes truth-near psh=-1 rows below worse
+	#                       HC-tagged rows in the 282fe1a candidate distribution.
+	#                       Use when rank-1 precision matters.
 	#   :sat_err          — (saturation_count, err). Saturation-demotion without
 	#                       the is_neg1 secondary. Essentially matches `:err_only`
-	#                       on wallaby (≤1e-9: 36.3% vs 36.3%; ≤1e-4: 69.6% vs 69.7%).
-	#                       Useful when bound-saturated rows are expected.
-	#   :sat_neg1_err     — (saturation_count, is_neg1, err). Was the 282fe1a default
-	#                       (2026-05-15→2026-05-19). 275-cell offline re-sort of
-	#                       14-era data showed rank-1 oracle ≤1% rose 71.6% → 77.8%
-	#                       under S2, but that gain didn't survive the 282fe1a
-	#                       candidate-distribution shift — the new pipeline produces
-	#                       more psh=-1 truth-finder rows that S2 actively demotes.
+	#                       on wallaby (≤1e-9: 36.3%, ≤1e-4: 69.6%). Useful when
+	#                       bound-saturated rows are expected but `is_neg1` is
+	#                       not a reliable demotion signal.
 	#   :lognorm_err      — (Σ log²(p), err). Bound-free experimental. Falsified
 	#                       in probe4b for general use (truth values genuinely far
 	#                       from 1 get penalized).
 	#   :lognorm_neg1_err — (Σ log²(p), is_neg1, err). Same is_neg1 caveat as S2.
-	rank_strategy::Symbol = :err_only
+	rank_strategy::Symbol = :sat_neg1_err
 
 	# Output-stage clustering method. `:identifiable_subspace` (default) does
 	# two-stage clustering: rough basin separation at a coarse threshold, then

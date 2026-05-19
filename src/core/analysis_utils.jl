@@ -931,7 +931,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 			sort(cluster_reps, by = lognorm_sort_key)
 		elseif opts.rank_strategy === :lognorm_neg1_err
 			sort(cluster_reps, by = lognorm_neg1_sort_key)
-		else  # :err_only (default — cluster_reps already err-sorted upstream)
+		else  # :err_only — cluster_reps already err-sorted upstream
 			cluster_reps
 		end
 		if opts.branch_top_k > 0 && length(sorted_reps) > opts.branch_top_k
