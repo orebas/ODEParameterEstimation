@@ -15,7 +15,7 @@ This is a plug-in replacement for `solve_with_nlopt` with improved robustness.
 - `polish_only=false`: If true, only does quick local refinement
 - `options=Dict()`: Additional options including:
   - `:debug => true/false`: Print debug information
-  - `:jacobian => :symbolic/:forwarddiff/:finitediff/:none`: Jacobian method
+  - `:jacobian => :forwarddiff/:symbolic/:finitediff/:none`: Jacobian method (default :forwarddiff)
   - `:abstol => 1e-8`: Absolute tolerance
   - `:reltol => 1e-6`: Relative tolerance
   - `:maxiters => 1000`: Maximum iterations
@@ -35,7 +35,13 @@ function solve_with_robust(poly_system, varlist;
 
 	# Extract options
 	debug = get(options, :debug, false)
-	jac_mode = get(options, :jacobian, :symbolic)  # Default to symbolic!
+	# Default to :forwarddiff: avoids per-call Symbolics.jacobian + 2x build_function
+	# (each build_function leaves a fresh RuntimeGeneratedFunction in the JIT code
+	# cache that never reclaims, so the :symbolic path grew ~1 MB/iter peak RSS
+	# in the candidate loop -- see repro/memory_audit_2026_05_19/mwe_run.txt).
+	# ForwardDiff propagates duals through the already-compiled native residual at
+	# lines ~60-66, returns the exact Jacobian, and grows ~0 MB/iter.
+	jac_mode = get(options, :jacobian, :forwarddiff)
 	abstol = get(options, :abstol, polish_only ? 1e-6 : 1e-8)
 	reltol = get(options, :reltol, polish_only ? 1e-4 : 1e-6)
 	maxiters = get(options, :maxiters, polish_only ? 100 : 1000)

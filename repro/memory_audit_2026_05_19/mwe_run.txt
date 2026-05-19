@@ -1,0 +1,27 @@
+[ Info: Symbolics path comparison MWE: 20 vars, 12 data, 20 eqs, 200 iters
+[ Info: === Mode: symbolic  (200 iters, report every 25) ===
+[symbolic    ] iter=   0  summarysize(Symbolics)=  0.50 MB  gc_live= 121.45 MB  maxrss=  859.92 MB
+[symbolic    ] iter=  25  summarysize(Symbolics)=  0.51 MB  gc_live=  96.35 MB  maxrss=  895.44 MB
+[symbolic    ] iter=  50  summarysize(Symbolics)=  0.53 MB  gc_live= 105.45 MB  maxrss=  895.44 MB
+[symbolic    ] iter=  75  summarysize(Symbolics)=  0.53 MB  gc_live= 116.01 MB  maxrss=  979.83 MB
+[symbolic    ] iter= 100  summarysize(Symbolics)=  0.59 MB  gc_live= 125.68 MB  maxrss= 1015.73 MB
+[symbolic    ] iter= 125  summarysize(Symbolics)=  0.59 MB  gc_live= 134.61 MB  maxrss= 1025.28 MB
+[symbolic    ] iter= 150  summarysize(Symbolics)=  0.60 MB  gc_live= 143.52 MB  maxrss= 1034.69 MB
+[symbolic    ] iter= 175  summarysize(Symbolics)=  0.60 MB  gc_live= 152.43 MB  maxrss= 1043.85 MB
+[symbolic    ] iter= 200  summarysize(Symbolics)=  0.61 MB  gc_live= 161.33 MB  maxrss= 1053.55 MB
+[ Info: [symbolic] post-warmup -> final: Δmaxrss=+193.77 MB (0.97 MB/iter), Δgc_live=+23.84 MB (0.12 MB/iter)
+[ Info: === Mode: forwarddiff  (200 iters, report every 25) ===
+[forwarddiff ] iter=   0  summarysize(Symbolics)=  0.61 MB  gc_live= 161.46 MB  maxrss= 1053.81 MB
+[forwarddiff ] iter=  25  summarysize(Symbolics)=  0.61 MB  gc_live= 164.56 MB  maxrss= 1053.81 MB
+[forwarddiff ] iter=  50  summarysize(Symbolics)=  0.61 MB  gc_live= 167.72 MB  maxrss= 1053.95 MB
+[forwarddiff ] iter=  75  summarysize(Symbolics)=  0.61 MB  gc_live= 170.82 MB  maxrss= 1054.08 MB
+[forwarddiff ] iter= 100  summarysize(Symbolics)=  0.61 MB  gc_live= 173.93 MB  maxrss= 1054.08 MB
+[forwarddiff ] iter= 125  summarysize(Symbolics)=  0.61 MB  gc_live= 173.27 MB  maxrss= 1054.21 MB
+[forwarddiff ] iter= 150  summarysize(Symbolics)=  0.62 MB  gc_live= 153.52 MB  maxrss= 1054.21 MB
+[forwarddiff ] iter= 175  summarysize(Symbolics)=  0.62 MB  gc_live= 156.61 MB  maxrss= 1054.34 MB
+[forwarddiff ] iter= 200  summarysize(Symbolics)=  0.62 MB  gc_live= 159.70 MB  maxrss= 1054.34 MB
+[ Info: [forwarddiff] post-warmup -> final: Δmaxrss=+0.52 MB (0.00 MB/iter), Δgc_live=-5.27 MB (-0.03 MB/iter)
+[ Info: ===== Summary =====
+[ Info:   :symbolic     slope: 946.12 KB/iter rss, 116.40 KB/iter gc_live
+[ Info:   :forwarddiff  slope: 2.56 KB/iter rss, -25.73 KB/iter gc_live
+[ Info: VERDICT: switching to :forwarddiff should reduce per-iter memory growth by >4×.
