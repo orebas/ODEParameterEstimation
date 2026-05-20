@@ -934,8 +934,25 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		else  # :err_only — cluster_reps already err-sorted upstream
 			cluster_reps
 		end
-		if opts.branch_top_k > 0 && length(sorted_reps) > opts.branch_top_k
-			sorted_reps[1:opts.branch_top_k]
+		# Truncation policy:
+		#   - `opts.algebraic_multiplicity = nothing` (default) → keep up to
+		#     `branch_top_k` rows. Legacy K=20 behavior.
+		#   - `opts.algebraic_multiplicity = M` (positive Int) → keep
+		#     `min(M, branch_top_k, length(sorted_reps))` rows. M is the
+		#     algebraic multiplicity of the problem; output should contain
+		#     exactly that many algebraic branches. `branch_top_k` remains
+		#     a safety cap in case M is set wrong.
+		# See PEB `results/wallaby_analysis/multiplicity/M_INFERENCE_INVESTIGATION.md`
+		# for the inference pipeline and the upstream-patch path.
+		M_eff = if opts.algebraic_multiplicity === nothing
+			opts.branch_top_k
+		elseif opts.branch_top_k > 0
+			min(opts.algebraic_multiplicity, opts.branch_top_k)
+		else
+			opts.algebraic_multiplicity
+		end
+		if M_eff > 0 && length(sorted_reps) > M_eff
+			sorted_reps[1:M_eff]
 		else
 			sorted_reps
 		end

@@ -317,7 +317,27 @@ Base.@kwdef struct EstimationOptions
 	branch_err_factor::Float64 = 100.0
 	branch_resid_factor::Float64 = 100.0
 	branch_min_size::Int = 1
-	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default S2 = (saturation_count, is_neg1, err)) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps).
+	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default S2 = (saturation_count, is_neg1, err)) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps). **Acts as a safety cap** when `algebraic_multiplicity` is set: actual output is `min(algebraic_multiplicity, branch_top_k, length(cluster_reps))`.
+
+	# Algebraic multiplicity of the parameter-estimation problem — the number of
+	# distinct (params, IC) tuples in the identifiable subspace that produce
+	# identical observations. When set, the output is truncated to this many rows
+	# (capped above by `branch_top_k` as a safety net). When `nothing`, output is
+	# the full top-K candidate list (length up to `branch_top_k`).
+	#
+	# Computing M structurally requires running SI/HC machinery (see the open
+	# investigation at PEB `results/wallaby_analysis/multiplicity/M_INFERENCE_INVESTIGATION.md`).
+	# Today this field is set by the caller — typically PEB's per-cell template
+	# injects the value from `config/systems.json[*].algebraic_multiplicity`,
+	# a hand-curated catalog whose values were derived via HC root-counting per
+	# `repro/multiplicity_complete_2026_05_19/MULTIPLICITY_COMPLETE.md`.
+	#
+	# A future patch will add an auto-compute fallback inside ODEPE (SI gate
+	# `n_locally == 0 ⇒ M = 1`, then HC root count for the M>1 case via a
+	# small upstream patch to SIAN-Julia or StructuralIdentifiability.jl).
+	#
+	# Type: positive Int (the multiplicity), or `nothing` (use full top-K).
+	algebraic_multiplicity::Union{Int, Nothing} = nothing
 
 	# Ranking strategy for the top-K cluster reps returned in result.csv.
 	#
@@ -1247,6 +1267,10 @@ function validate_options(opts::EstimationOptions)
 	end
 	if !(opts.cluster_method in (:identifiable_subspace, :bit_identical))
 		@error "cluster_method must be :identifiable_subspace or :bit_identical (got $(opts.cluster_method))"
+		valid = false
+	end
+	if !isnothing(opts.algebraic_multiplicity) && opts.algebraic_multiplicity <= 0
+		@error "algebraic_multiplicity must be a positive integer or `nothing` (got $(opts.algebraic_multiplicity))"
 		valid = false
 	end
 	if opts.rough_cluster_eps <= 0
