@@ -1,0 +1,45 @@
+
+[2726471] signal 11 (1): Segmentation fault
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/repro/multiplicity_complete_2026_05_19/groebner_bioh_repro.jl:47
+_fmpq_mul at /workspace/srcdir/flint-3.4.0/src/fmpq/mul.c:98
+fmpq_mul_fmpz at /workspace/srcdir/flint-3.4.0/src/fmpq/mul.c:183
+coeff! at /home/orebas/.julia/packages/Nemo/MT5uH/src/flint/fmpq_mpoly.jl:117
+coeff at /home/orebas/.julia/packages/Nemo/MT5uH/src/flint/fmpq_mpoly.jl:111 [inlined]
+iterate at /home/orebas/.julia/packages/AbstractAlgebra/u52o2/src/generic/MPoly.jl:851 [inlined]
+iterate at /home/orebas/.julia/packages/AbstractAlgebra/u52o2/src/generic/MPoly.jl:849 [inlined]
+copyto! at ./abstractarray.jl:938
+_collect at ./array.jl:734 [inlined]
+collect at ./array.jl:728 [inlined]
+io_extract_coeffs_ir_qq at /home/orebas/.julia/packages/Groebner/Q7HGS/src/input_output/AbstractAlgebra.jl:135
+io_extract_coeffs_ir at /home/orebas/.julia/packages/Groebner/Q7HGS/src/input_output/AbstractAlgebra.jl:102
+unknown function (ip: 0x79f8a26b65d7) at (unknown file)
+io_convert_polynomials_to_ir at /home/orebas/.julia/packages/Groebner/Q7HGS/src/input_output/AbstractAlgebra.jl:16
+groebner0 at /home/orebas/.julia/packages/Groebner/Q7HGS/src/groebner/groebner.jl:9
+#groebner#195 at /home/orebas/.julia/packages/Groebner/Q7HGS/src/interface.jl:109 [inlined]
+groebner at /home/orebas/.julia/packages/Groebner/Q7HGS/src/interface.jl:107
+unknown function (ip: 0x79f8a26b54c2) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+do_call at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:123
+eval_value at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:243
+eval_body at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:581
+eval_body at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:558
+jl_interpret_toplevel_thunk at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:898
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1035
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:975
+ijl_toplevel_eval at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1047
+ijl_toplevel_eval_in at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1092
+eval at ./boot.jl:489
+include_string at ./loading.jl:2874
+_include at ./loading.jl:2934
+include at ./Base.jl:306
+exec_options at ./client.jl:317
+_start at ./client.jl:550
+jfptr__start_63319.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+true_main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:971
+jl_repl_entrypoint at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:1139
+main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/cli/loader_exe.c:58
+unknown function (ip: 0x79f90802a1c9) at /lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+Allocations: 2768623 (Pool: 2768512; Big: 111); GC: 4

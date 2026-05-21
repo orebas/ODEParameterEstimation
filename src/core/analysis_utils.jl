@@ -977,15 +977,19 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		rep.all_unidentifiable = system_unid
 	end
 
+	# NamedTuple — preserves positional destructure for existing callers
+	# (`a, b, ... = analysis` still works) AND exposes algebraic_multiplicity
+	# as a named field for new users (`analysis.algebraic_multiplicity`).
 	return (
-		returned_results,
-		besterror,
-		best_min_error,
-		best_mean_error,
-		best_median_error,
-		best_max_error,
-		best_approximation_error,
-		best_rms_error,
+		returned_results = returned_results,
+		besterror = besterror,
+		best_min_error = best_min_error,
+		best_mean_error = best_mean_error,
+		best_median_error = best_median_error,
+		best_max_error = best_max_error,
+		best_approximation_error = best_approximation_error,
+		best_rms_error = best_rms_error,
+		algebraic_multiplicity = opts.algebraic_multiplicity,
 	)
 end
 
@@ -1039,6 +1043,20 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		println("All unidentifiable variables: ", all_unidentifiable)
 		println("Unidentifiable variables substitution dictionary: ", unident_dict)
 		println("Trivially solvable variables: ", trivial_dict)
+	end
+
+	# Auto-populate algebraic_multiplicity if the caller left it unset and the
+	# SI template build produced a value (see optimized_multishot_estimation.jl
+	# `_LAST_ESTIMATION_AUTO_M`). When set explicitly by the caller, we
+	# never override.
+	if isnothing(opts.algebraic_multiplicity) && !isnothing(_LAST_ESTIMATION_AUTO_M[])
+		opts = EstimationOptions(;
+			(name => getfield(opts, name) for name in fieldnames(EstimationOptions) if name !== :algebraic_multiplicity)...,
+			algebraic_multiplicity = _LAST_ESTIMATION_AUTO_M[],
+		)
+		if !opts.nooutput
+			println("Auto-detected algebraic multiplicity M = $(opts.algebraic_multiplicity); result.csv truncated to min(M, branch_top_k) rows.")
+		end
 	end
 
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput, opts = opts)

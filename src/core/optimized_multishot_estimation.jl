@@ -11,6 +11,12 @@
 const _TIMING_CAPTURE_ENABLED = Ref(false)
 const _LAST_ESTIMATION_TIMING = Ref{Union{Nothing, TimingBreakdown}}(nothing)
 const _LAST_ESTIMATION_REUSE = Ref{Any}(nothing)
+# Auto-computed algebraic multiplicity from the most recent SI template build.
+# Set by `prepare_si_template_with_structural_fix` (via si_equation_builder's
+# `algebraic_multiplicity` Groebner step). Consumed by
+# `analyze_parameter_estimation_problem` to override `opts.algebraic_multiplicity`
+# when the user left it unset.
+const _LAST_ESTIMATION_AUTO_M = Ref{Union{Nothing, Int}}(nothing)
 
 function _accumulate_timing!(dict::OrderedDict{Symbol, Float64}, key::Symbol, seconds::Real)
 	dict[key] = get(dict, key, 0.0) + Float64(seconds)
@@ -1278,6 +1284,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 	# Check input validity
 	_LAST_ESTIMATION_TIMING[] = nothing
 	_LAST_ESTIMATION_REUSE[] = nothing
+	_LAST_ESTIMATION_AUTO_M[] = nothing
 	if isnothing(PEP.data_sample)
 		error("No data sample provided in the ParameterEstimationProblem")
 	end
@@ -1381,6 +1388,16 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural fixing"
 		template_equations = si_template.equations
 		(si_template, template_equations)
+		end
+
+		# Auto-populate algebraic multiplicity from the SI template's Groebner step
+		# (see si_equation_builder.jl). `analyze_parameter_estimation_problem` will
+		# read this and override `opts.algebraic_multiplicity` if the caller left
+		# it unset. Falls back to `nothing` on any internal failure.
+		if hasproperty(si_template, :rank_trimming_metadata) &&
+		   hasproperty(si_template.rank_trimming_metadata, :algebraic_multiplicity) &&
+		   !isnothing(si_template.rank_trimming_metadata.algebraic_multiplicity)
+			_LAST_ESTIMATION_AUTO_M[] = si_template.rank_trimming_metadata.algebraic_multiplicity
 		end
 
 		good_udict = OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in si_template.structural_fix_set)

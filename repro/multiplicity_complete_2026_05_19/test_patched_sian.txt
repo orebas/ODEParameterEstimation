@@ -1,0 +1,93 @@
+Precompiling packages...
+   9395.2 ms  ✓ SIAN
+  1 dependency successfully precompiled in 10 seconds. 251 already precompiled.
+[ Info: Summary of the model:
+[ Info: State variables: [w, r]
+[ Info: Parameter: [k3, k2, k1]
+[ Info: Inputs: []
+[ Info: Outputs: [y1]
+[ Info: Solving the problem
+[ Info: Constructing the maximal system
+[ Info: Truncating
+[ Info: Assessing local identifiability
+[ Info: Locally identifiable parameters: [k3, k2, k1, r, w]
+[ Info: Not identifiable parameters:     []
+[ Info: Randomizing
+[ Info: GB computation
+[ Info: Remainder computation
+[ Info: === Summary ===
+[ Info: Globally identifiable parameters:                 [k1, r, w, k3, k2]
+[ Info: Locally but not globally identifiable parameters: []
+[ Info: Not identifiable parameters:                      []
+[ Info: ===============
+[ Info: Summary of the model:
+[ Info: State variables: [x1, x4, x2, x3]
+[ Info: Parameter: [k01, k12, k13, k14, k21, k31, k41]
+[ Info: Inputs: []
+[ Info: Outputs: [y1, y2, y3]
+[ Info: Solving the problem
+[ Info: Constructing the maximal system
+[ Info: Truncating
+[ Info: Assessing local identifiability
+[ Info: Locally identifiable parameters: [k01, k12, k13, k14, k21, k31, k41, x2, x1, x4, x3]
+[ Info: Not identifiable parameters:     []
+[ Info: Randomizing
+[ Info: GB computation
+[ Info: Remainder computation
+[ Info: === Summary ===
+[ Info: Globally identifiable parameters:                 [k12, k21, x2, x1, k01]
+[ Info: Locally but not globally identifiable parameters: [x3, k13, k41, k14, x4, k31]
+[ Info: Not identifiable parameters:                      []
+[ Info: ===============
+[ Info: Summary of the model:
+[ Info: State variables: [x5, x7, x4, x6]
+[ Info: Parameter: [k7, k8, k5, k6, k10, k9]
+[ Info: Inputs: []
+[ Info: Outputs: [y1, y2]
+[ Info: Solving the problem
+[ Info: Constructing the maximal system
+[ Info: Truncating
+[ Info: Assessing local identifiability
+[ Info: Locally identifiable parameters: [k7, k8, k5, k6, k10, k9, x5, x6, x4]
+[ Info: Not identifiable parameters:     [x7]
+[ Info: Randomizing
+[ Info: GB computation
+[ Info: Dumped GB input (30 polys, 27 vars) to /home/orebas/.julia/dev/ODEParameterEstimation/repro/multiplicity_complete_2026_05_19/bioh_gb_input.jl
+============================================================
+SIAN version: 1.7.1
+Loaded from:  /home/orebas/.julia/dev/SIAN/src/SIAN.jl
+============================================================
+
+### Test 1: lotka_volterra (expected M=1) ###
+  Result keys: ["algebraic_multiplicity", "globally", "locally_not_globally", "nonidentifiable"]
+  algebraic_multiplicity = 1
+
+### Test 2: daisy_mamil4 (expected M=2) ###
+  Result keys: ["algebraic_multiplicity", "globally", "locally_not_globally", "nonidentifiable"]
+  algebraic_multiplicity = 2
+
+### Test 3: biohydrogenation (expected M=2 IF Groebner survives) ###
+
+  *** CRASH on biohydrogenation ***
+  Error type: TaskFailedException
+TaskFailedException
+
+    nested task error: BoundsError: attempt to access 4-element Vector{Int32} at index [5]
+    Stacktrace:
+     [1] throw_boundserror(A::Vector{Int32}, I::Tuple{Int64})
+       @ Base ./essentials.jl:15
+     [2] getindex
+       @ ./essentials.jl:919 [inlined]
+     [3] #_process_chunk##0
+       @ ~/.julia/packages/Groebner/Q7HGS/src/groebner/groebner.jl:210 [inlined]
+     [4] ntuple
+       @ ./ntuple.jl:19 [inlined]
+     [5] _process_chunk(chunk::Vector{Int64}, ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, basis_zz::Groebner.Basis{BigInt}, composite::Int64, trace::Groebner.Trace{Groebner.CompositeNumber{4, Int32}, Groebner.CompositeNumber{4, Int32}, Groebner.PackedTuple4{UInt64, UInt8}, Groebner.DegRevLex{true, Union{}}, Groebner.DegRevLex{true, Union{}}}, primes::Vector{Int32}, params::Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}}, gb_coeffs::Vector{Tuple{Int32, Vector{Vector{Int32}}}})
+       @ Groebner ~/.julia/packages/Groebner/Q7HGS/src/groebner/groebner.jl:210
+     [6] (::Groebner.var"#_groebner_learn_and_apply##8#_groebner_learn_and_apply##9"{Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, Vector{Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}}}, Vector{Vector{Tuple{Int32, Vector{Vector{Int32}}}}}, Vector{Groebner.Trace{Groebner.CompositeNumber{4, Int32}, Groebner.CompositeNumber{4, Int32}, Groebner.PackedTuple4{UInt64, UInt8}, Groebner.DegRevLex{true, Union{}}, Groebner.DegRevLex{true, Union{}}}}, Int64, Groebner.Basis{BigInt}, Vector{Vector{Int32}}, Vector{Int64}, Int64})()
+       @ Groebner ~/.julia/packages/Groebner/Q7HGS/src/groebner/groebner.jl:286
+
+  → Capture for upstream Groebner.jl bug report.
+
+============================================================
+DONE

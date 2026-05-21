@@ -1,5 +1,12 @@
 # ODEParameterEstimation.jl Guidelines
 
+## Active integration notes
+
+- [`MULTIPLICITY_INTEGRATION.md`](MULTIPLICITY_INTEGRATION.md) — algebraic
+  multiplicity (M) auto-detection: what's in production, the Groebner.jl
+  PR #218 dependency, expected behavior, and what PEB needs to change. Read
+  before working on result.csv truncation or multiplicity.
+
 ## Open investigations (read before starting reconditioning / numerical-stability work)
 
 - **Variable (column) scaling of the polynomial system.** Diagnostics on

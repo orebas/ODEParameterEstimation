@@ -844,6 +844,7 @@ function get_si_equation_system(
 		dropped_equation_indices = get(result, "dropped_equation_indices", Int[]),
 		original_equation_count = get(result, "original_equation_count", length(poly_system)),
 		full_equations = full_template_equations,
+		algebraic_multiplicity = get(result, "algebraic_multiplicity", nothing),
 	)
 
 	# Return identifiable_funcs as well
@@ -997,6 +998,47 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	x_theta_vars_reorder = vcat(theta_l,
 		reverse([x for x in x_theta_vars if !(x in theta_l)]))
 
+	# Compute algebraic multiplicity M = dim of the zero-dim ideal
+	# <Et_hat, z_aux*Q_hat - 1> in the (state, parameter) ring with Rabinowitsch
+	# saturation. Reuses `Et_eval_base` (= Et_hat), `Q`, `u_hat`, `gens_Rjet`,
+	# `mu`, `not_int_cond_params`, `all_indets`, `n`, `m`, `u`, `s` — all in
+	# scope. This is the same Groebner step SIAN-Julia computes internally at
+	# SIAN.jl:267 (and which our local SIAN patch exposes); replicating it here
+	# avoids a second SIAN.identifiability_ode call.
+	#
+	# Skipped when theta_l is empty (no locally identifiable variables → M
+	# ill-defined; system is fully non-identifiable). NO fallback on Groebner
+	# failure — we want to surface those as errors, not silently degrade. If a
+	# specific system runs into a Groebner issue, the right fix is upstream
+	# (or a more careful sample-bound D2) rather than a try/catch here.
+	# Timing is logged unconditionally so we can spot pathological cases.
+	algebraic_multiplicity = if isempty(theta_l)
+		@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (theta_l empty → fully non-identifiable)"
+		nothing
+	else
+		_M_setup_t = @elapsed begin
+			Et_x_vars_gb = Set{Nemo.QQMPolyRingElem}()
+			for poly in Et_eval_base
+				union!(Et_x_vars_gb, Set(Nemo.vars(poly)))
+			end
+			Et_x_vars_gb = setdiff(Et_x_vars_gb, not_int_cond_params)
+			z_aux_var = gens_Rjet[end - length(mu)]
+			Q_hat_eval = isempty(u_hat[1]) ? Q : Nemo.evaluate(Q, u_hat[1], u_hat[2])
+			vrs_sorted_gb = vcat(
+				sort(collect(Et_x_vars_gb), lt = (x, y) -> SIAN.compare_diff_var(x, y, all_indets, n + m + u, s)),
+				z_aux_var,
+				sort(not_int_cond_params, rev = true),
+			)
+			Rjet_gb, _ = Nemo.polynomial_ring(Nemo.QQ, [string(v) for v in vrs_sorted_gb], internal_ordering = :degrevlex)
+			Et_hat_gb = [SIAN.parent_ring_change(e, Rjet_gb) for e in Et_eval_base]
+			gb_input = vcat(Et_hat_gb, SIAN.parent_ring_change(z_aux_var * Q_hat_eval, Rjet_gb) - 1)
+		end
+		_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
+		_M_qb_t = @elapsed M_value = length(Groebner.quotient_basis(gb))
+		@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value  (setup $(round(_M_setup_t, digits=2))s, Groebner $(round(_M_gb_t, digits=2))s, quotient_basis $(round(_M_qb_t, digits=2))s, ring: $(length(vrs_sorted_gb)) vars × $(length(gb_input)) polys)"
+		M_value
+	end
+
 	if infolevel > 1
 		@info "[SI-TEMPLATE] Variables before algebraic independence reduction" equations = length(Et_eval_base) reordered_ring_variables = length(x_theta_vars_reorder) locally_identifiable_count = length(theta_l)
 		@info "[SI-TEMPLATE] Locally identifiable ring variables from SIAN Jacobian pruning" variables = theta_l
@@ -1089,6 +1131,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		"selected_equation_indices" => collect(Et_ids),
 		"dropped_equation_indices" => collect(dropped_ids),
 		"original_equation_count" => length(Et),
+		"algebraic_multiplicity" => algebraic_multiplicity,
 	)
 end
 

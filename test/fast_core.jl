@@ -1792,8 +1792,11 @@ using OrderedCollections
         ]
 
         analysis = ODEParameterEstimation.analyze_estimation_result(pep, unscored_results; nooutput = true)
-        @test analysis[1] == Any[]
-        @test all(isinf, analysis[2:end])
+        @test analysis.returned_results == Any[]
+        @test all(isinf, (analysis.besterror, analysis.best_min_error, analysis.best_mean_error,
+                          analysis.best_median_error, analysis.best_max_error,
+                          analysis.best_approximation_error, analysis.best_rms_error))
+        @test analysis.algebraic_multiplicity === nothing  # opts default = nothing → unchanged
 
         uq_result = ODEParameterEstimation._compute_uq_result(
             pep,
