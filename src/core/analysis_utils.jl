@@ -316,6 +316,46 @@ function s2_sort_key(candidate, opt_lb, opt_ub)
 end
 
 """
+	select_branch_diverse_reps(sorted_reps, M_eff, opts) → Vector
+
+Select up to `M_eff` representatives from an already-ranked candidate list.
+When `opts.algebraic_multiplicity > 1`, prefer rows that are separated by
+`opts.branch_diversity_eps` in relative solution distance. If there are too
+few separated rows, fill remaining slots from the original ranking.
+
+This is a best-effort output contract helper: it avoids returning obvious
+near-duplicates when alternatives are already present, but it cannot guarantee
+that the alternatives are the true algebraic branches.
+"""
+function select_branch_diverse_reps(sorted_reps, M_eff::Int, opts::EstimationOptions)
+	if M_eff <= 0 || length(sorted_reps) <= M_eff
+		return sorted_reps
+	end
+	if !opts.branch_diversity_selection ||
+	   opts.algebraic_multiplicity === nothing ||
+	   opts.algebraic_multiplicity <= 1 ||
+	   M_eff <= 1 ||
+	   opts.branch_diversity_eps <= 0
+		return sorted_reps[1:M_eff]
+	end
+
+	selected = Any[]
+	for candidate in sorted_reps
+		if all(solution_distance(candidate, existing) >= opts.branch_diversity_eps for existing in selected)
+			push!(selected, candidate)
+			length(selected) >= M_eff && return selected
+		end
+	end
+
+	for candidate in sorted_reps
+		any(existing -> existing === candidate, selected) && continue
+		push!(selected, candidate)
+		length(selected) >= M_eff && return selected
+	end
+	return selected
+end
+
+"""
 	lognorm_score(candidate) → Float64
 
 Sum of squared log10-magnitudes of the candidate's positive parameters:
@@ -952,7 +992,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 			opts.algebraic_multiplicity
 		end
 		if M_eff > 0 && length(sorted_reps) > M_eff
-			sorted_reps[1:M_eff]
+			select_branch_diverse_reps(sorted_reps, M_eff, opts)
 		else
 			sorted_reps
 		end

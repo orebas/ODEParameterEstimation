@@ -77,6 +77,15 @@ investigate / implement variable (column) rescaling for the polynomial system
     -- numbat-empirical case + concrete test cells (brusselator_6_0, etc.):
        <PEB>/results/numbat_analysis/three_way/INVESTIGATION_column_scaling.md
 
+research: rebuild UQ around derivative-estimator covariance rather than GP posterior covariance
+    -- current UQ in src/core/uncertainty_quantification.jl is an experimental sidecar
+    -- likely wrong object for coverage: SE GP posterior derivative covariance is
+       not the sampling covariance of the derivative estimator used by ODEPE
+    -- preferred target: z_hat = W y, Cov(z_hat) = W Sigma_y W', then
+       Cov(theta_hat) approx S Cov(z_hat) S' with S = -F_theta^{-1} F_z
+    -- validate by repeated-noise coverage before using in papers/user docs
+    -- detailed research note: docs/2026-05-24_uq_research_todo.md
+
 numbat 2026-05 investigation — three-doc package
     -- <PEB>/results/numbat_analysis/three_way/HANDOFF.md
        findings: polish concurrency bug, _detect_branches over-clustering,

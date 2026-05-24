@@ -1817,6 +1817,68 @@ using OrderedCollections
         @test_throws ArgumentError ODEParameterEstimation.solve_parameter_estimation(pep, (;))
     end
 
+    @testset "Branch-diverse M selection" begin
+        @independent_variables tt
+        @parameters a
+        @variables x(tt)
+
+        function branch_result(a_value, x_value, err)
+            return ODEParameterEstimation.ParameterEstimationResult(
+                OrderedDict(a => Float64(a_value)),
+                OrderedDict(x => Float64(x_value)),
+                0.0,
+                Float64(err),
+                nothing,
+                2,
+                nothing,
+                OrderedDict{Num, Float64}(),
+                Set{Num}(),
+                nothing,
+            )
+        end
+
+        best = branch_result(1.0, 1.0, 1.0)
+        near_duplicate = branch_result(1.001, 1.001, 1.1)
+        distinct = branch_result(2.0, 2.0, 10.0)
+
+        opts = EstimationOptions(
+            algebraic_multiplicity = 2,
+            branch_diversity_selection = true,
+            branch_diversity_eps = 0.01,
+        )
+        selected = ODEParameterEstimation.select_branch_diverse_reps(
+            [best, near_duplicate, distinct],
+            2,
+            opts,
+        )
+        @test selected[1] === best
+        @test selected[2] === distinct
+
+        fallback = ODEParameterEstimation.select_branch_diverse_reps(
+            [best, near_duplicate],
+            2,
+            opts,
+        )
+        @test fallback[1] === best
+        @test fallback[2] === near_duplicate
+
+        disabled = ODEParameterEstimation.select_branch_diverse_reps(
+            [best, near_duplicate, distinct],
+            2,
+            EstimationOptions(algebraic_multiplicity = 2, branch_diversity_selection = false),
+        )
+        @test disabled[1] === best
+        @test disabled[2] === near_duplicate
+
+        multiplicity_one = ODEParameterEstimation.select_branch_diverse_reps(
+            [best, near_duplicate, distinct],
+            1,
+            EstimationOptions(algebraic_multiplicity = 1),
+        )
+        @test length(multiplicity_one) == 1
+        @test multiplicity_one[1] === best
+    end
+
     @testset "Multipoint Diagnostic Rendering" begin
         @test ODEParameterEstimation._multipoint_var_order("y1_4_pt2") == 4
         @test ODEParameterEstimation._multipoint_var_order("_obs_trfn_0_5_sin_3_pt2") == 3

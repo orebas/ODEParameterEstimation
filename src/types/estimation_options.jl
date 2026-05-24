@@ -398,6 +398,15 @@ Base.@kwdef struct EstimationOptions
 	# preserve genuine sub-basin structure.
 	subspace_cluster_eps::Float64 = 0.05
 
+	# Output-stage M-selection diversity. When algebraic_multiplicity asks for
+	# multiple returned rows, prefer candidates separated by at least this
+	# relative solution-distance threshold before filling remaining slots from
+	# the original rank order. This is best-effort: it cannot invent a missing
+	# branch, and it deliberately falls back to ranked near-duplicates if too few
+	# separated candidates exist.
+	branch_diversity_selection::Bool = true
+	branch_diversity_eps::Float64 = 0.01
+
 	# Instrumentation (opt-in): if non-nothing, dump the raw HC candidate list
 	# (after process_raw_solution err computation, before pre-polish clustering)
 	# as a CSV to this path. Used for offline branch-clustering analysis.
@@ -1279,6 +1288,10 @@ function validate_options(opts::EstimationOptions)
 	end
 	if opts.subspace_cluster_eps <= 0
 		@error "subspace_cluster_eps must be positive (got $(opts.subspace_cluster_eps))"
+		valid = false
+	end
+	if opts.branch_diversity_eps < 0
+		@error "branch_diversity_eps must be non-negative (got $(opts.branch_diversity_eps))"
 		valid = false
 	end
 	if !(opts.backsolve_recovery in (:none, :algebraic_resolve))
