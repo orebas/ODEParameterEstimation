@@ -4,6 +4,7 @@ using Logging
 # Include all model files
 include("models/advanced_systems.jl")
 include("models/biological_systems.jl")
+include("models/branch_stress_systems.jl")
 include("models/classical_systems.jl")
 include("models/simple_models.jl")
 include("models/test_models.jl")
@@ -109,6 +110,14 @@ const HARD_MODELS = Dict(
 	:sirsforced => sirsforced,
 )
 
+"""Constructed models for validating branch-aware output behavior."""
+const BRANCH_STRESS_MODELS = Dict(
+	:latent_subpopulation_branch => latent_subpopulation_branch,
+	:latent_subpopulation_observed_control => latent_subpopulation_observed_control,
+	:receptor_subtype_binding_branch => receptor_subtype_binding_branch,
+	:receptor_subtype_binding_observed_control => receptor_subtype_binding_observed_control,
+)
+
 """Models retained in-package but currently best treated as limitations or active failure cases."""
 const LIMITATION_MODELS = Dict(
 	:seir => seir,
@@ -127,7 +136,7 @@ const LIMITATION_MODELS = Dict(
 const STANDARD_MODELS = merge(GREEN_MODELS, STRUCTURAL_UNIDENTIFIABILITY_MODELS)
 
 """All available models (standard + hard)."""
-const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS, LIMITATION_MODELS)
+const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS, BRANCH_STRESS_MODELS, LIMITATION_MODELS)
 
 """Get list of all available model names."""
 available_models() = sort(collect(keys(ALL_MODELS)))
@@ -139,6 +148,7 @@ function available_model_categories()
 		:structural_unidentifiability => STRUCTURAL_UNIDENTIFIABILITY_MODELS,
 		:standard => STANDARD_MODELS,
 		:hard => HARD_MODELS,
+		:branch_stress => BRANCH_STRESS_MODELS,
 		:limitations => LIMITATION_MODELS,
 		:all => ALL_MODELS,
 	)
@@ -192,6 +202,8 @@ function run_parameter_estimation_examples(;
 		collect(keys(model_categories[:all]))
 	elseif models == :hard
 		collect(keys(model_categories[:hard]))
+	elseif models == :branch_stress
+		collect(keys(model_categories[:branch_stress]))
 	elseif models == :green
 		collect(keys(model_categories[:green]))
 	elseif models == :structural_unidentifiability

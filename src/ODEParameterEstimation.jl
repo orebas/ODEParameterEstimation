@@ -170,6 +170,8 @@ export simple, simple_linear_combination, onesp_cubed, threesp_cubed
 export lotka_volterra, vanderpol, brusselator, harmonic, fitzhugh_nagumo, forced_decay
 export seir, treatment, biohydrogenation, repressilator
 export crauste, seir, daisy_mamil3, daisy_mamil4, hiv
+export latent_subpopulation_branch, latent_subpopulation_observed_control
+export receptor_subtype_binding_branch, receptor_subtype_binding_observed_control
 export substr_test, global_unident_test, sum_test, trivial_unident
 
 

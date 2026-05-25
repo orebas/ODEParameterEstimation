@@ -113,6 +113,74 @@ using OrderedCollections
         @test :aaad_in_testing ∉ public_names
     end
 
+    @testset "Branch-stress example registry" begin
+        categories = ODEParameterEstimation.available_model_categories()
+        branch_stress = categories[:branch_stress]
+
+        expected = Set([
+            :latent_subpopulation_branch,
+            :latent_subpopulation_observed_control,
+            :receptor_subtype_binding_branch,
+            :receptor_subtype_binding_observed_control,
+        ])
+
+        @test Set(keys(branch_stress)) == expected
+        @test expected ⊆ Set(ODEParameterEstimation.available_models())
+
+        for model_name in expected
+            pep = branch_stress[model_name]()
+            @test pep isa ODEParameterEstimation.ParameterEstimationProblem
+            @test pep.name == string(model_name)
+            @test all(value -> 0.0 < value < 10.0, values(pep.p_true))
+            @test all(value -> 0.0 < value < 10.0, values(pep.ic))
+        end
+
+        latent = ODEParameterEstimation.latent_subpopulation_branch()
+        latent_params = collect(values(latent.p_true))
+        latent_ics = collect(values(latent.ic))
+        latent_branch_reps = Set{Tuple{NTuple{6, Float64}, NTuple{5, Float64}}}()
+        for perm in ((1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1))
+            permuted_params = (
+                latent_params[perm[1]],
+                latent_params[perm[2]],
+                latent_params[perm[3]],
+                latent_params[3 + perm[1]],
+                latent_params[3 + perm[2]],
+                latent_params[3 + perm[3]],
+            )
+            permuted_ics = (
+                latent_ics[1],
+                latent_ics[1 + perm[1]],
+                latent_ics[1 + perm[2]],
+                latent_ics[1 + perm[3]],
+                latent_ics[5],
+            )
+            @test sum(permuted_ics[2:4]) ≈ sum(latent_ics[2:4]) atol = 1e-12 rtol = 1e-12
+            @test all(value -> 0.0 < value < 10.0, permuted_params)
+            @test all(value -> 0.0 < value < 10.0, permuted_ics)
+            push!(latent_branch_reps, (permuted_params, permuted_ics))
+        end
+        @test length(latent_branch_reps) == 6
+
+        receptor = ODEParameterEstimation.receptor_subtype_binding_branch()
+        receptor_params = collect(values(receptor.p_true))
+        receptor_ics = collect(values(receptor.ic))
+        swapped_receptor_params = (
+            receptor_params[2],
+            receptor_params[1],
+            receptor_params[4],
+            receptor_params[3],
+            receptor_params[6],
+            receptor_params[5],
+        )
+        swapped_receptor_ics = (receptor_ics[1], receptor_ics[3], receptor_ics[2])
+        @test receptor_ics[2] + receptor_ics[3] ≈ swapped_receptor_ics[2] + swapped_receptor_ics[3] atol = 1e-12 rtol = 1e-12
+        @test Tuple(receptor_params) != swapped_receptor_params
+        @test Tuple(receptor_ics) != swapped_receptor_ics
+        @test all(value -> 0.0 < value < 10.0, swapped_receptor_params)
+        @test all(value -> 0.0 < value < 10.0, swapped_receptor_ics)
+    end
+
     @testset "Polish coordinate transforms" begin
         # Per-variable transform selection: positive bounds → :log,
         # finite signed bounds → :shifted_log, unbounded → :linear
