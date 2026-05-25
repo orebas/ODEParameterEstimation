@@ -2,6 +2,14 @@
 
 Date: 2026-05-25
 
+Status: **partially superseded** by
+[`2026-05-24_quoll_plan_amendment.md`](2026-05-24_quoll_plan_amendment.md).
+The amendment is the live plan for cluster execution. In particular, Quoll Main
+is dropped, `rank_strategy = :sat_neg1_err` is the pinned default unless the
+offline ablation clears the predeclared bar, branch-diversity selection must be
+ablated before pinning, AMIGO2 stays in the Paper 1 main chart, and branch
+metadata lives in a sidecar file used only by post-hoc analysis.
+
 Audience: Claude-on-the-cluster / whoever is managing the large PEB runs.
 
 Purpose: define the next benchmark family, **Quoll**, with enough detail that
