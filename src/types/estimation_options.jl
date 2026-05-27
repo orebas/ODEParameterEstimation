@@ -407,6 +407,16 @@ Base.@kwdef struct EstimationOptions
 	branch_diversity_selection::Bool = true
 	branch_diversity_eps::Float64 = 0.01
 
+	# Algebraic branch completion (default-on as of 2026-05-27). When a system has
+	# algebraic_multiplicity > 1, ODEPE uses the normal candidate pool only to
+	# choose an anchor, then solves the SI-template equations with exact jets
+	# implied by that anchor and replaces the returned pool with the verified
+	# algebraic sibling set. Regression-clean with it on; generic-branch-coverage
+	# benefit is being confirmed by the Wallaby/Quoll M>1 ablations.
+	branch_completion::Bool = true
+	branch_completion_max_anchors::Int = 1
+	branch_completion_residual_tol::Float64 = 1e-6
+
 	# Instrumentation (opt-in): if non-nothing, dump the raw HC candidate list
 	# (after process_raw_solution err computation, before pre-polish clustering)
 	# as a CSV to this path. Used for offline branch-clustering analysis.
@@ -555,6 +565,12 @@ Base.@kwdef struct EstimationOptions
 	# HomotopyContinuation Specific
 	use_monodromy::Bool = false
 	use_parameter_homotopy::Bool = true  # Use parameter homotopy for multi-shot (track solutions between points)
+	use_column_scaling::Bool = true  # Data-driven per-order column (variable) rescaling for the parameterized HC
+	# solve. ON by default (validated: regression 446/446 unchanged, no recovery regression on the 9-system
+	# benchmark; see docs/2026-05-27_column_scaling_and_backsolve_resolve.md). Rescales each unknown x = s.*x̂ using per-derivative-order observable-derivative
+	# magnitudes (order-0 vars left at 1.0), solves the rescaled system (Newton polytopes / mixed volume unchanged),
+	# and unscales solutions by s. Benign (~identity) when observable-derivative magnitudes are ~O(1). Tames the
+	# ~1e7 jet-coordinate dynamic range that defeats unscaled polyhedral tracking on stiff/transient systems.
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
 
@@ -1292,6 +1308,14 @@ function validate_options(opts::EstimationOptions)
 	end
 	if opts.branch_diversity_eps < 0
 		@error "branch_diversity_eps must be non-negative (got $(opts.branch_diversity_eps))"
+		valid = false
+	end
+	if opts.branch_completion_max_anchors <= 0
+		@error "branch_completion_max_anchors must be positive (got $(opts.branch_completion_max_anchors))"
+		valid = false
+	end
+	if opts.branch_completion_residual_tol < 0
+		@error "branch_completion_residual_tol must be non-negative (got $(opts.branch_completion_residual_tol))"
 		valid = false
 	end
 	if !(opts.backsolve_recovery in (:none, :algebraic_resolve))

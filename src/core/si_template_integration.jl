@@ -20,6 +20,223 @@ This function:
 2. Creates interpolated_values_dict for the specific time point
 3. Substitutes values into the template
 """
+function _numeric_residual_value(expr)
+	try
+		return abs(Float64(Symbolics.value(Symbolics.simplify(expr))))
+	catch
+		return NaN
+	end
+end
+
+"""
+	instantiate_si_template_equations(
+		template_equations, measured_quantities, data_sample, derivative_dict, template_DD;
+		interpolants, time_index, diagnostics=false, prune_overdetermined=true
+	)
+
+Substitute derivative data and analytic transcendental-input values into an
+already-built SI template. This is the shared instantiation path used by the
+normal estimator and by branch-completion diagnostics, so they see identical
+polynomial systems for the same template and interpolants.
+"""
+function instantiate_si_template_equations(
+	template_equations,
+	measured_quantities_in,
+	data_sample,
+	derivative_dict,
+	template_DD;
+	interpolants,
+	time_index::Int,
+	diagnostics::Bool = false,
+	prune_overdetermined::Bool = true,
+)
+	# Create a set of all variables present in the template equations
+	vars_in_template = OrderedSet()
+	for eq in template_equations
+		union!(vars_in_template, Symbolics.get_variables(eq))
+	end
+
+	# Interpolate data for the required derivatives at the specified time point
+	interpolated_values_dict = Dict()
+	t_point = data_sample["t"][time_index]
+
+	# The derivatives needed are determined by the SI.jl template
+	max_required_deriv = isempty(derivative_dict) ? 0 : maximum(values(derivative_dict))
+
+	if diagnostics
+		println("[DEBUG-SI] Max derivative order required by template: $max_required_deriv")
+	end
+
+	# For each measured quantity, populate all derivatives up to the max required order.
+	for (obs_idx, obs_eqn) in enumerate(measured_quantities_in)
+		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
+		# Skip _trfn_ observables — no interpolant exists (skipped in create_interpolants),
+		# and values are always set analytically by the _trfn_ substitution block below.
+		if _is_trfn_observable(Symbolics.wrap(obs_rhs))
+			continue
+		end
+		obs_interp = interpolants[obs_rhs]
+
+		for i in 0:max_required_deriv
+			# Find the corresponding lhs variable in the DD structure
+			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
+				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
+				val = try
+					nth_deriv(x -> obs_interp(x), i, t_point)
+				catch err
+					if err isa UnsupportedDerivativeOrderError
+						context = "while instantiating $(lhs_var) for observable $(obs_rhs) at time $(t_point)"
+						throw(UnsupportedDerivativeOrderError(err.requested_order, err.supported_order, err.backend, context))
+					end
+					rethrow()
+				end
+				if isnan(val)
+					@warn "[DEBUG-ODEPE-NaN] NaN detected from interpolator call." observable = obs_rhs deriv_order = i time_point = t_point
+					@warn "[DEBUG-ODEPE-NaN] The failing interpolator object is:" interpolator_object = obs_interp
+					t_near = t_point + 1e-9
+					val_near = try
+						nth_deriv(x -> obs_interp(x), i, t_near)
+					catch e
+						"Failed with error: $e"
+					end
+					@warn "[DEBUG-ODEPE-NaN] For comparison, value at nearby point t=$t_near is: $val_near"
+				end
+				interpolated_values_dict[lhs_var] = val
+			else
+				# This may not be an error if a high derivative of one observable is needed,
+				# but not for this specific one.
+			end
+		end
+	end
+
+	# Also substitute _trfn_ transcendental input variables with their known analytical values.
+	# These represent sin(c*t), cos(c*t), and their derivatives at the shooting point — they
+	# are known functions of time, not unknowns.  After substitution, equations that only
+	# contained data_vars + _trfn_ vars will become trivially satisfied (0 ≈ 0) and get
+	# removed by the zero-variable filter below.
+	n_trfn_substituted = 0
+	for v in vars_in_template
+		var_name = string(v)
+		trfn_val = evaluate_trfn_template_variable(var_name, t_point)
+		if isnothing(trfn_val)
+			trfn_val = evaluate_obs_trfn_template_variable(var_name, t_point)
+		end
+		if !isnothing(trfn_val)
+			interpolated_values_dict[v] = trfn_val
+			n_trfn_substituted += 1
+		end
+	end
+	if n_trfn_substituted > 0
+		@info "[TEMPLATE] Substituted $n_trfn_substituted _trfn_/_obs_trfn_ variable(s) at t=$t_point"
+	end
+
+	if diagnostics
+		println("[DEBUG-SI] Created interpolated_values_dict with $(length(interpolated_values_dict)) entries (including $n_trfn_substituted _trfn_ vars)")
+	end
+
+	# Substitute interpolated values into the template equations (broadcast over the vector)
+	if diagnostics
+		# Print a small sample of keys and an example equation before substitution
+		key_sample = collect(keys(interpolated_values_dict))
+		println("[DEBUG-SI] Substitution key sample (up to 5): ", key_sample[1:min(length(key_sample), 5)])
+		!isempty(template_equations) && println("[DEBUG-SI] Before substitution (Eq1): ", template_equations[1])
+	end
+
+	substituted_equations = Symbolics.substitute.(template_equations, Ref(interpolated_values_dict))
+
+	if diagnostics && !isempty(substituted_equations)
+		println("[DEBUG-SI] After substitution (Eq1): ", substituted_equations[1])
+	end
+
+	# Extract variables from each equation *after* substitution,
+	# and filter out trivially-satisfied equations (0 remaining variables).
+	# These arise from oscillator coupling constraints when _trfn_ observable
+	# derivatives are substituted — the equations become "0 ≈ 0".
+	final_vars = OrderedSet()
+	kept_equations = eltype(substituted_equations)[]
+	trivial_residuals = Float64[]
+	n_trivial = 0
+	for (eq_idx, eq) in enumerate(substituted_equations)
+		vars_in_eq = Symbolics.get_variables(eq)
+		if isempty(vars_in_eq)
+			# Equation has no remaining variables — trivially satisfied after substitution
+			n_trivial += 1
+			push!(trivial_residuals, _numeric_residual_value(eq))
+			if diagnostics
+				@info "[DEBUG-SI-VARS] Eq$eq_idx TRIVIAL (0 variables, removing): $eq"
+			end
+		else
+			push!(kept_equations, eq)
+			union!(final_vars, vars_in_eq)
+			if diagnostics
+				@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
+			end
+		end
+	end
+
+	if n_trivial > 0
+		@info "[TEMPLATE] Removed $n_trivial trivially-satisfied equations after data substitution"
+	end
+
+	if diagnostics
+		println("[DEBUG-SI] Extracted $(length(final_vars)) variables from substituted system: $(collect(final_vars))")
+	end
+
+	# Log the final variables list
+	@info "[DEBUG-SI-VARS] Final variables list ($(length(final_vars))): $(collect(final_vars))"
+
+	# Always log this critical count info
+	@info "[DEBUG-EQ-VAR-COUNT] After template instantiation: $(length(kept_equations)) equations, $(length(final_vars)) variables"
+
+	# Handle overdetermined systems: when _trfn_ substitution + data substitution
+	# leaves more equations than variables, remove redundant equations.
+	# An equation is "removable" if every variable in it also appears in at least one
+	# other kept equation — removing it won't lose any variable.
+	# Among removable equations, prefer removing from the end (highest derivative order,
+	# most numerically sensitive).
+	if prune_overdetermined
+		while length(kept_equations) > length(final_vars)
+			n_excess = length(kept_equations) - length(final_vars)
+			# Build per-variable occurrence count across all kept equations
+			var_eq_count = Dict{Any, Int}()
+			for eq in kept_equations
+				for v in Symbolics.get_variables(eq)
+					var_eq_count[v] = get(var_eq_count, v, 0) + 1
+				end
+			end
+			# Find removable equations (from the end, for numerical stability)
+			removed = false
+			for idx in length(kept_equations):-1:1
+				eq_vars = Symbolics.get_variables(kept_equations[idx])
+				# Safe to remove if every variable appears in at least 2 equations (this one + another)
+				if all(v -> get(var_eq_count, v, 0) >= 2, eq_vars)
+					@info "[TEMPLATE] Overdetermined ($n_excess excess): removing equation $idx (all $(length(eq_vars)) vars appear elsewhere)"
+					deleteat!(kept_equations, idx)
+					removed = true
+					break
+				end
+			end
+			if !removed
+				@warn "[TEMPLATE] Cannot safely remove any equation without losing a variable. Keeping overdetermined system."
+				break
+			end
+			# Recompute final_vars after removal
+			final_vars = OrderedSet()
+			for eq in kept_equations
+				union!(final_vars, Symbolics.get_variables(eq))
+			end
+		end
+	end
+
+	return (
+		equations = kept_equations,
+		vars = collect(final_vars),
+		trivial_residuals = trivial_residuals,
+		substituted_values = interpolated_values_dict,
+		t_point = t_point,
+	)
+end
+
 function construct_equation_system_from_si_template(
 	model::ModelingToolkit.AbstractSystem,
 	measured_quantities_in,
@@ -107,187 +324,20 @@ function construct_equation_system_from_si_template(
 	# Apply unidentifiable substitutions
 	unident_subst!(model_eq, measured_quantities, unident_dict)
 
-	# Create a set of all variables present in the template equations
-	vars_in_template = OrderedSet()
-	for eq in template_equations
-		union!(vars_in_template, Symbolics.get_variables(eq))
-	end
-
-	# Filter the provided varlist to include only variables present in the template
-	# This ensures the variable list matches the reduced equation system
-	varlist_in_template = filter(v -> v in vars_in_template, varlist)
-
-	# Interpolate data for the required derivatives at the specified time point
-	interpolated_values_dict = Dict()
-	t_point = data_sample["t"][time_index_set[1]]
-
-	# The derivatives needed are determined by the SI.jl template
-	max_required_deriv = isempty(derivative_dict) ? 0 : maximum(values(derivative_dict))
-
-	if diagnostics
-		println("[DEBUG-SI] Max derivative order required by template: $max_required_deriv")
-	end
-
-	# For each measured quantity, populate all derivatives up to the max required order.
-	for (obs_idx, obs_eqn) in enumerate(measured_quantities_in)
-		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
-		# Skip _trfn_ observables — no interpolant exists (skipped in create_interpolants),
-		# and values are always set analytically by the _trfn_ substitution block below.
-		if _is_trfn_observable(Symbolics.wrap(obs_rhs))
-			continue
-		end
-		obs_interp = interpolants[obs_rhs]
-
-		for i in 0:max_required_deriv
-			# Find the corresponding lhs variable in the DD structure
-			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
-				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
-				val = try
-					nth_deriv(x -> obs_interp(x), i, t_point)
-				catch err
-					if err isa UnsupportedDerivativeOrderError
-						context = "while instantiating $(lhs_var) for observable $(obs_rhs) at time $(t_point)"
-						throw(UnsupportedDerivativeOrderError(err.requested_order, err.supported_order, err.backend, context))
-					end
-					rethrow()
-				end
-				if isnan(val)
-					@warn "[DEBUG-ODEPE-NaN] NaN detected from interpolator call." observable = obs_rhs deriv_order = i time_point = t_point
-					@warn "[DEBUG-ODEPE-NaN] The failing interpolator object is:" interpolator_object = obs_interp
-					t_near = t_point + 1e-9
-					val_near = try
-						nth_deriv(x -> obs_interp(x), i, t_near)
-					catch e
-						"Failed with error: $e"
-					end
-					@warn "[DEBUG-ODEPE-NaN] For comparison, value at nearby point t=$t_near is: $val_near"
-				end
-				interpolated_values_dict[lhs_var] = val
-			else
-				# This may not be an error if a high derivative of one observable is needed,
-				# but not for this specific one.
-			end
-		end
-	end
-
-
-	# Also substitute _trfn_ transcendental input variables with their known analytical values.
-	# These represent sin(c*t), cos(c*t), and their derivatives at the shooting point — they
-	# are known functions of time, not unknowns.  After substitution, equations that only
-	# contained data_vars + _trfn_ vars will become trivially satisfied (0 ≈ 0) and get
-	# removed by the zero-variable filter below.
-	n_trfn_substituted = 0
-	for v in vars_in_template
-		var_name = string(v)
-		trfn_val = evaluate_trfn_template_variable(var_name, t_point)
-		if isnothing(trfn_val)
-			trfn_val = evaluate_obs_trfn_template_variable(var_name, t_point)
-		end
-		if !isnothing(trfn_val)
-			interpolated_values_dict[v] = trfn_val
-			n_trfn_substituted += 1
-		end
-	end
-	if n_trfn_substituted > 0
-		@info "[TEMPLATE] Substituted $n_trfn_substituted _trfn_/_obs_trfn_ variable(s) at t=$t_point"
-	end
-
-	if diagnostics
-		println("[DEBUG-SI] Created interpolated_values_dict with $(length(interpolated_values_dict)) entries (including $n_trfn_substituted _trfn_ vars)")
-	end
-
-	# Substitute interpolated values into the template equations (broadcast over the vector)
-	if diagnostics
-		# Print a small sample of keys and an example equation before substitution
-		key_sample = collect(keys(interpolated_values_dict))
-		println("[DEBUG-SI] Substitution key sample (up to 5): ", key_sample[1:min(length(key_sample), 5)])
-		println("[DEBUG-SI] Before substitution (Eq1): ", template_equations[1])
-	end
-
-	substituted_equations = Symbolics.substitute.(template_equations, Ref(interpolated_values_dict))
-
-	if diagnostics
-		println("[DEBUG-SI] After substitution (Eq1): ", substituted_equations[1])
-	end
-
-	# Extract variables from each equation *after* substitution,
-	# and filter out trivially-satisfied equations (0 remaining variables).
-	# These arise from oscillator coupling constraints when _trfn_ observable
-	# derivatives are substituted — the equations become "0 ≈ 0".
-	final_vars = OrderedSet()
-	kept_equations = eltype(substituted_equations)[]
-	n_trivial = 0
-	for (eq_idx, eq) in enumerate(substituted_equations)
-		vars_in_eq = Symbolics.get_variables(eq)
-		if isempty(vars_in_eq)
-			# Equation has no remaining variables — trivially satisfied after substitution
-			n_trivial += 1
-			if diagnostics
-				@info "[DEBUG-SI-VARS] Eq$eq_idx TRIVIAL (0 variables, removing): $eq"
-			end
-		else
-			push!(kept_equations, eq)
-			union!(final_vars, vars_in_eq)
-			if diagnostics
-				@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
-			end
-		end
-	end
-
-	if n_trivial > 0
-		@info "[TEMPLATE] Removed $n_trivial trivially-satisfied equations after data substitution"
-	end
-
-	if diagnostics
-		println("[DEBUG-SI] Extracted $(length(final_vars)) variables from substituted system: $(collect(final_vars))")
-	end
-
-	# Log the final variables list
-	@info "[DEBUG-SI-VARS] Final variables list ($(length(final_vars))): $(collect(final_vars))"
-
-	# Always log this critical count info
-	@info "[DEBUG-EQ-VAR-COUNT] After template instantiation: $(length(kept_equations)) equations, $(length(final_vars)) variables"
-
-	# Handle overdetermined systems: when _trfn_ substitution + data substitution
-	# leaves more equations than variables, remove redundant equations.
-	# An equation is "removable" if every variable in it also appears in at least one
-	# other kept equation — removing it won't lose any variable.
-	# Among removable equations, prefer removing from the end (highest derivative order,
-	# most numerically sensitive).
-	while length(kept_equations) > length(final_vars)
-		n_excess = length(kept_equations) - length(final_vars)
-		# Build per-variable occurrence count across all kept equations
-		var_eq_count = Dict{Any, Int}()
-		for eq in kept_equations
-			for v in Symbolics.get_variables(eq)
-				var_eq_count[v] = get(var_eq_count, v, 0) + 1
-			end
-		end
-		# Find removable equations (from the end, for numerical stability)
-		removed = false
-		for idx in length(kept_equations):-1:1
-			eq_vars = Symbolics.get_variables(kept_equations[idx])
-			# Safe to remove if every variable appears in at least 2 equations (this one + another)
-			if all(v -> get(var_eq_count, v, 0) >= 2, eq_vars)
-				@info "[TEMPLATE] Overdetermined ($n_excess excess): removing equation $idx (all $(length(eq_vars)) vars appear elsewhere)"
-				deleteat!(kept_equations, idx)
-				removed = true
-				break
-			end
-		end
-		if !removed
-			@warn "[TEMPLATE] Cannot safely remove any equation without losing a variable. Keeping overdetermined system."
-			break
-		end
-		# Recompute final_vars after removal
-		final_vars = OrderedSet()
-		for eq in kept_equations
-			union!(final_vars, Symbolics.get_variables(eq))
-		end
-	end
+	instantiated = instantiate_si_template_equations(
+		template_equations,
+		measured_quantities_in,
+		data_sample,
+		derivative_dict,
+		template_DD;
+		interpolants = interpolants,
+		time_index = time_index_set[1],
+		diagnostics = diagnostics,
+		prune_overdetermined = true,
+	)
 
 	# Return the non-trivial equations and the correctly filtered variable list
-	return kept_equations, collect(final_vars)
+	return instantiated.equations, instantiated.vars
 end
 
 """

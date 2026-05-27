@@ -356,6 +356,75 @@ function select_branch_diverse_reps(sorted_reps, M_eff::Int, opts::EstimationOpt
 end
 
 """
+	rank_cluster_representatives(cluster_reps, opts) -> Vector
+
+Apply the output-stage rank strategy to already-clustered representatives. This
+is shared by final result selection and branch-completion anchor selection so
+experimental branch completion chooses the same anchor the normal output path
+would put first.
+"""
+function rank_cluster_representatives(cluster_reps, opts::EstimationOptions)
+	if opts.rank_strategy === :sat_neg1_err
+		return sort(cluster_reps, by = c -> s2_sort_key(c, opts.opt_lb, opts.opt_ub))
+	elseif opts.rank_strategy === :sat_err
+		return sort(cluster_reps,
+			by = c -> (saturation_count(c, opts.opt_lb, opts.opt_ub),
+			          (c.err === nothing || !isfinite(c.err)) ? Inf : c.err))
+	elseif opts.rank_strategy === :lognorm_err
+		return sort(cluster_reps, by = lognorm_sort_key)
+	elseif opts.rank_strategy === :lognorm_neg1_err
+		return sort(cluster_reps, by = lognorm_neg1_sort_key)
+	else
+		return cluster_reps
+	end
+end
+
+"""
+	ranked_candidate_representatives(candidates, opts) -> Vector
+
+Score, cluster, annotate cluster sizes, and rank candidates using the same
+non-oracle path used for normal returned results. Candidates with non-finite
+errors are excluded.
+"""
+function ranked_candidate_representatives(candidates, opts::EstimationOptions)
+	scored = _scored_results(candidates)
+	isempty(scored) && return Any[]
+	sorted_results = sort(scored, by = _result_err_key)
+	clusters = if opts.cluster_method === :identifiable_subspace
+		cluster_solutions_identifiable_subspace(sorted_results;
+			rough_eps = opts.rough_cluster_eps,
+			subspace_eps = opts.subspace_cluster_eps)
+	else
+		cluster_solutions(sorted_results)
+	end
+	cluster_reps = [first(cluster) for cluster in clusters]
+	for (i, c) in enumerate(clusters)
+		cluster_reps[i].branch_size = length(c)
+	end
+	return opts.branch_detection ? rank_cluster_representatives(cluster_reps, opts) : cluster_reps
+end
+
+"""
+	ranked_full_space_representatives(candidates, opts) -> Vector
+
+Score, cluster in the full parameter/IC coordinate space, annotate cluster
+sizes, and rank. Branch completion uses this instead of identifiable-subspace
+clustering because algebraic sibling branches are observationally equivalent
+by construction and may be collapsed by identifiable-only clustering.
+"""
+function ranked_full_space_representatives(candidates, opts::EstimationOptions)
+	scored = _scored_results(candidates)
+	isempty(scored) && return Any[]
+	sorted_results = sort(scored, by = _result_err_key)
+	clusters = cluster_solutions(sorted_results)
+	cluster_reps = [first(cluster) for cluster in clusters]
+	for (i, c) in enumerate(clusters)
+		cluster_reps[i].branch_size = length(c)
+	end
+	return opts.branch_detection ? rank_cluster_representatives(cluster_reps, opts) : cluster_reps
+end
+
+"""
 	lognorm_score(candidate) → Float64
 
 Sum of squared log10-magnitudes of the candidate's positive parameters:
@@ -765,7 +834,9 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 	# (default `:identifiable_subspace`, collapses near-duplicates along
 	# practical-non-identifiability axes; see RECOMMENDATIONS.md Tier 3.2) and
 	# the legacy 1e-5 bit-identical dedup (`:bit_identical`).
-	clusters = if opts.cluster_method === :identifiable_subspace
+	clusters = if opts.branch_completion
+		cluster_solutions(sorted_results)
+	elseif opts.cluster_method === :identifiable_subspace
 		cluster_solutions_identifiable_subspace(sorted_results;
 			rough_eps = opts.rough_cluster_eps,
 			subspace_eps = opts.subspace_cluster_eps)
@@ -957,23 +1028,7 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		# otherwise be lost in the tail under pure err-sort (Tier 1.1 recommendation
 		# from the 2026-05-15 fresh-look investigation, RECOMMENDATIONS.md).
 		# Legacy `:err_only` preserves the upstream err order verbatim.
-		sorted_reps = if opts.rank_strategy === :sat_neg1_err
-			sort(cluster_reps, by = c -> s2_sort_key(c, opts.opt_lb, opts.opt_ub))
-		elseif opts.rank_strategy === :sat_err
-			# (saturation_count, err) — S2 without the is_neg1 secondary. Wallaby
-			# evidence (2026-05-19): is_neg1 systematically demotes truth-near
-			# rows with psh=-1 below worse HC-tagged rows; this key drops the
-			# offender while keeping saturation-count demotion.
-			sort(cluster_reps,
-				by = c -> (saturation_count(c, opts.opt_lb, opts.opt_ub),
-				          (c.err === nothing || !isfinite(c.err)) ? Inf : c.err))
-		elseif opts.rank_strategy === :lognorm_err
-			sort(cluster_reps, by = lognorm_sort_key)
-		elseif opts.rank_strategy === :lognorm_neg1_err
-			sort(cluster_reps, by = lognorm_neg1_sort_key)
-		else  # :err_only — cluster_reps already err-sorted upstream
-			cluster_reps
-		end
+		sorted_reps = rank_cluster_representatives(cluster_reps, opts)
 		# Truncation policy:
 		#   - `opts.algebraic_multiplicity = nothing` (default) → keep up to
 		#     `branch_top_k` rows. Legacy K=20 behavior.

@@ -1679,6 +1679,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				:show_progress => opts.hc_show_progress,
 				:real_tol => opts.hc_real_tol,
 				:debug => opts.diagnostics,
+				:use_column_scaling => opts.use_column_scaling,
 			)
 
 				_t_hc_start = time()
@@ -2387,6 +2388,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					ctx = _build_polish_context(PEP; opts = opts)
 					_polish_batch_from_context(ctx, solved_res; opts = opts)
 				end
+			end
+		end
+
+		if opts.branch_completion && !isempty(solved_res)
+			solved_res = _record_phase!(phase_stats, "Branch completion") do
+				maybe_replace_with_branch_completion(PEP, solved_res, setup_data, opts)
 			end
 		end
 

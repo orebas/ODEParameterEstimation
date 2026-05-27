@@ -679,14 +679,17 @@ function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = f
 			println(hc_system)
 		end
 
-		# Solve (prefer real solutions first)
+		# Solve (prefer real solutions first). HC.jl's `solutions` defaults to
+		# `only_nonsingular=true`; ODEPE should keep singular algebraic roots too,
+		# then let downstream residual/bounds/ranking filters decide usability.
 		res = HomotopyContinuation.solve(hc_system, show_progress = false)
-		sols = HomotopyContinuation.solutions(res, only_real = true, real_tol = 1e-9)
-
-		# If no real solutions, allow complex and project to real parts
-		if isempty(sols)
-			sols = HomotopyContinuation.solutions(res)
-		end
+		real_tol = get(options, :real_tol, 1e-9)
+		sols = HomotopyContinuation.solutions(
+			res;
+			only_nonsingular = false,
+			only_real = true,
+			real_atol = real_tol,
+		)
 
 		# Map solutions to plain Float64 vectors in the same order as varlist
 		solutions = Vector{Vector{Float64}}()
@@ -897,6 +900,71 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 end
 
 """
+	compute_column_scales(solve_vars, data_vars, param_values_list)
+
+Per-variable column-scale vector aligned 1:1 with `solve_vars` (== HC variable order), for the
+data-driven column scaling of the parameterized HC solve.
+
+Rule (no truth needed):
+  order_mag[k] = max over all shooting points and all data_vars of derivative order k of |value|
+  scale(var)   = 1.0                   if order(var) == 0   (params + order-0 state ICs untouched)
+               = max(order_mag[k], 1)  if order(var) == k >= 1
+               = 1.0                   if no finite data of that order (fallback)
+
+`order(data_var)` is parsed from its string form (`Differential(t, k)(...)`; order 0 = plain `y..(t)`).
+`order(solve_var)` is parsed via `parse_derivative_variable_name` (trailing `_N` suffix).
+"""
+function compute_column_scales(solve_vars, data_vars, param_values_list)
+	n = length(solve_vars)
+	isempty(param_values_list) && return ones(Float64, n)
+
+	# derivative order of each data_var (order>=1 => "Differential(t, N)(...)"; order 0 => "y1(t)")
+	data_orders = Vector{Int}(undef, length(data_vars))
+	for (j, dv) in enumerate(data_vars)
+		m = match(r"Differential\(t,\s*(\d+)\)", string(dv))
+		data_orders[j] = isnothing(m) ? 0 : parse(Int, m.captures[1])
+	end
+
+	# order_mag[k] = max |value| over points, per order (finite values only)
+	order_mag = Dict{Int, Float64}()
+	for pv in param_values_list
+		ncols = min(length(data_vars), length(pv))  # leading block aligns with data_vars
+		for j in 1:ncols
+			v = pv[j]
+			isfinite(v) || continue
+			k = data_orders[j]
+			order_mag[k] = max(get(order_mag, k, 0.0), abs(Float64(v)))
+		end
+	end
+
+	# map onto solve_vars by parsed order
+	scales = ones(Float64, n)
+	for (i, sv) in enumerate(solve_vars)
+		parsed = parse_derivative_variable_name(string(sv))
+		ord = isnothing(parsed) ? 0 : parsed[2]
+		if ord != 0
+			mag = get(order_mag, ord, NaN)
+			scales[i] = (isfinite(mag) && mag > 0.0) ? max(mag, 1.0) : 1.0
+		end
+	end
+	return scales
+end
+
+"""
+	scale_hc_system(hc_system, hc_variables, scales)
+
+Return a System with each variable v_i replaced by scales[i]*v_i (pure coordinate rescale; Newton
+polytopes / mixed volume unchanged). Returns the input unchanged when all scales == 1.0.
+"""
+function scale_hc_system(hc_system, hc_variables, scales)
+	@assert length(hc_variables) == length(scales) "scale length mismatch"
+	all(==(1.0), scales) && return hc_system
+	scaled_vars = [scales[i] * hc_variables[i] for i in eachindex(hc_variables)]
+	scaled_exprs = HomotopyContinuation.ModelKit.subs(hc_system.expressions, hc_variables => scaled_vars)
+	return HomotopyContinuation.System(scaled_exprs, variables = hc_system.variables, parameters = hc_system.parameters)
+end
+
+"""
 	solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options=Dict())
 
 Solve a polynomial system at multiple parameter values using parameter homotopy.
@@ -937,6 +1005,20 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	show_progress = get(options, :show_progress, false)
 	real_tol = get(options, :real_tol, 1e-9)
 	debug = get(options, :debug, false)
+	use_column_scaling = get(options, :use_column_scaling, false)
+
+	# Data-driven column scaling (off by default). Compute ONE scale vector for ALL points
+	# (aggregated over param_values_list) so the parameter homotopy stays in a single coordinate
+	# system; scale the system once here and unscale each solution at the extraction step below.
+	# When off, col_scales == ones ⇒ the unscale step is 1.0*x ⇒ byte-identical to prior behavior.
+	col_scales = ones(Float64, length(hc_variables))
+	if use_column_scaling
+		col_scales = compute_column_scales(solve_vars, data_vars, param_values_list)
+		hc_system = scale_hc_system(hc_system, hc_variables, col_scales)
+		if debug
+			println("[HC-PARAM] Column scaling ON: scale range $(extrema(col_scales)), nontrivial $(count(!=(1.0), col_scales))/$(length(col_scales))")
+		end
+	end
 
 	all_real_results = Vector{Vector{Vector{Float64}}}()
 	prev_all_solutions = nothing  # Track ALL solutions (real + complex)
@@ -1009,10 +1091,10 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			end
 		end
 
-		# Convert to Float64 vectors
+		# Convert to Float64 vectors (unscale column-scaled coords; col_scales is ones when off ⇒ no-op)
 		real_solutions = Vector{Vector{Float64}}()
 		for s in real_solutions_hc
-			vals = Float64[real(s[j]) for j in 1:length(hc_variables)]
+			vals = Float64[col_scales[j] * real(s[j]) for j in 1:length(hc_variables)]
 			push!(real_solutions, vals)
 		end
 		push!(all_real_results, real_solutions)

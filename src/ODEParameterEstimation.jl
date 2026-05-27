@@ -82,6 +82,7 @@ include("core/pointpicker.jl")
 include("core/parameter_estimation_helpers.jl")
 include("core/parameter_estimation.jl")
 include("core/polish_residual.jl")
+include("core/branch_completion.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("baselines/shade_lm.jl")                   # SHADE+LM hybrid baseline (uses _build_polish_context, _polish_single_from_context)
 include("core/multipoint_template.jl")  # Multi-point polynomial template system

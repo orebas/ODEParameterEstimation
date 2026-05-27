@@ -73,6 +73,13 @@ using OrderedCollections
         @test merged.terminal_fallback == :direct_opt
         @test merged.backsolve_recovery == :algebraic_resolve
         @test merged.t0_state_completion == :strict
+        branch_completion_opts = EstimationOptions(
+            branch_completion = true,
+            branch_completion_max_anchors = 2,
+            branch_completion_residual_tol = 1e-7,
+        )
+        @test branch_completion_opts.branch_completion
+        @test ODEParameterEstimation.validate_options(branch_completion_opts)
 
         @test instances(EstimationFlow) == (FlowStandard, FlowDirectOpt)
         @test !isdefined(ODEParameterEstimation, :FlowDeprecated)
@@ -104,6 +111,8 @@ using OrderedCollections
 
         invalid_placeholder_policy = EstimationOptions(si_placeholder_fail_categories = [:not_a_real_category])
         @test !ODEParameterEstimation.validate_options(invalid_placeholder_policy)
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(branch_completion_max_anchors = 0))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(branch_completion_residual_tol = -1.0))
 
         @test_throws ErrorException ODEParameterEstimation.merge_options(base; definitely_not_an_option = true)
 
