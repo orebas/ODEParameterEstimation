@@ -573,6 +573,16 @@ Base.@kwdef struct EstimationOptions
 	# ~1e7 jet-coordinate dynamic range that defeats unscaled polyhedral tracking on stiff/transient systems.
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
+	# Multi-shot parameter-transition tracking mode (points i>1). DEFAULT :gamma_straight tracks
+	# F(·;p_start)→F(·;p_target) via HC.jl's fixed-system StraightLineHomotopy WITH the γ-trick
+	# (H = γ·t·F(·;p_start) + (1−t)·F(·;p_target)) — a discriminant-avoiding path that lands EXACTLY at
+	# the real target; robust where the old straight parameter path collapses (receptor: truth+swap
+	# 10/10 vs 4/16). :parameter = HC.jl ParameterHomotopy (old straight real parameter path, no γ — for
+	# A/B + escape). :gamma_straight_fallback = :parameter first, then γ-straight instead of a fresh
+	# solve on path loss (strictly dominates :parameter).
+	homotopy_tracking_mode::Symbol = :gamma_straight
+	gamma_max_seeds::Int = 5  # γ-straight: try up to this many random γ seeds, keep the most-complete result
+	gamma_seed::Int = 0       # RNG seed for γ selection (0 ⇒ nondeterministic)
 
 	# Multi-point template (combines polynomial systems from N time points)
 	use_multipoint::Bool = true   # Enable multi-point polynomial template system
@@ -1294,6 +1304,14 @@ function validate_options(opts::EstimationOptions)
 		@error "cluster_method must be :identifiable_subspace or :bit_identical (got $(opts.cluster_method))"
 		valid = false
 	end
+	if !(opts.homotopy_tracking_mode in (:parameter, :gamma_straight, :gamma_straight_fallback))
+		@error "homotopy_tracking_mode must be :parameter, :gamma_straight, or :gamma_straight_fallback (got $(opts.homotopy_tracking_mode))"
+		valid = false
+	end
+	if opts.gamma_max_seeds < 1
+		@error "gamma_max_seeds must be ≥ 1 (got $(opts.gamma_max_seeds))"
+		valid = false
+	end
 	if !isnothing(opts.algebraic_multiplicity) && opts.algebraic_multiplicity <= 0
 		@error "algebraic_multiplicity must be a positive integer or `nothing` (got $(opts.algebraic_multiplicity))"
 		valid = false
@@ -1424,7 +1442,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
 			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
-		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
+		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),
 		("Limits", [:max_solutions]),

@@ -1680,6 +1680,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				:real_tol => opts.hc_real_tol,
 				:debug => opts.diagnostics,
 				:use_column_scaling => opts.use_column_scaling,
+				:homotopy_tracking_mode => opts.homotopy_tracking_mode,
+				:gamma_max_seeds => opts.gamma_max_seeds,
+				:gamma_seed => opts.gamma_seed,
 			)
 
 				_t_hc_start = time()

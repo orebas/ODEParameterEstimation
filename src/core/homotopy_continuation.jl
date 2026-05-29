@@ -965,6 +965,37 @@ function scale_hc_system(hc_system, hc_variables, scales)
 end
 
 """
+	_track_gamma_straight(hc_system, starts, p_start, p_target; show_progress, rng, max_seeds, target_count)
+
+Track `starts` (solutions of `F(·;p_start)`) to the solutions of `F(·;p_target)` using HC.jl's
+fixed-system `StraightLineHomotopy` WITH the γ-trick: `H(x,t) = γ·t·F(x;p_start) + (1−t)·F(x;p_target)`.
+A random γ makes the system-space path generic so it generically misses the discriminant; `t=0` is
+exactly `F(·;p_target)`, so it lands at the real target. Tries up to `max_seeds` random γ, keeping the
+result with the most solutions; early-stops once `target_count` is reached. Returns the best HC result.
+This is distinct from `ParameterHomotopy` (the straight real parameter path, no γ), which can cross the
+real discriminant and stall (`terminated_max_steps`).
+"""
+function _track_gamma_straight(hc_system, starts, p_start, p_target;
+	show_progress = false, rng = MersenneTwister(), max_seeds = 5, target_count = length(starts))
+	ps = ComplexF64.(p_start)
+	pt = ComplexF64.(p_target)
+	best_res = nothing
+	best_n = -1
+	for _ in 1:max(1, max_seeds)
+		γ = cis(2π * rand(rng))
+		res = HomotopyContinuation.solve(hc_system, hc_system, starts;
+			start_parameters = ps, target_parameters = pt, gamma = γ, show_progress = show_progress)
+		n = length(HomotopyContinuation.solutions(res))
+		if n > best_n
+			best_n = n
+			best_res = res
+		end
+		n >= target_count && break
+	end
+	return best_res
+end
+
+"""
 	solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options=Dict())
 
 Solve a polynomial system at multiple parameter values using parameter homotopy.
@@ -1006,6 +1037,10 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	real_tol = get(options, :real_tol, 1e-9)
 	debug = get(options, :debug, false)
 	use_column_scaling = get(options, :use_column_scaling, false)
+	tracking_mode = get(options, :homotopy_tracking_mode, :gamma_straight)
+	gamma_max_seeds = get(options, :gamma_max_seeds, 5)
+	gamma_seed = get(options, :gamma_seed, 0)
+	gamma_rng = gamma_seed == 0 ? MersenneTwister() : MersenneTwister(gamma_seed)
 
 	# Data-driven column scaling (off by default). Compute ONE scale vector for ALL points
 	# (aggregated over param_values_list) so the parameter homotopy stays in a single coordinate
@@ -1045,37 +1080,54 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				println("[HC-PARAM] Point $i: Fresh solve found $(length(all_solutions)) total solutions ($real_count real)")
 			end
 		else
-			# Parameter homotopy from previous point - track ALL solutions
-			if debug
-				println("[HC-PARAM] Point $i: Parameter homotopy tracking $(length(prev_all_solutions)) solutions")
+			# Track ALL solutions from the previous point to this one.
+			if tracking_mode == :gamma_straight
+				if debug
+					println("[HC-PARAM] Point $i: γ-straight tracking $(length(prev_all_solutions)) solutions")
+				end
+				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
+					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
+					target_count = initial_solution_count)
+				all_solutions = HomotopyContinuation.solutions(result)
+			else
+				# :parameter (also the first leg of :gamma_straight_fallback): straight parameter homotopy
+				if debug
+					println("[HC-PARAM] Point $i: Parameter homotopy tracking $(length(prev_all_solutions)) solutions")
+				end
+				result = HomotopyContinuation.solve(hc_system, prev_all_solutions;
+					start_parameters = prev_params,
+					target_parameters = current_params,
+					show_progress = show_progress)
+				all_solutions = HomotopyContinuation.solutions(result)
 			end
 
-			result = HomotopyContinuation.solve(hc_system, prev_all_solutions;
-				start_parameters = prev_params,
-				target_parameters = current_params,
-				show_progress = show_progress)
+			# :gamma_straight_fallback — if the parameter path lost paths, try γ-straight before a fresh solve.
+			if tracking_mode == :gamma_straight_fallback && length(all_solutions) < initial_solution_count
+				if debug
+					println("[HC-PARAM] Point $i: parameter path lost paths ($(length(all_solutions)) < $initial_solution_count) → γ-straight")
+				end
+				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
+					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
+					target_count = initial_solution_count)
+				all_solutions = HomotopyContinuation.solutions(result)
+			end
 
-			all_solutions = HomotopyContinuation.solutions(result)
-
-			# Check if tracking lost ANY solutions or is below the initial count
+			# Fresh solve fallback (last resort, all modes) if still below the initial count.
 			if length(all_solutions) < initial_solution_count
 				if debug
-					println("[HC-PARAM] Point $i: Tracking lost paths ($(length(all_solutions)) < $initial_solution_count). Fresh solve.")
+					println("[HC-PARAM] Point $i: still short ($(length(all_solutions)) < $initial_solution_count). Fresh solve.")
 				end
-
-				# Fresh solve fallback
 				result = HomotopyContinuation.solve(hc_system;
 					target_parameters = current_params,
 					show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result)
 				initial_solution_count = max(initial_solution_count, length(all_solutions))
-
 				if debug
 					println("[HC-PARAM] Point $i: Fresh solve found $(length(all_solutions)) solutions")
 				end
 			elseif debug
 				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
-				println("[HC-PARAM] Point $i: Tracked $(length(all_solutions)) solutions ($real_count real)")
+				println("[HC-PARAM] Point $i: tracked $(length(all_solutions)) solutions ($real_count real)")
 			end
 		end
 
