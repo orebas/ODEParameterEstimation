@@ -8,6 +8,26 @@ From: local-claude (Opus 4.7) → cluster-claude
 
 Pull `origin/main` @ `5a19c4a`. There's a new **opt-in** `EstimationOptions.homotopy_tracking_mode = :generic_start` (**default unchanged** = `:gamma_straight`, so nothing moves unless you set the flag). Run the 3-way receptor e2e A/B + crauste-with-debug, and report whether `:generic_start` fixes the receptor e2e failure and/or helps crauste.
 
+---
+
+## ⚠️ UPDATE (2026-05-29, later commit — pull newest main)
+
+A max-effort code review found the **likely real cause of the `besterror=13.85` receptor failure, and it invalidates the earlier A/B as a mode comparison.** Pull the newest main (commit after `5a19c4a`) before running anything.
+
+- **Root-cause candidate — column scaling was silently OFF on the multipoint path.** The production multipoint solve (`optimized_multishot_estimation.jl:1921`) forwarded only `:show_progress`/`:real_tol` — it **dropped `use_column_scaling`** (pre-existing, since column scaling shipped) **and** the new tracking-mode options. Since the multipoint solutions are **pooled** with the single-point ones for ranking/branch_completion, the pool was contaminated with cs-less, ill-conditioned (spurious) roots. Receptor is the system we *know* fails without cs (recovers 2/2 @0.4% with cs, 0/2 @8.5% without). So `13.85` is most plausibly **cs-off-on-multipoint**, not γ-straight.
+- **Consequence for your earlier A/B:** because the multipoint path ignored `homotopy_tracking_mode`, the `:gamma_straight`/`:parameter`/`:generic_start` arms were **partly confounded** (multipoint contribution identical across arms, and cs-less). The newest main **fixes this** — multipoint now forwards cs + the tracking options — so the 3-way A/B is now a *valid* comparison. **Re-run it on the newest main.**
+- **Also fixed:** γ RNG is now **deterministic by default** (`gamma_seed==0` ⇒ stable per-problem seed, reproducible; `<0` ⇒ entropy), with separate streams for the generic-start `p0` draw vs the per-point γ — so your A/B arms now see the *same* γ stream and are reproducible run-to-run.
+- **NOT changed (deliberately):** `_track_gamma_straight` still keeps the result with the most *total* solutions (not most *real*) — that is correct: real-ness is a property of the target system, γ only changes the path, and complex solutions must be preserved for the downstream pool.
+
+**CAVEAT for the regression-minded:** turning cs ON for the multipoint path is itself a default-behavior change for *every* system that uses multipoint (default on). It passes the 446 contract regression, but cs-on-multipoint recovery quality across the PEB systems is **not** broadly validated — treat it like the original column-scaling rollout and watch for recovery regressions on non-receptor systems.
+
+### Revised priority
+1. Re-run the 3-way receptor e2e A/B on newest main (now valid). **Key Q:** does `:gamma_straight` (default) now recover receptor (`besterror ~0.4%`) with cs reaching the pool? If yes → the `13.85` was the cs-drop, not γ, and the default is fine.
+2. Broad recovery check (cs-on-multipoint): re-run a representative PEB slice and diff recovery vs the prior stored numbers — confirm cs-on-multipoint doesn't regress non-receptor systems.
+3. Then the original `:generic_start` / crauste questions below.
+
+---
+
 ## Background — why this exists
 
 - **`:gamma_straight` was shipped as the default (`2604a7f`).** The faithful receptor end-to-end test (real pipeline, `analysis.besterror`) then **failed**: `besterror = 13.85` (baseline ~0.4%), 2 returned branches **200–1000% off** truth/swap, from `src=branch_completion`, satisfying the *trimmed algebraic system* to ~1e-6 but with a *trajectory* error of 13.85 → **spurious roots** (receptor's trim admits ~16). It converged *confidently to the wrong roots*.

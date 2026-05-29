@@ -1040,7 +1040,20 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	tracking_mode = get(options, :homotopy_tracking_mode, :gamma_straight)
 	gamma_max_seeds = get(options, :gamma_max_seeds, 5)
 	gamma_seed = get(options, :gamma_seed, 0)
-	gamma_rng = gamma_seed == 0 ? MersenneTwister() : MersenneTwister(gamma_seed)
+	# Deterministic by default: gamma_seed==0 derives a STABLE seed from the problem inputs (solve_vars +
+	# data values), so runs are reproducible and A/B arms see the same γ stream, while different problems
+	# still get different γ. A fixed γ sequence stays generic w.r.t. any one problem's discriminant
+	# (measure-zero collision). gamma_seed>0 forces that exact seed; gamma_seed<0 ⇒ entropy (nondeterministic).
+	# Separate RNGs for the generic-start p0 draw vs the per-point γ stream, so changing gamma_max_seeds or
+	# whether p0 is drawn does NOT shift the γ sequence (keeps mode A/B comparisons controlled).
+	if gamma_seed < 0
+		p0_rng = MersenneTwister()
+		gamma_rng = MersenneTwister()
+	else
+		base_seed = gamma_seed == 0 ? hash((string.(solve_vars), param_values_list)) : UInt64(gamma_seed)
+		p0_rng = MersenneTwister(base_seed)
+		gamma_rng = MersenneTwister(base_seed ⊻ 0x9e3779b97f4a7c15)
+	end
 
 	# Data-driven column scaling (off by default). Compute ONE scale vector for ALL points
 	# (aggregated over param_values_list) so the parameter homotopy stays in a single coordinate
@@ -1069,7 +1082,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	generic_start_solutions = nothing
 	generic_start_params = nothing
 	if tracking_mode == :generic_start && !isempty(param_values_list)
-		generic_start_params = randn(gamma_rng, ComplexF64, length(first(param_values_list)))
+		generic_start_params = randn(p0_rng, ComplexF64, length(first(param_values_list)))
 		try
 			gres = HomotopyContinuation.solve(hc_system; target_parameters = generic_start_params, show_progress = show_progress)
 			sols0 = HomotopyContinuation.solutions(gres)

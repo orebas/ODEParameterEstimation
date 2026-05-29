@@ -585,7 +585,7 @@ Base.@kwdef struct EstimationOptions
 	# target the true N (fixing the initial_solution_count anchor). Falls back to per-point fresh+γ chain.
 	homotopy_tracking_mode::Symbol = :gamma_straight
 	gamma_max_seeds::Int = 5  # γ-straight: try up to this many random γ seeds, keep the most-complete result
-	gamma_seed::Int = 0       # RNG seed for γ selection (0 ⇒ nondeterministic)
+	gamma_seed::Int = 0       # γ RNG seed: 0 ⇒ deterministic per-problem auto-seed (reproducible); >0 ⇒ that exact seed; <0 ⇒ entropy
 
 	# Multi-point template (combines polynomial systems from N time points)
 	use_multipoint::Bool = true   # Enable multi-point polynomial template system

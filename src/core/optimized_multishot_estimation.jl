@@ -1919,7 +1919,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					_t_mpt_solve_start = time()
 					solutions_by_combo = try
 						solve_multipoint_parameterized(mpt, evals;
-							options = Dict(:show_progress => opts.hc_show_progress, :real_tol => opts.hc_real_tol))
+							options = Dict(:show_progress => opts.hc_show_progress, :real_tol => opts.hc_real_tol,
+								:use_column_scaling => opts.use_column_scaling,
+								:homotopy_tracking_mode => opts.homotopy_tracking_mode,
+								:gamma_max_seeds => opts.gamma_max_seeds, :gamma_seed => opts.gamma_seed))
 					catch e
 						opts.diagnostics && @warn "[MULTIPOINT] HC solve failed" exception = e
 						nothing
