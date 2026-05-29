@@ -918,11 +918,16 @@ function compute_column_scales(solve_vars, data_vars, param_values_list)
 	n = length(solve_vars)
 	isempty(param_values_list) && return ones(Float64, n)
 
-	# derivative order of each data_var (order>=1 => "Differential(t, N)(...)"; order 0 => "y1(t)")
+	# derivative order of each data_var. Single-point Symbolics names are "Differential(t, N)(...)";
+	# MULTIPOINT/SIAN names are "y1_N" / "y1_N_ptK" (order 0 => plain "y1(t)" or "y1_0"). Try the
+	# Symbolics form first (keeps the single-point path byte-exact), else fall back to the SIAN/multipoint
+	# parser, which strips any _ptK suffix. (Was: regex only => silently order-0 => all scales 1.0 on the
+	# multipoint path, i.e. column scaling was an inert no-op whenever use_multipoint=true.)
 	data_orders = Vector{Int}(undef, length(data_vars))
 	for (j, dv) in enumerate(data_vars)
-		m = match(r"Differential\(t,\s*(\d+)\)", string(dv))
-		data_orders[j] = isnothing(m) ? 0 : parse(Int, m.captures[1])
+		s = string(dv)
+		m = match(r"Differential\(t,\s*(\d+)\)", s)
+		data_orders[j] = isnothing(m) ? _multipoint_deriv_order(s) : parse(Int, m.captures[1])
 	end
 
 	# order_mag[k] = max |value| over points, per order (finite values only)
@@ -940,8 +945,9 @@ function compute_column_scales(solve_vars, data_vars, param_values_list)
 	# map onto solve_vars by parsed order
 	scales = ones(Float64, n)
 	for (i, sv) in enumerate(solve_vars)
-		parsed = parse_derivative_variable_name(string(sv))
-		ord = isnothing(parsed) ? 0 : parsed[2]
+		# strips _ptK then parses the SIAN _N suffix (was parse_derivative_variable_name, which returned
+		# nothing => order 0 on _ptK-suffixed multipoint solve vars — the same silent no-op as the data side)
+		ord = _multipoint_deriv_order(string(sv))
 		if ord != 0
 			mag = get(order_mag, ord, NaN)
 			scales[i] = (isfinite(mag) && mag > 0.0) ? max(mag, 1.0) : 1.0
@@ -1145,7 +1151,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				target_parameters = current_params,
 				show_progress = show_progress)
 
-			all_solutions = HomotopyContinuation.solutions(result)  # ALL, not just real
+			all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)  # ALL, not just real
 			initial_solution_count = length(all_solutions)
 
 			if debug
@@ -1161,7 +1167,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
 					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 					target_count = initial_solution_count)
-				all_solutions = HomotopyContinuation.solutions(result)
+				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 			else
 				# :parameter (also the first leg of :gamma_straight_fallback): straight parameter homotopy
 				if debug
@@ -1171,7 +1177,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 					start_parameters = prev_params,
 					target_parameters = current_params,
 					show_progress = show_progress)
-				all_solutions = HomotopyContinuation.solutions(result)
+				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 			end
 
 			# :gamma_straight_fallback — if the parameter path lost paths, try γ-straight before a fresh solve.
@@ -1182,7 +1188,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
 					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 					target_count = initial_solution_count)
-				all_solutions = HomotopyContinuation.solutions(result)
+				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 			end
 
 			# Fresh solve fallback (last resort, all modes) if still below the initial count.
@@ -1193,7 +1199,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				result = HomotopyContinuation.solve(hc_system;
 					target_parameters = current_params,
 					show_progress = show_progress)
-				all_solutions = HomotopyContinuation.solutions(result)
+				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 				initial_solution_count = max(initial_solution_count, length(all_solutions))
 				if debug
 					println("[HC-PARAM] Point $i: Fresh solve found $(length(all_solutions)) solutions")
