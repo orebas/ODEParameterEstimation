@@ -985,7 +985,7 @@ function _track_gamma_straight(hc_system, starts, p_start, p_target;
 		γ = cis(2π * rand(rng))
 		res = HomotopyContinuation.solve(hc_system, hc_system, starts;
 			start_parameters = ps, target_parameters = pt, gamma = γ, show_progress = show_progress)
-		n = length(HomotopyContinuation.solutions(res))
+		n = length(HomotopyContinuation.solutions(res; only_nonsingular = false))
 		if n > best_n
 			best_n = n
 			best_res = res
@@ -1060,6 +1060,11 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	# system; scale the system once here and unscale each solution at the extraction step below.
 	# When off, col_scales == ones ⇒ the unscale step is 1.0*x ⇒ byte-identical to prior behavior.
 	col_scales = ones(Float64, length(hc_variables))
+	# Keep the UNSCALED system: data-derived column scales are tuned for the REAL shooting points and are
+	# meaningless at the generic complex p0, where they only hurt conditioning (they made the anchor solve
+	# under-count, 14 vs the true 18). So the :generic_start anchor solve below runs on hc_system_unscaled,
+	# then maps its physical roots into scaled coords for the (well-conditioned) scaled fan-out.
+	hc_system_unscaled = hc_system
 	if use_column_scaling
 		col_scales = compute_column_scales(solve_vars, data_vars, param_values_list)
 		hc_system = scale_hc_system(hc_system, hc_variables, col_scales)
@@ -1084,13 +1089,19 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	if tracking_mode == :generic_start && !isempty(param_values_list)
 		generic_start_params = randn(p0_rng, ComplexF64, length(first(param_values_list)))
 		try
-			gres = HomotopyContinuation.solve(hc_system; target_parameters = generic_start_params, show_progress = show_progress)
-			sols0 = HomotopyContinuation.solutions(gres)
+			# Anchor solve on the UNSCALED system (well-conditioned at a generic complex p0; the data-derived
+			# scales only hurt there), then map physical roots into scaled coords (x̂ = x ⊘ scales) so they are
+			# valid starts for the SCALED fan-out below. col_scales==ones ⇒ no-op when column scaling is off.
+			gres = HomotopyContinuation.solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
+			sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
+			if use_column_scaling
+				sols0 = [s ./ col_scales for s in sols0]
+			end
 			if isempty(sols0)
 				debug && println("[HC-PARAM] Generic-start: generic solve found 0 solutions → degrading to per-point fresh+track")
 			else
 				generic_start_solutions = sols0
-				debug && println("[HC-PARAM] Generic-start: generic complex p0 → N=$(length(sols0)) solutions (generic root count)")
+				debug && println("[HC-PARAM] Generic-start: UNSCALED generic complex p0 → N=$(length(sols0)) solutions, mapped to scaled coords")
 			end
 		catch e
 			debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
@@ -1109,15 +1120,20 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			result = _track_gamma_straight(hc_system, generic_start_solutions, generic_start_params, current_params;
 				show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 				target_count = length(generic_start_solutions))
-			all_solutions = HomotopyContinuation.solutions(result)
-			if length(all_solutions) < initial_solution_count
-				debug && println("[HC-PARAM] Point $i: fan-out short ($(length(all_solutions)) < $initial_solution_count) → fresh solve")
+			# Keep singular + complex FINITE solutions as candidates (matches the main solve path at ~687).
+			# For the completeness DECISION, also count singular + at-infinity endpoints (only_finite=false):
+			# a path that merely went singular or diverged is NOT a failed/lost path, so it must not trigger
+			# a needless fresh solve. At-infinity stays OUT of the kept set (real(s) would be Inf downstream).
+			all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
+			n_accounted = length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false))
+			if n_accounted < initial_solution_count
+				debug && println("[HC-PARAM] Point $i: fan-out genuinely short ($n_accounted accounted < $initial_solution_count; finite-kept=$(length(all_solutions))) → fresh solve")
 				result = HomotopyContinuation.solve(hc_system; target_parameters = current_params, show_progress = show_progress)
-				all_solutions = HomotopyContinuation.solutions(result)
-				initial_solution_count = max(initial_solution_count, length(all_solutions))
+				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
+				initial_solution_count = max(initial_solution_count, length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false)))
 			elseif debug
 				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
-				println("[HC-PARAM] Point $i: fan-out tracked $(length(all_solutions)) solutions ($real_count real)")
+				println("[HC-PARAM] Point $i: fan-out complete ($n_accounted accounted, $(length(all_solutions)) finite, $real_count real)")
 			end
 		elseif i == 1 || isnothing(prev_all_solutions) || isempty(prev_all_solutions)
 			# Fresh solve at first point - get ALL solutions
