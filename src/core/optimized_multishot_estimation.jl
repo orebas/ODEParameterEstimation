@@ -1276,6 +1276,75 @@ end
 # ============================================================================
 
 """
+	_derive_param_homotopy_template(si_template, good_DD, opts)
+
+Derive the interpolator-independent parameter-homotopy polynomial system structure.
+
+The polynomial template (equations, solve variables, data variables, _trfn_
+classification) depends only on the SI template — NOT on which interpolator is
+used to plug in numerical data. This is therefore computed ONCE before the
+per-interpolator loop and shared across all interpolators.
+
+Returns a NamedTuple with:
+- `template_DD`: the DD used for data-variable extraction
+- `data_vars`: observable-only data variables (HC parameters from DD.obs_lhs)
+- `template_equations`: template equations with trfn-only equations removed
+- `solve_vars`: real solve variables (HC unknowns; _trfn_ vars removed)
+- `extended_data_vars`: `data_vars` plus ordered _trfn_ vars (HC parameters)
+- `trfn_info`: classification dict for _trfn_ vars
+- `trfn_vars_ordered`: ordered list of _trfn_ var keys
+"""
+function _derive_param_homotopy_template(si_template, good_DD, opts::EstimationOptions)
+	# Extract data variables from DD.obs_lhs
+	# These are the observable derivative variables (y1_0, y1_1, etc.)
+	template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : good_DD
+	data_vars = extract_data_variables_from_DD(template_DD)
+
+	# Get the template equations (without substituting interpolated values)
+	# We need the raw template with data_vars as symbolic variables
+	template_equations = si_template.equations
+
+	# Extract solve variables (everything in template that's NOT a data var)
+	all_vars_in_template = OrderedSet{Any}()
+	for eq in template_equations
+		union!(all_vars_in_template, Symbolics.get_variables(eq))
+	end
+
+	# Separate into solve_vars and verify data_vars are present
+	data_vars_set = Set(data_vars)
+	initial_solve_vars = [v for v in all_vars_in_template if !(v in data_vars_set)]
+
+	# Move _trfn_ variables from solve_vars to data_vars.
+	# These represent sin(c*t), cos(c*t) etc. — known at any time point.
+	trfn_info, real_solve_vars, trfn_only_eq_indices = classify_trfn_in_template(
+		initial_solve_vars, data_vars_set, template_equations
+	)
+
+	# Remove equations that only involve data_vars + _trfn_ vars (no real unknowns)
+	if !isempty(trfn_only_eq_indices)
+		keep_mask = trues(length(template_equations))
+		for idx in trfn_only_eq_indices
+			keep_mask[idx] = false
+		end
+		template_equations = template_equations[keep_mask]
+		if !opts.nooutput
+			@info "[TRFN-SOLVE] Removed $(length(trfn_only_eq_indices)) trivial _trfn_ equations, $(length(template_equations)) remaining"
+		end
+	end
+
+	# Add _trfn_ vars to data_vars (they'll be evaluated numerically at each shooting point)
+	trfn_vars_ordered = collect(keys(trfn_info))
+	extended_data_vars = vcat(data_vars, trfn_vars_ordered)
+	solve_vars = real_solve_vars
+
+	if !opts.nooutput && !isempty(trfn_info)
+		@info "[TRFN-SOLVE] Moved $(length(trfn_info)) _trfn_ vars to data; $(length(solve_vars)) real solve vars, $(length(template_equations)) equations"
+	end
+
+	return (; template_DD, data_vars, template_equations, solve_vars, extended_data_vars, trfn_info, trfn_vars_ordered)
+end
+
+"""
 	optimized_multishot_parameter_estimation(PEP; kwargs...)
 
 Optimized parameter estimation using precomputed derivatives.
@@ -1506,6 +1575,32 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		_record_phase!(phase_stats, "Equation construction + Solving") do
 
 		# ============================================================================
+		# PARAMETER-HOMOTOPY TEMPLATE (shared across interpolators)
+		# The polynomial system structure and the :generic_start generic-complex
+		# solve depend only on the SI template — NOT on which interpolator plugs in
+		# numerical data. Compute them ONCE here, before the per-interpolator loop.
+		# ============================================================================
+		data_vars = template_equations = solve_vars = extended_data_vars = trfn_info = trfn_vars_ordered = template_DD = nothing
+		precomputed_generic_solutions = nothing
+		precomputed_generic_params = nothing
+		if use_param_homotopy
+			_ph = _derive_param_homotopy_template(si_template, good_DD, opts)
+			template_DD = _ph.template_DD; data_vars = _ph.data_vars; template_equations = _ph.template_equations
+			solve_vars = _ph.solve_vars; extended_data_vars = _ph.extended_data_vars
+			trfn_info = _ph.trfn_info; trfn_vars_ordered = _ph.trfn_vars_ordered
+			if opts.diagnostics
+				println("  [param-homotopy template, shared across interpolators] solve_vars=$(length(solve_vars)), data_vars(+trfn)=$(length(extended_data_vars)), equations=$(length(template_equations))")
+			end
+			if opts.homotopy_tracking_mode == :generic_start
+				precomputed_generic_solutions, precomputed_generic_params = compute_generic_start_solutions(
+					template_equations, solve_vars, extended_data_vars;
+					gamma_seed = opts.gamma_seed, show_progress = opts.hc_show_progress, debug = opts.diagnostics)
+			end
+		end
+
+		mp_generic_cache = nothing   # (key, sols, params) for the multipoint :generic_start solve, reused across interpolators
+
+		# ============================================================================
 		# MULTI-INTERPOLATOR LOOP
 		# Each interpolator gets its own interpolants and solve pass.
 		# The SI template and shooting points are shared across all interpolators.
@@ -1547,70 +1642,6 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			# ============================================================================
 			if opts.diagnostics
 				println("\n=== Using Parameter Homotopy for $(n_points) shooting points ===")
-			end
-
-			# Extract data variables from DD.obs_lhs
-			# These are the observable derivative variables (y1_0, y1_1, etc.)
-			template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : good_DD
-			data_vars = extract_data_variables_from_DD(template_DD)
-
-			if opts.diagnostics
-				println("  Data variables (HC parameters): $(length(data_vars))")
-				for (i, v) in enumerate(data_vars)
-					println("    $i. $v")
-				end
-			end
-
-			# Get the template equations (without substituting interpolated values)
-			# We need the raw template with data_vars as symbolic variables
-			template_equations = si_template.equations
-
-			# Extract solve variables (everything in template that's NOT a data var)
-			all_vars_in_template = OrderedSet{Any}()
-			for eq in template_equations
-				union!(all_vars_in_template, Symbolics.get_variables(eq))
-			end
-
-			# Separate into solve_vars and verify data_vars are present
-			data_vars_set = Set(data_vars)
-			initial_solve_vars = [v for v in all_vars_in_template if !(v in data_vars_set)]
-
-			# Move _trfn_ variables from solve_vars to data_vars.
-			# These represent sin(c*t), cos(c*t) etc. — known at any time point.
-			trfn_info, real_solve_vars, trfn_only_eq_indices = classify_trfn_in_template(
-				initial_solve_vars, data_vars_set, template_equations
-			)
-
-			# Remove equations that only involve data_vars + _trfn_ vars (no real unknowns)
-			if !isempty(trfn_only_eq_indices)
-				keep_mask = trues(length(template_equations))
-				for idx in trfn_only_eq_indices
-					keep_mask[idx] = false
-				end
-				template_equations = template_equations[keep_mask]
-				if !opts.nooutput
-					@info "[TRFN-SOLVE] Removed $(length(trfn_only_eq_indices)) trivial _trfn_ equations, $(length(template_equations)) remaining"
-				end
-			end
-
-			# Add _trfn_ vars to data_vars (they'll be evaluated numerically at each shooting point)
-			trfn_vars_ordered = collect(keys(trfn_info))
-			extended_data_vars = vcat(data_vars, trfn_vars_ordered)
-			solve_vars = real_solve_vars
-
-			if opts.diagnostics || !isempty(trfn_info)
-				if !opts.nooutput && !isempty(trfn_info)
-					@info "[TRFN-SOLVE] Moved $(length(trfn_info)) _trfn_ vars to data; $(length(solve_vars)) real solve vars, $(length(template_equations)) equations"
-				end
-			end
-
-			if opts.diagnostics
-				println("  Solve variables (HC variables): $(length(solve_vars))")
-				for (i, v) in enumerate(solve_vars)
-					println("    $i. $v")
-				end
-				println("  Data variables (HC parameters): $(length(extended_data_vars))")
-				println("  Template equations: $(length(template_equations))")
 			end
 
 			# Build parameter values for each shooting point
@@ -1671,9 +1702,6 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					continue
 				end
 
-				# Use extended data_vars for HC (includes both observable derivatives and _trfn_ vars)
-				data_vars = extended_data_vars
-
 			# Solve using parameter homotopy
 			solver_options = Dict(
 				:show_progress => opts.hc_show_progress,
@@ -1687,8 +1715,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				_t_hc_start = time()
 				solutions_by_point = solve_with_hc_parameterized(
-					template_equations, solve_vars, data_vars, valid_param_values_list;
-					options = solver_options
+					template_equations, solve_vars, extended_data_vars, valid_param_values_list;
+					options = solver_options,
+					precomputed_generic_solutions = precomputed_generic_solutions,
+					precomputed_generic_params = precomputed_generic_params,
 				)
 				_t_hc_elapsed = time() - _t_hc_start
 				_accumulate_timing!(single_point_hc_seconds_by_source, interp_sym, _t_hc_elapsed)
@@ -1889,6 +1919,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			_accumulate_timing!(multipoint_template_seconds_by_source, interp_sym, _t_mpt_template_elapsed)
 
 			if !isnothing(mpt) && length(mpt.stripped_equations) == length(mpt.solve_vars)
+				# Generic-start: solve the (interpolator-independent) multipoint generic system ONCE per
+				# distinct mpt structure; reuse across interpolators. Keyed by structure so a rare per-interp
+				# structural difference recomputes safely.
+				if opts.homotopy_tracking_mode == :generic_start
+					_mpt_key = hash((string.(mpt.stripped_equations), string.(mpt.solve_vars), string.(mpt.data_vars)))
+					if isnothing(mp_generic_cache) || mp_generic_cache.key != _mpt_key
+						_mp_sols, _mp_p0 = compute_generic_start_solutions(mpt.stripped_equations, mpt.solve_vars, mpt.data_vars;
+							gamma_seed = opts.gamma_seed, show_progress = opts.hc_show_progress, debug = opts.diagnostics)
+						mp_generic_cache = (key = _mpt_key, sols = _mp_sols, params = _mp_p0)
+					end
+				end
 				# Generate N-tuples from existing shooting points, capped at max_pairs
 				n_pts = opts.multipoint_n_points
 				all_combos = Vector{Vector{Int}}()
@@ -1920,9 +1961,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					solutions_by_combo = try
 						solve_multipoint_parameterized(mpt, evals;
 							options = Dict(:show_progress => opts.hc_show_progress, :real_tol => opts.hc_real_tol,
+								:debug => opts.diagnostics,
 								:use_column_scaling => opts.use_column_scaling,
 								:homotopy_tracking_mode => opts.homotopy_tracking_mode,
-								:gamma_max_seeds => opts.gamma_max_seeds, :gamma_seed => opts.gamma_seed))
+								:gamma_max_seeds => opts.gamma_max_seeds, :gamma_seed => opts.gamma_seed),
+								precomputed_generic_solutions = isnothing(mp_generic_cache) ? nothing : mp_generic_cache.sols,
+								precomputed_generic_params = isnothing(mp_generic_cache) ? nothing : mp_generic_cache.params)
 					catch e
 						opts.diagnostics && @warn "[MULTIPOINT] HC solve failed" exception = e
 						nothing

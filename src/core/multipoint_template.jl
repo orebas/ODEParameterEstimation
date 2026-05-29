@@ -1039,6 +1039,8 @@ function solve_multipoint_parameterized(
         mpt::MultiPointTemplate,
         evaluations::Vector{MultiPointEvaluation};
         options::Dict = Dict(),
+        precomputed_generic_solutions = nothing,
+        precomputed_generic_params = nothing,
 )
     if isempty(evaluations)
         return Vector{Vector{Vector{Float64}}}()
@@ -1052,6 +1054,8 @@ function solve_multipoint_parameterized(
         mpt.data_vars,
         param_values_list;
         options = options,
+        precomputed_generic_solutions = precomputed_generic_solutions,
+        precomputed_generic_params = precomputed_generic_params,
     )
 end
 

@@ -1002,6 +1002,32 @@ function _track_gamma_straight(hc_system, starts, p_start, p_target;
 end
 
 """
+	compute_generic_start_solutions(poly_system, solve_vars, data_vars; gamma_seed=0, show_progress=false, debug=false)
+
+Solve the UNSCALED HC system ONCE at a generic complex p0. The system structure is interpolator-
+independent (interpolators only change the data plugged in), so the expensive polyhedral solve can be
+done once and its solution set fanned out (γ-straight) to every real shooting point across ALL
+interpolators. Returns `(unscaled_solutions, p0)` or `(nothing, nothing)` on empty/throw. The p0 seed
+is structural (from solve_vars) ⇒ reproducible and data-independent.
+"""
+function compute_generic_start_solutions(poly_system, solve_vars, data_vars; gamma_seed = 0, show_progress = false, debug = false)
+	hc_system, hc_variables, hc_params = convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
+	p0_rng = gamma_seed < 0 ? MersenneTwister() :
+		MersenneTwister(gamma_seed == 0 ? hash(string.(solve_vars)) : UInt64(gamma_seed))
+	p0 = randn(p0_rng, ComplexF64, length(hc_params))
+	try
+		gres = HomotopyContinuation.solve(hc_system; target_parameters = p0, show_progress = show_progress)
+		sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
+		isempty(sols0) && return (nothing, nothing)
+		debug && println("[HC-PARAM] Generic-start (hoisted): UNSCALED generic p0 → N=$(length(sols0)) solutions (solved ONCE for all interpolators)")
+		return (sols0, p0)
+	catch e
+		debug && println("[HC-PARAM] Generic-start (hoisted): generic solve threw ($(e))")
+		return (nothing, nothing)
+	end
+end
+
+"""
 	solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options=Dict())
 
 Solve a polynomial system at multiple parameter values using parameter homotopy.
@@ -1032,7 +1058,8 @@ Vector of vectors of real solutions, one per shooting point.
 If parameter homotopy tracking loses solutions, falls back to fresh solve at that point
 and emits a warning.
 """
-function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options = Dict())
+function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_values_list; options = Dict(),
+	precomputed_generic_solutions = nothing, precomputed_generic_params = nothing)
 	# Convert to HC format with parameters
 	hc_system, hc_variables, hc_params = convert_to_hc_format_with_params(
 		poly_system, solve_vars, data_vars
@@ -1091,26 +1118,27 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	# initial_solution_count anchor). If the generic solve itself returns empty / throws (nasty-everywhere),
 	# leave generic_start_solutions = nothing ⇒ degrade to the per-point fresh + γ-straight chain below.
 	generic_start_solutions = nothing
-	generic_start_params = nothing
+	generic_start_params = precomputed_generic_params
 	if tracking_mode == :generic_start && !isempty(param_values_list)
-		generic_start_params = randn(p0_rng, ComplexF64, length(first(param_values_list)))
-		try
-			# Anchor solve on the UNSCALED system (well-conditioned at a generic complex p0; the data-derived
-			# scales only hurt there), then map physical roots into scaled coords (x̂ = x ⊘ scales) so they are
-			# valid starts for the SCALED fan-out below. col_scales==ones ⇒ no-op when column scaling is off.
-			gres = HomotopyContinuation.solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
-			sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
-			if use_column_scaling
-				sols0 = [s ./ col_scales for s in sols0]
+		# UNSCALED generic-complex solutions: use the precomputed set when supplied (hoisted ONCE over all
+		# interpolators in optimized_multishot), else solve here. Either way map the physical roots into THIS
+		# call's scaled coords (x̂ = x ⊘ scales) as valid starts for the scaled fan-out. col_scales==ones ⇒ no-op.
+		sols0 = precomputed_generic_solutions
+		if isnothing(sols0)
+			generic_start_params = randn(p0_rng, ComplexF64, length(first(param_values_list)))
+			try
+				gres = HomotopyContinuation.solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
+				sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
+			catch e
+				debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
+				sols0 = nothing
 			end
-			if isempty(sols0)
-				debug && println("[HC-PARAM] Generic-start: generic solve found 0 solutions → degrading to per-point fresh+track")
-			else
-				generic_start_solutions = sols0
-				debug && println("[HC-PARAM] Generic-start: UNSCALED generic complex p0 → N=$(length(sols0)) solutions, mapped to scaled coords")
-			end
-		catch e
-			debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
+		end
+		if isnothing(sols0) || isempty(sols0)
+			debug && println("[HC-PARAM] Generic-start: no generic solutions → degrading to per-point fresh+track")
+		else
+			generic_start_solutions = use_column_scaling ? [s ./ col_scales for s in sols0] : sols0
+			debug && println("[HC-PARAM] Generic-start: N=$(length(generic_start_solutions)) generic solutions (scaled coords)$(isnothing(precomputed_generic_solutions) ? " [solved here]" : " [precomputed once]")")
 		end
 	end
 
