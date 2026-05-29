@@ -1060,9 +1060,53 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	prev_params = nothing
 	initial_solution_count = 0
 
+	# Generic-start ("ab-initio") seeding (opt-in, :generic_start). Solve ONCE at a generic COMPLEX
+	# parameter point p0 — off the discriminant with probability 1 ⇒ the full generic root count N,
+	# well-conditioned — then fan out below by tracking p0→p_i (γ-straight) to EVERY real shooting point.
+	# Robust to a deficient point-1 real-data solve; makes the count target the true generic N (fixing the
+	# initial_solution_count anchor). If the generic solve itself returns empty / throws (nasty-everywhere),
+	# leave generic_start_solutions = nothing ⇒ degrade to the per-point fresh + γ-straight chain below.
+	generic_start_solutions = nothing
+	generic_start_params = nothing
+	if tracking_mode == :generic_start && !isempty(param_values_list)
+		generic_start_params = randn(gamma_rng, ComplexF64, length(first(param_values_list)))
+		try
+			gres = HomotopyContinuation.solve(hc_system; target_parameters = generic_start_params, show_progress = show_progress)
+			sols0 = HomotopyContinuation.solutions(gres)
+			if isempty(sols0)
+				debug && println("[HC-PARAM] Generic-start: generic solve found 0 solutions → degrading to per-point fresh+track")
+			else
+				generic_start_solutions = sols0
+				debug && println("[HC-PARAM] Generic-start: generic complex p0 → N=$(length(sols0)) solutions (generic root count)")
+			end
+		catch e
+			debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
+		end
+	end
+
 	for (i, current_params) in enumerate(param_values_list)
 		try
-		if i == 1 || isnothing(prev_all_solutions) || isempty(prev_all_solutions)
+		if tracking_mode == :generic_start && !isnothing(generic_start_solutions)
+			# Generic-start FAN-OUT: track the COMPLETE generic solution set p0→this real point. No chaining,
+			# so a weak point cannot poison the others, and truth is in the seeded set wherever it survives.
+			if i == 1
+				initial_solution_count = length(generic_start_solutions)  # the true generic count N
+			end
+			debug && println("[HC-PARAM] Point $i: generic-start fan-out — tracking N=$(length(generic_start_solutions)) generic solutions to this real point")
+			result = _track_gamma_straight(hc_system, generic_start_solutions, generic_start_params, current_params;
+				show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
+				target_count = length(generic_start_solutions))
+			all_solutions = HomotopyContinuation.solutions(result)
+			if length(all_solutions) < initial_solution_count
+				debug && println("[HC-PARAM] Point $i: fan-out short ($(length(all_solutions)) < $initial_solution_count) → fresh solve")
+				result = HomotopyContinuation.solve(hc_system; target_parameters = current_params, show_progress = show_progress)
+				all_solutions = HomotopyContinuation.solutions(result)
+				initial_solution_count = max(initial_solution_count, length(all_solutions))
+			elseif debug
+				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
+				println("[HC-PARAM] Point $i: fan-out tracked $(length(all_solutions)) solutions ($real_count real)")
+			end
+		elseif i == 1 || isnothing(prev_all_solutions) || isempty(prev_all_solutions)
 			# Fresh solve at first point - get ALL solutions
 			if debug
 				println("[HC-PARAM] Point $i: Fresh solve with $(length(current_params)) parameters")
@@ -1081,7 +1125,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			end
 		else
 			# Track ALL solutions from the previous point to this one.
-			if tracking_mode == :gamma_straight
+			if tracking_mode == :gamma_straight || tracking_mode == :generic_start
 				if debug
 					println("[HC-PARAM] Point $i: γ-straight tracking $(length(prev_all_solutions)) solutions")
 				end

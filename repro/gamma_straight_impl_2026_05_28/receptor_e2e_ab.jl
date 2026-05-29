@@ -66,7 +66,7 @@ end
 function main()
 	println("=== RECEPTOR END-TO-END A/B (real pipeline; aaad; cs on; noise 0; M=2 expected) ==="); flush(stdout)
 	summary = []
-	for mode in (:gamma_straight, :parameter)
+	for mode in (:generic_start, :parameter, :gamma_straight)
 		push!(summary, run_mode(mode)); flush(stdout)
 	end
 	println("\n=== SUMMARY (judge by pipeline besterror + max-rel-err vs truth/swap) ===")

@@ -579,7 +579,10 @@ Base.@kwdef struct EstimationOptions
 	# the real target; robust where the old straight parameter path collapses (receptor: truth+swap
 	# 10/10 vs 4/16). :parameter = HC.jl ParameterHomotopy (old straight real parameter path, no γ — for
 	# A/B + escape). :gamma_straight_fallback = :parameter first, then γ-straight instead of a fresh
-	# solve on path loss (strictly dominates :parameter).
+	# solve on path loss (strictly dominates :parameter). :generic_start (opt-in, EXPERIMENTAL) seeds from a
+	# generic COMPLEX parameter point p0 (off the discriminant ⇒ full generic root count N, well-conditioned)
+	# then fans out by tracking p0→each real point — robust to a deficient point-1 solve, and makes the count
+	# target the true N (fixing the initial_solution_count anchor). Falls back to per-point fresh+γ chain.
 	homotopy_tracking_mode::Symbol = :gamma_straight
 	gamma_max_seeds::Int = 5  # γ-straight: try up to this many random γ seeds, keep the most-complete result
 	gamma_seed::Int = 0       # RNG seed for γ selection (0 ⇒ nondeterministic)
@@ -1304,8 +1307,8 @@ function validate_options(opts::EstimationOptions)
 		@error "cluster_method must be :identifiable_subspace or :bit_identical (got $(opts.cluster_method))"
 		valid = false
 	end
-	if !(opts.homotopy_tracking_mode in (:parameter, :gamma_straight, :gamma_straight_fallback))
-		@error "homotopy_tracking_mode must be :parameter, :gamma_straight, or :gamma_straight_fallback (got $(opts.homotopy_tracking_mode))"
+	if !(opts.homotopy_tracking_mode in (:parameter, :gamma_straight, :gamma_straight_fallback, :generic_start))
+		@error "homotopy_tracking_mode must be :parameter, :gamma_straight, :gamma_straight_fallback, or :generic_start (got $(opts.homotopy_tracking_mode))"
 		valid = false
 	end
 	if opts.gamma_max_seeds < 1
