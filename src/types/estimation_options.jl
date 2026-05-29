@@ -573,17 +573,17 @@ Base.@kwdef struct EstimationOptions
 	# ~1e7 jet-coordinate dynamic range that defeats unscaled polyhedral tracking on stiff/transient systems.
 	hc_real_tol::Float64 = 1e-9
 	hc_show_progress::Bool = false
-	# Multi-shot parameter-transition tracking mode (points i>1). DEFAULT :gamma_straight tracks
+	# Multi-shot parameter-transition tracking mode (points i>1). :gamma_straight tracks
 	# F(·;p_start)→F(·;p_target) via HC.jl's fixed-system StraightLineHomotopy WITH the γ-trick
 	# (H = γ·t·F(·;p_start) + (1−t)·F(·;p_target)) — a discriminant-avoiding path that lands EXACTLY at
 	# the real target; robust where the old straight parameter path collapses (receptor: truth+swap
 	# 10/10 vs 4/16). :parameter = HC.jl ParameterHomotopy (old straight real parameter path, no γ — for
 	# A/B + escape). :gamma_straight_fallback = :parameter first, then γ-straight instead of a fresh
-	# solve on path loss (strictly dominates :parameter). :generic_start (opt-in, EXPERIMENTAL) seeds from a
+	# solve on path loss (strictly dominates :parameter). :generic_start (NOW DEFAULT, aggressive quoll build) seeds from a
 	# generic COMPLEX parameter point p0 (off the discriminant ⇒ full generic root count N, well-conditioned)
 	# then fans out by tracking p0→each real point — robust to a deficient point-1 solve, and makes the count
 	# target the true N (fixing the initial_solution_count anchor). Falls back to per-point fresh+γ chain.
-	homotopy_tracking_mode::Symbol = :gamma_straight
+	homotopy_tracking_mode::Symbol = :generic_start  # DEFAULT flipped gamma_straight→generic_start for the aggressive quoll build; generic solve is hoisted to run ONCE over all interpolators (single-point + multipoint)
 	gamma_max_seeds::Int = 5  # γ-straight: try up to this many random γ seeds, keep the most-complete result
 	gamma_seed::Int = 0       # γ RNG seed: 0 ⇒ deterministic per-problem auto-seed (reproducible); >0 ⇒ that exact seed; <0 ⇒ entropy
 
