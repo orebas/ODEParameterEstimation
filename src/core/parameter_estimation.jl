@@ -2352,15 +2352,28 @@ function _polish_single_from_context(
 		println("[polish]  early stop: $(stop_reason[]) after $(iter_count[]) iters")
 	end
 
-	# Recover best solution if optimizer wandered past the minimum
-	p_opt_internal = if isfinite(best_loss[]) && best_loss[] < result.objective
-		if opt_verbose
-			println("[polish]  recovering best iterate: loss $(round(best_loss[]; sigdigits=6)) < final $(round(result.objective; sigdigits=6))")
-		end
-		best_p[]
-	else
-		result.u
+	# Best-iterate recovery: the optimizer can wander past the minimum, so we may prefer the
+	# best iterate seen during the run. CRITICAL: under a bounded (Fminbox) solve the callback's
+	# `best_loss[]` is the *barrier-augmented* objective — large and often NEGATIVE far inside the
+	# bounds (the -Σlog(dist-to-bound) penalty times a big μ) — so it is NOT comparable to the
+	# true loss and must never be reported as `err`. Re-evaluate the real objective (`ctx.optf.f`,
+	# a sum-of-squares ≥ 0) at both the best iterate and the optimizer's final point, and keep
+	# whichever genuinely fits better. This keeps `err`/`post_polish_error` honest (≥ 0).
+	true_loss_final = try
+		Float64(ctx.optf.f(result.u, nothing))
+	catch
+		Inf
 	end
+	true_loss_best = isfinite(best_loss[]) ? (try
+		Float64(ctx.optf.f(best_p[], nothing))
+	catch
+		Inf
+	end) : Inf
+	use_best_iterate = true_loss_best < true_loss_final
+	if opt_verbose && use_best_iterate
+		println("[polish]  recovering best iterate: true loss $(round(true_loss_best; sigdigits=6)) < final $(round(true_loss_final; sigdigits=6))")
+	end
+	p_opt_internal = use_best_iterate ? best_p[] : result.u
 	p_opt = _polish_internal_to_external(p_opt_internal, ctx.coordinate_transforms, ctx.coordinate_shifts)
 	ic_opt = p_opt[1:ctx.n_ic]
 	param_opt = p_opt[(ctx.n_ic+1):end]
@@ -2375,8 +2388,9 @@ function _polish_single_from_context(
 	states_out = OrderedDict(s => ic_opt[ctx.state_index[s]] for s in ctx.state_syms_out if haskey(ctx.state_index, s))
 	params_out = OrderedDict(p => param_opt[ctx.param_index[p]] for p in ctx.param_syms_out if haskey(ctx.param_index, p))
 
-	# Use best_loss if we recovered the best iterate, otherwise use optimizer's final value
-	final_obj = (isfinite(best_loss[]) && best_loss[] < result.objective) ? best_loss[] : result.objective
+	# Honest sum-of-squares error at the chosen point — re-evaluated above via `ctx.optf.f`,
+	# never the barrier-augmented callback value. Guaranteed ≥ 0.
+	final_obj = use_best_iterate ? true_loss_best : true_loss_final
 
 	final_result = ParameterEstimationResult(
 		params_out,
