@@ -2,6 +2,9 @@
 
 ## Active integration notes
 
+- [`docs/review_map.md`](docs/review_map.md) — canonical multi-agent review
+  coordination map. Read this before starting broad code review, refactors, or
+  review-lane assignment.
 - [`MULTIPLICITY_INTEGRATION.md`](MULTIPLICITY_INTEGRATION.md) — algebraic
   multiplicity (M) auto-detection: what's in production, the Groebner.jl
   PR #218 dependency, expected behavior, and what PEB needs to change. Read

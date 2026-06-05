@@ -6,6 +6,7 @@
 
 This README is the landing page. For the current package behavior as of 2026-03-17, start with:
 
+- [Reviewer Map](docs/review_map.md) for multi-agent code review coordination
 - [User Quickstart](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_user_quickstart.md)
 - [Results and API](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_results_and_api.md)
 - [Supported Models and Limitations](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_supported_models_and_limitations.md)

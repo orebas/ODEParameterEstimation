@@ -4,6 +4,12 @@ This file mirrors `CLAUDE.md` so non-Claude agents (Codex, etc.) pick up
 the same guidance. The canonical version lives in `CLAUDE.md`; if the two
 drift, prefer `CLAUDE.md`.
 
+## Active integration notes
+
+- [`docs/review_map.md`](docs/review_map.md) — canonical multi-agent review
+  coordination map. Read this before starting broad code review, refactors, or
+  review-lane assignment.
+
 ## Open investigations (read before starting reconditioning / numerical-stability work)
 
 - **Variable (column) scaling of the polynomial system.** Diagnostics on
