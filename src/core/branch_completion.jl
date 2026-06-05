@@ -184,7 +184,7 @@ end
 function _branch_completion_hc_debug(equations, vars)
 	try
 		hc_system, _hc_variables = convert_to_hc_format(equations, vars)
-		raw = HomotopyContinuation.solve(hc_system, show_progress = false)
+		raw = _hc_solve(hc_system, show_progress = false)
 		real_solutions = HomotopyContinuation.solutions(raw, only_nonsingular = false, only_real = true, real_tol = 1e-9)
 		all_solutions = HomotopyContinuation.solutions(raw, only_nonsingular = false)
 		solution_imag_summary = [

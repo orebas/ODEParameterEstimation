@@ -287,7 +287,7 @@ end
 function _solve_hc_with_counts(equations, vars; real_tol::Float64 = 1e-9)
     t0 = time()
     hc_system, hc_vars = ODEParameterEstimation.convert_to_hc_format(equations, vars)
-    result = HomotopyContinuation.solve(hc_system, show_progress = false)
+    result = ODEParameterEstimation._hc_solve(hc_system, show_progress = false)
     all_hc = HomotopyContinuation.solutions(result)
     real_hc = HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol)
     real_solutions = Vector{Vector{Float64}}()

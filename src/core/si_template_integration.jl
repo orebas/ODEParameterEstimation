@@ -416,12 +416,22 @@ function resolve_states_with_fixed_params(
 	# Step 2: Apply all parameters as pre-fixed → model with 0 parameters, values baked in
 	fixed_model, fixed_mq = apply_prefixed_params_to_model(ordered_model, measured_quantities, known_param_dict)
 
+	# === [MWE-CAPTURE INSTRUMENTATION 2026-06-04] — print+serialize to pin the hang. REMOVE AFTER. ===
+	if get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict))
+		_fm = fixed_model isa OrderedODESystem ? fixed_model.system : fixed_model
+		println("[MWE] ====== STEP2 fixed_model ======"); println("[MWE] params=", known_param_dict)
+		for eq in ModelingToolkit.equations(_fm); println("[MWE] eq: ", eq); end
+		println("[MWE] unknowns=", ModelingToolkit.unknowns(_fm)); flush(stdout)
+	end
+	# === END INSTRUMENTATION ===
+
 	if diagnostics
 		fixed_sys = isa(fixed_model, ODEParameterEstimation.OrderedODESystem) ? fixed_model.system : fixed_model
 		n_remaining = length(ModelingToolkit.parameters(fixed_sys))
 		@info "[RESOLVE] Fixed model: $(n_remaining) remaining parameters (should be 0)"
 	end
 
+	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP3 get_si_equation_system ENTER"); flush(stdout))
 	# Step 3: Re-run SIAN on the parameter-free model → template with only state unknowns
 	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary, new_si_template_metadata = get_si_equation_system(
 		fixed_model, fixed_mq, data_sample;
@@ -429,6 +439,7 @@ function resolve_states_with_fixed_params(
 		infolevel = diagnostics ? 1 : 0,
 		placeholder_fail_categories = placeholder_fail_categories,
 	)
+	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP3 get_si_equation_system EXIT ($(length(new_template_eqs)) eqs)"); flush(stdout))
 	new_template_DD = ensure_si_template_dd_support(fixed_model, fixed_mq, DD, new_deriv_dict)
 
 	if isempty(new_template_eqs)
@@ -452,6 +463,7 @@ function resolve_states_with_fixed_params(
 	# Step 4: Instantiate at t=0 using the new template
 	# Use ORIGINAL model for unpack_ODE (DD is tied to original model's observables)
 	# but the NEW si_template for equations (parameters already baked in)
+	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP4 construct_equation_system_from_si_template ENTER"); flush(stdout))
 	equations, template_vars = construct_equation_system_from_si_template(
 		model,
 		measured_quantities,
@@ -498,7 +510,13 @@ function resolve_states_with_fixed_params(
 	if n_eqs == n_vars && n_vars > 0
 		@info "[RESOLVE] Solving square system with HC.jl"
 		hc_status = :attempted
+		if get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict))
+			println("[MWE] ====== STEP5 solve_with_hc input: $(length(equations)) eqs, $(length(state_vars)) vars ======")
+			for eq in equations; println("[MWE] hceq: ", eq); end
+			println("[MWE] hcvars: ", state_vars); flush(stdout)
+		end
 		solutions, _hc_varlist, _, _ = solve_with_hc(equations, state_vars)
+		get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP5 solve_with_hc EXIT ($(length(solutions)) sols)"); flush(stdout))
 		if isempty(solutions)
 			@warn "[RESOLVE] HC.jl found no solutions for square system"
 			hc_status = :no_solutions

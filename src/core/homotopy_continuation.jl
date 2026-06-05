@@ -1,5 +1,24 @@
+# ── HC.jl threading ───────────────────────────────────────────────────────────
+# `HomotopyContinuation.solve` defaults `threading = Threads.nthreads() > 1`, so at
+# JULIA_NUM_THREADS>1 it multi-threads its path tracker / mixed-cell (polyhedral)
+# computation. HC.jl is thread-safe since PR #669 (path tracking reworked onto native
+# Julia threading); the HC author (P. Breiding) confirms `threading=true` should always
+# work and the old "some CPUs hang" docstring is stale.
+# Validated 2026-06-05: biohydrogenation_3_1em8 ran end-to-end with threading=true in
+# 1.83h vs 4.81h threading-off — 2.63× faster, BIT-IDENTICAL recovery, no deadlock. The
+# earlier nondeterministic "Computing mixed cells" freeze (latent/receptor at threads=8)
+# did NOT reproduce on dedicated boxes and is believed pre-#669 / a rare race. We
+# therefore default HC's internal threading ON (the process already keeps all threads
+# for the pure-Julia polish, which yields to GC safepoints).
+# CAVEAT: that validation used bioh's SMALL mixed volume (~11/37). The large-mixed-volume
+# case (receptor, mixed_volume 63577) + threading is not yet proven deadlock-free; if a
+# hang recurs in HC's "Computing mixed cells", set this back to `false`.
+# All HomotopyContinuation.solve calls in this module route through `_hc_solve`.
+const HC_SOLVE_THREADING = Ref(true)
+_hc_solve(args...; kwargs...) = HomotopyContinuation.solve(args...; threading = HC_SOLVE_THREADING[], kwargs...)
+
 """
-	solve_with_nlopt(poly_system, varlist; 
+	solve_with_nlopt(poly_system, varlist;
 					start_point=nothing,
 					optimizer=BFGS(),
 					polish_only=false,
@@ -682,7 +701,7 @@ function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = f
 		# Solve (prefer real solutions first). HC.jl's `solutions` defaults to
 		# `only_nonsingular=true`; ODEPE should keep singular algebraic roots too,
 		# then let downstream residual/bounds/ranking filters decide usability.
-		res = HomotopyContinuation.solve(hc_system, show_progress = false)
+		res = _hc_solve(hc_system, show_progress = false)
 		real_tol = get(options, :real_tol, 1e-9)
 		sols = HomotopyContinuation.solutions(
 			res;
@@ -989,7 +1008,7 @@ function _track_gamma_straight(hc_system, starts, p_start, p_target;
 	best_n = -1
 	for _ in 1:max(1, max_seeds)
 		γ = cis(2π * rand(rng))
-		res = HomotopyContinuation.solve(hc_system, hc_system, starts;
+		res = _hc_solve(hc_system, hc_system, starts;
 			start_parameters = ps, target_parameters = pt, gamma = γ, show_progress = show_progress)
 		n = length(HomotopyContinuation.solutions(res; only_nonsingular = false))
 		if n > best_n
@@ -1016,7 +1035,7 @@ function compute_generic_start_solutions(poly_system, solve_vars, data_vars; gam
 		MersenneTwister(gamma_seed == 0 ? hash(string.(solve_vars)) : UInt64(gamma_seed))
 	p0 = randn(p0_rng, ComplexF64, length(hc_params))
 	try
-		gres = HomotopyContinuation.solve(hc_system; target_parameters = p0, show_progress = show_progress)
+		gres = _hc_solve(hc_system; target_parameters = p0, show_progress = show_progress)
 		sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
 		isempty(sols0) && return (nothing, nothing)
 		debug && println("[HC-PARAM] Generic-start (hoisted): UNSCALED generic p0 → N=$(length(sols0)) solutions (solved ONCE for all interpolators)")
@@ -1127,7 +1146,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		if isnothing(sols0)
 			generic_start_params = randn(p0_rng, ComplexF64, length(first(param_values_list)))
 			try
-				gres = HomotopyContinuation.solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
+				gres = _hc_solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
 				sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
 			catch e
 				debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
@@ -1162,7 +1181,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			n_accounted = length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false))
 			if n_accounted < initial_solution_count
 				debug && println("[HC-PARAM] Point $i: fan-out genuinely short ($n_accounted accounted < $initial_solution_count; finite-kept=$(length(all_solutions))) → fresh solve")
-				result = HomotopyContinuation.solve(hc_system; target_parameters = current_params, show_progress = show_progress)
+				result = _hc_solve(hc_system; target_parameters = current_params, show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 				initial_solution_count = max(initial_solution_count, length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false)))
 			elseif debug
@@ -1175,7 +1194,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				println("[HC-PARAM] Point $i: Fresh solve with $(length(current_params)) parameters")
 			end
 
-			result = HomotopyContinuation.solve(hc_system;
+			result = _hc_solve(hc_system;
 				target_parameters = current_params,
 				show_progress = show_progress)
 
@@ -1201,7 +1220,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				if debug
 					println("[HC-PARAM] Point $i: Parameter homotopy tracking $(length(prev_all_solutions)) solutions")
 				end
-				result = HomotopyContinuation.solve(hc_system, prev_all_solutions;
+				result = _hc_solve(hc_system, prev_all_solutions;
 					start_parameters = prev_params,
 					target_parameters = current_params,
 					show_progress = show_progress)
@@ -1224,7 +1243,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				if debug
 					println("[HC-PARAM] Point $i: still short ($(length(all_solutions)) < $initial_solution_count). Fresh solve.")
 				end
-				result = HomotopyContinuation.solve(hc_system;
+				result = _hc_solve(hc_system;
 					target_parameters = current_params,
 					show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
