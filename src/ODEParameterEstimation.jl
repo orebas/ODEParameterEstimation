@@ -86,6 +86,7 @@ include("core/branch_completion.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
 include("baselines/shade_lm.jl")                   # SHADE+LM hybrid baseline (uses _build_polish_context, _polish_single_from_context)
 include("core/multipoint_template.jl")  # Multi-point polynomial template system
+include("core/noise_frontier_construction.jl")  # Probe-only noise-first system construction
 include("core/derivatives.jl")
 include("core/sigma_d.jl")  # Per-(observable, order) derivative uncertainty σ_d
 include("core/sensitivity_seeds.jl")  # σ_d-aware seed generation (Layer 2)
@@ -132,6 +133,7 @@ export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_da
 export MultiPointTemplate, MultiPointEvaluation, build_multipoint_template, evaluate_multipoint_template, solve_multipoint_direct, solve_multipoint_parameterized, select_time_point_pairs
 export select_time_point_pairs_gp_quality, select_time_point_pairs_sensitivity, select_time_point_pairs_homotopy_probed
 export select_time_points_by_conditioning, solve_multipoint_overdetermined
+export NoiseFrontierCandidate, NoiseFrontierResult, build_noise_frontier_system, build_noise_frontier_multipoint_template, evaluate_noise_frontier_data_vars_at_point, instantiate_noise_frontier_candidate, noise_frontier_rows, write_noise_frontier_csv
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict

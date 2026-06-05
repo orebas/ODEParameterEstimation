@@ -209,6 +209,10 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Feature Flags
 - `flow::EstimationFlow`: Which workflow to run (default: `FlowStandard`)
 - `use_si_template::Bool`: Use StructuralIdentifiability.jl templates (default: true)
+- `system_construction_policy::Symbol`: Polynomial construction policy. `:noise_frontier` selects low-derivative full-rank systems, then minimizes mixed volume within that frontier; pass `:legacy` to restore the pre-frontier construction.
+- `construction_candidate_limit::Int`: Maximum number of same-derivative-cap frontier bases to evaluate in noise-frontier probes.
+- `construction_beam_width::Int`: Basis-exchange beam width for noise-frontier probes.
+- `construction_compute_mixed_volume::Bool`: Whether noise-frontier probes compute actual HC mixed volume for candidate bases.
 - `save_system::Bool`: Save polynomial systems to files (default: true)
 - `display_system::Bool`: Display system being solved (default: false)
 - `polish_only::Bool`: Only polish existing solutions (default: false)
@@ -549,6 +553,10 @@ Base.@kwdef struct EstimationOptions
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
 	use_si_template::Bool = true
+	system_construction_policy::Symbol = :noise_frontier
+	construction_candidate_limit::Int = 64
+	construction_beam_width::Int = 16
+	construction_compute_mixed_volume::Bool = true
 	save_system::Bool = true
 	display_system::Bool = false
 	polish_only::Bool = false
@@ -1394,6 +1402,19 @@ function validate_options(opts::EstimationOptions)
 		@warn "t0_state_completion=:seed_for_polish requires polish_solutions=true to be useful"
 	end
 
+	if !(opts.system_construction_policy in (:legacy, :noise_frontier))
+		@error "system_construction_policy must be :legacy or :noise_frontier (got $(opts.system_construction_policy))"
+		valid = false
+	end
+	if opts.construction_candidate_limit <= 0
+		@error "construction_candidate_limit must be positive (got $(opts.construction_candidate_limit))"
+		valid = false
+	end
+	if opts.construction_beam_width <= 0
+		@error "construction_beam_width must be positive (got $(opts.construction_beam_width))"
+		valid = false
+	end
+
 	if !(opts.uq_failure_policy in (:return_failed, :throw))
 		@error "uq_failure_policy must be :return_failed or :throw"
 		valid = false
@@ -1445,6 +1466,8 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
 			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
+		("System Construction", [:system_construction_policy, :construction_candidate_limit,
+			:construction_beam_width, :construction_compute_mixed_volume]),
 		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
 		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),

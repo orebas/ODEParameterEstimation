@@ -113,6 +113,17 @@ using OrderedCollections
         @test !ODEParameterEstimation.validate_options(invalid_placeholder_policy)
         @test !ODEParameterEstimation.validate_options(EstimationOptions(branch_completion_max_anchors = 0))
         @test !ODEParameterEstimation.validate_options(EstimationOptions(branch_completion_residual_tol = -1.0))
+        @test EstimationOptions().system_construction_policy == :noise_frontier
+        frontier_opts = EstimationOptions(
+            system_construction_policy = :noise_frontier,
+            construction_candidate_limit = 8,
+            construction_beam_width = 4,
+            construction_compute_mixed_volume = false,
+        )
+        @test ODEParameterEstimation.validate_options(frontier_opts)
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(system_construction_policy = :unknown))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(construction_candidate_limit = 0))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(construction_beam_width = 0))
 
         @test_throws ErrorException ODEParameterEstimation.merge_options(base; definitely_not_an_option = true)
 
@@ -120,6 +131,115 @@ using OrderedCollections
         @test :estimate ∉ public_names
         @test :solve_with_monodromy ∉ public_names
         @test :aaad_in_testing ∉ public_names
+    end
+
+    @testset "Noise-frontier construction probes" begin
+        opts = EstimationOptions(
+            datasize = 11,
+            noise_level = 0.0,
+            shooting_points = 3,
+            nooutput = true,
+            diagnostics = false,
+            save_system = false,
+            interpolator = InterpolatorAAAD,
+            interpolators = InterpolatorMethod[],
+            polish_solver_solutions = false,
+            polish_solutions = false,
+        )
+        pep = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), opts)
+        ident = ODEParameterEstimation.setup_identifiability(pep; max_num_points = 1, nooutput = true)
+        ordered_model = pep.model
+        si_template, _ = ODEParameterEstimation.prepare_si_template_with_structural_fix(
+            ordered_model,
+            pep.measured_quantities,
+            pep.data_sample,
+            ident.good_DD,
+            false;
+            states = ident.states,
+            params = ident.params,
+            infolevel = 0,
+            placeholder_fail_categories = opts.si_placeholder_fail_categories,
+        )
+        interp_func = ODEParameterEstimation.get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+        interpolants = ODEParameterEstimation.create_interpolants(
+            pep.measured_quantities,
+            pep.data_sample,
+            ident.t_vector,
+            interp_func,
+        )
+        setup = (
+            good_deriv_level = ident.good_deriv_level,
+            good_udict = ident.good_udict,
+            good_varlist = ident.good_varlist,
+            good_DD = ident.good_DD,
+            interpolants = interpolants,
+        )
+
+        sp = ODEParameterEstimation.build_noise_frontier_system(
+            pep,
+            setup,
+            si_template;
+            n_points = 1,
+            compute_mixed_volume = false,
+            candidate_limit = 8,
+            beam_width = 4,
+            diagnostics = false,
+        )
+        @test sp isa ODEParameterEstimation.NoiseFrontierResult
+        @test sp.n_points == 1
+        @test !isnothing(sp.selected)
+        @test sp.selected.rank_complete
+        @test sp.selected.is_square
+        @test sp.selected.max_observed_order == sp.minimal_max_observed_order
+        @test sp.selected.mixed_volume === nothing
+        @test length(sp.selected.equations) == length(sp.selected.solve_vars)
+        @test !isempty(ODEParameterEstimation.noise_frontier_rows(sp))
+        inst_eqs, inst_vars = ODEParameterEstimation.instantiate_noise_frontier_candidate(
+            sp.selected,
+            interpolants,
+            pep.data_sample,
+            pep.measured_quantities,
+            5,
+        )
+        @test length(inst_eqs) == length(inst_vars)
+
+        mp = ODEParameterEstimation.build_noise_frontier_system(
+            pep,
+            setup,
+            si_template;
+            n_points = 2,
+            compute_mixed_volume = false,
+            candidate_limit = 8,
+            beam_width = 4,
+            diagnostics = false,
+        )
+        @test mp.n_points == 2
+        @test !isnothing(mp.selected)
+        @test mp.selected.rank_complete
+        @test mp.selected.is_square
+        @test any(endswith(string(v), "_pt2") for v in vcat(mp.selected.solve_vars, mp.selected.data_vars))
+
+        mpt = ODEParameterEstimation.build_noise_frontier_multipoint_template(
+            pep,
+            setup,
+            si_template;
+            n_points = 2,
+            compute_mixed_volume = false,
+            candidate_limit = 8,
+            beam_width = 4,
+            diagnostics = false,
+        )
+        @test mpt isa ODEParameterEstimation.MultiPointTemplate
+        @test length(mpt.stripped_equations) == length(mpt.solve_vars)
+        @test length(mpt.per_point_data_var_ranges) == 2
+        mpe = ODEParameterEstimation.evaluate_multipoint_template(mpt, [3, 8], interpolants, pep.data_sample)
+        @test all(isfinite, mpe.data_values)
+        @test length(mpe.data_values) == length(mpt.data_vars)
+
+        csv_path = joinpath(mktempdir(), "noise_frontier.csv")
+        @test ODEParameterEstimation.write_noise_frontier_csv(csv_path, sp) == csv_path
+        @test isfile(csv_path)
+        @test occursin("mixed_volume", read(csv_path, String))
     end
 
     @testset "Branch-stress example registry" begin

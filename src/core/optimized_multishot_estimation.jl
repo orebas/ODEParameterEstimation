@@ -1583,7 +1583,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		data_vars = template_equations = solve_vars = extended_data_vars = trfn_info = trfn_vars_ordered = template_DD = nothing
 		precomputed_generic_solutions = nothing
 		precomputed_generic_params = nothing
-		if use_param_homotopy
+		if use_param_homotopy && opts.system_construction_policy == :legacy
 			_ph = _derive_param_homotopy_template(si_template, good_DD, opts)
 			template_DD = _ph.template_DD; data_vars = _ph.data_vars; template_equations = _ph.template_equations
 			solve_vars = _ph.solve_vars; extended_data_vars = _ph.extended_data_vars
@@ -1596,6 +1596,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					template_equations, solve_vars, extended_data_vars;
 					gamma_seed = opts.gamma_seed, show_progress = opts.hc_show_progress, debug = opts.diagnostics)
 			end
+		elseif use_param_homotopy && opts.system_construction_policy == :noise_frontier && opts.diagnostics
+			println("  [param-homotopy template] noise-frontier policy active; deriving template per interpolator after interpolants are available")
 		end
 
 		mp_generic_cache = nothing   # (key, sols, params) for the multipoint :generic_start solve, reused across interpolators
@@ -1615,6 +1617,82 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			_t_interp_elapsed = time() - _t_interp_start
 			_accumulate_timing!(interpolant_creation_seconds_by_source, interp_sym, _t_interp_elapsed)
 			interpolant_cache_for_seeds[interp_sym] = interpolants
+
+			frontier_sp_candidate = nothing
+			local_template_DD = template_DD
+			local_data_vars = data_vars
+			local_template_equations = template_equations
+			local_solve_vars = solve_vars
+			local_extended_data_vars = extended_data_vars
+			local_trfn_info = trfn_info
+			local_trfn_vars_ordered = trfn_vars_ordered
+			local_precomputed_generic_solutions = precomputed_generic_solutions
+			local_precomputed_generic_params = precomputed_generic_params
+			if opts.system_construction_policy == :noise_frontier
+				frontier_setup = (
+					good_deriv_level = good_deriv_level,
+					good_udict = good_udict,
+					good_varlist = good_varlist,
+					good_DD = good_DD,
+					interpolants = interpolants,
+				)
+				_t_frontier_start = time()
+				frontier_result = build_noise_frontier_system(
+					PEP,
+					frontier_setup,
+					si_template;
+					n_points = 1,
+					compute_mixed_volume = opts.construction_compute_mixed_volume,
+					candidate_limit = opts.construction_candidate_limit,
+					beam_width = opts.construction_beam_width,
+					diagnostics = opts.diagnostics,
+				)
+				frontier_sp_candidate = frontier_result.selected
+				if isnothing(frontier_sp_candidate)
+					@warn "[NOISE-FRONTIER] No single-point square full-rank candidate for interpolator; falling back to legacy construction" interpolator = interp_sym
+					if use_param_homotopy
+						_ph = _derive_param_homotopy_template(si_template, good_DD, merge_options(opts; system_construction_policy = :legacy))
+						local_template_DD = _ph.template_DD
+						local_data_vars = _ph.data_vars
+						local_template_equations = _ph.template_equations
+						local_solve_vars = _ph.solve_vars
+						local_extended_data_vars = _ph.extended_data_vars
+						local_trfn_info = _ph.trfn_info
+						local_trfn_vars_ordered = _ph.trfn_vars_ordered
+						if opts.homotopy_tracking_mode == :generic_start
+							local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
+								local_template_equations,
+								local_solve_vars,
+								local_extended_data_vars;
+								gamma_seed = opts.gamma_seed,
+								show_progress = opts.hc_show_progress,
+								debug = opts.diagnostics,
+							)
+						end
+					end
+				else
+					local_template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : good_DD
+					local_template_equations = frontier_sp_candidate.equations
+					local_solve_vars = frontier_sp_candidate.solve_vars
+					local_data_vars = frontier_sp_candidate.data_vars
+					local_extended_data_vars = frontier_sp_candidate.data_vars
+					local_trfn_info = Dict{Any, Any}()
+					local_trfn_vars_ordered = Any[]
+					if opts.diagnostics || !opts.nooutput
+						println("  [NOISE-FRONTIER][$interp_sym] SP selected K=$(frontier_sp_candidate.max_observed_order), eqs=$(length(local_template_equations)), solve_vars=$(length(local_solve_vars)), data_vars=$(length(local_extended_data_vars)), mixed_volume=$(frontier_sp_candidate.mixed_volume), build=$(round(time() - _t_frontier_start; digits=3))s")
+					end
+					if use_param_homotopy && opts.homotopy_tracking_mode == :generic_start
+						local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
+							local_template_equations,
+							local_solve_vars,
+							local_extended_data_vars;
+							gamma_seed = opts.gamma_seed,
+							show_progress = opts.hc_show_progress,
+							debug = opts.diagnostics,
+						)
+					end
+				end
+			end
 
 			if !opts.nooutput && n_interpolators > 1
 				println("  Interpolator $interp_idx/$n_interpolators: $interp_method ($interp_sym)")
@@ -1649,33 +1727,39 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			param_values_list = Vector{Vector{Float64}}()
 			for point_idx in point_indices
 				t_point = t_vector[point_idx]
-				# Evaluate observable derivative data vars
-				obs_param_values = evaluate_data_vars_at_point(
-					interpolants, data_vars, template_DD, PEP.measured_quantities, t_point
-				)
-				# Evaluate _trfn_ vars at this time point
-				trfn_values = Float64[]
-				for v in trfn_vars_ordered
-					func_type, frequency, deriv_order = trfn_info[v]
-					val = evaluate_trfn_template_variable(string(v), t_point)
-					if isnothing(val)
-						# Fallback: compute directly
-						if func_type == :sin
-							val = _eval_sin_derivative(frequency, t_point, deriv_order)
-						elseif func_type == :cos
-							val = _eval_cos_derivative(frequency, t_point, deriv_order)
-						else
-							val = _eval_exp_derivative(frequency, t_point, deriv_order)
+				param_values = if !isnothing(frontier_sp_candidate)
+					evaluate_noise_frontier_data_vars_at_point(
+						interpolants, local_extended_data_vars, PEP.measured_quantities, t_point
+					)
+				else
+					# Evaluate observable derivative data vars
+					obs_param_values = evaluate_data_vars_at_point(
+						interpolants, local_data_vars, local_template_DD, PEP.measured_quantities, t_point
+					)
+					# Evaluate _trfn_ vars at this time point
+					trfn_values = Float64[]
+					for v in local_trfn_vars_ordered
+						func_type, frequency, deriv_order = local_trfn_info[v]
+						val = evaluate_trfn_template_variable(string(v), t_point)
+						if isnothing(val)
+							# Fallback: compute directly
+							if func_type == :sin
+								val = _eval_sin_derivative(frequency, t_point, deriv_order)
+							elseif func_type == :cos
+								val = _eval_cos_derivative(frequency, t_point, deriv_order)
+							else
+								val = _eval_exp_derivative(frequency, t_point, deriv_order)
+							end
 						end
+						push!(trfn_values, val)
 					end
-					push!(trfn_values, val)
+					# Concatenate: observable data + _trfn_ data
+					vcat(obs_param_values, trfn_values)
 				end
-				# Concatenate: observable data + _trfn_ data
-				param_values = vcat(obs_param_values, trfn_values)
 				push!(param_values_list, param_values)
 
 				if opts.diagnostics
-					println("  Point $point_idx (t=$t_point): $(length(param_values)) parameter values ($(length(obs_param_values)) obs + $(length(trfn_values)) trfn)")
+					println("  Point $point_idx (t=$t_point): $(length(param_values)) parameter values")
 				end
 			end
 				_t_eval_elapsed = time() - _t_eval_start
@@ -1715,10 +1799,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				_t_hc_start = time()
 				solutions_by_point = solve_with_hc_parameterized(
-					template_equations, solve_vars, extended_data_vars, valid_param_values_list;
+					local_template_equations, local_solve_vars, local_extended_data_vars, valid_param_values_list;
 					options = solver_options,
-					precomputed_generic_solutions = precomputed_generic_solutions,
-					precomputed_generic_params = precomputed_generic_params,
+					precomputed_generic_solutions = local_precomputed_generic_solutions,
+					precomputed_generic_params = local_precomputed_generic_params,
 				)
 				_t_hc_elapsed = time() - _t_hc_start
 				_accumulate_timing!(single_point_hc_seconds_by_source, interp_sym, _t_hc_elapsed)
@@ -1735,20 +1819,26 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				# Optional: polish each raw solver solution using fast NLLS if requested
 				if opts.polish_solver_solutions && !isempty(point_solutions)
 					# Build the instantiated system for polishing (need concrete equations)
-					target_k, varlist_k = construct_equation_system_from_si_template(
-						PEP.model.system,
-						PEP.measured_quantities,
-						PEP.data_sample,
-						good_deriv_level,
-						good_udict,
-						good_varlist,
-						good_DD;
-						interpolator = interp_func,
-						time_index_set = [point_idx],
-						precomputed_interpolants = interpolants,
-						diagnostics = false,
-						si_template = si_template,
-					)
+					target_k, varlist_k = if !isnothing(frontier_sp_candidate)
+						instantiate_noise_frontier_candidate(
+							frontier_sp_candidate, interpolants, PEP.data_sample, PEP.measured_quantities, point_idx
+						)
+					else
+						construct_equation_system_from_si_template(
+							PEP.model.system,
+							PEP.measured_quantities,
+							PEP.data_sample,
+							good_deriv_level,
+							good_udict,
+							good_varlist,
+							good_DD;
+							interpolator = interp_func,
+							time_index_set = [point_idx],
+							precomputed_interpolants = interpolants,
+							diagnostics = false,
+							si_template = si_template,
+						)
+					end
 						reusable_system_cache[(:sp_kept, interp_sym, point_idx)] = (target_k, varlist_k)
 
 						polished_point = Vector{Vector{Float64}}()
@@ -1778,9 +1868,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 
 			# Set final varlist from template solve_vars
-			all_final_varlists = solve_vars
-			all_hc_vars = solve_vars
-			all_trimmed_vars = solve_vars
+			all_final_varlists = local_solve_vars
+			all_hc_vars = local_solve_vars
+			all_trimmed_vars = local_solve_vars
 
 			_t_interp_total = _t_interp_elapsed + _t_eval_elapsed + _t_hc_elapsed
 			if opts.diagnostics
@@ -1799,20 +1889,26 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				# Instantiate the SI template at this time point
 				_t_standard_point_start = time()
-					target_k, varlist_k = construct_equation_system_from_si_template(
-						PEP.model.system,
-					PEP.measured_quantities,
-					PEP.data_sample,
-					good_deriv_level,
-					good_udict,
-					good_varlist,
-					good_DD;
-					interpolator = interp_func,
-					time_index_set = [point_idx],
-					precomputed_interpolants = interpolants,
-					diagnostics = opts.diagnostics,
-						si_template = si_template,
-					)
+					target_k, varlist_k = if !isnothing(frontier_sp_candidate)
+						instantiate_noise_frontier_candidate(
+							frontier_sp_candidate, interpolants, PEP.data_sample, PEP.measured_quantities, point_idx
+						)
+					else
+						construct_equation_system_from_si_template(
+							PEP.model.system,
+							PEP.measured_quantities,
+							PEP.data_sample,
+							good_deriv_level,
+							good_udict,
+							good_varlist,
+							good_DD;
+							interpolator = interp_func,
+							time_index_set = [point_idx],
+							precomputed_interpolants = interpolants,
+							diagnostics = opts.diagnostics,
+							si_template = si_template,
+						)
+					end
 					reusable_system_cache[(:sp_kept, interp_sym, point_idx)] = (target_k, varlist_k)
 
 					final_target = target_k
@@ -1909,8 +2005,21 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			)
 			_t_mpt_template_start = time()
 			mpt = try
-				build_multipoint_template(PEP, _mpt_setup, si_template;
-					n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
+				if opts.system_construction_policy == :noise_frontier
+					build_noise_frontier_multipoint_template(
+						PEP,
+						_mpt_setup,
+						si_template;
+						n_points = opts.multipoint_n_points,
+						compute_mixed_volume = opts.construction_compute_mixed_volume,
+						candidate_limit = opts.construction_candidate_limit,
+						beam_width = opts.construction_beam_width,
+						diagnostics = opts.diagnostics,
+					)
+				else
+					build_multipoint_template(PEP, _mpt_setup, si_template;
+						n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
+				end
 			catch e
 				opts.diagnostics && @warn "[MULTIPOINT] Template build failed" exception = e
 				nothing
