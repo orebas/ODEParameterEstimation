@@ -600,6 +600,7 @@ function build_si_template_for_fixed_params(
 	infolevel = 0,
 	pre_fixed_params = OrderedDict{Num, Float64}(),
 	placeholder_fail_categories = Symbol[],
+	compute_multiplicity = true,
 )
 	template_equations, derivative_dict, unidentifiable, identifiable_funcs, si_variable_role_summary, si_template_metadata = get_si_equation_system(
 		ordered_model,
@@ -609,6 +610,7 @@ function build_si_template_for_fixed_params(
 		infolevel = infolevel,
 		pre_fixed_params = pre_fixed_params,
 		placeholder_fail_categories = placeholder_fail_categories,
+		compute_multiplicity = compute_multiplicity,
 	)
 	template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, base_DD, derivative_dict)
 	return (
@@ -657,6 +659,10 @@ function prepare_si_template_with_structural_fix(
 		infolevel = infolevel,
 		pre_fixed_params = OrderedDict{Num, Float64}(),
 		placeholder_fail_categories = placeholder_fail_categories,
+		# Detection pass: discovers what is unidentifiable on the raw model, so a
+		# partially identifiable system is positive-dimensional here by design.
+		# M is computed only on the final fixed template below.
+		compute_multiplicity = false,
 	)
 
 	structural_fix_info = derive_structural_fix_set(initial_template, diagnostics; states = states, params = params)

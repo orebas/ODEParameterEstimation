@@ -635,6 +635,7 @@ function get_si_equation_system(
 	p_mod = 0,
 	infolevel = 0,
 	pre_fixed_params::OrderedDict = OrderedDict(),  # Parameters already fixed in previous iterations
+	compute_multiplicity = true,  # false on detection passes: skip the algebraic-multiplicity Groebner step
 	kwargs...,
 )
 	@info "Getting equation system from StructuralIdentifiability.jl"
@@ -664,6 +665,7 @@ function get_si_equation_system(
 		params_to_assess;
 		p = p,
 		infolevel = infolevel,
+		compute_multiplicity = compute_multiplicity,
 	)
 	equation_builder_timing[:get_polynomial_system_from_sian] = time() - _t_get_polynomial_system_start
 
@@ -874,12 +876,17 @@ function get_si_equation_system(
 end
 
 """
-	get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0)
+	get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true)
 
 Get polynomial system using SIAN functions, adapted from PE.jl's implementation.
 This now properly builds the system Et through the iterative rank-checking process.
+
+`compute_multiplicity = false` skips the algebraic-multiplicity (M) Groebner step.
+Detection/intermediate passes of the structural-fix flow pass `false`: they run SIAN
+on the not-yet-fixed model, where partially identifiable systems are
+positive-dimensional by design and M is ill-defined.
 """
-function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0)
+function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true)
 	sian_timing = OrderedDict{Symbol, Float64}()
 	algebraic_multiplicity_timing = OrderedDict{Symbol, Any}()
 	# Get equations using SIAN
@@ -1047,13 +1054,24 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# SIAN.jl:267 (and which our local SIAN patch exposes); replicating it here
 	# avoids a second SIAN.identifiability_ode call.
 	#
-	# Skipped when theta_l is empty (no locally identifiable variables → M
-	# ill-defined; system is fully non-identifiable). NO fallback on Groebner
-	# failure — we want to surface those as errors, not silently degrade. If a
-	# specific system runs into a Groebner issue, the right fix is upstream
-	# (or a more careful sample-bound D2) rather than a try/catch here.
+	# Skipped when `compute_multiplicity` is false — the detection pass of
+	# prepare_si_template_with_structural_fix runs SIAN on the not-yet-fixed
+	# model, where partially identifiable systems are positive-dimensional BY
+	# DESIGN and M is ill-defined; only the final fixed pass computes M (its
+	# value is the only one consumed downstream). Also skipped when theta_l is
+	# empty (no locally identifiable variables → M ill-defined; system is fully
+	# non-identifiable). Genuine Groebner FAILURES (e.g. BoundsError-class bugs)
+	# still propagate — no broad fallback; the right fix for those is upstream.
+	# The one narrow exception: quotient_basis documents raising DomainError iff
+	# the ideal is not zero-dimensional — a legitimate semantic outcome when
+	# unidentifiable directions survive fixing — which we treat as "M undefined"
+	# (nothing), not as a failure.
 	# Timing is logged unconditionally so we can spot pathological cases.
-	algebraic_multiplicity = if isempty(theta_l)
+	algebraic_multiplicity = if !compute_multiplicity
+		algebraic_multiplicity_timing[:skipped] = true
+		algebraic_multiplicity_timing[:gated_detection_pass] = true
+		nothing
+	elseif isempty(theta_l)
 		@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (theta_l empty → fully non-identifiable)"
 		algebraic_multiplicity_timing[:skipped] = true
 		nothing
@@ -1076,15 +1094,26 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 			gb_input = vcat(Et_hat_gb, SIAN.parent_ring_change(z_aux_var * Q_hat_eval, Rjet_gb) - 1)
 		end
 		_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
-		_M_qb_t = @elapsed M_value = length(Groebner.quotient_basis(gb))
-		algebraic_multiplicity_timing[:skipped] = false
+		_M_qb_t = @elapsed begin
+			M_value = try
+				length(Groebner.quotient_basis(gb))
+			catch e
+				e isa DomainError || rethrow()
+				@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (ideal not zero-dimensional — unidentifiable directions remain after fixing)"
+				algebraic_multiplicity_timing[:positive_dimensional] = true
+				nothing
+			end
+		end
+		algebraic_multiplicity_timing[:skipped] = isnothing(M_value)
 		algebraic_multiplicity_timing[:setup_seconds] = _M_setup_t
 		algebraic_multiplicity_timing[:groebner_seconds] = _M_gb_t
 		algebraic_multiplicity_timing[:quotient_basis_seconds] = _M_qb_t
 		algebraic_multiplicity_timing[:ring_variable_count] = length(vrs_sorted_gb)
 		algebraic_multiplicity_timing[:polynomial_count] = length(gb_input)
-		algebraic_multiplicity_timing[:multiplicity] = M_value
-		@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value  (setup $(round(_M_setup_t, digits=2))s, Groebner $(round(_M_gb_t, digits=2))s, quotient_basis $(round(_M_qb_t, digits=2))s, ring: $(length(vrs_sorted_gb)) vars × $(length(gb_input)) polys)"
+		if !isnothing(M_value)
+			algebraic_multiplicity_timing[:multiplicity] = M_value
+			@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value  (setup $(round(_M_setup_t, digits=2))s, Groebner $(round(_M_gb_t, digits=2))s, quotient_basis $(round(_M_qb_t, digits=2))s, ring: $(length(vrs_sorted_gb)) vars × $(length(gb_input)) polys)"
+		end
 		M_value
 	end
 
