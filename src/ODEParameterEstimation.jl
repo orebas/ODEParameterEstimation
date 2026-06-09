@@ -75,7 +75,6 @@ include("core/si_equation_builder.jl")  # StructuralIdentifiability integration
 include("core/transcendental_utils.jl")  # Transcendental function handling (sin/cos/exp) — after si_equation_builder for parse_derivative_variable_name
 include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
-include("core/robust_conversion.jl")  # New robust conversion utilities
 include("core/solve_with_robust.jl")  # Robust solver with multiple fallbacks
 include("core/pointpicker.jl")
 
