@@ -95,12 +95,15 @@ include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariance
 include("core/sampling.jl")
 include("core/svg_plots.jl")
 include("core/diagnostics.jl")
-include("core/consensus_estimation.jl")
-include("core/consensus_reporting.jl")
-include("core/synthesized_finalizer.jl")
-include("core/branch_consensus_v1.jl")
-include("core/benchmark_sweeps.jl")
-include("core/block_consensus_v2.jl")
+# Research / benchmark-only consensus + sweep tooling (NOT in the estimation pipeline).
+# Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
+# only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
+include("research/consensus_estimation.jl")
+include("research/consensus_reporting.jl")
+include("research/synthesized_finalizer.jl")
+include("research/branch_consensus_v1.jl")
+include("research/benchmark_sweeps.jl")
+include("research/block_consensus_v2.jl")
 include("examples/load_examples.jl")
 
 # Export types

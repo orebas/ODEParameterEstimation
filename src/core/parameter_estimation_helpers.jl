@@ -9,6 +9,24 @@ using Statistics
 # Use functions from the current module
 using ..ODEParameterEstimation
 
+# Shared helper relocated from consensus_estimation.jl (2026-06-09) to sever the only
+# production -> research call hook. Builds a "candidate-as-truth" PEP from a result.
+# Production callers: branch_completion.jl, sensitivity_seeds.jl. Also used by the
+# research consensus cluster now living under src/research/.
+function _consensus_candidate_pep(pep::ParameterEstimationProblem, candidate::ParameterEstimationResult)
+	return ParameterEstimationProblem(
+		pep.name,
+		pep.model,
+		pep.measured_quantities,
+		pep.data_sample,
+		pep.recommended_time_interval,
+		pep.solver,
+		OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in candidate.parameters),
+		OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in candidate.states),
+		pep.unident_count,
+	)
+end
+
 const UNSUPPORTED_MODEL_CATEGORY_PRIORITY = (
 	:state_trigonometric,
 	:sqrt_nonlinearity,

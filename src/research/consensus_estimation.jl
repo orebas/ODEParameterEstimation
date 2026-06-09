@@ -3,19 +3,9 @@ function _consensus_source_symbol(candidate, default_source::Symbol)
     return isnothing(source) ? default_source : source
 end
 
-function _consensus_candidate_pep(pep::ParameterEstimationProblem, candidate::ParameterEstimationResult)
-    return ParameterEstimationProblem(
-        pep.name,
-        pep.model,
-        pep.measured_quantities,
-        pep.data_sample,
-        pep.recommended_time_interval,
-        pep.solver,
-        OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in candidate.parameters),
-        OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in candidate.states),
-        pep.unident_count,
-    )
-end
+# _consensus_candidate_pep relocated to core/parameter_estimation_helpers.jl (2026-06-09)
+# so production (branch_completion, sensitivity_seeds) no longer calls into this
+# research file. It remains available in the module namespace for use here.
 
 function _consensus_support_labels(si_template, pep::ParameterEstimationProblem)
     obs_names = Set(replace(string(mq.lhs), "(t)" => "") for mq in pep.measured_quantities)
