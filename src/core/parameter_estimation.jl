@@ -854,6 +854,8 @@ function compute_default_bounds(PEP::ParameterEstimationProblem)
 end
 
 function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode_solver; abstol = 1e-12, reltol = 1e-12)
+	process_t0 = time()
+	process_stages = OrderedDict{Symbol, Float64}()
 	# Create ordered collections for states and parameters
 	ordered_states = OrderedDict()
 	ordered_params = OrderedDict()
@@ -886,31 +888,39 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	# Solve ODE problem
 	tspan = (data_sample["t"][begin], data_sample["t"][end])
 
-	prob = ODEProblem(complete(model.system), merge(ordered_states, ordered_params), tspan)
+	prob = _timed_detail_stage!(process_stages, :ode_problem_build) do
+		ODEProblem(complete(model.system), merge(ordered_states, ordered_params), tspan)
+	end
 	# Catch exceptions thrown from inside the integrator (e.g. SingularException from
 	# implicit-Newton step on rank-deficient candidate Jacobians at high noise on
 	# stiff systems). Existing retcode-based blowup handling below treats `nothing`
 	# the same as `retcode != Success`, rejecting the candidate via err = 1e+15.
-	ode_solution = try
-		ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
-	catch e
-		@warn "ODE integration of HC candidate threw $(typeof(e)); rejecting candidate" exception = e
-		nothing
+	ode_threw = false
+	ode_solution = _timed_detail_stage!(process_stages, :ode_solve) do
+		try
+			ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+		catch e
+			ode_threw = true
+			@warn "ODE integration of HC candidate threw $(typeof(e)); rejecting candidate" exception = e
+			nothing
+		end
 	end
 
 	# Calculate error
 	err = 0
-	if ode_solution !== nothing && ode_solution.retcode == ReturnCode.Success
-		err = 0
-		for (key, sample) in data_sample
-			if isequal(key, "t")
-				continue
+	_timed_detail_stage!(process_stages, :error_eval) do
+		if ode_solution !== nothing && ode_solution.retcode == ReturnCode.Success
+			err = 0
+			for (key, sample) in data_sample
+				if isequal(key, "t")
+					continue
+				end
+				err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
 			end
-			err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
+			err /= length(data_sample)
+		else
+			err = 1e+15
 		end
-		err /= length(data_sample)
-	else
-		err = 1e+15
 	end
 
 
@@ -926,6 +936,19 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 		ordered_params[param] = raw_sol[param_offset+idx]
 	end
 
+	_record_detailed_timing!((
+		category = :process_raw_solution,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - process_t0,
+		stage_seconds = copy(process_stages),
+		state_count = length(current_states),
+		parameter_count = length(current_params),
+		data_point_count = length(data_sample["t"]),
+		data_series_count = max(length(data_sample) - 1, 0),
+		ode_success = ode_solution !== nothing && ode_solution.retcode == ReturnCode.Success,
+		ode_threw = ode_threw,
+		err = Float64(err),
+	))
 
 	return ordered_states, ordered_params, ode_solution, err
 end
@@ -2065,6 +2088,8 @@ function _build_polish_context(
 	opts::EstimationOptions = EstimationOptions(),
 	coordinate_transform::Union{Nothing, Symbol} = nothing,
 )
+	context_t0 = time()
+	context_stages = OrderedDict{Symbol, Float64}()
 	# When the caller leaves `coordinate_transform` unset, residual polish methods
 	# pick up `opts.polish_coordinate_policy` (default `:auto` = per-variable);
 	# scalar polish methods default to `:linear` to preserve byte-equivalent legacy
@@ -2087,18 +2112,24 @@ function _build_polish_context(
 	p_size = n_ic + n_param
 
 	# Complete model once (not 28× per polish run)
-	new_model = complete(PEP.model.system)
+	new_model = _timed_detail_stage!(context_stages, :complete_model) do
+		complete(PEP.model.system)
+	end
 	t_vector = Float64.(PEP.data_sample["t"])
 	tspan = (t_vector[1], t_vector[end])
 
 	# Compile observable functions once (not 28× per polish run)
-	obs_funcs = Function[
-		let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
-			f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
-			(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
-		end for eq in PEP.measured_quantities
-	]
-	data_targets = Vector{Float64}[Float64.(PEP.data_sample[eq.rhs]) for eq in PEP.measured_quantities]
+	obs_funcs = _timed_detail_stage!(context_stages, :build_observable_functions) do
+		Function[
+			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
+				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
+				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
+			end for eq in PEP.measured_quantities
+		]
+	end
+	data_targets = _timed_detail_stage!(context_stages, :materialize_data_targets) do
+		Vector{Float64}[Float64.(PEP.data_sample[eq.rhs]) for eq in PEP.measured_quantities]
+	end
 
 	# Solver and tolerances
 	solver = PEP.solver
@@ -2109,7 +2140,9 @@ function _build_polish_context(
 	# Build base ODEProblem once — remake inside loss will swap u0/p values
 	u0_default = Dict(unknown_syms .=> zeros(n_ic))
 	p_default = Dict(param_syms .=> ones(n_param))
-	base_ode_prob = ODEProblem(new_model, merge(u0_default, p_default), tspan)
+	base_ode_prob = _timed_detail_stage!(context_stages, :base_ode_problem) do
+		ODEProblem(new_model, merge(u0_default, p_default), tspan)
+	end
 
 	# Bounds: use user-specified if valid, otherwise auto-compute from data scale.
 	# Note: only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
@@ -2134,34 +2167,68 @@ function _build_polish_context(
 
 	# Loss closure capturing all invariants — uses remake for efficiency
 	function loss(p_internal)
+		loss_t0 = time()
+		loss_stages = OrderedDict{Symbol, Float64}()
 		p_all = _polish_internal_to_external(p_internal, transforms, shifts)
 		ic_guess = @view p_all[1:n_ic]
 		param_guess = @view p_all[(n_ic+1):end]
 
-		prob_opt = remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess), build_initializeprob = false)
-		sol_opt = try
-			ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol, maxiters = ode_maxiters)
-		catch e
-			@warn "ODE solver failed during polish" exception = (e, catch_backtrace())
+		prob_opt = _timed_detail_stage!(loss_stages, :ode_remake) do
+			remake(base_ode_prob; u0 = Dict(unknown_syms .=> ic_guess), p = Dict(param_syms .=> param_guess), build_initializeprob = false)
+		end
+		ode_threw = false
+		sol_opt = _timed_detail_stage!(loss_stages, :ode_solve) do
+			try
+				ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol, maxiters = ode_maxiters)
+			catch e
+				ode_threw = true
+				@warn "ODE solver failed during polish" exception = (e, catch_backtrace())
+				nothing
+			end
+		end
+		if sol_opt === nothing || sol_opt.retcode != ReturnCode.Success
+			_record_detailed_timing!((
+				category = :polish_scalar_loss_eval,
+				context = _current_detailed_timing_context(),
+				total_seconds = time() - loss_t0,
+				stage_seconds = copy(loss_stages),
+				ode_success = false,
+				ode_threw = ode_threw,
+				data_point_count = length(t_vector),
+				observable_count = length(obs_funcs),
+			))
 			return Inf
 		end
-		(sol_opt.retcode != ReturnCode.Success) && (return Inf)
 
 		total_error = zero(eltype(p_all))
-		for (j, f) in enumerate(obs_funcs)
-			data_true = data_targets[j]
-			local_err = zero(eltype(p_all))
-			@inbounds for i in eachindex(t_vector)
-				val = f(sol_opt.u[i], param_guess)
-				diff = val - data_true[i]
-				local_err += diff * diff
+		_timed_detail_stage!(loss_stages, :observable_error_eval) do
+			for (j, f) in enumerate(obs_funcs)
+				data_true = data_targets[j]
+				local_err = zero(eltype(p_all))
+				@inbounds for i in eachindex(t_vector)
+					val = f(sol_opt.u[i], param_guess)
+					diff = val - data_true[i]
+					local_err += diff * diff
+				end
+				total_error += local_err
 			end
-			total_error += local_err
 		end
+		_record_detailed_timing!((
+			category = :polish_scalar_loss_eval,
+			context = _current_detailed_timing_context(),
+			total_seconds = time() - loss_t0,
+			stage_seconds = copy(loss_stages),
+			ode_success = true,
+			ode_threw = false,
+			data_point_count = length(t_vector),
+			observable_count = length(obs_funcs),
+		))
 		return total_error
 	end
 
-	optf = Optimization.OptimizationFunction((x, _) -> loss(x), adtype)
+	optf = _timed_detail_stage!(context_stages, :optimization_function) do
+		Optimization.OptimizationFunction((x, _) -> loss(x), adtype)
+	end
 
 	# User-facing symbol ordering for result construction
 	state_syms_out = collect(keys(PEP.ic))
@@ -2169,7 +2236,7 @@ function _build_polish_context(
 	state_index = Dict(s => i for (i, s) in enumerate(unknown_syms))
 	param_index = Dict(p => i for (i, p) in enumerate(param_syms))
 
-	return PolishContext(
+	ctx = PolishContext(
 		unknown_syms = unknown_syms,
 		param_syms = param_syms,
 		n_ic = n_ic,
@@ -2200,6 +2267,18 @@ function _build_polish_context(
 		softwall_lambda = opts.polish_softwall_lambda,
 		softwall_epsilon = opts.polish_softwall_epsilon,
 	)
+	_record_detailed_timing!((
+		category = :polish_context_build,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - context_t0,
+		stage_seconds = copy(context_stages),
+		state_count = n_ic,
+		parameter_count = n_param,
+		observable_count = length(PEP.measured_quantities),
+		data_point_count = length(t_vector),
+		polish_method = opts.polish_method,
+	))
+	return ctx
 end
 
 """
@@ -2610,6 +2689,8 @@ function _polish_batch_from_context(
 	candidates::AbstractVector;
 	opts::EstimationOptions = EstimationOptions(),
 )
+	batch_t0 = time()
+	batch_stages = OrderedDict{Symbol, Float64}()
 	residual_mode = is_residual_polish_method(opts.polish_method)
 	# Build the legacy scalar optimizer instance only when actually needed; residual
 	# methods route through `_polish_single_residual` and don't take an `optimizer` arg.
@@ -2645,7 +2726,9 @@ function _polish_batch_from_context(
 		end
 	end
 
-	cluster_meta = _polish_cluster_metadata(ctx, candidates; opts = opts)
+	cluster_meta = _timed_detail_stage!(batch_stages, :cluster_metadata) do
+		_polish_cluster_metadata(ctx, candidates; opts = opts)
+	end
 	cluster_reps = cluster_meta.cluster_reps
 	clamped_p0s = cluster_meta.clamped_p0s
 
@@ -2737,22 +2820,26 @@ function _polish_batch_from_context(
 		return nothing
 	end
 
-	workers = [Threads.@spawn begin
-		for (task_idx, rep_idx) in work_chan
-			_polish_one(task_idx, rep_idx)
-		end
-	end for _ in 1:n_workers]
-	foreach(wait, workers)
+	_timed_detail_stage!(batch_stages, :worker_polish) do
+		workers = [Threads.@spawn begin
+			for (task_idx, rep_idx) in work_chan
+				_polish_one(task_idx, rep_idx)
+			end
+		end for _ in 1:n_workers]
+		foreach(wait, workers)
+	end
 
 	# Collect results: all original candidates (unpolished baselines) + polished results, in input order.
 	polished_results = ParameterEstimationResult[]
-	for candidate in candidates
-		push!(polished_results, candidate)
-	end
 	polished_only = ParameterEstimationResult[]
-	for slot in task_results
-		append!(polished_results, slot)
-		append!(polished_only, slot)
+	_timed_detail_stage!(batch_stages, :collect_results) do
+		for candidate in candidates
+			push!(polished_results, candidate)
+		end
+		for slot in task_results
+			append!(polished_results, slot)
+			append!(polished_only, slot)
+		end
 	end
 
 	# Optional instrumentation: dump the polished-only outputs (one per cluster rep,
@@ -2782,6 +2869,19 @@ function _polish_batch_from_context(
 	if !opts.nooutput
 		println("  Polish total: $(round(time() - polish_start; digits=1))s for $n_unique unique solutions (from $n_candidates candidates)")
 	end
+	_record_detailed_timing!((
+		category = :polish_batch,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - batch_t0,
+		stage_seconds = copy(batch_stages),
+		candidate_count = n_candidates,
+		unique_start_count = n_unique,
+		worker_count = n_workers,
+		thread_count = Threads.nthreads(),
+		residual_mode = residual_mode,
+		polished_only_count = length(polished_only),
+		output_count = length(polished_results),
+	))
 	return polished_results
 end
 

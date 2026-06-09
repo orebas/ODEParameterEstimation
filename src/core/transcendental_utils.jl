@@ -708,6 +708,26 @@ function _parse_trfn_base_name(base_name::AbstractString)
 	return (func_type, frequency)
 end
 
+function _parse_trfn_template_name(var_name::AbstractString)
+	clean_name = replace(String(var_name), r"\(.*\)" => "")
+
+	# Encoded frequencies often end in digits, e.g. _trfn_sin_0_5 for sin(0.5t).
+	# Treat a whole-name parse as a bare order-0 variable before peeling _N.
+	trfn_parsed = _parse_trfn_base_name(clean_name)
+	if !isnothing(trfn_parsed)
+		func_type, frequency = trfn_parsed
+		return (clean_name, func_type, frequency, 0)
+	end
+
+	parsed = parse_derivative_variable_name(clean_name)
+	isnothing(parsed) && return nothing
+	base_name, deriv_order = parsed
+	trfn_parsed = _parse_trfn_base_name(base_name)
+	isnothing(trfn_parsed) && return nothing
+	func_type, frequency = trfn_parsed
+	return (base_name, func_type, frequency, deriv_order)
+end
+
 """
 	_is_trfn_observable(mq_rhs::Num) -> Bool
 
@@ -729,12 +749,7 @@ input variable (or its derivative). These have the form `_trfn_{type}_{freq}_{or
 - `true` if the variable is a _trfn_ template variable
 """
 function is_trfn_template_variable(var_name::AbstractString)
-	parsed = parse_derivative_variable_name(var_name)
-	if isnothing(parsed)
-		return false
-	end
-	base_name, _ = parsed
-	return !isnothing(_parse_trfn_base_name(base_name))
+	return !isnothing(_parse_trfn_template_name(var_name))
 end
 
 """
@@ -751,23 +766,9 @@ Uses the known analytical derivatives of sin/cos/exp.
 - `Float64` value, or `nothing` if the variable is not a _trfn_ variable
 """
 function evaluate_trfn_template_variable(var_name::AbstractString, t_value::Float64)
-	# Handle both SIAN style ("_trfn_sin_5_0_0") and Symbolics style ("_trfn_sin_5_0(t)")
-	clean_name = replace(String(var_name), r"\(.*\)" => "")
-	parsed = parse_derivative_variable_name(clean_name)
-	if isnothing(parsed)
-		# Bare name with no _N suffix → try as order 0
-		trfn_parsed = _parse_trfn_base_name(clean_name)
-		isnothing(trfn_parsed) && return nothing
-		base_name = clean_name
-		deriv_order = 0
-	else
-		base_name, deriv_order = parsed
-	end
-	trfn_parsed = _parse_trfn_base_name(base_name)
-	if isnothing(trfn_parsed)
-		return nothing
-	end
-	func_type, frequency = trfn_parsed
+	parsed = _parse_trfn_template_name(var_name)
+	isnothing(parsed) && return nothing
+	_, func_type, frequency, deriv_order = parsed
 
 	if func_type == :sin
 		return _eval_sin_derivative(frequency, t_value, deriv_order)
@@ -797,15 +798,11 @@ function classify_trfn_in_template(solve_vars, data_vars_set, template_equations
 
 	for v in solve_vars
 		var_name = string(v)
-		parsed = parse_derivative_variable_name(var_name)
+		parsed = _parse_trfn_template_name(var_name)
 		if !isnothing(parsed)
-			base_name, deriv_order = parsed
-			trfn_parsed = _parse_trfn_base_name(base_name)
-			if !isnothing(trfn_parsed)
-				func_type, frequency = trfn_parsed
-				trfn_var_info[v] = (func_type, frequency, deriv_order)
-				continue
-			end
+			_, func_type, frequency, deriv_order = parsed
+			trfn_var_info[v] = (func_type, frequency, deriv_order)
+			continue
 		end
 		push!(real_solve_vars, v)
 	end
@@ -880,6 +877,26 @@ function _parse_obs_trfn_base_name(base_name::AbstractString)
 	return nothing
 end
 
+function _parse_obs_trfn_template_name(var_name::AbstractString)
+	clean_name = replace(String(var_name), r"\(.*\)" => "")
+
+	# Exp observable names can be bare encoded frequencies ending in digits, e.g.
+	# _obs_trfn_exp_0_5. Parse the whole name before interpreting _5 as an order.
+	obs_parsed = _parse_obs_trfn_base_name(clean_name)
+	if !isnothing(obs_parsed)
+		func_type, frequency = obs_parsed
+		return (clean_name, func_type, frequency, 0)
+	end
+
+	parsed = parse_derivative_variable_name(clean_name)
+	isnothing(parsed) && return nothing
+	base_name, deriv_order = parsed
+	obs_parsed = _parse_obs_trfn_base_name(String(base_name))
+	isnothing(obs_parsed) && return nothing
+	func_type, frequency = obs_parsed
+	return (base_name, func_type, frequency, deriv_order)
+end
+
 """
 	is_obs_trfn_template_variable(var_name::AbstractString)
 
@@ -890,12 +907,7 @@ observable variable (or its derivative).
 - `true` if the variable is an `_obs_trfn_` template variable
 """
 function is_obs_trfn_template_variable(var_name::AbstractString)
-	parsed = parse_derivative_variable_name(var_name)
-	if isnothing(parsed)
-		return false
-	end
-	base_name, _ = parsed
-	return !isnothing(_parse_obs_trfn_base_name(String(base_name)))
+	return !isnothing(_parse_obs_trfn_template_name(var_name))
 end
 
 """
@@ -912,30 +924,58 @@ Uses the known analytical derivatives of sin/cos/exp.
 - `Float64` value, or `nothing` if the variable is not an `_obs_trfn_` variable
 """
 function evaluate_obs_trfn_template_variable(var_name::AbstractString, t_value::Float64)
-	# Handle both SIAN style ("_obs_trfn_cos_0_5_cos_0") and
-	# Symbolics style ("_obs_trfn_cos_0_5_cos(t)")
-	clean_name = replace(String(var_name), r"\(.*\)" => "")
-	parsed = parse_derivative_variable_name(clean_name)
-	if isnothing(parsed)
-		# Bare name with no _N suffix → order 0
-		trfn_parsed = _parse_obs_trfn_base_name(clean_name)
-		isnothing(trfn_parsed) && return nothing
-		base_name = clean_name
-		deriv_order = 0
-	else
-		base_name, deriv_order = parsed
-	end
-	trfn_parsed = _parse_obs_trfn_base_name(String(base_name))
-	if isnothing(trfn_parsed)
-		return nothing
-	end
-	func_type, frequency = trfn_parsed
+	parsed = _parse_obs_trfn_template_name(var_name)
+	isnothing(parsed) && return nothing
+	_, func_type, frequency, deriv_order = parsed
 	if func_type == :sin
 		return _eval_sin_derivative(frequency, t_value, deriv_order)
 	elseif func_type == :cos
 		return _eval_cos_derivative(frequency, t_value, deriv_order)
 	elseif func_type == :exp
 		return _eval_exp_derivative(frequency, t_value, deriv_order)
+	end
+	return nothing
+end
+
+"""
+	evaluate_known_trfn_variable(var_name, t_value)
+
+Evaluate `_trfn_` and `_obs_trfn_` variables, including Symbolics derivative
+forms such as `Differential(t, 2)(_obs_trfn_cos_5_0_sin(t))`.
+"""
+function evaluate_known_trfn_variable(var_name::AbstractString, t_value::Float64)
+	raw_name = String(var_name)
+	direct = evaluate_trfn_template_variable(raw_name, t_value)
+	isnothing(direct) && (direct = evaluate_obs_trfn_template_variable(raw_name, t_value))
+	!isnothing(direct) && return direct
+
+	m = match(r"^Differential\(t(?:,\s*(\d+))?\)\((.*)\)$", raw_name)
+	isnothing(m) && return nothing
+	deriv_order = isnothing(m.captures[1]) ? 1 : parse(Int, m.captures[1])
+	base_name = replace(strip(m.captures[2]), r"\(.*\)$" => "")
+
+	parsed = _parse_trfn_base_name(base_name)
+	if !isnothing(parsed)
+		func_type, frequency = parsed
+		if func_type == :sin
+			return _eval_sin_derivative(frequency, t_value, deriv_order)
+		elseif func_type == :cos
+			return _eval_cos_derivative(frequency, t_value, deriv_order)
+		elseif func_type == :exp
+			return _eval_exp_derivative(frequency, t_value, deriv_order)
+		end
+	end
+
+	parsed = _parse_obs_trfn_base_name(base_name)
+	if !isnothing(parsed)
+		func_type, frequency = parsed
+		if func_type == :sin
+			return _eval_sin_derivative(frequency, t_value, deriv_order)
+		elseif func_type == :cos
+			return _eval_cos_derivative(frequency, t_value, deriv_order)
+		elseif func_type == :exp
+			return _eval_exp_derivative(frequency, t_value, deriv_order)
+		end
 	end
 	return nothing
 end

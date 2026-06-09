@@ -57,8 +57,141 @@ function _capture_estimation_timing(f::Function)
 	end
 end
 
+"""
+	with_estimation_timing(f) -> (value, timing)
+
+Run an estimation workflow while capturing the package's structured timing
+breakdown, even when `profile_phases=false`.
+"""
+function with_estimation_timing(f::Function)
+	return _capture_estimation_timing(f)
+end
+
 function _last_estimation_reuse()
 	return _LAST_ESTIMATION_REUSE[]
+end
+
+function _timing_json_value(value)
+	if value === nothing || value isa AbstractString || value isa Bool || value isa Real
+		return value
+	elseif value isa Symbol
+		return string(value)
+	elseif value isa TimingPhaseEntry
+		return OrderedDict{String, Any}(
+			"name" => value.name,
+			"seconds" => value.seconds,
+			"bytes" => value.bytes,
+			"gctime" => value.gctime,
+		)
+	elseif value isa TimingBreakdown
+		return timing_breakdown_to_dict(value)
+	elseif value isa NamedTuple
+		out = OrderedDict{String, Any}()
+		for k in keys(value)
+			out[string(k)] = _timing_json_value(getfield(value, k))
+		end
+		return out
+	elseif value isa AbstractDict
+		out = OrderedDict{String, Any}()
+		for (k, v) in value
+			out[string(k)] = _timing_json_value(v)
+		end
+		return out
+	elseif value isa AbstractVector || value isa Tuple
+		return Any[_timing_json_value(v) for v in value]
+	else
+		return string(value)
+	end
+end
+
+function timing_breakdown_to_dict(timing::TimingBreakdown)
+	return OrderedDict{String, Any}(
+		"label" => string(timing.label),
+		"total_seconds" => timing.total_seconds,
+		"phases" => Any[_timing_json_value(entry) for entry in timing.phases],
+		"details" => _timing_json_value(timing.details),
+	)
+end
+
+function _hc_structure_key(poly_system, solve_vars, data_vars)
+	return hash((string.(poly_system), string.(solve_vars), string.(data_vars)))
+end
+
+# Noise-frontier selection is structural by default: row choice is based on a
+# generic data/transcendental specialization, then reused across interpolators.
+function _noise_frontier_run_cache_key(policy::Symbol, n_points::Int, opts::EstimationOptions; selection_mode::Symbol = :generic, interpolator::Union{Nothing, Symbol} = nothing)
+	return (
+		policy,
+		selection_mode,
+		policy == :noise_frontier && selection_mode == :generic ? nothing : interpolator,
+		n_points,
+		opts.construction_compute_mixed_volume,
+		opts.construction_candidate_limit,
+		opts.construction_beam_width,
+	)
+end
+
+function _summarize_resolve_timing(records::Vector{NamedTuple})
+	summary = OrderedDict{Symbol, OrderedDict{Symbol, Any}}()
+	for record in records
+		context = hasproperty(record, :context) ? record.context : :unspecified
+		entry = get!(summary, context) do
+			OrderedDict{Symbol, Any}(
+				:count => 0,
+				:total_seconds => 0.0,
+				:sian_rerun_seconds => 0.0,
+				:instantiate_seconds => 0.0,
+				:hc_solve_seconds => 0.0,
+				:cascading_seconds => 0.0,
+				:cascade_hc_solve_seconds => 0.0,
+				:max_seconds => 0.0,
+				:threw_count => 0,
+				:hc_success_count => 0,
+			)
+		end
+		stages = hasproperty(record, :stage_seconds) ? record.stage_seconds : OrderedDict{Symbol, Float64}()
+		total = Float64(hasproperty(record, :total_seconds) ? record.total_seconds : 0.0)
+		entry[:count] += 1
+		entry[:total_seconds] += total
+		entry[:sian_rerun_seconds] += Float64(get(stages, :sian_rerun, 0.0))
+		entry[:instantiate_seconds] += Float64(get(stages, :instantiate, 0.0))
+		entry[:hc_solve_seconds] += Float64(get(stages, :hc_solve, 0.0))
+		entry[:cascading_seconds] += Float64(get(stages, :cascading, 0.0))
+		entry[:cascade_hc_solve_seconds] += Float64(get(stages, :cascade_hc_solve, 0.0))
+		entry[:max_seconds] = max(Float64(entry[:max_seconds]), total)
+		(hasproperty(record, :status) ? record.status : :unknown) == :threw && (entry[:threw_count] += 1)
+		(hasproperty(record, :hc_status) ? record.hc_status : :unknown) == :success && (entry[:hc_success_count] += 1)
+	end
+	return summary
+end
+
+function _summarize_detailed_timing(records::Vector{NamedTuple})
+	summary = OrderedDict{Symbol, OrderedDict{Symbol, Any}}()
+	for record in records
+		category = hasproperty(record, :category) ? record.category : :unspecified
+		entry = get!(summary, category) do
+			OrderedDict{Symbol, Any}(
+				:count => 0,
+				:total_seconds => 0.0,
+				:max_seconds => 0.0,
+				:stage_seconds => OrderedDict{Symbol, Float64}(),
+				:context_counts => OrderedDict{Symbol, Int}(),
+			)
+		end
+		total = Float64(hasproperty(record, :total_seconds) ? record.total_seconds : 0.0)
+		entry[:count] += 1
+		entry[:total_seconds] += total
+		entry[:max_seconds] = max(Float64(entry[:max_seconds]), total)
+		context = hasproperty(record, :context) ? record.context : :unspecified
+		context_counts = entry[:context_counts]
+		context_counts[context] = get(context_counts, context, 0) + 1
+		stages = hasproperty(record, :stage_seconds) ? record.stage_seconds : OrderedDict{Symbol, Float64}()
+		stage_seconds = entry[:stage_seconds]
+		for (stage, seconds) in stages
+			stage_seconds[stage] = get(stage_seconds, stage, 0.0) + Float64(seconds)
+		end
+	end
+	return summary
 end
 
 """
@@ -362,10 +495,12 @@ function _build_algebraic_resolve_candidate(
 	end
 	append!(raw_sol, Float64[params_dict[p] for p in current_params])
 
-	ordered_s, ordered_p, ode_solution, err = process_raw_solution(
-		raw_sol, PEP.model, PEP.data_sample, PEP.solver,
-		abstol = opts.abstol, reltol = opts.reltol,
-	)
+	ordered_s, ordered_p, ode_solution, err = _with_detailed_timing_context(:algebraic_resolve_candidate) do
+		process_raw_solution(
+			raw_sol, PEP.model, PEP.data_sample, PEP.solver,
+			abstol = opts.abstol, reltol = opts.reltol,
+		)
+	end
 
 	candidate = ParameterEstimationResult(
 		ordered_p, ordered_s,
@@ -1386,14 +1521,37 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		timing_details = OrderedDict{Symbol, Any}()
 		interpolant_creation_seconds_by_source = OrderedDict{Symbol, Float64}()
 		single_point_data_eval_seconds_by_source = OrderedDict{Symbol, Float64}()
+		single_point_frontier_seconds_by_source = OrderedDict{Symbol, Float64}()
+		single_point_generic_start_seconds_by_source = OrderedDict{Symbol, Float64}()
 		single_point_hc_seconds_by_source = OrderedDict{Symbol, Float64}()
 		single_point_system_seconds_by_source = OrderedDict{Symbol, Float64}()
-			multipoint_template_seconds_by_source = OrderedDict{Symbol, Float64}()
-			multipoint_eval_seconds_by_source = OrderedDict{Symbol, Float64}()
-			multipoint_solve_seconds_by_source = OrderedDict{Symbol, Float64}()
-			reusable_system_cache = Dict{Any, Any}()
-			reusable_order_cache = Dict{Any, Any}()
+		single_point_validation_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_template_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_generic_start_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_eval_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_template_eval_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_validation_seconds_by_source = OrderedDict{Symbol, Float64}()
+		multipoint_solve_seconds_by_source = OrderedDict{Symbol, Float64}()
+		raw_solver_polish_instantiate_seconds_by_source = OrderedDict{Symbol, Float64}()
+		raw_solver_polish_solve_seconds_by_source = OrderedDict{Symbol, Float64}()
+		reusable_system_cache = Dict{Any, Any}()
+		reusable_order_cache = Dict{Any, Any}()
+		resolve_timing_records = NamedTuple[]
+		detailed_timing_records = NamedTuple[]
+		previous_resolve_timing_sink = _RESOLVE_TIMING_SINK[]
+		previous_detailed_timing_sink = _DETAILED_TIMING_SINK[]
+		_RESOLVE_TIMING_SINK[] = resolve_timing_records
+		_DETAILED_TIMING_SINK[] = detailed_timing_records
+		noise_frontier_sp_cache_hits = 0
+		noise_frontier_sp_cache_misses = 0
+		noise_frontier_mp_cache_hits = 0
+		noise_frontier_mp_cache_misses = 0
+		sp_generic_start_cache_hits = 0
+		sp_generic_start_cache_misses = 0
+		mp_generic_start_cache_hits = 0
+		mp_generic_start_cache_misses = 0
 
+		try
 		# Get common setup: identifiability analysis ONLY (shared across all interpolators)
 		ident_data = _record_phase!(phase_stats, "Setup (identifiability)") do
 		setup_identifiability(
@@ -1592,15 +1750,21 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				println("  [param-homotopy template, shared across interpolators] solve_vars=$(length(solve_vars)), data_vars(+trfn)=$(length(extended_data_vars)), equations=$(length(template_equations))")
 			end
 			if opts.homotopy_tracking_mode == :generic_start
+				_t_sp_generic_start = time()
 				precomputed_generic_solutions, precomputed_generic_params = compute_generic_start_solutions(
 					template_equations, solve_vars, extended_data_vars;
 					gamma_seed = opts.gamma_seed, show_progress = opts.hc_show_progress, debug = opts.diagnostics)
+				_accumulate_timing!(single_point_generic_start_seconds_by_source, :legacy, time() - _t_sp_generic_start)
+				sp_generic_start_cache_misses += 1
 			end
 		elseif use_param_homotopy && opts.system_construction_policy == :noise_frontier && opts.diagnostics
-			println("  [param-homotopy template] noise-frontier policy active; deriving template per interpolator after interpolants are available")
+			println("  [param-homotopy template] noise-frontier policy active; deriving generic structural template once and reusing it across interpolators")
 		end
 
-		mp_generic_cache = nothing   # (key, sols, params) for the multipoint :generic_start solve, reused across interpolators
+		sp_frontier_cache = Dict{Any, Any}()
+		mp_template_cache = Dict{Any, Any}()
+		sp_generic_cache = Dict{UInt64, Any}()
+		mp_generic_cache = Dict{UInt64, Any}()
 
 		# ============================================================================
 		# MULTI-INTERPOLATOR LOOP
@@ -1637,16 +1801,31 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					interpolants = interpolants,
 				)
 				_t_frontier_start = time()
-				frontier_result = build_noise_frontier_system(
-					PEP,
-					frontier_setup,
-					si_template;
-					n_points = 1,
-					compute_mixed_volume = opts.construction_compute_mixed_volume,
-					candidate_limit = opts.construction_candidate_limit,
-					beam_width = opts.construction_beam_width,
-					diagnostics = opts.diagnostics,
-				)
+				_sp_frontier_key = _noise_frontier_run_cache_key(:single_point, 1, opts; selection_mode = :generic)
+				_sp_frontier_hit = haskey(sp_frontier_cache, _sp_frontier_key)
+				frontier_result = if _sp_frontier_hit
+					noise_frontier_sp_cache_hits += 1
+					sp_frontier_cache[_sp_frontier_key]
+				else
+					noise_frontier_sp_cache_misses += 1
+					result = build_noise_frontier_system(
+						PEP,
+						frontier_setup,
+						si_template;
+						n_points = 1,
+						compute_mixed_volume = opts.construction_compute_mixed_volume,
+						candidate_limit = opts.construction_candidate_limit,
+						beam_width = opts.construction_beam_width,
+						diagnostics = opts.diagnostics,
+						selection_mode = :generic,
+					)
+					if !isnothing(result.selected)
+						sp_frontier_cache[_sp_frontier_key] = result
+					end
+					result
+				end
+				_t_frontier_elapsed = time() - _t_frontier_start
+				_accumulate_timing!(single_point_frontier_seconds_by_source, interp_sym, _t_frontier_elapsed)
 				frontier_sp_candidate = frontier_result.selected
 				if isnothing(frontier_sp_candidate)
 					@warn "[NOISE-FRONTIER] No single-point square full-rank candidate for interpolator; falling back to legacy construction" interpolator = interp_sym
@@ -1660,14 +1839,27 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						local_trfn_info = _ph.trfn_info
 						local_trfn_vars_ordered = _ph.trfn_vars_ordered
 						if opts.homotopy_tracking_mode == :generic_start
-							local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
-								local_template_equations,
-								local_solve_vars,
-								local_extended_data_vars;
-								gamma_seed = opts.gamma_seed,
-								show_progress = opts.hc_show_progress,
-								debug = opts.diagnostics,
-							)
+							_sp_generic_key = _hc_structure_key(local_template_equations, local_solve_vars, local_extended_data_vars)
+							if haskey(sp_generic_cache, _sp_generic_key)
+								sp_generic_start_cache_hits += 1
+								cached = sp_generic_cache[_sp_generic_key]
+								local_precomputed_generic_solutions = cached.sols
+								local_precomputed_generic_params = cached.params
+								opts.diagnostics && println("[HC-PARAM][SP] Generic-start cache hit for fallback legacy structure → N=$(isnothing(cached.sols) ? 0 : length(cached.sols))")
+							else
+								sp_generic_start_cache_misses += 1
+								_t_sp_generic_start = time()
+								local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
+									local_template_equations,
+									local_solve_vars,
+									local_extended_data_vars;
+									gamma_seed = opts.gamma_seed,
+									show_progress = opts.hc_show_progress,
+									debug = opts.diagnostics,
+								)
+								_accumulate_timing!(single_point_generic_start_seconds_by_source, interp_sym, time() - _t_sp_generic_start)
+								sp_generic_cache[_sp_generic_key] = (sols = local_precomputed_generic_solutions, params = local_precomputed_generic_params)
+							end
 						end
 					end
 				else
@@ -1679,17 +1871,31 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					local_trfn_info = Dict{Any, Any}()
 					local_trfn_vars_ordered = Any[]
 					if opts.diagnostics || !opts.nooutput
-						println("  [NOISE-FRONTIER][$interp_sym] SP selected K=$(frontier_sp_candidate.max_observed_order), eqs=$(length(local_template_equations)), solve_vars=$(length(local_solve_vars)), data_vars=$(length(local_extended_data_vars)), mixed_volume=$(frontier_sp_candidate.mixed_volume), build=$(round(time() - _t_frontier_start; digits=3))s")
+						cache_label = _sp_frontier_hit ? "cache_hit" : "cache_miss"
+						println("  [NOISE-FRONTIER][$interp_sym] SP selected K=$(frontier_sp_candidate.max_observed_order), eqs=$(length(local_template_equations)), solve_vars=$(length(local_solve_vars)), data_vars=$(length(local_extended_data_vars)), mixed_volume=$(frontier_sp_candidate.mixed_volume), build=$(round(_t_frontier_elapsed; digits=3))s, $cache_label")
 					end
 					if use_param_homotopy && opts.homotopy_tracking_mode == :generic_start
-						local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
-							local_template_equations,
-							local_solve_vars,
-							local_extended_data_vars;
-							gamma_seed = opts.gamma_seed,
-							show_progress = opts.hc_show_progress,
-							debug = opts.diagnostics,
-						)
+						_sp_generic_key = _hc_structure_key(local_template_equations, local_solve_vars, local_extended_data_vars)
+						if haskey(sp_generic_cache, _sp_generic_key)
+							sp_generic_start_cache_hits += 1
+							cached = sp_generic_cache[_sp_generic_key]
+							local_precomputed_generic_solutions = cached.sols
+							local_precomputed_generic_params = cached.params
+							opts.diagnostics && println("[HC-PARAM][SP] Generic-start cache hit → N=$(isnothing(cached.sols) ? 0 : length(cached.sols))")
+						else
+							sp_generic_start_cache_misses += 1
+							_t_sp_generic_start = time()
+							local_precomputed_generic_solutions, local_precomputed_generic_params = compute_generic_start_solutions(
+								local_template_equations,
+								local_solve_vars,
+								local_extended_data_vars;
+								gamma_seed = opts.gamma_seed,
+								show_progress = opts.hc_show_progress,
+								debug = opts.diagnostics,
+							)
+							_accumulate_timing!(single_point_generic_start_seconds_by_source, interp_sym, time() - _t_sp_generic_start)
+							sp_generic_cache[_sp_generic_key] = (sols = local_precomputed_generic_solutions, params = local_precomputed_generic_params)
+						end
 					end
 				end
 			end
@@ -1726,37 +1932,55 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			_t_eval_start = time()
 			param_values_list = Vector{Vector{Float64}}()
 			for point_idx in point_indices
+				_point_eval_t0 = time()
+				_point_eval_stages = OrderedDict{Symbol, Float64}()
 				t_point = t_vector[point_idx]
 				param_values = if !isnothing(frontier_sp_candidate)
-					evaluate_noise_frontier_data_vars_at_point(
-						interpolants, local_extended_data_vars, PEP.measured_quantities, t_point
-					)
+					_timed_detail_stage!(_point_eval_stages, :noise_frontier_data_vars) do
+						evaluate_noise_frontier_data_vars_at_point(
+							interpolants, local_extended_data_vars, PEP.measured_quantities, t_point
+						)
+					end
 				else
 					# Evaluate observable derivative data vars
-					obs_param_values = evaluate_data_vars_at_point(
-						interpolants, local_data_vars, local_template_DD, PEP.measured_quantities, t_point
-					)
+					obs_param_values = _timed_detail_stage!(_point_eval_stages, :observable_data_vars) do
+						evaluate_data_vars_at_point(
+							interpolants, local_data_vars, local_template_DD, PEP.measured_quantities, t_point
+						)
+					end
 					# Evaluate _trfn_ vars at this time point
 					trfn_values = Float64[]
-					for v in local_trfn_vars_ordered
-						func_type, frequency, deriv_order = local_trfn_info[v]
-						val = evaluate_trfn_template_variable(string(v), t_point)
-						if isnothing(val)
-							# Fallback: compute directly
-							if func_type == :sin
-								val = _eval_sin_derivative(frequency, t_point, deriv_order)
-							elseif func_type == :cos
-								val = _eval_cos_derivative(frequency, t_point, deriv_order)
-							else
-								val = _eval_exp_derivative(frequency, t_point, deriv_order)
+					_timed_detail_stage!(_point_eval_stages, :transcendental_data_vars) do
+						for v in local_trfn_vars_ordered
+							func_type, frequency, deriv_order = local_trfn_info[v]
+							val = evaluate_trfn_template_variable(string(v), t_point)
+							if isnothing(val)
+								# Fallback: compute directly
+								if func_type == :sin
+									val = _eval_sin_derivative(frequency, t_point, deriv_order)
+								elseif func_type == :cos
+									val = _eval_cos_derivative(frequency, t_point, deriv_order)
+								else
+									val = _eval_exp_derivative(frequency, t_point, deriv_order)
+								end
 							end
+							push!(trfn_values, val)
 						end
-						push!(trfn_values, val)
 					end
 					# Concatenate: observable data + _trfn_ data
 					vcat(obs_param_values, trfn_values)
 				end
 				push!(param_values_list, param_values)
+				_record_detailed_timing!((
+					category = :single_point_param_eval,
+					context = interp_sym,
+					total_seconds = time() - _point_eval_t0,
+					stage_seconds = copy(_point_eval_stages),
+					point_index = point_idx,
+					time_value = Float64(t_point),
+					param_count = length(param_values),
+					used_noise_frontier = !isnothing(frontier_sp_candidate),
+				))
 
 				if opts.diagnostics
 					println("  Point $point_idx (t=$t_point): $(length(param_values)) parameter values")
@@ -1781,8 +2005,45 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					end
 				end
 
+				if !isnothing(frontier_sp_candidate)
+					rank_valid_point_indices = Int[]
+					rank_valid_param_values_list = Vector{Vector{Float64}}()
+					for (point_idx, param_values) in zip(valid_point_indices, valid_param_values_list)
+						_t_sp_validation = time()
+						validation = validate_noise_frontier_candidate_at_values(frontier_sp_candidate, param_values)
+						_sp_validation_elapsed = time() - _t_sp_validation
+						_accumulate_timing!(single_point_validation_seconds_by_source, interp_sym, _sp_validation_elapsed)
+						_record_detailed_timing!((
+							category = :single_point_noise_frontier_validation,
+							context = interp_sym,
+							total_seconds = _sp_validation_elapsed,
+							stage_seconds = OrderedDict{Symbol, Float64}(:rank_validation => _sp_validation_elapsed),
+							point_index = point_idx,
+							valid = validation.valid,
+							rank = validation.rank,
+							target_rank = validation.target_rank,
+							reason = validation.reason,
+							condition_proxy = validation.condition_proxy,
+						))
+						if validation.valid
+							push!(rank_valid_point_indices, point_idx)
+							push!(rank_valid_param_values_list, param_values)
+							if opts.diagnostics
+								println("  [$interp_sym] Noise-frontier SP validation passed at point $point_idx: rank=$(validation.rank)/$(validation.target_rank), cond≈$(round(validation.condition_proxy; digits=3))")
+							end
+						else
+							msg = "  [$interp_sym] Dropping shooting point $point_idx: generic noise-frontier subsystem validation failed ($(validation.reason), rank=$(validation.rank)/$(validation.target_rank))"
+							if opts.diagnostics || !opts.nooutput
+								println(msg)
+							end
+						end
+					end
+					valid_point_indices = rank_valid_point_indices
+					valid_param_values_list = rank_valid_param_values_list
+				end
+
 				if isempty(valid_point_indices)
-					@warn "Interpolator $interp_sym produced nonfinite data at every shooting point; skipping this branch."
+					@warn "Interpolator $interp_sym has no valid shooting points for this subsystem; skipping this branch."
 					continue
 				end
 
@@ -1818,41 +2079,60 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				# Optional: polish each raw solver solution using fast NLLS if requested
 				if opts.polish_solver_solutions && !isempty(point_solutions)
+					_raw_polish_t0 = time()
+					_raw_polish_stages = OrderedDict{Symbol, Float64}()
 					# Build the instantiated system for polishing (need concrete equations)
-					target_k, varlist_k = if !isnothing(frontier_sp_candidate)
-						instantiate_noise_frontier_candidate(
-							frontier_sp_candidate, interpolants, PEP.data_sample, PEP.measured_quantities, point_idx
-						)
-					else
-						construct_equation_system_from_si_template(
-							PEP.model.system,
-							PEP.measured_quantities,
-							PEP.data_sample,
-							good_deriv_level,
-							good_udict,
-							good_varlist,
-							good_DD;
-							interpolator = interp_func,
-							time_index_set = [point_idx],
-							precomputed_interpolants = interpolants,
-							diagnostics = false,
-							si_template = si_template,
-						)
+					target_k, varlist_k = _timed_detail_stage!(_raw_polish_stages, :instantiate_system) do
+						if !isnothing(frontier_sp_candidate)
+							instantiate_noise_frontier_candidate(
+								frontier_sp_candidate, interpolants, PEP.data_sample, PEP.measured_quantities, point_idx
+							)
+						else
+							construct_equation_system_from_si_template(
+								PEP.model.system,
+								PEP.measured_quantities,
+								PEP.data_sample,
+								good_deriv_level,
+								good_udict,
+								good_varlist,
+								good_DD;
+								interpolator = interp_func,
+								time_index_set = [point_idx],
+								precomputed_interpolants = interpolants,
+								diagnostics = false,
+								si_template = si_template,
+							)
+						end
 					end
 						reusable_system_cache[(:sp_kept, interp_sym, point_idx)] = (target_k, varlist_k)
 
 						polished_point = Vector{Vector{Float64}}()
 					for sol in point_solutions
 						start_pt = real.(sol)
-						p_solutions, _, _, _ = solve_with_robust(target_k, varlist_k;
-							start_point = start_pt, polish_only = true,
-							options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => false))
+						p_solutions, _, _, _ = _timed_detail_stage!(_raw_polish_stages, :robust_polish_solve) do
+							solve_with_robust(target_k, varlist_k;
+								start_point = start_pt, polish_only = true,
+								options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => false))
+						end
 						if !isempty(p_solutions)
 							push!(polished_point, p_solutions[1])
 						else
 							push!(polished_point, sol)
 						end
 					end
+					_accumulate_timing!(raw_solver_polish_instantiate_seconds_by_source, interp_sym, get(_raw_polish_stages, :instantiate_system, 0.0))
+					_accumulate_timing!(raw_solver_polish_solve_seconds_by_source, interp_sym, get(_raw_polish_stages, :robust_polish_solve, 0.0))
+					_record_detailed_timing!((
+						category = :raw_solver_polish,
+						context = interp_sym,
+						total_seconds = time() - _raw_polish_t0,
+						stage_seconds = copy(_raw_polish_stages),
+						point_index = point_idx,
+						input_solution_count = length(point_solutions),
+						output_solution_count = length(polished_point),
+						equation_count = length(target_k),
+						variable_count = length(varlist_k),
+					))
 					point_solutions = polished_point
 				end
 
@@ -2004,39 +2284,62 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				interpolants = interpolants,
 			)
 			_t_mpt_template_start = time()
-			mpt = try
-				if opts.system_construction_policy == :noise_frontier
-					build_noise_frontier_multipoint_template(
-						PEP,
-						_mpt_setup,
-						si_template;
-						n_points = opts.multipoint_n_points,
-						compute_mixed_volume = opts.construction_compute_mixed_volume,
-						candidate_limit = opts.construction_candidate_limit,
-						beam_width = opts.construction_beam_width,
-						diagnostics = opts.diagnostics,
-					)
-				else
-					build_multipoint_template(PEP, _mpt_setup, si_template;
-						n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
+			_mpt_template_key = _noise_frontier_run_cache_key(opts.system_construction_policy, opts.multipoint_n_points, opts; selection_mode = :generic, interpolator = interp_sym)
+			_mpt_template_hit = haskey(mp_template_cache, _mpt_template_key)
+			mpt = if _mpt_template_hit
+				noise_frontier_mp_cache_hits += 1
+				mp_template_cache[_mpt_template_key]
+			else
+				noise_frontier_mp_cache_misses += 1
+				result = try
+					if opts.system_construction_policy == :noise_frontier
+						build_noise_frontier_multipoint_template(
+							PEP,
+							_mpt_setup,
+							si_template;
+							n_points = opts.multipoint_n_points,
+							compute_mixed_volume = opts.construction_compute_mixed_volume,
+							candidate_limit = opts.construction_candidate_limit,
+							beam_width = opts.construction_beam_width,
+							diagnostics = opts.diagnostics,
+							selection_mode = :generic,
+						)
+					else
+						build_multipoint_template(PEP, _mpt_setup, si_template;
+							n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
+					end
+				catch e
+					opts.diagnostics && @warn "[MULTIPOINT] Template build failed" exception = e
+					nothing
 				end
-			catch e
-				opts.diagnostics && @warn "[MULTIPOINT] Template build failed" exception = e
-				nothing
+				if !isnothing(result)
+					mp_template_cache[_mpt_template_key] = result
+				end
+				result
 			end
 			_t_mpt_template_elapsed = time() - _t_mpt_template_start
 			_accumulate_timing!(multipoint_template_seconds_by_source, interp_sym, _t_mpt_template_elapsed)
+			if !isnothing(mpt) && (opts.diagnostics || !opts.nooutput)
+				cache_label = _mpt_template_hit ? "cache_hit" : "cache_miss"
+				println("  [MULTIPOINT] Template ready: eqs=$(length(mpt.stripped_equations)), solve_vars=$(length(mpt.solve_vars)), data_vars=$(length(mpt.data_vars)), build=$(round(_t_mpt_template_elapsed; digits=3))s, $cache_label")
+			end
 
 			if !isnothing(mpt) && length(mpt.stripped_equations) == length(mpt.solve_vars)
 				# Generic-start: solve the (interpolator-independent) multipoint generic system ONCE per
 				# distinct mpt structure; reuse across interpolators. Keyed by structure so a rare per-interp
 				# structural difference recomputes safely.
 				if opts.homotopy_tracking_mode == :generic_start
-					_mpt_key = hash((string.(mpt.stripped_equations), string.(mpt.solve_vars), string.(mpt.data_vars)))
-					if isnothing(mp_generic_cache) || mp_generic_cache.key != _mpt_key
+					_mpt_key = _hc_structure_key(mpt.stripped_equations, mpt.solve_vars, mpt.data_vars)
+					if haskey(mp_generic_cache, _mpt_key)
+						mp_generic_start_cache_hits += 1
+						opts.diagnostics && println("[HC-PARAM][MP] Generic-start cache hit → N=$(isnothing(mp_generic_cache[_mpt_key].sols) ? 0 : length(mp_generic_cache[_mpt_key].sols))")
+					else
+						mp_generic_start_cache_misses += 1
+						_t_mp_generic_start = time()
 						_mp_sols, _mp_p0 = compute_generic_start_solutions(mpt.stripped_equations, mpt.solve_vars, mpt.data_vars;
 							gamma_seed = opts.gamma_seed, show_progress = opts.hc_show_progress, debug = opts.diagnostics)
-						mp_generic_cache = (key = _mpt_key, sols = _mp_sols, params = _mp_p0)
+						_accumulate_timing!(multipoint_generic_start_seconds_by_source, interp_sym, time() - _t_mp_generic_start)
+						mp_generic_cache[_mpt_key] = (sols = _mp_sols, params = _mp_p0)
 					end
 				end
 				# Generate N-tuples from existing shooting points, capped at max_pairs
@@ -2055,17 +2358,64 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				evals = MultiPointEvaluation[]
 					for combo in combos
 						try
-							ev = evaluate_multipoint_template(mpt, combo, interpolants, PEP.data_sample)
-							if all(isfinite, ev.data_values)
+							_combo_eval_t0 = time()
+							_combo_eval_stages = OrderedDict{Symbol, Float64}()
+							ev = _with_detailed_timing_context(interp_sym) do
+								_timed_detail_stage!(_combo_eval_stages, :evaluate_template) do
+									evaluate_multipoint_template(mpt, combo, interpolants, PEP.data_sample)
+								end
+							end
+							if opts.system_construction_policy == :noise_frontier
+								validation = _timed_detail_stage!(_combo_eval_stages, :noise_frontier_validation) do
+									validate_noise_frontier_instantiation(
+										mpt.stripped_equations,
+										mpt.solve_vars,
+										mpt.data_vars,
+										ev.data_values,
+									)
+								end
+								_accumulate_timing!(multipoint_validation_seconds_by_source, interp_sym, get(_combo_eval_stages, :noise_frontier_validation, 0.0))
+								if validation.valid
+									push!(evals, ev)
+									reusable_system_cache[(:mp_eval, interp_sym, Tuple(combo))] = ev
+									if opts.diagnostics
+										println("  [$interp_sym] Noise-frontier MP validation passed for combo $(Tuple(combo)): rank=$(validation.rank)/$(validation.target_rank), cond≈$(round(validation.condition_proxy; digits=3))")
+									end
+								elseif opts.diagnostics || !opts.nooutput
+									println("  [$interp_sym] Dropping multipoint combo $(Tuple(combo)): generic noise-frontier template validation failed ($(validation.reason), rank=$(validation.rank)/$(validation.target_rank))")
+								end
+							elseif all(isfinite, ev.data_values)
 								push!(evals, ev)
 								reusable_system_cache[(:mp_eval, interp_sym, Tuple(combo))] = ev
 							end
+							_accumulate_timing!(multipoint_template_eval_seconds_by_source, interp_sym, get(_combo_eval_stages, :evaluate_template, 0.0))
+							_record_detailed_timing!((
+								category = :multipoint_combo_eval,
+								context = interp_sym,
+								total_seconds = time() - _combo_eval_t0,
+								stage_seconds = copy(_combo_eval_stages),
+								combo = Tuple(combo),
+								data_value_count = length(ev.data_values),
+								accepted = (opts.system_construction_policy == :noise_frontier) ? validation.valid : all(isfinite, ev.data_values),
+								rank = (opts.system_construction_policy == :noise_frontier) ? validation.rank : missing,
+								target_rank = (opts.system_construction_policy == :noise_frontier) ? validation.target_rank : missing,
+								reason = (opts.system_construction_policy == :noise_frontier) ? validation.reason : :not_applicable,
+							))
 						catch; end
 					end
 				_t_mpt_eval_elapsed = time() - _t_mpt_eval_start
 				_accumulate_timing!(multipoint_eval_seconds_by_source, interp_sym, _t_mpt_eval_elapsed)
 
 				if !isempty(evals)
+					_mpt_sols0 = nothing
+					_mpt_p0 = nothing
+					if opts.homotopy_tracking_mode == :generic_start
+						_mpt_solve_key = _hc_structure_key(mpt.stripped_equations, mpt.solve_vars, mpt.data_vars)
+						if haskey(mp_generic_cache, _mpt_solve_key)
+							_mpt_sols0 = mp_generic_cache[_mpt_solve_key].sols
+							_mpt_p0 = mp_generic_cache[_mpt_solve_key].params
+						end
+					end
 					_t_mpt_solve_start = time()
 					solutions_by_combo = try
 						solve_multipoint_parameterized(mpt, evals;
@@ -2074,8 +2424,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								:use_column_scaling => opts.use_column_scaling,
 								:homotopy_tracking_mode => opts.homotopy_tracking_mode,
 								:gamma_max_seeds => opts.gamma_max_seeds, :gamma_seed => opts.gamma_seed),
-								precomputed_generic_solutions = isnothing(mp_generic_cache) ? nothing : mp_generic_cache.sols,
-								precomputed_generic_params = isnothing(mp_generic_cache) ? nothing : mp_generic_cache.params)
+								precomputed_generic_solutions = _mpt_sols0,
+								precomputed_generic_params = _mpt_p0)
 					catch e
 						opts.diagnostics && @warn "[MULTIPOINT] HC solve failed" exception = e
 						nothing
@@ -2185,12 +2535,14 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# Reuse existing processing pipeline (without polish — polish gets its own phase below)
 		opts_no_polish = merge_options(opts; polish_solutions = false)
 		solved_res = _record_phase!(phase_stats, "Result processing") do
-		process_estimation_results(
-			PEP,
-			solution_data,
-			setup_data;
-			opts = opts_no_polish,
-		)
+			_with_detailed_timing_context(:result_processing) do
+				process_estimation_results(
+					PEP,
+					solution_data,
+					setup_data;
+					opts = opts_no_polish,
+				)
+			end
 		end
 
 		# PHASE: Detect blown-up backsolves and attempt algebraic re-solve at t=0
@@ -2250,21 +2602,23 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 					# Algebraic re-solve at t=0 with fixed parameters
 					resolve_result = try
-						resolve_states_with_fixed_params(
-							PEP.model.system,
-							PEP.measured_quantities,
-							PEP.data_sample,
-							good_deriv_level,
-							good_udict,
-							good_varlist,
-							good_DD,
-							known_param_dict,
-							interpolants;
-							si_template = si_template,
-							time_index = 1,
-							diagnostics = opts.diagnostics,
-							placeholder_fail_categories = opts.si_placeholder_fail_categories,
-						)
+						_with_resolve_timing_context(:backsolve_recovery) do
+							resolve_states_with_fixed_params(
+								PEP.model.system,
+								PEP.measured_quantities,
+								PEP.data_sample,
+								good_deriv_level,
+								good_udict,
+								good_varlist,
+								good_DD,
+								known_param_dict,
+								interpolants;
+								si_template = si_template,
+								time_index = 1,
+								diagnostics = opts.diagnostics,
+								placeholder_fail_categories = opts.si_placeholder_fail_categories,
+							)
+						end
 					catch err
 						_note_algebraic_resolve_failure!(solved_res, indices, err)
 						if opts.diagnostics
@@ -2279,21 +2633,23 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						t0_partial = isempty(resolve_result.solutions) || _resolve_missing_state_count(resolve_result) > 0
 						if t0_partial
 							try
-								shoot_resolve_result = resolve_states_with_fixed_params(
-									PEP.model.system,
-									PEP.measured_quantities,
-									PEP.data_sample,
-									good_deriv_level,
-									good_udict,
-									good_varlist,
-									good_DD,
-									known_param_dict,
-									interpolants;
-									si_template = si_template,
-									time_index = source_shoot_idx,
-									diagnostics = opts.diagnostics,
-									placeholder_fail_categories = opts.si_placeholder_fail_categories,
-								)
+								shoot_resolve_result = _with_resolve_timing_context(:backsolve_recovery) do
+									resolve_states_with_fixed_params(
+										PEP.model.system,
+										PEP.measured_quantities,
+										PEP.data_sample,
+										good_deriv_level,
+										good_udict,
+										good_varlist,
+										good_DD,
+										known_param_dict,
+										interpolants;
+										si_template = si_template,
+										time_index = source_shoot_idx,
+										diagnostics = opts.diagnostics,
+										placeholder_fail_categories = opts.si_placeholder_fail_categories,
+									)
+								end
 								if !isempty(shoot_resolve_result.solutions) &&
 								   _resolve_missing_state_count(shoot_resolve_result) < _resolve_missing_state_count(resolve_result)
 									resolve_result = shoot_resolve_result
@@ -2408,10 +2764,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							raw_sol = raw_ic
 							append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
 
-							ordered_s, ordered_p, ode_solution, err = process_raw_solution(
-								raw_sol, PEP.model, PEP.data_sample, PEP.solver,
-								abstol = opts.abstol, reltol = opts.reltol,
-							)
+							ordered_s, ordered_p, ode_solution, err = _with_detailed_timing_context(:algebraic_resolve_seeded_candidate) do
+								process_raw_solution(
+									raw_sol, PEP.model, PEP.data_sample, PEP.solver,
+									abstol = opts.abstol, reltol = opts.reltol,
+								)
+							end
 
 							candidate = ParameterEstimationResult(
 								ordered_p, ordered_s,
@@ -2472,11 +2830,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		if opts.use_sensitivity_seeds && !isempty(solved_res)
 			solved_res = _record_phase!(phase_stats, "Sensitivity seeds") do
 				try
-					ctx_for_seeds = _build_polish_context(PEP; opts = opts)
-					_maybe_augment_with_sensitivity_seeds(
-						PEP, solved_res, ctx_for_seeds, setup_data, opts;
-						interpolant_cache = interpolant_cache_for_seeds,
-					)
+					_with_detailed_timing_context(:sensitivity_seeds) do
+						ctx_for_seeds = _build_polish_context(PEP; opts = opts)
+						_maybe_augment_with_sensitivity_seeds(
+							PEP, solved_res, ctx_for_seeds, setup_data, opts;
+							interpolant_cache = interpolant_cache_for_seeds,
+						)
+					end
 				catch err
 					@warn "[Sensitivity seeds] generation failed; using unaugmented pool" exception = (err, catch_backtrace())
 					solved_res
@@ -2491,10 +2851,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		if opts.synthesize_aggregate_candidates && !isempty(solved_res)
 			solved_res = _record_phase!(phase_stats, "Synthesize aggregates") do
 				try
-					_maybe_synthesize_aggregate_candidates(
-						PEP, solved_res, setup_data, opts;
-						interpolant_cache = interpolant_cache_for_seeds,
-					)
+					_with_detailed_timing_context(:synthesis) do
+						_maybe_synthesize_aggregate_candidates(
+							PEP, solved_res, setup_data, opts;
+							interpolant_cache = interpolant_cache_for_seeds,
+						)
+					end
 				catch err
 					@warn "[Synthesize aggregates] failed; using unaugmented pool" exception = (err, catch_backtrace())
 					solved_res
@@ -2508,7 +2870,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				if isempty(solved_res)
 					if opts.terminal_fallback == :direct_opt
 						# Terminal rescue: keep parity with direct optimization, but make the provenance explicit.
-						ctx = _build_polish_context(PEP; opts = opts)
+						ctx = _with_detailed_timing_context(:polish) do
+							_build_polish_context(PEP; opts = opts)
+						end
 						if !opts.nooutput
 							println("No algebraic solutions found. Running explicit direct-optimization fallback from a random start.")
 						end
@@ -2544,8 +2908,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						solved_res
 					end
 				else
-					ctx = _build_polish_context(PEP; opts = opts)
-					_polish_batch_from_context(ctx, solved_res; opts = opts)
+					_with_detailed_timing_context(:polish) do
+						ctx = _build_polish_context(PEP; opts = opts)
+						_polish_batch_from_context(ctx, solved_res; opts = opts)
+					end
 				end
 			end
 		end
@@ -2562,26 +2928,58 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		timing_details[:used_multipoint] = use_multipoint
 		timing_details[:interpolant_creation_seconds_by_source] = copy(interpolant_creation_seconds_by_source)
 		timing_details[:single_point_data_eval_seconds_by_source] = copy(single_point_data_eval_seconds_by_source)
+		timing_details[:single_point_frontier_seconds_by_source] = copy(single_point_frontier_seconds_by_source)
+		timing_details[:single_point_generic_start_seconds_by_source] = copy(single_point_generic_start_seconds_by_source)
 		timing_details[:single_point_hc_seconds_by_source] = copy(single_point_hc_seconds_by_source)
-			timing_details[:single_point_system_seconds_by_source] = copy(single_point_system_seconds_by_source)
-			timing_details[:multipoint_template_seconds_by_source] = copy(multipoint_template_seconds_by_source)
-			timing_details[:multipoint_eval_seconds_by_source] = copy(multipoint_eval_seconds_by_source)
-			timing_details[:multipoint_solve_seconds_by_source] = copy(multipoint_solve_seconds_by_source)
-			timing_details[:reusable_system_cache_entries] = length(reusable_system_cache)
-			_LAST_ESTIMATION_TIMING[] = _phase_stats_to_breakdown(
-				phase_stats,
-				:optimized_multishot;
-				details = timing_details,
-			)
-			_LAST_ESTIMATION_REUSE[] = (
-				model_system = PEP.model.system,
-				data_length = length(t_vector),
-				use_multipoint = use_multipoint,
-				multipoint_n_points = opts.multipoint_n_points,
-				interpolator_sources = Symbol[interpolator_method_to_symbol(method) for (method, _) in interpolator_list],
-				system_cache = copy(reusable_system_cache),
-				order_cache = copy(reusable_order_cache),
-			)
+		timing_details[:single_point_system_seconds_by_source] = copy(single_point_system_seconds_by_source)
+		timing_details[:single_point_validation_seconds_by_source] = copy(single_point_validation_seconds_by_source)
+		timing_details[:multipoint_template_seconds_by_source] = copy(multipoint_template_seconds_by_source)
+		timing_details[:multipoint_generic_start_seconds_by_source] = copy(multipoint_generic_start_seconds_by_source)
+		timing_details[:multipoint_eval_seconds_by_source] = copy(multipoint_eval_seconds_by_source)
+		timing_details[:multipoint_template_eval_seconds_by_source] = copy(multipoint_template_eval_seconds_by_source)
+		timing_details[:multipoint_validation_seconds_by_source] = copy(multipoint_validation_seconds_by_source)
+		timing_details[:multipoint_solve_seconds_by_source] = copy(multipoint_solve_seconds_by_source)
+		timing_details[:raw_solver_polish_instantiate_seconds_by_source] = copy(raw_solver_polish_instantiate_seconds_by_source)
+		timing_details[:raw_solver_polish_solve_seconds_by_source] = copy(raw_solver_polish_solve_seconds_by_source)
+		timing_details[:noise_frontier_sp_cache_hits] = noise_frontier_sp_cache_hits
+		timing_details[:noise_frontier_sp_cache_misses] = noise_frontier_sp_cache_misses
+		timing_details[:noise_frontier_mp_cache_hits] = noise_frontier_mp_cache_hits
+		timing_details[:noise_frontier_mp_cache_misses] = noise_frontier_mp_cache_misses
+		timing_details[:sp_generic_start_cache_hits] = sp_generic_start_cache_hits
+		timing_details[:sp_generic_start_cache_misses] = sp_generic_start_cache_misses
+		timing_details[:mp_generic_start_cache_hits] = mp_generic_start_cache_hits
+		timing_details[:mp_generic_start_cache_misses] = mp_generic_start_cache_misses
+		timing_details[:resolve_states_with_fixed_params_summary] = _summarize_resolve_timing(resolve_timing_records)
+		timing_details[:resolve_states_with_fixed_params_records] = copy(resolve_timing_records)
+		timing_details[:detailed_timing_summary] = _summarize_detailed_timing(detailed_timing_records)
+		timing_details[:detailed_timing_records] = copy(detailed_timing_records)
+		if hasproperty(si_template, :rank_trimming_metadata)
+			rtm = si_template.rank_trimming_metadata
+			if hasproperty(rtm, :equation_builder_timing)
+				timing_details[:si_template_equation_builder_timing] = rtm.equation_builder_timing
+			end
+			if hasproperty(rtm, :sian_timing)
+				timing_details[:si_template_sian_timing] = rtm.sian_timing
+			end
+			if hasproperty(rtm, :algebraic_multiplicity_timing)
+				timing_details[:si_template_algebraic_multiplicity_timing] = rtm.algebraic_multiplicity_timing
+			end
+		end
+		timing_details[:reusable_system_cache_entries] = length(reusable_system_cache)
+		_LAST_ESTIMATION_TIMING[] = _phase_stats_to_breakdown(
+			phase_stats,
+			:optimized_multishot;
+			details = timing_details,
+		)
+		_LAST_ESTIMATION_REUSE[] = (
+			model_system = PEP.model.system,
+			data_length = length(t_vector),
+			use_multipoint = use_multipoint,
+			multipoint_n_points = opts.multipoint_n_points,
+			interpolator_sources = Symbol[interpolator_method_to_symbol(method) for (method, _) in interpolator_list],
+			system_cache = copy(reusable_system_cache),
+			order_cache = copy(reusable_order_cache),
+		)
 
 		# Print phase profiling table if enabled
 		if opts.profile_phases && !isnothing(phase_stats)
@@ -2590,6 +2988,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# The return signature is designed for compatibility with other workflows
 		return (solved_res, good_udict, trivial_dict, setup_data.all_unidentifiable)
+		finally
+			_RESOLVE_TIMING_SINK[] = previous_resolve_timing_sink
+			_DETAILED_TIMING_SINK[] = previous_detailed_timing_sink
+		end
 	end
 
 	# DEBUG: Show the original ODE System

@@ -28,6 +28,69 @@ function _numeric_residual_value(expr)
 	end
 end
 
+const _RESOLVE_TIMING_SINK = Ref{Union{Nothing, Vector{NamedTuple}}}(nothing)
+const _RESOLVE_TIMING_CONTEXT_STACK = Symbol[]
+const _DETAILED_TIMING_SINK = Ref{Union{Nothing, Vector{NamedTuple}}}(nothing)
+const _DETAILED_TIMING_CONTEXT_STACK = Symbol[]
+
+function _current_resolve_timing_context()
+	return isempty(_RESOLVE_TIMING_CONTEXT_STACK) ? :unspecified : last(_RESOLVE_TIMING_CONTEXT_STACK)
+end
+
+function _with_resolve_timing_context(f::Function, context::Symbol)
+	push!(_RESOLVE_TIMING_CONTEXT_STACK, context)
+	try
+		return f()
+	finally
+		pop!(_RESOLVE_TIMING_CONTEXT_STACK)
+	end
+end
+
+function _record_resolve_timing!(record::NamedTuple)
+	sink = _RESOLVE_TIMING_SINK[]
+	isnothing(sink) && return nothing
+	push!(sink, record)
+	return nothing
+end
+
+function _timed_resolve_stage!(f::Function, stages::OrderedDict{Symbol, Float64}, stage::Symbol)
+	t0 = time()
+	try
+		return f()
+	finally
+		stages[stage] = get(stages, stage, 0.0) + (time() - t0)
+	end
+end
+
+function _current_detailed_timing_context()
+	return isempty(_DETAILED_TIMING_CONTEXT_STACK) ? :unspecified : last(_DETAILED_TIMING_CONTEXT_STACK)
+end
+
+function _with_detailed_timing_context(f::Function, context::Symbol)
+	push!(_DETAILED_TIMING_CONTEXT_STACK, context)
+	try
+		return f()
+	finally
+		pop!(_DETAILED_TIMING_CONTEXT_STACK)
+	end
+end
+
+function _record_detailed_timing!(record::NamedTuple)
+	sink = _DETAILED_TIMING_SINK[]
+	isnothing(sink) && return nothing
+	push!(sink, record)
+	return nothing
+end
+
+function _timed_detail_stage!(f::Function, stages::OrderedDict{Symbol, Float64}, stage::Symbol)
+	t0 = time()
+	try
+		return f()
+	finally
+		stages[stage] = get(stages, stage, 0.0) + (time() - t0)
+	end
+end
+
 """
 	instantiate_si_template_equations(
 		template_equations, measured_quantities, data_sample, derivative_dict, template_DD;
@@ -49,6 +112,7 @@ function instantiate_si_template_equations(
 	time_index::Int,
 	diagnostics::Bool = false,
 	prune_overdetermined::Bool = true,
+	substitute_trfn::Bool = true,
 )
 	# Create a set of all variables present in the template equations
 	vars_in_template = OrderedSet()
@@ -115,15 +179,17 @@ function instantiate_si_template_equations(
 	# contained data_vars + _trfn_ vars will become trivially satisfied (0 ≈ 0) and get
 	# removed by the zero-variable filter below.
 	n_trfn_substituted = 0
-	for v in vars_in_template
-		var_name = string(v)
-		trfn_val = evaluate_trfn_template_variable(var_name, t_point)
-		if isnothing(trfn_val)
-			trfn_val = evaluate_obs_trfn_template_variable(var_name, t_point)
-		end
-		if !isnothing(trfn_val)
-			interpolated_values_dict[v] = trfn_val
-			n_trfn_substituted += 1
+	if substitute_trfn
+		for v in vars_in_template
+			var_name = string(v)
+			trfn_val = evaluate_trfn_template_variable(var_name, t_point)
+			if isnothing(trfn_val)
+				trfn_val = evaluate_obs_trfn_template_variable(var_name, t_point)
+			end
+			if !isnothing(trfn_val)
+				interpolated_values_dict[v] = trfn_val
+				n_trfn_substituted += 1
+			end
 		end
 	end
 	if n_trfn_substituted > 0
@@ -386,6 +452,31 @@ function resolve_states_with_fixed_params(
 	diagnostics::Bool = false,
 	placeholder_fail_categories = Symbol[],
 )
+	resolve_t0 = time()
+	resolve_stages = OrderedDict{Symbol, Float64}()
+	resolve_template_eq_count = 0
+	resolve_instantiated_eq_count = 0
+	resolve_state_var_count = 0
+
+	function record_resolve_result(result)
+		_record_resolve_timing!((
+			context = _current_resolve_timing_context(),
+			total_seconds = time() - resolve_t0,
+			stage_seconds = copy(resolve_stages),
+			fixed_parameter_count = length(known_param_dict),
+			time_index = time_index,
+			template_equations = resolve_template_eq_count,
+			instantiated_equations = resolve_instantiated_eq_count,
+			state_vars = resolve_state_var_count,
+			solution_count = hasproperty(result, :solutions) ? length(result.solutions) : 0,
+			status = hasproperty(result, :status) ? result.status : :unknown,
+			hc_status = hasproperty(result, :hc_status) ? result.hc_status : :unknown,
+			cascading_status = hasproperty(result, :cascading_status) ? result.cascading_status : :unknown,
+		))
+		return result
+	end
+
+	try
 	@info "[RESOLVE] Re-running SIAN with $(length(known_param_dict)) fixed parameters"
 
 	empty_result(;
@@ -405,16 +496,20 @@ function resolve_states_with_fixed_params(
 	)
 
 	# Step 1: Build OrderedODESystem for the original model
-	model_states = ModelingToolkit.unknowns(model)
-	model_params = ModelingToolkit.parameters(model)
-	ordered_model = if isa(model, ODEParameterEstimation.OrderedODESystem)
-		model
-	else
-		ODEParameterEstimation.OrderedODESystem(model, model_states, model_params)
+	ordered_model = _timed_resolve_stage!(resolve_stages, :ordered_model) do
+		model_states = ModelingToolkit.unknowns(model)
+		model_params = ModelingToolkit.parameters(model)
+		if isa(model, ODEParameterEstimation.OrderedODESystem)
+			model
+		else
+			ODEParameterEstimation.OrderedODESystem(model, model_states, model_params)
+		end
 	end
 
 	# Step 2: Apply all parameters as pre-fixed → model with 0 parameters, values baked in
-	fixed_model, fixed_mq = apply_prefixed_params_to_model(ordered_model, measured_quantities, known_param_dict)
+	fixed_model, fixed_mq = _timed_resolve_stage!(resolve_stages, :fixed_model) do
+		apply_prefixed_params_to_model(ordered_model, measured_quantities, known_param_dict)
+	end
 
 	# === [MWE-CAPTURE INSTRUMENTATION 2026-06-04] — print+serialize to pin the hang. REMOVE AFTER. ===
 	if get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict))
@@ -433,18 +528,23 @@ function resolve_states_with_fixed_params(
 
 	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP3 get_si_equation_system ENTER"); flush(stdout))
 	# Step 3: Re-run SIAN on the parameter-free model → template with only state unknowns
-	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary, new_si_template_metadata = get_si_equation_system(
-		fixed_model, fixed_mq, data_sample;
-		DD = DD,
-		infolevel = diagnostics ? 1 : 0,
-		placeholder_fail_categories = placeholder_fail_categories,
-	)
+	new_template_eqs, new_deriv_dict, new_unident, new_id_funcs, new_si_variable_role_summary, new_si_template_metadata = _timed_resolve_stage!(resolve_stages, :sian_rerun) do
+		get_si_equation_system(
+			fixed_model, fixed_mq, data_sample;
+			DD = DD,
+			infolevel = diagnostics ? 1 : 0,
+			placeholder_fail_categories = placeholder_fail_categories,
+		)
+	end
+	resolve_template_eq_count = length(new_template_eqs)
 	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP3 get_si_equation_system EXIT ($(length(new_template_eqs)) eqs)"); flush(stdout))
-	new_template_DD = ensure_si_template_dd_support(fixed_model, fixed_mq, DD, new_deriv_dict)
+	new_template_DD = _timed_resolve_stage!(resolve_stages, :ensure_template_dd) do
+		ensure_si_template_dd_support(fixed_model, fixed_mq, DD, new_deriv_dict)
+	end
 
 	if isempty(new_template_eqs)
 		@warn "[RESOLVE] SIAN re-run produced no template equations"
-		return empty_result(status = :empty_template, notes = [:empty_template])
+		return record_resolve_result(empty_result(status = :empty_template, notes = [:empty_template]))
 	end
 
 	new_si_template = (
@@ -464,29 +564,33 @@ function resolve_states_with_fixed_params(
 	# Use ORIGINAL model for unpack_ODE (DD is tied to original model's observables)
 	# but the NEW si_template for equations (parameters already baked in)
 	get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP4 construct_equation_system_from_si_template ENTER"); flush(stdout))
-	equations, template_vars = construct_equation_system_from_si_template(
-		model,
-		measured_quantities,
-		data_sample,
-		deriv_level,
-		OrderedDict(),  # empty unident_dict — all params fixed, nothing unidentifiable
-		varlist,
-		DD;
-		interpolator = :AAA,  # unused — precomputed_interpolants provided
-		time_index_set = [time_index],
-		precomputed_interpolants = interpolants,
-		diagnostics = diagnostics,
-		si_template = new_si_template,
-		placeholder_fail_categories = placeholder_fail_categories,
-	)
+	equations, template_vars = _timed_resolve_stage!(resolve_stages, :instantiate) do
+		construct_equation_system_from_si_template(
+			model,
+			measured_quantities,
+			data_sample,
+			deriv_level,
+			OrderedDict(),  # empty unident_dict — all params fixed, nothing unidentifiable
+			varlist,
+			DD;
+			interpolator = :AAA,  # unused — precomputed_interpolants provided
+			time_index_set = [time_index],
+			precomputed_interpolants = interpolants,
+			diagnostics = diagnostics,
+			si_template = new_si_template,
+			placeholder_fail_categories = placeholder_fail_categories,
+		)
+	end
 
 	if isempty(equations)
 		@warn "[RESOLVE] No equations after template instantiation at time_index=$time_index"
-		return empty_result(status = :no_equations_after_instantiation, notes = [:no_equations_after_instantiation])
+		return record_resolve_result(empty_result(status = :no_equations_after_instantiation, notes = [:no_equations_after_instantiation]))
 	end
 
 	n_eqs = length(equations)
 	n_vars = length(template_vars)
+	resolve_instantiated_eq_count = n_eqs
+	resolve_state_var_count = n_vars
 	@info "[RESOLVE] Instantiated system: $n_eqs eqs, $n_vars state vars" * (n_eqs == n_vars ? " (square)" : " (NOT square)")
 
 	if diagnostics
@@ -515,7 +619,9 @@ function resolve_states_with_fixed_params(
 			for eq in equations; println("[MWE] hceq: ", eq); end
 			println("[MWE] hcvars: ", state_vars); flush(stdout)
 		end
-		solutions, _hc_varlist, _, _ = solve_with_hc(equations, state_vars)
+		solutions, _hc_varlist, _, _ = _timed_resolve_stage!(resolve_stages, :hc_solve) do
+			solve_with_hc(equations, state_vars)
+		end
 		get(ENV, "BIOH_MWE_CAPTURE", "") == "1" && any(v -> abs(v) < 1e-10, values(known_param_dict)) && (println("[MWE] STEP5 solve_with_hc EXIT ($(length(solutions)) sols)"); flush(stdout))
 		if isempty(solutions)
 			@warn "[RESOLVE] HC.jl found no solutions for square system"
@@ -543,6 +649,7 @@ function resolve_states_with_fixed_params(
 		used_cascading = true
 		cascading_status = :attempted
 		push!(resolve_notes, :cascading_attempted)
+		cascade_t0 = time()
 
 		cascade_subst = Dict{Any, Any}()
 		cascade_pass = 0
@@ -638,7 +745,9 @@ function resolve_states_with_fixed_params(
 				if n_rem_eqs >= n_rem_vars && n_rem_vars > 0
 					# Square or overdetermined — HC.jl can handle this
 					@info "[RESOLVE] Trying HC.jl on remaining $n_rem_eqs eqs, $n_rem_vars vars"
-					hc_solutions, _, _, _ = solve_with_hc(remaining_eqs, remaining_state_vars)
+					hc_solutions, _, _, _ = _timed_resolve_stage!(resolve_stages, :cascade_hc_solve) do
+						solve_with_hc(remaining_eqs, remaining_state_vars)
+					end
 				elseif n_rem_vars > 0
 					# Underdetermined — HC.jl would throw FiniteException
 					@warn "[RESOLVE] Remaining system is underdetermined ($n_rem_eqs eqs, $n_rem_vars vars) — skipping HC.jl"
@@ -710,6 +819,7 @@ function resolve_states_with_fixed_params(
 			cascading_status = :failed
 			push!(resolve_notes, :cascade_found_no_substitutions)
 		end
+		resolve_stages[:cascading] = get(resolve_stages, :cascading, 0.0) + (time() - cascade_t0)
 	end
 
 	if isempty(solutions)
@@ -720,7 +830,7 @@ function resolve_states_with_fixed_params(
 		@info "[RESOLVE] Final: $(length(solutions)) solution(s) with $(length(state_vars)) variables"
 	end
 
-	return (
+	return record_resolve_result((
 		solutions = solutions,
 		state_vars = state_vars,
 		missing_vars_per_solution = missing_vars_per_solution,
@@ -729,7 +839,25 @@ function resolve_states_with_fixed_params(
 		notes = unique(resolve_notes),
 		hc_status = hc_status,
 		cascading_status = cascading_status,
-	)
+	))
+	catch err
+		_record_resolve_timing!((
+			context = _current_resolve_timing_context(),
+			total_seconds = time() - resolve_t0,
+			stage_seconds = copy(resolve_stages),
+			fixed_parameter_count = length(known_param_dict),
+			time_index = time_index,
+			template_equations = resolve_template_eq_count,
+			instantiated_equations = resolve_instantiated_eq_count,
+			state_vars = resolve_state_var_count,
+			solution_count = 0,
+			status = :threw,
+			hc_status = :unknown,
+			cascading_status = :unknown,
+			error = sprint(showerror, err),
+		))
+		rethrow()
+	end
 end
 
 # Export the template-based constructor

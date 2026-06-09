@@ -156,17 +156,35 @@ function _noise_template_clean_name_map(symb_template_vars, inst_var_name_set::S
 	return symb_to_clean
 end
 
+function _noise_model_param_set(pep::ParameterEstimationProblem)
+	names = Set{String}()
+	for p in keys(pep.p_true)
+		name = replace(string(p), r"\(.*\)$" => "")
+		push!(names, name)
+		push!(names, "$(name)_0")
+	end
+	return names
+end
+
+function _noise_is_parameter_clean_name(clean::AbstractString, param_set::Set{String})
+	clean in param_set && return true
+	parsed = parse_derivative_variable_name(clean)
+	isnothing(parsed) && return false
+	base, order = parsed
+	return order == 0 && string(base) in param_set
+end
+
 function _noise_rename_symbolic_equations(symb_eqs, symb_vars, symb_to_clean, param_set::Set{String}, point::Int)
 	rd = Dict{Any, Any}()
 	for v in symb_vars
 		sname = string(v)
 		clean = get(symb_to_clean, v, sname)
 		if point == 1
-			if sname != clean && !(clean in param_set)
+			if sname != clean && !_noise_is_parameter_clean_name(clean, param_set)
 				rd[v] = Symbolics.variable(Symbol(clean))
 			end
 		else
-			clean in param_set && continue
+			_noise_is_parameter_clean_name(clean, param_set) && continue
 			rd[v] = Symbolics.variable(Symbol(clean * "_pt$(point)"))
 		end
 	end
@@ -182,6 +200,147 @@ function _noise_probe_indices(data_sample, n_points::Int)
 	return [max(2, min(n_t - 1, round(Int, n_t * f))) for f in fracs]
 end
 
+function _noise_rank_pool_from_symbolic_equations(
+	pep::ParameterEstimationProblem,
+	rank_source_eqs,
+	metadata_eqs,
+	points::Vector{Int},
+	source_indices::Vector{Int},
+	template_DD,
+)
+	dd_order_by_obj, dd_order_by_string = _noise_dd_order_maps(template_DD)
+	obs_bases = _noise_observable_bases(pep.measured_quantities)
+
+	combined_inst_vars_set = OrderedCollections.OrderedSet{Any}()
+	for eq in rank_source_eqs
+		union!(combined_inst_vars_set, Symbolics.get_variables(eq))
+	end
+	combined_inst_vars_all = collect(combined_inst_vars_set)
+	rank_vars = Any[]
+	data_subst = Dict{Any, Float64}()
+	for (i, v) in enumerate(combined_inst_vars_all)
+		role = _noise_var_role(v, pep, dd_order_by_obj, dd_order_by_string, obs_bases)
+		if role.role in (:data, :transcendental)
+			data_subst[v] = 1.0 + 0.125 * i
+		else
+			push!(rank_vars, v)
+		end
+	end
+	rank_inst_eqs = isempty(data_subst) ? rank_source_eqs :
+		[Symbolics.substitute(eq, data_subst) for eq in rank_source_eqs]
+
+	metadata = NoiseEqMeta[]
+	for (i, eq) in enumerate(metadata_eqs)
+		max_obs, support_score = _noise_equation_feature(eq, pep, dd_order_by_obj, dd_order_by_string, obs_bases)
+		push!(metadata, (point = points[i], source_index = source_indices[i], max_observed_order = max_obs, support_score = support_score))
+	end
+
+	return rank_inst_eqs, rank_vars, metadata
+end
+
+function _noise_generic_interpolants(measured_quantities, max_required_deriv::Int)
+	degree = max(max_required_deriv + 3, 4)
+	interpolants = Dict{Any, Any}()
+	for (obs_idx, obs_eqn) in enumerate(measured_quantities)
+		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
+		_is_trfn_observable(Symbolics.wrap(obs_rhs)) && continue
+		coeffs = Float64[1.0 + 0.173 * obs_idx + 0.037 * k for k in 0:degree]
+		interpolants[obs_rhs] = let coeffs = coeffs
+			x -> begin
+				z = Float64(x) + 0.41
+				acc = 0.0
+				pow = 1.0
+				for c in coeffs
+					acc += c * pow
+					pow *= z
+				end
+				acc
+			end
+		end
+	end
+	return interpolants
+end
+
+function _noise_build_generic_pool(
+	pep::ParameterEstimationProblem,
+	setup::NamedTuple,
+	si_template,
+	full_symb_eqs,
+	full_symb_vars,
+	probes::Vector{Int},
+	template_DD;
+	n_points::Int,
+	diagnostics::Bool = false,
+)
+	max_required_deriv = isempty(si_template.deriv_dict) ? 0 : maximum(values(si_template.deriv_dict))
+	generic_interpolants = _noise_generic_interpolants(pep.measured_quantities, max_required_deriv)
+	combined_symb_eqs = Any[]
+	combined_inst_eqs = Any[]
+	source_indices = Int[]
+	points = Int[]
+
+	first_inst = instantiate_si_template_equations(
+		full_symb_eqs,
+		pep.measured_quantities,
+		pep.data_sample,
+		si_template.deriv_dict,
+		template_DD;
+		interpolants = generic_interpolants,
+		time_index = probes[1],
+		diagnostics = false,
+		prune_overdetermined = false,
+		substitute_trfn = false,
+	)
+	param_set = _noise_model_param_set(pep)
+	symb_to_clean = _noise_template_clean_name_map(full_symb_vars, Set(string.(first_inst.vars)), template_DD, pep.measured_quantities)
+
+	for pt in 1:n_points
+		inst = pt == 1 ? first_inst : instantiate_si_template_equations(
+			full_symb_eqs,
+			pep.measured_quantities,
+			pep.data_sample,
+			si_template.deriv_dict,
+			template_DD;
+			interpolants = generic_interpolants,
+			time_index = probes[pt],
+			diagnostics = false,
+			prune_overdetermined = false,
+			substitute_trfn = false,
+		)
+		inst_renamed, _ = _rename_per_point_variables(inst.equations, inst.vars, param_set, pt)
+		symb_renamed = _noise_rename_symbolic_equations(full_symb_eqs, full_symb_vars, symb_to_clean, param_set, pt)
+		n_inst = length(inst_renamed)
+		n_symb = length(symb_renamed)
+		if n_inst != n_symb && diagnostics
+			@warn "[NOISE-FRONTIER] Generic template/instantiated equation-count mismatch; using prefix mapping for nontrivial equations" point = pt instantiated = n_inst symbolic = n_symb
+		end
+		n_keep = min(n_inst, n_symb)
+		append!(combined_inst_eqs, inst_renamed[1:n_keep])
+		append!(combined_symb_eqs, symb_renamed[1:n_keep])
+		append!(source_indices, collect(1:n_keep))
+		append!(points, fill(pt, n_keep))
+	end
+
+	rank_inst_eqs, rank_vars, metadata = _noise_rank_pool_from_symbolic_equations(
+		pep,
+		combined_inst_eqs,
+		combined_symb_eqs,
+		points,
+		source_indices,
+		template_DD,
+	)
+
+	return (
+		symbolic_equations = combined_symb_eqs,
+		instantiated_equations = rank_inst_eqs,
+		instantiated_vars = rank_vars,
+		metadata = metadata,
+		template_DD = template_DD,
+		full_equation_count = length(full_symb_eqs),
+		probe_indices = probes,
+	)
+end
+
 function _noise_build_pool(
 	pep::ParameterEstimationProblem,
 	setup::NamedTuple,
@@ -189,10 +348,9 @@ function _noise_build_pool(
 	n_points::Int,
 	diagnostics::Bool = false,
 	probe_indices::Union{Nothing, Vector{Int}} = nothing,
+	selection_mode::Symbol = :generic,
 )
 	n_points >= 1 || throw(ArgumentError("n_points must be positive"))
-	interpolants = get(setup, :interpolants, nothing)
-	isnothing(interpolants) && throw(ArgumentError("setup.interpolants is required for noise-frontier construction probes"))
 	template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : setup.good_DD
 	full_symb_eqs = _noise_template_equations(si_template)
 	full_vars_set = OrderedCollections.OrderedSet{Any}()
@@ -203,6 +361,25 @@ function _noise_build_pool(
 
 	probes = isnothing(probe_indices) ? _noise_probe_indices(pep.data_sample, n_points) : probe_indices
 	length(probes) == n_points || throw(ArgumentError("probe_indices length must match n_points"))
+
+	if selection_mode == :generic
+		return _noise_build_generic_pool(
+			pep,
+			setup,
+			si_template,
+			full_symb_eqs,
+			full_symb_vars,
+			probes,
+			template_DD;
+			n_points = n_points,
+			diagnostics = diagnostics,
+		)
+	elseif !(selection_mode in (:instantiated, :data_conditioned))
+		throw(ArgumentError("selection_mode must be :generic, :instantiated, or :data_conditioned (got $selection_mode)"))
+	end
+
+	interpolants = get(setup, :interpolants, nothing)
+	isnothing(interpolants) && throw(ArgumentError("setup.interpolants is required for instantiated noise-frontier construction probes"))
 
 	combined_inst_eqs = Any[]
 	combined_symb_eqs = Any[]
@@ -250,32 +427,14 @@ function _noise_build_pool(
 		append!(points, fill(pt, n_keep))
 	end
 
-	dd_order_by_obj, dd_order_by_string = _noise_dd_order_maps(template_DD)
-	obs_bases = _noise_observable_bases(pep.measured_quantities)
-
-	combined_inst_vars_set = OrderedCollections.OrderedSet{Any}()
-	for eq in combined_inst_eqs
-		union!(combined_inst_vars_set, Symbolics.get_variables(eq))
-	end
-	combined_inst_vars_all = collect(combined_inst_vars_set)
-	rank_vars = Any[]
-	data_subst = Dict{Any, Float64}()
-	for (i, v) in enumerate(combined_inst_vars_all)
-		role = _noise_var_role(v, pep, dd_order_by_obj, dd_order_by_string, obs_bases)
-		if role.role in (:data, :transcendental)
-			data_subst[v] = 1.0 + 0.125 * i
-		else
-			push!(rank_vars, v)
-		end
-	end
-	rank_inst_eqs = isempty(data_subst) ? combined_inst_eqs :
-		[Symbolics.substitute(eq, data_subst) for eq in combined_inst_eqs]
-
-	metadata = NoiseEqMeta[]
-	for (i, eq) in enumerate(combined_symb_eqs)
-		max_obs, support_score = _noise_equation_feature(eq, pep, dd_order_by_obj, dd_order_by_string, obs_bases)
-		push!(metadata, (point = points[i], source_index = source_indices[i], max_observed_order = max_obs, support_score = support_score))
-	end
+	rank_inst_eqs, rank_vars, metadata = _noise_rank_pool_from_symbolic_equations(
+		pep,
+		combined_inst_eqs,
+		combined_symb_eqs,
+		points,
+		source_indices,
+		template_DD,
+	)
 
 	return (
 		symbolic_equations = combined_symb_eqs,
@@ -289,29 +448,62 @@ function _noise_build_pool(
 end
 
 function _noise_rank_matrix(equations, variables; rank_atol::Float64 = 1e-8, n_rank_probes::Int = 3)
+	rank_t0 = time()
+	rank_stages = OrderedDict{Symbol, Float64}()
 	n_var = length(variables)
 	n_eq = length(equations)
 	if n_var == 0 || n_eq == 0
+		_record_detailed_timing!((
+			category = :noise_rank_matrix,
+			context = _current_detailed_timing_context(),
+			total_seconds = time() - rank_t0,
+			stage_seconds = copy(rank_stages),
+			equation_count = n_eq,
+			variable_count = n_var,
+			n_rank_probes = n_rank_probes,
+			finite_probe_count = 0,
+			best_rank = 0,
+		))
 		return zeros(Float64, n_eq, n_var), 0
 	end
+	_compile_t0 = time()
 	f = _compile_system_function(equations, variables)
+	rank_stages[:compile_system_function] = get(rank_stages, :compile_system_function, 0.0) + (time() - _compile_t0)
 	best_J = zeros(Float64, n_eq, n_var)
 	best_rank = -1
+	finite_probe_count = 0
 	rng = MersenneTwister(0x9f4d0329)
 	for _ in 1:max(1, n_rank_probes)
 		x = randn(rng, n_var) .* 3.0
+		_jacobian_t0 = time()
 		J = try
 			ForwardDiff.jacobian(f, x)
 		catch
 			zeros(Float64, n_eq, n_var)
+		finally
+			rank_stages[:forwarddiff_jacobian] = get(rank_stages, :forwarddiff_jacobian, 0.0) + (time() - _jacobian_t0)
 		end
 		all(isfinite, J) || continue
+		finite_probe_count += 1
+		_rank_eval_t0 = time()
 		r = rank(J; atol = rank_atol)
+		rank_stages[:rank_eval] = get(rank_stages, :rank_eval, 0.0) + (time() - _rank_eval_t0)
 		if r > best_rank
 			best_rank = r
 			best_J = Float64.(J)
 		end
 	end
+	_record_detailed_timing!((
+		category = :noise_rank_matrix,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - rank_t0,
+		stage_seconds = copy(rank_stages),
+		equation_count = n_eq,
+		variable_count = n_var,
+		n_rank_probes = n_rank_probes,
+		finite_probe_count = finite_probe_count,
+		best_rank = max(best_rank, 0),
+	))
 	return best_J, max(best_rank, 0)
 end
 
@@ -455,6 +647,197 @@ function _noise_condition_proxy(J, selected; rank_atol::Float64 = 1e-8)
 	return svs[1] / max(svs[end], rank_atol)
 end
 
+struct NoiseValidationCache
+	usable::Bool
+	data_dependent::Bool
+	jacobian_oop::Any
+	jacobian_ip::Any
+	equation_count::Int
+	variable_count::Int
+	data_var_count::Int
+	rank_value::Int
+	condition_proxy::Float64
+	finite_probe_count::Int
+	failure_reason::Symbol
+end
+
+const _NOISE_VALIDATION_CACHE = Dict{Any, NoiseValidationCache}()
+const _NOISE_VALIDATION_CACHE_LOCK = ReentrantLock()
+
+function _noise_validation_cache_key(equations, solve_vars, data_vars, rank_atol::Float64, n_rank_probes::Int)
+	return (
+		objectid(equations), length(equations),
+		objectid(solve_vars), length(solve_vars),
+		objectid(data_vars), length(data_vars),
+		rank_atol,
+		n_rank_probes,
+	)
+end
+
+function _noise_jacobian_uses_data(J_expr, data_vars)
+	isempty(data_vars) && return false
+	data_names = Set(string.(data_vars))
+	for expr in J_expr
+		for v in Symbolics.get_variables(expr)
+			string(v) in data_names && return true
+		end
+	end
+	return false
+end
+
+function _noise_compile_jacobian_function(J_expr, all_vars)
+	built = Symbolics.build_function(vec(J_expr), all_vars; expression = Val(false))
+	if built isa Tuple
+		return built[1], length(built) >= 2 ? built[2] : nothing
+	end
+	return built, nothing
+end
+
+function _noise_evaluate_compiled_jacobian(cache::NoiseValidationCache, x, data_values)
+	input_values = Vector{Float64}(undef, length(x) + length(data_values))
+	@inbounds begin
+		for i in eachindex(x)
+			input_values[i] = Float64(x[i])
+		end
+		offset = length(x)
+		for i in eachindex(data_values)
+			input_values[offset + i] = Float64(data_values[i])
+		end
+	end
+
+	raw = if cache.jacobian_ip !== nothing
+		buf = zeros(Float64, cache.equation_count * cache.variable_count)
+		cache.jacobian_ip(buf, input_values)
+		buf
+	else
+		cache.jacobian_oop(input_values)
+	end
+	vals = raw isa AbstractArray ? Float64.(raw) : Float64[Float64(raw)]
+	return reshape(vals, cache.equation_count, cache.variable_count)
+end
+
+function _noise_rank_from_compiled_jacobian(
+	cache::NoiseValidationCache,
+	data_values;
+	rank_atol::Float64 = 1e-8,
+	n_rank_probes::Int = 3,
+	stage_seconds = nothing,
+)
+	n_var = cache.variable_count
+	n_eq = cache.equation_count
+	if n_var == 0 || n_eq == 0
+		return zeros(Float64, n_eq, n_var), 0, 0
+	end
+	best_J = zeros(Float64, n_eq, n_var)
+	best_rank = -1
+	finite_probe_count = 0
+	rng = MersenneTwister(0x9f4d0329)
+	for _ in 1:max(1, n_rank_probes)
+		x = randn(rng, n_var) .* 3.0
+		_eval_t0 = time()
+		J = _noise_evaluate_compiled_jacobian(cache, x, data_values)
+		if !isnothing(stage_seconds)
+			stage_seconds[:evaluate_cached_jacobian] = get(stage_seconds, :evaluate_cached_jacobian, 0.0) + (time() - _eval_t0)
+		end
+		all(isfinite, J) || continue
+		finite_probe_count += 1
+		_rank_t0 = time()
+		r = rank(J; atol = rank_atol)
+		if !isnothing(stage_seconds)
+			stage_seconds[:rank_eval] = get(stage_seconds, :rank_eval, 0.0) + (time() - _rank_t0)
+		end
+		if r > best_rank
+			best_rank = r
+			best_J = Float64.(J)
+		end
+	end
+	return best_J, max(best_rank, 0), finite_probe_count
+end
+
+function _noise_store_validation_cache!(key, cache::NoiseValidationCache)
+	lock(_NOISE_VALIDATION_CACHE_LOCK)
+	try
+		return get!(_NOISE_VALIDATION_CACHE, key, cache)
+	finally
+		unlock(_NOISE_VALIDATION_CACHE_LOCK)
+	end
+end
+
+function _noise_prepare_validation_cache(
+	equations,
+	solve_vars,
+	data_vars;
+	rank_atol::Float64 = 1e-8,
+	n_rank_probes::Int = 3,
+)
+	key = _noise_validation_cache_key(equations, solve_vars, data_vars, rank_atol, n_rank_probes)
+	lock(_NOISE_VALIDATION_CACHE_LOCK)
+	try
+		cached = get(_NOISE_VALIDATION_CACHE, key, nothing)
+		!isnothing(cached) && return cached
+	finally
+		unlock(_NOISE_VALIDATION_CACHE_LOCK)
+	end
+
+	cache = try
+		J_expr = Symbolics.jacobian(equations, solve_vars)
+		data_dependent = _noise_jacobian_uses_data(J_expr, data_vars)
+		jac_oop, jac_ip = _noise_compile_jacobian_function(J_expr, vcat(solve_vars, data_vars))
+		provisional = NoiseValidationCache(
+			true,
+			data_dependent,
+			jac_oop,
+			jac_ip,
+			length(equations),
+			length(solve_vars),
+			length(data_vars),
+			-1,
+			Inf,
+			0,
+			:ok,
+		)
+		if data_dependent
+			provisional
+		else
+			J, rank_value, finite_probe_count = _noise_rank_from_compiled_jacobian(
+				provisional,
+				zeros(Float64, length(data_vars));
+				rank_atol = rank_atol,
+				n_rank_probes = n_rank_probes,
+			)
+			NoiseValidationCache(
+				true,
+				false,
+				jac_oop,
+				jac_ip,
+				length(equations),
+				length(solve_vars),
+				length(data_vars),
+				rank_value,
+				_noise_condition_proxy(J, collect(eachindex(equations)); rank_atol = rank_atol),
+				finite_probe_count,
+				:ok,
+			)
+		end
+	catch err
+		@warn "[NOISE-FRONTIER] cached Jacobian validation unavailable; using slow validation" exception = err
+		NoiseValidationCache(
+			false,
+			false,
+			nothing,
+			nothing,
+			length(equations),
+			length(solve_vars),
+			length(data_vars),
+			0,
+			Inf,
+			0,
+			:cache_build_failed,
+		)
+	end
+	return _noise_store_validation_cache!(key, cache)
+end
+
 function _noise_mixed_volume(equations, solve_vars, data_vars)
 	length(equations) == length(solve_vars) || return nothing
 	try
@@ -539,8 +922,8 @@ function _noise_evaluate_data_var(v, interpolants, measured_quantities, obs_name
 
 	parsed = parse_derivative_variable_name(clean_name)
 	if isnothing(parsed)
-		@warn "[NOISE-FRONTIER] Cannot parse data variable; using 0.0" data_var = string(v)
-		return 0.0
+		@warn "[NOISE-FRONTIER] Cannot parse data variable; marking value nonfinite" data_var = string(v)
+		return NaN
 	end
 	base_name, deriv_order = parsed
 	obs_idx = get(obs_name_to_idx, string(base_name), nothing)
@@ -560,8 +943,8 @@ function _noise_evaluate_data_var(v, interpolants, measured_quantities, obs_name
 		end
 	end
 
-	@warn "[NOISE-FRONTIER] No interpolant for data variable; using 0.0" data_var = string(v) base = string(base_name) deriv_order obs_idx
-	return 0.0
+	@warn "[NOISE-FRONTIER] No interpolant for data variable; marking value nonfinite" data_var = string(v) base = string(base_name) deriv_order obs_idx
+	return NaN
 end
 
 """
@@ -584,6 +967,171 @@ function instantiate_noise_frontier_candidate(candidate::NoiseFrontierCandidate,
 	values = evaluate_noise_frontier_data_vars_at_point(interpolants, candidate.data_vars, measured_quantities, t_point)
 	subst = Dict{Any, Any}(candidate.data_vars[i] => values[i] for i in eachindex(candidate.data_vars))
 	return [Symbolics.substitute(eq, subst) for eq in candidate.equations], candidate.solve_vars
+end
+
+function validate_noise_frontier_instantiation(
+	equations,
+	solve_vars,
+	data_vars,
+	data_values;
+	rank_atol::Float64 = 1e-8,
+	n_rank_probes::Int = 3,
+)
+	validation_t0 = time()
+	validation_stages = OrderedDict{Symbol, Float64}()
+	target_rank = length(solve_vars)
+	length(equations) == target_rank || return (
+		valid = false,
+		reason = :nonsquare,
+		rank = 0,
+		target_rank = target_rank,
+		condition_proxy = Inf,
+	)
+	length(data_values) == length(data_vars) || return (
+		valid = false,
+		reason = :data_length_mismatch,
+		rank = 0,
+		target_rank = target_rank,
+		condition_proxy = Inf,
+	)
+	all(isfinite, data_values) || return (
+		valid = false,
+		reason = :nonfinite_data,
+		rank = 0,
+		target_rank = target_rank,
+		condition_proxy = Inf,
+	)
+
+	_cache_t0 = time()
+	cache = _noise_prepare_validation_cache(
+		equations,
+		solve_vars,
+		data_vars;
+		rank_atol = rank_atol,
+		n_rank_probes = n_rank_probes,
+	)
+	validation_stages[:prepare_validation_cache] = get(validation_stages, :prepare_validation_cache, 0.0) + (time() - _cache_t0)
+
+	if cache.usable
+		cached_rank_value = 0
+		cached_condition_proxy = Inf
+		cached_finite_probe_count = 0
+		cached_mode = cache.data_dependent ? :cached_data_dependent_jacobian : :cached_data_independent_rank
+		_cached_t0 = time()
+		cached_ok = try
+			if cache.data_dependent
+				J, cached_rank_value, cached_finite_probe_count = _noise_rank_from_compiled_jacobian(
+					cache,
+					data_values;
+					rank_atol = rank_atol,
+					n_rank_probes = n_rank_probes,
+					stage_seconds = validation_stages,
+				)
+				_condition_t0 = time()
+				cached_condition_proxy = _noise_condition_proxy(J, collect(eachindex(equations)); rank_atol = rank_atol)
+				validation_stages[:condition_proxy] = get(validation_stages, :condition_proxy, 0.0) + (time() - _condition_t0)
+			else
+				cached_rank_value = cache.rank_value
+				cached_condition_proxy = cache.condition_proxy
+				cached_finite_probe_count = cache.finite_probe_count
+				validation_stages[:reuse_data_independent_rank] = get(validation_stages, :reuse_data_independent_rank, 0.0) + 0.0
+			end
+			true
+		catch err
+			@warn "[NOISE-FRONTIER] cached Jacobian validation failed; using slow validation" exception = err
+			false
+		finally
+			validation_stages[:cached_validation] = get(validation_stages, :cached_validation, 0.0) + (time() - _cached_t0)
+		end
+		if cached_ok
+			valid = cached_rank_value >= target_rank
+			reason = valid ? :ok : :rank_deficient
+			_record_detailed_timing!((
+				category = :noise_frontier_validation,
+				context = _current_detailed_timing_context(),
+				total_seconds = time() - validation_t0,
+				stage_seconds = copy(validation_stages),
+				equation_count = length(equations),
+				variable_count = length(solve_vars),
+				data_var_count = length(data_vars),
+				data_value_count = length(data_values),
+				rank = cached_rank_value,
+				target_rank = target_rank,
+				reason = reason,
+				condition_proxy = cached_condition_proxy,
+				n_rank_probes = n_rank_probes,
+				validation_mode = cached_mode,
+				jacobian_data_dependent = cache.data_dependent,
+				cache_usable = true,
+				finite_probe_count = cached_finite_probe_count,
+			))
+			return (
+				valid = valid,
+				reason = reason,
+				rank = cached_rank_value,
+				target_rank = target_rank,
+				condition_proxy = cached_condition_proxy,
+			)
+		end
+	end
+
+	_substitute_t0 = time()
+	subst = Dict{Any, Any}(data_vars[i] => data_values[i] for i in eachindex(data_vars))
+	instantiated_eqs = isempty(subst) ? equations : [Symbolics.substitute(eq, subst) for eq in equations]
+	validation_stages[:substitute_data] = get(validation_stages, :substitute_data, 0.0) + (time() - _substitute_t0)
+
+	_rank_matrix_t0 = time()
+	J, rank_value = _noise_rank_matrix(instantiated_eqs, solve_vars;
+		rank_atol = rank_atol, n_rank_probes = n_rank_probes)
+	validation_stages[:rank_matrix] = get(validation_stages, :rank_matrix, 0.0) + (time() - _rank_matrix_t0)
+
+	_condition_t0 = time()
+	condition_proxy = _noise_condition_proxy(J, collect(eachindex(instantiated_eqs)); rank_atol = rank_atol)
+	validation_stages[:condition_proxy] = get(validation_stages, :condition_proxy, 0.0) + (time() - _condition_t0)
+	valid = rank_value >= target_rank
+	reason = valid ? :ok : :rank_deficient
+	_record_detailed_timing!((
+		category = :noise_frontier_validation,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - validation_t0,
+		stage_seconds = copy(validation_stages),
+		equation_count = length(equations),
+		variable_count = length(solve_vars),
+		data_var_count = length(data_vars),
+		data_value_count = length(data_values),
+		rank = rank_value,
+		target_rank = target_rank,
+		reason = reason,
+		condition_proxy = condition_proxy,
+		n_rank_probes = n_rank_probes,
+		validation_mode = :slow_substitute_forwarddiff,
+		jacobian_data_dependent = cache.usable ? cache.data_dependent : missing,
+		cache_usable = cache.usable,
+		cache_failure_reason = cache.failure_reason,
+	))
+	return (
+		valid = valid,
+		reason = reason,
+		rank = rank_value,
+		target_rank = target_rank,
+		condition_proxy = condition_proxy,
+	)
+end
+
+function validate_noise_frontier_candidate_at_values(
+	candidate::NoiseFrontierCandidate,
+	data_values;
+	rank_atol::Float64 = 1e-8,
+	n_rank_probes::Int = 3,
+)
+	return validate_noise_frontier_instantiation(
+		candidate.equations,
+		candidate.solve_vars,
+		candidate.data_vars,
+		data_values;
+		rank_atol = rank_atol,
+		n_rank_probes = n_rank_probes,
+	)
 end
 
 function _noise_point_index_for_var(v, n_points::Int)
@@ -643,6 +1191,7 @@ function build_noise_frontier_multipoint_template(
 	beam_width::Int = 16,
 	rank_atol::Float64 = 1e-8,
 	diagnostics::Bool = false,
+	selection_mode::Symbol = :generic,
 )
 	result = build_noise_frontier_system(
 		pep,
@@ -654,6 +1203,7 @@ function build_noise_frontier_multipoint_template(
 		beam_width = beam_width,
 		rank_atol = rank_atol,
 		diagnostics = diagnostics,
+		selection_mode = selection_mode,
 	)
 	selected = result.selected
 	isnothing(selected) && error("noise-frontier multipoint construction found no square full-rank candidate")
@@ -689,7 +1239,9 @@ end
 	build_noise_frontier_system(pep, setup, si_template; kwargs...) -> NoiseFrontierResult
 
 Build a noise-first square-system construction frontier. `setup` must provide
-`good_DD` and `interpolants`, matching the normal multishot setup tuple.
+`good_DD`. The default selector is generic/structural and ignores
+`setup.interpolants`; pass `selection_mode = :instantiated` to reproduce the
+older data-conditioned probe behavior.
 """
 function build_noise_frontier_system(
 	pep::ParameterEstimationProblem,
@@ -703,11 +1255,13 @@ function build_noise_frontier_system(
 	n_rank_probes::Int = 3,
 	diagnostics::Bool = false,
 	probe_indices::Union{Nothing, Vector{Int}} = nothing,
+	selection_mode::Symbol = :generic,
 )
 	candidate_limit > 0 || throw(ArgumentError("candidate_limit must be positive"))
 	beam_width > 0 || throw(ArgumentError("beam_width must be positive"))
 	raw_pool = _noise_build_pool(pep, setup, si_template;
-		n_points = n_points, diagnostics = diagnostics, probe_indices = probe_indices)
+		n_points = n_points, diagnostics = diagnostics, probe_indices = probe_indices,
+		selection_mode = selection_mode)
 	pool = (; raw_pool..., n_points = n_points)
 	J, full_rank = _noise_rank_matrix(pool.instantiated_equations, pool.instantiated_vars;
 		rank_atol = rank_atol, n_rank_probes = n_rank_probes)

@@ -1,5 +1,6 @@
 using Test
 using Logging
+using HomotopyContinuation
 using ModelingToolkit
 using OrderedCollections
 
@@ -131,6 +132,71 @@ using OrderedCollections
         @test :estimate ∉ public_names
         @test :solve_with_monodromy ∉ public_names
         @test :aaad_in_testing ∉ public_names
+
+        categories = ODEParameterEstimation.available_model_categories()
+        @test haskey(categories, :m1_benchmark)
+        @test Set(keys(categories[:m1_benchmark])) == Set([
+            :biohydrogenation_m1,
+            :daisy_mamil4_m1,
+            :seir_m1,
+            :slow_fast_m1,
+        ])
+        @test ODEParameterEstimation.ALL_MODELS[:slow_fast_m1] === ODEParameterEstimation.slow_fast_m1
+    end
+
+    @testset "Transcendental data variable evaluation" begin
+        t0 = 1.054739652870494
+        bare_sin = "_obs_trfn_cos_5_0_sin(t)"
+        d1_cos = "Differential(t, 1)(_obs_trfn_cos_5_0_cos(t))"
+        d4_sin = "Differential(t, 4)(_obs_trfn_cos_5_0_sin(t))"
+
+        @test ODEParameterEstimation.evaluate_known_trfn_variable("_trfn_sin_0_5", 1.0) ≈ sin(0.5)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable("_trfn_cos_0_5", 1.0) ≈ cos(0.5)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable("_trfn_sin_0_5_1", 1.0) ≈ 0.5 * cos(0.5)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable("_obs_trfn_exp_0_5", 1.0) ≈ exp(0.5)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable(bare_sin, t0) ≈ sin(5.0 * t0)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable(d1_cos, t0) ≈ -5.0 * sin(5.0 * t0)
+        @test ODEParameterEstimation.evaluate_known_trfn_variable(d4_sin, t0) ≈ 5.0^4 * sin(5.0 * t0)
+
+        data_vars = Any[bare_sin, d1_cos, d4_sin]
+        fake_DD = (obs_lhs = [data_vars],)
+        vals = ODEParameterEstimation.evaluate_data_vars_at_point(
+            Dict{Any, Any}(),
+            data_vars,
+            fake_DD,
+            ModelingToolkit.Equation[],
+            t0,
+        )
+        @test vals ≈ [
+            sin(5.0 * t0),
+            -5.0 * sin(5.0 * t0),
+            5.0^4 * sin(5.0 * t0),
+        ]
+    end
+
+    @testset "HC conversion accepts empty parameter lists" begin
+        @variables x
+        hc_system, hc_variables, hc_params = ODEParameterEstimation.convert_to_hc_format_with_params(
+            [x^2 - 1],
+            Any[x],
+            Any[],
+        )
+
+        @test hc_system isa HomotopyContinuation.System
+        @test eltype(hc_variables) == HomotopyContinuation.ModelKit.Variable
+        @test eltype(hc_params) == HomotopyContinuation.ModelKit.Variable
+        @test isempty(hc_params)
+
+        results = ODEParameterEstimation.solve_with_hc_parameterized(
+            [x^2 - 1],
+            Any[x],
+            Any[],
+            [Float64[], Float64[]],
+        )
+        @test length(results) == 2
+        for sols in results
+            @test sort(first.(sols)) ≈ [-1.0, 1.0] atol = 1e-8
+        end
     end
 
     @testset "Noise-frontier construction probes" begin
@@ -194,6 +260,25 @@ using OrderedCollections
         @test sp.selected.mixed_volume === nothing
         @test length(sp.selected.equations) == length(sp.selected.solve_vars)
         @test !isempty(ODEParameterEstimation.noise_frontier_rows(sp))
+
+        structural_setup = (
+            good_deriv_level = ident.good_deriv_level,
+            good_udict = ident.good_udict,
+            good_varlist = ident.good_varlist,
+            good_DD = ident.good_DD,
+        )
+        sp_structural = ODEParameterEstimation.build_noise_frontier_system(
+            pep,
+            structural_setup,
+            si_template;
+            n_points = 1,
+            compute_mixed_volume = false,
+            candidate_limit = 8,
+            beam_width = 4,
+            diagnostics = false,
+        )
+        @test sp_structural.selected.selected_equation_indices == sp.selected.selected_equation_indices
+
         inst_eqs, inst_vars = ODEParameterEstimation.instantiate_noise_frontier_candidate(
             sp.selected,
             interpolants,
@@ -202,6 +287,30 @@ using OrderedCollections
             5,
         )
         @test length(inst_eqs) == length(inst_vars)
+        data_values = ODEParameterEstimation.evaluate_noise_frontier_data_vars_at_point(
+            interpolants,
+            sp.selected.data_vars,
+            pep.measured_quantities,
+            pep.data_sample["t"][5],
+        )
+        validation = ODEParameterEstimation.validate_noise_frontier_candidate_at_values(sp.selected, data_values)
+        @test validation.valid
+        bad_validation = ODEParameterEstimation.validate_noise_frontier_candidate_at_values(
+            sp.selected,
+            fill(NaN, length(sp.selected.data_vars)),
+        )
+        @test !bad_validation.valid
+        @test bad_validation.reason == :nonfinite_data
+
+        @variables z d
+        deficient_validation = ODEParameterEstimation.validate_noise_frontier_instantiation(
+            [0 * z],
+            [z],
+            [d],
+            [1.0],
+        )
+        @test !deficient_validation.valid
+        @test deficient_validation.reason == :rank_deficient
 
         mp = ODEParameterEstimation.build_noise_frontier_system(
             pep,
@@ -240,6 +349,47 @@ using OrderedCollections
         @test ODEParameterEstimation.write_noise_frontier_csv(csv_path, sp) == csv_path
         @test isfile(csv_path)
         @test occursin("mixed_volume", read(csv_path, String))
+    end
+
+    @testset "Noise-frontier hoist timing capture" begin
+        opts = EstimationOptions(
+            datasize = 15,
+            noise_level = 0.0,
+            shooting_points = 3,
+            nooutput = true,
+            diagnostics = false,
+            save_system = false,
+            flow = FlowStandard,
+            use_si_template = true,
+            use_parameter_homotopy = true,
+            use_multipoint = true,
+            multipoint_n_points = 2,
+            multipoint_max_pairs = 1,
+            system_construction_policy = :noise_frontier,
+            construction_compute_mixed_volume = false,
+            construction_candidate_limit = 8,
+            construction_beam_width = 4,
+            interpolators = [InterpolatorAAAD, InterpolatorChebyshevAICc],
+            polish_solver_solutions = false,
+            polish_solutions = false,
+            synthesize_aggregate_candidates = false,
+            branch_completion = false,
+        )
+        pep = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), opts)
+        (_, timing) = ODEParameterEstimation.with_estimation_timing() do
+            ODEParameterEstimation.analyze_parameter_estimation_problem(pep, opts)
+        end
+
+        @test timing isa ODEParameterEstimation.TimingBreakdown
+        details = timing.details
+        @test details[:noise_frontier_sp_cache_misses] == 1
+        @test details[:noise_frontier_sp_cache_hits] >= 1
+        @test details[:sp_generic_start_cache_misses] == 1
+        @test details[:sp_generic_start_cache_hits] >= 1
+        @test haskey(details, :multipoint_template_seconds_by_source)
+        @test haskey(details, :multipoint_solve_seconds_by_source)
+        timing_dict = ODEParameterEstimation.timing_breakdown_to_dict(timing)
+        @test timing_dict["details"]["sp_generic_start_cache_misses"] == 1
     end
 
     @testset "Branch-stress example registry" begin

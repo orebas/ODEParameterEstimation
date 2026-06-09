@@ -916,6 +916,13 @@ function evaluate_multipoint_template(
         data_sample;
         diagnostics::Bool = false,
 )
+    eval_t0 = time()
+    stage_seconds = OrderedDict{Symbol, Float64}()
+    nth_deriv_calls = 0
+    nth_deriv_seconds = 0.0
+    trfn_eval_seconds = 0.0
+    parse_lookup_seconds = 0.0
+    max_deriv_order = 0
     @assert length(time_indices) == mpt.n_points "Expected $(mpt.n_points) time indices, got $(length(time_indices))"
 
     t_vec = data_sample["t"]
@@ -926,10 +933,13 @@ function evaluate_multipoint_template(
     mq = mpt.measured_quantities
 
     # Build observable name → index mapping from measured_quantities
-    obs_name_to_idx = Dict{String, Int}()
-    for (idx, mq_eq) in enumerate(mq)
-        obs_name = replace(string(mq_eq.lhs), r"\(.*\)$" => "")
-        obs_name_to_idx[obs_name] = idx
+    obs_name_to_idx = _timed_detail_stage!(stage_seconds, :observable_name_map) do
+        mapping = Dict{String, Int}()
+        for (idx, mq_eq) in enumerate(mq)
+            obs_name = replace(string(mq_eq.lhs), r"\(.*\)$" => "")
+            mapping[obs_name] = idx
+        end
+        mapping
     end
 
     for (pt, t_idx) in enumerate(time_indices)
@@ -944,23 +954,28 @@ function evaluate_multipoint_template(
             clean_name = replace(dv_name, r"_pt\d+$" => "")
 
             # Try _trfn_ evaluation first
+            t_trfn = time()
             trfn_val = evaluate_trfn_template_variable(clean_name, t_point)
             if isnothing(trfn_val)
                 trfn_val = evaluate_obs_trfn_template_variable(clean_name, t_point)
             end
+            trfn_eval_seconds += time() - t_trfn
             if !isnothing(trfn_val)
                 push!(data_values, Float64(trfn_val))
                 continue
             end
 
             # Parse the clean SIAN-style name (e.g., "y1_0" → base="y1", order=0)
+            t_parse = time()
             parsed = parse_derivative_variable_name(clean_name)
             if isnothing(parsed)
+                parse_lookup_seconds += time() - t_parse
                 @warn "[MPT-EVAL] Cannot parse data variable: $dv_name (clean=$clean_name)"
                 push!(data_values, 0.0)
                 continue
             end
             base_name, deriv_order = parsed
+            max_deriv_order = max(max_deriv_order, deriv_order)
 
             # Find observable index by matching base name against measured quantities
             obs_idx = get(obs_name_to_idx, string(base_name), nothing)
@@ -971,16 +986,23 @@ function evaluate_multipoint_template(
                     obs_idx = parse(Int, m.captures[1])
                 end
             end
+            parse_lookup_seconds += time() - t_parse
 
             val = nothing
             if !isnothing(obs_idx) && obs_idx <= length(mq)
                 obs_rhs = ModelingToolkit.diff2term(mq[obs_idx].rhs)
                 if haskey(interpolants, obs_rhs)
+                    t_nth = time()
                     val = nth_deriv(x -> interpolants[obs_rhs](x), deriv_order, t_point)
+                    nth_deriv_seconds += time() - t_nth
+                    nth_deriv_calls += 1
                 else
                     obs_lhs_wrapped = Symbolics.wrap(mq[obs_idx].lhs)
                     if haskey(interpolants, obs_lhs_wrapped)
+                        t_nth = time()
                         val = nth_deriv(x -> interpolants[obs_lhs_wrapped](x), deriv_order, t_point)
+                        nth_deriv_seconds += time() - t_nth
+                        nth_deriv_calls += 1
                     end
                 end
             end
@@ -994,6 +1016,24 @@ function evaluate_multipoint_template(
         end
     end
 
+    stage_seconds[:transcendental_lookup] = trfn_eval_seconds
+    stage_seconds[:parse_and_lookup] = parse_lookup_seconds
+    stage_seconds[:nth_deriv] = nth_deriv_seconds
+    total_seconds = time() - eval_t0
+    accounted = sum(values(stage_seconds))
+    stage_seconds[:other] = max(0.0, total_seconds - accounted)
+    _record_detailed_timing!((
+        category = :multipoint_template_evaluate,
+        context = _current_detailed_timing_context(),
+        total_seconds = total_seconds,
+        stage_seconds = copy(stage_seconds),
+        time_indices = Tuple(time_indices),
+        point_count = length(time_indices),
+        data_var_count = length(mpt.data_vars),
+        data_value_count = length(data_values),
+        nth_deriv_calls = nth_deriv_calls,
+        max_deriv_order = max_deriv_order,
+    ))
     return MultiPointEvaluation(mpt, time_indices, t_values, data_values)
 end
 

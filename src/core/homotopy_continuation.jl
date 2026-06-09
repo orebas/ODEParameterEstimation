@@ -907,10 +907,14 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 	HomotopyContinuation.set_default_compile(:all)
 
 	# Build variables list in the same order as solve_vars
-	hc_variables = [HomotopyContinuation.ModelKit.Variable(Symbol(sanitized_solve[i])) for i in eachindex(solve_vars)]
+	hc_variables = HomotopyContinuation.ModelKit.Variable[
+		HomotopyContinuation.ModelKit.Variable(Symbol(sanitized_solve[i])) for i in eachindex(solve_vars)
+	]
 
 	# Build parameters list in the same order as data_vars (with p_ prefix)
-	hc_params = [HomotopyContinuation.ModelKit.Variable(Symbol("p_" * sanitized_data[i])) for i in eachindex(data_vars)]
+	hc_params = HomotopyContinuation.ModelKit.Variable[
+		HomotopyContinuation.ModelKit.Variable(Symbol("p_" * sanitized_data[i])) for i in eachindex(data_vars)
+	]
 
 	# Construct the parameterized system
 	hc_system = HomotopyContinuation.System(parsed, variables = hc_variables, parameters = hc_params)
@@ -1035,7 +1039,9 @@ function compute_generic_start_solutions(poly_system, solve_vars, data_vars; gam
 		MersenneTwister(gamma_seed == 0 ? hash(string.(solve_vars)) : UInt64(gamma_seed))
 	p0 = randn(p0_rng, ComplexF64, length(hc_params))
 	try
-		gres = _hc_solve(hc_system; target_parameters = p0, show_progress = show_progress)
+		gres = isempty(hc_params) ?
+			_hc_solve(hc_system; show_progress = show_progress) :
+			_hc_solve(hc_system; target_parameters = p0, show_progress = show_progress)
 		sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
 		isempty(sols0) && return (nothing, nothing)
 		debug && println("[HC-PARAM] Generic-start (hoisted): UNSCALED generic p0 → N=$(length(sols0)) solutions (solved ONCE for all interpolators)")
@@ -1125,6 +1131,29 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		end
 	end
 
+	if isempty(param_values_list)
+		return Vector{Vector{Vector{Float64}}}()
+	end
+
+	# HC.jl treats `target_parameters = []` differently from a parameter-free system and can throw a
+	# BoundsError internally. For fixed systems, solve once and reuse the same roots at every point.
+	if isempty(hc_params)
+		debug && println("[HC-PARAM] No HC parameters; solving fixed system once for $(length(param_values_list)) point(s)")
+		result = _hc_solve(hc_system; show_progress = show_progress)
+		real_solutions_hc = HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol)
+		if isempty(real_solutions_hc)
+			real_solutions_hc = HomotopyContinuation.solutions(result)
+			debug && println("[HC-PARAM] Fixed system: no real solutions, projecting $(length(real_solutions_hc)) complex solutions to real parts")
+		end
+
+		fixed_real_solutions = Vector{Vector{Float64}}()
+		for s in real_solutions_hc
+			vals = Float64[col_scales[j] * real(s[j]) for j in 1:length(hc_variables)]
+			push!(fixed_real_solutions, vals)
+		end
+		return [copy.(fixed_real_solutions) for _ in param_values_list]
+	end
+
 	all_real_results = Vector{Vector{Vector{Float64}}}()
 	prev_all_solutions = nothing  # Track ALL solutions (real + complex)
 	prev_params = nothing
@@ -1179,8 +1208,13 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			# a needless fresh solve. At-infinity stays OUT of the kept set (real(s) would be Inf downstream).
 			all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 			n_accounted = length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false))
-			if n_accounted < initial_solution_count
-				debug && println("[HC-PARAM] Point $i: fan-out genuinely short ($n_accounted accounted < $initial_solution_count; finite-kept=$(length(all_solutions))) → fresh solve")
+			if n_accounted < initial_solution_count || isempty(all_solutions)
+				if debug
+					reason = n_accounted < initial_solution_count ?
+						"genuinely short ($n_accounted accounted < $initial_solution_count; finite-kept=$(length(all_solutions)))" :
+						"no finite endpoints ($n_accounted accounted; finite-kept=0)"
+					println("[HC-PARAM] Point $i: fan-out $reason → fresh solve")
+				end
 				result = _hc_solve(hc_system; target_parameters = current_params, show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 				initial_solution_count = max(initial_solution_count, length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false)))
@@ -1353,6 +1387,12 @@ function evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quant
 	end
 
 	for v in data_vars
+		trfn_val = evaluate_known_trfn_variable(string(v), Float64(t_point))
+		if !isnothing(trfn_val)
+			push!(values, Float64(trfn_val))
+			continue
+		end
+
 		if haskey(var_to_obs, v)
 			obs_idx, deriv_level = var_to_obs[v]
 

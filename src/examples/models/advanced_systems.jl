@@ -249,6 +249,36 @@ function daisy_mamil4()
 	)
 end
 
+function daisy_mamil4_m1()
+	parameters = @parameters k01 k12 k13 k14 k21 k31 k41
+	states = @variables x1(t) x2(t) x3(t) x4(t)
+	observables = @variables y1(t) y2(t) y3(t) y4(t)
+	p_true = [0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875]
+	ic_true = [0.2, 0.4, 0.6, 0.8]
+
+	equations = [
+		D(x1) ~ -k01 * x1 + k12 * x2 + k13 * x3 + k14 * x4 - k21 * x1 - k31 * x1 - k41 * x1,
+		D(x2) ~ -k12 * x2 + k21 * x1,
+		D(x3) ~ -k13 * x3 + k31 * x1,
+		D(x4) ~ -k14 * x4 + k41 * x1,
+	]
+	measured_quantities = [y1 ~ x1, y2 ~ x2, y3 ~ x3 + x4, y4 ~ x3]
+
+	model, mq = create_ordered_ode_system("DAISY_mamil4_M1", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"daisy_mamil4_m1",
+		model,
+		mq,
+		nothing,
+		nothing,
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
 function fitzhugh_nagumo()
 	parameters = @parameters g a b
 	states = @variables V(t) R(t)
@@ -336,6 +366,40 @@ function slowfast()
 		0,
 	)
 end
+
+function slow_fast_m1()
+	parameters = @parameters k1 k2
+	states = @variables xA(t) xB(t) xC(t) eA(t) eC(t) eB(t)
+	observables = @variables y1(t) y2(t) y3(t) y4(t) y5(t)
+	p_true = [0.25, 0.5]
+	ic_true = [0.166, 0.333, 0.5, 0.666, 0.833, 0.75]
+
+	equations = [
+		D(xA) ~ -k1 * xA,
+		D(xB) ~ k1 * xA - k2 * xB,
+		D(xC) ~ k2 * xB,
+		D(eA) ~ 0,
+		D(eC) ~ 0,
+		D(eB) ~ 0,
+	]
+	measured_quantities = [y1 ~ xC, y2 ~ eA * xA + eB * xB + eC * xC, y3 ~ eA, y4 ~ eC, y5 ~ eB]
+
+	model, mq = create_ordered_ode_system("slow_fast_m1", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"slow_fast_m1",
+		model,
+		mq,
+		nothing,
+		[0.0, 10.0],
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
+slowfast_m1() = slow_fast_m1()
 
 function sirsforced()
 	parameters = @parameters b0 b1 g M mu nu

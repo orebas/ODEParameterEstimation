@@ -33,6 +33,18 @@ function solve_with_robust(poly_system, varlist;
 	options = Dict())
 
 
+	robust_t0 = time()
+	robust_stages = OrderedDict{Symbol, Float64}()
+	timing_enabled = _DETAILED_TIMING_SINK[] !== nothing
+	residual_call_count = 0
+	residual_seconds = 0.0
+	jacobian_call_count = 0
+	jacobian_seconds = 0.0
+	starts_attempted = 0
+	starts_skipped_bad_residual = 0
+	successful_start_count = 0
+	algorithm_failure_count = 0
+
 	# Extract options
 	debug = get(options, :debug, false)
 	# Default to :forwarddiff: avoids per-call Symbolics.jacobian + 2x build_function
@@ -62,17 +74,36 @@ function solve_with_robust(poly_system, varlist;
 
 	# Try to compile the system into a fast native function; fall back to substitute/value
 	compiled_residual_robust! = nothing
+	_build_residual_t0 = time()
 	try
 		_f_oop, _f_ip = Symbolics.build_function(poly_system, varlist;
 			expression = Val(false))
 		compiled_residual_robust! = (res, u, p) -> (_f_ip(res, u); nothing)
 	catch err
 		@warn "build_function failed in solve_with_robust; falling back to substitute/value" err
+	finally
+		robust_stages[:build_residual_function] = get(robust_stages, :build_residual_function, 0.0) + (time() - _build_residual_t0)
 	end
 
 	# Create residual function
 	function residual!(res, u, p = nothing)
-		if compiled_residual_robust! !== nothing
+		if timing_enabled
+			_residual_t0 = time()
+			try
+				if compiled_residual_robust! !== nothing
+					compiled_residual_robust!(res, u, p)
+				else
+					d = Dict{Num, eltype(u)}(zip(varlist, u))
+					for (i, eq) in enumerate(poly_system)
+						val = Symbolics.value(Symbolics.substitute(eq, d))
+						res[i] = convert(eltype(res), val)
+					end
+				end
+			finally
+				residual_call_count += 1
+				residual_seconds += time() - _residual_t0
+			end
+		elseif compiled_residual_robust! !== nothing
 			compiled_residual_robust!(res, u, p)
 		else
 			d = Dict{Num, eltype(u)}(zip(varlist, u))
@@ -95,6 +126,7 @@ function solve_with_robust(poly_system, varlist;
 	jac_func = nothing
 	grad_func = nothing
 
+	_jacobian_setup_t0 = time()
 	if jac_mode == :symbolic
 		try
 			if debug
@@ -122,24 +154,68 @@ function solve_with_robust(poly_system, varlist;
 
 	if jac_mode == :forwarddiff
 		jac_func = function (J, u)
-			ForwardDiff.jacobian!(J,
-				u_ -> (r = similar(u_, m); residual!(r, u_); r), u)
+			if timing_enabled
+				_jac_t0 = time()
+				try
+					ForwardDiff.jacobian!(J,
+						u_ -> (r = similar(u_, m); residual!(r, u_); r), u)
+				finally
+					jacobian_call_count += 1
+					jacobian_seconds += time() - _jac_t0
+				end
+			else
+				ForwardDiff.jacobian!(J,
+					u_ -> (r = similar(u_, m); residual!(r, u_); r), u)
+			end
 		end
 		grad_func = function (g, u)
-			ForwardDiff.gradient!(g, objective, u)
+			if timing_enabled
+				_jac_t0 = time()
+				try
+					ForwardDiff.gradient!(g, objective, u)
+				finally
+					jacobian_call_count += 1
+					jacobian_seconds += time() - _jac_t0
+				end
+			else
+				ForwardDiff.gradient!(g, objective, u)
+			end
 		end
 	elseif jac_mode == :finitediff
 		cache = FiniteDiff.JacobianCache(zeros(m), zeros(n))
 		jac_func = function (J, u)
-			FiniteDiff.finite_difference_jacobian!(J,
-				(r, u_) -> residual!(r, u_), u, cache)
+			if timing_enabled
+				_jac_t0 = time()
+				try
+					FiniteDiff.finite_difference_jacobian!(J,
+						(r, u_) -> residual!(r, u_), u, cache)
+				finally
+					jacobian_call_count += 1
+					jacobian_seconds += time() - _jac_t0
+				end
+			else
+				FiniteDiff.finite_difference_jacobian!(J,
+					(r, u_) -> residual!(r, u_), u, cache)
+			end
 		end
 		grad_func = function (g, u)
-			FiniteDiff.finite_difference_gradient!(g, objective, u)
+			if timing_enabled
+				_jac_t0 = time()
+				try
+					FiniteDiff.finite_difference_gradient!(g, objective, u)
+				finally
+					jacobian_call_count += 1
+					jacobian_seconds += time() - _jac_t0
+				end
+			else
+				FiniteDiff.finite_difference_gradient!(g, objective, u)
+			end
 		end
 	end
+	robust_stages[:jacobian_setup] = get(robust_stages, :jacobian_setup, 0.0) + (time() - _jacobian_setup_t0)
 
 	# Generate starting points
+	_generate_starts_t0 = time()
 	if multistart
 		# Use diverse starting points
 		starts = [
@@ -153,6 +229,7 @@ function solve_with_robust(poly_system, varlist;
 	else
 		starts = [isnothing(start_point) ? randn(n) : start_point]
 	end
+	robust_stages[:generate_starts] = get(robust_stages, :generate_starts, 0.0) + (time() - _generate_starts_t0)
 
 	# Select algorithm based on mode and options
 	function select_algorithm()
@@ -188,6 +265,7 @@ function solve_with_robust(poly_system, varlist;
 	# Try each starting point
 	start_time = time()
 	for (idx, x0) in enumerate(starts)
+		starts_attempted += 1
 		if time() - start_time > timeout
 			if debug
 				println("[ROBUST] Timeout reached")
@@ -200,15 +278,23 @@ function solve_with_robust(poly_system, varlist;
 		end
 
 		# Test initial residual
+		_initial_residual_t0 = time()
 		res0 = zeros(m)
-		residual!(res0, x0)
+		try
+			residual!(res0, x0)
+		finally
+			robust_stages[:initial_residual] = get(robust_stages, :initial_residual, 0.0) + (time() - _initial_residual_t0)
+		end
 		if any(isnan, res0) || any(isinf, res0)
+			starts_skipped_bad_residual += 1
 			continue
 		end
 
 		sol = nothing
 		success = false
 
+		_nonlinear_solve_t0 = time()
+		_nonlinear_solve_recorded = false
 		try
 			if selected_algo == :trustregion
 				# Use NonlinearSolve.TrustRegion (most robust)
@@ -299,12 +385,20 @@ function solve_with_robust(poly_system, varlist;
 
 				success = SciMLBase.successful_retcode(sol)
 			end
+			robust_stages[:nonlinear_solve] = get(robust_stages, :nonlinear_solve, 0.0) + (time() - _nonlinear_solve_t0)
+			_nonlinear_solve_recorded = true
 
 			# Check solution quality
 			if success && !isnothing(sol)
+				successful_start_count += 1
+				_final_residual_t0 = time()
 				res_final = zeros(m)
-				residual!(res_final, sol.u)
-				final_norm = norm(res_final)
+				final_norm = try
+					residual!(res_final, sol.u)
+					norm(res_final)
+				finally
+					robust_stages[:final_residual] = get(robust_stages, :final_residual, 0.0) + (time() - _final_residual_t0)
+				end
 
 				if final_norm < best_residual
 					best_residual = final_norm
@@ -326,6 +420,10 @@ function solve_with_robust(poly_system, varlist;
 			end
 
 		catch e
+			algorithm_failure_count += 1
+			if !_nonlinear_solve_recorded
+				robust_stages[:nonlinear_solve] = get(robust_stages, :nonlinear_solve, 0.0) + (time() - _nonlinear_solve_t0)
+			end
 			@error "[ROBUST] Algorithm failed" exception=(e, catch_backtrace())
 			println("SOLVER_ERROR: solve_with_robust algorithm threw exception:")
 			println("  Type: ", typeof(e))
@@ -338,16 +436,47 @@ function solve_with_robust(poly_system, varlist;
 		end
 	end
 
+	function _record_robust_timing!(unique_count)
+		_record_detailed_timing!((
+			category = :solve_with_robust,
+			context = _current_detailed_timing_context(),
+			total_seconds = time() - robust_t0,
+			stage_seconds = copy(robust_stages),
+			equation_count = m,
+			variable_count = n,
+			polish_only = polish_only,
+			algorithm = selected_algo,
+			jacobian = jac_mode,
+			multistart = multistart,
+			start_count = length(starts),
+			starts_attempted = starts_attempted,
+			starts_skipped_bad_residual = starts_skipped_bad_residual,
+			successful_start_count = successful_start_count,
+			algorithm_failure_count = algorithm_failure_count,
+			residual_call_count = residual_call_count,
+			residual_seconds = residual_seconds,
+			jacobian_call_count = jacobian_call_count,
+			jacobian_seconds = jacobian_seconds,
+			raw_solution_count = length(all_solutions),
+			unique_solution_count = unique_count,
+			best_residual = isfinite(best_residual) ? best_residual : nothing,
+			used_compiled_residual = compiled_residual_robust! !== nothing,
+		))
+		return nothing
+	end
+
 	# Prepare output in same format as solve_with_nlopt
 	if isempty(all_solutions)
 		if debug
 			println("[ROBUST] No solutions found")
 		end
+		_record_robust_timing!(0)
 		# Return empty result
 		return ([], Dict(), stats, varlist)
 	end
 
 	# Remove duplicate solutions
+	_deduplicate_t0 = time()
 	unique_solutions = []
 	for sol in all_solutions
 		is_duplicate = false
@@ -362,6 +491,7 @@ function solve_with_robust(poly_system, varlist;
 			push!(unique_solutions, sol)
 		end
 	end
+	robust_stages[:deduplicate_solutions] = get(robust_stages, :deduplicate_solutions, 0.0) + (time() - _deduplicate_t0)
 
 	# Update stats
 	stats[:algorithm] = selected_algo
@@ -376,12 +506,16 @@ function solve_with_robust(poly_system, varlist;
 	end
 
 	# Convert solutions from Dicts to Vectors to match other solvers' output format
+	_materialize_vectors_t0 = time()
 	solutions_as_vectors = Vector{Vector{Float64}}()
 	for sol_dict in unique_solutions
 		# Ensure the order is correct according to varlist
 		sol_vec = [sol_dict[v] for v in varlist]
 		push!(solutions_as_vectors, sol_vec)
 	end
+	robust_stages[:materialize_solution_vectors] = get(robust_stages, :materialize_solution_vectors, 0.0) + (time() - _materialize_vectors_t0)
+
+	_record_robust_timing!(length(unique_solutions))
 
 	# Return in same format as other solvers: (solutions, varlist, trivial_dict, trimmed_varlist)
 	return (solutions_as_vectors, varlist, Dict(), varlist)

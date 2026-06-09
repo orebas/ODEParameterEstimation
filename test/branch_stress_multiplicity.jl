@@ -58,3 +58,56 @@ end
     @test branch_multiplicity(receptor_aggregate) == 2
     @test branch_multiplicity(receptor_observed) == 1
 end
+
+@testset "M=1 benchmark variant multiplicity regressions" begin
+    daisy_mamil4_m1 = StructuralIdentifiability.@ODEmodel(
+        x1'(t) = -k01 * x1(t) + k12 * x2(t) + k13 * x3(t) + k14 * x4(t) -
+                 k21 * x1(t) - k31 * x1(t) - k41 * x1(t),
+        x2'(t) = -k12 * x2(t) + k21 * x1(t),
+        x3'(t) = -k13 * x3(t) + k31 * x1(t),
+        x4'(t) = -k14 * x4(t) + k41 * x1(t),
+        y1(t) = x1(t),
+        y2(t) = x2(t),
+        y3(t) = x3(t) + x4(t),
+        y4(t) = x3(t)
+    )
+
+    seir_m1 = StructuralIdentifiability.@ODEmodel(
+        S'(t) = -b * S(t) * In(t) / N(t),
+        E'(t) = b * S(t) * In(t) / N(t) - nu * E(t),
+        In'(t) = nu * E(t) - a * In(t),
+        N'(t) = 0,
+        y1(t) = In(t),
+        y2(t) = N(t),
+        y3(t) = E(t)
+    )
+
+    slow_fast_m1 = StructuralIdentifiability.@ODEmodel(
+        xA'(t) = -k1 * xA(t),
+        xB'(t) = k1 * xA(t) - k2 * xB(t),
+        xC'(t) = k2 * xB(t),
+        eA'(t) = 0,
+        eC'(t) = 0,
+        eB'(t) = 0,
+        y1(t) = xC(t),
+        y2(t) = eA(t) * xA(t) + eB(t) * xB(t) + eC(t) * xC(t),
+        y3(t) = eA(t),
+        y4(t) = eC(t),
+        y5(t) = eB(t)
+    )
+
+    biohydrogenation_m1 = StructuralIdentifiability.@ODEmodel(
+        x4'(t) = -k5 * x4(t) / (k6 + x4(t)),
+        x5'(t) = k5 * x4(t) / (k6 + x4(t)) - k7 * x5(t) / (k8 + x5(t) + x6(t)),
+        x6'(t) = k7 * x5(t) / (k8 + x5(t) + x6(t)) - k9 * x6(t) * (k10 - x6(t)) / k10,
+        x7'(t) = k9 * x6(t) * (k10 - x6(t)) / k10,
+        y1(t) = x4(t),
+        y2(t) = x5(t),
+        y3(t) = x6(t)
+    )
+
+    @test branch_multiplicity(daisy_mamil4_m1) == 1
+    @test branch_multiplicity(seir_m1) == 1
+    @test branch_multiplicity(slow_fast_m1) == 1
+    @test branch_multiplicity(biohydrogenation_m1) == 1
+end

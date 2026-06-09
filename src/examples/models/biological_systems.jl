@@ -34,6 +34,36 @@ function seir()
 	)
 end
 
+function seir_m1()
+	parameters = @parameters a b nu
+	states = @variables S(t) E(t) In(t) N(t)
+	observables = @variables y1(t) y2(t) y3(t)
+	p_true = [0.2, 0.4, 0.15]
+	ic_true = [990.0, 10.0, 0.0, 1000.0]
+
+	equations = [
+		D(S) ~ -b * S * In / N,
+		D(E) ~ b * S * In / N - nu * E,
+		D(In) ~ nu * E - a * In,
+		D(N) ~ 0,
+	]
+	measured_quantities = [y1 ~ In, y2 ~ N, y3 ~ E]
+
+	model, mq = create_ordered_ode_system("SEIR_M1", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"seir_m1",
+		model,
+		mq,
+		nothing,
+		[0.0, 60.0],
+		nothing,
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		0,
+	)
+end
+
 function treatment()
 	parameters = @parameters a b d g nu
 	states = @variables In(t) N(t) S(t) Tr(t)
@@ -101,6 +131,36 @@ function biohydrogenation()
 		mq,
 		nothing, nothing,
 		[0.0, 36.0],  # recommended timescale: 36 hours for complete reaction chain
+		OrderedDict(parameters .=> p_true),
+		OrderedDict(states .=> ic_true),
+		1,
+	)
+end
+
+function biohydrogenation_m1()
+	parameters = @parameters k5 k6 k7 k8 k9 k10
+	states = @variables x4(t) x5(t) x6(t) x7(t)
+	observables = @variables y1(t) y2(t) y3(t)
+	p_true = [0.5, 2.0, 0.3, 1.0, 0.2, 5.0]
+	ic_true = [4.0, 0.0, 0.0, 0.0]
+
+	equations = [
+		D(x4) ~ -k5 * x4 / (k6 + x4),
+		D(x5) ~ k5 * x4 / (k6 + x4) - k7 * x5 / (k8 + x5 + x6),
+		D(x6) ~ k7 * x5 / (k8 + x5 + x6) - k9 * x6 * (k10 - x6) / k10,
+		D(x7) ~ k9 * x6 * (k10 - x6) / k10,
+	]
+	measured_quantities = [y1 ~ x4, y2 ~ x5, y3 ~ x6]
+
+	model, mq = create_ordered_ode_system("BioHydrogenation_M1", states, parameters, equations, measured_quantities)
+
+	return ParameterEstimationProblem(
+		"biohydrogenation_m1",
+		model,
+		mq,
+		nothing,
+		[0.0, 36.0],
+		nothing,
 		OrderedDict(parameters .=> p_true),
 		OrderedDict(states .=> ic_true),
 		1,

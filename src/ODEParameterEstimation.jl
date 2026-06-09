@@ -133,7 +133,7 @@ export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_da
 export MultiPointTemplate, MultiPointEvaluation, build_multipoint_template, evaluate_multipoint_template, solve_multipoint_direct, solve_multipoint_parameterized, select_time_point_pairs
 export select_time_point_pairs_gp_quality, select_time_point_pairs_sensitivity, select_time_point_pairs_homotopy_probed
 export select_time_points_by_conditioning, solve_multipoint_overdetermined
-export NoiseFrontierCandidate, NoiseFrontierResult, build_noise_frontier_system, build_noise_frontier_multipoint_template, evaluate_noise_frontier_data_vars_at_point, instantiate_noise_frontier_candidate, noise_frontier_rows, write_noise_frontier_csv
+export NoiseFrontierCandidate, NoiseFrontierResult, build_noise_frontier_system, build_noise_frontier_multipoint_template, evaluate_noise_frontier_data_vars_at_point, instantiate_noise_frontier_candidate, validate_noise_frontier_instantiation, validate_noise_frontier_candidate_at_values, noise_frontier_rows, write_noise_frontier_csv
 
 # Export logging functions
 export configure_logging, log_matrix, log_equations, log_dict
@@ -155,7 +155,7 @@ export ParameterSpreadEntry, CrossSolutionSpread, compute_cross_solution_spread
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
 export ConsensusOptions, CandidateEvidence, CandidateFamily, ConsensusEstimationReport, research_consensus_estimation
 export SynthesizedFinalizerOptions, SynthesizedSeed, SynthesizedFinalizerReport, research_synthesized_finalizer
-export TimingPhaseEntry, TimingBreakdown
+export TimingPhaseEntry, TimingBreakdown, with_estimation_timing, timing_breakdown_to_dict
 export BranchConsensusOptions, BranchVariableSupport, BranchBlockSupport, BranchHypothesis, BranchConsensusReport, research_branch_consensus_v1
 export BlockConsensusOptions, BlockCluster, BlockDecomposition, BlockVariableConfidence, AssembledHypothesis, BlockConsensusReport, research_block_consensus_v2
 export TryhardFinalistOptions, TryhardFinalist, TryhardFinalistReport, research_tryhard_finalists
@@ -171,10 +171,11 @@ export estimate_parameter_uncertainty, print_uncertainty_results
 # Simple models
 export simple, simple_linear_combination, onesp_cubed, threesp_cubed
 export lotka_volterra, vanderpol, brusselator, harmonic, fitzhugh_nagumo, forced_decay
-export seir, treatment, biohydrogenation, repressilator
-export crauste, seir, daisy_mamil3, daisy_mamil4, hiv
+export seir, seir_m1, treatment, biohydrogenation, biohydrogenation_m1, repressilator
+export crauste, seir, daisy_mamil3, daisy_mamil4, daisy_mamil4_m1, hiv
 export latent_subpopulation_branch, latent_subpopulation_observed_control
 export receptor_subtype_binding_branch, receptor_subtype_binding_observed_control
+export slow_fast_m1, slowfast_m1
 export substr_test, global_unident_test, sum_test, trivial_unident
 
 

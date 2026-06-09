@@ -294,19 +294,21 @@ function _synthesize_global_param_aggregate(
 	known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in agg_params)
 	# Call resolve at first SP (time_index=1)
 	resolve_result = try
-		resolve_states_with_fixed_params(
-			PEP.model.system,
-			PEP.measured_quantities,
-			PEP.data_sample,
-			setup_data.good_deriv_level,
-			Dict{Num, Float64}(),  # empty unident_dict for synth
-			setup_data.good_varlist,
-			setup_data.good_DD,
-			known_param_dict,
-			setup_data.interpolants;
-			time_index = 1,
-			diagnostics = false,
-		)
+		_with_resolve_timing_context(:synthesis) do
+			resolve_states_with_fixed_params(
+				PEP.model.system,
+				PEP.measured_quantities,
+				PEP.data_sample,
+				setup_data.good_deriv_level,
+				Dict{Num, Float64}(),  # empty unident_dict for synth
+				setup_data.good_varlist,
+				setup_data.good_DD,
+				known_param_dict,
+				setup_data.interpolants;
+				time_index = 1,
+				diagnostics = false,
+			)
+		end
 	catch err
 		@warn "[SYNTH-A] resolve failed for grouping=$grouping strategy=$strategy" exception = err
 		return nothing
@@ -389,13 +391,15 @@ function _aggregate_and_resolve_to_candidate(
 	isempty(agg_params) && return nothing
 	known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in agg_params)
 	resolve_result = try
-		resolve_states_with_fixed_params(
-			PEP.model.system, PEP.measured_quantities, PEP.data_sample,
-			setup_data.good_deriv_level, Dict{Num, Float64}(),
-			setup_data.good_varlist, setup_data.good_DD,
-			known_param_dict, setup_data.interpolants;
-			time_index = 1, diagnostics = false,
-		)
+		_with_resolve_timing_context(:synthesis) do
+			resolve_states_with_fixed_params(
+				PEP.model.system, PEP.measured_quantities, PEP.data_sample,
+				setup_data.good_deriv_level, Dict{Num, Float64}(),
+				setup_data.good_varlist, setup_data.good_DD,
+				known_param_dict, setup_data.interpolants;
+				time_index = 1, diagnostics = false,
+			)
+		end
 	catch err
 		@warn "[SYNTH-D] resolve failed for $cat_notes" exception = err
 		return nothing

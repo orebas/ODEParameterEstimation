@@ -638,12 +638,15 @@ function get_si_equation_system(
 	kwargs...,
 )
 	@info "Getting equation system from StructuralIdentifiability.jl"
+	equation_builder_timing = OrderedDict{Symbol, Float64}()
 	if !isempty(pre_fixed_params)
 		@info "[PRE-FIX] Will apply $(length(pre_fixed_params)) pre-fixed parameters after SIAN analysis"
 	end
 
 	# Convert to SI.jl format (pre-fixed params are applied after SIAN, at the polynomial level)
+	_t_convert_to_si_ode_start = time()
 	si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
+	equation_builder_timing[:convert_to_si_ode] = time() - _t_convert_to_si_ode_start
 	placeholder_fail_categories = get(kwargs, :placeholder_fail_categories, Symbol[])
 
 	# Get parameters for identifiability analysis 
@@ -655,29 +658,36 @@ function get_si_equation_system(
 
 	# Get polynomial system using SIAN
 	@info "Getting polynomial system from SIAN"
+	_t_get_polynomial_system_start = time()
 	result = get_polynomial_system_from_sian(
 		si_ode,
 		params_to_assess;
 		p = p,
 		infolevel = infolevel,
 	)
+	equation_builder_timing[:get_polynomial_system_from_sian] = time() - _t_get_polynomial_system_start
 
 	# Extract the polynomial system and derivative info
 	poly_system = result["polynomial_system"]
 	full_poly_system = get(result, "full_polynomial_system", poly_system)
 	y_derivative_dict = result["Y_eq"]
+	_t_ensure_dd_support_start = time()
 	DD = ensure_si_template_dd_support(ode, measured_quantities, DD, y_derivative_dict)
+	equation_builder_timing[:ensure_dd_support] = time() - _t_ensure_dd_support_start
 
 	# Also run identifiability check
 	@info "Checking identifiability"
+	_t_assess_identifiability_start = time()
 	id_result = StructuralIdentifiability.assess_identifiability(
 		si_ode;
 		funcs_to_check = params_to_assess,
 		prob_threshold = p,
 		loglevel = infolevel > 0 ? Logging.Info : Logging.Warn,
 	)
+	equation_builder_timing[:assess_identifiability] = time() - _t_assess_identifiability_start
 
 	# Extract non-identifiable parameters
+	_t_extract_unidentifiable_start = time()
 	unidentifiable_dict = Dict()
 	for (param, status) in id_result
 		if status == :nonidentifiable
@@ -685,11 +695,14 @@ function get_si_equation_system(
 		end
 	end
 	unidentifiable = Set(keys(unidentifiable_dict))
+	equation_builder_timing[:extract_unidentifiable] = time() - _t_extract_unidentifiable_start
 
 	# Find identifiable combinations of unidentifiable parameters
 	# The main ODE object must be passed, not the result dictionary.
 	# This call finds combinations of all parameters, which is what we need.
+	_t_find_identifiable_functions_start = time()
 	identifiable_funcs = find_identifiable_functions(si_ode)
+	equation_builder_timing[:find_identifiable_functions] = time() - _t_find_identifiable_functions_start
 	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = length(identifiable_funcs)
 	if infolevel > 0
 		@info "[SI-STRUCTURAL] Structural unidentifiable variables from SI" variables = unidentifiable
@@ -706,6 +719,7 @@ function get_si_equation_system(
 	# SIAN's parent ring can contain a much larger jet-variable universe than the
 	# final polynomial system needs, and mapping the whole ring inflates support-role
 	# traffic with irrelevant high-order observable derivatives.
+	_t_variable_role_mapping_start = time()
 	if !isempty(poly_system)
 		used_template_vars = collect_used_nemo_variables(poly_system)
 		role_context = build_si_role_context(ode, measured_quantities)
@@ -729,6 +743,7 @@ function get_si_equation_system(
 			@info "[SI-MAP] Template uses $(length(used_template_vars)) of $(length(all_ring_vars)) SIAN ring variables"
 		end
 	end
+	equation_builder_timing[:variable_role_mapping] = time() - _t_variable_role_mapping_start
 
 	# Convert polynomial systems to Symbolics format
 	full_template_equations = []
@@ -738,6 +753,7 @@ function get_si_equation_system(
 		@info "Converting $(length(poly_system)) polynomials from Nemo to Symbolics"
 	end
 
+	_t_nemo_to_symbolics_conversion_start = time()
 	for poly in full_poly_system
 		poly_sym = nemo_to_symbolics(poly, nemo2mtk; fail_categories = placeholder_fail_categories)
 		push!(full_template_equations, poly_sym)
@@ -753,6 +769,7 @@ function get_si_equation_system(
 
 		push!(template_equations, poly_sym)
 	end
+	equation_builder_timing[:nemo_to_symbolics_conversion] = time() - _t_nemo_to_symbolics_conversion_start
 
 	# Debug: Final check
 	if infolevel > 0 && !isempty(template_equations)
@@ -762,6 +779,7 @@ function get_si_equation_system(
 	# Apply pre-fixed structural representative substitutions at the polynomial
 	# equation level. This handles both parameters and initial conditions
 	# (e.g., C_0, dH_rhoCP_0) without rebuilding separate MTK systems here.
+	_t_prefixed_substitutions_start = time()
 	if !isempty(pre_fixed_params)
 		@info "[PRE-FIX] Substituting $(length(pre_fixed_params)) fixed parameters in polynomial equations"
 
@@ -838,6 +856,7 @@ function get_si_equation_system(
 			unidentifiable = new_unidentifiable
 		end
 	end
+	equation_builder_timing[:prefixed_substitutions] = time() - _t_prefixed_substitutions_start
 
 	si_template_metadata = (
 		selected_equation_indices = get(result, "selected_equation_indices", collect(1:length(poly_system))),
@@ -845,6 +864,9 @@ function get_si_equation_system(
 		original_equation_count = get(result, "original_equation_count", length(poly_system)),
 		full_equations = full_template_equations,
 		algebraic_multiplicity = get(result, "algebraic_multiplicity", nothing),
+		equation_builder_timing = equation_builder_timing,
+		sian_timing = get(result, "timing", OrderedDict{Symbol, Float64}()),
+		algebraic_multiplicity_timing = get(result, "algebraic_multiplicity_timing", OrderedDict{Symbol, Any}()),
 	)
 
 	# Return identifiable_funcs as well
@@ -858,8 +880,13 @@ Get polynomial system using SIAN functions, adapted from PE.jl's implementation.
 This now properly builds the system Et through the iterative rank-checking process.
 """
 function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0)
+	sian_timing = OrderedDict{Symbol, Float64}()
+	algebraic_multiplicity_timing = OrderedDict{Symbol, Any}()
 	# Get equations using SIAN
-	eqs, Q, x_eqs, y_eqs, x_vars, y_vars, u_vars, mu, all_indets, gens_Rjet = SIAN.get_equations(si_ode)
+	_t_get_equations = @elapsed begin
+		eqs, Q, x_eqs, y_eqs, x_vars, y_vars, u_vars, mu, all_indets, gens_Rjet = SIAN.get_equations(si_ode)
+	end
+	sian_timing[:get_equations] = _t_get_equations
 
 	non_jet_ring = si_ode.poly_ring
 	Rjet = gens_Rjet[1].parent
@@ -870,10 +897,13 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	s = length(mu) + n
 
 	# Get X and Y equations
+	_t_get_x_y_eq_start = time()
 	X, X_eq = SIAN.get_x_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
 	Y, Y_eq = SIAN.get_y_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
+	sian_timing[:get_x_y_eq] = time() - _t_get_x_y_eq_start
 
 	# Extract parameters and state variables
+	_t_variable_setup_start = time()
 	not_int_cond_params = gens_Rjet[(end-length(si_ode.parameters)+1):end]
 	all_params = vcat(not_int_cond_params, gens_Rjet[1:n])
 
@@ -882,8 +912,10 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		x_variables = vcat(x_variables,
 			gens_Rjet[(i*(n+m+u)+1):(i*(n+m+u)+n)])
 	end
+	sian_timing[:variable_setup] = time() - _t_variable_setup_start
 
 	# Compute degree bound
+	_t_degree_bound_start = time()
 	d0 = BigInt(maximum(vcat([Nemo.total_degree(SIAN.unpack_fraction(Q * eq[2])[1])
 							  for eq in eqs], Nemo.total_degree(Q))))
 
@@ -891,10 +923,13 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	D1 = floor(BigInt,
 		(length(params_to_assess) + 1) * 2 * d0 * s * (n + 1) * (1 + 2 * d0 * s) /
 		(1 - p))
+	sian_timing[:degree_bound] = time() - _t_degree_bound_start
 
 	# Convert empty array to proper type for u_variables
 	u_empty = Vector{Nemo.QQMPolyRingElem}()
+	_t_sample_point_start = time()
 	sample = SIAN.sample_point(D1, x_vars, y_vars, u_empty, all_params, X_eq, Y_eq, Q)
+	sian_timing[:sample_point] = time() - _t_sample_point_start
 	all_subs = sample[4]
 	u_hat = sample[2]
 	y_hat = sample[1]
@@ -910,6 +945,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	evl_old = Array{Nemo.QQMPolyRingElem}(undef, 0)
 
 	# Iterative rank-based construction
+	_t_rank_construction_start = time()
 	while sum(prolongation_possible) > 0
 		for i in 1:m
 			if prolongation_possible[i] == 1
@@ -969,6 +1005,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 			end
 		end
 	end
+	sian_timing[:rank_construction] = time() - _t_rank_construction_start
 
 	@info "Built polynomial system with $(length(Et)) equations"
 	if infolevel > 1
@@ -982,9 +1019,12 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# Assess local identifiability to find transcendence basis
 	theta_l = Array{Nemo.QQMPolyRingElem}(undef, 0)
 	params_to_assess_ = [SIAN.add_to_var(param, Rjet, 0) for param in params_to_assess]
+	_t_evaluate_Et_base_start = time()
 	Et_eval_base = [Nemo.evaluate(e, vcat(u_hat[1], y_hat[1]),
 		vcat(u_hat[2], y_hat[2]))
 					for e in Et]
+	sian_timing[:evaluate_Et_base] = time() - _t_evaluate_Et_base_start
+	_t_local_identifiability_start = time()
 	for param_0 in params_to_assess_
 		other_params = [v for v in x_theta_vars if v != param_0]
 		Et_subs = [Nemo.evaluate(e, [param_0],
@@ -995,6 +1035,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 			theta_l = vcat(theta_l, param_0)
 		end
 	end
+	sian_timing[:local_identifiability_jacobians] = time() - _t_local_identifiability_start
 	x_theta_vars_reorder = vcat(theta_l,
 		reverse([x for x in x_theta_vars if !(x in theta_l)]))
 
@@ -1014,6 +1055,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# Timing is logged unconditionally so we can spot pathological cases.
 	algebraic_multiplicity = if isempty(theta_l)
 		@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (theta_l empty → fully non-identifiable)"
+		algebraic_multiplicity_timing[:skipped] = true
 		nothing
 	else
 		_M_setup_t = @elapsed begin
@@ -1035,6 +1077,13 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		end
 		_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
 		_M_qb_t = @elapsed M_value = length(Groebner.quotient_basis(gb))
+		algebraic_multiplicity_timing[:skipped] = false
+		algebraic_multiplicity_timing[:setup_seconds] = _M_setup_t
+		algebraic_multiplicity_timing[:groebner_seconds] = _M_gb_t
+		algebraic_multiplicity_timing[:quotient_basis_seconds] = _M_qb_t
+		algebraic_multiplicity_timing[:ring_variable_count] = length(vrs_sorted_gb)
+		algebraic_multiplicity_timing[:polynomial_count] = length(gb_input)
+		algebraic_multiplicity_timing[:multiplicity] = M_value
 		@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value  (setup $(round(_M_setup_t, digits=2))s, Groebner $(round(_M_gb_t, digits=2))s, quotient_basis $(round(_M_qb_t, digits=2))s, ring: $(length(vrs_sorted_gb)) vars × $(length(gb_input)) polys)"
 		M_value
 	end
@@ -1048,6 +1097,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# ==== Filter variables to only those that actually appear in Et ====
 	# This is critical for models where some parameters/states don't affect observed outputs.
 	# Without filtering, we'd have phantom variables inflating the count, causing overdetermined systems.
+	_t_variable_filtering_start = time()
 	vars_in_Et = Set{Nemo.QQMPolyRingElem}()
 	for eq in Et
 		union!(vars_in_Et, Set(Nemo.vars(eq)))
@@ -1068,11 +1118,15 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	if infolevel > 1
 		@info "[SI-TEMPLATE] Reordered ring variables after removing phantom support" variables = x_theta_vars_reorder_filtered
 	end
+	sian_timing[:variable_filtering] = time() - _t_variable_filtering_start
 	# ==== End of filtering block ====
 
+	_t_algebraic_independence_start = time()
 	Et_ids, alg_indep = algebraic_independence(Et_eval_base, x_theta_vars_reorder_filtered,
 		all_x_theta_vars_subs)
+	sian_timing[:algebraic_independence] = time() - _t_algebraic_independence_start
 
+	_t_reduce_system_start = time()
 	dropped_ids = setdiff(1:length(Et), Et_ids)
 	if infolevel > 1
 		@info "[SI-TEMPLATE] Algebraic independence result" selected_equation_indices = Et_ids transcendence_basis_count = length(alg_indep) transcendence_basis = alg_indep
@@ -1089,6 +1143,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	for eq in reduced_Et
 		union!(reduced_vars, Set(Nemo.vars(eq)))
 	end
+	sian_timing[:reduce_system] = time() - _t_reduce_system_start
 
 	@info "Reduced polynomial system to $(length(reduced_Et)) equations"
 	_log_si_polynomial_system_summary(
@@ -1111,11 +1166,13 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	# Build the derivative mapping dictionary
+	_t_derivative_mapping_start = time()
 	y_derivative_dict = Dict()
 	for each in Y_eq
 		name, order = SIAN.get_order_var(each[1], non_jet_ring)
 		y_derivative_dict[each[1]] = order
 	end
+	sian_timing[:derivative_mapping] = time() - _t_derivative_mapping_start
 
 	# Return result with the full polynomial system Et
 	return Dict(
@@ -1132,6 +1189,8 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		"dropped_equation_indices" => collect(dropped_ids),
 		"original_equation_count" => length(Et),
 		"algebraic_multiplicity" => algebraic_multiplicity,
+		"timing" => sian_timing,
+		"algebraic_multiplicity_timing" => algebraic_multiplicity_timing,
 	)
 end
 

@@ -118,6 +118,14 @@ const BRANCH_STRESS_MODELS = Dict(
 	:receptor_subtype_binding_observed_control => receptor_subtype_binding_observed_control,
 )
 
+"""Minimally modified variants for bounded-physical M=1 benchmark runs."""
+const M1_BENCHMARK_MODELS = Dict(
+	:biohydrogenation_m1 => biohydrogenation_m1,
+	:daisy_mamil4_m1 => daisy_mamil4_m1,
+	:seir_m1 => seir_m1,
+	:slow_fast_m1 => slow_fast_m1,
+)
+
 """Models retained in-package but currently best treated as limitations or active failure cases."""
 const LIMITATION_MODELS = Dict(
 	:seir => seir,
@@ -136,7 +144,7 @@ const LIMITATION_MODELS = Dict(
 const STANDARD_MODELS = merge(GREEN_MODELS, STRUCTURAL_UNIDENTIFIABILITY_MODELS)
 
 """All available models (standard + hard)."""
-const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS, BRANCH_STRESS_MODELS, LIMITATION_MODELS)
+const ALL_MODELS = merge(STANDARD_MODELS, HARD_MODELS, BRANCH_STRESS_MODELS, M1_BENCHMARK_MODELS, LIMITATION_MODELS)
 
 """Get list of all available model names."""
 available_models() = sort(collect(keys(ALL_MODELS)))
@@ -149,6 +157,7 @@ function available_model_categories()
 		:standard => STANDARD_MODELS,
 		:hard => HARD_MODELS,
 		:branch_stress => BRANCH_STRESS_MODELS,
+		:m1_benchmark => M1_BENCHMARK_MODELS,
 		:limitations => LIMITATION_MODELS,
 		:all => ALL_MODELS,
 	)
@@ -204,6 +213,8 @@ function run_parameter_estimation_examples(;
 		collect(keys(model_categories[:hard]))
 	elseif models == :branch_stress
 		collect(keys(model_categories[:branch_stress]))
+	elseif models == :m1_benchmark
+		collect(keys(model_categories[:m1_benchmark]))
 	elseif models == :green
 		collect(keys(model_categories[:green]))
 	elseif models == :structural_unidentifiability

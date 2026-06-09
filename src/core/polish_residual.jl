@@ -64,6 +64,17 @@ function _polish_single_residual(
 	lso_f_tol::Float64 = -1.0,
 	lso_g_tol::Float64 = -1.0,
 )
+	polish_t0 = time()
+	polish_stages = OrderedDict{Symbol, Float64}()
+	residual_call_count = Ref(0)
+	residual_float_call_count = Ref(0)
+	residual_dual_call_count = Ref(0)
+	residual_ode_solve_seconds = Ref(0.0)
+	residual_model_eval_seconds = Ref(0.0)
+	residual_success_count = Ref(0)
+	residual_sentinel_count = Ref(0)
+	jacobian_call_count = Ref(0)
+	jacobian_seconds = Ref(0.0)
 	# --- Coordinate transform setup ---
 	has_external_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub)
 	p0_external = has_external_bounds ? clamp.(Float64.(p0), ctx.lb, ctx.ub) : Float64.(p0)
@@ -115,6 +126,12 @@ function _polish_single_residual(
 
 	# --- Residual closure ---
 	function residual!(res, p_internal, _ = nothing)
+		residual_call_count[] += 1
+		if eltype(res) === Float64 && eltype(p_internal) === Float64
+			residual_float_call_count[] += 1
+		else
+			residual_dual_call_count[] += 1
+		end
 		if time() > deadline_ref[]
 			throw(_PolishTimeoutSignal())
 		end
@@ -135,6 +152,7 @@ function _polish_single_residual(
 		# ODE solve at tight tolerances) can burn many seconds past `deadline_ref`
 		# before the next residual!-entry check fires. With it, the integrator
 		# returns ReturnCode.Unstable promptly and we sentinel-fill the residual.
+		ode_t0 = time()
 		sol_opt = try
 			ModelingToolkit.solve(
 				prob_opt,
@@ -146,15 +164,21 @@ function _polish_single_residual(
 				unstable_check = (dt, u, p, ti) -> time() > deadline_ref[],
 			)
 		catch
+			residual_ode_solve_seconds[] += time() - ode_t0
+			residual_sentinel_count[] += 1
 			fill!(res, _residual_sentinel(res))
 			return nothing
 		end
+		residual_ode_solve_seconds[] += time() - ode_t0
 
 		if sol_opt.retcode != ReturnCode.Success
+			residual_sentinel_count[] += 1
 			fill!(res, _residual_sentinel(res))
 			return nothing
 		end
+		residual_success_count[] += 1
 
+		model_eval_t0 = time()
 		idx = 1
 		@inbounds for (j, f) in enumerate(ctx.obs_funcs)
 			data_true = ctx.data_targets[j]
@@ -163,6 +187,7 @@ function _polish_single_residual(
 				idx += 1
 			end
 		end
+		residual_model_eval_seconds[] += time() - model_eval_t0
 		if use_regularization
 			@inbounds for i in eachindex(p_internal)
 				res[idx] = penalty_scale * p_internal[i]
@@ -208,7 +233,10 @@ function _polish_single_residual(
 	residual_vec(p_internal) = (r = Vector{eltype(p_internal)}(undef, residual_count); residual!(r, p_internal); r)
 
 	function jacobian!(J, p_internal, _ = nothing)
+		jacobian_call_count[] += 1
+		jac_t0 = time()
 		ForwardDiff.jacobian!(J, residual_vec, p_internal)
+		jacobian_seconds[] += time() - jac_t0
 		return nothing
 	end
 
@@ -217,7 +245,9 @@ function _polish_single_residual(
 	# before we've even evaluated the seed. The Float64-path tracker inside
 	# residual! seeds best_norm_seen / best_p_seen from this call.
 	initial_residual = zeros(residual_count)
-	residual!(initial_residual, p0_internal)
+	_timed_detail_stage!(polish_stages, :initial_residual) do
+		residual!(initial_residual, p0_internal)
+	end
 	initial_norm = norm(initial_residual)
 
 	# --- Arm the deadline ---
@@ -243,27 +273,29 @@ function _polish_single_residual(
 			jacobian!(J, u, p)
 			return J
 		end
-		try
-			result = FastLevenbergMarquardt.lmsolve!(
-				fastlm_residual!,
-				fastlm_jacobian!,
-				workspace,
-				nothing,
-				internal_lb,
-				internal_ub;
-				solver = linear_solver,
-				xtol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
-				ftol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
-				gtol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
-				maxit = maxiters,
-			)
-			solver_result = result
-			candidate_internal = result[1]
-		catch e
-			isa(e, _PolishTimeoutSignal) || rethrow(e)
-			timed_out = true
-			solver_result = nothing
-			candidate_internal = best_p_seen
+		_timed_detail_stage!(polish_stages, :optimizer_solve) do
+			try
+				result = FastLevenbergMarquardt.lmsolve!(
+					fastlm_residual!,
+					fastlm_jacobian!,
+					workspace,
+					nothing,
+					internal_lb,
+					internal_ub;
+					solver = linear_solver,
+					xtol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
+					ftol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
+					gtol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
+					maxit = maxiters,
+				)
+				solver_result = result
+				candidate_internal = result[1]
+			catch e
+				isa(e, _PolishTimeoutSignal) || rethrow(e)
+				timed_out = true
+				solver_result = nothing
+				candidate_internal = best_p_seen
+			end
 		end
 
 	elseif solver_kind === :lso_direct
@@ -274,25 +306,27 @@ function _polish_single_residual(
 			output_length = residual_count,
 		)
 		opt = optimizer_factory()
-		try
-			result = LeastSquaresOptim.optimize!(
-				problem,
-				opt;
-				x_tol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
-				f_tol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
-				g_tol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
-				iterations = maxiters,
-				Δ = lso_delta,
-				lower = isnothing(internal_lb) ? eltype(p0_internal)[] : internal_lb,
-				upper = isnothing(internal_ub) ? eltype(p0_internal)[] : internal_ub,
-			)
-			solver_result = result
-			candidate_internal = result.minimizer
-		catch e
-			isa(e, _PolishTimeoutSignal) || rethrow(e)
-			timed_out = true
-			solver_result = nothing
-			candidate_internal = best_p_seen
+		_timed_detail_stage!(polish_stages, :optimizer_solve) do
+			try
+				result = LeastSquaresOptim.optimize!(
+					problem,
+					opt;
+					x_tol = lso_x_tol > 0 ? lso_x_tol : ctx.reltol,
+					f_tol = lso_f_tol > 0 ? lso_f_tol : ctx.reltol,
+					g_tol = lso_g_tol > 0 ? lso_g_tol : ctx.abstol,
+					iterations = maxiters,
+					Δ = lso_delta,
+					lower = isnothing(internal_lb) ? eltype(p0_internal)[] : internal_lb,
+					upper = isnothing(internal_ub) ? eltype(p0_internal)[] : internal_ub,
+				)
+				solver_result = result
+				candidate_internal = result.minimizer
+			catch e
+				isa(e, _PolishTimeoutSignal) || rethrow(e)
+				timed_out = true
+				solver_result = nothing
+				candidate_internal = best_p_seen
+			end
 		end
 	else
 		throw(ArgumentError("Unknown residual polish solver_kind '$solver_kind' (expected :lso_direct or :fastlm_direct)"))
@@ -303,7 +337,9 @@ function _polish_single_residual(
 	# completion regardless of how much wall-clock the LSO/FastLM call burned.
 	deadline_ref[] = Inf
 	final_residual = similar(initial_residual)
-	residual!(final_residual, candidate_internal)
+	_timed_detail_stage!(polish_stages, :final_residual) do
+		residual!(final_residual, candidate_internal)
+	end
 	final_norm = norm(final_residual)
 
 	p_opt_internal, objective_residual = if isfinite(final_norm) && final_norm <= initial_norm
@@ -322,13 +358,15 @@ function _polish_single_residual(
 		p = Dict(ctx.param_syms .=> param_opt),
 		build_initializeprob = false,
 	)
-	sol_final = ModelingToolkit.solve(
-		prob_final,
-		ctx.solver;
-		saveat = ctx.t_vector,
-		abstol = ctx.abstol,
-		reltol = ctx.reltol,
-	)
+	sol_final = _timed_detail_stage!(polish_stages, :final_ode_solve) do
+		ModelingToolkit.solve(
+			prob_final,
+			ctx.solver;
+			saveat = ctx.t_vector,
+			abstol = ctx.abstol,
+			reltol = ctx.reltol,
+		)
+	end
 
 	# Use ONLY the trajectory-fit portion of the residual when reporting err — exclude
 	# the λ-augmented rows so the err is comparable across λ values.
@@ -357,5 +395,28 @@ function _polish_single_residual(
 		push!(final_result.provenance.notes, :polish_maxtime_exceeded)
 	end
 	sync_result_contract!(final_result)
+	_record_detailed_timing!((
+		category = :polish_single_residual,
+		context = _current_detailed_timing_context(),
+		total_seconds = time() - polish_t0,
+		stage_seconds = copy(polish_stages),
+		solver_kind = solver_kind,
+		residual_count = residual_count,
+		unknown_count = n_unknowns,
+		residual_call_count = residual_call_count[],
+		residual_float_call_count = residual_float_call_count[],
+		residual_dual_call_count = residual_dual_call_count[],
+		residual_success_count = residual_success_count[],
+		residual_sentinel_count = residual_sentinel_count[],
+		residual_ode_solve_seconds = residual_ode_solve_seconds[],
+		residual_model_eval_seconds = residual_model_eval_seconds[],
+		jacobian_call_count = jacobian_call_count[],
+		jacobian_seconds = jacobian_seconds[],
+		initial_norm = initial_norm,
+		final_norm = final_norm,
+		timed_out = timed_out,
+		reverted_to_seed = !(isfinite(final_norm) && final_norm <= initial_norm),
+		final_obj = final_obj,
+	))
 	return final_result, solver_result
 end
