@@ -12,8 +12,9 @@ and ODEPE's multipoint system construction.
 		interpolator, time_index_set, kwargs...
 	)
 
-Drop-in replacement for construct_equation_system that uses SI.jl's template
-instead of iterative construction.
+Builds the per-time-point equation system from an SI.jl template (the standard
+flow). Replaced the former iterative `construct_equation_system`, archived
+2026-06-10 to deprecated/dead_diagnostics_chain.jl.
 
 This function:
 1. Gets the polynomial template from SI.jl (once)
