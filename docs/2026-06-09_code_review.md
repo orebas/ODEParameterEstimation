@@ -51,7 +51,13 @@ repo-hygiene pass. Nothing was modified during the review.
   algebraic-path error is scaled by `n_obs/(n_obs+1)`, and `err` feeds candidate
   ranking/selection. **Fix:** divide by `length(data_sample) - 1`.
 
-- [ ] **#2 Complex→real fallback can emit `Inf` "solutions."**
+- [x] **#2 Complex→real fallback can emit `Inf` "solutions."** — **FALSE POSITIVE
+  (2026-06-09):** the installed HC.jl's actual defaults are `only_nonsingular=false`,
+  `only_finite=true` (verified in `HomotopyContinuation/src/result.jl:230-255`), so the
+  bare `solutions(result)` already kept singular roots and excluded at-infinity
+  endpoints — no `Inf` was possible. Hardened anyway: kwargs made explicit (pinned
+  against upstream default changes) + defensive `all(isfinite, …)` filter in the
+  projection loop.
   `homotopy_continuation.jl:1300`. When no real roots exist, the fallback calls
   `HomotopyContinuation.solutions(result)` with *no* keywords — defaulting to
   `only_nonsingular=true` (contradicting its own comment) and omitting
@@ -66,12 +72,18 @@ repo-hygiene pass. Nothing was modified during the review.
   this returns wrong interpolated values that poison every downstream derivative.
   This is the *live* AAA path. **Fix:** `abs(z-x[j]) < tol`, break on first hit.
 
-- [ ] **#4 `parse_derivative_variable_name` mis-orders any name ending in `_<digit>`.**
-  `si_equation_builder.jl:1241`, used at `:349` and `multipoint_template.jl:23`.
-  Greedy `^(.+)_(\d+)$` parses a bare param `k_2` as `(base=k, order=2)`. The
-  transcendental code guards against this (`_parse_trfn_base_name` first), but
-  `classify_si_ring_variable` and `_multipoint_deriv_order` do **not**. Any model
-  with an underscore-digit-suffixed state/param name is silently misclassified.
+- [x] **#4 Underscore-digit model names silently corrupt parameter mapping.** —
+  **FIXED 2026-06-09, but at a different site than the review claimed.** The flagged
+  callers (`classify_si_ring_variable`, `_multipoint_deriv_order`) operate on SIAN
+  ring names, which are always jet-suffixed — "last `_N` = order" is definitionally
+  correct there, and `role_context` guards already exist. The REAL bite (found by an
+  end-to-end probe with params `k_1/k_2`, states `x_1/x_2`): `lookup_value`'s
+  heuristic fallback (`parameter_estimation.jl:~1685-1727`) treated a parameter's own
+  trailing `_1` as a jet suffix, never tried the correct `k_1_0`, then the base-name
+  `startswith("k_")` fallback resolved BOTH `k_1` and `k_2` to `k_2_0` — `k_1`
+  silently received `k_2`'s value (besterror 0.99 → 1e-12 after fix). Fix: candidate
+  order now tries full-name+`_<order>` first, then the name verbatim. Permanent
+  regression canary added to `example_canaries.jl` (asserts recovery AND k_1≠k_2).
 
 - [ ] **#5 Legacy FD-Jacobian UQ produces meaningless covariance.**
   **2026-06-09 re-scope: NOT dead — review's "no callers" was wrong.** Reachable via

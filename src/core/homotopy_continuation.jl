@@ -1297,7 +1297,10 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		# Fallback: if no real solutions, project ALL solutions to real parts
 		# (mirrors solve_with_hc behavior — projected points often polish to genuine solutions)
 		if isempty(real_solutions_hc)
-			real_solutions_hc = HomotopyContinuation.solutions(result)
+			# Explicit kwargs (== installed HC.jl defaults, verified result.jl): keep
+			# singular roots, exclude at-infinity endpoints. Pinned here so an upstream
+			# default change can't silently alter this fallback.
+			real_solutions_hc = HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = true)
 			if debug
 				println("[HC-PARAM] Point $i: No real solutions, projecting $(length(real_solutions_hc)) complex solutions to real parts")
 			end
@@ -1307,6 +1310,8 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		real_solutions = Vector{Vector{Float64}}()
 		for s in real_solutions_hc
 			vals = Float64[col_scales[j] * real(s[j]) for j in 1:length(hc_variables)]
+			# Defensive: never emit a non-finite "solution" downstream.
+			all(isfinite, vals) || continue
 			push!(real_solutions, vals)
 		end
 		push!(all_real_results, real_solutions)
