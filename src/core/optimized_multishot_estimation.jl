@@ -1728,7 +1728,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# Check if we should use parameter homotopy and/or multi-point template.
 		# Both can run — single-point always runs, multipoint adds solutions to the pool.
-		_has_trfn = any(startswith(replace(string(k), "(t)" => ""), "_trfn_") for k in keys(PEP.p_true))
+		# trfn vars are STATES added by transform_pep_for_estimation — they land in
+		# PEP.ic, not p_true (postcampaign review P0#2: the old p_true-only check was
+		# always false, so multipoint never disabled for transcendental models).
+		_has_trfn = any(
+			startswith(replace(string(k), "(t)" => ""), "_trfn_")
+			for k in Iterators.flatten((keys(PEP.ic), keys(PEP.p_true)))
+		)
 		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC && !_has_trfn
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
@@ -2311,7 +2317,9 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
 					end
 				catch e
-					opts.diagnostics && @warn "[MULTIPOINT] Template build failed" exception = e
+					# Ungated (postcampaign review P1): a systematically failing template
+					# build must not be invisible at default verbosity.
+					@warn "[MULTIPOINT] Template build failed" exception = e maxlog = 10
 					nothing
 				end
 				if !isnothing(result)
@@ -2406,7 +2414,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						catch e
 							# A systematic combo-eval failure must not be
 							# indistinguishable from "no combos available".
-							opts.diagnostics && @warn "[MULTIPOINT] combo evaluation failed" exception = (e, catch_backtrace())
+							@warn "[MULTIPOINT] combo evaluation failed" exception = (e, catch_backtrace()) maxlog = 10
 						end
 					end
 				_t_mpt_eval_elapsed = time() - _t_mpt_eval_start
@@ -2433,7 +2441,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								precomputed_generic_solutions = _mpt_sols0,
 								precomputed_generic_params = _mpt_p0)
 					catch e
-						opts.diagnostics && @warn "[MULTIPOINT] HC solve failed" exception = e
+						@warn "[MULTIPOINT] HC solve failed" exception = e maxlog = 10
 						nothing
 					end
 					_t_mpt_solve_elapsed = time() - _t_mpt_solve_start
@@ -2453,8 +2461,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						n_projected = 0
 						for (pidx, combo_sols) in enumerate(solutions_by_combo)
 							for sol in combo_sols
-								# Project: extract only the components matching single-point vars
-								projected = Float64[idx > 0 ? sol[idx] : 0.0 for idx in mp_to_sp]
+								# Project: extract only the components matching single-point vars.
+								# Unmapped vars are NaN (NEVER 0.0 — a fabricated value enters the
+								# candidate pool as plausible data; the downstream finite guards
+								# reject NaN cleanly). Postcampaign review P0#3, same class as
+								# the Phase-C data-evaluator fixes.
+								projected = Float64[idx > 0 ? sol[idx] : NaN for idx in mp_to_sp]
 								push!(interp_solutions, projected)
 								push!(interp_time_indices, evals[pidx].time_indices[1])
 								push!(interp_source_types, :multipoint)
@@ -2775,7 +2787,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							end
 
 							raw_sol = raw_ic
-							append!(raw_sol, Float64[params_dict[p] for p in PEP.model.original_parameters])
+							# Parameter block in CURRENT (MTK) order — the convention
+							# process_raw_solution decodes; the states above (raw_ic)
+							# are already MTK-ordered (unknown_syms). Was
+							# original_parameters: a MIXED-convention vector
+							# (postcampaign review P0#1).
+							append!(raw_sol, Float64[params_dict[p] for p in ModelingToolkit.parameters(PEP.model.system)])
 
 							ordered_s, ordered_p, ode_solution, err = _with_detailed_timing_context(:algebraic_resolve_seeded_candidate) do
 								process_raw_solution(
@@ -2893,8 +2910,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						# Draw on unit scale and clamp into bounds when present — uniform-in-bounds
 						# under ±1e9 default bounds almost always blows up the ODE and Optim 2's
 						# Fminbox hard-errors on the resulting NaN initial mu.
+						# Seeded per problem (postcampaign review P1): unseeded draws made
+						# this terminal rescue a per-session coin flip — the same class as
+						# the direct-opt canary flake (ddb06b4). Hash-derived like the
+						# RESOLVE-SEED pattern above.
+						_draw_rng = MersenneTwister(UInt(abs(hash((PEP.name, :direct_opt_fallback_seed)))))
 						_draw = scale -> begin
-							raw = scale .* randn(p_size)
+							raw = scale .* randn(_draw_rng, p_size)
 							(isnothing(ctx.lb) || isnothing(ctx.ub)) ? raw : clamp.(raw, ctx.lb, ctx.ub)
 						end
 						p0 = _draw(1.0)

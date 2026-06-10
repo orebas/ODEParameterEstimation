@@ -749,7 +749,9 @@ This is distinct from `ParameterHomotopy` (the straight real parameter path, no 
 real discriminant and stall (`terminated_max_steps`).
 """
 function _track_gamma_straight(hc_system, starts, p_start, p_target;
-	show_progress = false, rng = MersenneTwister(), max_seeds = 5, target_count = length(starts))
+	show_progress = false, rng = MersenneTwister(0x67a44a01), max_seeds = 5, target_count = length(starts))
+	# Deterministic default rng (postcampaign review P1): all in-package callers
+	# pass rng explicitly; an unseeded default made direct calls run-to-run random.
 	ps = ComplexF64.(p_start)
 	pt = ComplexF64.(p_target)
 	best_res = nothing

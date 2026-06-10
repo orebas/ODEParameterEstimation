@@ -16,7 +16,7 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ## P0 — correctness / broken-now (probe, then fix)
 
-- [ ] **#1 `process_raw_solution` parameter-ordering self-disagreement.** First pass
+- [x] **#1 `process_raw_solution` parameter-ordering self-disagreement.** FIXED 2026-06-10 — probe: LATENT (0/79 registry models + adversarial case reorder under MTK 11); single findfirst pass, second pass deleted, seeded-rescue producer's MIXED-convention vector unified to MTK order. First pass
   assigns params positionally by `original_parameters` index, solves the ODE and
   computes `err` from that assignment; a second pass then re-keys the same dict by
   `findfirst` in MTK order (`parameter_estimation.jl:779-783` vs `:830-840`; states
@@ -26,13 +26,13 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   err/solution and the returned parameter dict describe DIFFERENT vectors.
   VERIFIED code; latent (no CI model reorders). **Probe:** a model whose MTK
   param order differs from declaration order; assert err matches the dict.
-- [ ] **#2 `_has_trfn` inspects `p_true`, but trfn vars live in `ic`** —
+- [x] **#2 `_has_trfn` inspects `p_true`, but trfn vars live in `ic`** —
   always false, so multipoint never disables for transcendental models
   (`optimized_multishot:1731` vs `transcendental_utils.jl:620-633`); downstream
   the count-mismatch fallback bakes PROBE-point data into combo equations
   (`multipoint_template.jl:771-790`) → wrong-time candidates with wrong
   provenance, silently. VERIFIED.
-- [ ] **#3 Multipoint→single-point projection fabricates `0.0`** for unmapped vars
+- [x] **#3 Multipoint→single-point projection fabricates `0.0`** for unmapped vars
   (`optimized_multishot:2457`) — the exact class Phase C exterminated in the data
   evaluators. Fix: NaN (existing finite guards reject). VERIFIED mechanism.
 - [ ] **#4 `Pkg.test()` is broken: `Random` missing from the test target**
@@ -48,7 +48,7 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ## P1 — silent failure / state / flakiness
 
-- [ ] **Multipoint failures invisible at default verbosity:** template-build,
+- [x] **Multipoint failures invisible at default verbosity:** template-build,
   combo-eval, and multipoint-HC catches all gate their `@warn` on
   `opts.diagnostics` (`optimized_multishot:2313,2406,2435`) — incl. the Phase-C5
   one whose comment promises the opposite. Ungate with `maxlog`. VERIFIED.
@@ -66,7 +66,7 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   `_NOISE_VALIDATION_CACHE` keyed by `objectid` — unbounded session growth +
   GC-reuse wrong-Jacobian collision risk (`noise_frontier_construction.jl:664`).
   VERIFIED growth/race chain; INFERRED collision.
-- [ ] **Unseeded RNG in structural decisions + stochastic src paths reachable from
+- [x] **Unseeded RNG in structural decisions + stochastic src paths reachable from
   CI:** `_rank_based_fix_candidates` pivot RNG decides WHICH unidentifiable param
   gets fixed (`parameter_estimation.jl:420`); rank-probe `randn` in template
   stripping (`multipoint_template.jl:135,283` — the NF twin seeds the identical
@@ -82,7 +82,7 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   `data_values` shorter than `data_vars` (`multipoint_template.jl:1062,1139`);
   legacy range-builder admits non-contiguity the NF builder sorts away. Assert
   equality. VERIFIED code / INFERRED trigger.
-- [ ] **Unguarded final ODE re-solve in polish** kills the whole estimation in the
+- [x] **Unguarded final ODE re-solve in polish** kills the whole estimation in the
   nothing-else-worked path (`parameter_estimation.jl:2375`; bare callers
   `optimized_multishot:2910`, `parameter_estimation.jl:2836`). Wrap like the loss.
   VERIFIED.

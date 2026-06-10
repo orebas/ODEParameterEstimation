@@ -3,6 +3,7 @@ using Logging
 using HomotopyContinuation
 using ModelingToolkit
 using OrderedCollections
+using Random
 
 @testset "Fast Core Contracts" begin
     @testset "Ordered ODE construction" begin
@@ -1841,6 +1842,9 @@ using OrderedCollections
         @test isempty(fallback_ident.all_unidentifiable)
         @test isempty(fallback_ident.good_DD.all_unidentifiable)
 
+        # Seeded: this was the only unseeded noisy sampling in CI (postcampaign
+        # review P1 / lane-4 flakiness audit).
+        Random.seed!(20260610)
         opts = EstimationOptions(
             datasize = 21,
             noise_level = 1e-8,

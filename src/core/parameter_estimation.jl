@@ -415,9 +415,13 @@ function _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs,
 	for f in funcs_filtered
 		union!(all_vars, Symbolics.get_variables(f))
 	end
+	# Seeded (postcampaign review P1): this Jacobian's pivoted-QR column order
+	# decides WHICH unidentifiable parameter gets fixed to 1.0 — a structural
+	# decision that must not vary run-to-run with the global RNG.
+	fix_probe_rng = MersenneTwister(0x9f4d0329)
 	val_dict = Dict{Num, Float64}()
 	for v in all_vars
-		val_dict[v] = 0.5 + rand()
+		val_dict[v] = 0.5 + rand(fix_probe_rng)
 	end
 	J_num = Array{Float64}(undef, length(funcs_filtered), length(param_syms))
 	for i in 1:size(J_sym, 1)
@@ -776,10 +780,18 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 		ordered_states[state] = raw_sol[idx]
 	end
 
-	# Reorder parameters according to original ordering
+	# Reorder parameters according to original ordering. raw_sol's parameter block
+	# is in CURRENT (MTK) order — the same convention as the states block above and
+	# as the producers (unpack_ODE-based assembly). Resolve each original parameter
+	# to its CURRENT index, exactly like the states loop.
 	param_offset = length(current_states)
 	for (i, param) in enumerate(model.original_parameters)
-		ordered_params[param] = raw_sol[param_offset+i]
+		idx = findfirst(p -> isequal(p, param), current_params)
+		if isnothing(idx)
+			@warn "Parameter $param not found in current parameters, using original index $i"
+			idx = i
+		end
+		ordered_params[param] = raw_sol[param_offset+idx]
 	end
 
 	ic = collect(values(ordered_states))
@@ -827,17 +839,10 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	end
 
 
-	# Reorder parameters according to original ordering
-	param_offset = length(current_states)
-	for (i, param) in enumerate(model.original_parameters)
-		# Find the index of this parameter in the current parameters
-		idx = findfirst(p -> isequal(p, param), current_params)
-		if isnothing(idx)
-			@warn "Parameter $param not found in current parameters, using original index $i"
-			idx = i
-		end
-		ordered_params[param] = raw_sol[param_offset+idx]
-	end
+	# (The former post-err second parameter pass was folded into the single pass
+	# above — postcampaign review P0#1: two passes with different ordering
+	# conventions meant the ODE solve/err and the returned dict could describe
+	# different parameter vectors whenever MTK order != declaration order.)
 
 	_record_detailed_timing!((
 		category = :process_raw_solution,
@@ -2372,7 +2377,15 @@ function _polish_single_from_context(
 		p = Dict(ctx.param_syms .=> param_opt),
 		build_initializeprob = false,
 	)
-	sol_final = ModelingToolkit.solve(prob_final, ctx.solver; saveat = ctx.t_vector, abstol = ctx.abstol, reltol = ctx.reltol)
+	# Guarded like the in-loss solves (postcampaign review P1): a throwing
+	# integrator here (e.g. SingularException on a rank-deficient candidate) sits
+	# in the nothing-else-worked terminal paths and must not kill the estimation.
+	sol_final = try
+		ModelingToolkit.solve(prob_final, ctx.solver; saveat = ctx.t_vector, abstol = ctx.abstol, reltol = ctx.reltol, maxiters = ctx.polish_ode_maxiters)
+	catch e
+		@warn "Final polish ODE solve threw; returning result without trajectory" exception = e maxlog = 10
+		nothing
+	end
 
 	# Map back to user-facing ordering
 	states_out = OrderedDict(s => ic_opt[ctx.state_index[s]] for s in ctx.state_syms_out if haskey(ctx.state_index, s))
