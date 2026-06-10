@@ -1295,6 +1295,41 @@ function parse_derivative_variable_name(var_name::String)
 end
 
 """
+	parse_jet_label(label::AbstractString) -> Union{Nothing, Tuple{String, Int}}
+
+THE single shared parser for observable/derivative labels (maintainability
+campaign Phase D1). Previously three near-identical copies lived in
+diagnostics.jl, sigma_d.jl and multipoint_template.jl and had to agree for
+Σ_d↔sensitivity column alignment; they now delegate here.
+
+Handles, in order:
+1. Symbolics comma form  `"Differential(t, N)(var(t))"` → (var, N)
+2. Symbolics bare form   `"var(t)"`                     → (var, 0)
+3. SIAN jet form         `"var_N"`                      → (var, N)
+
+Returns `nothing` when no form matches. Known locked behaviors (see
+test/test_label_parsers.jl before changing ANY of these): the order-1
+non-comma form `"Differential(t)(var(t))"` does NOT parse; a bare
+underscore-digit name parses its suffix as an order (`"k_1"` → ("k", 1));
+`_trfn_` frequency suffixes misparse (`"_trfn_sin_0_5"` → ("_trfn_sin_0", 5)).
+"""
+function parse_jet_label(label::AbstractString)
+	s = String(label)
+	m = match(r"^Differential\(t,\s*(\d+)\)\((\w+)\(t\)\)$", s)
+	if !isnothing(m)
+		return (String(m.captures[2]), parse(Int, m.captures[1]))
+	end
+	m = match(r"^(\w+)\(t\)$", s)
+	if !isnothing(m)
+		return (String(m.captures[1]), 0)
+	end
+	parsed = parse_derivative_variable_name(s)
+	isnothing(parsed) && return nothing
+	base_name, order = parsed
+	return (String(base_name), Int(order))
+end
+
+"""
 	nemo_to_symbolics(nemo_expr, var_map::Dict)
 
 Convert a Nemo expression to a Symbolics expression using proper term-by-term reconstruction.

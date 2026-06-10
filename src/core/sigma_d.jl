@@ -198,20 +198,7 @@ typically holds an `obs_name_to_idx::Dict{String, Int}` built from the measured
 quantities at the same time the SensitivityReport is constructed.
 """
 function parse_sensitivity_label(label::AbstractString)
-    s = String(label)
-    # Symbolics Differential pattern: "Differential(t, N)(var(t))"
-    m = match(r"^Differential\(t,\s*(\d+)\)\((\w+)\(t\)\)$", s)
-    if !isnothing(m)
-        return (String(m.captures[2]), parse(Int, m.captures[1]))
-    end
-    # Symbolics bare variable: "var(t)"
-    m = match(r"^(\w+)\(t\)$", s)
-    if !isnothing(m)
-        return (String(m.captures[1]), 0)
-    end
-    # SIAN style: "var_N"
-    parsed = parse_derivative_variable_name(s)
-    isnothing(parsed) && return nothing
-    base_name, order = parsed
-    return (String(base_name), Int(order))
+    # Thin adapter over the single shared parser (Phase D1); this caller's
+    # failure contract is `nothing`.
+    return parse_jet_label(label)
 end

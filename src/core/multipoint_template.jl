@@ -19,6 +19,10 @@ using Printf: @sprintf
 # ═══════════════════════════════════════════════════════════════════════════════
 
 function _multipoint_deriv_order(name_str)
+    # Deliberately SIAN-form only (NOT parse_jet_label): multipoint template
+    # variables are always SIAN-style jet names, and the characterization tests
+    # lock Differential-form inputs to order 0 here. Strips the _ptK multipoint
+    # suffix first; failure contract is order 0.
     clean = replace(string(name_str), r"_pt\d+$" => "")
     parsed = parse_derivative_variable_name(clean)
     return isnothing(parsed) ? 0 : parsed[2]

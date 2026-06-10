@@ -4242,28 +4242,10 @@ Symbolics style ("y1(t)", "Differential(t, 1)(y1(t))").
 Returns `("", 0)` if parsing fails.
 """
 function _parse_data_label(label::String)
-    # Try Symbolics Differential pattern: "Differential(t, N)(var(t))"
-    m = match(r"^Differential\(t,\s*(\d+)\)\((\w+)\(t\)\)$", label)
-    if !isnothing(m)
-        order = parse(Int, m.captures[1])
-        base = m.captures[2]
-        return (base, order)
-    end
-
-    # Try Symbolics bare variable: "var(t)"
-    m = match(r"^(\w+)\(t\)$", label)
-    if !isnothing(m)
-        return (m.captures[1], 0)
-    end
-
-    # Try SIAN style: "var_N"
-    parsed = parse_derivative_variable_name(label)
-    if !isnothing(parsed)
-        base, order = parsed
-        return (String(base), order)
-    end
-
-    return ("", 0)
+    # Thin adapter over the single shared parser (Phase D1); this caller's
+    # failure contract is ("", 0).
+    parsed = parse_jet_label(label)
+    return isnothing(parsed) ? ("", 0) : parsed
 end
 
 """
