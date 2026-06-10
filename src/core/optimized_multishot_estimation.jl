@@ -2530,6 +2530,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			solution_source_types = solution_source_types,
 			solution_mp_time_indices = solution_mp_time_indices,
 			solution_mp_combo_indices = solution_mp_combo_indices,
+			# Phase B: explicit MTK→jet-0 template map (built at SI template
+			# construction; see si_equation_builder.jl). Consumed by
+			# process_estimation_results so SI-workflow lookups hit the exact
+			# template variable instead of guessing names.
+			template_var_map = (hasproperty(si_template, :rank_trimming_metadata) &&
+								hasproperty(si_template.rank_trimming_metadata, :template_var_map)) ?
+							   si_template.rank_trimming_metadata.template_var_map : OrderedDict{Num, Num}(),
 		)
 
 		# Reuse existing processing pipeline (without polish — polish gets its own phase below)

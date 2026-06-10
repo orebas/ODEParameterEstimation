@@ -657,6 +657,20 @@ function get_si_equation_system(
 	# Create mapping from Nemo to MTK types
 	nemo2mtk = Dict(gens .=> symbol_map)
 
+	# Explicit MTK → jet-0 template-variable map (maintainability campaign Phase B).
+	# `symbol_map` (MTK symbols) and `gens` (clean ring names) are aligned by
+	# construction in convert_to_si_ode, and the SI template names every jet as
+	# "<clean name>_<order>" — so the jet-0 Symbolics variable for each state/param
+	# is recoverable with NO string parsing of the MTK side. Threaded to result
+	# processing via si_template_metadata so lookup_value's exact-match stage hits
+	# directly instead of name heuristics (which collided k_1/k_2-style names;
+	# see commit 4b9e14b). Convention verified empirically across model classes
+	# incl. underscore-digit, transcendental (_trfn_), and partially identifiable.
+	template_var_map = OrderedDict{Num, Num}()
+	for (i, mtk_sym) in enumerate(symbol_map)
+		template_var_map[Num(mtk_sym)] = Symbolics.variable(Symbol(string(gens[i]) * "_0"))
+	end
+
 	# Get polynomial system using SIAN
 	@info "Getting polynomial system from SIAN"
 	_t_get_polynomial_system_start = time()
@@ -869,6 +883,7 @@ function get_si_equation_system(
 		equation_builder_timing = equation_builder_timing,
 		sian_timing = get(result, "timing", OrderedDict{Symbol, Float64}()),
 		algebraic_multiplicity_timing = get(result, "algebraic_multiplicity_timing", OrderedDict{Symbol, Any}()),
+		template_var_map = template_var_map,
 	)
 
 	# Return identifiable_funcs as well

@@ -614,6 +614,10 @@ function process_estimation_results(
 	trivial_dict = solution_data.trivial_dict
 	final_varlist = solution_data.final_varlist
 	trimmed_varlist = solution_data.trimmed_varlist
+	# Phase B: explicit MTK→jet-0 template map (absent on legacy/branch-completion
+	# fixtures — hasfield-guarded like the other optional solution_data fields).
+	template_var_map = hasfield(typeof(solution_data), :template_var_map) ?
+					   solution_data.template_var_map : OrderedDict{Num, Num}()
 
 	# Extract components from the problem
 	t, eqns, states, params = unpack_ODE(PEP.model.system)
@@ -666,7 +670,9 @@ function process_estimation_results(
 			param_search = if !isempty(forward_subst_dict[1])
 				forward_subst_dict[1][(params[i])]
 			else
-				params[i]
+				# SI workflow: prefer the explicit jet-0 template variable; fall
+				# back to the MTK symbol (lookup_value name heuristics) if unmapped.
+				get(template_var_map, params[i], params[i])
 			end
 			# In SI-template workflow forward_subst_dict is empty; avoid using random good_udict values.
 			use_si_workflow = isempty(forward_subst_dict[1])
@@ -727,7 +733,8 @@ function process_estimation_results(
 			model_state_search = if !isempty(forward_subst_dict[1])
 				forward_subst_dict[1][(states[i])]
 			else
-				states[i]
+				# SI workflow: prefer the explicit jet-0 template variable (Phase B).
+				get(template_var_map, states[i], states[i])
 			end
 			# Convert trivial_dict to Dict{Symbol, Any} to ensure type stability
 			safe_trivial_dict = Dict{Symbol, Any}(solution_data.trivial_dict)

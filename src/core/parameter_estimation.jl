@@ -1641,6 +1641,10 @@ function lookup_value(var, var_search, soln_index::Int,
 	if isnothing(index)
 		# Convert x(t) -> x_0, k5 -> k5_0, k_1 -> k_1_0, xˍt -> x_1, xˍtt -> x_2, etc.
 		try
+			# Phase B: with the explicit template_var_map in place upstream, this
+			# string-heuristic path should only fire for unmapped/legacy callers —
+			# make that observable.
+			@debug "lookup_value falling through to name heuristics" var_search
 			# Unwrap Num or other wrappers to get the core symbol/expression
 			core = try
 				Symbolics.value(var_search)

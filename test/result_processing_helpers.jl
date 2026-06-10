@@ -250,4 +250,47 @@ end
         unresolvable = only(ModelingToolkit.@variables nonexistent_q)
         @test_throws Exception lv(unresolvable)
     end
+
+    @testset "template_var_map drives SI-workflow lookups (Phase B)" begin
+        # Discriminating design: the template variables here are named so that
+        # lookup_value's name heuristics can NEVER find them (zz_* bears no
+        # relation to the model names). Exact recovery therefore PROVES the
+        # explicit map was consumed end-to-end through process_estimation_results.
+        sampled = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), HELPER_STANDARD_OPTS)
+        current_states = ModelingToolkit.unknowns(sampled.model.system)
+        current_params = ModelingToolkit.parameters(sampled.model.system)
+        zz = ModelingToolkit.@variables zz_alpha zz_beta zz_gamma zz_delta
+        tvm = OrderedDict{Num, Num}(
+            Num(current_states[1]) => zz[1],
+            Num(current_states[2]) => zz[2],
+            Num(current_params[1]) => zz[3],
+            Num(current_params[2]) => zz[4],
+        )
+        shoot_idx = 2
+        raw = [
+            Float64(sampled.data_sample[current_states[1]][shoot_idx]),
+            Float64(sampled.data_sample[current_states[2]][shoot_idx]),
+            Float64(sampled.p_true[current_params[1]]),
+            Float64(sampled.p_true[current_params[2]]),
+        ]
+        solution_data = (
+            solns = [raw],
+            forward_subst_dict = [OrderedDict{Num, Any}()],   # empty → SI workflow
+            trivial_dict = Dict{Any, Any}(),
+            final_varlist = Any[zz...],
+            trimmed_varlist = Any[],
+            good_udict = Dict{Any, Any}(),
+            solution_time_indices = [shoot_idx],
+            template_var_map = tvm,
+        )
+        setup_data = (time_index_set = [shoot_idx], all_unidentifiable = Set{Any}())
+
+        results = quiet_result_call() do
+            ODEParameterEstimation.process_estimation_results(sampled, solution_data, setup_data; opts = HELPER_STANDARD_OPTS)
+        end
+        result = only(results)
+        @test all(param -> isapprox(result.parameters[param], sampled.p_true[param]; atol = 1e-8, rtol = 1e-8), keys(sampled.p_true))
+        @test all(state -> isapprox(result.states[state], sampled.ic[state]; atol = 1e-5, rtol = 1e-5), keys(sampled.ic))
+        @test result.err < 1e-6
+    end
 end
