@@ -944,11 +944,16 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	# Auto-populate algebraic_multiplicity if the caller left it unset and the
 	# SI template build produced a value (see optimized_multishot_estimation.jl
 	# `_LAST_ESTIMATION_AUTO_M`). When set explicitly by the caller, we
-	# never override.
-	if isnothing(opts.algebraic_multiplicity) && !isnothing(_LAST_ESTIMATION_AUTO_M[])
+	# never override. CONSUME-ONCE: the Ref is cleared at the read so a value
+	# written by this run's SI estimation can never leak into a later analysis
+	# that does not write it (e.g. the direct-opt flow, which never runs the SI
+	# template build — a stale M from a previous run truncated its output).
+	auto_m = _LAST_ESTIMATION_AUTO_M[]
+	_LAST_ESTIMATION_AUTO_M[] = nothing
+	if isnothing(opts.algebraic_multiplicity) && !isnothing(auto_m)
 		opts = EstimationOptions(;
 			(name => getfield(opts, name) for name in fieldnames(EstimationOptions) if name !== :algebraic_multiplicity)...,
-			algebraic_multiplicity = _LAST_ESTIMATION_AUTO_M[],
+			algebraic_multiplicity = auto_m,
 		)
 		if !opts.nooutput
 			println("Auto-detected algebraic multiplicity M = $(opts.algebraic_multiplicity); result.csv truncated to min(M, branch_top_k) rows.")
