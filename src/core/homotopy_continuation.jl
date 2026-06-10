@@ -39,6 +39,46 @@ Can be used either as a standalone solver or to polish solutions from other meth
 - `solutions`: Array of solutions found
 - `hc_variables`: Variables in HomotopyContinuation format
 """
+# Shared by the NLLS solvers below (Phase D2 dedup — was copied 4×): compile the
+# system via build_function, falling back to per-call substitute/value (orders of
+# magnitude slower — the @warn matters). Returns (residual!, eval_count, is_compiled).
+function _nlls_residual_closure(prepared_system, mangled_varlist, label::AbstractString)
+	compiled! = nothing
+	try
+		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
+			expression = Val(false))
+		compiled! = (res, u, p) -> (_f_ip(res, u); nothing)
+	catch err
+		@warn "build_function failed in $label; falling back to substitute/value" err
+	end
+	eval_count = Ref(0)
+	residual! = (res, u, p) -> begin
+		eval_count[] += 1
+		if compiled! !== nothing
+			compiled!(res, u, p)
+		else
+			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
+			for (i, eq) in enumerate(prepared_system)
+				res[i] = convert(eltype(u), Symbolics.value(Symbolics.substitute(eq, d)))
+			end
+		end
+		return nothing
+	end
+	return residual!, eval_count, compiled! !== nothing
+end
+
+# Shared 5-frame solver-exception report (Phase D2 dedup — was copied 4×).
+function _log_solver_exception(label::AbstractString, e, bt)
+	@error "$label failed" exception = (e, bt)
+	println("SOLVER_ERROR: $label threw exception:")
+	println("  Type: ", typeof(e))
+	println("  Message: ", e)
+	st = stacktrace(bt)
+	for (i, frame) in enumerate(st[1:min(5, length(st))])
+		println("  [$i] ", frame)
+	end
+end
+
 function solve_with_nlopt(poly_system, varlist;
 	start_point = nothing,
 	optimizer = NonlinearSolve.LevenbergMarquardt(),
@@ -57,31 +97,8 @@ function solve_with_nlopt(poly_system, varlist;
 	debug = get(options, :debug, false)
 	jac_mode = get(options, :jacobian, :none)
 
-	# Try to compile the system into a fast native function; fall back to substitute/value
-	compiled_residual! = nothing
-	try
-		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
-			expression = Val(false))
-		compiled_residual! = (res, u, p) -> (_f_ip(res, u); nothing)
-	catch err
-		@warn "build_function failed in solve_with_nlopt; falling back to substitute/value" err
-	end
-
-	# Define residual function for NonlinearLeastSquares (AD-safe; no Float64 forcing)
-	res_evals_nlopt = Ref(0)
-	function residual!(res, u, p)
-		res_evals_nlopt[] += 1
-		if compiled_residual! !== nothing
-			compiled_residual!(res, u, p)
-		else
-			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
-			for (i, eq) in enumerate(prepared_system)
-				val = Symbolics.value(Symbolics.substitute(eq, d))
-				res[i] = convert(eltype(u), val)
-			end
-		end
-		return nothing
-	end
+	# Compiled-or-fallback residual (shared helper; Phase D2 dedup)
+	residual!, res_evals_nlopt, _ = _nlls_residual_closure(prepared_system, mangled_varlist, "solve_with_nlopt")
 
 	# Set up optimization problem
 	n = length(varlist)
@@ -132,15 +149,7 @@ function solve_with_nlopt(poly_system, varlist;
 	sol = try
 		NonlinearSolve.solve(prob, optimizer; solver_opts...)
 	catch e
-		@error "solve_with_nlopt failed" exception=(e, catch_backtrace())
-		println("SOLVER_ERROR: NonlinearSolve optimization threw exception:")
-		println("  Type: ", typeof(e))
-		println("  Message: ", e)
-		bt = catch_backtrace()
-		st = stacktrace(bt)
-		for (i, frame) in enumerate(st[1:min(5, length(st))])
-			println("  [$i] ", frame)
-		end
+		_log_solver_exception("solve_with_nlopt", e, catch_backtrace())
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
@@ -152,10 +161,12 @@ function solve_with_nlopt(poly_system, varlist;
 		final_norm = norm(final_residual)
 
 		improvement = initial_norm - final_norm
-		if improvement > 0
-			println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
-		else
-			println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
+		if debug
+			if improvement > 0
+				println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
+			else
+				println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
+			end
 		end
 
 		# Return all four expected values: solutions, variables, trivial_dict, trimmed_varlist
@@ -168,118 +179,6 @@ end
 
 
 
-function solve_with_nlopt_quick(poly_system, varlist;
-	start_point = nothing,
-	optimizer = NonlinearSolve.LevenbergMarquardt(),
-	polish_only = false,
-	options = Dict())
-
-	# Prepare system for optimization
-	prepared_system, mangled_varlist = (poly_system, varlist)
-
-	# Debug and Jacobian configuration
-	debug = get(options, :debug, false)
-	jac_mode = get(options, :jacobian, :none)
-
-	# Try to compile the system into a fast native function; fall back to substitute/value
-	compiled_residual_quick! = nothing
-	try
-		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
-			expression = Val(false))
-		compiled_residual_quick! = (res, u, p) -> (_f_ip(res, u); nothing)
-	catch err
-		@warn "build_function failed in solve_with_nlopt_quick; falling back to substitute/value" err
-	end
-
-	# Define residual function for NonlinearLeastSquares (AD-safe)
-	res_evals_nlopt_quick = Ref(0)
-	function residual!(res, u, p)
-		res_evals_nlopt_quick[] += 1
-		if compiled_residual_quick! !== nothing
-			compiled_residual_quick!(res, u, p)
-		else
-			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
-			for (i, eq) in enumerate(prepared_system)
-				val = Symbolics.value(Symbolics.substitute(eq, d))
-				res[i] = convert(eltype(u), val)
-			end
-		end
-		return nothing
-	end
-
-	# Set up optimization problem
-	n = length(varlist)
-	m = length(prepared_system)  # Number of equations
-	x0 = if isnothing(start_point)
-		randn(n)  # Random initialization if no start point provided
-	else
-		start_point
-	end
-
-	# Calculate initial residual
-	initial_residual = zeros(m)
-	residual!(initial_residual, x0, nothing)
-	initial_norm = norm(initial_residual)
-
-	# Create NonlinearLeastSquaresProblem
-	nf = NonlinearFunction(residual!)
-	prob = NonlinearLeastSquaresProblem(nf, x0, nothing)
-
-	# Set solver options based on polish_only
-	solver_opts = (abstol = 1e-3, reltol = 1e-3, maxiters = 50)
-
-	# Merge with user options (only recognized keywords)
-	user_opts = Dict{Symbol, Any}()
-	for (k, v) in options
-		if k in (:abstol, :reltol, :maxiters)
-			user_opts[k] = v
-		end
-	end
-	solver_opts = merge(solver_opts, user_opts)
-
-	# Pre-solve debug
-	if debug
-		println("[NLOPT_quick] equations=", m, " variables=", n)
-		println("[NLOPT_quick] optimizer=", typeof(optimizer))
-		println("[NLOPT_quick] jacobian_mode=", jac_mode)
-		println("[NLOPT_quick] eltype(x0)=", eltype(x0))
-	end
-
-	# Solve the problem (no additional fallbacks)
-	callback = if debug
-		(state, res) -> begin
-			println("[NLOPT_quick Iter $(state.iter)] res_norm=$(state.fu_norm)")
-			return false
-		end
-	else
-		nothing
-	end
-	sol = NonlinearSolve.solve(prob, optimizer; callback = callback, solver_opts...)
-
-	# Check if solution is valid
-	if SciMLBase.successful_retcode(sol)
-		# Calculate final residual
-		final_residual = zeros(m)
-		residual!(final_residual, sol.u, nothing)
-		final_norm = norm(final_residual)
-
-		improvement = initial_norm - final_norm
-		if debug
-			println("[NLOPT_quick] residual_norm initial=", initial_norm,
-				" final=", final_norm,
-				" improvement=", improvement,
-				" res_evals=", res_evals_nlopt_quick[])
-		end
-
-		# Return all four expected values: solutions, variables, trivial_dict, trimmed_varlist
-		return [sol.u], mangled_varlist, Dict(), mangled_varlist
-	else
-		if debug
-			@warn "[NLOPT_quick] Optimization did not converge" retcode=sol.retcode res_evals=res_evals_nlopt_quick[]
-		end
-		return [], mangled_varlist, Dict(), mangled_varlist
-	end
-end
 
 """
 	solve_with_fast_nlopt(poly_system, varlist; kwargs...)
@@ -295,36 +194,14 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	options = Dict())
 
 
-	println("solving in NLOPT_fast")
-
 	# Prepare system for optimization
 	prepared_system, mangled_varlist = (poly_system, varlist)
 	m = length(prepared_system)
 	n = length(mangled_varlist)
+	debug = get(options, :debug, false)
 
-	# Try to compile the system into a fast native function; fall back to substitute/value
-	compiled_residual_fast! = nothing
-	try
-		_f_oop, _f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
-			expression = Val(false))
-		compiled_residual_fast! = (res, u, p) -> (_f_ip(res, u); nothing)
-	catch err
-		@warn "build_function failed in solve_with_fast_nlopt; falling back to substitute/value" err
-	end
-
-	eval_count = Ref(0)
-	function residual!(res, u, p)
-		eval_count[] += 1
-		if compiled_residual_fast! !== nothing
-			compiled_residual_fast!(res, u, p)
-		else
-			d = Dict{Num, eltype(u)}(zip(mangled_varlist, u))
-			for i in 1:m
-				res[i] = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
-			end
-		end
-		return nothing
-	end
+	# Compiled-or-fallback residual (shared helper; Phase D2 dedup)
+	residual!, eval_count, residual_is_compiled = _nlls_residual_closure(prepared_system, mangled_varlist, "solve_with_fast_nlopt")
 
 	# Initial guess and initial residual norm
 	x0 = isnothing(start_point) ? randn(n) : copy(start_point)
@@ -368,15 +245,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 		solve_ms = (time() - t0) * 1000
 		out
 	catch e
-		@error "solve_with_fast_nlopt failed" exception=(e, catch_backtrace())
-		println("SOLVER_ERROR: solve_with_fast_nlopt threw exception:")
-		println("  Type: ", typeof(e))
-		println("  Message: ", e)
-		bt = catch_backtrace()
-		st = stacktrace(bt)
-		for (i, frame) in enumerate(st[1:min(5, length(st))])
-			println("  [$i] ", frame)
-		end
+		_log_solver_exception("solve_with_fast_nlopt", e, catch_backtrace())
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
 
@@ -394,15 +263,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 			sol = NonlinearSolve.solve(prob, NonlinearSolve.FastShortcutNLLSPolyalg(); retry_opts...)
 			solve_ms += (time() - t0) * 1000
 		catch e
-			@error "solve_with_fast_nlopt retry failed" exception=(e, catch_backtrace())
-			println("SOLVER_ERROR: solve_with_fast_nlopt retry threw exception:")
-			println("  Type: ", typeof(e))
-			println("  Message: ", e)
-			bt = catch_backtrace()
-			st = stacktrace(bt)
-			for (i, frame) in enumerate(st[1:min(5, length(st))])
-				println("  [$i] ", frame)
-			end
+			_log_solver_exception("solve_with_fast_nlopt retry", e, catch_backtrace())
 		end
 	end
 
@@ -416,10 +277,10 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	end
 	final_norm = LinearAlgebra.norm(final_residual)
 	improvement = initial_norm - final_norm
-	println("[NLOPT_fast] residual_norm initial=", initial_norm,
+	debug && println("[NLOPT_fast] residual_norm initial=", initial_norm,
 		" final=", final_norm,
 		" improvement=", improvement,
-		" (compiled=", compiled_residual_fast! !== nothing,
+		" (compiled=", residual_is_compiled,
 		" solve_ms=", solve_ms,
 		" evals=", eval_count[], ")")
 
@@ -437,123 +298,6 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	end
 end
 
-function solve_with_nlopt_testing(poly_system, varlist;
-	start_point = nothing,
-	optimizer   = nothing,  # default set below to FastShortcutNLLSPolyalg()
-	polish_only = false,
-	options     = Dict())
-
-	# Minimal deps locally; assumes these packages are in your environment.
-	#	using NonlinearSolve
-	#	using Symbolics
-	#	using ADTypes  # provides AutoForwardDiff()
-
-	# Prepare
-	prepared_system, mangled_varlist = (poly_system, varlist)
-	m = length(prepared_system)
-	n = length(mangled_varlist)
-
-	# --- Fast compiled residual (prefer) with safe fallback -------------------
-	compiled_residual! = nothing
-	begin
-		try
-			# For a vector of expressions, build_function returns (oop, iip) functions.
-			# We use the in-place version f!(res, x1, x2, ...).
-			f_oop, f_ip = Symbolics.build_function(prepared_system, mangled_varlist;
-				expression = Val(false))
-			#compiled_residual! = (res, u, p) -> (f_ip(res, u...); nothing)
-			# Unpack `u` into a tuple of arguments for `f_ip`.
-			# This is now compatible with the splatting (`...`) that `build_function` expects.
-			compiled_residual! = (res, u, p) -> (f_ip(res, u); nothing)
-		catch err
-			@warn "Symbolics.build_function failed; falling back to substitute/value" err
-			compiled_residual! = nothing
-		end
-	end
-
-	function residual!(res, u, p)
-		if compiled_residual! !== nothing
-			compiled_residual!(res, u, p)
-		else
-			# Slow but robust fallback; keeps your original semantics.
-			d = Dict(zip(mangled_varlist, u))
-			@inbounds for i in 1:m
-				val = Symbolics.value(Symbolics.substitute(prepared_system[i], d))
-				res[i] = convert(eltype(u), val)
-			end
-			nothing
-		end
-	end
-
-	# Initial guess
-	x0 = isnothing(start_point) ? randn(n) : copy(start_point)
-
-	# Initial residual norm (for reporting)
-	initial_residual = zeros(m)
-	residual!(initial_residual, x0, nothing)
-	initial_norm = norm(initial_residual)
-
-	# Problem definition
-	nf = NonlinearFunction(residual!; resid_prototype = zeros(m))  # size hint only. :contentReference[oaicite:2]{index=2}
-	prob = NonlinearLeastSquaresProblem(nf, x0, nothing)
-
-	# Tolerances
-	solver_opts = polish_only ?
-				  (abstol = 1e-12, reltol = 1e-12, maxiters = 1_000) :
-				  (abstol = 1e-8, reltol = 1e-8, maxiters = 10_000)
-
-	# Merge user options (convert Dict -> NamedTuple for keyword splatting)
-	# Strip any keys we don't want to pass to the solver.
-	user_pairs = filter(p -> first(p) in (:abstol, :reltol, :maxiters), collect(pairs(options)))
-	user_named = (; user_pairs...)
-	solver_opts = merge(solver_opts, user_named)
-
-	# Algorithm: recommended polyalgorithm unless user supplied one.
-	# FastShortcutNLLSPolyalg(): tries Gauss-Newton, falls back to LM/TrustRegion. :contentReference[oaicite:3]{index=3}
-	alg = isnothing(optimizer) ? NonlinearSolve.FastShortcutNLLSPolyalg() : optimizer
-
-	# Dense forward-mode AD is the safest default for problems of this size. :contentReference[oaicite:4]{index=4}
-	# Solve (let NonlinearSolve pick AD default compatible with function)
-	callback = if get(options, :debug, false)
-		(state, res) -> begin
-			println("[NLOPT_testing Iter $(state.iter)] res_norm=$(state.fu_norm)")
-			return false
-		end
-	else
-		nothing
-	end
-	sol = try
-		NonlinearSolve.solve(prob, alg; callback = callback, solver_opts...)
-	catch e
-		@error "solve_with_nlopt_testing failed" exception=(e, catch_backtrace())
-		println("SOLVER_ERROR: solve_with_nlopt_testing threw exception:")
-		println("  Type: ", typeof(e))
-		println("  Message: ", e)
-		bt = catch_backtrace()
-		st = stacktrace(bt)
-		for (i, frame) in enumerate(st[1:min(5, length(st))])
-			println("  [$i] ", frame)
-		end
-		return [], mangled_varlist, Dict(), mangled_varlist
-	end
-
-	# Post-process
-	if SciMLBase.successful_retcode(sol)
-		final_residual = zeros(m)
-		residual!(final_residual, sol.u, nothing)
-		final_norm = norm(final_residual)
-		improvement = initial_norm - final_norm
-		if improvement > 0
-			println("Optimization improved residual by $(improvement) (from $(initial_norm) to $(final_norm))")
-		else
-			println("Optimization did not improve residual (initial: $(initial_norm), final: $(final_norm))")
-		end
-		return [sol.u], mangled_varlist, Dict(), mangled_varlist
-	else
-		@warn "Optimization did not converge. RetCode: $(sol.retcode)"
-		return [], mangled_varlist, Dict(), mangled_varlist
-	end
-end
 
 
 

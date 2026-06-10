@@ -127,4 +127,17 @@ import ModelingToolkit
 		@test vals[6] ≈ -0.25 * cos(0.5 * tp) atol = 1e-10  # y3_2 analytic
 		@test isnan(vals[7])                           # unmapped → NaN, never 0.0
 	end
+
+	# --- Phase D2: the two live NLLS solvers (post-dedup) -------------------
+	@testset "NLopt NLLS solvers solve a simple polynomial system" begin
+		vars = ModelingToolkit.@variables nl_x nl_y
+		sys = [vars[1]^2 - 4.0, vars[2] - vars[1]]
+		for solver in (ODEParameterEstimation.solve_with_nlopt,
+			ODEParameterEstimation.solve_with_fast_nlopt)
+			sols, _, _, _ = solver(sys, [vars[1], vars[2]]; start_point = [1.5, 0.0])
+			@test length(sols) == 1
+			@test sols[1][1] ≈ 2.0 atol = 1e-5
+			@test sols[1][2] ≈ 2.0 atol = 1e-5
+		end
+	end
 end

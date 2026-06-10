@@ -72,8 +72,6 @@ function available_solvers()
 		"solve_with_hc"            => ODEParameterEstimation.solve_with_hc,
 		"solve_with_nlopt"         => ODEParameterEstimation.solve_with_nlopt,
 		"solve_with_fast_nlopt"    => ODEParameterEstimation.solve_with_fast_nlopt,
-		"solve_with_nlopt_quick"   => ODEParameterEstimation.solve_with_nlopt_quick,
-		"solve_with_nlopt_testing" => ODEParameterEstimation.solve_with_nlopt_testing,
 	)
 end
 
