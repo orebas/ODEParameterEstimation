@@ -1,5 +1,17 @@
 # ODEParameterEstimation — Code Review & Recommendations
 
+> **STATUS 2026-06-10:** the maintainability campaign (phases A–F, commits
+> `959c921..553586d`) addressed most P0/P1/P3/P4 items below — notably: all P0s
+> resolved (#2 was a false positive; #4's real site was `lookup_value`, not the
+> flagged callers; #5 rewired per Oren); P1 inject-0.0/NaN-stored/Nemo-coeff/
+> all-sentinel/bare-catch fixed (Phase C); P3 consensus sandbox → `src/research/`,
+> NLopt + label parsers deduped (D), zombie options + dead bridge deleted (E1),
+> dead interpolators archived (F1); P4 diagnostics.jl split (F2). Authoritative
+> ledger: `~/.claude/plans/ok-let-s-make-sure-cryptic-fiddle.md` + memory
+> `project_2026_06_10_maintainability_campaign.md`. This document will be
+> SUPERSEDED by `docs/2026-06-10_postcampaign_review.md` when the Phase-H
+> re-review runs; treat unchecked items below as historical until then.
+
 **Date:** 2026-06-09
 **Scope:** `src/core`, `src/types`, the module file, `ext/`, and repo hygiene.
 **Method:** Read-only fan-out review (7 parallel reviewers, one per file cluster) +

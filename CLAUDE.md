@@ -30,6 +30,8 @@
 - Run feature regressions: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/feature_regressions.jl")'`
 - Run specific test: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/specific_test.jl")'`
 - Run examples: `julia --startup-file=no -e 'using ODEParameterEstimation; include("src/examples/run_examples.jl")'`
+- **Full FAST gate** (the only valid gate for estimation-touching changes — fast_core alone is contracts-only): `julia --startup-file=no -e 'include("test/runtests.jl")'`
+- **Benchmark smoke** (seeded, noisy, full-scale recovery guard; NOT in runtests — run before handing a build to the cluster): `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/benchmark_smoke.jl")'`
 
 ## Code Style Guidelines
 - Imports: Group related packages, with ModelingToolkit, OrdinaryDiffEq first
