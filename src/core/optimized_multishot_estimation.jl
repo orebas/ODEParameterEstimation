@@ -684,7 +684,9 @@ function extract_variables(expr)
 			end
 		end
 	catch e
-		@debug "Could not extract variables from expression of type $(typeof(expr)): $e"
+		# A variable we fail to extract silently DROPS a solve unknown from the
+		# system downstream — surface it (was @debug, invisible by default).
+		@warn "extract_variables failed; expression contributes no variables" expr_type = typeof(expr) exception = e maxlog = 20
 	end
 	return vars
 end
@@ -2401,7 +2403,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								target_rank = (opts.system_construction_policy == :noise_frontier) ? validation.target_rank : missing,
 								reason = (opts.system_construction_policy == :noise_frontier) ? validation.reason : :not_applicable,
 							))
-						catch; end
+						catch e
+							# A systematic combo-eval failure must not be
+							# indistinguishable from "no combos available".
+							opts.diagnostics && @warn "[MULTIPOINT] combo evaluation failed" exception = (e, catch_backtrace())
+						end
 					end
 				_t_mpt_eval_elapsed = time() - _t_mpt_eval_start
 				_accumulate_timing!(multipoint_eval_seconds_by_source, interp_sym, _t_mpt_eval_elapsed)
