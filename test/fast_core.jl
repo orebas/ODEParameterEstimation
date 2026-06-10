@@ -1748,16 +1748,13 @@ using OrderedCollections
     end
 
     @testset "UQ policy helper" begin
-        failed_uq = (
-            success = false,
-            message = "synthetic failure",
-        )
-
+        # Phase E2 contract: the UQ result is Union{Nothing, UncertaintyReport};
+        # `nothing` (UQ not computable) or status == :degenerate counts as failure.
         passthrough_opts = EstimationOptions(uq_failure_policy = :return_failed)
         throw_opts = EstimationOptions(uq_failure_policy = :throw)
 
-        @test ODEParameterEstimation.apply_uq_failure_policy(failed_uq, passthrough_opts) === failed_uq
-        @test_throws ErrorException ODEParameterEstimation.apply_uq_failure_policy(failed_uq, throw_opts)
+        @test ODEParameterEstimation.apply_uq_failure_policy(nothing, passthrough_opts) === nothing
+        @test_throws ErrorException ODEParameterEstimation.apply_uq_failure_policy(nothing, throw_opts)
     end
 
     @testset "SI placeholder policy helpers" begin

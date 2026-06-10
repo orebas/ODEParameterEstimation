@@ -656,6 +656,27 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         @test report_multi isa ODEParameterEstimation.ComprehensiveDiagnosticReport
     end
 
+    @testset "compute_uncertainty=true returns an IFT UncertaintyReport" begin
+        # Phase E2 (review P0#5): the experimental UQ sidecar is rewired from the
+        # broken FD-Jacobian path (archived in deprecated/uq_fd_path.jl) to the
+        # IFT-based diagnose_uncertainty. End-to-end smoke on simple().
+        uq_opts = EstimationOptions(
+            datasize = 21, noise_level = 0.0, shooting_points = 0,
+            nooutput = true, diagnostics = false, flow = FlowStandard,
+            use_si_template = true, use_parameter_homotopy = false,
+            interpolator = InterpolatorAAAD, save_system = false,
+            polish_solver_solutions = false, polish_solutions = false,
+            compute_uncertainty = true,
+        )
+        sampled = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), uq_opts)
+        _, _, uq = quiet_feature_call() do
+            ODEParameterEstimation.analyze_parameter_estimation_problem(sampled, uq_opts)
+        end
+        @test uq isa ODEParameterEstimation.UncertaintyReport
+        @test !isempty(uq.param_std)
+        @test any(isfinite, uq.param_std)
+    end
+
     @testset "diagnose writes HTML report to disk" begin
         # Phase A smoke (insurance for the planned diagnostics.jl file split):
         # the rest of CI only runs diagnose with html_report=false. Reports go to

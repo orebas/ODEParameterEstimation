@@ -486,8 +486,13 @@ end
 
 
 function apply_uq_failure_policy(uq_result, opts::EstimationOptions)
-	if !uq_result.success && opts.uq_failure_policy == :throw
-		error("Uncertainty quantification failed: $(uq_result.message)")
+	# Phase E2: uq_result is Union{Nothing, UncertaintyReport} (nothing = UQ could
+	# not be computed; :degenerate = computed but meaningless).
+	failed = isnothing(uq_result) ||
+			 (uq_result isa UncertaintyReport && uq_result.status == :degenerate)
+	if failed && opts.uq_failure_policy == :throw
+		msg = isnothing(uq_result) ? "no report produced" : join(uq_result.warnings, "; ")
+		error("Uncertainty quantification failed: $msg")
 	end
 	return uq_result
 end
@@ -556,16 +561,21 @@ function _compute_uq_result(
 		println("\nComputing parameter uncertainty (experimental)...")
 	end
 
-	uq_result = estimate_parameter_uncertainty(
-		PEP,
-		best_solution,
-		PEP.data_sample;
-		max_deriv_order = 2,
-		n_timepoints = min(20, length(PEP.data_sample["t"]) ÷ 5),
-		kernel_type = _uq_kernel_for_result(best_solution, opts),
-	)
+	# Phase E2 (review P0#5, rewire chosen): route through the IFT-based
+	# diagnose_uncertainty path. The legacy FD-Jacobian estimate_parameter_uncertainty
+	# (boundary-zeroed Jacobian rows, substring observable matching) is archived in
+	# deprecated/uq_fd_path.jl. Mirrors _save_diagnostic_html's incantation.
+	uq_result = try
+		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true)
+		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time)
+		r = diagnose_uncertainty(PEP, setup_uq, best_solution.at_time, sens)
+		isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
+	catch e
+		@warn "Parameter uncertainty computation failed" exception = (e, catch_backtrace())
+		nothing
+	end
 	uq_result = apply_uq_failure_policy(uq_result, opts)
-	if !opts.nooutput
+	if !opts.nooutput && !isnothing(uq_result)
 		print_uncertainty_results(uq_result)
 	end
 	return uq_result

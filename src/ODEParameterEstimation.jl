@@ -166,8 +166,7 @@ export TryhardFinalistOptions, TryhardFinalist, TryhardFinalistReport, research_
 export AGPInterpolatorUQ, agp_gpr_uq
 export se_kernel_derivative, se_kernel_prior_covariance_matrix, se_kernel_cross_time_covariance_matrix
 export joint_derivative_covariance, joint_derivative_covariance_cross_time, build_observation_covariance
-export compute_parameter_covariance
-export estimate_parameter_uncertainty, print_uncertainty_results
+export print_uncertainty_results
 
 # Export example models
 # Simple models
@@ -191,7 +190,7 @@ export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, Polish
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices
 export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp, s3_refine_gp_adaptive, s3_refine_gp_bic
-export merge_options, validate_options, print_options, get_solver_options_dict
+export merge_options, validate_options, print_options
 export compatibility_return_code, sync_result_contract!, lineage_summary
 export optimized_multishot_parameter_estimation
 
