@@ -747,3 +747,34 @@ function _compute_data_sensitivity(
     return S, d_labels, d_roles, x_labels, x_roles
 end
 
+
+# _compile_system_function: moved from error_budget.jl 2026-06-10 (called here at #98, earlier than #99)
+"""
+Compile a vector of symbolic equations into a callable `f(x) → Vector{Float64}`
+via `Symbolics.build_function`. Falls back to substitution-based evaluation.
+The compiled function is compatible with ForwardDiff dual numbers.
+"""
+function _compile_system_function(equations, varlist)
+    try
+        # build_function with expression=Val(false) returns a compiled Julia function
+        fn = Symbolics.build_function(equations, varlist; expression = Val(false))
+        # build_function returns (out-of-place, in-place); take out-of-place
+        f_oop = fn isa Tuple ? fn[1] : fn
+        return f_oop
+    catch e
+        @warn "[DIAG] build_function failed, using substitution fallback: $e"
+        # Fallback: closure over symbolic substitution (works but no AD)
+        return function (vals)
+            subst_dict = Dict(varlist[i] => vals[i] for i in eachindex(varlist))
+            result = zeros(eltype(vals), length(equations))
+            for (i, eq) in enumerate(equations)
+                result[i] = try
+                    Float64(Symbolics.value(Symbolics.substitute(eq, subst_dict)))
+                catch
+                    eltype(vals)(NaN)
+                end
+            end
+            return result
+        end
+    end
+end

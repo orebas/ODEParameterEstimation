@@ -122,7 +122,23 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   stayed. Moved two segments (848-934 + 950-1168) around them. core_types.jl
   1242→934 lines. New include at module:107, before the research/*.jl that
   construct these. Load-smoke: all 12 types defined+exported. S=2-segment, not 1.
-- [ ] **One-directionalize the diagnostics chunks.** MAPPED 2026-06-10. ACCURACY:
+- [x] **(DONE, partial)** One-directionalize the diagnostics chunks. Moved the
+  self-contained UQ-HTML-rendering cluster (`_write_html_uq_section` +
+  `_write_correlation_cell` + `_write_html_uq_summary_cards`, 153 lines) from
+  uq_and_reports.jl (#102) → html_report.jl (#101, its only caller) — clean. Moved
+  `_compile_system_function` error_budget.jl (#99) → feasibility_sensitivity.jl
+  (#98, heaviest diagnostics user). NEW FINDING: `_compile_system_function` is
+  cross-cutting — also called by core/multipoint_template.jl, core/
+  noise_frontier_construction.jl, research/consensus_estimation.jl — so it's
+  mis-filed in diagnostics entirely; the lateral move is harmless+gated but the
+  REAL fix is relocation to a core util module (NEW FOLLOW-UP below). Skipped the
+  2 cohesion-only sub-items (`_tokenize_equation` already forward; svg_plots.jl
+  dir relocation) — low value, defer. 755/755.
+  - [ ] FOLLOW-UP: relocate `_compile_system_function` (symbolic→callable compiler,
+    `Symbolics.build_function` wrapper) out of diagnostics to a core util file
+    included before multipoint_template.jl, so its 4 core/research callers stop
+    reaching forward into diagnostics. S/BP.
+- [ ] (superseded) One-directionalize the diagnostics chunks. MAPPED 2026-06-10. ACCURACY:
   these are NOT active bugs — every backward ref is in a function BODY or
   return-type annotation, which Julia resolves at CALL time, so they load fine
   today (same as AbstractInterpolator). They're fragile-to-future-change (an

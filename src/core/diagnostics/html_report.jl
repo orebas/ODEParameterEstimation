@@ -1329,3 +1329,157 @@ function _write_html_trajectory_section(io, pep; uq_interpolants = nothing,
     println(io, "</div></details>")
 end
 
+
+# ─── UQ HTML rendering (moved from uq_and_reports.jl 2026-06-10: defined where used) ───
+
+"""
+Write the UQ section to the HTML report: CI table, correlation matrix,
+observation uncertainty, and executive summary cards.
+"""
+function _write_html_uq_section(io, uq::UncertaintyReport;
+    uq_interpolants::Union{Nothing, Dict{String, AGPInterpolatorUQ}} = nothing)
+    println(io, "<details open><summary>Parameter Uncertainty (GP → IFT)</summary><div class=\"detail-body\">")
+
+    # Provenance
+    status_badge = if uq.status == :ok
+        """<span class="badge badge-easy">OK</span>"""
+    elseif uq.status == :wide_ci
+        """<span class="badge badge-moderate">Wide CI</span>"""
+    else
+        """<span class="badge badge-hard">Degenerate</span>"""
+    end
+    println(io, """<div class="provenance">Σ<sub>x</sub> = S·Σ<sub>d</sub>·S<sup>T</sup> where S = parameter–data sensitivity, Σ<sub>d</sub> = GP posterior covariance at t = $(@sprintf("%.4f", uq.t_eval)). $status_badge</div>""")
+
+    # Warning box (if any)
+    if !isempty(uq.warnings)
+        println(io, """<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;margin:8px 0;">""")
+        println(io, """<strong style="color:#856404;">UQ Warnings</strong><ul style="margin:4px 0 0 0;padding-left:20px;">""")
+        for w in uq.warnings
+            w_esc = replace(w, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            println(io, "<li style=\"color:#856404;\">$w_esc</li>")
+        end
+        println(io, "</ul></div>")
+    end
+
+    # CI table
+    println(io, "<h4>Parameter Confidence Intervals</h4>")
+    println(io, "<table><tr><th>Parameter</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV</th><th>Status</th></tr>")
+
+    n_params = min(length(uq.param_labels), length(uq.param_true_values), length(uq.param_std))
+    for i in 1:n_params
+        label = uq.param_labels[i]
+        raw_esc = replace(label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+        pretty = _pretty_name(label)
+        role = get(uq.param_roles, label, :unknown)
+        role_label = get(_ROLE_LABELS, role, string(role))
+        role_color = get(_HTML_ROLE_COLORS, role, "#333")
+
+        tv = uq.param_true_values[i]
+        σ = uq.param_std[i]
+
+        tv_str = isfinite(tv) ? _fmt(tv) : "—"
+        σ1_str = _fmt(σ)
+        σ2_str = _fmt(UQ_CI_Z * σ)
+
+        # CV
+        cv = (isfinite(tv) && abs(tv) > 1e-15) ? σ / abs(tv) : NaN
+        cv_str = isfinite(cv) ? _fmt_pct(cv) : "—"
+        cv_cls = !isfinite(cv) ? "" : cv < 0.10 ? "err-ok" : cv < 0.50 ? "err-warn" : "err-bad"
+
+        status_mark = !isfinite(cv) ? "—" : cv < 0.10 ? "✓" : cv < 0.50 ? "~" : "✗"
+
+        println(io, """<tr><td><span title="$raw_esc" style="color:$role_color;font-weight:600;" class="math">$pretty</span></td><td>$role_label</td><td>$tv_str</td><td>±$σ1_str</td><td>±$σ2_str</td><td class="$cv_cls">$cv_str</td><td>$status_mark</td></tr>""")
+    end
+    println(io, "</table>")
+
+    # Observation Uncertainty at Shooting Point
+    if !isempty(uq.obs_names)
+        println(io, "<details><summary>Observation GP Posterior at t = $(@sprintf("%.4f", uq.t_eval))</summary><div class=\"detail-body\">")
+        println(io, "<table><tr><th>Observable</th><th>Order</th><th>μ (mean)</th><th>σ (std)</th></tr>")
+        for (oi, obs_name) in enumerate(uq.obs_names)
+            for k in eachindex(uq.obs_posterior_mean[oi])
+                order = k - 1
+                μ_val = uq.obs_posterior_mean[oi][k]
+                σ_val = uq.obs_posterior_std[oi][k]
+                obs_pretty = _pretty_name(obs_name)
+                println(io, "<tr><td class=\"math\">$obs_pretty</td><td>$order</td><td>$(_fmt(μ_val))</td><td>$(_fmt(σ_val))</td></tr>")
+            end
+        end
+        println(io, "</table></div></details>")
+    end
+
+    # GP Noise Estimates
+    if !isnothing(uq_interpolants) && !isempty(uq_interpolants)
+        println(io, "<details><summary>GP Noise Estimates</summary><div class=\"detail-body\">")
+        println(io, """<div class="provenance">Estimated observation noise σ<sub>n</sub> from GP hyperparameter optimization (kernel jitter on diagonal of K).</div>""")
+        println(io, "<table><tr><th>Observable</th><th>σ<sub>n</sub> (noise std)</th><th>σ<sub>n</sub>² (noise var)</th></tr>")
+        for (obs_name, interp) in sort(collect(uq_interpolants); by = first)
+            σ_n = sqrt(max(interp.noise_var, 0.0))
+            println(io, "<tr><td class=\"math\">$(_pretty_name(obs_name))</td><td>$(_fmt(σ_n))</td><td>$(_fmt(interp.noise_var))</td></tr>")
+        end
+        println(io, "</table></div></details>")
+    end
+
+    # Correlation matrix (use actual matrix size to avoid bounds errors with _trfn_ vars)
+    n = min(length(uq.param_labels), size(uq.correlation_matrix, 1))
+    if n > 0
+        default_open = n <= 12
+        open_attr = default_open ? " open" : ""
+        println(io, "<details$open_attr><summary>Parameter Correlation Matrix ($n × $n)</summary><div class=\"detail-body\">")
+        println(io, """<div class="provenance">ρ[i,j] = Σ<sub>x</sub>[i,j] / (σ<sub>i</sub>·σ<sub>j</sub>). Blue = positive correlation, red = negative, white = independent.</div>""")
+        println(io, "<div class=\"jac-wrap\"><table class=\"jac-table\">")
+
+        # Column headers
+        print(io, "<tr><th></th>")
+        for label in uq.param_labels
+            raw_esc = replace(label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            pretty = _pretty_name(label)
+            role = get(uq.param_roles, label, :unknown)
+            color = get(_HTML_ROLE_COLORS, role, "#333")
+            print(io, """<th class="jac-col-header" style="color:$color;" title="$raw_esc">$pretty</th>""")
+        end
+        println(io, "</tr>")
+
+        # Rows
+        for i in 1:n
+            label_i = uq.param_labels[i]
+            raw_esc = replace(label_i, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            pretty = _pretty_name(label_i)
+            role = get(uq.param_roles, label_i, :unknown)
+            color = get(_HTML_ROLE_COLORS, role, "#333")
+            print(io, """<tr><th style="color:$color;font-weight:600;" title="$raw_esc" class="math">$pretty</th>""")
+            for j in 1:n
+                ρ = uq.correlation_matrix[i, j]
+                _write_correlation_cell(io, ρ)
+            end
+            println(io, "</tr>")
+        end
+        println(io, "</table></div></div></details>")
+    end
+
+    println(io, "</div></details>")
+end
+
+"""Write a single correlation cell with blue/red coloring."""
+function _write_correlation_cell(io, ρ::Float64)
+    if abs(ρ) < 1e-10
+        print(io, "<td class=\"jac-zero\">0</td>")
+    else
+        alpha = @sprintf("%.2f", 0.1 + 0.3 * abs(ρ))
+        bg = ρ > 0 ? "rgba(9,105,218,$alpha)" : "rgba(207,34,46,$alpha)"
+        fmt_val = @sprintf("%.2f", ρ)
+        print(io, """<td style="background:$bg;">$fmt_val</td>""")
+    end
+end
+
+"""Write UQ metric cards for the executive summary grid."""
+function _write_html_uq_summary_cards(io, uq::UncertaintyReport)
+    # Max σ card
+    max_σ = maximum(uq.param_std; init = 0.0)
+    σ_color = uq.status == :ok ? "var(--easy)" : uq.status == :wide_ci ? "var(--moderate)" : "var(--hard)"
+    println(io, """<div class="metric-card">
+  <div class="mc-label">Max Param σ</div>
+  <div class="mc-value" style="color:$σ_color;">$(_fmt(max_σ))</div>
+  <div class="mc-sub">$(_fmt_pct(uq.max_cv)) worst CV</div>
+</div>""")
+end
