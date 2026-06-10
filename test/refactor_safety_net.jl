@@ -86,9 +86,8 @@ import ModelingToolkit
 			my_sum += norm(ode_solution(t)[k] .- offset_data[k]) / length(t)
 		end
 
-		# Current (buggy) behavior: divide by length(data_sample) = n_obs + 1.
-		@test err ≈ my_sum / (n_obs + 1) rtol = 1e-6
-		# P0#1 fix target: divide by the number of observables.
-		@test_broken err ≈ my_sum / n_obs rtol = 1e-6
+		# Fixed 2026-06-09 (review P0#1): err is the mean over observables; the
+		# "t" key in data_sample no longer deflates the divisor.
+		@test err ≈ my_sum / n_obs rtol = 1e-6
 	end
 end

@@ -923,7 +923,9 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 				end
 				err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
 			end
-			err /= length(data_sample)
+			# Mean over observables; data_sample also carries the "t" key, which
+			# must not count toward the divisor.
+			err /= max(length(data_sample) - 1, 1)
 		else
 			err = 1e+15
 		end
