@@ -1076,6 +1076,7 @@ function _compute_data_sensitivity(
     template_equations, derivative_dict, _, _, _, _ = get_si_equation_system(
         ordered_model, mq, pep.data_sample;
         DD = DD, infolevel = 0,
+        compute_multiplicity = false,  # M metadata is discarded here — skip the Groebner step
     )
     template_DD = ensure_si_template_dd_support(ordered_model, mq, DD, derivative_dict)
 
@@ -4608,7 +4609,7 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
 
     # CI table
     println(io, "<h4>Parameter Confidence Intervals</h4>")
-    println(io, "<table><tr><th>Parameter</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>±2σ (95%)</th><th>CV</th><th>Status</th></tr>")
+    println(io, "<table><tr><th>Parameter</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV</th><th>Status</th></tr>")
 
     n_params = min(length(uq.param_labels), length(uq.param_true_values), length(uq.param_std))
     for i in 1:n_params
@@ -4624,7 +4625,7 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
 
         tv_str = isfinite(tv) ? _fmt(tv) : "—"
         σ1_str = _fmt(σ)
-        σ2_str = _fmt(1.96 * σ)
+        σ2_str = _fmt(UQ_CI_Z * σ)
 
         # CV
         cv = (isfinite(tv) && abs(tv) > 1e-15) ? σ / abs(tv) : NaN
@@ -4969,7 +4970,7 @@ function _build_estimation_report(pep::ParameterEstimationProblem,
             pc = param_comparison[i]
             σ = _find_uq_sigma(pc.name, uq_report)
             if isfinite(σ)
-                within = abs(pc.true_val - pc.est_val) < 2 * σ
+                within = abs(pc.true_val - pc.est_val) < UQ_CI_Z * σ
                 param_comparison[i] = (name = pc.name, true_val = pc.true_val,
                     est_val = pc.est_val, rel_error = pc.rel_error, within_ci = within,
                     is_unidentifiable = pc.is_unidentifiable)
@@ -5042,7 +5043,7 @@ function propagate_backsolve_uncertainty(pep::ParameterEstimationProblem,
         # Replace NaN with 0 for missing entries
         ic_std = [isnan(s) ? 0.0 : s for s in ic_std]
 
-        ic_covers = [ic_std[i] > 0 ? abs(ic_true[i] - ic_est[i]) < 2 * ic_std[i] : true
+        ic_covers = [ic_std[i] > 0 ? abs(ic_true[i] - ic_est[i]) < UQ_CI_Z * ic_std[i] : true
                      for i in 1:n_ic]
 
         return BacksolveUQReport(
@@ -5214,7 +5215,7 @@ function propagate_backsolve_uncertainty(pep::ParameterEstimationProblem,
         # Fall back to the estimation ICs
     end
 
-    ic_ci_covers = [abs(ic_true[i] - ic_estimated[i]) < 2 * ic_std[i] for i in 1:n_states]
+    ic_ci_covers = [abs(ic_true[i] - ic_estimated[i]) < UQ_CI_Z * ic_std[i] for i in 1:n_states]
 
     # Amplification = max singular value of J_g
     svs = try
@@ -5302,7 +5303,7 @@ function _write_html_estimation_section(io, est::EstimationResultsReport;
         println(io, "<h4>Parameters</h4>")
         println(io, "<table><tr><th>Parameter</th><th>True</th><th>Estimated</th><th>Rel Error</th>")
         if has_uq
-            println(io, "<th>±2σ CI</th><th>Coverage</th>")
+            println(io, "<th>95% CI</th><th>Coverage</th>")
         end
         println(io, "</tr>")
 
@@ -5326,9 +5327,9 @@ function _write_html_estimation_section(io, est::EstimationResultsReport;
                 else
                     σ = _find_uq_sigma(pc.name, uq)
                     if isfinite(σ)
-                        ci_lo = pc.est_val - 1.96 * σ
-                        ci_hi = pc.est_val + 1.96 * σ
-                        within = abs(pc.true_val - pc.est_val) < 2 * σ
+                        ci_lo = pc.est_val - UQ_CI_Z * σ
+                        ci_hi = pc.est_val + UQ_CI_Z * σ
+                        within = abs(pc.true_val - pc.est_val) < UQ_CI_Z * σ
                         cov_mark = within ? """<span style="color:var(--easy);">✓</span>""" :
                             """<span style="color:var(--hard);">✗</span>"""
                         print(io, "<td>[$(_fmt(ci_lo)), $(_fmt(ci_hi))]</td><td>$cov_mark</td>")
@@ -5347,7 +5348,7 @@ function _write_html_estimation_section(io, est::EstimationResultsReport;
         println(io, "<h4>Initial Conditions</h4>")
         println(io, "<table><tr><th>State</th><th>True</th><th>Estimated</th><th>Rel Error</th>")
         if has_uq
-            println(io, "<th>±2σ CI</th><th>Coverage</th>")
+            println(io, "<th>95% CI</th><th>Coverage</th>")
         end
         println(io, "</tr>")
 
@@ -5364,9 +5365,9 @@ function _write_html_estimation_section(io, est::EstimationResultsReport;
             if has_uq
                 σ = _find_uq_sigma(sc.name, uq)
                 if isfinite(σ)
-                    ci_lo = sc.est_val - 1.96 * σ
-                    ci_hi = sc.est_val + 1.96 * σ
-                    within = abs(sc.true_val - sc.est_val) < 2 * σ
+                    ci_lo = sc.est_val - UQ_CI_Z * σ
+                    ci_hi = sc.est_val + UQ_CI_Z * σ
+                    within = abs(sc.true_val - sc.est_val) < UQ_CI_Z * σ
                     cov_mark = within ? """<span style="color:var(--easy);">✓</span>""" :
                         """<span style="color:var(--hard);">✗</span>"""
                     print(io, "<td>[$(_fmt(ci_lo)), $(_fmt(ci_hi))]</td><td>$cov_mark</td>")
@@ -5442,8 +5443,8 @@ function _write_html_backsolve_uq_section(io, bq::BacksolveUQReport)
         pretty = _pretty_name(bq.ic_names[i])
         raw_esc = replace(bq.ic_names[i], "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
 
-        ci_lo = bq.ic_estimated[i] - 1.96 * bq.ic_std[i]
-        ci_hi = bq.ic_estimated[i] + 1.96 * bq.ic_std[i]
+        ci_lo = bq.ic_estimated[i] - UQ_CI_Z * bq.ic_std[i]
+        ci_hi = bq.ic_estimated[i] + UQ_CI_Z * bq.ic_std[i]
         cov_mark = bq.ic_ci_covers[i] ? """<span style="color:var(--easy);">✓</span>""" :
             """<span style="color:var(--hard);">✗</span>"""
 

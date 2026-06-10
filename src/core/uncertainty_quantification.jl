@@ -1301,7 +1301,7 @@ function print_uncertainty_results(uq_result; io = stdout)
 
 	for (i, name) in enumerate(uq_result.param_names)
 		std_val = uq_result.param_std[i]
-		ci_half = 1.96 * std_val  # 95% confidence interval
+		ci_half = UQ_CI_Z * std_val  # 95% confidence interval (shared constant, core_types.jl)
 		@printf(io, "%-14s | %10.6f | %10.6f\n", string(name), std_val, ci_half)
 	end
 
