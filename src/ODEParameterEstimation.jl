@@ -59,7 +59,6 @@ const package_wide_default_ode_solver = AutoVern9(Rodas5P())
 
 
 # Include core types first
-include("untestedlinter.jl")
 include("types/core_types.jl")
 include("types/estimation_options.jl")  # New options struct
 
@@ -129,7 +128,7 @@ export shade_lm_estimate
 export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
-export clear_denoms, hmcs, analyze_parameter_estimation_problem, analyze_estimation_result
+export clear_denoms, hmcs, analyze_parameter_estimation_problem
 export aaad, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
 export ChebyshevApprox, chebyshev_aicc, chebyshev_bic, FourierApprox, fourier_adaptive
 export InterpolatorMethod, InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD
@@ -181,7 +180,7 @@ export print_uncertainty_results
 export simple, simple_linear_combination, onesp_cubed, threesp_cubed
 export lotka_volterra, vanderpol, brusselator, harmonic, fitzhugh_nagumo, forced_decay
 export seir, seir_m1, treatment, biohydrogenation, biohydrogenation_m1, repressilator
-export crauste, seir, daisy_mamil3, daisy_mamil4, daisy_mamil4_m1, hiv
+export crauste, daisy_mamil3, daisy_mamil4, daisy_mamil4_m1, hiv
 export latent_subpopulation_branch, latent_subpopulation_observed_control
 export receptor_subtype_binding_branch, receptor_subtype_binding_observed_control
 export slow_fast_m1, slowfast_m1
@@ -189,10 +188,10 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 
 
 # Export the main types and functions
-export EstimationOptions, SystemSolverMethod, InterpolatorMethod, PolishMethod, EstimationFlow
+export EstimationOptions, SystemSolverMethod, PolishMethod, EstimationFlow
 export FlowStandard, FlowDirectOpt
 export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
-export InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD, InterpolatorAGPRobust, InterpolatorAGPRobustRQ, InterpolatorAGPRobustSEpRQ, InterpolatorAGPRobustSExRQ, InterpolatorAGPRobustMatern52, InterpolatorAGPUQ, InterpolatorS2AAAMLE, InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, InterpolatorS3AdaptSEpRQ, InterpolatorS3AdaptSExRQ, InterpolatorS3AdaptMatern52, InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52, InterpolatorCustom
+export InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS,
        PolishLSOBoundedLog, PolishFastLMBoundedLog
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
@@ -200,7 +199,6 @@ export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifia
 export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp, s3_refine_gp_adaptive, s3_refine_gp_bic
 export merge_options, validate_options, print_options
 export compatibility_return_code, sync_result_contract!, lineage_summary
-export optimized_multishot_parameter_estimation
 
 
 # Precompilation workload - runs during package precompilation to reduce first-run latency

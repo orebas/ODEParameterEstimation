@@ -107,7 +107,13 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   crash) → `construct_equation_system` → `evaluate_poly_system`. Archive.
   VERIFIED.
 - [ ] **Move `abstract type AbstractInterpolator` to types/core_types.jl**
-  (currently `derivatives.jl:7`; one fragile load-order class). S/BP.
+  (currently `derivatives.jl:7`, module:88). CONFIRMED a REAL latent hazard, not
+  hypothetical: `parameter_estimation.jl` (module:**81**, seven includes EARLIER)
+  annotates `Dict{Num, AbstractInterpolator}` at :123/141/142 — it only loads
+  because those refs are inside function bodies (evaluated at call-time). Any
+  top-level `::AbstractInterpolator` field/const in an ≤88 file would break load.
+  Move = 1 line into core_types@62 + delete derivatives.jl:7 + fix the stale
+  "defined at the top of this file" comment (derivatives.jl:191). S/BP-with-fix.
 - [x] **(DONE, gating)** Evict the research-only types block →
   `src/research/research_types.jl` (322 lines). PROBE CORRECTED the tracker: the
   cluster's only "production" refs were the module's own `export` lines (165-170);
@@ -116,16 +122,24 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   stayed. Moved two segments (848-934 + 950-1168) around them. core_types.jl
   1242→934 lines. New include at module:107, before the research/*.jl that
   construct these. Load-smoke: all 12 types defined+exported. S=2-segment, not 1.
-- [ ] **One-directionalize the diagnostics chunks** (move 4 `_write_html_uq*`
-  writers + `_ROLE_*`/`_tokenize_equation` into html_report;
-  `_compile_system_function` into feasibility_sensitivity; relocate svg_plots.jl
-  under diagnostics/). S/BP.
+- [ ] **One-directionalize the diagnostics chunks.** MAPPED 2026-06-10 — 2 are
+  REAL backward-dep load-order bugs (lazy-eval-only survival, same class as
+  AbstractInterpolator), 2 are cohesion-only:
+  - BUG: `_write_html_uq_section`+`_write_html_uq_summary_cards` defined in
+    `uq_and_reports.jl` (incl #102, LAST) but called from `html_report.jl` (#101)
+    → move the 2 writers up into html_report.jl.
+  - BUG: `_compile_system_function` defined in `error_budget.jl` (#99) but called
+    from `feasibility_sensitivity.jl` (#98) → move it into feasibility_sensitivity.
+  - cohesion (forward, not a bug): `_tokenize_equation` (orchestrators #100 →
+    html_report #101) move for locality; relocate `core/svg_plots.jl` (#94) under
+    `core/diagnostics/`. NB `_ROLE_*` already split correctly (orchestrators has
+    `_ROLE_COLORS/_ROLE_LABELS`, html_report has its own `_HTML_ROLE_COLORS`). S/BP.
 - [ ] **God-file split maps ready** (lane-2 §3): optimized_multishot →
   timing/legacy/main(+seams); parameter_estimation → 7 clusters incl. a
   `core/polish/` pairing with polish_residual.jl. Execute after the P0/P1 fixes
   settle. M/BP.
-- [ ] Housekeeping bundle (one commit) — VERIFIED 2026-06-10, several tracker
-  claims corrected:
+- [x] **(DONE)** Housekeeping bundle (one commit) — VERIFIED 2026-06-10, several
+  tracker claims corrected:
   - `src/untestedlinter.jl`: NOT zero-use — it's `include`d at module:62 (defines
     `module SimpleUnusedLinter` / `@lintfun`, a dev lint macro with ZERO external
     uses). Drop the include line + the file.
@@ -139,9 +153,12 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   - evict 3 `.txt` from `src/examples/benchmarks/` (no `.py` present).
   - module:75 comment looks CORRECT on inspection — skip unless re-confirmed wrong.
   - `petab-ODEPE.jl`: LEAVE — Oren decision (fix-or-retire) pending. S/BP.
-- [ ] Dead consts in core_types (`IMAG_THRESHOLD` 0 uses; `MAX_ERROR_THRESHOLD`/
-  `MAX_SOLUTIONS` comment-only) duplicate option fields; `cluster_solutions`
-  ignores `opts.clustering_threshold` in favor of the const. Reconcile. S/SEM-lite.
+- [ ] Dead consts in core_types — VERIFIED: `IMAG_THRESHOLD` has zero code uses
+  (export line only); `MAX_ERROR_THRESHOLD`/`MAX_SOLUTIONS` are comment-only
+  (analysis_utils.jl:633/638 are prose) + export. All three are EXPORTED, so
+  removal is an API change → fold into **Phase I** tiering, not a standalone P2
+  cut. (`cluster_solutions` vs `opts.clustering_threshold` reconcile is separate,
+  still open.) S/SEM-lite → Phase I.
 
 ## P3 — interface & docs (feeds Phase I)
 
