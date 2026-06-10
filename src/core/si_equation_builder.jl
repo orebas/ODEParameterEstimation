@@ -1353,8 +1353,10 @@ function nemo_to_symbolics(nemo_expr, var_map::Dict; fail_categories = Symbol[])
 			elseif c isa Integer
 				c
 			else
-				@error "Unknown coefficient type" typeof(c) c
-				1  # Default to 1
+				# Fail fast: substituting a placeholder 1 for an unknown
+				# coefficient silently corrupts the polynomial — strictly worse
+				# than any crash. (Zero occurrences across all repro/PEB logs.)
+				error("Unknown Nemo coefficient type $(typeof(c)) in nemo_to_symbolics — refusing to substitute 1. Value: $c")
 			end
 
 			# Get exponent vector for this term
