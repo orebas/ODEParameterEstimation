@@ -89,7 +89,14 @@ function baryEval(z, f::Vector{T}, x::Vector{T}, w::Vector{T}, tol = 1e-13) wher
 		t = w[j] / (z - x[j])
 		num += t * f[j]
 		den += t
-		if ((z - x[j])^2 < sqrt(tol))
+		# Near-node special case: fire only essentially AT a support point — the
+		# barycentric form is forward-stable arbitrarily close to nodes; only an
+		# exact hit divides by zero. The old `(z-x)^2 < sqrt(tol)` test was a
+		# |z-x| < ~5.6e-4 window, wide enough to contain a NEIGHBORING node on
+		# dense grids, and its last-match overwrite then corrupted the
+		# special-case formula. Record the first match; a second match within
+		# ~1e-13 would mean duplicate support points.
+		if (breakindex == -1) && (abs(z - x[j]) < tol)
 			breakflag = true
 			breakindex = j
 		end
