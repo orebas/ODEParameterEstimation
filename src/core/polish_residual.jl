@@ -342,7 +342,16 @@ function _polish_single_residual(
 	end
 	final_norm = norm(final_residual)
 
-	p_opt_internal, objective_residual = if isfinite(final_norm) && final_norm <= initial_norm
+	# Fail fast: if NO residual evaluation ever solved the ODE successfully
+	# (every call sentinel-filled), both norms are sentinel artifacts — the
+	# comparison below is meaningless and previously kept the optimizer's
+	# wander-point while reporting a plausible-looking objective. Revert to the
+	# seed and mark the result instead.
+	polish_all_sentinel = residual_success_count[] == 0
+
+	p_opt_internal, objective_residual = if polish_all_sentinel
+		p0_internal, initial_residual
+	elseif isfinite(final_norm) && final_norm <= initial_norm
 		candidate_internal, final_residual
 	else
 		p0_internal, initial_residual
@@ -371,6 +380,9 @@ function _polish_single_residual(
 	# Use ONLY the trajectory-fit portion of the residual when reporting err — exclude
 	# the λ-augmented rows so the err is comparable across λ values.
 	final_obj = sum(abs2, @view objective_residual[1:n_obs_residual])
+	# All-sentinel polish: the model was never evaluated — report an honest Inf,
+	# not a sentinel-norm that looks like a (terrible but real) fit.
+	polish_all_sentinel && (final_obj = Inf)
 
 	states_out = OrderedDict(s => ic_opt[ctx.state_index[s]] for s in ctx.state_syms_out if haskey(ctx.state_index, s))
 	params_out = OrderedDict(p => param_opt[ctx.param_index[p]] for p in ctx.param_syms_out if haskey(ctx.param_index, p))
@@ -394,6 +406,9 @@ function _polish_single_residual(
 	if timed_out
 		push!(final_result.provenance.notes, :polish_maxtime_exceeded)
 	end
+	if polish_all_sentinel
+		push!(final_result.provenance.notes, :polish_all_sentinel)
+	end
 	sync_result_contract!(final_result)
 	_record_detailed_timing!((
 		category = :polish_single_residual,
@@ -415,7 +430,8 @@ function _polish_single_residual(
 		initial_norm = initial_norm,
 		final_norm = final_norm,
 		timed_out = timed_out,
-		reverted_to_seed = !(isfinite(final_norm) && final_norm <= initial_norm),
+		reverted_to_seed = polish_all_sentinel || !(isfinite(final_norm) && final_norm <= initial_norm),
+		polish_all_sentinel = polish_all_sentinel,
 		final_obj = final_obj,
 	))
 	return final_result, solver_result
