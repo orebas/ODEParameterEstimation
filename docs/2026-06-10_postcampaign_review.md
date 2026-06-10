@@ -96,20 +96,26 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ## P2 — organization & structure (mostly behavior-preserving moves)
 
-- [ ] **Adjudicate the legacy non-SI-template multishot path (~1,050 lines):**
+- [x] **(DONE 1990836)** Adjudicate the legacy non-SI-template multishot path (~1,050 lines):**
   zero external callers, `use_si_template=false` set NOWHERE, and the branch
   hard-crashes anyway (`use_adaptive_id` undefined at `optimized_multishot:3041`;
   `process_single_solution` defined nowhere). Archive it + make
   `use_si_template=false` error clearly. This also deletes the heaviest
   unconditional-println offenders. VERIFIED.
-- [ ] **The `if (false)` dead chain** (~400 lines): helpers:922-1010 →
+- [x] **(DONE 778adfd)** The `if (false)` dead chain (~400 lines): helpers:922-1010 →
   `construct_multipoint_equation_system!` (contains its own undefined-`opts`
   crash) → `construct_equation_system` → `evaluate_poly_system`. Archive.
   VERIFIED.
 - [ ] **Move `abstract type AbstractInterpolator` to types/core_types.jl**
   (currently `derivatives.jl:7`; one fragile load-order class). S/BP.
-- [ ] **Evict the ~300-line research-only types block** (`core_types.jl:848-1148`,
-  zero production uses) → `src/research/research_types.jl`. M/BP.
+- [x] **(DONE, gating)** Evict the research-only types block →
+  `src/research/research_types.jl` (322 lines). PROBE CORRECTED the tracker: the
+  cluster's only "production" refs were the module's own `export` lines (165-170);
+  but `TimingPhaseEntry`/`TimingBreakdown` were textually **interleaved** at
+  936-948 and ARE production (`optimized_multishot` uses TimingBreakdown), so they
+  stayed. Moved two segments (848-934 + 950-1168) around them. core_types.jl
+  1242→934 lines. New include at module:107, before the research/*.jl that
+  construct these. Load-smoke: all 12 types defined+exported. S=2-segment, not 1.
 - [ ] **One-directionalize the diagnostics chunks** (move 4 `_write_html_uq*`
   writers + `_ROLE_*`/`_tokenize_equation` into html_report;
   `_compile_system_function` into feasibility_sensitivity; relocate svg_plots.jl
@@ -118,12 +124,21 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   timing/legacy/main(+seams); parameter_estimation → 7 clusters incl. a
   `core/polish/` pairing with polish_residual.jl. Execute after the P0/P1 fixes
   settle. M/BP.
-- [ ] Housekeeping bundle (one commit): delete `src/untestedlinter.jl` (zero
-  uses), empty `src/examples/pointpicker.jl`, empty `src/archives/`; move
-  `src/diagnostics/analytical_branch_oracle.jl` → research/repro; dedupe export
-  list (26 doubles); fix module:75 include-order comment; evict `.txt`/`.py`
-  artifacts from `src/examples/benchmarks/`; fix-or-delete the broken
-  `src/examples/petab/petab-ODEPE.jl`. S/BP.
+- [ ] Housekeeping bundle (one commit) — VERIFIED 2026-06-10, several tracker
+  claims corrected:
+  - `src/untestedlinter.jl`: NOT zero-use — it's `include`d at module:62 (defines
+    `module SimpleUnusedLinter` / `@lintfun`, a dev lint macro with ZERO external
+    uses). Drop the include line + the file.
+  - `src/examples/pointpicker.jl` (0 lines): orphan, NOT included → delete. NB the
+    live `core/pointpicker.jl` (19 lines, module:79) is a DIFFERENT file — keep it.
+  - `src/archives/` holds only an empty `examples/` subdir (no files) → delete tree.
+  - `src/diagnostics/analytical_branch_oracle.jl`: the whole `src/diagnostics/` dir
+    is out-of-build (no include) and holds only this file → move to repro/.
+  - dedupe export list: confirmed exactly 26 doubles (24 `Interpolator*` enum names
+    + `analyze_estimation_result`, `optimized_multishot_parameter_estimation`, `seir`).
+  - evict 3 `.txt` from `src/examples/benchmarks/` (no `.py` present).
+  - module:75 comment looks CORRECT on inspection — skip unless re-confirmed wrong.
+  - `petab-ODEPE.jl`: LEAVE — Oren decision (fix-or-retire) pending. S/BP.
 - [ ] Dead consts in core_types (`IMAG_THRESHOLD` 0 uses; `MAX_ERROR_THRESHOLD`/
   `MAX_SOLUTIONS` comment-only) duplicate option fields; `cluster_solutions`
   ignores `opts.clustering_threshold` in favor of the const. Reconcile. S/SEM-lite.

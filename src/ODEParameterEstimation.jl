@@ -104,6 +104,7 @@ include("core/diagnostics/uq_and_reports.jl")
 # Research / benchmark-only consensus + sweep tooling (NOT in the estimation pipeline).
 # Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
 # only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
+include("research/research_types.jl")
 include("research/consensus_estimation.jl")
 include("research/consensus_reporting.jl")
 include("research/synthesized_finalizer.jl")
