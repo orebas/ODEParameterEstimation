@@ -106,8 +106,8 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   `construct_multipoint_equation_system!` (contains its own undefined-`opts`
   crash) → `construct_equation_system` → `evaluate_poly_system`. Archive.
   VERIFIED.
-- [ ] **Move `abstract type AbstractInterpolator` to types/core_types.jl**
-  (currently `derivatives.jl:7`, module:88). CONFIRMED a REAL latent hazard, not
+- [x] **(DONE)** Move `abstract type AbstractInterpolator` to types/core_types.jl
+  (was `derivatives.jl:7`, module:88). CONFIRMED a REAL latent hazard, not
   hypothetical: `parameter_estimation.jl` (module:**81**, seven includes EARLIER)
   annotates `Dict{Num, AbstractInterpolator}` at :123/141/142 — it only loads
   because those refs are inside function bodies (evaluated at call-time). Any
@@ -122,18 +122,21 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   stayed. Moved two segments (848-934 + 950-1168) around them. core_types.jl
   1242→934 lines. New include at module:107, before the research/*.jl that
   construct these. Load-smoke: all 12 types defined+exported. S=2-segment, not 1.
-- [ ] **One-directionalize the diagnostics chunks.** MAPPED 2026-06-10 — 2 are
-  REAL backward-dep load-order bugs (lazy-eval-only survival, same class as
-  AbstractInterpolator), 2 are cohesion-only:
-  - BUG: `_write_html_uq_section`+`_write_html_uq_summary_cards` defined in
-    `uq_and_reports.jl` (incl #102, LAST) but called from `html_report.jl` (#101)
-    → move the 2 writers up into html_report.jl.
-  - BUG: `_compile_system_function` defined in `error_budget.jl` (#99) but called
-    from `feasibility_sensitivity.jl` (#98) → move it into feasibility_sensitivity.
-  - cohesion (forward, not a bug): `_tokenize_equation` (orchestrators #100 →
-    html_report #101) move for locality; relocate `core/svg_plots.jl` (#94) under
-    `core/diagnostics/`. NB `_ROLE_*` already split correctly (orchestrators has
-    `_ROLE_COLORS/_ROLE_LABELS`, html_report has its own `_HTML_ROLE_COLORS`). S/BP.
+- [ ] **One-directionalize the diagnostics chunks.** MAPPED 2026-06-10. ACCURACY:
+  these are NOT active bugs — every backward ref is in a function BODY or
+  return-type annotation, which Julia resolves at CALL time, so they load fine
+  today (same as AbstractInterpolator). They're fragile-to-future-change (an
+  argument-position `::T` or top-level use in the earlier file WOULD break) +ill-
+  located. Move for robustness+cohesion, not to fix a break:
+  - `_write_html_uq_section` (uq_and_reports.jl:336-458) + `_write_html_uq_summary_cards`
+    (473-482) called ONLY in html_report.jl (#101); defined in uq_and_reports (#102,
+    later). Move both up into html_report.jl. Clean (no self-file callers).
+  - `_compile_system_function` (error_budget.jl:987-1010) called in BOTH
+    feasibility_sensitivity.jl (#98, earlier→currently backward) AND error_budget
+    (#99). Move to feasibility_sensitivity (the EARLIER file) → both calls forward.
+  - cohesion only: `_tokenize_equation` (orchestrators #100 → html_report #101,
+    already forward) for locality; relocate `core/svg_plots.jl` (#94) under
+    `core/diagnostics/`. `_ROLE_*` already split correctly. S/BP.
 - [ ] **God-file split maps ready** (lane-2 §3): optimized_multishot →
   timing/legacy/main(+seams); parameter_estimation → 7 clusters incl. a
   `core/polish/` pairing with polish_residual.jl. Execute after the P0/P1 fixes

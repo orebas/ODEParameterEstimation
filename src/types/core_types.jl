@@ -4,6 +4,19 @@ using OrdinaryDiffEq
 using SciMLBase
 
 """
+	AbstractInterpolator
+
+Abstract type for interpolation function objects.
+All interpolators should be callable with a single argument and return the interpolated value.
+
+Defined here (not in core/derivatives.jl) so the type exists before any file that
+annotates with it — `parameter_estimation.jl` (included earlier than derivatives.jl)
+references `Dict{Num, AbstractInterpolator}`, which previously survived only by lazy
+in-function evaluation.
+"""
+abstract type AbstractInterpolator end
+
+"""
     OrderedODESystem
 
 Struct representing an ODESystem with ordered parameters and states.

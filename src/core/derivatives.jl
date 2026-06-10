@@ -1,10 +1,6 @@
-"""
-	AbstractInterpolator
-
-Abstract type for interpolation function objects.
-All interpolators should be callable with a single argument and return the interpolated value.
-"""
-abstract type AbstractInterpolator end
+# `abstract type AbstractInterpolator` now lives in types/core_types.jl (loaded
+# before this file) — it is annotated by parameter_estimation.jl, which is included
+# earlier than this file, so the definition must precede the whole core/ cluster.
 
 const TAYLORDIFF_MAX_DERIVATIVE_ORDER = 20
 
@@ -188,7 +184,7 @@ end
 (y::GPRapprox)(z) = y.gp_function(z)
 (y::AGPInterpolator)(z) = y.mean_function(z)
 
-# AbstractInterpolator is defined at the top of the file
+# AbstractInterpolator is defined in types/core_types.jl (loaded before this file)
 
 """
 	nth_deriv_at_DEPRECATED_USE_NTH_DERIV(f, n::Int, t::Real) -> Real
