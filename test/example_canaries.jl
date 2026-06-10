@@ -1,5 +1,7 @@
 using Test
 using Logging
+using ModelingToolkit
+using OrderedCollections
 
 function quiet_call(f)
     redirect_stdout(devnull) do
@@ -70,6 +72,46 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         for (param, true_value) in pep.p_true
             @test best.parameters[param] ≈ true_value atol = 1e-6 rtol = 1e-6
         end
+    end
+
+    @testset "underscore-digit names recover distinctly (k_1/k_2, x_1/x_2)" begin
+        # Regression for review P0#4 (fixed 2026-06-09): lookup_value's base-name
+        # fallback treated a parameter's own trailing _1 as a jet suffix, so k_1
+        # and k_2 BOTH resolved to template variable k_2_0 — k_1 silently received
+        # k_2's value. Underscore-digit names are common chemistry/biology naming.
+        function underscore_digit_model()
+            t = ModelingToolkit.t_nounits
+            D = ModelingToolkit.D_nounits
+            parameters = @parameters k_1 k_2
+            states = @variables x_1(t) x_2(t)
+            @variables y1(t) y2(t)
+            equations = [
+                D(x_1) ~ -k_1 * x_2,
+                D(x_2) ~ k_2 * x_1,
+            ]
+            measured_quantities = [y1 ~ x_1, y2 ~ x_2]
+            model, mq = ODEParameterEstimation.create_ordered_ode_system(
+                "underscore_digit", states, parameters, equations, measured_quantities)
+            return ODEParameterEstimation.ParameterEstimationProblem(
+                "underscore_digit", model, mq, nothing, nothing, nothing,
+                OrderedDict(parameters .=> [0.4, 0.8]),
+                OrderedDict(states .=> [0.333, 0.667]),
+                0,
+            )
+        end
+
+        pep, raw_results, analysis, _ = run_canary(underscore_digit_model, FAST_STANDARD_OPTS)
+        best = best_cluster_solution(analysis)
+
+        @test !isempty(raw_results[1])
+        @test !isnothing(best)
+        @test analysis[2] < 1e-6
+        for (param, true_value) in pep.p_true
+            @test best.parameters[param] ≈ true_value atol = 1e-6 rtol = 1e-6
+        end
+        # The bug's signature: k_1 and k_2 collapsed to one value. Assert distinct.
+        param_by_name = Dict(replace(string(k), "(t)" => "") => Float64(v) for (k, v) in best.parameters)
+        @test !isapprox(param_by_name["k_1"], param_by_name["k_2"]; rtol = 1e-3)
     end
 
     @testset "lotka-volterra has an accurate solution cluster" begin

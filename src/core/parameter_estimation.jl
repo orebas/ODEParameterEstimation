@@ -1639,7 +1639,7 @@ function lookup_value(var, var_search, soln_index::Int,
 
 	# Heuristic fallback: map model-style names to SI template names
 	if isnothing(index)
-		# Convert x(t) -> x_0, k5 -> k5_0, xˍt -> x_1, xˍtt -> x_2, etc.
+		# Convert x(t) -> x_0, k5 -> k5_0, k_1 -> k_1_0, xˍt -> x_1, xˍtt -> x_2, etc.
 		try
 			# Unwrap Num or other wrappers to get the core symbol/expression
 			core = try
@@ -1682,28 +1682,32 @@ function lookup_value(var, var_search, soln_index::Int,
 				name_str = replace(name_str, "ˍt" => "")
 				deriv_count += 1
 			end
-			# If already has a _n suffix, keep it; otherwise append _n (parameters get _0)
+			# Candidate template names, in order:
+			#   1. The FULL model-style name + "_<deriv_count>". A parameter named
+			#      k_1 must map to the jet variable k_1_0 — treating its trailing
+			#      _1 as a derivative order collided distinct parameters onto one
+			#      template variable (k_1 AND k_2 both resolved to k_2_0 via the
+			#      base-name startswith fallback below; review P0#4).
+			#   2. If the name already carries a _n suffix, the name verbatim
+			#      (covers callers that pass jet-style names like y1_2 directly).
 			has_suffix = occursin(r"_[0-9]+$", name_str)
-			suffix = has_suffix ? "" : string("_", deriv_count)
-			fallback_sym = Symbolics.variable(Symbol(name_str * suffix))
-			fallback_str = string(fallback_sym)
-
-			index = findfirst(isequal(fallback_sym), final_varlist)
-			if isnothing(index)
-				index = findfirst(isequal(fallback_sym), trimmed_varlist)
-			end
-
-			# Final string-based search as last resort
-			if isnothing(index)
-				idx_str = findfirst(i -> string(final_varlist[i]) == fallback_str, eachindex(final_varlist))
-				if !isnothing(idx_str)
-					index = idx_str
-				else
-					idx_str = findfirst(i -> string(trimmed_varlist[i]) == fallback_str, eachindex(trimmed_varlist))
-					if !isnothing(idx_str)
-						index = idx_str
-					end
+			fallback_candidates = [name_str * string("_", deriv_count)]
+			has_suffix && push!(fallback_candidates, name_str)
+			for fallback_str in fallback_candidates
+				fallback_sym = Symbolics.variable(Symbol(fallback_str))
+				index = findfirst(isequal(fallback_sym), final_varlist)
+				if isnothing(index)
+					index = findfirst(isequal(fallback_sym), trimmed_varlist)
 				end
+				# String-based comparison for this candidate as a fallback
+				if isnothing(index)
+					idx_str = findfirst(i -> string(final_varlist[i]) == fallback_str, eachindex(final_varlist))
+					if isnothing(idx_str)
+						idx_str = findfirst(i -> string(trimmed_varlist[i]) == fallback_str, eachindex(trimmed_varlist))
+					end
+					isnothing(idx_str) || (index = idx_str)
+				end
+				isnothing(index) || break
 			end
 
 			# Extra base-name fallback: prefer `_0`, then any `_n`
