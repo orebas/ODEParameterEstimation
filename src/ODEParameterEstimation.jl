@@ -93,7 +93,14 @@ include("core/synthesize_aggregates.jl")  # Per-component median/mean/trim25 syn
 include("core/uncertainty_quantification.jl")  # UQ via GP derivative covariances and IFT
 include("core/sampling.jl")
 include("core/svg_plots.jl")
-include("core/diagnostics.jl")
+# diagnostics.jl (5,443 lines) split 2026-06-10 along its section seams (Phase F2);
+# original include order preserved.
+include("core/diagnostics/taylor_oracle.jl")
+include("core/diagnostics/feasibility_sensitivity.jl")
+include("core/diagnostics/error_budget.jl")
+include("core/diagnostics/orchestrators.jl")
+include("core/diagnostics/html_report.jl")
+include("core/diagnostics/uq_and_reports.jl")
 # Research / benchmark-only consensus + sweep tooling (NOT in the estimation pipeline).
 # Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
 # only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
@@ -130,7 +137,7 @@ export InterpolatorS2AAAMLE, InterpolatorS3AdaptSE, InterpolatorS3AdaptRQ, Inter
 export InterpolatorS3BICSE, InterpolatorS3BICRQ, InterpolatorS3BICSEpRQ, InterpolatorS3BICSExRQ, InterpolatorS3BICMatern52
 export InterpolatorChebyshevAICc, InterpolatorChebyshevBIC, InterpolatorFourierAdaptive, InterpolatorAGPUQ, InterpolatorCustom
 export AGPInterpolator, agp_gpr, agp_gpr_robust, mean_and_var
-export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, FourierSeries, solve_with_nlopt, solve_with_fast_nlopt
+export calculate_observable_derivatives, create_interpolants, AbstractInterpolator, solve_with_nlopt, solve_with_fast_nlopt
 export solve_with_hc_parameterized, convert_to_hc_format_with_params, extract_data_variables_from_DD, evaluate_data_vars_at_point
 export MultiPointTemplate, MultiPointEvaluation, build_multipoint_template, evaluate_multipoint_template, solve_multipoint_direct, solve_multipoint_parameterized, select_time_point_pairs
 export select_time_point_pairs_gp_quality, select_time_point_pairs_sensitivity, select_time_point_pairs_homotopy_probed
