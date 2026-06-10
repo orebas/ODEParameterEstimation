@@ -977,3 +977,38 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	return results_tuple, results_tuple_to_return, uq_result
 
 end
+
+
+# _compile_system_function: a general symbolic->callable compiler (Symbolics.build_function
+# wrapper). Lives here, included before all callers (multipoint_template #86,
+# noise_frontier_construction #87, diagnostics #98/#99, research/consensus #107), so every
+# caller resolves it forward. Relocated out of diagnostics 2026-06-10.
+"""
+Compile a vector of symbolic equations into a callable `f(x) → Vector{Float64}`
+via `Symbolics.build_function`. Falls back to substitution-based evaluation.
+The compiled function is compatible with ForwardDiff dual numbers.
+"""
+function _compile_system_function(equations, varlist)
+    try
+        # build_function with expression=Val(false) returns a compiled Julia function
+        fn = Symbolics.build_function(equations, varlist; expression = Val(false))
+        # build_function returns (out-of-place, in-place); take out-of-place
+        f_oop = fn isa Tuple ? fn[1] : fn
+        return f_oop
+    catch e
+        @warn "[compile_system_function] build_function failed, using substitution fallback: $e"
+        # Fallback: closure over symbolic substitution (works but no AD)
+        return function (vals)
+            subst_dict = Dict(varlist[i] => vals[i] for i in eachindex(varlist))
+            result = zeros(eltype(vals), length(equations))
+            for (i, eq) in enumerate(equations)
+                result[i] = try
+                    Float64(Symbolics.value(Symbolics.substitute(eq, subst_dict)))
+                catch
+                    eltype(vals)(NaN)
+                end
+            end
+            return result
+        end
+    end
+end

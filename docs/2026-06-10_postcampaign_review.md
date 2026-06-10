@@ -134,10 +134,10 @@ surface (261 unique exports) plus two god files remain the big structural debts.
   REAL fix is relocation to a core util module (NEW FOLLOW-UP below). Skipped the
   2 cohesion-only sub-items (`_tokenize_equation` already forward; svg_plots.jl
   dir relocation) — low value, defer. 755/755.
-  - [ ] FOLLOW-UP: relocate `_compile_system_function` (symbolic→callable compiler,
-    `Symbolics.build_function` wrapper) out of diagnostics to a core util file
-    included before multipoint_template.jl, so its 4 core/research callers stop
-    reaching forward into diagnostics. S/BP.
+  - [x] **(DONE)** FOLLOW-UP: relocated `_compile_system_function` → core/
+    analysis_utils.jl (#69, before all callers: multipoint_template #86,
+    noise_frontier #87, diagnostics #98/#99, consensus #107) — now forward-only
+    everywhere; neutralized the `[DIAG]` warn tag. 755/755.
 - [ ] (superseded) One-directionalize the diagnostics chunks. MAPPED 2026-06-10. ACCURACY:
   these are NOT active bugs — every backward ref is in a function BODY or
   return-type annotation, which Julia resolves at CALL time, so they load fine
