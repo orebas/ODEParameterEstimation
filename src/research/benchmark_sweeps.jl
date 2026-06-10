@@ -114,7 +114,6 @@ function _default_sweep_estimation_options()
         use_multipoint = true,
         multipoint_n_points = 2,
         multipoint_max_pairs = 4,
-        max_solutions = 30,
         system_solver = SolverHC,
         flow = FlowStandard,
         use_si_template = true,

@@ -65,7 +65,6 @@ est_opts = EstimationOptions(
     use_multipoint = true,
     multipoint_n_points = 2,
     multipoint_max_pairs = 4,
-    max_solutions = 30,
 )
 
 base_consensus_opts = ConsensusOptions(

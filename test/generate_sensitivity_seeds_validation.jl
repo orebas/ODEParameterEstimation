@@ -278,7 +278,6 @@ function _run_case(pep, case_label::AbstractString)
         use_multipoint = true,
         multipoint_n_points = 2,
         multipoint_max_pairs = 4,
-        max_solutions = 30,
     )
     no_polish_opts = ODEPE.merge_options(polish_opts; polish_solutions = false)
 

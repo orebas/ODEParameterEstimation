@@ -151,9 +151,6 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Solution Filtering and Validation
 - `imag_threshold::Float64`: Threshold for ignoring imaginary components (default: 1e-8)
 - `clustering_threshold::Float64`: Threshold for solution clustering (default: 1e-5)
-- `max_error_threshold::Float64`: Maximum acceptable error for valid solutions (default: 0.5)
-- `verification_threshold::Float64`: Threshold for solution verification (default: 1e-8)
-- `complex_threshold::Float64`: Threshold for detecting complex numbers (default: 1e-10)
 
 ## Multi-shot Parameters
 - `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 12)
@@ -163,8 +160,6 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## Derivative and Reconstruction Parameters
 - `max_deriv_level::Int`: Maximum allowed derivative level (default: 10)
-- `max_reconstruction_attempts::Int`: Max attempts to reconstruct non-zero-dimensional systems (default: 10)
-- `digits::Int`: Precision for rational number conversion (default: 10)
 
 ## Optimization Parameters
 - `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
@@ -232,15 +227,11 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## StructuralIdentifiability Parameters
 - `si_probability::Float64`: Probability threshold for identifiability analysis (default: 0.99)
-- `si_p_mod::Float64`: Modified probability parameter (default: 0.0)
 - `si_infolevel::Int`: Information level for SI.jl output (default: 0)
 
 ## File I/O
 - `log_dir::String`: Directory for log files (default: "logs")
 - `save_filepath::String`: Path for saving polynomial systems (default: "")
-
-## Solution Limits
-- `max_solutions::Int`: Maximum number of solutions to consider (default: 100)
 
 # Constructors
 
@@ -303,9 +294,6 @@ Base.@kwdef struct EstimationOptions
 	# Solution Filtering and Validation
 	imag_threshold::Float64 = 1e-8
 	clustering_threshold::Float64 = 1e-5
-	max_error_threshold::Float64 = 0.5
-	verification_threshold::Float64 = 1e-8
-	complex_threshold::Float64 = 1e-10
 
 	# Branch detection (Phase B candidate-reduction). When enabled, replaces the
 	# legacy "cluster threshold 0.001 + oracle sort" pipeline with two stages:
@@ -440,8 +428,6 @@ Base.@kwdef struct EstimationOptions
 
 	# Derivative and Reconstruction Parameters
 	max_deriv_level::Int = 10
-	max_reconstruction_attempts::Int = 10
-	digits::Int = 10
 
 	# Optimization Parameters
 	polish_solutions::Bool = false
@@ -602,15 +588,11 @@ Base.@kwdef struct EstimationOptions
 
 	# StructuralIdentifiability Parameters
 	si_probability::Float64 = 0.99
-	si_p_mod::Float64 = 0.0
 	si_infolevel::Int = 0
 
 	# File I/O
 	log_dir::String = "logs"
 	save_filepath::String = ""
-
-	# Solution Limits
-	max_solutions::Int = 100
 end
 
 """
@@ -1451,10 +1433,9 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 	categories = [
 		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator, :interpolators]),
 		("Tolerances", [:abstol, :reltol, :rtol, :output_precision]),
-		("Solution Validation", [:imag_threshold, :clustering_threshold, :max_error_threshold,
-			:verification_threshold, :complex_threshold]),
+		("Solution Validation", [:imag_threshold, :clustering_threshold]),
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
-		("Derivatives and Reconstruction", [:max_deriv_level, :max_reconstruction_attempts, :digits]),
+		("Derivatives and Reconstruction", [:max_deriv_level]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :opt_ad_backend, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
 		("SHADE+LM Baseline", [:shade_total_max_evals, :shade_total_max_time, :shade_global_eval_fraction,
@@ -1469,9 +1450,8 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
 			:construction_beam_width, :construction_compute_mixed_volume]),
 		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
-		("StructuralIdentifiability", [:si_probability, :si_p_mod, :si_infolevel]),
+		("StructuralIdentifiability", [:si_probability, :si_infolevel]),
 		("File I/O", [:log_dir, :save_filepath]),
-		("Limits", [:max_solutions]),
 	]
 
 	for (category, fields) in categories
@@ -1506,26 +1486,7 @@ end
 # Define show method for pretty printing
 Base.show(io::IO, opts::EstimationOptions) = print_options(io, opts; compact = true)
 
-"""
-	get_solver_options_dict(opts::EstimationOptions) -> Dict
-
-Extract solver-specific options as a Dict for backward compatibility with existing solver functions.
-"""
-function get_solver_options_dict(opts::EstimationOptions)
-	return Dict(
-		:debug_solver => opts.debug_solver,
-		:debug_cas_diagnostics => opts.debug_cas_diagnostics,
-		:debug_dimensional_analysis => opts.debug_dimensional_analysis,
-		:output_precision => opts.output_precision,
-		:abstol => opts.abstol,
-		:reltol => opts.reltol,
-		:display_system => opts.display_system,
-		:save_system => opts.save_system,
-		:save_filepath => opts.save_filepath,
-		:use_monodromy => opts.use_monodromy,
-		:real_tol => opts.hc_real_tol,
-		:show_progress => opts.hc_show_progress,
-		:polish_only => opts.polish_only,
-		:maxiters => opts.opt_maxiters,
-	)
-end
+# get_solver_options_dict (the legacy options::Dict bridge) was removed 2026-06-10:
+# exported but had zero callers anywhere (src/, test/, PEB). The fields it forwarded
+# (:display_system, :polish_only, :use_monodromy, :save_filepath, :output_precision)
+# are wave-2 cleanup candidates — no solver consumes those Dict keys.
