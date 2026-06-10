@@ -90,4 +90,41 @@ import ModelingToolkit
 		# "t" key in data_sample no longer deflates the divisor.
 		@test err ≈ my_sum / n_obs rtol = 1e-6
 	end
+
+	# --- Phase C1: legacy-path homotopy data evaluator ---------------------
+	# Locks two behaviors of evaluate_data_vars_at_point:
+	#  (1) analytic transformed observables (y ~ _trfn_*) with no data-fitted
+	#      interpolant resolve in CLOSED FORM from the observable RHS — the
+	#      quoll-era pipeline injected 0.0 for these (34k hits on cstr/bicycle
+	#      benchmark logs), silently corrupting the homotopy data;
+	#  (2) a genuinely unresolvable data variable yields NaN (visible failure),
+	#      never 0.0 (fake data).
+	@testset "evaluate_data_vars_at_point: analytic observables + NaN fail-fast" begin
+		t = ModelingToolkit.t_nounits
+		ModelingToolkit.@variables y1(t) y3(t) x1(t) _trfn_cos_0_5(t)
+		mq = [y1 ~ x1, y3 ~ _trfn_cos_0_5]
+		jets = ModelingToolkit.@variables y1_0 y1_1 y1_2 y3_0 y3_1 y3_2 zz_unmapped
+		NumT = ModelingToolkit.Num
+		DD = ODEParameterEstimation.DerivativeData(
+			Vector{Vector{NumT}}(), Vector{Vector{NumT}}(),
+			Vector{Vector{NumT}}(), Vector{Vector{NumT}}(),
+			Vector{Vector{NumT}}(), Vector{Vector{NumT}}(),
+			Vector{Vector{NumT}}(), Vector{Vector{NumT}}(),
+			Set{NumT}(),
+		)
+		DD.obs_lhs = [[jets[1], jets[4]], [jets[2], jets[5]], [jets[3], jets[6]]]
+		# Interpolant ONLY for observable 1 (y1 ~ x1); observable 2 is analytic.
+		interps = Dict{Any, Any}(ModelingToolkit.diff2term(mq[1].rhs) => (x -> 2.0 * x))
+		data_vars = Any[jets[1], jets[2], jets[3], jets[4], jets[5], jets[6], jets[7]]
+		tp = 0.7
+		vals = ODEParameterEstimation.evaluate_data_vars_at_point(interps, data_vars, DD, mq, tp)
+
+		@test vals[1] ≈ 2.0 * tp atol = 1e-10          # y1_0 via interpolant
+		@test vals[2] ≈ 2.0 atol = 1e-8                # y1_1 = d/dt 2t
+		@test vals[3] ≈ 0.0 atol = 1e-8                # y1_2 = 0
+		@test vals[4] ≈ cos(0.5 * tp) atol = 1e-10     # y3_0 analytic (cos(0.5t))
+		@test vals[5] ≈ -0.5 * sin(0.5 * tp) atol = 1e-10   # y3_1 analytic
+		@test vals[6] ≈ -0.25 * cos(0.5 * tp) atol = 1e-10  # y3_2 analytic
+		@test isnan(vals[7])                           # unmapped → NaN, never 0.0
+	end
 end

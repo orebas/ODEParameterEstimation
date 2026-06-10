@@ -1416,13 +1416,31 @@ function evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quant
 					val = nth_deriv(x -> interp_func(x), deriv_level, t_point)
 					push!(values, Float64(val))
 				else
-					@warn "No interpolant found for observable $obs_idx at derivative level $deriv_level"
-					push!(values, 0.0)
+					# Analytic transformed observables (y ~ _trfn_* / _obs_trfn_*)
+					# legitimately have no data-fitted interpolant — derive the
+					# value in closed form from the observable RHS. (The quoll-era
+					# pipeline named these jets y<k>_<n>, bypassed the trfn check
+					# above, and injected 0.0 here in place of REAL sin/cos
+					# derivative values — 34k hits across cstr/bicycle benchmark
+					# logs. Current naming resolves them at the trfn check; this
+					# branch is defense-in-depth for y-named analytic jets.)
+					rhs_base = replace(string(measured_quantities[obs_idx].rhs), r"\(t\)$" => "")
+					analytic_name = deriv_level == 0 ? rhs_base : string(rhs_base, "_", deriv_level)
+					aval = evaluate_known_trfn_variable(analytic_name, Float64(t_point))
+					isnothing(aval) && (aval = evaluate_obs_trfn_template_variable(analytic_name, Float64(t_point)))
+					if !isnothing(aval)
+						push!(values, Float64(aval))
+					else
+						# Fail fast: a missing interpolant must not masquerade as
+						# data = 0.0; NaN fails visibly downstream.
+						@warn "No interpolant found for observable $obs_idx at derivative level $deriv_level"
+						push!(values, NaN)
+					end
 				end
 			end
 		else
 			@warn "Data variable $v not found in DD.obs_lhs mapping"
-			push!(values, 0.0)
+			push!(values, NaN)
 		end
 	end
 

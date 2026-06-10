@@ -970,8 +970,10 @@ function evaluate_multipoint_template(
             parsed = parse_derivative_variable_name(clean_name)
             if isnothing(parsed)
                 parse_lookup_seconds += time() - t_parse
+                # Fail fast: NaN (not 0.0) — the downstream all(isfinite, …)
+                # guards reject this combo instead of solving a wrong system.
                 @warn "[MPT-EVAL] Cannot parse data variable: $dv_name (clean=$clean_name)"
-                push!(data_values, 0.0)
+                push!(data_values, NaN)
                 continue
             end
             base_name, deriv_order = parsed
@@ -1008,8 +1010,9 @@ function evaluate_multipoint_template(
             end
 
             if isnothing(val)
+                # Fail fast: NaN (not 0.0) — rejected by the all(isfinite, …) guards.
                 @warn "[MPT-EVAL] No interpolant for $dv_name (base=$base_name, order=$deriv_order, obs_idx=$obs_idx)"
-                push!(data_values, 0.0)
+                push!(data_values, NaN)
             else
                 push!(data_values, Float64(val))
             end

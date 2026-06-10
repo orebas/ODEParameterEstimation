@@ -155,15 +155,12 @@ function instantiate_si_template_equations(
 					rethrow()
 				end
 				if isnan(val)
-					@warn "[DEBUG-ODEPE-NaN] NaN detected from interpolator call." observable = obs_rhs deriv_order = i time_point = t_point
-					@warn "[DEBUG-ODEPE-NaN] The failing interpolator object is:" interpolator_object = obs_interp
-					t_near = t_point + 1e-9
-					val_near = try
-						nth_deriv(x -> obs_interp(x), i, t_near)
-					catch e
-						"Failed with error: $e"
-					end
-					@warn "[DEBUG-ODEPE-NaN] For comparison, value at nearby point t=$t_near is: $val_near"
+					# The NaN propagates into the instantiated template, where the
+					# downstream nonfinite guards reject this shooting point —
+					# visible failure, never silent data. (One structured warn;
+					# the old triple-warn + nearby-point probe was debug leftover
+					# that fired 951× across PEB logs.)
+					@warn "NaN derivative from interpolator; this shooting point's instantiation will be rejected downstream" observable = obs_rhs deriv_order = i time_point = t_point
 				end
 				interpolated_values_dict[lhs_var] = val
 			else
