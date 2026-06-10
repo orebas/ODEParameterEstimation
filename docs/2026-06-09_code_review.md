@@ -45,7 +45,7 @@ repo-hygiene pass. Nothing was modified during the review.
 
 ## P0 — Correctness bugs that can affect returned results
 
-- [ ] **#1 Reported `err` is silently deflated.** `parameter_estimation.jl:911-920`
+- [x] **#1 Reported `err` is silently deflated.** — **FIXED 2026-06-09** (`0517930`; safety-net `@test_broken` flipped to `@test`). `parameter_estimation.jl:911-920`
   (`process_raw_solution`) skips the `"t"` key when summing per-observable error
   but divides by `length(data_sample)`, which *includes* `"t"`. Every
   algebraic-path error is scaled by `n_obs/(n_obs+1)`, and `err` feeds candidate
@@ -59,8 +59,8 @@ repo-hygiene pass. Nothing was modified during the review.
   which flows downstream as a root. Every other call passes `only_nonsingular=false`.
   **Fix:** match the rest + filter non-finite coords.
 
-- [ ] **#3 AAA `baryEval` near-node tolerance is ~5.6e-4 wide and keeps only the
-  last coincident node.** `derivatives.jl:82,92`. The exact-point branch fires when
+- [x] **#3 AAA `baryEval` near-node tolerance is ~5.6e-4 wide and keeps only the
+  last coincident node.** — **FIXED 2026-06-09** (`1774cdd`). `derivatives.jl:82,92`. The exact-point branch fires when
   `(z-x[j])^2 < sqrt(1e-13)` i.e. `|z-x[j]| < 5.6e-4`, and the loop overwrites
   `breakindex` without breaking. On dense support points / short time intervals
   this returns wrong interpolated values that poison every downstream derivative.
@@ -74,6 +74,13 @@ repo-hygiene pass. Nothing was modified during the review.
   with an underscore-digit-suffixed state/param name is silently misclassified.
 
 - [ ] **#5 Legacy FD-Jacobian UQ produces meaningless covariance.**
+  **2026-06-09 re-scope: NOT dead — review's "no callers" was wrong.** Reachable via
+  `_compute_uq_result` (`analysis_utils.jl`) behind `opts.compute_uncertainty`
+  (default `false`, labeled experimental); `compute_parameter_covariance` /
+  `estimate_parameter_uncertainty` / `print_uncertainty_results` are exported and
+  exercised by non-CI `test/test_uncertainty_quantification.jl`. Deleting is a
+  feature decision: drop the experimental sidecar vs. rewire `_compute_uq_result`
+  to the good `diagnose_uncertainty` path. Deferred to Oren.
   `uncertainty_quantification.jl:850-887`. `compute_constraint_jacobians` maps
   every observable to `state_idx=1` then overrides by *substring* match (`y1`
   matches `y12`), and forces derivative constraints to `0` at both time boundaries
@@ -81,11 +88,21 @@ repo-hygiene pass. Nothing was modified during the review.
   the analytic IFT path in `diagnostics.jl`) — confirm and delete (~400 lines),
   else it's a covariance landmine.
 
-- [ ] **#6 Printed "95% CI" (±1.96σ) disagrees with the ✓/✗ coverage test (±2σ).**
+- [x] **#6 Printed "95% CI" (±1.96σ) disagrees with the ✓/✗ coverage test (±2σ).**
+  — **FIXED 2026-06-09** (`a3e9fcb`; shared `UQ_CI_Z = 1.96` in core_types.jl).
   `diagnostics.jl`. Coverage uses `|true−est| < 2σ` (`4972, 5045, 5217, 5331, 5369`)
   but the interval is drawn at `±1.96σ` (`5329-5330, 5367-5368, 5445-5446`). A value
   at 1.96σ–2σ renders outside the box yet marked "covered." Pick one constant.
   Most user-visible UQ bug.
+
+**Fixed post-review (found during the 2026-06-09 work, not in the original list):**
+- Auto-M `DomainError` on partially identifiable models: the auto
+  algebraic-multiplicity feature ran `Groebner.quotient_basis` on Pass 1 (detection)
+  of the structural-fix flow, where positive-dimensional ideals are by-design — it
+  crashed 6 tests. Gated to the final fixed pass + narrow DomainError guard
+  (`a320314`). NOT the Groebner heisenbug (PR #218 was in place and is unrelated).
+- `_LAST_ESTIMATION_AUTO_M` global-Ref leak: a stale M from an SI run truncated a
+  later direct-opt analysis. Consume-once at the read site (`f0447bb`).
 
 **Latent (currently only reachable via dead/legacy paths — fix when re-enabling):**
 - `optimized_multishot_estimation.jl:3028` — `use_adaptive_id` undefined; non-SI
