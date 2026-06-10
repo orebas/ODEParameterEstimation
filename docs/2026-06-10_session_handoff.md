@@ -49,10 +49,18 @@ left an unloadable tree once). `Pkg.test` ≠ the local include gate — verify 
 
 ## OPEN FINDING — :generic_start MP fanout perf bug (codex report 2026-06-10)
 
-Reported by codex on a 17h cstr_0_1em8 cell; adjudicated this session as **REAL,
-pre-existing, NOT touched by the campaign, still present** — a PERFORMANCE bug, not
-correctness. Detail in the answer below; not yet fixed (was a query, not a fix
-request). Lives at `src/core/homotopy_continuation.jl:943-964`.
+Reported by codex on a 17h cstr_0_1em8 cell; adjudicated as **REAL, pre-existing,
+NOT touched by the campaign** — a PERFORMANCE bug, not correctness.
+**FIXED 2026-06-10** (commit following this doc's): the completeness target now
+bumps with the fresh solve's FINITE solution count, never the only_finite=false
+path/endpoint count; plus an undercoverage `@warn` tripwire — which FIRED on its
+first probe run (fresh 7 finite vs anchor N=3 on a cstr MP combo), making the
+anchor-repair follow-up (monodromy_solve + trace test, design in the postcampaign
+review doc) non-speculative. Efficacy probe verified mechanics (no count-branch
+fresh-solves possible; this reduced config sits fully in the at-infinity blind spot
+so its fresh-solves are genuine); the original cell's 15h collapse is implied by
+codex's logged `3 < 393 genuinely short` discarded-finite pattern + arithmetic,
+not re-measured. Was at `src/core/homotopy_continuation.jl:943-964`.
 
 Root cause: in the `:generic_start` (default) MP path, after point 1's fanout comes
 up short and triggers a fresh `_hc_solve`, line 964 bumps the loop-persistent

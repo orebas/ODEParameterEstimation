@@ -961,7 +961,19 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				end
 				result = _hc_solve(hc_system; target_parameters = current_params, show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
-				initial_solution_count = max(initial_solution_count, length(HomotopyContinuation.solutions(result; only_nonsingular = false, only_finite = false)))
+				# Completeness target must stay a SOLUTION count (≈ the generic count N), NOT the fresh
+				# solve's only_finite=false endpoint count. The fan-out only ever tracks N generic
+				# solutions, so n_accounted ≤ N; bumping the target to the fresh solve's path/endpoint
+				# count (the homotopy path bound ~Bezout/BKK incl. at-infinity — e.g. 393) made
+				# `n_accounted < target` permanently true ⇒ EVERY subsequent point needlessly fresh-solved
+				# (the 15h-cstr blowup; report 2026-06-10). Use the FRESH FINITE count: it raises the
+				# target only on genuine generic-anchor undercoverage (fresh finds > N real solutions),
+				# the one case where fan-outs of N really are incomplete and should keep fresh-solving.
+				fresh_finite = length(all_solutions)
+				if fresh_finite > initial_solution_count
+					@warn "[HC-PARAM] Fresh solve found more finite solutions ($fresh_finite) than the generic-start anchor count ($initial_solution_count): generic anchor undercovered; subsequent fan-outs will fresh-solve." maxlog = 3
+				end
+				initial_solution_count = max(initial_solution_count, fresh_finite)
 			elseif debug
 				real_count = length(HomotopyContinuation.solutions(result, only_real = true, real_tol = real_tol))
 				println("[HC-PARAM] Point $i: fan-out complete ($n_accounted accounted, $(length(all_solutions)) finite, $real_count real)")

@@ -171,6 +171,40 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ---
 
+## Designed follow-up — :generic_start anchor repair (Oren's go-back question, 2026-06-10)
+
+The MP fan-out perf fix (target bumps with the fresh FINITE count, never the path
+count) leaves a designed-but-unbuilt follow-up. If the new `@warn` tripwire
+("fresh solve found more finite solutions than the generic-start anchor count")
+EVER fires in a real run, the anchor undercovered. **STATUS: first firing OBSERVED
+2026-06-10 on the cstr efficacy probe itself** (point 4 of an MP combo: fresh found
+7 finite vs anchor N=3; all complex/projected — dedup-verify step 1 below matters
+before trusting the 7). The follow-up is no longer speculative. — and since #isolated-finite at
+any parameter ≤ the generic count, that means the p0 anchor solve LOST roots, which
+also silently invalidates earlier points' "complete" fan-out verdicts. Plan (build
+on first observed firing, not speculatively):
+1. Dedup/verify the fresh M-solution set (clustered singular endpoints can inflate it).
+2. Repair the ANCHOR: γ-track the M solutions p_i → p0 (complex), merge into
+   `generic_start_solutions` → corrected N for all future points.
+3. Re-fan-out the repaired anchor to points 1..i-1 and dedup-merge into their kept
+   sets (tracking-priced, not fresh-solve-priced; all results are assembled before
+   return so go-back is local to solve_with_hc_parameterized).
+4. The deeper systematic fix is anchor-side completeness, and it is CHEAP (verified
+   against installed HC.jl, 2026-06-10): after the one-time anchor solve at p0, run
+   `monodromy_solve(...; trace_test = true)` seeded with the anchor solutions —
+   tops up missing roots AND certifies completeness via the trace test (LRS18);
+   standalone checker `verify_solution_completeness`. Cost is O(N_true) path-tracks
+   (~seconds at N=3..18), vs the mixed-cells + BKK-paths fresh solve (CPU-hours;
+   cstr MP: 393 paths for 3 solutions; receptor: 6402 for 18). Caveats: numerical
+   certificate (pass ⇒ high confidence; fail ⇒ investigate — false negatives
+   possible per HC's own docs); multi-component families make the trace fail
+   honestly (seed more, e.g. from one fresh solve's finite set). FREE cross-check
+   for SP systems: auto-M (quotient-basis dim) is already computed — anchor_N ≠ M
+   is an exact undercoverage detector. Column-scaled anchor solve additionally
+   reduces blind-spot path loss at p0 (receptor lesson). Detection via fan-out
+   shortfall alone is opportunistic and misses the all-fan-outs-track-cleanly
+   undercoverage case — the certificate closes that hole.
+
 ## Suggested execution order
 
 1. **Now:** P0#4 test-target deps (one line, our regression) → commit.
