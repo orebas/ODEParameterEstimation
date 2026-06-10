@@ -656,6 +656,25 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         @test report_multi isa ODEParameterEstimation.ComprehensiveDiagnosticReport
     end
 
+    @testset "diagnose writes HTML report to disk" begin
+        # Phase A smoke (insurance for the planned diagnostics.jl file split):
+        # the rest of CI only runs diagnose with html_report=false. Reports go to
+        # artifacts/diagnostics/<name>/ relative to pwd, so run inside a tempdir.
+        sampled = ODEParameterEstimation.sample_problem_data(
+            ODEParameterEstimation.simple(),
+            EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true))
+        mktempdir() do dir
+            cd(dir) do
+                quiet_feature_call() do
+                    diagnose(sampled; save_to_disk = true, html_report = true)
+                end
+                report_path = joinpath("artifacts", "diagnostics", "simple", "report.html")
+                @test isfile(report_path)
+                @test filesize(report_path) > 1000
+            end
+        end
+    end
+
     @testset "Auto-filter interpolators by noise" begin
         # Build a clean PEP and synthetic data with known noise levels.
         pep = ODEParameterEstimation.simple()

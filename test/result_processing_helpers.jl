@@ -225,4 +225,29 @@ end
         @test result.err < 1e-6
         @test result.provenance.source_shooting_index == 2
     end
+
+    @testset "lookup_value SIAN jet-name resolution contract" begin
+        # Synthetic SI-workflow varlist (jet-suffixed names), mirroring the P0#4
+        # scenario: MTK params k_1/k_2 and states x_1/x_2 must resolve to THEIR
+        # OWN jet-0 variables, never a neighbor's (the old base-name fallback
+        # mapped both k_1 and k_2 onto k_2_0).
+        t = ModelingToolkit.t_nounits
+        params = ModelingToolkit.@parameters k_1 k_2
+        states = ModelingToolkit.@variables x_1(t) x_2(t)
+        jetvars = ModelingToolkit.@variables x_2_0 x_1_0 k_2_0 x_2_1 k_1_0 x_1_1
+        varlist = Any[jetvars...]
+        solns = [[10.0, 20.0, 30.0, 40.0, 50.0, 60.0]]
+        lv(var) = ODEParameterEstimation.lookup_value(
+            var, var, 1, Dict{Any, Any}(), Dict{Any, Any}(), varlist, Any[], solns)
+
+        @test lv(params[1]) == 50.0   # k_1   → k_1_0 (NOT k_2_0)
+        @test lv(params[2]) == 30.0   # k_2   → k_2_0
+        @test lv(states[1]) == 20.0   # x_1(t) → x_1_0
+        @test lv(states[2]) == 10.0   # x_2(t) → x_2_0
+        # Exact template-var search short-circuits the heuristics entirely.
+        @test lv(jetvars[6]) == 60.0  # x_1_1 verbatim
+        # Unresolvable search throws — no silent fabrication of a value.
+        unresolvable = only(ModelingToolkit.@variables nonexistent_q)
+        @test_throws Exception lv(unresolvable)
+    end
 end

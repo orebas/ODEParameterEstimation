@@ -4,6 +4,7 @@ using Test
 @testset "ODEParameterEstimation fast suite" begin
     include("fast_core.jl")
     include("refactor_safety_net.jl")
+    include("test_label_parsers.jl")
     include("example_canaries.jl")
     include("examples_smoke.jl")
     include("identifiability_regressions.jl")

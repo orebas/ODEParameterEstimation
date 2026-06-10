@@ -2,6 +2,7 @@ using Test
 using Logging
 using ModelingToolkit
 using OrderedCollections
+using Random
 
 function quiet_call(f)
     redirect_stdout(devnull) do
@@ -112,6 +113,37 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         # The bug's signature: k_1 and k_2 collapsed to one value. Assert distinct.
         param_by_name = Dict(replace(string(k), "(t)" => "") => Float64(v) for (k, v) in best.parameters)
         @test !isapprox(param_by_name["k_1"], param_by_name["k_2"]; rtol = 1e-3)
+    end
+
+    @testset "noisy data still recovers (1% relative noise)" begin
+        # Phase A canary: the rest of CI is ~uniformly zero-noise; this locks the
+        # noisy path through construction/solve/aggregation with loose thresholds.
+        # Seeded: sampling noise uses the global RNG.
+        Random.seed!(20260609)
+        noisy_opts = EstimationOptions(
+            datasize = 21,
+            noise_level = 1e-2,
+            shooting_points = 0,
+            nooutput = true,
+            diagnostics = false,
+            flow = FlowStandard,
+            use_si_template = true,
+            use_parameter_homotopy = false,
+            interpolator = InterpolatorAAAD,
+            save_system = false,
+            polish_solver_solutions = false,
+            polish_solutions = false,
+        )
+        pep, raw_results, analysis, _ = run_canary(ODEParameterEstimation.simple, noisy_opts)
+        best = best_cluster_solution(analysis)
+
+        @test !isempty(raw_results[1])
+        @test !isnothing(best)
+        @test isfinite(analysis[2])
+        @test analysis[2] < 0.2
+        for (param, true_value) in pep.p_true
+            @test isapprox(best.parameters[param], true_value; rtol = 0.25)
+        end
     end
 
     @testset "lotka-volterra has an accurate solution cluster" begin
