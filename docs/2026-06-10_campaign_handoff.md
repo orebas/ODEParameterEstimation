@@ -119,7 +119,15 @@ correctness traps: the campaign plan + `docs/2026-06-10_postcampaign_review.md`.
 
 ## 5. ROADMAP — next stages (ordered, resumable)
 
-**R1 — Rescaling integration (LANDED, opt-in, default OFF).**
+**R1 — Rescaling integration (LANDED, DEFAULT ON — validated 2026-06-11).**
+Default flipped to `auto_rescale=true` after: full gate 864/864 green WITH it on; an
+on-vs-off breadth sweep where every model IMPROVED, none regressed (vanderpol
+6.9e-6→3.8e-6, fitzhugh 3.5e-3→1.6e-3, brusselator 9.9e-4→9.9e-5, daisy_mamil3
+6.4e-2→2.0e-2). Better conditioning helps well-scaled models too, not just broken ones.
+NOTE for the PEB fleet: with default-on, user-supplied `opt_lb/opt_ub` are interpreted
+in SCALED coordinates (a `@warn` fires). For PEB's nondimensionalized O(1) models the
+scaling is near-identity so bounds ≈ unchanged, but auto-rescaling user bounds is a
+clean follow-up (R1c); pass `auto_rescale=false` in a driver to opt out.
 `src/core/problem_rescaling.jl` (`choose_scales` via least-squares over
 equation/observable/data-anchor rows rounded to integer power-of-2 exponents;
 `rescale_pep`/`unrescale_results`); `auto_rescale::Bool=false`; wired after the
