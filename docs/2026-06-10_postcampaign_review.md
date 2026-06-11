@@ -16,6 +16,39 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ## P0 — correctness / broken-now (probe, then fix)
 
+- [ ] **#0 hiv RECOVERY REGRESSION (found 2026-06-11, benchmark-confirmed, NOT
+  systemic).** hiv recovered to 6e-11 at `555edc2` (2026-05-29 quoll_broad,
+  odepe_v2_polish; also 1.3e-3 @ noise 1e-6, 8/8) but returns garbage (relmax ~44)
+  on HEAD. Only hiv among 8 swept models regressed (vanderpol/brusselator/fitzhugh/
+  daisy/LV/simple all recover). ROOT CAUSE (instrumented `analyze_estimation_result`):
+  the solver FINDS the truth — it is `clusters[1]`, relmax 1.4e-7 — but it is dropped
+  at **output ranking**, not the solve:
+    1. polish FAILS on the truth candidate (`Optim: terminated early, non-finite
+       iterate`) → it stays unpolished → `provenance.polish_source_hc_idx = nothing`
+       → `is_untagged = 1`.
+    2. `rank_cluster_representatives` (`:sat_neg1_err`, default) keys on
+       `(saturation_count, is_untagged, err)` — untagged BEFORE err — so the truth
+       (untagged, err 1.1e-10) sorts to **rank 2**, behind a spurious rep that
+       polished OK (tagged, err 2.1e4). i.e. a provenance flag vetoes a 13-orders
+       better fit.
+    3. truncation then drops rank 2 by BOTH paths — auto-M=1 → top-1 (spurious only);
+       explicit M=20 → `select_branch_diverse_reps` skips the truth as within
+       `branch_diversity_eps` of the rank-1 spurious rep. CONFIRMED: M=20 override
+       does NOT rescue (BoB 43.7, 2 returned) — so it is NOT an auto-M-truncation
+       fix; **the truth must reach rank 1**.
+  Selection fns (`s2_sort_key`, `select_branch_diverse_reps`,
+  `rank_cluster_representatives`) are byte-identical since 555edc2 → regression is in
+  the INPUT (truth now untagged). Prime suspects: campaign polish-revert changes
+  `cf38696` (all-sentinel→revert) / `a8332b9` (polish guard). FIX OPTIONS:
+  (A, recommended) ranking must not let `is_untagged` override a large err gap —
+  make err primary when errs differ by >~1-2 orders, or restrict the untagged
+  tie-break to comparable-err candidates; (B) a polish-REVERTED solution is still
+  HC-sourced → keep its tag (fix provenance on revert); (C) polish robustness
+  (stop non-finite divergence on hiv). Do A (closes the class) + likely B. Awaiting
+  Oren's steer on the `:sat_neg1_err` change (his 2026-05-15 tuning). Repro:
+  `julia --startup-file=no -e 'using ODEParameterEstimation, Random; pep=ODEParameterEstimation.hiv(); opts=EstimationOptions(datasize=201,noise_level=0.0,nooutput=true,polish_solutions=true); Random.seed!(20260610); s=ODEParameterEstimation.sample_problem_data(pep,opts); _,a,_=ODEParameterEstimation.analyze_parameter_estimation_problem(s,opts); @show minimum(maximum(abs(get(c.parameters,p,NaN)-tv)/max(abs(tv),1e-12) for (p,tv) in s.p_true) for c in a[1])'`
+  → ~43.7 (broken); the truth is in the cluster pool but not the returned reps.
+
 - [x] **#1 `process_raw_solution` parameter-ordering self-disagreement.** FIXED 2026-06-10 — probe: LATENT (0/79 registry models + adversarial case reorder under MTK 11); single findfirst pass, second pass deleted, seeded-rescue producer's MIXED-convention vector unified to MTK order. First pass
   assigns params positionally by `original_parameters` index, solves the ODE and
   computes `err` from that assignment; a second pass then re-keys the same dict by
