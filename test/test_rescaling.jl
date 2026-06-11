@@ -1,0 +1,148 @@
+# Fast unit/contract tests for the opt-in power-of-2 problem rescaling
+# (src/core/problem_rescaling.jl). The slow end-to-end PAYOFF test (hiv recovery
+# with auto_rescale=true) lives in test/benchmark_smoke.jl — NOT here.
+#
+# Run: julia --startup-file=no -e 'using ODEParameterEstimation; include("test/test_rescaling.jl")'
+
+using Test
+using Random
+using OrderedCollections
+import Symbolics
+import ModelingToolkit
+
+const OPE = ODEParameterEstimation
+
+@testset "Problem rescaling (power-of-2)" begin
+
+	@testset "extract_monomials: coeff/power split" begin
+		Symbolics.@variables x p z
+		vs = Set{Any}(Symbolics.value.([x, p, z]))
+		# 3*x*p - 2*x^2 + 5
+		mons = OPE.extract_monomials(3.0 * x * p - 2.0 * x^2 + 5.0, vs)
+		# collect into a comparable form: coeff => sorted powers
+		findmon(predicate) = findfirst(predicate, mons)
+		# term 3*x*p
+		i = findmon(m -> isapprox(m[1], 3.0) && m[2] == Dict(Symbolics.value(x) => 1, Symbolics.value(p) => 1))
+		@test i !== nothing
+		# term -2*x^2
+		j = findmon(m -> isapprox(m[1], -2.0) && m[2] == Dict(Symbolics.value(x) => 2))
+		@test j !== nothing
+		# constant term 5 (empty powers)
+		k = findmon(m -> isapprox(m[1], 5.0) && isempty(m[2]))
+		@test k !== nothing
+
+		# division folds into the coefficient: (2*x)/4 -> 0.5*x
+		md = OPE.extract_monomials((2.0 * x) / 4.0, vs)
+		@test length(md) == 1
+		@test isapprox(md[1][1], 0.5)
+		@test md[1][2] == Dict(Symbolics.value(x) => 1)
+
+		# variable in a denominator -> negative power
+		mn = OPE.extract_monomials(6.0 * p / z, vs)
+		@test length(mn) == 1
+		@test isapprox(mn[1][1], 6.0)
+		@test mn[1][2] == Dict(Symbolics.value(p) => 1, Symbolics.value(z) => -1)
+	end
+
+	@testset "choose_scales: powers of 2, constants shrink (hiv)" begin
+		pep = OPE.hiv()
+		opts = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(1)
+		sampled = OPE.sample_problem_data(pep, opts)
+		info = choose_scales(sampled)
+		# every scale is an exact power of 2
+		for sc in Iterators.flatten((values(info.state_scales), values(info.param_scales), values(info.observable_scales)))
+			@test sc > 0
+			@test isapprox(log2(sc), round(log2(sc)); atol = 1e-9)   # integer exponent
+		end
+		# hiv is ill-scaled → some nontrivial scaling, and the rescaled equation
+		# constants stay modest (the repo hiv has unit literals, so normalizing the
+		# variables introduces small constants — the win is variable-spread, below).
+		@test info.metadata.n_nontrivial > 0
+		@test info.metadata.max_const_after < 10.0
+		# THE CONDITIONING WIN: scaled truth/IC values have a smaller log2 spread than
+		# the originals (variables pulled toward O(1)).
+		rpep0, _ = rescale_pep(sampled)
+		origvals = Float64[abs(v) for v in vcat(collect(values(sampled.p_true)), collect(values(sampled.ic))) if v != 0]
+		sclvals = Float64[abs(v) for v in vcat(collect(values(rpep0.p_true)), collect(values(rpep0.ic))) if v != 0]
+		origspread = log2(maximum(origvals)) - log2(minimum(origvals))
+		sclspread = log2(maximum(sclvals)) - log2(minimum(sclvals))
+		@test sclspread < origspread
+	end
+
+	@testset "well-scaled model: mild scaling + round-trip (lotka_volterra)" begin
+		pep = OPE.lotka_volterra()
+		opts = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(2)
+		sampled = OPE.sample_problem_data(pep, opts)
+		rpep, info = rescale_pep(sampled)
+		if info === nothing
+			@test rpep === sampled                       # exact no-op
+		else
+			# already O(1) ⇒ scaling stays mild and round-trips exactly
+			for sc in Iterators.flatten((values(info.state_scales), values(info.param_scales)))
+				@test 2.0^-4 <= sc <= 2.0^4
+			end
+			for (k, v) in sampled.p_true
+				@test rpep.p_true[k] * info.param_scales[k] == v
+			end
+		end
+	end
+
+	@testset "round-trip identity: rescale truth, un-rescale, recover exactly" begin
+		pep = OPE.hiv()
+		opts = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(3)
+		sampled = OPE.sample_problem_data(pep, opts)
+		rpep, info = rescale_pep(sampled)
+		@test info !== nothing                       # hiv IS ill-scaled
+		# scaled truth × scale == original truth, exactly (powers of 2)
+		for (k, v) in sampled.p_true
+			@test rpep.p_true[k] * info.param_scales[k] == v
+		end
+		for (k, v) in sampled.ic
+			@test rpep.ic[k] * info.state_scales[k] == v
+		end
+
+		# unrescale_results inverts on a synthetic result carrying the scaled truth
+		res = OPE.ParameterEstimationResult(
+			OrderedDict{Symbolics.Num, Float64}(rpep.p_true),
+			OrderedDict{Symbolics.Num, Float64}(rpep.ic),
+			0.0, 0.0, nothing, 21, 0.0,
+			OrderedDict{Symbolics.Num, Float64}(), Set{Symbolics.Num}(), nothing,
+		)
+		unrescale_results([res], info)
+		for (k, v) in sampled.p_true
+			@test isapprox(res.parameters[k], v; rtol = 1e-12)
+		end
+		for (k, v) in sampled.ic
+			@test isapprox(res.states[k], v; rtol = 1e-12)
+		end
+		# idempotent: a second un-rescale must NOT double-scale
+		unrescale_results([res], info)
+		for (k, v) in sampled.p_true
+			@test isapprox(res.parameters[k], v; rtol = 1e-12)
+		end
+	end
+
+	@testset "sum-observable data scaling (hiv y4 ~ y+v)" begin
+		pep = OPE.hiv()
+		opts = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(4)
+		sampled = OPE.sample_problem_data(pep, opts)
+		rpep, info = rescale_pep(sampled)
+		@test info !== nothing
+		# each observable column is re-keyed by the NEW (scaled) rhs and divided by its
+		# (power-of-2) scale; matched observable-by-observable.
+		for (omq, nmq) in zip(sampled.measured_quantities, rpep.measured_quantities)
+			okey = haskey(sampled.data_sample, Symbolics.Num(omq.rhs)) ? Symbolics.Num(omq.rhs) : Symbolics.Num(omq.lhs)
+			nkey = Symbolics.Num(nmq.rhs)
+			sc = get(info.observable_scales, okey, 1.0)
+			@test haskey(rpep.data_sample, nkey)
+			@test rpep.data_sample[nkey] ≈ sampled.data_sample[okey] ./ sc
+		end
+		# "t" is untouched (time not scaled in this MVP)
+		@test rpep.data_sample["t"] == sampled.data_sample["t"]
+	end
+
+end

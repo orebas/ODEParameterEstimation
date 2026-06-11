@@ -11,4 +11,5 @@ using Test
     include("result_processing_helpers.jl")
     include("feature_regressions.jl")
     include("test_shade_lm.jl")
+    include("test_rescaling.jl")
 end

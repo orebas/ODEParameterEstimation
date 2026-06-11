@@ -25,7 +25,7 @@
 using Test
 using Random
 
-function _smoke_best_of_branch(ctor; datasize, noise, polish)
+function _smoke_best_of_branch(ctor; datasize, noise, polish, auto_rescale = false)
 	pep = ctor()
 	opts = EstimationOptions(
 		datasize = datasize,
@@ -34,6 +34,7 @@ function _smoke_best_of_branch(ctor; datasize, noise, polish)
 		diagnostics = false,
 		polish_solutions = polish,
 		save_system = false,
+		auto_rescale = auto_rescale,
 	)
 	Random.seed!(20260610)
 	sampled = ODEParameterEstimation.sample_problem_data(pep, opts)
@@ -67,5 +68,17 @@ end
 		bob, _, _ = _smoke_best_of_branch(
 			ODEParameterEstimation.lotka_volterra; datasize = 201, noise = 0.0, polish = false)
 		@test bob < 1e-6
+	end
+
+	# PAYOFF: the raw-scaled repo hiv() (beta=2e-5 … k=50, x(0)=1000 — ~8 orders)
+	# returns garbage (best-of-branch ~44) without rescaling; auto_rescale=true should
+	# make the problem O(1) and recover it. This is the empirical proof that the
+	# power-of-2 rescaling fixes the conditioning failure documented in P0 #0.
+	@testset "hiv (raw scales) recovers with auto_rescale" begin
+		bob, nclusters, besterror = _smoke_best_of_branch(
+			ODEParameterEstimation.hiv; datasize = 201, noise = 0.0, polish = true, auto_rescale = true)
+		@test isfinite(besterror)
+		@test nclusters >= 1
+		@test bob < 1e-2
 	end
 end

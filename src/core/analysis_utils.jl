@@ -916,6 +916,17 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		end
 	end
 
+	# Optional power-of-2 problem rescaling (opt-in). Composed AFTER the transcendental
+	# transform so it sees the final symbol set; results are un-rescaled at the very end
+	# (after clustering/ranking/UQ, which are self-consistent in scaled space).
+	scale_info = nothing
+	if opts.auto_rescale
+		PEP, scale_info = rescale_pep(PEP)
+		if !isnothing(scale_info) && !opts.nooutput
+			println("Auto-rescale: power-of-2 scaling ($(scale_info.metadata.n_nontrivial) nontrivial factors; max |log2 const| $(round(scale_info.metadata.max_const_before, digits = 1)) → $(round(scale_info.metadata.max_const_after, digits = 1)))")
+		end
+	end
+
 	if !opts.nooutput
 		println("Starting model: ", PEP.name)
 	end
@@ -973,6 +984,15 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput, opts = opts)
 
 	uq_result = _compute_uq_result(PEP, solved_res, opts)
+
+	# Un-rescale results to original units (params/states). Done AFTER clustering/
+	# ranking (analyze_estimation_result) and UQ, which are self-consistent in scaled
+	# space. The returned cluster reps alias the solved_res objects, so un-rescaling
+	# solved_res un-rescales them too; unrescale_results is idempotent (via a
+	# :rescaled provenance note) so the aliasing can't double-scale.
+	if !isnothing(scale_info)
+		unrescale_results(solved_res, scale_info)
+	end
 
 	return results_tuple, results_tuple_to_return, uq_result
 

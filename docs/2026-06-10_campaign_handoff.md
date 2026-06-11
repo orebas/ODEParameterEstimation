@@ -119,12 +119,20 @@ correctness traps: the campaign plan + `docs/2026-06-10_postcampaign_review.md`.
 
 ## 5. ROADMAP — next stages (ordered, resumable)
 
-**R1 — Rescaling integration (in progress).** `src/core/problem_rescaling.jl`
-(`choose_scales` via least-squares over equation/observable/data-anchor rows rounded to
-integer power-of-2 exponents; `rescale_pep`/`unrescale_results`); `auto_rescale` opt-in;
-wire after the transcendental block / un-rescale after `analyze_estimation_result`; tests
-incl. the `hiv()` payoff in `benchmark_smoke.jl`. Flip-on bar: round-trip green + suite
-unchanged with it ON + hiv payoff recovers + a PEB sweep shows net gain.
+**R1 — Rescaling integration (LANDED, opt-in, default OFF).**
+`src/core/problem_rescaling.jl` (`choose_scales` via least-squares over
+equation/observable/data-anchor rows rounded to integer power-of-2 exponents;
+`rescale_pep`/`unrescale_results`); `auto_rescale::Bool=false`; wired after the
+transcendental block, un-rescaled after `analyze_estimation_result` (UQ runs before
+un-rescale; `.err`/`.solution` left in scaled units, documented). **PAYOFF CONFIRMED:**
+the raw-scaled repo `hiv()` (params 2e-5…50, x(0)=1000) goes from best-of-branch
+**43.7 (garbage) → 1.2e-3 (recovers)** with `auto_rescale=true`. 109 unit tests
+(`test/test_rescaling.jl`, in the gate) + the hiv payoff in `benchmark_smoke.jl`.
+Fix mechanism = conditioning (the scaled-value log2 spread drops ~26→~11 bits).
+Remaining flip-on bar before default-ON: full suite unchanged with it forced ON across
+the registry + a PEB benchmark sweep showing net gain (default-OFF makes it byte-identical
+today). MVP scales states/params/observables/data only — TIME scaling is the deferred
+follow-up (R1b).
 
 **R2 — Polish robustness** (P0 #0 fragilities 1–2): keep the HC provenance tag when a
 polish result is reverted (a reverted solution is still HC-sourced); make the revert

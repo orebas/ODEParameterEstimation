@@ -72,6 +72,7 @@ include("core/derivative_utils.jl")
 # Include core functionality
 include("core/si_equation_builder.jl")  # StructuralIdentifiability integration
 include("core/transcendental_utils.jl")  # Transcendental function handling (sin/cos/exp) — after si_equation_builder for parse_derivative_variable_name
+include("core/problem_rescaling.jl")  # Opt-in power-of-2 problem rescaling (states/params/observables/data → O(1))
 include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
 include("core/solve_with_robust.jl")  # Robust solver with multiple fallbacks
@@ -152,6 +153,9 @@ export calculate_higher_derivatives, calculate_higher_derivative_terms
 
 # Export transcendental handling
 export detect_transcendentals, transform_pep_for_estimation, TranscendentalInfo
+
+# Export problem rescaling
+export rescale_pep, unrescale_results, ScaleInfo, choose_scales
 
 # Export diagnostic functions and types
 export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
