@@ -922,8 +922,13 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	scale_info = nothing
 	if opts.auto_rescale
 		PEP, scale_info = rescale_pep(PEP)
-		if !isnothing(scale_info) && !opts.nooutput
-			println("Auto-rescale: power-of-2 scaling ($(scale_info.metadata.n_nontrivial) nontrivial factors; max |log2 const| $(round(scale_info.metadata.max_const_before, digits = 1)) → $(round(scale_info.metadata.max_const_after, digits = 1)))")
+		if !isnothing(scale_info)
+			# Transform any user-supplied opt_lb/opt_ub into scaled coordinates so a
+			# physical bound keeps its physical meaning (all bound consumers use opts).
+			opts = rescale_option_bounds(opts, scale_info, PEP)
+			if !opts.nooutput
+				println("Auto-rescale: power-of-2 scaling ($(scale_info.metadata.n_nontrivial) nontrivial factors; max |log2 const| $(round(scale_info.metadata.max_const_before, digits = 1)) → $(round(scale_info.metadata.max_const_after, digits = 1)))")
+			end
 		end
 	end
 

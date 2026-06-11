@@ -448,3 +448,33 @@ function unrescale_results(solved_res, info::ScaleInfo)
 	end
 	return solved_res
 end
+
+"""
+	rescale_option_bounds(opts, info::ScaleInfo, pep) -> EstimationOptions
+
+Transform user-supplied optimization bounds into the SCALED coordinate system so a
+physical bound keeps its physical meaning under rescaling. `opt_lb`/`opt_ub` are
+length `n_states + n_params`, ordered `[states; params]` (the convention every
+consumer uses: polish context, backsolve clamp, ranking saturation). A physical
+bound `lb ≤ v ≤ ub` with `v = 2^e v_scaled` becomes `lb/2^e ≤ v_scaled ≤ ub/2^e`,
+so each entry is divided by its variable's power-of-2 scale. Returns `opts`
+unchanged when no bounds are set or the length doesn't match.
+"""
+function rescale_option_bounds(opts, info::ScaleInfo, pep::ParameterEstimationProblem)
+	(isnothing(opts.opt_lb) && isnothing(opts.opt_ub)) && return opts
+	system = pep.model.system
+	states = Num.(ModelingToolkit.unknowns(system))
+	params = Num.(ModelingToolkit.parameters(system))
+	scales = vcat(
+		Float64[get(info.state_scales, s, 1.0) for s in states],
+		Float64[get(info.param_scales, p, 1.0) for p in params],
+	)
+	_rs(v) = (v === nothing || length(v) != length(scales)) ? v : (Float64.(v) ./ scales)
+	new_lb = _rs(opts.opt_lb)
+	new_ub = _rs(opts.opt_ub)
+	return EstimationOptions(;
+		(name => getfield(opts, name) for name in fieldnames(EstimationOptions) if name !== :opt_lb && name !== :opt_ub)...,
+		opt_lb = new_lb,
+		opt_ub = new_ub,
+	)
+end

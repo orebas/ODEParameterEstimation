@@ -145,4 +145,33 @@ const OPE = ODEParameterEstimation
 		@test rpep.data_sample["t"] == sampled.data_sample["t"]
 	end
 
+	@testset "user-bound rescaling preserves physical meaning" begin
+		pep = OPE.hiv()
+		opts0 = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(7)
+		sampled = OPE.sample_problem_data(pep, opts0)
+		info = choose_scales(sampled)
+		states = Symbolics.Num.(ModelingToolkit.unknowns(sampled.model.system))
+		params = Symbolics.Num.(ModelingToolkit.parameters(sampled.model.system))
+		nS = length(states)
+		scales = vcat(Float64[info.state_scales[s] for s in states], Float64[info.param_scales[p] for p in params])
+		# physical bounds wide enough to contain the RAW hiv truth (beta=2e-5 … x=1000)
+		lb = fill(1e-8, length(scales))
+		ub = fill(1e4, length(scales))
+		opts = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true, opt_lb = lb, opt_ub = ub)
+		opts2 = OPE.rescale_option_bounds(opts, info, sampled)
+		# (a) the transform is exactly physical / scale, per variable
+		@test opts2.opt_lb ≈ lb ./ scales
+		@test opts2.opt_ub ≈ ub ./ scales
+		# (b) MEANING preserved: a physical bound containing the raw truth ⇒ the scaled
+		# bound contains the SCALED truth (this is the whole point of the fix).
+		rpep, _ = rescale_pep(sampled)
+		for (i, p) in enumerate(params)
+			sv = rpep.p_true[p]
+			@test opts2.opt_lb[nS+i] <= sv <= opts2.opt_ub[nS+i]
+		end
+		# no-op when no bounds
+		@test OPE.rescale_option_bounds(opts0, info, sampled) === opts0
+	end
+
 end

@@ -1175,10 +1175,6 @@ function validate_options(opts::EstimationOptions)
 		@warn "Extremely small tolerances may cause numerical issues"
 	end
 
-	if opts.auto_rescale && (!isnothing(opts.opt_lb) || !isnothing(opts.opt_ub))
-		@warn "auto_rescale=true: user-supplied opt_lb/opt_ub are interpreted in SCALED coordinates, not physical units."
-	end
-
 	# Check thresholds
 	if opts.imag_threshold < 0 || opts.clustering_threshold < 0
 		@error "Thresholds must be non-negative"

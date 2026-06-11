@@ -124,10 +124,12 @@ Default flipped to `auto_rescale=true` after: full gate 864/864 green WITH it on
 on-vs-off breadth sweep where every model IMPROVED, none regressed (vanderpol
 6.9e-6→3.8e-6, fitzhugh 3.5e-3→1.6e-3, brusselator 9.9e-4→9.9e-5, daisy_mamil3
 6.4e-2→2.0e-2). Better conditioning helps well-scaled models too, not just broken ones.
-NOTE for the PEB fleet: with default-on, user-supplied `opt_lb/opt_ub` are interpreted
-in SCALED coordinates (a `@warn` fires). For PEB's nondimensionalized O(1) models the
-scaling is near-identity so bounds ≈ unchanged, but auto-rescaling user bounds is a
-clean follow-up (R1c); pass `auto_rescale=false` in a driver to opt out.
+R1c (DONE): user-supplied `opt_lb/opt_ub` are now transformed into scaled coordinates
+(`rescale_option_bounds`, divide each entry by its variable's power-of-2 scale in the
+`[states; params]` order all consumers use) so a physical bound keeps its physical
+meaning — fixing the bug where physical bounds were silently applied to scaled params
+(the PEB path). Verified end-to-end: hiv + auto_rescale + physical bounds `[1e-8,1e4]`
+recovers (BoB 8e-3). `auto_rescale=false` opts out entirely.
 `src/core/problem_rescaling.jl` (`choose_scales` via least-squares over
 equation/observable/data-anchor rows rounded to integer power-of-2 exponents;
 `rescale_pep`/`unrescale_results`); `auto_rescale::Bool=false`; wired after the
