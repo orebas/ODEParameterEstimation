@@ -16,16 +16,30 @@ surface (261 unique exports) plus two god files remain the big structural debts.
 
 ## P0 — correctness / broken-now (probe, then fix)
 
-- [ ] **#0 hiv RECOVERY REGRESSION (found 2026-06-11, benchmark-confirmed, NOT
-  systemic).** hiv recovered to 6e-11 at `555edc2` (2026-05-29 quoll_broad,
-  odepe_v2_polish; also 1.3e-3 @ noise 1e-6, 8/8) but returns garbage (relmax ~44)
-  on HEAD. Only hiv among 8 swept models regressed (vanderpol/brusselator/fitzhugh/
-  daisy/LV/simple all recover). ROOT CAUSE (instrumented `analyze_estimation_result`):
-  the solver FINDS the truth — it is `clusters[1]`, relmax 1.4e-7 — but it is dropped
-  at **output ranking**, not the solve:
-    1. polish FAILS on the truth candidate (`Optim: terminated early, non-finite
-       iterate`) → it stays unpolished → `provenance.polish_source_hc_idx = nothing`
-       → `is_untagged = 1`.
+- [ ] **#0 No-bounds / ill-scaling POLISH FRAGILITY (found 2026-06-11). CORRECTED
+  2026-06-11: this is NOT a benchmark regression — earlier framing was a repro
+  artifact.** The investigation used the repo's `hiv()` (raw physical scales,
+  beta=2e-5 … k=50 … x(0)=1000, ~8 orders) with NO opt_lb/opt_ub. The 2026-05-29
+  quoll_broad benchmark used a DIFFERENT, nondimensionalized O(1) hiv (params/ICs
+  all in [0.15,0.9]) WITH bounds [1e-5,10] that contain it → well-conditioned
+  log-space polish → 6e-11. So the benchmark hiv almost certainly does not regress;
+  the "regression" was a wrong-model + wrong-bounds repro. Confirmed by re-test on
+  the repo model: no-bounds BoB=43.7 (linear divergence to neg-beta), PEB[1e-5,10]
+  BoB=3.05 (clamps k/x), wide[1e-8,1e4] **BoB=5.5e-4 RECOVERS** (containing log
+  bounds). The REAL latent fragilities (worth fixing) — every link below only fires
+  because polish produced garbage, which needs absent/non-containing bounds on an
+  ill-scaled model:
+    1. polish DIVERGES from the truth seed. The 6 polish seeds ARE the truth
+       (err 1.14e-10); polish in **unbounded :linear** coords (the transform when
+       opt_lb/ub are absent/non-positive) overshoots an 8-order Jacobian and
+       converges all 6 to one garbage attractor (beta=-8.5e-4, err 2.1e4). The
+       truth then survives only as unpolished originals → `is_untagged=1`. NOTE: NOT
+       "polish crashed / Optim non-finite" (zero exceptions; residual sentinel-fills
+       a finite 1e6 gracefully) — that earlier claim was a 10f2b1c-log mis-read.
+       Also the **revert guard can return worse-than-seed**: it keeps the polished
+       point when final_norm ≤ initial_norm, but with mis-bounded coords the seed
+       itself evaluates huge, so garbage wins. Real defect, manifests under wrong
+       bounds.
     2. `rank_cluster_representatives` (`:sat_neg1_err`, default) keys on
        `(saturation_count, is_untagged, err)` — untagged BEFORE err — so the truth
        (untagged, err 1.1e-10) sorts to **rank 2**, behind a spurious rep that
