@@ -364,7 +364,11 @@ experimental branch completion chooses the same anchor the normal output path
 would put first.
 """
 function rank_cluster_representatives(cluster_reps, opts::EstimationOptions)
-	if opts.rank_strategy === :sat_neg1_err
+	if opts.rank_strategy === :err_only
+		# DEFAULT: rank purely by data residual (SSE) ascending. Explicit (not the `else`
+		# pass-through) so it does not depend on cluster_reps arriving in err order.
+		return sort(cluster_reps, by = _result_err_key)
+	elseif opts.rank_strategy === :sat_neg1_err
 		return sort(cluster_reps, by = c -> s2_sort_key(c, opts.opt_lb, opts.opt_ub))
 	elseif opts.rank_strategy === :sat_err
 		return sort(cluster_reps,

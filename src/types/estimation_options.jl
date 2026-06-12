@@ -334,45 +334,38 @@ Base.@kwdef struct EstimationOptions
 
 	# Ranking strategy for the top-K cluster reps returned in result.csv.
 	#
-	# Threshold-dependent trade-off (wallaby 2026-05-17, n=1147 polish cells):
+	# DEFAULT `:err_only` (2026-06-12) — rank candidates by data residual `err` (SSE)
+	# ascending. Lowest residual wins.
 	#
-	#   threshold    :err_only   :sat_err   :sat_neg1_err (S2)
-	#   ≤1e-9          36.3%      36.3%      32.2%       err_only wins fine
-	#   ≤1e-4          69.7%      69.6%      60.2%       err_only wins fine
-	#   ≤1e-3          79.3%      78.6%      67.9%       err_only wins fine
-	#   ≤1e-2 (≈1%)    ~83.6%     ~82.5%     ~86.6%      S2 wins coarse
-	#   ≤0.1                                             S2 wins coarse
-	#   ≤0.5  (≈50%)                                     S2 wins coarse
-	#
-	# Coarse thresholds (≤50%, ≤10%, ≤1%) are the paper-reported metrics; S2 wins
-	# those by ~3-5pp. Fine thresholds (≤1e-4, ≤1e-3) favor `:err_only` by
-	# ~10pp. Default kept at S2 for paper-metric alignment; flip to `:err_only`
-	# if downstream consumers need rank-1 precision below 1e-3.
-	# See repro/polish_regression_2026_05_19/FINDINGS.md for the full investigation.
+	# WHY (and why NOT the old `:sat_neg1_err` "S2"): the older S2 default and the whole
+	# threshold trade-off it was tuned on (wallaby 2026-05-17) were measured on a BROKEN
+	# `err` metric — candidate `err` was computed in two incompatible units
+	# (`process_raw_solution` used ‖resid‖/N while polish/synth/seed/optimizer used Σresid²),
+	# so cross-source comparisons were apples-vs-oranges and the `saturation`/`is_untagged`
+	# keys were a band-aid for an untrustworthy residual. That was unified to SSE in 2026-06
+	# (commit b543946). With `err` now ONE consistent unit, the 2026-06-12 ranking study
+	# (`repro/ranking_study_2026_06_12/`) found the lowest-`err` candidate is the truth-near
+	# one in EVERY M1 "matter" cell at 1em6 — `:err_only`, the full production
+	# `:sat_neg1_err` path, and every other scheme give IDENTICAL 10/10 top-1 capture (even
+	# when truth-near rows are only 3/244 of the pool). So the simplest honest scheme is the
+	# default; the S2 cleverness is unnecessary on a correct residual.
+	# (Pre-fix trade-off, retained for context only — reflects the broken err: ≤1e-4
+	#  `:err_only` 69.7% vs `:sat_neg1_err` 60.2%; ≤1e-2 `:err_only` ~83.6% vs ~86.6%.
+	#  See repro/polish_regression_2026_05_19/FINDINGS.md.)
 	#
 	# Options:
-	#   :sat_neg1_err     — DEFAULT. (saturation_count, is_neg1, err). Rows with
-	#                       parameters pegged at bounds get demoted first, then
-	#                       untagged provenance (`polish_source_hc_idx == -1`),
-	#                       then by data residual. Wins paper-relevant coarse
-	#                       thresholds. Requires user-provided opt_lb/opt_ub to
-	#                       fully activate; silently degrades to (is_neg1, err)
-	#                       when bounds are missing.
-	#   :err_only         — Sort by data residual `err` ascending. Wins fine
-	#                       (≤1e-4, ≤1e-3) thresholds — the is_neg1 secondary in
-	#                       S2 demotes truth-near psh=-1 rows below worse
-	#                       HC-tagged rows in the 282fe1a candidate distribution.
-	#                       Use when rank-1 precision matters.
-	#   :sat_err          — (saturation_count, err). Saturation-demotion without
-	#                       the is_neg1 secondary. Essentially matches `:err_only`
-	#                       on wallaby (≤1e-9: 36.3%, ≤1e-4: 69.6%). Useful when
-	#                       bound-saturated rows are expected but `is_neg1` is
-	#                       not a reliable demotion signal.
-	#   :lognorm_err      — (Σ log²(p), err). Bound-free experimental. Falsified
-	#                       in probe4b for general use (truth values genuinely far
-	#                       from 1 get penalized).
-	#   :lognorm_neg1_err — (Σ log²(p), is_neg1, err). Same is_neg1 caveat as S2.
-	rank_strategy::Symbol = :sat_neg1_err
+	#   :err_only         — DEFAULT. Sort by data residual `err` (SSE) ascending. Correct +
+	#                       simplest now that `err` is one consistent unit across all sources.
+	#   :sat_neg1_err     — (saturation_count, is_untagged, err). Legacy "S2": demote
+	#                       bound-pegged rows first, then untagged provenance
+	#                       (`polish_source_hc_idx == -1`/nothing), then residual. Built for
+	#                       the broken-err candidate distribution; kept selectable. Requires
+	#                       user-provided opt_lb/opt_ub to fully activate.
+	#   :sat_err          — (saturation_count, err). Saturation-demotion without is_untagged.
+	#   :lognorm_err      — (Σ log²(p), err). Bound-free experimental. Falsified in probe4b
+	#                       (truth values genuinely far from 1 get penalized).
+	#   :lognorm_neg1_err — (Σ log²(p), is_untagged, err).
+	rank_strategy::Symbol = :err_only
 
 	# Output-stage clustering method. `:identifiable_subspace` (default) does
 	# two-stage clustering: rough basin separation at a coarse threshold, then
