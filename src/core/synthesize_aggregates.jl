@@ -117,6 +117,13 @@ end
 
 # ─── Build a synthetic candidate from aggregated (params, states) ──────────────
 
+# Model-level structural fix set, copied from a source candidate's provenance (all
+# candidates of one estimate share it). Guarded for a missing provenance.
+function _synth_structural_fix_set(c)
+	(hasproperty(c, :provenance) && c.provenance !== nothing) || return OrderedDict{Num, Float64}()
+	return copy(c.provenance.structural_fix_set)
+end
+
 """
     _build_synth_candidate(params::OrderedDict, states::OrderedDict, t0::Real,
         n_total::Int, source_indices::Vector{Int}, strategy::Symbol,
@@ -135,6 +142,7 @@ function _build_synth_candidate(
 	strategy::Symbol,
 	category_notes::Vector{Symbol};
 	all_unidentifiable::Set{Num} = Set{Num}(),
+	structural_fix_set::OrderedDict{Num, Float64} = OrderedDict{Num, Float64}(),
 )
 	result = ParameterEstimationResult(
 		params,
@@ -161,6 +169,10 @@ function _build_synth_candidate(
 		aggregation_source_indices = source_indices,
 		notes = vcat([:synthesized_aggregate], category_notes),
 		polish_applied = false,
+		# Structural unidentifiability is a MODEL-level property, identical across all
+		# candidates of this estimate — an aggregate of them must carry it too, else a
+		# winning aggregate reports an empty structural_fix_set (canary regression).
+		structural_fix_set = structural_fix_set,
 	)
 	sync_result_contract!(result)
 	return result
@@ -199,6 +211,7 @@ function _synthesize_per_sp_full_aggregate(
 		strategy,
 		cat_notes;
 		all_unidentifiable = copy(first(candidates_for_sp).all_unidentifiable),
+		structural_fix_set = _synth_structural_fix_set(first(candidates_for_sp)),
 	)
 end
 
@@ -356,6 +369,7 @@ function _synthesize_global_param_aggregate(
 		strategy,
 		cat_notes;
 		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
+		structural_fix_set = _synth_structural_fix_set(first(source_candidates)),
 	)
 end
 
@@ -435,6 +449,7 @@ function _aggregate_and_resolve_to_candidate(
 		length(PEP.data_sample["t"]),
 		source_indices, strategy, cat_notes;
 		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
+		structural_fix_set = _synth_structural_fix_set(first(source_candidates)),
 	)
 end
 
@@ -667,10 +682,12 @@ function _evaluate_candidate_loss!(candidate, polish_ctx)
 		if !isnothing(polish_ctx.lb) && !isnothing(polish_ctx.ub)
 			p_external = clamp.(p_external, polish_ctx.lb, polish_ctx.ub)
 		end
-		p_internal = _polish_external_to_internal(
-			p_external, polish_ctx.coordinate_transforms, polish_ctx.coordinate_shifts,
-		)
-		loss = Float64(polish_ctx.optf.f(p_internal, nothing))
+		# Coordinate-INDEPENDENT scoring: evaluate the candidate's true trajectory-fit
+		# loss at its own external params. Do NOT round-trip through the polish search
+		# coordinate (external→internal→optf.f), which distorts err for :shifted_log
+		# with a large shift and made a candidate's err depend on the optimizer's
+		# coordinate. The optimizer's own loss is untouched.
+		loss = Float64(_trajectory_sse(polish_ctx, p_external))
 		if isfinite(loss)
 			candidate.err = loss
 			if !isnothing(candidate.provenance)

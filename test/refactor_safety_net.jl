@@ -48,13 +48,13 @@ import ModelingToolkit
 		@test ODEParameterEstimation.nth_deriv_at(F, 1, 0.777) ≈ 2.0 * cos(2.0 * 0.777) atol = 1e-5
 	end
 
-	# --- P0#1: process_raw_solution error divisor ------------------------------
-	# simple() has TWO observables, so data_sample has 3 keys ("t", y1, y2).
-	# The bug divides the per-observable error sum by length(data_sample)=3
-	# instead of the observable count 2. Offset both observables by a known δ so
-	# the per-observable residual is large and clean, then recompute the sum from
-	# the SAME ode_solution the function returned (robust to solver tolerance).
-	@testset "process_raw_solution error divisor" begin
+	# --- process_raw_solution fit error = canonical SSE ------------------------
+	# `err` is the trajectory sum-of-squared residuals (Σ over every observable and
+	# time point), matching `_trajectory_sse` so algebraic candidates rank in the same
+	# unit the optimizer minimizes. simple() has TWO observables; offset both by a known
+	# δ so the residual is large and clean, then recompute SSE from the SAME ode_solution
+	# the function returned (robust to solver tolerance).
+	@testset "process_raw_solution fit error (SSE)" begin
 		opts = EstimationOptions()
 		sampled = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), opts)
 		current_states = ModelingToolkit.unknowns(sampled.model.system)
@@ -79,16 +79,18 @@ import ModelingToolkit
 		)
 		@test ode_solution !== nothing
 
-		# Recompute the per-observable error sum exactly as the source does.
+		# Recompute the error exactly as the source does, from the SAME ode_solution.
 		t = offset_data["t"]
 		my_sum = 0.0
 		for k in obs_keys
-			my_sum += norm(ode_solution(t)[k] .- offset_data[k]) / length(t)
+			my_sum += sum(abs2, ode_solution(t)[k] .- offset_data[k])
 		end
 
-		# Fixed 2026-06-09 (review P0#1): err is the mean over observables; the
-		# "t" key in data_sample no longer deflates the divisor.
-		@test err ≈ my_sum / n_obs rtol = 1e-6
+		# 2026-06-11: `err` is now the canonical SSE — Σ over every observable and time
+		# point of squared residuals (see `_trajectory_sse`), so every candidate (algebraic
+		# / polished / synthesized) is reported and ranked in ONE unit. No `/N`, no
+		# `/n_obs` divisor — the earlier divisor bug is moot because there is no divisor.
+		@test err ≈ my_sum rtol = 1e-6
 	end
 
 	# --- Phase C1: legacy-path homotopy data evaluator ---------------------

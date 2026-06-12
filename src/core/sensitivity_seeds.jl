@@ -454,10 +454,10 @@ function _maybe_augment_with_sensitivity_seeds(
             if !isnothing(ctx.lb) && !isnothing(ctx.ub)
                 p_external = clamp.(p_external, ctx.lb, ctx.ub)
             end
-            p_internal = _polish_external_to_internal(
-                p_external, ctx.coordinate_transforms, ctx.coordinate_shifts,
-            )
-            loss = Float64(ctx.optf.f(p_internal, nothing))
+            # Coordinate-INDEPENDENT scoring (same fix as synthesize_aggregates): score
+            # the seed's true loss at its external params, not via the search-coordinate
+            # round-trip (which distorts err for :shifted_log + large shift).
+            loss = Float64(_trajectory_sse(ctx, p_external))
             if isfinite(loss)
                 c.err = loss
                 if !isnothing(c.provenance)

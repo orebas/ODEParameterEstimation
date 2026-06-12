@@ -81,7 +81,7 @@ A long thread (2026-06-11) that started as "hiv recovery regression" and ended a
   in `[0.15, 0.9]`) WITH `SEARCH_BOUNDS=[1e-5,10]` that contain it → well-conditioned
   log-space polish → recovers to 6e-11. Different model + config.
 - **Re-test on the repo model** isolates it as a bounds/scaling effect: no-bounds
-  best-of-branch **43.7** (linear-coord polish diverges to negative-beta garbage),
+  best-of-branch **43.7** (ill-conditioned polish diverges to negative-beta garbage),
   PEB-bounds `[1e-5,10]` **3.05** (clamps `k=50`/`x=1000`), wide positive `[1e-8,1e4]`
   **5.5e-4 RECOVERS**.
 - **Retracted en route** (cautionary — three wrong theories before landing): "truth
@@ -90,11 +90,16 @@ A long thread (2026-06-11) that started as "hiv recovery regression" and ended a
   gracefully; that warning was a mis-read old-commit log); "benchmark regression" (no).
 - **Real latent fragilities** (the valuable catch — every link only fires once polish
   produces garbage, which needs absent/non-containing bounds on an ill-scaled model):
-  1. **Unbounded polish uses `:linear` coordinates** (`_choose_polish_transforms` →
-     `:linear` when bounds are absent/non-positive; `compute_default_bounds` returns
-     SYMMETRIC ±1e9·scale → also non-positive → `:linear`). On an ill-scaled Jacobian an
-     LM step from the truth seed overshoots to garbage. → wants data-driven scaling
-     regardless of user bounds.
+  1. **No-bounds polish was ill-conditioned** (CORRECTED label — *not* `:linear`):
+     `compute_default_bounds` returned a SYMMETRIC ±1e9·scale box (finite, `lb<0`), and the
+     OLD `:auto` rule mapped any `lb<0` to `:shifted_log` with shift `s ≈ -lb ≈ 1e9·scale`
+     — a huge shift that makes `log(x+s)` a badly-distorted near-linear coordinate (gemini's
+     "positivity illusion": `x` can still reach `-1e9`, so it enforces nothing). On an
+     ill-scaled Jacobian an LM step from the truth seed overshoots to garbage.
+     **R2a ATTEMPTED 2026-06-11 → REVERTED** (see R2 below): rewriting the `:auto` rule
+     (symmetric → `:linear`, no huge shift) + a 1e6 polish box surfaced a hidden coupling
+     and regressed 3 no-bounds canaries. The `:shifted_log`-not-`:linear` *diagnosis here*
+     stands; the *fix* is blocked on a ranking decision.
   2. **The revert guard can return worse-than-seed**: it keeps the polished point when
      `final_norm ≤ initial_norm`, but with mis-bounded coords the truth seed itself
      evaluates huge, so garbage wins. A polish stage that silently degrades its input.
@@ -144,11 +149,42 @@ the registry + a PEB benchmark sweep showing net gain (default-OFF makes it byte
 today). MVP scales states/params/observables/data only — TIME scaling is the deferred
 follow-up (R1b).
 
-**R2 — Polish robustness** (P0 #0 fragilities 1–2): keep the HC provenance tag when a
-polish result is reverted (a reverted solution is still HC-sourced); make the revert
-guard never return worse-than-seed (treat a sentinel/non-finite *seed* evaluation as
-"can't judge → keep seed"); stop unbounded `:linear` divergence (data-driven polish
-coordinates regardless of user bounds — partly subsumed by R1).
+**R2 — Polish robustness** (P0 #0 fragilities 1–2).
+- **R2-metric — Candidate fit-error UNIFICATION (LANDED 2026-06-12, gate 877/877 green).**
+  The actual root cause of the no-bounds canary regressions was an **err-unit mismatch**:
+  `process_raw_solution` reported `‖resid‖/N` (data units) while polish / synthesize / seed /
+  the optimizer all used `Σresid²` (SSE). Ranking compared candidates *across* the two units,
+  and since squaring a sub-1 residual shrinks it, SSE-unit candidates (polished, synthesized)
+  systematically out-ranked algebraic ones for small residuals — which corrupted **cluster-rep
+  selection** and the **branch-completion anchor** (a synthesized blend at `a=0.0999999965`
+  beat the exact `a=0.1`; onesp_cubed `analysis[2]` 1e-14→3.5e-8). FIX (Oren-approved,
+  "rank by what you optimize"): SSE everywhere via one canonical
+  `_trajectory_sse(ctx, p_external)`; flipped `process_raw_solution` to SSE (the optimizer
+  hot-loop and `process_raw_solution` compute the identical SSE inline, for perf / raw-solution
+  reasons). Two complementary fixes landed alongside: **A** — coordinate-free candidate scoring
+  (`_trajectory_sse` evaluates the loss at external params, NOT via the
+  `external→internal→optf.f` round-trip, which lost ~1e-7 for `:shifted_log` + big shift);
+  **C** — propagate model-level `structural_fix_set` into synthesized aggregates. Threshold
+  audit clean (`MAX_ERROR_THRESHOLD` already dead; `1e15` sentinels hold under SSE). RESULT:
+  Example canaries 71/71 **on the merits** (no ranking-policy change), gate 877/877,
+  benchmark_smoke 10/10. **NOTE:** the unit mismatch was LIVE in every *polished* run (the
+  fleet) — polished `.err` (SSE) was ranked against algebraic `.err` (`norm/N`) — so past
+  fleet rankings may shift; worth a re-check.
+- **R2a — coordinate rule + decoupled default bounds (UNBLOCKED; pending clean re-apply).**
+  The original change (per Oren): `_choose_polish_transforms` `:auto` = `lb>0 → :log`; `lb==0`
+  or (`lb<0` and `|lb| ≤ ub/10`) → `:shifted_log` ("wiggle around 0", e.g. `(-0.01,100)`);
+  otherwise → `:linear`; plus split the default multiplier (DETECTION stays
+  `DEFAULT_BOUND_MULTIPLIER=1e9`; no-bounds POLISH box uses a new
+  `DEFAULT_POLISH_BOUND_MULTIPLIER=1e6`). It was reverted when it tripped the canaries — but
+  R2-metric proved those failures were the unit/round-trip bugs, NOT this change (A alone
+  reproduced them identically). With scoring now coordinate-free SSE, R2a no longer touches
+  ranking and can land cleanly. The "prove safe bounds from the spec without solving" idea
+  (derivative-magnitude anchoring in `choose_scales`) stays **research** — current
+  equation-balancing only pins observed states + cross-coupled params, not isolated rates.
+- **R2b — revert/provenance (PENDING):** keep the HC provenance tag when a polish result
+  is reverted (a reverted solution is still HC-sourced); make the revert guard never return
+  worse-than-seed (treat a sentinel/non-finite *seed* evaluation as "can't judge → keep
+  seed").
 
 **R3 — Ranking overtuning fix** (P0 #0 fragility 3; **awaits Oren's steer** on his
 2026-05-15 `:sat_neg1_err` tuning): don't let `is_untagged` veto a large `err` gap — make

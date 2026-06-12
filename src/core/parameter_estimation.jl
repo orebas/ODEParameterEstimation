@@ -692,16 +692,19 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	err = 0
 	_timed_detail_stage!(process_stages, :error_eval) do
 		if ode_solution !== nothing && ode_solution.retcode == ReturnCode.Success
-			err = 0
+			err = 0.0
 			for (key, sample) in data_sample
 				if isequal(key, "t")
 					continue
 				end
-				err += norm((ode_solution(data_sample["t"])[key]) .- sample) / length(data_sample["t"])
+				# SSE — the SINGLE canonical fit-error (see `_trajectory_sse`): sum of
+				# squared residuals over every observable and time point. The same unit
+				# the optimizer minimizes and every other candidate's `.err` is reported
+				# in, so algebraic / polished / synthesized candidates rank in one unit.
+				# (Was `norm(resid)/N` averaged over observables — a different unit that
+				# made small-residual candidates incomparable across sources.)
+				err += sum(abs2, (ode_solution(data_sample["t"])[key]) .- sample)
 			end
-			# Mean over observables; data_sample also carries the "t" key, which
-			# must not count toward the divisor.
-			err /= max(length(data_sample) - 1, 1)
 		else
 			err = 1e+15
 		end
@@ -1762,6 +1765,50 @@ function _build_polish_context(
 		polish_method = opts.polish_method,
 	))
 	return ctx
+end
+
+"""
+	_trajectory_sse(ctx::PolishContext, p_external) -> Float64
+
+THE canonical candidate fit-error: the trajectory sum-of-squared residuals
+`Σ_obs Σ_t (obs_pred − data)²`, evaluated DIRECTLY at `p_external` (user-space
+`[states; params]`). Every *reported* `.err` in the pipeline is this same quantity, so
+candidates from different sources (algebraic, polished, synthesized, seed) are ranked
+in ONE unit — the same one the optimizer minimizes ("rank by what you optimize").
+
+Two siblings compute the identical SSE for their own reasons, NOT a competing formula:
+- `process_raw_solution` computes it inline because it works from a raw `ODESolution`
+  (no `PolishContext`, observables via MTK observed-indexing);
+- the optimizer `loss` closure accumulates it in-place in its AD hot loop.
+
+Evaluated on external params directly — NO search-coordinate round-trip. Going through
+`ctx.optf.f` would map `external → internal → external`, and for `:shifted_log` with a
+large shift that round-trip loses ~1e-7 to cancellation, making a candidate's `err`
+depend on the optimizer's coordinate.
+"""
+function _trajectory_sse(ctx::PolishContext, p_external::AbstractVector{<:Real})
+	ic_guess = @view p_external[1:ctx.n_ic]
+	param_guess = @view p_external[(ctx.n_ic+1):end]
+	prob_opt = remake(ctx.base_ode_prob;
+		u0 = Dict(ctx.unknown_syms .=> ic_guess),
+		p = Dict(ctx.param_syms .=> param_guess),
+		build_initializeprob = false)
+	sol_opt = try
+		ModelingToolkit.solve(prob_opt, ctx.solver; saveat = ctx.t_vector,
+			abstol = ctx.abstol, reltol = ctx.reltol, maxiters = ctx.polish_ode_maxiters)
+	catch
+		return Inf
+	end
+	(sol_opt === nothing || sol_opt.retcode != ReturnCode.Success) && return Inf
+	total_error = 0.0
+	for (j, f) in enumerate(ctx.obs_funcs)
+		data_true = ctx.data_targets[j]
+		@inbounds for i in eachindex(ctx.t_vector)
+			diff = f(sol_opt.u[i], param_guess) - data_true[i]
+			total_error += diff * diff
+		end
+	end
+	return total_error
 end
 
 """
