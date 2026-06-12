@@ -462,19 +462,21 @@ using Random
     end
 
     @testset "Polish coordinate transforms" begin
-        # Per-variable transform selection: positive bounds → :log,
-        # finite signed bounds → :shifted_log, unbounded → :linear
-        lb = Float64[1e-3, -1.0, -Inf, 0.0]
-        ub = Float64[100.0, 1.0, Inf, 10.0]
+        # Per-variable :auto rule:
+        #   lb>0 → :log; lb==0 → :shifted_log; lb<0 with |lb|≤ub/10 → :shifted_log
+        #   ("positive, wiggle around 0", e.g. (-0.01,100)); comparable straddle / unbounded → :linear
+        lb = Float64[1e-3, -0.01, -1.0, -Inf, 0.0]
+        ub = Float64[100.0, 100.0, 1.0, Inf, 10.0]
         transforms, shifts = ODEParameterEstimation._choose_polish_transforms(lb, ub; policy = :auto)
-        @test transforms == [:log, :shifted_log, :linear, :shifted_log]
+        @test transforms == [:log, :shifted_log, :linear, :linear, :shifted_log]
         @test shifts[1] == 0.0
-        @test shifts[2] > 1.0           # shift covers the negative lower bound
-        @test shifts[3] == 0.0
-        @test shifts[4] > 0.0
+        @test 0.0 < shifts[2] < 1.0     # small "wiggle" shift (~|lb|), NOT the bound magnitude
+        @test shifts[3] == 0.0          # :linear, symmetric-ish (-1,1)
+        @test shifts[4] == 0.0          # :linear, unbounded
+        @test shifts[5] > 0.0           # :shifted_log, lb==0
 
-        # Forward / inverse round-trip in original scale
-        x = Float64[2.5, 0.3, -7.4, 4.7]
+        # Forward / inverse round-trip in original scale (x in each transform's domain)
+        x = Float64[2.5, 0.3, -0.5, -7.4, 4.7]
         y = ODEParameterEstimation._polish_external_to_internal(x, transforms, shifts)
         x_back = ODEParameterEstimation._polish_internal_to_external(y, transforms, shifts)
         @test x_back ≈ x rtol = 1e-12

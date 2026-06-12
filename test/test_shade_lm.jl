@@ -80,9 +80,10 @@ end
 		@test _shade_lm_relerr(pep, result) < 0.10
 	end
 
-	@testset "signed bounds (forces :shifted_log)" begin
-		# Override bounds so lb < 0 forces `:shifted_log` per variable.
-		# Truth is still well-inside the box, so estimation should succeed.
+	@testset "signed bounds (lb<0 box)" begin
+		# Override bounds so lb < 0. The box (-2, 5) is a comparable sign-straddle
+		# (|lb| not ≥1 OOM smaller than ub), so the :auto rule selects `:linear` per
+		# variable — exercises the signed-bounds path. Truth is well-inside, so it succeeds.
 		pep_template = simple()
 		n = length(pep_template.ic) + length(pep_template.p_true)
 		opts = EstimationOptions(;

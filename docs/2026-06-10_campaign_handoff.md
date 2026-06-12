@@ -170,15 +170,15 @@ follow-up (R1b).
   benchmark_smoke 10/10. **NOTE:** the unit mismatch was LIVE in every *polished* run (the
   fleet) — polished `.err` (SSE) was ranked against algebraic `.err` (`norm/N`) — so past
   fleet rankings may shift; worth a re-check.
-- **R2a — coordinate rule + decoupled default bounds (UNBLOCKED; pending clean re-apply).**
-  The original change (per Oren): `_choose_polish_transforms` `:auto` = `lb>0 → :log`; `lb==0`
-  or (`lb<0` and `|lb| ≤ ub/10`) → `:shifted_log` ("wiggle around 0", e.g. `(-0.01,100)`);
-  otherwise → `:linear`; plus split the default multiplier (DETECTION stays
-  `DEFAULT_BOUND_MULTIPLIER=1e9`; no-bounds POLISH box uses a new
-  `DEFAULT_POLISH_BOUND_MULTIPLIER=1e6`). It was reverted when it tripped the canaries — but
-  R2-metric proved those failures were the unit/round-trip bugs, NOT this change (A alone
-  reproduced them identically). With scoring now coordinate-free SSE, R2a no longer touches
-  ranking and can land cleanly. The "prove safe bounds from the spec without solving" idea
+- **R2a — coordinate rule + decoupled default bounds (LANDED 2026-06-12, gate 878/878).**
+  `_choose_polish_transforms` `:auto` = `lb>0 → :log`; `lb==0` or (`lb<0` and `|lb| ≤ ub/10`)
+  → `:shifted_log` ("wiggle around 0", e.g. `(-0.01,100)`); otherwise → `:linear`; plus split
+  the default multiplier (DETECTION stays `DEFAULT_BOUND_MULTIPLIER=1e9`; no-bounds POLISH box
+  uses a new `DEFAULT_POLISH_BOUND_MULTIPLIER=1e6`). It was reverted once when it tripped the
+  canaries — but R2-metric proved those failures were the unit/round-trip bugs, NOT this change
+  (A alone reproduced them identically). Re-applied on top of the SSE fix: gate 878/878, smoke
+  10/10, scoring is coordinate-free SSE so the coordinate change no longer reaches ranking. The
+  "prove safe bounds from the spec without solving" idea
   (derivative-magnitude anchoring in `choose_scales`) stays **research** — current
   equation-balancing only pins observed states + cross-coupled params, not isolated rates.
 - **R2b — revert/provenance (PENDING):** keep the HC provenance tag when a polish result

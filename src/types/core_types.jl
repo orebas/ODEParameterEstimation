@@ -76,7 +76,8 @@ const CLUSTERING_THRESHOLD = 0.00001  # 0.001% relative difference threshold
 const MAX_ERROR_THRESHOLD = 0.5       # Maximum acceptable error
 const IMAG_THRESHOLD = 1e-8           # Threshold for ignoring imaginary components
 const MAX_SOLUTIONS = 20              # Maximum number of solutions to consider if no good ones found
-const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale to compute default optimization bounds
+const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale: blown-backsolve DETECTION threshold (kept wide on purpose)
+const DEFAULT_POLISH_BOUND_MULTIPLIER = 1e6  # Narrower multiplier for the no-user-bounds POLISH search box (decoupled from detection; tune toward 1e3 if needed)
 const UQ_CI_Z = 1.96                  # Normal 95% quantile — used for BOTH the displayed CI half-width and the coverage check (must stay identical)
 
 """

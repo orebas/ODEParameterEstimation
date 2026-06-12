@@ -605,13 +605,19 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 end
 
 """
-	compute_default_bounds(PEP::ParameterEstimationProblem)
+	compute_default_bounds(PEP::ParameterEstimationProblem; multiplier = DEFAULT_BOUND_MULTIPLIER)
 
 Compute default optimization bounds based on the scale of observed data.
 Returns `(lb, ub)` vectors of length `n_states + n_params`, scaled by
-`DEFAULT_BOUND_MULTIPLIER * max(1, max_data_value)`.
+`multiplier * max(1, max_data_value)`.
+
+`multiplier` decouples the two consumers: blown-backsolve DETECTION keeps the wide
+`DEFAULT_BOUND_MULTIPLIER` (1e9), while the no-user-bounds POLISH search box passes the
+narrower `DEFAULT_POLISH_BOUND_MULTIPLIER` (1e6) so the optimizer doesn't roam a
+1e9-wide box. The box is symmetric, so `_choose_polish_transforms(:auto)` selects
+`:linear` for it (sign unknown, negative not ≥1 OOM smaller than positive).
 """
-function compute_default_bounds(PEP::ParameterEstimationProblem)
+function compute_default_bounds(PEP::ParameterEstimationProblem; multiplier::Real = DEFAULT_BOUND_MULTIPLIER)
 	data_vals = Float64[]
 	for (k, v) in PEP.data_sample
 		k == "t" && continue
@@ -621,7 +627,7 @@ function compute_default_bounds(PEP::ParameterEstimationProblem)
 	n_states = length(ModelingToolkit.unknowns(PEP.model.system))
 	n_params = length(ModelingToolkit.parameters(PEP.model.system))
 	p_size = n_states + n_params
-	bound = DEFAULT_BOUND_MULTIPLIER * data_scale
+	bound = multiplier * data_scale
 	lb = fill(-bound, p_size)
 	ub = fill(bound, p_size)
 	return lb, ub
@@ -1375,6 +1381,12 @@ Base.@kwdef struct PolishContext
 end
 
 const _POLISH_SHIFT_EPS = 1e-6
+# A box with `lb < 0` still gets `:shifted_log` only when the negative excursion is at
+# least one order of magnitude smaller than the positive reach (|lb| <= ub / RATIO) — the
+# "positive variable, but let the optimizer wiggle around 0" pattern, e.g. (-0.01, 100).
+# A comparable sign-straddle (e.g. a symmetric box) gets `:linear` instead, so the shift
+# never blows up to the bound magnitude.
+const _POLISH_SHIFTED_LOG_RATIO = 10.0
 const _POLISH_VALID_TRANSFORMS = Set([:linear, :log, :shifted_log])
 
 """
@@ -1382,11 +1394,18 @@ const _POLISH_VALID_TRANSFORMS = Set([:linear, :log, :shifted_log])
 
 Per-variable selection of coordinate transform.
 
-- `:log` when `lb > 0 && isfinite(ub)`. Forward `log(x)`, inverse `exp(x_int)`. Shift = 0.
-- `:shifted_log` when both bounds finite and `lb <= 0` (also handles `lb >= 0` near zero).
-  Shift `s = max(ε·M, -lb + ε·M)` where `M = max(|lb|, |ub|, 1)`. Forward `log(x + s)`.
-- `:linear` when either bound is `±Inf`, when bounds are missing, or when `policy != :auto`
-  forces it. Shift = 0.
+The `:auto` rule (per variable, both bounds finite unless noted):
+- `lb > 0`                                   → `:log`. Forward `log(x)`, shift 0.
+- `lb == 0`                                  → `:shifted_log` (clear the `log(0)` wall).
+- `lb < 0` and `|lb| <= ub / RATIO` (ub > 0) → `:shifted_log`. The negative reach is ≥1 OOM
+  smaller than the positive reach — the "positive variable, wiggle around 0" pattern
+  (e.g. `(-0.01, 100)`). Shift `s = max(ε·M, -lb + ε·M)`, `M = max(|lb|, |ub|, 1)`, stays
+  small because `|lb|` is small. Forward `log(x + s)`.
+- otherwise                                  → `:linear` (shift 0): a comparable sign-straddle
+  (e.g. a symmetric box) where a shift would have to equal the bound magnitude, plus any
+  case with a `±Inf` bound or missing bounds.
+
+`RATIO = _POLISH_SHIFTED_LOG_RATIO` (= 10).
 
 `policy`:
 - `:auto`         (default) — per-variable selection per the rules above.
@@ -1426,12 +1445,17 @@ function _choose_polish_transforms(
 			transforms[i] = :shifted_log
 			shifts[i] = _shifted_log_shift(lbi, ubi)
 		else
-			# :auto
+			# :auto (both bounds finite here — the !bounds_finite case fell through to
+			# :linear above). See the docstring for the rule.
 			if lbi > 0.0
 				transforms[i] = :log
-			else
+			elseif lbi == 0.0 || (lbi < 0.0 && ubi > 0.0 && abs(lbi) <= ubi / _POLISH_SHIFTED_LOG_RATIO)
+				# nonnegative (lb==0), or positive-with-small-negative-wiggle (lb<0, ≥1 OOM smaller)
 				transforms[i] = :shifted_log
 				shifts[i] = _shifted_log_shift(lbi, ubi)
+			else
+				# comparable sign-straddle (e.g. symmetric box), or ub <= 0 → affine/linear
+				transforms[i] = :linear
 			end
 		end
 	end
@@ -1640,7 +1664,9 @@ function _build_polish_context(
 		lb = Float64.(opts.opt_lb)
 		ub = Float64.(opts.opt_ub)
 	else
-		lb_auto, ub_auto = compute_default_bounds(PEP)
+		# No user bounds: use the NARROWER polish multiplier (1e6), not the wide 1e9
+		# detection box. Symmetric ⇒ :auto picks :linear (well-conditioned, no shift).
+		lb_auto, ub_auto = compute_default_bounds(PEP; multiplier = DEFAULT_POLISH_BOUND_MULTIPLIER)
 		lb = lb_auto
 		ub = ub_auto
 	end
