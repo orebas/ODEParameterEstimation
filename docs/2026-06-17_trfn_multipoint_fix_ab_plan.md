@@ -112,3 +112,36 @@ Comparison outputs to compute:
 Interpretation rule: do not change the paper benchmark numbers unless the A/B
 run is reviewed and deliberately adopted. The existing paper data remain a
 reproducible snapshot of the final-v2 benchmark.
+
+## Initial Local Pilot
+
+After committing the package fix, a small local pilot was run with the copied
+final-v2 generated cells and the local package project activated.  The runner is
+`repro/trfn_multipoint_fix_ab_2026_06_17/run_pilot.py`; raw pilot outputs are in
+`artifacts/trfn_multipoint_fix_ab_2026_06_17/`.
+
+The pilot deliberately avoided the expensive cells.  The archived final-v2
+wall time for `cstr_0_0` is about 12,771 seconds, so CSTR was not run locally.
+
+| Cell | Baseline max error | Fixed max error | Baseline best source | Fixed best source | Raw candidates | Wall time |
+| --- | ---: | ---: | --- | --- | ---: | ---: |
+| `quadrotor_0_0` | 2.59e-13 | 2.32e-13 | single point | single point | 238 -> 396 | 127.5s -> 279.9s |
+| `aircraft_pitch_0_0` | 2.57e-11 | 2.61e-11 | single point | single point | 221 -> 376 | 308.5s -> 325.2s |
+| `bicycle_model_0_0` | 8.84e-14 | 1.14e-13 | single point | multipoint | 213 -> 368 | 223.1s -> 392.5s |
+| `quadrotor_0_1em2` | 4.999e-2 | 4.999e-2 | not recorded in JSON | single point | 251 -> 391 | 262.8s -> 347.1s |
+
+Observed pattern:
+
+- The fix does activate the intended branch: the fixed pools contain roughly
+  109--135 multipoint candidates in these cells, while the final-v2 baseline
+  pools contain none.
+- Accuracy did not materially change in these four cells.  The only selected
+  multipoint best solution was `bicycle_model_0_0`, where the error remained at
+  roundoff scale.
+- Runtime increased in all four cells, from about 1.05x to 2.20x in this small
+  sample.  The direct multipoint template/evaluation/solve timers account for
+  only part of the overhead; the larger pool also increases downstream result
+  processing, aggregation, and polishing costs.
+- These pilot data support treating this as a package correctness fix first and
+  an optional benchmark variant second.  They do not justify changing the paper
+  benchmark numbers without a deliberate larger rerun.
