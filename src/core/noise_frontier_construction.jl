@@ -261,6 +261,34 @@ function _noise_generic_interpolants(measured_quantities, max_required_deriv::In
 	return interpolants
 end
 
+function _noise_append_source_mapped_equations!(
+	combined_inst_eqs,
+	combined_symb_eqs,
+	source_indices::Vector{Int},
+	points::Vector{Int},
+	inst_renamed,
+	symb_renamed,
+	inst_source_indices,
+	point::Int;
+	diagnostics::Bool = false,
+	context::AbstractString = "template",
+)
+	length(inst_renamed) == length(inst_source_indices) ||
+		error("[NOISE-FRONTIER] $context source-index mismatch at point $point: $(length(inst_renamed)) instantiated equations vs $(length(inst_source_indices)) source indices")
+	if length(inst_renamed) != length(symb_renamed) && diagnostics
+		@info "[NOISE-FRONTIER] $context equation-count mismatch; using retained source indices" point = point instantiated = length(inst_renamed) symbolic = length(symb_renamed)
+	end
+	for (local_idx, src_idx) in enumerate(inst_source_indices)
+		1 <= src_idx <= length(symb_renamed) ||
+			error("[NOISE-FRONTIER] $context invalid source index $src_idx at point $point; symbolic template has $(length(symb_renamed)) equations")
+		push!(combined_inst_eqs, inst_renamed[local_idx])
+		push!(combined_symb_eqs, symb_renamed[src_idx])
+		push!(source_indices, src_idx)
+		push!(points, point)
+	end
+	return nothing
+end
+
 function _noise_build_generic_pool(
 	pep::ParameterEstimationProblem,
 	setup::NamedTuple,
@@ -309,16 +337,18 @@ function _noise_build_generic_pool(
 		)
 		inst_renamed, _ = _rename_per_point_variables(inst.equations, inst.vars, param_set, pt)
 		symb_renamed = _noise_rename_symbolic_equations(full_symb_eqs, full_symb_vars, symb_to_clean, param_set, pt)
-		n_inst = length(inst_renamed)
-		n_symb = length(symb_renamed)
-		if n_inst != n_symb && diagnostics
-			@warn "[NOISE-FRONTIER] Generic template/instantiated equation-count mismatch; using prefix mapping for nontrivial equations" point = pt instantiated = n_inst symbolic = n_symb
-		end
-		n_keep = min(n_inst, n_symb)
-		append!(combined_inst_eqs, inst_renamed[1:n_keep])
-		append!(combined_symb_eqs, symb_renamed[1:n_keep])
-		append!(source_indices, collect(1:n_keep))
-		append!(points, fill(pt, n_keep))
+		_noise_append_source_mapped_equations!(
+			combined_inst_eqs,
+			combined_symb_eqs,
+			source_indices,
+			points,
+			inst_renamed,
+			symb_renamed,
+			inst.source_indices,
+			pt;
+			diagnostics = diagnostics,
+			context = "generic template",
+		)
 	end
 
 	rank_inst_eqs, rank_vars, metadata = _noise_rank_pool_from_symbolic_equations(
@@ -415,16 +445,18 @@ function _noise_build_pool(
 		)
 		inst_renamed, _ = _rename_per_point_variables(inst.equations, inst.vars, param_set, pt)
 		symb_renamed = _noise_rename_symbolic_equations(full_symb_eqs, full_symb_vars, symb_to_clean, param_set, pt)
-		n_inst = length(inst_renamed)
-		n_symb = length(symb_renamed)
-		if n_inst != n_symb && diagnostics
-			@warn "[NOISE-FRONTIER] Template/instantiated equation-count mismatch; using prefix mapping for nontrivial equations" point = pt instantiated = n_inst symbolic = n_symb
-		end
-		n_keep = min(n_inst, n_symb)
-		append!(combined_inst_eqs, inst_renamed[1:n_keep])
-		append!(combined_symb_eqs, symb_renamed[1:n_keep])
-		append!(source_indices, collect(1:n_keep))
-		append!(points, fill(pt, n_keep))
+		_noise_append_source_mapped_equations!(
+			combined_inst_eqs,
+			combined_symb_eqs,
+			source_indices,
+			points,
+			inst_renamed,
+			symb_renamed,
+			inst.source_indices,
+			pt;
+			diagnostics = diagnostics,
+			context = "data-conditioned template",
+		)
 	end
 
 	rank_inst_eqs, rank_vars, metadata = _noise_rank_pool_from_symbolic_equations(

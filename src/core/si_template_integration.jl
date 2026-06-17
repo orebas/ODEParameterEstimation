@@ -218,6 +218,7 @@ function instantiate_si_template_equations(
 	# derivatives are substituted — the equations become "0 ≈ 0".
 	final_vars = OrderedSet()
 	kept_equations = eltype(substituted_equations)[]
+	kept_source_indices = Int[]
 	trivial_residuals = Float64[]
 	n_trivial = 0
 	for (eq_idx, eq) in enumerate(substituted_equations)
@@ -231,6 +232,7 @@ function instantiate_si_template_equations(
 			end
 		else
 			push!(kept_equations, eq)
+			push!(kept_source_indices, eq_idx)
 			union!(final_vars, vars_in_eq)
 			if diagnostics
 				@info "[DEBUG-SI-VARS] Eq$eq_idx has $(length(vars_in_eq)) variables: $(vars_in_eq)"
@@ -276,6 +278,7 @@ function instantiate_si_template_equations(
 				if all(v -> get(var_eq_count, v, 0) >= 2, eq_vars)
 					@info "[TEMPLATE] Overdetermined ($n_excess excess): removing equation $idx (all $(length(eq_vars)) vars appear elsewhere)"
 					deleteat!(kept_equations, idx)
+					deleteat!(kept_source_indices, idx)
 					removed = true
 					break
 				end
@@ -295,6 +298,7 @@ function instantiate_si_template_equations(
 	return (
 		equations = kept_equations,
 		vars = collect(final_vars),
+		source_indices = kept_source_indices,
 		trivial_residuals = trivial_residuals,
 		substituted_values = interpolated_values_dict,
 		t_point = t_point,

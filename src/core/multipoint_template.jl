@@ -753,16 +753,10 @@ function build_multipoint_template(
         symb_renamed = isempty(rd) ? collect(symb_template_eqs) :
                        [Symbolics.substitute(eq, rd) for eq in symb_template_eqs]
 
-        # The instantiated system may have fewer equations than the symbolic template
-        # (e.g., _trfn_ equations become trivial 0≈0 after substitution and are removed).
-        # We need to match symbolic equations to their instantiated counterparts.
-        # Strategy: the instantiation preserves equation ORDER but drops some.
-        # Match by checking which symbolic equations, after data substitution, produce
-        # equations with the same variable set as the instantiated ones.
-        #
-        # Simple approach: if counts match, 1:1 correspondence. If not, keep only
-        # the first len(inst) symbolic equations as a safe fallback, since the removed
-        # equations are typically at the end (trivial _trfn_ equations).
+        # The legacy builder has no retained source-index metadata here, so a
+        # count mismatch means it cannot safely pair instantiated and symbolic
+        # equations.  The top-level multipoint caller catches this and continues
+        # with single-point candidates.
         n_inst = length(inst_renamed)
         n_symb = length(symb_renamed)
         if n_inst == n_symb
@@ -775,24 +769,7 @@ function build_multipoint_template(
             end
             append!(combined_symb_eqs, symb_renamed)
         else
-            # Mismatch: instantiation removed some equations (typically _trfn_ trivials).
-            # Build a mapping: for each inst equation, find its symbolic counterpart
-            # by matching variable overlap after substitution.
-            # Fallback: just use inst equations as both inst and symb (lose symbolic
-            # data vars, but at least the system works).
-            if diagnostics
-                println("[MPT] Equation count mismatch: $n_inst inst vs $n_symb symb (transcendental model?)")
-            end
-            for (i, eq) in enumerate(inst_renamed)
-                push!(combined_inst_eqs, eq)
-                nv = length(Symbolics.get_variables(eq))
-                mo = maximum(_multipoint_deriv_order(v) for v in Symbolics.get_variables(eq))
-                push!(eq_meta, (point = pt, is_data = nv == 1, order = mo))
-            end
-            # For symbolic: use instantiated equations as symbolic stand-ins.
-            # This means no parameter homotopy for transcendental models (data vars
-            # are already substituted), but direct solve still works.
-            append!(combined_symb_eqs, inst_renamed)
+            error("[MPT] Legacy multipoint cannot safely map instantiated equations to symbolic equations at point $pt ($n_inst instantiated vs $n_symb symbolic). Use system_construction_policy=:noise_frontier for source-index mapping.")
         end
     end
 

@@ -175,6 +175,64 @@ using Random
         ]
     end
 
+    @testset "Transcendental template pruning preserves equation provenance" begin
+        @independent_variables t
+        @variables x(t) y(t) y0 y1 x0
+
+        trfn_sin = Symbolics.variable(Symbol("_trfn_sin_0_5"))
+        trfn_cos = Symbolics.variable(Symbol("_trfn_cos_0_5"))
+        template_equations = Num[
+            x0 + y0,
+            trfn_sin^2 + trfn_cos^2 - 1,
+            x0^2 + y1,
+        ]
+        measured_quantities = [y ~ x]
+        data_sample = OrderedDict{Any, Any}("t" => [0.0, 1.0, 2.0])
+        interpolants = Dict{Any, Any}(ModelingToolkit.diff2term(x) => (τ -> 2.0 * τ + 1.0))
+        template_DD = (obs_lhs = [[y0], [y1]],)
+        derivative_dict = Dict{Any, Int}(y0 => 0, y1 => 1)
+
+        inst = with_logger(NullLogger()) do
+            ODEParameterEstimation.instantiate_si_template_equations(
+                template_equations,
+                measured_quantities,
+                data_sample,
+                derivative_dict,
+                template_DD;
+                interpolants = interpolants,
+                time_index = 2,
+                diagnostics = false,
+                prune_overdetermined = false,
+                substitute_trfn = true,
+            )
+        end
+
+        @test length(inst.equations) == 2
+        @test inst.source_indices == [1, 3]
+        @test length(inst.trivial_residuals) == 1
+        @test abs(only(inst.trivial_residuals)) < 1e-12
+
+        combined_inst = Any[]
+        combined_symb = Any[]
+        source_indices = Int[]
+        points = Int[]
+        ODEParameterEstimation._noise_append_source_mapped_equations!(
+            combined_inst,
+            combined_symb,
+            source_indices,
+            points,
+            inst.equations,
+            template_equations,
+            inst.source_indices,
+            2;
+            diagnostics = false,
+            context = "test",
+        )
+        @test string.(combined_symb) == string.([template_equations[1], template_equations[3]])
+        @test source_indices == [1, 3]
+        @test points == [2, 2]
+    end
+
     @testset "HC conversion accepts empty parameter lists" begin
         @variables x
         hc_system, hc_variables, hc_params = ODEParameterEstimation.convert_to_hc_format_with_params(

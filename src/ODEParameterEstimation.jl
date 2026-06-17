@@ -43,6 +43,21 @@ using Enzyme
 using SymbolicUtils
 using PDMats
 
+# Disambiguation for GaussianProcesses.jl / PDMats.jl ldiv! conflict.
+# Registry GaussianProcesses.jl defines ldiv!(::PDMat, ::Any), while PDMats.jl
+# defines ldiv!(::AbstractPDMat, ::AbstractVecOrMat).  Matrix RHS dispatch is
+# ambiguous unless an exact PDMat/AbstractVecOrMat method exists.  Some patched
+# GP forks already provide this method, so only install the local bridge when it
+# is absent.
+import LinearAlgebra: ldiv!
+function _odepe_has_pdmat_ldiv_disambiguation()
+	target = Tuple{typeof(ldiv!), PDMats.PDMat, AbstractVecOrMat}
+	return any(m -> m.sig == target, methods(ldiv!))
+end
+if !_odepe_has_pdmat_ldiv_disambiguation()
+	LinearAlgebra.ldiv!(A::PDMats.PDMat, B::AbstractVecOrMat) = ldiv!(A.chol, B)
+end
+
 #using CSV
 #using DataFrames
 #using DelimitedFiles

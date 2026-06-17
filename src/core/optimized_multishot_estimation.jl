@@ -846,14 +846,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# Check if we should use parameter homotopy and/or multi-point template.
 		# Both can run — single-point always runs, multipoint adds solutions to the pool.
-		# trfn vars are STATES added by transform_pep_for_estimation — they land in
-		# PEP.ic, not p_true (postcampaign review P0#2: the old p_true-only check was
-		# always false, so multipoint never disabled for transcendental models).
-		_has_trfn = any(
-			startswith(replace(string(k), "(t)" => ""), "_trfn_")
-			for k in Iterators.flatten((keys(PEP.ic), keys(PEP.p_true)))
-		)
-		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC && !_has_trfn
+		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
 		_record_phase!(phase_stats, "Equation construction + Solving") do
