@@ -11,6 +11,7 @@ CSV/Markdown comparison against the archived final-v2 metadata.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import csv
 import json
 import os
@@ -38,6 +39,7 @@ DEFAULT_CELLS = [
 ]
 
 INPUT_FILES = ["script.jl", "data.csv", "data.csv.sha256", "cell_seed.txt"]
+OK_RUN_STATUSES = {"ok"}
 
 
 def read_json(path: Path) -> dict[str, Any] | None:
@@ -83,14 +85,25 @@ def prepare_cell(cell_id: str) -> Path:
     return dst
 
 
-def run_cell(cell_id: str, timeout: int) -> dict[str, Any]:
+def is_completed(cell_id: str) -> bool:
+    cell_dir = LOCAL_RUN / cell_id
+    meta = read_json(cell_dir / "odepe_metadata.json")
+    return (
+        bool(meta)
+        and meta.get("status") in OK_RUN_STATUSES
+        and (cell_dir / "result.csv").exists()
+        and (cell_dir / "wall_time_seconds.txt").exists()
+    )
+
+
+def run_cell(cell_id: str, timeout: int, threads: int) -> dict[str, Any]:
     dst = prepare_cell(cell_id)
     stdout_path = dst / "pilot_stdout.txt"
     stderr_path = dst / "pilot_stderr.txt"
     env = os.environ.copy()
     env.update(
         {
-            "JULIA_NUM_THREADS": "2",
+            "JULIA_NUM_THREADS": str(threads),
             "MKL_NUM_THREADS": "1",
             "OPENBLAS_NUM_THREADS": "1",
         }
@@ -107,8 +120,99 @@ def run_cell(cell_id: str, timeout: int) -> dict[str, Any]:
             status = "error"
     except subprocess.TimeoutExpired:
         status = "timeout"
+        (dst / "pilot_failure_reason.txt").write_text(f"timeout after {timeout} seconds\n")
     elapsed = time.time() - t0
     return {"cell": cell_id, "pilot_status": status, "returncode": returncode, "pilot_elapsed": elapsed}
+
+
+def discover_cells(systems: list[str]) -> list[str]:
+    cells: list[str] = []
+    seen: set[str] = set()
+    for system in systems:
+        matches = sorted(SOURCE_RUN.glob(f"{system}_*"), key=lambda path: cell_sort_key(path.name, [system]))
+        if not matches:
+            raise FileNotFoundError(f"no source cells found for system: {system}")
+        for path in matches:
+            if path.is_dir() and path.name not in seen:
+                seen.add(path.name)
+                cells.append(path.name)
+    return cells
+
+
+def cell_sort_key(cell_id: str, systems: list[str]) -> tuple[int, int, int, str]:
+    noise_order = {"0": 0, "1em2": 1, "1em4": 2, "1em6": 3, "1em8": 4}
+    for system_index, system in enumerate(systems):
+        prefix = f"{system}_"
+        if cell_id.startswith(prefix):
+            suffix = cell_id[len(prefix) :]
+            replicate, _, noise = suffix.partition("_")
+            try:
+                replicate_index = int(replicate)
+            except ValueError:
+                replicate_index = 999
+            return (system_index, replicate_index, noise_order.get(noise, 999), cell_id)
+    return (999, 999, 999, cell_id)
+
+
+def select_cells(args: argparse.Namespace) -> list[str]:
+    if args.systems:
+        return discover_cells(args.systems)
+    return args.cells
+
+
+def run_selected_cells(
+    cells: list[str],
+    timeout: int,
+    threads: int,
+    jobs: int,
+    prepare_only: bool,
+    skip_completed: bool,
+) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    pending: list[str] = []
+
+    for cell in cells:
+        if skip_completed and is_completed(cell):
+            record = {"cell": cell, "pilot_status": "skipped_completed"}
+            print(json.dumps(record, sort_keys=True), flush=True)
+            records.append(record)
+        else:
+            pending.append(cell)
+
+    if prepare_only:
+        for cell in pending:
+            prepare_cell(cell)
+            record = {"cell": cell, "pilot_status": "prepared"}
+            print(json.dumps(record, sort_keys=True), flush=True)
+            records.append(record)
+        return records
+
+    def run_one(cell: str) -> dict[str, Any]:
+        print(f"RUN {cell}", flush=True)
+        try:
+            return run_cell(cell, timeout, threads)
+        except Exception as exc:
+            return {"cell": cell, "pilot_status": "exception", "error": repr(exc)}
+
+    if jobs <= 1:
+        for cell in pending:
+            rec = run_one(cell)
+            print(json.dumps(rec, sort_keys=True), flush=True)
+            records.append(rec)
+        return records
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as executor:
+        future_to_cell = {executor.submit(run_one, cell): cell for cell in pending}
+        for future in concurrent.futures.as_completed(future_to_cell):
+            cell = future_to_cell[future]
+            try:
+                rec = future.result()
+            except Exception as exc:
+                rec = {"cell": cell, "pilot_status": "exception", "error": repr(exc)}
+            print(json.dumps(rec, sort_keys=True), flush=True)
+            records.append(rec)
+
+    return records
 
 
 def flatten_meta(meta: dict[str, Any] | None) -> dict[str, Any]:
@@ -262,21 +366,51 @@ def write_summary(rows: list[dict[str, Any]]) -> None:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cells", nargs="+", default=DEFAULT_CELLS)
+    parser.add_argument("--systems", nargs="+")
     parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument("--jobs", type=int, default=1)
     parser.add_argument("--prepare-only", action="store_true")
+    parser.add_argument("--skip-completed", action="store_true")
+    parser.add_argument("--summary-only", action="store_true")
+    parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(argv)
 
     ARTIFACT_ROOT.mkdir(parents=True, exist_ok=True)
-    records: list[dict[str, Any]] = []
-    for cell in args.cells:
-        prepare_cell(cell)
-        if not args.prepare_only:
-            print(f"RUN {cell}", flush=True)
-            rec = run_cell(cell, args.timeout)
-            print(json.dumps(rec, sort_keys=True), flush=True)
-            records.append(rec)
+    cells = select_cells(args)
+    completed = [cell for cell in cells if is_completed(cell)]
+    pending = [cell for cell in cells if not (args.skip_completed and is_completed(cell))]
 
-    rows = summarize(args.cells, records)
+    if args.dry_run:
+        print(
+            json.dumps(
+                {
+                    "selected_count": len(cells),
+                    "completed_count": len(completed),
+                    "pending_count": len(pending),
+                    "selected_cells": cells,
+                    "pending_cells": pending,
+                    "completed_cells": completed,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.summary_only:
+        records: list[dict[str, Any]] = []
+    else:
+        records = run_selected_cells(
+            cells,
+            timeout=args.timeout,
+            threads=args.threads,
+            jobs=args.jobs,
+            prepare_only=args.prepare_only,
+            skip_completed=args.skip_completed,
+        )
+
+    rows = summarize(cells, records)
     write_summary(rows)
     return 0
 
