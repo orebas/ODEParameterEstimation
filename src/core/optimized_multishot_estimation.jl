@@ -1142,13 +1142,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							rank = validation.rank,
 							target_rank = validation.target_rank,
 							reason = validation.reason,
+							sigma_max = validation.sigma_max,
+							sigma_min = validation.sigma_min,
+							unfloored_svd_ratio = validation.unfloored_svd_ratio,
 							condition_proxy = validation.condition_proxy,
+							rank_atol = validation.rank_atol,
 						))
 						if validation.valid
 							push!(rank_valid_point_indices, point_idx)
 							push!(rank_valid_param_values_list, param_values)
 							if opts.diagnostics
-								println("  [$interp_sym] Noise-frontier SP validation passed at point $point_idx: rank=$(validation.rank)/$(validation.target_rank), cond≈$(round(validation.condition_proxy; digits=3))")
+								println("  [$interp_sym] Noise-frontier SP validation passed at point $point_idx: rank=$(validation.rank)/$(validation.target_rank), proxy≈$(round(validation.condition_proxy; digits=3)), sigma_min=$(round(validation.sigma_min; digits=3))")
 							end
 						else
 							msg = "  [$interp_sym] Dropping shooting point $point_idx: generic noise-frontier subsystem validation failed ($(validation.reason), rank=$(validation.rank)/$(validation.target_rank))"
@@ -1500,7 +1504,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 									push!(evals, ev)
 									reusable_system_cache[(:mp_eval, interp_sym, Tuple(combo))] = ev
 									if opts.diagnostics
-										println("  [$interp_sym] Noise-frontier MP validation passed for combo $(Tuple(combo)): rank=$(validation.rank)/$(validation.target_rank), cond≈$(round(validation.condition_proxy; digits=3))")
+										println("  [$interp_sym] Noise-frontier MP validation passed for combo $(Tuple(combo)): rank=$(validation.rank)/$(validation.target_rank), proxy≈$(round(validation.condition_proxy; digits=3)), sigma_min=$(round(validation.sigma_min; digits=3))")
 									end
 								elseif opts.diagnostics || !opts.nooutput
 									println("  [$interp_sym] Dropping multipoint combo $(Tuple(combo)): generic noise-frontier template validation failed ($(validation.reason), rank=$(validation.rank)/$(validation.target_rank))")
@@ -1521,6 +1525,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								rank = (opts.system_construction_policy == :noise_frontier) ? validation.rank : missing,
 								target_rank = (opts.system_construction_policy == :noise_frontier) ? validation.target_rank : missing,
 								reason = (opts.system_construction_policy == :noise_frontier) ? validation.reason : :not_applicable,
+								sigma_max = (opts.system_construction_policy == :noise_frontier) ? validation.sigma_max : missing,
+								sigma_min = (opts.system_construction_policy == :noise_frontier) ? validation.sigma_min : missing,
+								unfloored_svd_ratio = (opts.system_construction_policy == :noise_frontier) ? validation.unfloored_svd_ratio : missing,
+								condition_proxy = (opts.system_construction_policy == :noise_frontier) ? validation.condition_proxy : missing,
+								rank_atol = (opts.system_construction_policy == :noise_frontier) ? validation.rank_atol : missing,
 							))
 						catch e
 							# A systematic combo-eval failure must not be

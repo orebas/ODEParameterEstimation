@@ -318,7 +318,16 @@ using Random
         @test sp.selected.max_observed_order == sp.minimal_max_observed_order
         @test sp.selected.mixed_volume === nothing
         @test length(sp.selected.equations) == length(sp.selected.solve_vars)
-        @test !isempty(ODEParameterEstimation.noise_frontier_rows(sp))
+        @test isfinite(sp.selected.sigma_max)
+        @test isfinite(sp.selected.sigma_min)
+        @test isfinite(sp.selected.unfloored_svd_ratio)
+        @test sp.selected.rank_atol == 1e-8
+        frontier_rows = ODEParameterEstimation.noise_frontier_rows(sp)
+        @test !isempty(frontier_rows)
+        @test :sigma_max in propertynames(frontier_rows[1])
+        @test :sigma_min in propertynames(frontier_rows[1])
+        @test :unfloored_svd_ratio in propertynames(frontier_rows[1])
+        @test :rank_atol in propertynames(frontier_rows[1])
 
         structural_setup = (
             good_deriv_level = ident.good_deriv_level,
@@ -354,12 +363,21 @@ using Random
         )
         validation = ODEParameterEstimation.validate_noise_frontier_candidate_at_values(sp.selected, data_values)
         @test validation.valid
+        @test validation.rank == validation.target_rank
+        @test isfinite(validation.sigma_max)
+        @test isfinite(validation.sigma_min)
+        @test isfinite(validation.unfloored_svd_ratio)
+        @test isfinite(validation.condition_proxy)
+        @test validation.rank_atol == 1e-8
         bad_validation = ODEParameterEstimation.validate_noise_frontier_candidate_at_values(
             sp.selected,
             fill(NaN, length(sp.selected.data_vars)),
         )
         @test !bad_validation.valid
         @test bad_validation.reason == :nonfinite_data
+        @test isnan(bad_validation.sigma_max)
+        @test bad_validation.condition_proxy == Inf
+        @test bad_validation.rank_atol == 1e-8
 
         @variables z d
         deficient_validation = ODEParameterEstimation.validate_noise_frontier_instantiation(
@@ -370,6 +388,10 @@ using Random
         )
         @test !deficient_validation.valid
         @test deficient_validation.reason == :rank_deficient
+        @test isfinite(deficient_validation.sigma_max)
+        @test deficient_validation.sigma_min == 0.0
+        @test deficient_validation.unfloored_svd_ratio == Inf
+        @test deficient_validation.condition_proxy == 0.0
 
         mp = ODEParameterEstimation.build_noise_frontier_system(
             pep,
@@ -447,6 +469,15 @@ using Random
         @test details[:sp_generic_start_cache_hits] >= 1
         @test haskey(details, :multipoint_template_seconds_by_source)
         @test haskey(details, :multipoint_solve_seconds_by_source)
+        sp_validation_records = filter(
+            rec -> get(rec, :category, nothing) == :single_point_noise_frontier_validation,
+            get(details, :detailed_timing_records, NamedTuple[]),
+        )
+        @test !isempty(sp_validation_records)
+        @test all(rec -> :sigma_max in propertynames(rec), sp_validation_records)
+        @test all(rec -> :sigma_min in propertynames(rec), sp_validation_records)
+        @test all(rec -> :unfloored_svd_ratio in propertynames(rec), sp_validation_records)
+        @test all(rec -> :rank_atol in propertynames(rec), sp_validation_records)
         timing_dict = ODEParameterEstimation.timing_breakdown_to_dict(timing)
         @test timing_dict["details"]["sp_generic_start_cache_misses"] == 1
     end

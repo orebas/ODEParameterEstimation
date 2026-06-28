@@ -34,7 +34,59 @@ struct NoiseFrontierCandidate
 	solve_var_count::Int
 	data_var_count::Int
 	condition_proxy::Float64
+	sigma_max::Float64
+	sigma_min::Float64
+	unfloored_svd_ratio::Float64
+	rank_atol::Float64
 	mixed_volume::Union{Nothing, Int}
+end
+
+function NoiseFrontierCandidate(
+	n_points,
+	strategy,
+	max_observed_order,
+	selected_equation_indices,
+	selected_source_indices,
+	dropped_equation_indices,
+	equations,
+	solve_vars,
+	data_vars,
+	eq_metadata,
+	rank,
+	target_rank,
+	is_square,
+	rank_complete,
+	support_score,
+	solve_var_count,
+	data_var_count,
+	condition_proxy,
+	mixed_volume,
+)
+	return NoiseFrontierCandidate(
+		n_points,
+		strategy,
+		max_observed_order,
+		selected_equation_indices,
+		selected_source_indices,
+		dropped_equation_indices,
+		equations,
+		solve_vars,
+		data_vars,
+		eq_metadata,
+		rank,
+		target_rank,
+		is_square,
+		rank_complete,
+		support_score,
+		solve_var_count,
+		data_var_count,
+		condition_proxy,
+		NaN,
+		NaN,
+		Inf,
+		NaN,
+		mixed_volume,
+	)
 end
 
 struct NoiseFrontierResult
@@ -666,6 +718,59 @@ function _noise_classify_selected_vars(equations, pep, dd_order_by_obj, dd_order
 	return solve_vars, data_vars
 end
 
+function _noise_svd_diagnostics(
+	J,
+	selected;
+	rank_atol::Float64 = 1e-8,
+	rank_value::Union{Nothing, Int} = nothing,
+	target_rank::Union{Nothing, Int} = nothing,
+)
+	length(selected) == 0 && return (
+		sigma_max = NaN,
+		sigma_min = NaN,
+		unfloored_svd_ratio = Inf,
+		condition_proxy = Inf,
+		rank_atol = rank_atol,
+	)
+	Js = J[selected, :]
+	svs = try
+		svdvals(Js)
+	catch
+		return (
+			sigma_max = NaN,
+			sigma_min = NaN,
+			unfloored_svd_ratio = Inf,
+			condition_proxy = Inf,
+			rank_atol = rank_atol,
+		)
+	end
+	isempty(svs) && return (
+		sigma_max = NaN,
+		sigma_min = NaN,
+		unfloored_svd_ratio = Inf,
+		condition_proxy = Inf,
+		rank_atol = rank_atol,
+	)
+	sigma_max = Float64(svs[1])
+	sigma_min = Float64(svs[end])
+	condition_proxy = size(Js, 1) < size(Js, 2) ? Inf : sigma_max / max(sigma_min, rank_atol)
+	full_rank = if !isnothing(rank_value) && !isnothing(target_rank)
+		rank_value >= target_rank
+	else
+		size(Js, 1) >= size(Js, 2) && rank(Js; atol = rank_atol) >= size(Js, 2)
+	end
+	unfloored_svd_ratio =
+		full_rank && isfinite(sigma_max) && isfinite(sigma_min) && sigma_min > 0.0 ?
+		sigma_max / sigma_min : Inf
+	return (
+		sigma_max = sigma_max,
+		sigma_min = sigma_min,
+		unfloored_svd_ratio = unfloored_svd_ratio,
+		condition_proxy = condition_proxy,
+		rank_atol = rank_atol,
+	)
+end
+
 function _noise_condition_proxy(J, selected; rank_atol::Float64 = 1e-8)
 	length(selected) == 0 && return Inf
 	Js = J[selected, :]
@@ -689,6 +794,10 @@ struct NoiseValidationCache
 	data_var_count::Int
 	rank_value::Int
 	condition_proxy::Float64
+	sigma_max::Float64
+	sigma_min::Float64
+	unfloored_svd_ratio::Float64
+	rank_atol::Float64
 	finite_probe_count::Int
 	failure_reason::Symbol
 end
@@ -825,6 +934,10 @@ function _noise_prepare_validation_cache(
 			length(data_vars),
 			-1,
 			Inf,
+			NaN,
+			NaN,
+			Inf,
+			rank_atol,
 			0,
 			:ok,
 		)
@@ -837,6 +950,13 @@ function _noise_prepare_validation_cache(
 				rank_atol = rank_atol,
 				n_rank_probes = n_rank_probes,
 			)
+			svd_diag = _noise_svd_diagnostics(
+				J,
+				collect(eachindex(equations));
+				rank_atol = rank_atol,
+				rank_value = rank_value,
+				target_rank = length(solve_vars),
+			)
 			NoiseValidationCache(
 				true,
 				false,
@@ -846,7 +966,11 @@ function _noise_prepare_validation_cache(
 				length(solve_vars),
 				length(data_vars),
 				rank_value,
-				_noise_condition_proxy(J, collect(eachindex(equations)); rank_atol = rank_atol),
+				svd_diag.condition_proxy,
+				svd_diag.sigma_max,
+				svd_diag.sigma_min,
+				svd_diag.unfloored_svd_ratio,
+				svd_diag.rank_atol,
 				finite_probe_count,
 				:ok,
 			)
@@ -863,6 +987,10 @@ function _noise_prepare_validation_cache(
 			length(data_vars),
 			0,
 			Inf,
+			NaN,
+			NaN,
+			Inf,
+			rank_atol,
 			0,
 			:cache_build_failed,
 		)
@@ -907,6 +1035,13 @@ function _noise_candidate_from_indices(
 	rank_complete = r == target_rank
 	mv = compute_mixed_volume && is_square && rank_complete ? _noise_mixed_volume(equations, solve_vars, data_vars) : nothing
 	all_indices = collect(eachindex(pool.symbolic_equations))
+	svd_diag = _noise_svd_diagnostics(
+		J,
+		selected;
+		rank_atol = rank_atol,
+		rank_value = r,
+		target_rank = target_rank,
+	)
 	return NoiseFrontierCandidate(
 		pool.n_points,
 		strategy,
@@ -925,7 +1060,11 @@ function _noise_candidate_from_indices(
 		_noise_basis_score(selected, pool.metadata),
 		length(solve_vars),
 		length(data_vars),
-		_noise_condition_proxy(J, selected; rank_atol = rank_atol),
+		svd_diag.condition_proxy,
+		svd_diag.sigma_max,
+		svd_diag.sigma_min,
+		svd_diag.unfloored_svd_ratio,
+		svd_diag.rank_atol,
 		mv,
 	)
 end
@@ -1001,6 +1140,30 @@ function instantiate_noise_frontier_candidate(candidate::NoiseFrontierCandidate,
 	return [Symbolics.substitute(eq, subst) for eq in candidate.equations], candidate.solve_vars
 end
 
+function _noise_validation_result(;
+	valid::Bool,
+	reason::Symbol,
+	rank::Int,
+	target_rank::Int,
+	rank_atol::Float64,
+	condition_proxy::Float64 = Inf,
+	sigma_max::Float64 = NaN,
+	sigma_min::Float64 = NaN,
+	unfloored_svd_ratio::Float64 = Inf,
+)
+	return (
+		valid = valid,
+		reason = reason,
+		rank = rank,
+		target_rank = target_rank,
+		sigma_max = sigma_max,
+		sigma_min = sigma_min,
+		unfloored_svd_ratio = unfloored_svd_ratio,
+		condition_proxy = condition_proxy,
+		rank_atol = rank_atol,
+	)
+end
+
 function validate_noise_frontier_instantiation(
 	equations,
 	solve_vars,
@@ -1012,26 +1175,26 @@ function validate_noise_frontier_instantiation(
 	validation_t0 = time()
 	validation_stages = OrderedDict{Symbol, Float64}()
 	target_rank = length(solve_vars)
-	length(equations) == target_rank || return (
+	length(equations) == target_rank || return _noise_validation_result(
 		valid = false,
 		reason = :nonsquare,
 		rank = 0,
 		target_rank = target_rank,
-		condition_proxy = Inf,
+		rank_atol = rank_atol,
 	)
-	length(data_values) == length(data_vars) || return (
+	length(data_values) == length(data_vars) || return _noise_validation_result(
 		valid = false,
 		reason = :data_length_mismatch,
 		rank = 0,
 		target_rank = target_rank,
-		condition_proxy = Inf,
+		rank_atol = rank_atol,
 	)
-	all(isfinite, data_values) || return (
+	all(isfinite, data_values) || return _noise_validation_result(
 		valid = false,
 		reason = :nonfinite_data,
 		rank = 0,
 		target_rank = target_rank,
-		condition_proxy = Inf,
+		rank_atol = rank_atol,
 	)
 
 	_cache_t0 = time()
@@ -1047,6 +1210,10 @@ function validate_noise_frontier_instantiation(
 	if cache.usable
 		cached_rank_value = 0
 		cached_condition_proxy = Inf
+		cached_sigma_max = NaN
+		cached_sigma_min = NaN
+		cached_unfloored_svd_ratio = Inf
+		cached_rank_atol = rank_atol
 		cached_finite_probe_count = 0
 		cached_mode = cache.data_dependent ? :cached_data_dependent_jacobian : :cached_data_independent_rank
 		_cached_t0 = time()
@@ -1060,11 +1227,26 @@ function validate_noise_frontier_instantiation(
 					stage_seconds = validation_stages,
 				)
 				_condition_t0 = time()
-				cached_condition_proxy = _noise_condition_proxy(J, collect(eachindex(equations)); rank_atol = rank_atol)
+				svd_diag = _noise_svd_diagnostics(
+					J,
+					collect(eachindex(equations));
+					rank_atol = rank_atol,
+					rank_value = cached_rank_value,
+					target_rank = target_rank,
+				)
+				cached_condition_proxy = svd_diag.condition_proxy
+				cached_sigma_max = svd_diag.sigma_max
+				cached_sigma_min = svd_diag.sigma_min
+				cached_unfloored_svd_ratio = svd_diag.unfloored_svd_ratio
+				cached_rank_atol = svd_diag.rank_atol
 				validation_stages[:condition_proxy] = get(validation_stages, :condition_proxy, 0.0) + (time() - _condition_t0)
 			else
 				cached_rank_value = cache.rank_value
 				cached_condition_proxy = cache.condition_proxy
+				cached_sigma_max = cache.sigma_max
+				cached_sigma_min = cache.sigma_min
+				cached_unfloored_svd_ratio = cache.unfloored_svd_ratio
+				cached_rank_atol = cache.rank_atol
 				cached_finite_probe_count = cache.finite_probe_count
 				validation_stages[:reuse_data_independent_rank] = get(validation_stages, :reuse_data_independent_rank, 0.0) + 0.0
 			end
@@ -1090,19 +1272,27 @@ function validate_noise_frontier_instantiation(
 				rank = cached_rank_value,
 				target_rank = target_rank,
 				reason = reason,
+				sigma_max = cached_sigma_max,
+				sigma_min = cached_sigma_min,
+				unfloored_svd_ratio = cached_unfloored_svd_ratio,
 				condition_proxy = cached_condition_proxy,
+				rank_atol = cached_rank_atol,
 				n_rank_probes = n_rank_probes,
 				validation_mode = cached_mode,
 				jacobian_data_dependent = cache.data_dependent,
 				cache_usable = true,
 				finite_probe_count = cached_finite_probe_count,
 			))
-			return (
+			return _noise_validation_result(
 				valid = valid,
 				reason = reason,
 				rank = cached_rank_value,
 				target_rank = target_rank,
 				condition_proxy = cached_condition_proxy,
+				sigma_max = cached_sigma_max,
+				sigma_min = cached_sigma_min,
+				unfloored_svd_ratio = cached_unfloored_svd_ratio,
+				rank_atol = cached_rank_atol,
 			)
 		end
 	end
@@ -1118,7 +1308,13 @@ function validate_noise_frontier_instantiation(
 	validation_stages[:rank_matrix] = get(validation_stages, :rank_matrix, 0.0) + (time() - _rank_matrix_t0)
 
 	_condition_t0 = time()
-	condition_proxy = _noise_condition_proxy(J, collect(eachindex(instantiated_eqs)); rank_atol = rank_atol)
+	svd_diag = _noise_svd_diagnostics(
+		J,
+		collect(eachindex(instantiated_eqs));
+		rank_atol = rank_atol,
+		rank_value = rank_value,
+		target_rank = target_rank,
+	)
 	validation_stages[:condition_proxy] = get(validation_stages, :condition_proxy, 0.0) + (time() - _condition_t0)
 	valid = rank_value >= target_rank
 	reason = valid ? :ok : :rank_deficient
@@ -1134,19 +1330,27 @@ function validate_noise_frontier_instantiation(
 		rank = rank_value,
 		target_rank = target_rank,
 		reason = reason,
-		condition_proxy = condition_proxy,
+		sigma_max = svd_diag.sigma_max,
+		sigma_min = svd_diag.sigma_min,
+		unfloored_svd_ratio = svd_diag.unfloored_svd_ratio,
+		condition_proxy = svd_diag.condition_proxy,
+		rank_atol = svd_diag.rank_atol,
 		n_rank_probes = n_rank_probes,
 		validation_mode = :slow_substitute_forwarddiff,
 		jacobian_data_dependent = cache.usable ? cache.data_dependent : missing,
 		cache_usable = cache.usable,
 		cache_failure_reason = cache.failure_reason,
 	))
-	return (
+	return _noise_validation_result(
 		valid = valid,
 		reason = reason,
 		rank = rank_value,
 		target_rank = target_rank,
-		condition_proxy = condition_proxy,
+		condition_proxy = svd_diag.condition_proxy,
+		sigma_max = svd_diag.sigma_max,
+		sigma_min = svd_diag.sigma_min,
+		unfloored_svd_ratio = svd_diag.unfloored_svd_ratio,
+		rank_atol = svd_diag.rank_atol,
 	)
 end
 
@@ -1401,6 +1605,10 @@ function noise_frontier_rows(result::NoiseFrontierResult)
 			data_var_count = c.data_var_count,
 			support_score = c.support_score,
 			condition_proxy = c.condition_proxy,
+			sigma_max = c.sigma_max,
+			sigma_min = c.sigma_min,
+			unfloored_svd_ratio = c.unfloored_svd_ratio,
+			rank_atol = c.rank_atol,
 			mixed_volume = isnothing(c.mixed_volume) ? missing : c.mixed_volume,
 			selected_equation_indices = join(c.selected_equation_indices, " "),
 			selected_source_indices = join(c.selected_source_indices, " "),
@@ -1415,7 +1623,8 @@ function write_noise_frontier_csv(path::AbstractString, result::NoiseFrontierRes
 		header = [
 			"n_points", "strategy", "max_observed_order", "rank", "target_rank",
 			"is_square", "solve_var_count", "data_var_count", "support_score",
-			"condition_proxy", "mixed_volume", "selected_equation_indices",
+			"condition_proxy", "sigma_max", "sigma_min", "unfloored_svd_ratio",
+			"rank_atol", "mixed_volume", "selected_equation_indices",
 			"selected_source_indices",
 		]
 		println(io, join(header, ","))
