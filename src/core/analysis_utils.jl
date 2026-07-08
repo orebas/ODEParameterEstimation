@@ -493,7 +493,7 @@ function apply_uq_failure_policy(uq_result, opts::EstimationOptions)
 	# Phase E2: uq_result is Union{Nothing, UncertaintyReport} (nothing = UQ could
 	# not be computed; :degenerate = computed but meaningless).
 	failed = isnothing(uq_result) ||
-			 (uq_result isa UncertaintyReport && uq_result.status == :degenerate)
+			 (uq_result isa UncertaintyReport && uq_result.status in (:degenerate, :failed))
 	if failed && opts.uq_failure_policy == :throw
 		msg = isnothing(uq_result) ? "no report produced" : join(uq_result.warnings, "; ")
 		error("Uncertainty quantification failed: $msg")
@@ -573,7 +573,8 @@ function _compute_uq_result(
 		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true)
 		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time)
 		r = diagnose_uncertainty(PEP, setup_uq, best_solution.at_time, sens)
-		isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
+		local_uq = isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
+		isnothing(local_uq) ? nothing : physicalize_uncertainty_report(PEP, best_solution, local_uq)
 	catch e
 		@warn "Parameter uncertainty computation failed" exception = (e, catch_backtrace())
 		nothing
@@ -993,6 +994,9 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput, opts = opts)
 
 	uq_result = _compute_uq_result(PEP, solved_res, opts)
+	if !isnothing(scale_info)
+		uq_result = unrescale_uncertainty_report(uq_result, scale_info)
+	end
 
 	# Un-rescale results to original units (params/states). Done AFTER clustering/
 	# ranking (analyze_estimation_result) and UQ, which are self-consistent in scaled

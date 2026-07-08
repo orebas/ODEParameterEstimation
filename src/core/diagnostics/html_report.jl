@@ -147,7 +147,9 @@ function _save_diagnostic_html(report::DiagnosticReport; pep = nothing)
     mkpath(dir)
     path = joinpath(dir, "report.html")
 
-    # Compute UQ if sensitivity matrix is available
+    # Compute local-coordinate UQ if sensitivity matrix is available. A single
+    # DiagnosticReport does not carry a best estimation result, so it cannot
+    # backsolve to physical initial-condition coordinates here.
     uq_report = nothing
     uq_interps = nothing
     if !isnothing(pep) && !isempty(report.sensitivity.data_sensitivity_matrix)
@@ -202,6 +204,7 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
 
     # Compute UQ if sensitivity matrix is available
     uq_report = nothing
+    local_uq_report = nothing
     uq_interps = nothing
     if !isnothing(pep) && !isempty(r.sensitivity.data_sensitivity_matrix)
         try
@@ -209,7 +212,8 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
             setup_data = setup_parameter_estimation(pep; interpolator = agp_gpr_uq, nooutput = true)
             result = diagnose_uncertainty(pep, setup_data, comp.best_eval_point, r.sensitivity)
             if !isnothing(result)
-                uq_report, uq_interps = result
+                local_uq_report, uq_interps = result
+                uq_report = local_uq_report
                 uq_interp_name = "agp_gpr_uq"
                 if comp.best_interpolator != uq_interp_name
                     push!(uq_report.warnings,
@@ -222,16 +226,21 @@ function _save_comprehensive_html(comp::ComprehensiveDiagnosticReport; pep = not
         end
     end
 
-    # Compute backsolve UQ if we have both estimation results and UQ
+    # Compute physical-coordinate UQ and the legacy IC-only backsolve report if
+    # we have both estimation results and local UQ.
     backsolve_uq = nothing
-    if !isnothing(estimation_report) && !isnothing(uq_report) && !isnothing(pep)
+    if !isnothing(estimation_report) && !isnothing(local_uq_report) && !isnothing(pep)
         try
-            backsolve_uq = propagate_backsolve_uncertainty(pep, estimation_report.best_result, uq_report)
+            backsolve_uq = propagate_backsolve_uncertainty(pep, estimation_report.best_result, local_uq_report)
             if !isnothing(backsolve_uq) && backsolve_uq.success
                 @info "[DIAGNOSE] Backsolve UQ: amplification = $(round(backsolve_uq.amplification; sigdigits=3))"
             end
+            uq_report = physicalize_uncertainty_report(pep, estimation_report.best_result, local_uq_report)
+            if !isnothing(uq_report.backsolve_transform)
+                @info "[DIAGNOSE] Physical UQ: coordinate_system=$(uq_report.coordinate_system), transform=$(uq_report.backsolve_transform.status), amplification=$(round(uq_report.backsolve_transform.amplification; sigdigits=3))"
+            end
         catch e
-            @warn "[DIAGNOSE] Backsolve UQ failed (non-fatal): $e"
+            @warn "[DIAGNOSE] Physical/backsolve UQ failed (non-fatal): $e"
         end
     end
 
@@ -709,6 +718,7 @@ end
 const _HTML_ROLE_COLORS = Dict{Symbol, String}(
     :parameter => "#0969da",       # blue
     :state_ic => "#1a7f37",        # green
+    :state_at_eval => "#6f42c1",    # violet
     :state_derivative => "#bf8700", # amber
     :data_derivative => "#0550ae",  # teal/cyan
     :transcendental => "#8250df",   # purple
@@ -1338,7 +1348,10 @@ observation uncertainty, and executive summary cards.
 """
 function _write_html_uq_section(io, uq::UncertaintyReport;
     uq_interpolants::Union{Nothing, Dict{String, AGPInterpolatorUQ}} = nothing)
-    println(io, "<details open><summary>Parameter Uncertainty (GP → IFT)</summary><div class=\"detail-body\">")
+    title = uq.coordinate_system == :physical_initial_conditions ?
+        "Physical Parameter/IC Uncertainty" :
+        "Local Parameter Uncertainty"
+    println(io, "<details open><summary>$title (Estimator Covariance → IFT)</summary><div class=\"detail-body\">")
 
     # Provenance
     status_badge = if uq.status == :ok
@@ -1348,7 +1361,23 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
     else
         """<span class="badge badge-hard">Degenerate</span>"""
     end
-    println(io, """<div class="provenance">Σ<sub>x</sub> = S·Σ<sub>d</sub>·S<sup>T</sup> where S = parameter–data sensitivity, Σ<sub>d</sub> = GP posterior covariance at t = $(@sprintf("%.4f", uq.t_eval)). $status_badge</div>""")
+    coord_desc = uq.coordinate_system == :physical_initial_conditions ?
+        "public coordinates <code>[parameters, initial conditions at t0]</code>" :
+        "local algebraic coordinates at <code>t_eval</code>"
+    println(io, """<div class="provenance">Σ<sub>x</sub> = S·Σ<sub>d</sub>·S<sup>T</sup> where S = parameter–data sensitivity, Σ<sub>d</sub> = W·Σ<sub>y</sub>·W<sup>T</sup> at t = $(@sprintf("%.4f", uq.t_eval)). Displaying $coord_desc. Covariance: <code>$(uq.covariance_kind)</code>; noise source: <code>$(uq.noise_source)</code>. $status_badge</div>""")
+
+    if !isnothing(uq.backsolve_transform)
+        bt = uq.backsolve_transform
+        println(io, """<div class="provenance"><b>Backsolve transform:</b> <code>$(bt.status)</code>, t<sub>0</sub> = $(@sprintf("%.4f", bt.t0)), amplification = $(_fmt(bt.amplification)). Source: <code>$(join(bt.source_labels, ", "))</code>. Target: <code>$(join(bt.target_labels, ", "))</code>.</div>""")
+    end
+
+    if !isnothing(uq.practical_identifiability_index)
+        ia = uq.practical_identifiability_index
+        ia_str = isfinite(ia.i_a) ? _fmt(ia.i_a) : "NaN"
+        lambda_str = isfinite(ia.lambda_max) ? _fmt(ia.lambda_max) : "NaN"
+        labels_str = isempty(ia.labels) ? "none" : join([_pretty_name(x) for x in ia.labels], ", ")
+        println(io, """<div class="provenance"><b>I<sub>A</sub></b> = $ia_str (λ<sub>max</sub> = $lambda_str, status = <code>$(ia.status)</code>). Projection labels: <span class="math">$labels_str</span>.</div>""")
+    end
 
     # Warning box (if any)
     if !isempty(uq.warnings)
@@ -1362,8 +1391,8 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
     end
 
     # CI table
-    println(io, "<h4>Parameter Confidence Intervals</h4>")
-    println(io, "<table><tr><th>Parameter</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV</th><th>Status</th></tr>")
+    println(io, "<h4>Confidence Intervals</h4>")
+    println(io, "<table><tr><th>Quantity</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV</th><th>Status</th></tr>")
 
     n_params = min(length(uq.param_labels), length(uq.param_true_values), length(uq.param_std))
     for i in 1:n_params
@@ -1392,9 +1421,46 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
     end
     println(io, "</table>")
 
+    if !isnothing(uq.local_coordinate_report)
+        local_snapshot = uq.local_coordinate_report
+        println(io, "<details><summary>Local IFT Coordinate Audit ($(length(local_snapshot.param_labels)) coordinates at t = $(@sprintf("%.4f", local_snapshot.t_eval)))</summary><div class=\"detail-body\">")
+        println(io, """<div class="provenance">These are the direct IFT coordinates before projection/backsolve. Order-0 state labels here are values at t_eval, not initial conditions.</div>""")
+        println(io, "<table><tr><th>Local coordinate</th><th>Role</th><th>Coordinate value</th><th>±1σ</th><th>95% CI half-width</th></tr>")
+        for i in eachindex(local_snapshot.param_labels)
+            label = local_snapshot.param_labels[i]
+            raw_esc = replace(label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
+            role = get(local_snapshot.param_roles, label, :unknown)
+            role_label = get(_ROLE_LABELS, role, string(role))
+            role_color = get(_HTML_ROLE_COLORS, role, "#333")
+            value = i <= length(local_snapshot.coordinate_values) ? local_snapshot.coordinate_values[i] : NaN
+            value_str = isfinite(value) ? _fmt(value) : "—"
+            σ = local_snapshot.param_std[i]
+            println(io, """<tr><td><span title="$raw_esc" style="color:$role_color;font-weight:600;" class="math">$(_pretty_name(label))</span></td><td>$role_label</td><td>$value_str</td><td>±$(_fmt(σ))</td><td>±$(_fmt(UQ_CI_Z * σ))</td></tr>""")
+        end
+        println(io, "</table></div></details>")
+    end
+
+    if !isnothing(uq.backsolve_transform)
+        bt = uq.backsolve_transform
+        println(io, "<details><summary>Backsolve Transform Audit</summary><div class=\"detail-body\">")
+        println(io, "<table><tr><th>Target \\ Source</th>")
+        for label in bt.source_labels
+            print(io, "<th class=\"math\">$(_pretty_name(label))</th>")
+        end
+        println(io, "</tr>")
+        for i in eachindex(bt.target_labels)
+            println(io, "<tr><th class=\"math\">$(_pretty_name(bt.target_labels[i]))</th>")
+            for j in eachindex(bt.source_labels)
+                print(io, "<td>$(_fmt(bt.transform_matrix[i, j]))</td>")
+            end
+            println(io, "</tr>")
+        end
+        println(io, "</table></div></details>")
+    end
+
     # Observation Uncertainty at Shooting Point
     if !isempty(uq.obs_names)
-        println(io, "<details><summary>Observation GP Posterior at t = $(@sprintf("%.4f", uq.t_eval))</summary><div class=\"detail-body\">")
+        println(io, "<details><summary>Observation Jet Estimator at t = $(@sprintf("%.4f", uq.t_eval))</summary><div class=\"detail-body\">")
         println(io, "<table><tr><th>Observable</th><th>Order</th><th>μ (mean)</th><th>σ (std)</th></tr>")
         for (oi, obs_name) in enumerate(uq.obs_names)
             for k in eachindex(uq.obs_posterior_mean[oi])
@@ -1411,11 +1477,13 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
     # GP Noise Estimates
     if !isnothing(uq_interpolants) && !isempty(uq_interpolants)
         println(io, "<details><summary>GP Noise Estimates</summary><div class=\"detail-body\">")
-        println(io, """<div class="provenance">Estimated observation noise σ<sub>n</sub> from GP hyperparameter optimization (kernel jitter on diagonal of K).</div>""")
-        println(io, "<table><tr><th>Observable</th><th>σ<sub>n</sub> (noise std)</th><th>σ<sub>n</sub>² (noise var)</th></tr>")
+        println(io, """<div class="provenance">Estimated observation noise from GP hyperparameter optimization. The normalized variance is learned on z-scored data; the raw-unit variance multiplies by the observable sample standard deviation squared.</div>""")
+        println(io, "<table><tr><th>Observable</th><th>normalized σ<sub>n</sub></th><th>normalized σ<sub>n</sub>²</th><th>raw σ<sub>y</sub></th><th>raw σ<sub>y</sub>²</th></tr>")
         for (obs_name, interp) in sort(collect(uq_interpolants); by = first)
             σ_n = sqrt(max(interp.noise_var, 0.0))
-            println(io, "<tr><td class=\"math\">$(_pretty_name(obs_name))</td><td>$(_fmt(σ_n))</td><td>$(_fmt(interp.noise_var))</td></tr>")
+            raw_var = learned_observation_noise_variance(interp)
+            raw_σ = sqrt(max(raw_var, 0.0))
+            println(io, "<tr><td class=\"math\">$(_pretty_name(obs_name))</td><td>$(_fmt(σ_n))</td><td>$(_fmt(interp.noise_var))</td><td>$(_fmt(raw_σ))</td><td>$(_fmt(raw_var))</td></tr>")
         end
         println(io, "</table></div></details>")
     end
@@ -1477,9 +1545,20 @@ function _write_html_uq_summary_cards(io, uq::UncertaintyReport)
     # Max σ card
     max_σ = maximum(uq.param_std; init = 0.0)
     σ_color = uq.status == :ok ? "var(--easy)" : uq.status == :wide_ci ? "var(--moderate)" : "var(--hard)"
+    label = uq.coordinate_system == :physical_initial_conditions ? "Max Physical σ" : "Max Local σ"
     println(io, """<div class="metric-card">
-  <div class="mc-label">Max Param σ</div>
+  <div class="mc-label">$label</div>
   <div class="mc-value" style="color:$σ_color;">$(_fmt(max_σ))</div>
   <div class="mc-sub">$(_fmt_pct(uq.max_cv)) worst CV</div>
 </div>""")
+    if !isnothing(uq.practical_identifiability_index)
+        ia = uq.practical_identifiability_index
+        ia_color = ia.status == :ok ? "var(--easy)" : ia.status == :wide_ci ? "var(--moderate)" : "var(--hard)"
+        ia_str = isfinite(ia.i_a) ? _fmt(ia.i_a) : "NaN"
+        println(io, """<div class="metric-card">
+  <div class="mc-label">I<sub>A</sub></div>
+  <div class="mc-value" style="color:$ia_color;">$ia_str</div>
+  <div class="mc-sub">normalized estimator covariance</div>
+</div>""")
+    end
 end

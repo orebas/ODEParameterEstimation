@@ -29,6 +29,13 @@ function add_relative_noise(data::OrderedDict, noise_level::Float64)
 	return noisy_data
 end
 
+"""
+	add_additive_noise(data::OrderedDict, noise_level::Float64)
+
+Add homoskedastic Gaussian noise to each observed series while preserving time
+points. For each observable, the noise standard deviation is fixed over time:
+`noise_level * mean(abs.(clean_values))`.
+"""
 function add_additive_noise(data::OrderedDict, noise_level::Float64)
 	noisy_data = OrderedDict{Union{String, Num}, Vector{Float64}}()
 
@@ -38,13 +45,25 @@ function add_additive_noise(data::OrderedDict, noise_level::Float64)
 	# Add noise to each measurement
 	for (key, values) in data
 		if key != "t"  # Skip time points
-			mean_val = mean(values)
-			noise = mean_val .* noise_level .* randn(length(values))
+			scale = mean(abs.(values))
+			noise = scale .* noise_level .* randn(length(values))
 			noisy_data[key] = values .+ noise
 		end
 	end
 
 	return noisy_data
+end
+
+function add_synthetic_noise(data::OrderedDict, noise_level::Float64, noise_model::Symbol)
+	noise_level <= 0 && return data
+	if noise_model in (:relative, :multiplicative)
+		return add_relative_noise(data, noise_level)
+	elseif noise_model in (:additive, :homoskedastic, :additive_homoskedastic)
+		return add_additive_noise(data, noise_level)
+	elseif noise_model == :none
+		return data
+	end
+	throw(ArgumentError("Unknown synthetic noise model: $noise_model"))
 end
 
 struct SamplingFailureError <: Exception
@@ -167,6 +186,7 @@ Generate sample data for a parameter estimation problem.
 - `uneven_sampling`: Whether to use uneven time sampling
 - `uneven_sampling_times`: Custom sampling times (if uneven_sampling is true)
 - `noise_level`: Level of noise to add to the data
+- `noise_model`: `:relative`/`:multiplicative` or `:additive`/`:homoskedastic`
 
 # Returns
 - New ParameterEstimationProblem with generated data
@@ -194,7 +214,7 @@ function sample_problem_data(problem::ParameterEstimationProblem, opts::Estimati
 		uneven_sampling_times = opts.uneven_sampling_times)
 
 	# Add noise if requested
-	data = opts.noise_level > 0 ? add_relative_noise(clean_data, opts.noise_level) : clean_data
+	data = add_synthetic_noise(clean_data, opts.noise_level, opts.noise_model)
 
 	return ParameterEstimationProblem(
 		problem.name,

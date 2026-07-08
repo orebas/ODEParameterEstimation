@@ -115,7 +115,7 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test !isapprox(param_by_name["k_1"], param_by_name["k_2"]; rtol = 1e-3)
     end
 
-    @testset "noisy data still recovers (1% relative noise)" begin
+    @testset "noisy data still recovers (1% additive homoskedastic noise)" begin
         # Phase A canary: the rest of CI is ~uniformly zero-noise; this locks the
         # noisy path through construction/solve/aggregation with loose thresholds.
         # Seeded: sampling noise uses the global RNG.

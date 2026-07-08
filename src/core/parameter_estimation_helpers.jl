@@ -884,13 +884,14 @@ function process_estimation_results(
 		solved_res = _polish_batch_from_context(ctx, solved_res; opts = opts)
 	end
 
-	# Print solutions to match ParameterEstimation.jl output
-	println("\n[ODEPE SOLUTIONS]:")
-	for (i, result) in enumerate(solved_res)
-		sol_dict = merge(result.states, result.parameters)
-		println("Solution $i: $sol_dict")
+	# Print solutions to match ParameterEstimation.jl output when requested.
+	if !nooutput
+		println("\n[ODEPE SOLUTIONS]:")
+		for (i, result) in enumerate(solved_res)
+			sol_dict = merge(result.states, result.parameters)
+			println("Solution $i: $sol_dict")
+		end
 	end
 
 	return solved_res
 end
-

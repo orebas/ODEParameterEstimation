@@ -491,6 +491,7 @@ const _ROLE_COLORS = Dict{Symbol, Symbol}(
 const _ROLE_LABELS = Dict{Symbol, String}(
     :parameter => "param",
     :state_ic => "state IC",
+    :state_at_eval => "state at t_eval",
     :state_derivative => "state deriv",
     :data_derivative => "data deriv",
     :transcendental => "transcendental",
@@ -661,4 +662,3 @@ function _save_diagnostic_report(report::DiagnosticReport)
 
     @info "[DIAGNOSE] Reports saved to $dir"
 end
-

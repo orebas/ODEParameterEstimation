@@ -717,7 +717,7 @@ function get_si_equation_system(
 	# The main ODE object must be passed, not the result dictionary.
 	# This call finds combinations of all parameters, which is what we need.
 	_t_find_identifiable_functions_start = time()
-	identifiable_funcs = find_identifiable_functions(si_ode)
+	identifiable_funcs = isempty(si_ode.parameters) ? Any[] : find_identifiable_functions(si_ode)
 	equation_builder_timing[:find_identifiable_functions] = time() - _t_find_identifiable_functions_start
 	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = length(identifiable_funcs)
 	if infolevel > 0

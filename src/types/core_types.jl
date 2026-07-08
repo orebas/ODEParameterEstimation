@@ -757,22 +757,105 @@ function Base.getproperty(comp::ComprehensiveDiagnosticReport, name::Symbol)
 end
 
 """
+    JetInfluenceEstimate
+
+Linear influence representation for observable jets estimated from data.
+
+For fixed GP hyperparameters, the derivative estimator is linear in the raw
+observations: `jet_mean = W * y`.  The estimator sampling covariance is then
+`jet_covariance = W * observation_covariance * W'`.
+"""
+struct JetInfluenceEstimate{M<:AbstractMatrix{Float64}}
+    observable_name::String
+    t_eval::Float64
+    orders::Vector{Int}
+    labels::Vector{String}
+    mean::Vector{Float64}
+    W::Matrix{Float64}
+    observation_covariance::M
+    jet_covariance::Matrix{Float64}
+    covariance_kind::Symbol
+    noise_source::Symbol
+    warnings::Vector{String}
+end
+
+"""
+    PracticalIdentifiabilityIndex
+
+Scale-normalized covariance summary for the selected physical unknowns.
+
+`i_a = sqrt(lambda_max(normalized_covariance))`, where
+`normalized_covariance = D^{-1} P Σ_x P' D^{-1}`.
+"""
+struct PracticalIdentifiabilityIndex
+    labels::Vector{String}
+    roles::Vector{Symbol}
+    scale_values::Vector{Float64}
+    projected_covariance::Matrix{Float64}
+    normalized_covariance::Matrix{Float64}
+    lambda_max::Float64
+    i_a::Float64
+    status::Symbol
+    warnings::Vector{String}
+end
+
+"""
+    LocalUQSnapshot
+
+Audit copy of the direct IFT uncertainty calculation in the local algebraic
+coordinates at `t_eval`.
+"""
+struct LocalUQSnapshot
+    t_eval::Float64
+    param_covariance::Matrix{Float64}
+    param_std::Vector{Float64}
+    param_labels::Vector{String}
+    param_roles::Dict{String, Symbol}
+    coordinate_values::Vector{Float64}
+    correlation_matrix::Matrix{Float64}
+    max_cv::Float64
+    status::Symbol
+    practical_identifiability_index::Union{Nothing, PracticalIdentifiabilityIndex}
+end
+
+"""
+    UQBacksolveTransform
+
+Linear delta-method map from local coordinates `[p, x(t_eval)]` to physical
+coordinates `[p, x(t0)]`.
+"""
+struct UQBacksolveTransform
+    t_eval::Float64
+    t0::Float64
+    source_labels::Vector{String}
+    target_labels::Vector{String}
+    source_roles::Dict{String, Symbol}
+    target_roles::Dict{String, Symbol}
+    transform_matrix::Matrix{Float64}
+    amplification::Float64
+    status::Symbol
+    warnings::Vector{String}
+end
+
+"""
     UncertaintyReport
 
-Propagated parameter uncertainty from GP posterior covariance through the
-implicit function theorem sensitivity matrix.
+Propagated parameter uncertainty through the implicit function theorem
+sensitivity matrix.
 
-Σ_x = S · Σ_d · S' where S = -(∂F/∂x)⁻¹·(∂F/∂d) and Σ_d = GP posterior
-covariance at the shooting point.
+Σ_x = S · Σ_d · S' where S = -(∂F/∂x)⁻¹·(∂F/∂d).  For the default package UQ,
+Σ_d is the estimator sampling covariance of the observable jet, conditional on
+learned GP hyperparameters.  Legacy latent GP posterior covariance is kept as a
+separate diagnostic concept.
 """
 struct UncertaintyReport
     model_name::String
     t_eval::Float64
-    # Per-observable GP posterior at t_eval
+    # Per-observable jet estimate at t_eval
     obs_names::Vector{String}
     obs_posterior_mean::Vector{Vector{Float64}}    # [obs_idx][deriv_order+1]
     obs_posterior_std::Vector{Vector{Float64}}     # [obs_idx][deriv_order+1]
-    # Block-diagonal data covariance
+    # Data/jet covariance
     data_covariance::Matrix{Float64}              # Σ_d (n_data × n_data)
     data_labels::Vector{String}
     # Parameter covariance from IFT
@@ -787,6 +870,45 @@ struct UncertaintyReport
     max_cv::Float64                               # max coefficient of variation
     status::Symbol                                # :ok, :wide_ci, :degenerate
     warnings::Vector{String}
+    covariance_kind::Symbol                       # :estimator_sampling or :latent_gp_posterior
+    noise_source::Symbol                          # e.g. :learned_gp_homoscedastic
+    practical_identifiability_index::Union{Nothing, PracticalIdentifiabilityIndex}
+    coordinate_system::Symbol                     # :physical_initial_conditions or :local_at_eval
+    local_coordinate_report::Union{Nothing, LocalUQSnapshot}
+    backsolve_transform::Union{Nothing, UQBacksolveTransform}
+end
+
+# Backward-compatible constructor for callers that predate explicit coordinate
+# semantics. The direct IFT calculation lives in local coordinates at t_eval.
+function UncertaintyReport(
+    model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+    data_covariance, data_labels, param_covariance, param_std, param_labels,
+    param_roles, param_true_values, correlation_matrix, max_cv, status,
+    warnings, covariance_kind, noise_source, practical_identifiability_index,
+)
+    return UncertaintyReport(
+        model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+        data_covariance, data_labels, param_covariance, param_std, param_labels,
+        param_roles, param_true_values, correlation_matrix, max_cv, status,
+        warnings, covariance_kind, noise_source, practical_identifiability_index,
+        :local_at_eval, nothing, nothing,
+    )
+end
+
+# Backward-compatible constructor for callers that predate explicit covariance
+# semantics. New package-produced reports should pass these fields explicitly.
+function UncertaintyReport(
+    model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+    data_covariance, data_labels, param_covariance, param_std, param_labels,
+    param_roles, param_true_values, correlation_matrix, max_cv, status,
+    warnings,
+)
+    return UncertaintyReport(
+        model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+        data_covariance, data_labels, param_covariance, param_std, param_labels,
+        param_roles, param_true_values, correlation_matrix, max_cv, status,
+        warnings, :unspecified, :unspecified, nothing,
+    )
 end
 
 # Backward-compatible constructor (warnings defaults to empty)
@@ -877,7 +999,8 @@ end
     BacksolveUQReport
 
 Uncertainty propagation from shooting point through backward ODE integration
-to initial conditions at t₀, using the delta method with ForwardDiff Jacobian.
+to initial conditions at t₀, using the delta method with a variational-equation
+Jacobian.
 
 Σ_{s(t₀)} = J_g · Σ_{p, s(t_eval)} · J_g' where J_g = ∂g/∂(p, s(t_eval)).
 """

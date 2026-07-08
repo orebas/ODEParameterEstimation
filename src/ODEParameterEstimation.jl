@@ -142,7 +142,7 @@ export shade_lm_estimate
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
-export add_relative_noise, sample_problem_data, calculate_error_stats
+export add_relative_noise, add_additive_noise, add_synthetic_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
 export clear_denoms, hmcs, analyze_parameter_estimation_problem
 export aaad, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
@@ -175,7 +175,7 @@ export rescale_pep, unrescale_results, ScaleInfo, choose_scales
 # Export diagnostic functions and types
 export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
 export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport, MultipointDiagnosticAnalysis
-export EstimationResultsReport, BacksolveUQReport, UncertaintyReport
+export EstimationResultsReport, BacksolveUQReport, UncertaintyReport, JetInfluenceEstimate, PracticalIdentifiabilityIndex, LocalUQSnapshot, UQBacksolveTransform
 export DerivativeUncertaintyEstimate, compute_sigma_d, get_sigma_d, sigma_d_diagonal
 export SensitivitySeedReport, generate_sensitivity_seeds, seed_vectors_to_candidates
 export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget
@@ -192,6 +192,7 @@ export TryhardFinalistOptions, TryhardFinalist, TryhardFinalistReport, research_
 export AGPInterpolatorUQ, agp_gpr_uq
 export se_kernel_derivative, se_kernel_prior_covariance_matrix, se_kernel_cross_time_covariance_matrix
 export joint_derivative_covariance, joint_derivative_covariance_cross_time, build_observation_covariance
+export gp_derivative_influence_matrix, joint_derivative_estimator_covariance, learned_observation_noise_variance, compute_practical_identifiability_index, physicalize_uncertainty_report, unrescale_uncertainty_report
 export print_uncertainty_results
 
 # Export example models
@@ -261,8 +262,12 @@ export compatibility_return_code, sync_result_contract!, lineage_summary
 
 	local _est_problem = sample_problem_data(_pep, _opts)
 	try
-		with_logger(NullLogger()) do
-			analyze_parameter_estimation_problem(_est_problem, _opts)
+		redirect_stdout(devnull) do
+			redirect_stderr(devnull) do
+				with_logger(NullLogger()) do
+					analyze_parameter_estimation_problem(_est_problem, _opts)
+				end
+			end
 		end
 	catch
 		# Ignore errors during precompilation - we just want to trigger compilation

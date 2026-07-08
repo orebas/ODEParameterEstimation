@@ -189,6 +189,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `datasize::Int`: Number of data points to generate (default: 21)
 - `time_interval::Vector{Float64}`: Time interval for sampling (default: [-0.5, 0.5])
 - `noise_level::Float64`: Level of noise to add to synthetic data (default: 0.0)
+- `noise_model::Symbol`: Synthetic noise model: `:additive`/`:homoskedastic` or `:relative`/`:multiplicative` (default: `:additive`)
 - `uneven_sampling::Bool`: Whether to use uneven time sampling (default: false)
 - `uneven_sampling_times::Vector{Float64}`: Custom sampling times (default: Float64[])
 
@@ -518,6 +519,7 @@ Base.@kwdef struct EstimationOptions
 	datasize::Int = 21
 	time_interval::Vector{Float64} = [-0.5, 0.5]
 	noise_level::Float64 = 0.0
+	noise_model::Symbol = :additive
 	uneven_sampling::Bool = false
 	uneven_sampling_times::Vector{Float64} = Float64[]
 
@@ -1345,6 +1347,10 @@ function validate_options(opts::EstimationOptions)
 
 	if opts.noise_level < 0
 		@error "noise_level must be non-negative"
+		valid = false
+	end
+	if !(opts.noise_model in (:relative, :multiplicative, :additive, :homoskedastic, :additive_homoskedastic, :none))
+		@error "noise_model must be :relative, :multiplicative, :additive, :homoskedastic, :additive_homoskedastic, or :none"
 		valid = false
 	end
 

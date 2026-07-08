@@ -298,6 +298,136 @@ function _build_K_star_n(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int)::Ma
 	return K_star_n
 end
 
+"""Raw training observations represented by an `AGPInterpolatorUQ`."""
+function _raw_training_values(interp::AGPInterpolatorUQ)::Vector{Float64}
+	return interp.ys_train .* interp.y_std .+ interp.y_mean
+end
+
+"""
+	learned_observation_noise_variance(interp::AGPInterpolatorUQ) -> Float64
+
+Return the GP-learned observation noise variance in the original observation
+units.  `AGPInterpolatorUQ.noise_var` is learned after z-scoring the observable,
+so it must be multiplied by `y_std^2` before it is used with raw-data influence
+weights.
+"""
+function learned_observation_noise_variance(interp::AGPInterpolatorUQ)::Float64
+	return max(interp.noise_var, 0.0) * interp.y_std^2
+end
+
+"""
+	gp_derivative_influence_matrix(interp, t, max_deriv) -> (mean, W)
+
+For fixed GP hyperparameters, compute the linear map from raw observations `y`
+to the posterior-mean jet `[f(t), f'(t), ...]`.
+
+The current GP implementation centers and scales `y` before fitting.  This
+routine folds the centering operation into `W`, so `W * raw_y` reproduces the
+implemented derivative estimator exactly up to floating-point roundoff.
+"""
+function gp_derivative_influence_matrix(
+	interp::AGPInterpolatorUQ,
+	t::Real,
+	max_deriv::Int = 2,
+)::Tuple{Vector{Float64}, Matrix{Float64}}
+	max_deriv < 0 && throw(ArgumentError("max_deriv must be non-negative"))
+
+	K_star_n = _build_K_star_n(interp, t, max_deriv)
+	# A^{-1} K_*' where A = K_train + σ_n² I.  Transposing gives rows
+	# k_d(t)' A^{-1}, one for each derivative order.
+	W = Matrix((interp.chol \ K_star_n')')
+
+	n = length(interp.xs_train)
+	n == 0 && throw(ArgumentError("AGPInterpolatorUQ has no training points"))
+
+	# The fit uses ys_norm = (y - mean(y)) / std(y).  The final multiplication
+	# by y_std cancels the scaling, leaving only the centering projection.
+	for r in axes(W, 1)
+		W[r, :] .-= mean(@view W[r, :])
+	end
+	# Order zero adds the data mean back to the posterior mean.
+	W[1, :] .+= 1.0 / n
+
+	raw_y = _raw_training_values(interp)
+	return W * raw_y, W
+end
+
+function _make_jet_labels(obs_name::AbstractString, t::Real, max_deriv::Int)
+	t_str = string(round(Float64(t), digits = 3))
+	return [d == 0 ? "$(obs_name)(t=$(t_str))" : "$(obs_name)$(repeat("'", d))(t=$(t_str))" for d in 0:max_deriv]
+end
+
+function _psd_symmetric_matrix(Σ::AbstractMatrix{<:Real}; jitter_floor::Float64 = 1e-15)
+	Σ_sym = Symmetric(Matrix{Float64}(Σ))
+	evals = eigvals(Σ_sym)
+	if !isempty(evals) && minimum(evals) < 0
+		return Matrix(Σ_sym) + Matrix{Float64}(I, size(Σ_sym, 1), size(Σ_sym, 2)) *
+			   (abs(minimum(evals)) + jitter_floor)
+	end
+	return Matrix(Σ_sym)
+end
+
+"""
+	joint_derivative_estimator_covariance(interp, t, max_deriv=2; kwargs...)
+
+Compute the sampling covariance of the GP posterior-mean derivative estimator,
+conditional on learned GP hyperparameters.
+
+This is intentionally different from `joint_derivative_covariance`, which
+returns the latent GP posterior covariance.  The estimator covariance answers:
+"if the observations were resampled with the learned observation noise, how
+would the derivative estimates vary?"
+"""
+function joint_derivative_estimator_covariance(
+	interp::AGPInterpolatorUQ,
+	t::Real,
+	max_deriv::Int = 2;
+	observable_name::AbstractString = "",
+	noise_source::Symbol = :learned_gp_homoscedastic,
+	observation_covariance::Union{Nothing, AbstractMatrix{<:Real}} = nothing,
+)::JetInfluenceEstimate
+	μ, W = gp_derivative_influence_matrix(interp, t, max_deriv)
+	n = length(interp.xs_train)
+	resolved_noise_source = noise_source
+
+	Σ_y = if observation_covariance === nothing
+		if noise_source != :learned_gp_homoscedastic
+			throw(ArgumentError("noise_source=$noise_source requires explicit observation_covariance"))
+		end
+		Diagonal(fill(learned_observation_noise_variance(interp), n))
+	else
+		size(observation_covariance) == (n, n) ||
+			throw(ArgumentError("observation_covariance has size $(size(observation_covariance)); expected ($n, $n)"))
+		resolved_noise_source = noise_source == :learned_gp_homoscedastic ? :user_supplied_covariance : noise_source
+		Matrix{Float64}(observation_covariance)
+	end
+
+	Σ_jet = _psd_symmetric_matrix(W * Σ_y * W')
+	warnings = String[]
+	if !interp.hyperparams_optimized
+		push!(warnings, "GP hyperparameter optimization did not converge; estimator covariance uses fallback hyperparameters.")
+	end
+	if resolved_noise_source == :learned_gp_homoscedastic && learned_observation_noise_variance(interp) <= 0
+		push!(warnings, "Learned GP observation noise variance is zero; estimator covariance may be underestimated.")
+	end
+
+	obs_name = String(observable_name)
+	labels = isempty(obs_name) ? ["order_$d" for d in 0:max_deriv] : _make_jet_labels(obs_name, t, max_deriv)
+	return JetInfluenceEstimate(
+		obs_name,
+		Float64(t),
+		collect(0:max_deriv),
+		labels,
+		μ,
+		W,
+		Σ_y,
+		Σ_jet,
+		:estimator_sampling,
+		resolved_noise_source,
+		warnings,
+	)
+end
+
 """
 	nth_deriv(f::AGPInterpolatorUQ, n::Int, t::Real) -> Real
 
@@ -568,7 +698,7 @@ information needed for computing derivative covariances.
 # Arguments
 - `xs::AbstractArray`: X coordinates (e.g., time points)
 - `ys::AbstractArray`: Y coordinates (observations)
-- `kernel_type::Symbol`: `:se` (Squared Exponential) or `:matern52`
+- `kernel_type::Symbol`: currently only `:se` (Squared Exponential)
 
 # Returns
 - `AGPInterpolatorUQ` with full UQ capability
@@ -577,6 +707,8 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 	kernel_type::Symbol = :se)::AGPInterpolatorUQ where {T}
 	@assert length(xs) == length(ys) "Input arrays must have same length"
 	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
+	kernel_type == :se ||
+		throw(ArgumentError("agp_gpr_uq currently supports only kernel_type=:se for derivative estimator UQ; got $kernel_type"))
 
 	# Handle constant data edge case
 	y_std_raw = std(ys)
@@ -618,7 +750,7 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 	end
 
 	# Build kernel matrix and Cholesky factorization
-	base_kernel = kernel_type == :matern52 ? Matern52Kernel() : SqExponentialKernel()
+	base_kernel = SqExponentialKernel()
 	I_n = Matrix{Float64}(I, n, n)
 	scaled_kernel = base_kernel ∘ ScaleTransform(1.0 / l_opt)
 	K_train = σ²_opt * kernelmatrix(scaled_kernel, xs_raw)
@@ -665,21 +797,48 @@ end
 """
 	print_uncertainty_results(uq::UncertaintyReport; io = stdout)
 
-Terminal summary of the IFT-based parameter uncertainty report (the legacy
-FD-Jacobian variant is archived in deprecated/uq_fd_path.jl).
+Terminal summary of the parameter uncertainty report. Public reports are in
+physical coordinates `[parameters, initial_conditions]`; local IFT coordinates
+are printed separately when available.
 """
 function print_uncertainty_results(uq::UncertaintyReport; io = stdout)
-	println(io, "\nParameter Uncertainty (GP posterior + IFT propagation)")
-	println(io, "-"^60)
+	title = uq.coordinate_system == :physical_initial_conditions ?
+		"Parameter/IC Uncertainty (physical coordinates)" :
+		"Parameter Uncertainty (local IFT coordinates)"
+	println(io, "\n$title")
+	println(io, "-"^72)
 	println(io, "Status: $(uq.status)   max CV: $(round(uq.max_cv; sigdigits = 3))")
-	println(io, rpad("Parameter", 16), " | ", rpad("Std. Dev.", 12), " | 95% CI half-width")
-	println(io, "-"^60)
+	println(io, "Coordinate system: $(uq.coordinate_system)   t_eval: $(round(uq.t_eval; sigdigits = 6))")
+	println(io, "Covariance: $(uq.covariance_kind)   noise source: $(uq.noise_source)")
+	if !isnothing(uq.backsolve_transform)
+		bt = uq.backsolve_transform
+		println(io, "Backsolve transform: $(bt.status)   t0: $(round(bt.t0; sigdigits = 6))   amplification: $(round(bt.amplification; sigdigits = 4))")
+	end
+	if !isnothing(uq.practical_identifiability_index)
+		ia = uq.practical_identifiability_index
+		println(io, "I_A: $(round(ia.i_a; sigdigits = 3))   status: $(ia.status)")
+	end
+	println(io, rpad("Quantity", 16), " | ", rpad("Role", 14), " | ", rpad("Std. Dev.", 12), " | 95% CI half-width")
+	println(io, "-"^72)
 	for (i, name) in enumerate(uq.param_labels)
 		σ = uq.param_std[i]
-		@printf(io, "%-16s | %12.6g | %12.6g\n", name, σ, UQ_CI_Z * σ)
+		role = get(uq.param_roles, name, :unknown)
+		@printf(io, "%-16s | %-14s | %12.6g | %12.6g\n", name, string(role), σ, UQ_CI_Z * σ)
+	end
+	if !isnothing(uq.local_coordinate_report)
+		local_snapshot = uq.local_coordinate_report
+		println(io, "-"^72)
+		println(io, "Local IFT audit at t_eval=$(round(local_snapshot.t_eval; sigdigits = 6))")
+		println(io, rpad("Local coord", 16), " | ", rpad("Role", 14), " | ", rpad("Std. Dev.", 12), " | coordinate value")
+		for (i, name) in enumerate(local_snapshot.param_labels)
+			σ = local_snapshot.param_std[i]
+			role = get(local_snapshot.param_roles, name, :unknown)
+			value = i <= length(local_snapshot.coordinate_values) ? local_snapshot.coordinate_values[i] : NaN
+			@printf(io, "%-16s | %-14s | %12.6g | %12.6g\n", name, string(role), σ, value)
+		end
 	end
 	for w in uq.warnings
 		println(io, "  ! ", w)
 	end
-	println(io, "-"^60)
+	println(io, "-"^72)
 end

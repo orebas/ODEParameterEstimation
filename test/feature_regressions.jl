@@ -1,8 +1,11 @@
 using Test
+using LinearAlgebra
 using Logging
 using ModelingToolkit
 using OrderedCollections
 using OrdinaryDiffEq
+using Random
+using Statistics
 
 function quiet_feature_call(f)
     redirect_stdout(devnull) do
@@ -145,6 +148,33 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
 )
 
 @testset "Feature regressions" begin
+    @testset "Synthetic sampling noise models are explicit" begin
+        @test ODEParameterEstimation.EstimationOptions().noise_model == :additive
+
+        data = OrderedDict{Union{String, Num}, Vector{Float64}}(
+            "t" => [0.0, 1.0, 2.0],
+            "y" => [1.0, 2.0, 4.0],
+            "z" => [-2.0, 2.0, 6.0],
+        )
+
+        Random.seed!(20260630)
+        additive = ODEParameterEstimation.add_synthetic_noise(data, 0.1, :additive)
+        Random.seed!(20260630)
+        additive_expected_y = data["y"] .+ mean(abs.(data["y"])) .* 0.1 .* randn(3)
+        additive_expected_z = data["z"] .+ mean(abs.(data["z"])) .* 0.1 .* randn(3)
+        @test additive["t"] == data["t"]
+        @test additive["y"] ≈ additive_expected_y
+        @test additive["z"] ≈ additive_expected_z
+
+        Random.seed!(20260630)
+        relative = ODEParameterEstimation.add_synthetic_noise(data, 0.1, :relative)
+        Random.seed!(20260630)
+        relative_expected_y = data["y"] .* (1.0 .+ 0.1 .* randn(3))
+        relative_expected_z = data["z"] .* (1.0 .+ 0.1 .* randn(3))
+        @test relative["y"] ≈ relative_expected_y
+        @test relative["z"] ≈ relative_expected_z
+    end
+
     @testset "multi-interpolator benchmark template path" begin
         sampled, raw_results, analysis, _ = run_feature_canary(ODEParameterEstimation.simple, MULTI_INTERP_FAST_OPTS)
         expected_sources = Set(ODEParameterEstimation.interpolator_method_to_symbol(method) for method in MULTI_INTERP_TEMPLATE_LIST)
@@ -529,6 +559,357 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         @test all(est_single.floor_active[1, :])
     end
 
+    @testset "Variational backsolve UQ matches one-exponential analytic transform" begin
+        @independent_variables t
+        @parameters k
+        @variables x(t)
+        D = Differential(t)
+
+        model, mq = ODEParameterEstimation.create_ordered_ode_system(
+            "one_exp_backsolve_uq",
+            [x],
+            [k],
+            [D(x) ~ k * x],
+            [x ~ x],
+        )
+
+        x0_true = 1.5
+        k_true = 0.2
+        pep = ODEParameterEstimation.ParameterEstimationProblem(
+            "one_exp_backsolve_uq",
+            model,
+            mq,
+            nothing,
+            [0.0, 5.0],
+            Tsit5(),
+            OrderedDict(k => k_true),
+            OrderedDict(x => x0_true),
+            0,
+        )
+        sampled = ODEParameterEstimation.sample_problem_data(
+            pep,
+            EstimationOptions(
+                datasize = 21,
+                noise_level = 0.0,
+                time_interval = [0.0, 5.0],
+                nooutput = true,
+                diagnostics = false,
+            ),
+        )
+
+        t0 = sampled.data_sample["t"][1]
+        t_shoot = 2.0
+        completed_sys = ModelingToolkit.complete(sampled.model.system)
+        completed_states = ModelingToolkit.unknowns(completed_sys)
+        completed_params = ModelingToolkit.parameters(completed_sys)
+        prob = ODEProblem(
+            completed_sys,
+            merge(Dict(completed_states .=> [x0_true]), Dict(completed_params .=> [k_true])),
+            (t0, sampled.data_sample["t"][end]),
+        )
+        sol = OrdinaryDiffEq.solve(prob, Tsit5(); abstol = 1e-12, reltol = 1e-12)
+
+        best_result = ODEParameterEstimation.ParameterEstimationResult(
+            OrderedDict(k => k_true),
+            OrderedDict(x => x0_true),
+            t_shoot,
+            0.0,
+            nothing,
+            length(sampled.data_sample["t"]),
+            t_shoot,
+            OrderedDict{Num, Float64}(),
+            Set{Num}(),
+            sol,
+        )
+
+        σ_k = 0.03
+        σ_xshoot = 0.04
+        Σ_theta = diagm([σ_k^2, σ_xshoot^2])
+        uq_report = ODEParameterEstimation.UncertaintyReport(
+            sampled.name,
+            t_shoot,
+            String[],
+            Vector{Float64}[],
+            Vector{Float64}[],
+            zeros(0, 0),
+            String[],
+            Σ_theta,
+            sqrt.(diag(Σ_theta)),
+            ["k_0", "x_0"],
+            Dict("k_0" => :parameter, "x_0" => :state_at_eval),
+            [k_true, sol(t_shoot)[1]],
+            Matrix{Float64}(I, 2, 2),
+            0.0,
+            :ok,
+            String[],
+            :estimator_sampling,
+            :test,
+            nothing,
+        )
+
+        report = ODEParameterEstimation.propagate_backsolve_uncertainty(sampled, best_result, uq_report)
+        Δt = t_shoot - t0
+        expected_j = reshape([-Δt * x0_true, exp(-k_true * Δt)], 1, 2)
+        expected_var = only(expected_j * Σ_theta * expected_j')
+        expected_full_j = [
+            1.0 0.0
+            expected_j[1, 1] expected_j[1, 2]
+        ]
+        expected_full_cov = expected_full_j * Σ_theta * expected_full_j'
+
+        @test report.success
+        @test report.ic_names == ["x"]
+        @test report.ic_estimated[1] ≈ x0_true atol = 1e-8
+        @test report.backsolve_jacobian ≈ expected_j rtol = 1e-8 atol = 1e-8
+        @test report.ic_std[1] ≈ sqrt(expected_var) rtol = 1e-8 atol = 1e-8
+
+        physical = ODEParameterEstimation.physicalize_uncertainty_report(sampled, best_result, uq_report)
+        @test physical.coordinate_system == :physical_initial_conditions
+        @test physical.param_labels == ["k", "x"]
+        @test get(physical.param_roles, "k", :unknown) == :parameter
+        @test get(physical.param_roles, "x", :unknown) == :state_ic
+        @test physical.param_covariance ≈ expected_full_cov rtol = 1e-8 atol = 1e-8
+        @test physical.param_std ≈ sqrt.(diag(expected_full_cov)) rtol = 1e-8 atol = 1e-8
+        @test physical.backsolve_transform.transform_matrix ≈ expected_full_j rtol = 1e-8 atol = 1e-8
+        @test physical.backsolve_transform.status == :variational
+        @test isfinite(physical.backsolve_transform.amplification)
+        @test physical.local_coordinate_report isa ODEParameterEstimation.LocalUQSnapshot
+        @test get(physical.local_coordinate_report.param_roles, "x_0", :unknown) == :state_at_eval
+
+        uq_at_t0 = ODEParameterEstimation.UncertaintyReport(
+            sampled.name,
+            t0,
+            String[],
+            Vector{Float64}[],
+            Vector{Float64}[],
+            zeros(0, 0),
+            String[],
+            Σ_theta,
+            sqrt.(diag(Σ_theta)),
+            ["k_0", "x_0"],
+            Dict("k_0" => :parameter, "x_0" => :state_at_eval),
+            [k_true, x0_true],
+            Matrix{Float64}(I, 2, 2),
+            0.0,
+            :ok,
+            String[],
+            :estimator_sampling,
+            :test,
+            nothing,
+        )
+        best_at_t0 = ODEParameterEstimation.ParameterEstimationResult(
+            OrderedDict(k => k_true),
+            OrderedDict(x => x0_true),
+            t0,
+            0.0,
+            nothing,
+            length(sampled.data_sample["t"]),
+            t0,
+            OrderedDict{Num, Float64}(),
+            Set{Num}(),
+            sol,
+        )
+        physical_t0 = ODEParameterEstimation.physicalize_uncertainty_report(sampled, best_at_t0, uq_at_t0)
+        @test physical_t0.backsolve_transform.status == :identity
+        @test physical_t0.backsolve_transform.transform_matrix ≈ Matrix{Float64}(I, 2, 2)
+        @test physical_t0.param_covariance ≈ Σ_theta
+
+        scale_info = ODEParameterEstimation.ScaleInfo(
+            OrderedDict(x => 4.0),
+            OrderedDict(k => 2.0),
+            OrderedDict{Any, Float64}(),
+            (; n_nontrivial = 2),
+        )
+        local_snapshot = ODEParameterEstimation.LocalUQSnapshot(
+            t_shoot,
+            diagm([0.01, 0.04, 0.09]),
+            [0.1, 0.2, 0.3],
+            ["k_0", "x_0", "x_1"],
+            Dict("k_0" => :parameter, "x_0" => :state_at_eval, "x_1" => :state_derivative),
+            [0.1, 0.5, NaN],
+            Matrix{Float64}(I, 3, 3),
+            0.0,
+            :ok,
+            nothing,
+        )
+        transform = ODEParameterEstimation.UQBacksolveTransform(
+            t_shoot,
+            t0,
+            ["k", "x"],
+            ["k", "x"],
+            Dict("k" => :parameter, "x" => :state_at_eval),
+            Dict("k" => :parameter, "x" => :state_ic),
+            [1.0 0.0; -1.0 0.5],
+            NaN,
+            :variational,
+            String[],
+        )
+        scaled_physical = ODEParameterEstimation.UncertaintyReport(
+            sampled.name,
+            t_shoot,
+            String[],
+            Vector{Float64}[],
+            Vector{Float64}[],
+            zeros(0, 0),
+            String[],
+            diagm([0.01, 0.04]),
+            [0.1, 0.2],
+            ["k", "x"],
+            Dict("k" => :parameter, "x" => :state_ic),
+            [0.1, 0.375],
+            Matrix{Float64}(I, 2, 2),
+            0.0,
+            :ok,
+            String[],
+            :estimator_sampling,
+            :test,
+            nothing,
+            :physical_initial_conditions,
+            local_snapshot,
+            transform,
+        )
+        original_uq = ODEParameterEstimation.unrescale_uncertainty_report(scaled_physical, scale_info)
+        @test original_uq.param_true_values ≈ [0.2, 1.5]
+        @test original_uq.param_covariance ≈ diagm([0.04, 0.64])
+        @test original_uq.param_std ≈ [0.2, 0.8]
+        @test original_uq.backsolve_transform.transform_matrix ≈ [1.0 0.0; -2.0 0.5]
+        @test isfinite(original_uq.backsolve_transform.amplification)
+        @test original_uq.local_coordinate_report.coordinate_values[1:2] ≈ [0.2, 2.0]
+        @test original_uq.local_coordinate_report.param_std ≈ [0.2, 0.8, 1.2]
+    end
+
+    @testset "Variational physical UQ matches two-exponential analytic block transform" begin
+        @independent_variables t
+        @parameters k1 k2
+        @variables x1(t) x2(t)
+        D = Differential(t)
+
+        model, mq = ODEParameterEstimation.create_ordered_ode_system(
+            "two_exp_backsolve_uq",
+            [x1, x2],
+            [k1, k2],
+            [
+                D(x1) ~ k1 * x1,
+                D(x2) ~ k2 * x2,
+            ],
+            [x1 ~ x1, x2 ~ x2],
+        )
+
+        x10 = 1.5
+        x20 = 3.5
+        k1_true = 0.2
+        k2_true = 0.4
+        pep = ODEParameterEstimation.ParameterEstimationProblem(
+            "two_exp_backsolve_uq",
+            model,
+            mq,
+            nothing,
+            [0.0, 5.0],
+            Tsit5(),
+            OrderedDict(k1 => k1_true, k2 => k2_true),
+            OrderedDict(x1 => x10, x2 => x20),
+            0,
+        )
+        sampled = ODEParameterEstimation.sample_problem_data(
+            pep,
+            EstimationOptions(
+                datasize = 21,
+                noise_level = 0.0,
+                time_interval = [0.0, 5.0],
+                nooutput = true,
+                diagnostics = false,
+            ),
+        )
+
+        t0 = sampled.data_sample["t"][1]
+        t_shoot = 2.5
+        Δt = t_shoot - t0
+        completed_sys = ModelingToolkit.complete(sampled.model.system)
+        completed_states = ModelingToolkit.unknowns(completed_sys)
+        completed_params = ModelingToolkit.parameters(completed_sys)
+        prob = ODEProblem(
+            completed_sys,
+            merge(
+                Dict(completed_states .=> [x10, x20]),
+                Dict(completed_params .=> [k1_true, k2_true]),
+            ),
+            (t0, sampled.data_sample["t"][end]),
+        )
+        sol = OrdinaryDiffEq.solve(prob, Tsit5(); abstol = 1e-12, reltol = 1e-12)
+        xshoot = Float64.(sol(t_shoot))
+
+        best_result = ODEParameterEstimation.ParameterEstimationResult(
+            OrderedDict(k1 => k1_true, k2 => k2_true),
+            OrderedDict(x1 => x10, x2 => x20),
+            t_shoot,
+            0.0,
+            nothing,
+            length(sampled.data_sample["t"]),
+            t_shoot,
+            OrderedDict{Num, Float64}(),
+            Set{Num}(),
+            sol,
+        )
+
+        Σ_local = [
+            0.0009 0.0001 0.0002 0.0
+            0.0001 0.0016 0.0 0.0003
+            0.0002 0.0 0.0025 0.0004
+            0.0 0.0003 0.0004 0.0049
+        ]
+        local_labels = ["k1_0", "k2_0", "x1_0", "x2_0"]
+        local_roles = Dict(
+            "k1_0" => :parameter,
+            "k2_0" => :parameter,
+            "x1_0" => :state_at_eval,
+            "x2_0" => :state_at_eval,
+        )
+        local_values = [k1_true, k2_true, xshoot[1], xshoot[2]]
+        uq_report = ODEParameterEstimation.UncertaintyReport(
+            sampled.name,
+            t_shoot,
+            String[],
+            Vector{Float64}[],
+            Vector{Float64}[],
+            zeros(0, 0),
+            String[],
+            Σ_local,
+            sqrt.(diag(Σ_local)),
+            local_labels,
+            local_roles,
+            local_values,
+            Matrix{Float64}(I, 4, 4),
+            0.0,
+            :ok,
+            String[],
+            :estimator_sampling,
+            :test,
+            nothing,
+        )
+
+        expected_j = [
+            1.0 0.0 0.0 0.0
+            0.0 1.0 0.0 0.0
+            -Δt * x10 0.0 exp(-k1_true * Δt) 0.0
+            0.0 -Δt * x20 0.0 exp(-k2_true * Δt)
+        ]
+        expected_cov = expected_j * Σ_local * expected_j'
+
+        physical = ODEParameterEstimation.physicalize_uncertainty_report(sampled, best_result, uq_report)
+        @test physical.coordinate_system == :physical_initial_conditions
+        @test physical.param_labels == ["k1", "k2", "x1", "x2"]
+        @test physical.backsolve_transform.status == :variational
+        @test physical.backsolve_transform.source_labels == ["k1", "k2", "x1", "x2"]
+        @test physical.backsolve_transform.target_labels == ["k1", "k2", "x1", "x2"]
+        @test physical.backsolve_transform.transform_matrix ≈ expected_j rtol = 1e-8 atol = 1e-8
+        @test physical.param_covariance ≈ expected_cov rtol = 1e-8 atol = 1e-8
+        @test physical.param_std ≈ sqrt.(diag(expected_cov)) rtol = 1e-8 atol = 1e-8
+        @test physical.param_true_values ≈ [k1_true, k2_true, x10, x20]
+        @test get(physical.param_roles, "x1", :unknown) == :state_ic
+        @test get(physical.local_coordinate_report.param_roles, "x1_0", :unknown) == :state_at_eval
+        @test physical.local_coordinate_report.coordinate_values ≈ local_values rtol = 1e-8 atol = 1e-8
+    end
+
     @testset "_obs_trfn_ parsing unit tests" begin
         parse_fn = ODEParameterEstimation._parse_obs_trfn_base_name
         eval_fn = ODEParameterEstimation.evaluate_obs_trfn_template_variable
@@ -656,7 +1037,34 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         @test report_multi isa ODEParameterEstimation.ComprehensiveDiagnosticReport
     end
 
-    @testset "compute_uncertainty=true returns an IFT UncertaintyReport" begin
+    @testset "Estimator-sampling UQ influence weights" begin
+        xs = collect(range(0.0, 1.0; length = 13))
+        ys = @. sin(2.0 * xs) + 0.05 * cos(5.0 * xs)
+        interp = ODEParameterEstimation.agp_gpr_uq(xs, ys)
+        t_eval = 0.37
+        max_deriv = 3
+
+        μ, W = ODEParameterEstimation.gp_derivative_influence_matrix(interp, t_eval, max_deriv)
+        expected = [ODEParameterEstimation.nth_deriv(interp, d, t_eval) for d in 0:max_deriv]
+        @test size(W) == (max_deriv + 1, length(xs))
+        @test μ ≈ expected atol = 1e-8 rtol = 1e-8
+
+        raw_var = ODEParameterEstimation.learned_observation_noise_variance(interp)
+        @test raw_var ≈ max(interp.noise_var, 0.0) * interp.y_std^2 atol = 1e-14
+
+        jet = ODEParameterEstimation.joint_derivative_estimator_covariance(
+            interp, t_eval, max_deriv; observable_name = "y1",
+        )
+        @test jet isa ODEParameterEstimation.JetInfluenceEstimate
+        @test jet.covariance_kind == :estimator_sampling
+        @test jet.noise_source == :learned_gp_homoscedastic
+        @test jet.mean ≈ μ atol = 1e-8 rtol = 1e-8
+        @test diag(jet.observation_covariance) ≈ fill(raw_var, length(xs)) atol = 1e-14
+        @test jet.jet_covariance ≈ raw_var .* (W * W') atol = 1e-10 rtol = 1e-8
+        @test minimum(eigvals(Symmetric(jet.jet_covariance))) >= -1e-9
+    end
+
+    @testset "compute_uncertainty=true returns physical-coordinate UQ with local audit" begin
         # Phase E2 (review P0#5): the experimental UQ sidecar is rewired from the
         # broken FD-Jacobian path (archived in deprecated/uq_fd_path.jl) to the
         # IFT-based diagnose_uncertainty. End-to-end smoke on simple().
@@ -673,8 +1081,17 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
             ODEParameterEstimation.analyze_parameter_estimation_problem(sampled, uq_opts)
         end
         @test uq isa ODEParameterEstimation.UncertaintyReport
+        @test uq.coordinate_system == :physical_initial_conditions
+        @test uq.covariance_kind == :estimator_sampling
+        @test uq.noise_source == :learned_gp_homoscedastic
         @test !isempty(uq.param_std)
         @test any(isfinite, uq.param_std)
+        @test all(get(uq.param_roles, label, :unknown) in (:parameter, :state_ic) for label in uq.param_labels)
+        @test uq.local_coordinate_report isa ODEParameterEstimation.LocalUQSnapshot
+        @test any(role == :state_at_eval for role in values(uq.local_coordinate_report.param_roles))
+        @test uq.backsolve_transform isa ODEParameterEstimation.UQBacksolveTransform
+        @test uq.practical_identifiability_index isa ODEParameterEstimation.PracticalIdentifiabilityIndex
+        @test isfinite(uq.practical_identifiability_index.i_a)
     end
 
     @testset "diagnose writes HTML report to disk" begin
