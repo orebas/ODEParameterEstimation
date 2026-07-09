@@ -100,3 +100,18 @@ repro/**/artifacts/
 *.aux
 *.toc
 *.synctex.gz
+
+# --- Standard artifact ignores (git-hygiene pass) ---
+# Generic coverage output (complements *.jl.cov / *.jl.*.cov above)
+*.cov
+
+# OS-generated cruft
+.DS_Store
+Thumbs.db
+
+# Patch / merge-conflict leftovers
+*.orig
+*.rej
+
+# Additional Vim swap suffix (complements *.swp / *.swo above)
+*.swn
