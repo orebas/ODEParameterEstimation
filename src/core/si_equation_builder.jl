@@ -891,6 +891,79 @@ function get_si_equation_system(
 end
 
 """
+	_eliminate_to(gb_input, ring_gens, keep_vars)
+
+Compute a Groebner basis of the elimination ideal `I ∩ k[keep_vars]` — the
+projection of `V(⟨gb_input⟩)` onto `keep_vars`, eliminating `ring_gens ∖ keep_vars`
+via a block ordering that ranks the eliminated variables above the kept ones
+(Elimination Theorem). Returns `(Rid, gens)`, the generators re-embedded into a
+fresh ring `Rid` on `keep_vars` (`gens` may be empty, meaning the ideal is `{0}` and
+every kept variable is free), or `nothing` if `keep_vars` is empty.
+"""
+function _eliminate_to(gb_input, ring_gens, keep_vars)
+	isempty(keep_vars) && return nothing
+	keepset = Set(keep_vars)
+	Rid, _ = Nemo.polynomial_ring(Nemo.QQ, [string(v) for v in keep_vars]; internal_ordering = :degrevlex)
+	elim_vars = [g for g in ring_gens if !(g in keepset)]
+	isempty(elim_vars) && return (Rid, [SIAN.parent_ring_change(g, Rid) for g in gb_input])
+	block = Groebner.ProductOrdering(Groebner.DegRevLex(elim_vars...), Groebner.DegRevLex(keep_vars...))
+	gb_elim = Groebner.groebner(gb_input; ordering = block)
+	elim_gens = [g for g in gb_elim if issubset(Set(Nemo.vars(g)), keepset)]
+	return (Rid, [SIAN.parent_ring_change(g, Rid) for g in elim_gens])
+end
+
+"""
+	_multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
+
+Compute the algebraic multiplicity `M` for a POSITIVE-dimensional identifiability
+ideal `⟨gb_input⟩` (a continuous gauge symmetry) by projecting its variety onto the
+GLOBALLY-identifiable coordinates and counting.
+
+`theta_l` are the SIAN *locally*-identifiable order-0 coordinates — a SUPERSET of the
+globally-identifiable ones, because a gauge variable can be locally but not globally
+identifiable (e.g. `sum_test`'s scaling `(x1,x2,c)→(λx1,λx2,c/λ)` makes `c,x1,x2`
+each locally identifiable yet jointly a 1-D gauge). Since the observations are
+already substituted into `gb_input`, a coordinate `v` is GLOBALLY identifiable iff it
+is finite-valued in the ideal, i.e. the univariate ideal `I ∩ k[v]` is nonzero. We
+therefore (1) project onto `theta_l`; if that is already zero-dimensional we count
+it, otherwise (2) retain only the finite-valued coordinates (dropping the gauge) and
+count that. `M = length(quotient_basis(...))` = number of distinct
+identifiable-coordinate tuples = number of branch-conjugates. Returns `nothing` if no
+well-defined zero-dimensional count is obtained.
+"""
+function _multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
+	ring_gens = Nemo.gens(Rjet_gb)
+	theta_names = Set(string(t) for t in theta_l)
+	theta_ring_vars = [g for g in ring_gens if string(g) in theta_names]
+
+	# Stage 1: project onto the locally-identifiable order-0 coordinates.
+	res = _eliminate_to(gb_input, ring_gens, theta_ring_vars)
+	res === nothing && return nothing
+	Rid, gens_id = res
+	if !isempty(gens_id) && Groebner.dimension(gens_id) == 0
+		return length(Groebner.quotient_basis(gens_id))  # theta_l already finite-valued
+	end
+
+	# Stage 2: a continuous gauge survives among the theta_l coordinates. Keep only the
+	# finite-valued (globally identifiable) ones — v is finite-valued iff its univariate
+	# elimination ideal I ∩ k[v] is nonzero — working in the small ring Rid.
+	small_gens = Nemo.gens(Rid)
+	keep = eltype(small_gens)[]
+	for v in small_gens
+		res_v = _eliminate_to(gens_id, small_gens, [v])
+		res_v === nothing && continue
+		isempty(res_v[2]) || push!(keep, v)
+	end
+	isempty(keep) && return nothing
+
+	res2 = _eliminate_to(gens_id, small_gens, keep)
+	res2 === nothing && return nothing
+	_, gens_id2 = res2
+	(!isempty(gens_id2) && Groebner.dimension(gens_id2) == 0) || return nothing
+	return length(Groebner.quotient_basis(gens_id2))
+end
+
+"""
 	get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true)
 
 Get polynomial system using SIAN functions, adapted from PE.jl's implementation.
@@ -1111,11 +1184,24 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
 		_M_qb_t = @elapsed begin
 			M_value = try
-				length(Groebner.quotient_basis(gb))
+				d = Groebner.dimension(gb)
+				if d == 0
+					length(Groebner.quotient_basis(gb))  # zero-dim: M = dim_QQ(R/I) (unchanged path)
+				elseif d >= 1
+					# Positive-dimensional: a continuous gauge symmetry entangles variables
+					# that appear in the observation. Count M in the identifiable subspace
+					# by eliminating the gauge directions (see the helper above), instead of
+					# giving up. Leaf-state unidentifiability never reaches here (those axes
+					# are absent from Et → the ideal is already zero-dimensional).
+					algebraic_multiplicity_timing[:positive_dimensional] = true
+					algebraic_multiplicity_timing[:gauge_dimension] = d
+					_multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
+				else
+					nothing  # d == -1: empty variety / whole ring (should not occur)
+				end
 			catch e
-				e isa DomainError || rethrow()
-				@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (ideal not zero-dimensional — unidentifiable directions remain after fixing)"
-				algebraic_multiplicity_timing[:positive_dimensional] = true
+				(e isa DomainError || e isa Groebner.MonomialDegreeOverflow) || rethrow()
+				algebraic_multiplicity_timing[:multiplicity_error] = string(nameof(typeof(e)))
 				nothing
 			end
 		end
