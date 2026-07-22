@@ -73,8 +73,10 @@ using Symbolics
         @test isequal(pep.ic, OrderedDict(x1 => 1.0, x2 => 2.0))
         @test pep.unident_count == 0
         
-        # PEP with data sample
-        data_dict = OrderedDict(
+        # PEP with data sample. Build at the field's concrete key type
+        # (Union{String, Num}) so the constructor stores the object without a
+        # converting copy — otherwise the `===` check below compares a copy.
+        data_dict = OrderedDict{Union{String, Symbolics.Num}, Vector{Float64}}(
             "t" => [0.0, 0.1, 0.2],
             x1 => [1.0, 1.1, 1.2]
         )
@@ -97,13 +99,17 @@ using Symbolics
     end
     
     @testset "DerivativeData" begin
-        # Create test data
-        states_lhs = [[Symbolics.wrap(Symbol("x1"))] ]
-        states_rhs = [[Symbolics.wrap(Symbol("y1"))] ]
-        obs_lhs = [[Symbolics.wrap(Symbol("obs1"))] ]
-        obs_rhs = [[Symbolics.wrap(Symbol("val1"))] ]
-        all_unident = Set{Any}([Symbolics.wrap(Symbol("param1"))])
-        
+        # Build with real Symbolics variables at the struct's concrete field
+        # types (Vector{Vector{Num}} / Set{Num}) so the stored objects are
+        # identity-preserved. (The old Symbolics.wrap(Symbol(...)) produced
+        # Vector{Vector{Symbol}}, which does not convert into the Num fields.)
+        @variables x1 y1 obs1 val1 param1
+        states_lhs = [[x1]]
+        states_rhs = [[y1]]
+        obs_lhs = [[obs1]]
+        obs_rhs = [[val1]]
+        all_unident = Set{Num}([param1])
+
         # Create DerivativeData object
         dd = ODEParameterEstimation.DerivativeData(
             states_lhs, states_rhs, obs_lhs, obs_rhs,

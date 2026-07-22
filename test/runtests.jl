@@ -12,4 +12,6 @@ using Test
     include("feature_regressions.jl")
     include("test_shade_lm.jl")
     include("test_rescaling.jl")
+    include("test_core_types.jl")     # re-homed 2026-07-21 (was orphaned + red; now green)
+    include("column_scaling.jl")      # re-homed 2026-07-21 (was orphaned; green)
 end
