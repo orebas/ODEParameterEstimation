@@ -806,10 +806,17 @@ const _NOISE_VALIDATION_CACHE = Dict{Any, NoiseValidationCache}()
 const _NOISE_VALIDATION_CACHE_LOCK = ReentrantLock()
 
 function _noise_validation_cache_key(equations, solve_vars, data_vars, rank_atol::Float64, n_rank_probes::Int)
+	# CONTENT hash (mirrors `_hc_structure_key`), NOT objectid. objectid of a
+	# mutable Vector is address-derived and can be reused after the original is
+	# GC'd, so an objectid-keyed entry could FALSE-HIT across estimation calls
+	# in one process and return the wrong compiled Jacobian for a structurally
+	# different system (→ a rank/validity decision on the wrong system). Hashing
+	# the printed structure keys on content: identical systems correctly share
+	# an entry, different systems never collide.
 	return (
-		objectid(equations), length(equations),
-		objectid(solve_vars), length(solve_vars),
-		objectid(data_vars), length(data_vars),
+		hash(string.(equations)), length(equations),
+		hash(string.(solve_vars)), length(solve_vars),
+		hash(string.(data_vars)), length(data_vars),
 		rank_atol,
 		n_rank_probes,
 	)
