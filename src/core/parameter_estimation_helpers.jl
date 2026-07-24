@@ -525,11 +525,39 @@ Backsolves for the original model parameters and creates ParameterEstimationResu
 """
 
 """
+	_assert_bounds_length(opts, expected_len, site, layout)
+
+Fail-fast guard for user-supplied `opt_lb`/`opt_ub`: if either is set and its
+length differs from `expected_len`, throw an ArgumentError naming the site, the
+expected layout, and the likely cause. Wrong-length bounds are always caller
+error or upstream transform drift — the old behavior (each consumer silently
+degrading differently: untransformed bounds into a scaled solve, fallback to
+the ±1e6 box, skipped backsolve clamp) shipped out-of-box polished results
+(docs/2026-06-19_transform_bounds_mismatch.md, CSTR final_v2 evidence).
+No-op when bounds are unset or lengths match.
+"""
+function _assert_bounds_length(opts, expected_len::Int, site::AbstractString, layout::AbstractString)
+	for (name, v) in ((:opt_lb, opts.opt_lb), (:opt_ub, opts.opt_ub))
+		v === nothing && continue
+		length(v) == expected_len && continue
+		throw(ArgumentError(
+			"$(site): user-supplied `$(name)` has length $(length(v)) but the current " *
+			"unknown vector needs $(expected_len) ($(layout)). A problem transform " *
+			"(transcendental handling, rescaling) likely changed the variable set after " *
+			"these bounds were written — see docs/2026-06-19_transform_bounds_mismatch.md. " *
+			"Supply bounds for the TRANSFORMED system, disable the transform " *
+			"(e.g. auto_handle_transcendentals=false), or unset opt_lb/opt_ub."))
+	end
+	return nothing
+end
+
+"""
 	_clamp_params_for_backsolve(p_map, opts, param_order, n_states) -> AbstractDict
 
 When `opts.opt_lb` and `opts.opt_ub` are provided AND have length `n_states + n_params`,
 clamp the parameter portion of `p_map` to those bounds and return a new dict (same
-concrete type as the input). Otherwise returns `p_map` unchanged. The bounds vector
+concrete type as the input). A length MISMATCH throws (fail-fast; was a silent
+no-op — see `_assert_bounds_length`). The bounds vector
 is laid out as `[state_ic_bounds; param_bounds]` (matches `compute_default_bounds`),
 so parameter `i` maps to bound index `n_states + i`. Complex values are reduced to
 their real part before clamping.
@@ -543,7 +571,8 @@ function _clamp_params_for_backsolve(p_map, opts, param_order, n_states::Int)
 	(isnothing(opts) || isnothing(opts.opt_lb) || isnothing(opts.opt_ub)) && return p_map
 	n_params = length(param_order)
 	expected_len = n_states + n_params
-	(length(opts.opt_lb) != expected_len || length(opts.opt_ub) != expected_len) && return p_map
+	_assert_bounds_length(opts, expected_len, "_clamp_params_for_backsolve (backsolve clamp)",
+		"[state ICs; params] of the model in use")
 
 	out = copy(p_map)
 	for (i, p) in enumerate(param_order)

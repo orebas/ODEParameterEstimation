@@ -174,4 +174,40 @@ const OPE = ODEParameterEstimation
 		@test OPE.rescale_option_bounds(opts0, info, sampled) === opts0
 	end
 
+	@testset "bounds length mismatch FAILS FAST (silent-fallback trio canary)" begin
+		# The class this kills: a wrong-length opt_lb/opt_ub used to degrade
+		# silently at three separate sites (untransformed bounds into a scaled
+		# solve; fallback to the ±1e6 box; skipped backsolve clamp) — CSTR
+		# final_v2 shipped out-of-box polished results this way
+		# (docs/2026-06-19_transform_bounds_mismatch.md).
+		pep = OPE.hiv()
+		opts0 = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
+		Random.seed!(7)
+		sampled = OPE.sample_problem_data(pep, opts0)
+		info = choose_scales(sampled)
+		nvars = length(ModelingToolkit.unknowns(sampled.model.system)) +
+				length(ModelingToolkit.parameters(sampled.model.system))
+
+		# helper contract: no-throw on match / unset, throw on mismatch
+		ok = EstimationOptions(nooutput = true, opt_lb = fill(0.0, nvars), opt_ub = fill(1.0, nvars))
+		@test OPE._assert_bounds_length(ok, nvars, "site", "layout") === nothing
+		@test OPE._assert_bounds_length(opts0, nvars, "site", "layout") === nothing
+		bad = EstimationOptions(nooutput = true, opt_lb = fill(0.0, nvars - 1), opt_ub = fill(1.0, nvars - 1))
+		@test_throws ArgumentError OPE._assert_bounds_length(bad, nvars, "site", "layout")
+
+		# site 1: rescale_option_bounds no longer passes mismatched bounds through
+		@test_throws ArgumentError OPE.rescale_option_bounds(bad, info, sampled)
+
+		# site 3: backsolve clamp no longer silently skips on mismatch
+		params = Symbolics.Num.(ModelingToolkit.parameters(sampled.model.system))
+		nS = length(ModelingToolkit.unknowns(sampled.model.system))
+		p_map = Dict(p => 1.0 for p in params)
+		@test_throws ArgumentError OPE._clamp_params_for_backsolve(p_map, bad, params, nS)
+		# ...and still clamps correctly on a well-formed spec
+		tight = EstimationOptions(nooutput = true,
+			opt_lb = fill(2.0, nS + length(params)), opt_ub = fill(3.0, nS + length(params)))
+		clamped = OPE._clamp_params_for_backsolve(p_map, tight, params, nS)
+		@test all(v -> 2.0 <= v <= 3.0, values(clamped))
+	end
+
 end

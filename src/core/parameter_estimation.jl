@@ -1657,13 +1657,19 @@ function _build_polish_context(
 		ODEProblem(new_model, merge(u0_default, p_default), tspan)
 	end
 
-	# Bounds: use user-specified if valid, otherwise auto-compute from data scale.
+	# Bounds: use user-specified if set (length MISMATCH throws — fail-fast; the
+	# old silent fallback to the ±1e6 box let polished results escape the user's
+	# intended bounds, docs/2026-06-19_transform_bounds_mismatch.md). Otherwise
+	# auto-compute from data scale.
 	# Note: only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
 	# silently ignore bounds in _polish_single_from_context.
+	if !isnothing(opts.opt_lb) || !isnothing(opts.opt_ub)
+		_assert_bounds_length(opts, p_size, "_build_polish_context (polish bounds)",
+			"[state ICs; params] of the transformed model")
+	end
 	lb = nothing
 	ub = nothing
-	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub) &&
-	   length(opts.opt_lb) == p_size && length(opts.opt_ub) == p_size
+	if !isnothing(opts.opt_lb) && !isnothing(opts.opt_ub)
 		lb = Float64.(opts.opt_lb)
 		ub = Float64.(opts.opt_ub)
 	else

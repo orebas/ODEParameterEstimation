@@ -458,7 +458,9 @@ length `n_states + n_params`, ordered `[states; params]` (the convention every
 consumer uses: polish context, backsolve clamp, ranking saturation). A physical
 bound `lb ≤ v ≤ ub` with `v = 2^e v_scaled` becomes `lb/2^e ≤ v_scaled ≤ ub/2^e`,
 so each entry is divided by its variable's power-of-2 scale. Returns `opts`
-unchanged when no bounds are set or the length doesn't match.
+unchanged when no bounds are set; a length MISMATCH throws (fail-fast — the old
+silent pass-through shipped a physical bound untransformed into a
+scaled-coordinate solve; see `_assert_bounds_length`).
 """
 function rescale_option_bounds(opts, info::ScaleInfo, pep::ParameterEstimationProblem)
 	(isnothing(opts.opt_lb) && isnothing(opts.opt_ub)) && return opts
@@ -469,7 +471,9 @@ function rescale_option_bounds(opts, info::ScaleInfo, pep::ParameterEstimationPr
 		Float64[get(info.state_scales, s, 1.0) for s in states],
 		Float64[get(info.param_scales, p, 1.0) for p in params],
 	)
-	_rs(v) = (v === nothing || length(v) != length(scales)) ? v : (Float64.(v) ./ scales)
+	_assert_bounds_length(opts, length(scales), "rescale_option_bounds (auto_rescale)",
+		"[states; params] of the model being rescaled")
+	_rs(v) = v === nothing ? v : (Float64.(v) ./ scales)
 	new_lb = _rs(opts.opt_lb)
 	new_ub = _rs(opts.opt_ub)
 	return EstimationOptions(;
