@@ -80,6 +80,7 @@ function solve_with_robust(poly_system, varlist;
 			expression = Val(false))
 		compiled_residual_robust! = (res, u, p) -> (_f_ip(res, u); nothing)
 	catch err
+		_rethrow_if_interrupt(err)
 		@warn "build_function failed in solve_with_robust; falling back to substitute/value" err
 	finally
 		robust_stages[:build_residual_function] = get(robust_stages, :build_residual_function, 0.0) + (time() - _build_residual_t0)
@@ -143,6 +144,7 @@ function solve_with_robust(poly_system, varlist;
 				println("[ROBUST] ✓ Symbolic Jacobian built successfully")
 			end
 		catch e
+			_rethrow_if_interrupt(e)
 			@error "[ROBUST] Symbolic Jacobian failed" exception=(e, catch_backtrace())
 			println("SOLVER_ERROR: solve_with_robust Jacobian build threw exception:")
 			println("  Type: ", typeof(e))

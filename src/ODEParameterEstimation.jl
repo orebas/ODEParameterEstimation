@@ -269,7 +269,8 @@ export compatibility_return_code, sync_result_contract!, lineage_summary
 				end
 			end
 		end
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		# Ignore errors during precompilation - we just want to trigger compilation
 	end
 end

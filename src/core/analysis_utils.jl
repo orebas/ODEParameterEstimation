@@ -576,6 +576,7 @@ function _compute_uq_result(
 		local_uq = isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
 		isnothing(local_uq) ? nothing : physicalize_uncertainty_report(PEP, best_solution, local_uq)
 	catch e
+		_rethrow_if_interrupt(e)
 		@warn "Parameter uncertainty computation failed" exception = (e, catch_backtrace())
 		nothing
 	end
@@ -1035,6 +1036,7 @@ function _compile_system_function(equations, varlist)
         f_oop = fn isa Tuple ? fn[1] : fn
         return f_oop
     catch e
+        _rethrow_if_interrupt(e)
         @warn "[compile_system_function] build_function failed, using substitution fallback: $e"
         # Fallback: closure over symbolic substitution (works but no AD)
         return function (vals)
@@ -1043,7 +1045,8 @@ function _compile_system_function(equations, varlist)
             for (i, eq) in enumerate(equations)
                 result[i] = try
                     Float64(Symbolics.value(Symbolics.substitute(eq, subst_dict)))
-                catch
+                catch err
+                    _rethrow_if_interrupt(err)
                     eltype(vals)(NaN)
                 end
             end

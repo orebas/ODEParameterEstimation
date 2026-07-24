@@ -24,7 +24,8 @@ This function:
 function _numeric_residual_value(expr)
 	try
 		return abs(Float64(Symbolics.value(Symbolics.simplify(expr))))
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		return NaN
 	end
 end
@@ -712,6 +713,7 @@ function resolve_states_with_fixed_params(
 				try
 					final_vals[v] = Float64(Symbolics.value(expr))
 				catch e
+					_rethrow_if_interrupt(e)
 					@warn "[RESOLVE] Failed to convert $v = $expr to Float64: $e"
 					push!(failed_vals, v)
 				end
@@ -780,6 +782,7 @@ function resolve_states_with_fixed_params(
 							try
 								push!(merged, Float64(Symbolics.value(val)))
 							catch e
+								_rethrow_if_interrupt(e)
 								@warn "[RESOLVE] Failed to convert merged value for $cvar: $e"
 								push!(solution_failed_vars, cvar)
 							end

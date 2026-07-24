@@ -688,6 +688,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 		try
 			ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
 		catch e
+			_rethrow_if_interrupt(e)
 			ode_threw = true
 			@warn "ODE integration of HC candidate threw $(typeof(e)); rejecting candidate" exception = e
 			nothing
@@ -1215,6 +1216,7 @@ function lookup_value(var, var_search, soln_index::Int,
 			core = try
 				Symbolics.value(var_search)
 			catch e
+				_rethrow_if_interrupt(e)
 				@debug "Symbolics.value unwrap failed, using raw variable" exception = e
 				var_search
 			end
@@ -1301,6 +1303,7 @@ function lookup_value(var, var_search, soln_index::Int,
 				end
 			end
 		catch e
+			_rethrow_if_interrupt(e)
 			@debug "Variable index fallback lookup failed" exception = e
 		end
 	end
@@ -1913,7 +1916,8 @@ function _polish_single_from_context(
 	# Evaluate initial loss for divergence baseline
 	initial_loss = try
 		ctx.optf.f(p0_internal, nothing)
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		Inf
 	end
 
@@ -1998,12 +2002,14 @@ function _polish_single_from_context(
 	# whichever genuinely fits better. This keeps `err`/`post_polish_error` honest (≥ 0).
 	true_loss_final = try
 		Float64(ctx.optf.f(result.u, nothing))
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		Inf
 	end
 	true_loss_best = isfinite(best_loss[]) ? (try
 		Float64(ctx.optf.f(best_p[], nothing))
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		Inf
 	end) : Inf
 	use_best_iterate = true_loss_best < true_loss_final
@@ -2025,6 +2031,7 @@ function _polish_single_from_context(
 	sol_final = try
 		ModelingToolkit.solve(prob_final, ctx.solver; saveat = ctx.t_vector, abstol = ctx.abstol, reltol = ctx.reltol, maxiters = ctx.polish_ode_maxiters)
 	catch e
+		_rethrow_if_interrupt(e)
 		@warn "Final polish ODE solve threw; returning result without trajectory" exception = e maxlog = 10
 		nothing
 	end
@@ -2288,6 +2295,7 @@ function _polish_batch_from_context(
 				end
 			end
 		catch e
+			_rethrow_if_interrupt(e)
 			@warn "dump_raw_candidates_path write failed: $e"
 		end
 	end
@@ -2346,7 +2354,7 @@ function _polish_batch_from_context(
 				lso_g_tol = opts.polish_lso_g_tol,
 			)
 			dt = time() - t0
-			n_iters = try; opt_result.original.iterations; catch; -1; end
+			n_iters = try; opt_result.original.iterations; catch err; _rethrow_if_interrupt(err); -1; end
 			polished_result.unident_dict = deepcopy(candidate.unident_dict)
 			polished_result.all_unidentifiable = copy(candidate.all_unidentifiable)
 			polished_result.provenance = copy_provenance(
@@ -2429,6 +2437,7 @@ function _polish_batch_from_context(
 				end
 			end
 		catch e
+			_rethrow_if_interrupt(e)
 			@warn "dump_polished_path write failed: $e"
 		end
 	end
@@ -2477,7 +2486,8 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 	for attempt in 1:30
 		loss0 = try
 			ctx.optf.f(p0, nothing)
-		catch
+		catch err
+			_rethrow_if_interrupt(err)
 			Inf
 		end
 		isfinite(loss0) && break

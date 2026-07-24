@@ -205,6 +205,7 @@ function _branch_completion_hc_debug(equations, vars)
 			result_summary = sprint(show, raw),
 		)
 	catch err
+		_rethrow_if_interrupt(err)
 		return (
 			status = :error,
 			error_type = string(typeof(err)),
@@ -227,6 +228,7 @@ function _record_branch_completion_debug!(;
 	anchor_values = try
 		_branch_completion_anchor_values(PEP, anchor_pep, instantiated.vars, t0, max_required_deriv, opts)
 	catch err
+		_rethrow_if_interrupt(err)
 		err
 	end
 	anchor_residual = anchor_values isa Exception ? NaN : _compute_residual(instantiated.equations, instantiated.vars, anchor_values)
@@ -237,7 +239,8 @@ function _record_branch_completion_debug!(;
 			hc_system, _ = convert_to_hc_format(instantiated.equations, instantiated.vars)
 			norm(HomotopyContinuation.evaluate(hc_system, ComplexF64.(anchor_values)))
 		end
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		NaN
 	end
 	_LAST_BRANCH_COMPLETION_DEBUG[] = (
@@ -283,6 +286,7 @@ function complete_branches_from_anchor_report(
 			reltol = opts.reltol,
 		)
 	catch err
+		_rethrow_if_interrupt(err)
 		opts.diagnostics && @warn "[Branch completion] failed to build exact anchor interpolants" exception = (err, catch_backtrace())
 		return _branch_completion_report(status = :anchor_interpolants_failed)
 	end
@@ -300,6 +304,7 @@ function complete_branches_from_anchor_report(
 			prune_overdetermined = true,
 		)
 	catch err
+		_rethrow_if_interrupt(err)
 		opts.diagnostics && @warn "[Branch completion] failed to instantiate SI template" exception = (err, catch_backtrace())
 		return _branch_completion_report(status = :template_instantiation_failed)
 	end
@@ -362,6 +367,7 @@ function complete_branches_from_anchor_report(
 				prune_overdetermined = false,
 			)
 		catch err
+			_rethrow_if_interrupt(err)
 			opts.diagnostics && @warn "[Branch completion] failed to instantiate dropped equations" exception = (err, catch_backtrace())
 			return _branch_completion_report(
 				status = :dropped_instantiation_failed,

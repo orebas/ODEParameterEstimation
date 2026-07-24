@@ -562,7 +562,8 @@ function _noise_rank_matrix(equations, variables; rank_atol::Float64 = 1e-8, n_r
 		_jacobian_t0 = time()
 		J = try
 			ForwardDiff.jacobian(f, x)
-		catch
+		catch err
+			_rethrow_if_interrupt(err)
 			zeros(Float64, n_eq, n_var)
 		finally
 			rank_stages[:forwarddiff_jacobian] = get(rank_stages, :forwarddiff_jacobian, 0.0) + (time() - _jacobian_t0)
@@ -735,7 +736,8 @@ function _noise_svd_diagnostics(
 	Js = J[selected, :]
 	svs = try
 		svdvals(Js)
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		return (
 			sigma_max = NaN,
 			sigma_min = NaN,
@@ -777,7 +779,8 @@ function _noise_condition_proxy(J, selected; rank_atol::Float64 = 1e-8)
 	size(Js, 1) < size(Js, 2) && return Inf
 	svs = try
 		svdvals(Js)
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		return Inf
 	end
 	isempty(svs) && return Inf
@@ -983,6 +986,7 @@ function _noise_prepare_validation_cache(
 			)
 		end
 	catch err
+		_rethrow_if_interrupt(err)
 		@warn "[NOISE-FRONTIER] cached Jacobian validation unavailable; using slow validation" exception = err
 		NoiseValidationCache(
 			false,
@@ -1015,6 +1019,7 @@ function _noise_mixed_volume(equations, solve_vars, data_vars)
 		hc_system, _, _ = convert_to_hc_format_with_params(equations, solve_vars, data_vars)
 		return Int(HomotopyContinuation.mixed_volume(hc_system))
 	catch e
+		_rethrow_if_interrupt(e)
 		@warn "[NOISE-FRONTIER] mixed_volume failed" exception = e
 		return nothing
 	end
@@ -1259,6 +1264,7 @@ function validate_noise_frontier_instantiation(
 			end
 			true
 		catch err
+			_rethrow_if_interrupt(err)
 			@warn "[NOISE-FRONTIER] cached Jacobian validation failed; using slow validation" exception = err
 			false
 		finally

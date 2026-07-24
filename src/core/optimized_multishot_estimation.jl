@@ -1441,6 +1441,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							n_points = opts.multipoint_n_points, diagnostics = opts.diagnostics)
 					end
 				catch e
+					_rethrow_if_interrupt(e)
 					# Ungated (postcampaign review P1): a systematically failing template
 					# build must not be invisible at default verbosity.
 					@warn "[MULTIPOINT] Template build failed" exception = e maxlog = 10
@@ -1571,6 +1572,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								precomputed_generic_solutions = _mpt_sols0,
 								precomputed_generic_params = _mpt_p0)
 					catch e
+						_rethrow_if_interrupt(e)
 						@warn "[MULTIPOINT] HC solve failed" exception = e maxlog = 10
 						nothing
 					end
@@ -1817,6 +1819,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 									resolve_time_index = source_shoot_idx
 								end
 							catch err
+								_rethrow_if_interrupt(err)
 								if opts.diagnostics
 									@warn "[RESOLVE] Algebraic re-solve at shooting time failed; falling back to the existing t=0 resolve result." exception = err source_candidate_indices = indices shooting_index = source_shoot_idx
 								end
@@ -2004,6 +2007,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						)
 					end
 				catch err
+					_rethrow_if_interrupt(err)
 					@warn "[Sensitivity seeds] generation failed; using unaugmented pool" exception = (err, catch_backtrace())
 					solved_res
 				end
@@ -2024,6 +2028,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						)
 					end
 				catch err
+					_rethrow_if_interrupt(err)
 					@warn "[Synthesize aggregates] failed; using unaugmented pool" exception = (err, catch_backtrace())
 					solved_res
 				end
@@ -2059,7 +2064,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						for attempt in 1:30
 							loss0 = try
 								ctx.optf.f(p0, nothing)
-							catch
+							catch err
+								_rethrow_if_interrupt(err)
 								Inf
 							end
 							isfinite(loss0) && break

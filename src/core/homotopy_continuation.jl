@@ -49,6 +49,7 @@ function _nlls_residual_closure(prepared_system, mangled_varlist, label::Abstrac
 			expression = Val(false))
 		compiled! = (res, u, p) -> (_f_ip(res, u); nothing)
 	catch err
+		_rethrow_if_interrupt(err)
 		@warn "build_function failed in $label; falling back to substitute/value" err
 	end
 	eval_count = Ref(0)
@@ -149,6 +150,7 @@ function solve_with_nlopt(poly_system, varlist;
 	sol = try
 		NonlinearSolve.solve(prob, optimizer; solver_opts...)
 	catch e
+		_rethrow_if_interrupt(e)
 		_log_solver_exception("solve_with_nlopt", e, catch_backtrace())
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
@@ -245,6 +247,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 		solve_ms = (time() - t0) * 1000
 		out
 	catch e
+		_rethrow_if_interrupt(e)
 		_log_solver_exception("solve_with_fast_nlopt", e, catch_backtrace())
 		return [], mangled_varlist, Dict(), mangled_varlist
 	end
@@ -263,6 +266,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 			sol = NonlinearSolve.solve(prob, NonlinearSolve.FastShortcutNLLSPolyalg(); retry_opts...)
 			solve_ms += (time() - t0) * 1000
 		catch e
+			_rethrow_if_interrupt(e)
 			_log_solver_exception("solve_with_fast_nlopt retry", e, catch_backtrace())
 		end
 	end
@@ -272,6 +276,7 @@ function solve_with_fast_nlopt(poly_system, varlist;
 	try
 		residual!(final_residual, sol.u, nothing)
 	catch e
+		_rethrow_if_interrupt(e)
 		@debug "Final residual evaluation failed, using initial residual" exception = e
 		final_residual .= initial_residual
 	end
@@ -794,6 +799,7 @@ function compute_generic_start_solutions(poly_system, solve_vars, data_vars; gam
 		debug && println("[HC-PARAM] Generic-start (hoisted): UNSCALED generic p0 → N=$(length(sols0)) solutions (solved ONCE for all interpolators)")
 		return (sols0, p0)
 	catch e
+		_rethrow_if_interrupt(e)
 		debug && println("[HC-PARAM] Generic-start (hoisted): generic solve threw ($(e))")
 		return (nothing, nothing)
 	end
@@ -925,6 +931,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				gres = _hc_solve(hc_system_unscaled; target_parameters = generic_start_params, show_progress = show_progress)
 				sols0 = HomotopyContinuation.solutions(gres; only_nonsingular = false)
 			catch e
+				_rethrow_if_interrupt(e)
 				debug && println("[HC-PARAM] Generic-start: generic solve threw ($(e)) → degrading to per-point fresh+track")
 				sols0 = nothing
 			end

@@ -62,7 +62,8 @@ function _num_or_nothing(x)
 	x isa Num && return x
 	try
 		return Num(x)
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		return nothing
 	end
 end
@@ -251,6 +252,7 @@ function run_numerical_identifiability_advisory(
 			advisory = advisory,
 		)
 	catch err
+		_rethrow_if_interrupt(err)
 		@warn "Numerical identifiability advisory failed; continuing with deterministic heuristics" exception = err
 		advisory = NumericalIdentifiabilityAdvisory(
 			status = :failed,
@@ -683,6 +685,7 @@ function process_estimation_results(
 					soln_index, local_good_udict, trivial_dict, final_varlist, trimmed_varlist, solns,
 				)
 			catch e
+				_rethrow_if_interrupt(e)
 				if use_si_workflow
 					explicit_fixed_value = lookup_explicit_fixed_value(solution_data.good_udict, (params[i], param_search))
 					if !isnothing(explicit_fixed_value)
@@ -745,6 +748,7 @@ function process_estimation_results(
 					soln_index, solution_data.good_udict, safe_trivial_dict, final_varlist, trimmed_varlist, solns,
 				)
 			catch e
+				_rethrow_if_interrupt(e)
 				if use_si_workflow
 					# State not found in solver vars — it may have been eliminated because it
 					# equals a measured quantity (e.g. y2 ~ y means y was treated as data).
@@ -806,6 +810,7 @@ function process_estimation_results(
 		ode_solution = try
 			ModelingToolkit.solve(prob, PEP.solver, abstol = opts.abstol, reltol = opts.reltol)
 		catch e
+			_rethrow_if_interrupt(e)
 			@warn "ODE solve failed during final trajectory reconstruction: $e"
 			nothing
 		end
@@ -820,6 +825,7 @@ function process_estimation_results(
 				end
 			end
 		catch e
+			_rethrow_if_interrupt(e)
 			@warn "Failed to extract backsolved initial conditions at t0: $e"
 		end
 
