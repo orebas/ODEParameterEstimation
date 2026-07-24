@@ -1,0 +1,266 @@
+From 4b542974fe0984d78e34530a0f8687fc3838362b Mon Sep 17 00:00:00 2001
+From: Oren Bassik <orebas@yahoo.com>
+Date: Thu, 23 Jul 2026 20:06:14 -0400
+Subject: [PATCH] Make compiled ModelKit caches thread-safe
+
+---
+ .github/workflows/run_tests_modelkit.yml  |  1 +
+ src/model_kit/compiled_system_homotopy.jl | 76 +++++++++++-------
+ test/model_kit/compiled_cache_test.jl     | 98 +++++++++++++++++++++++
+ test/model_kit_test.jl                    |  1 +
+ 4 files changed, 146 insertions(+), 30 deletions(-)
+ create mode 100644 test/model_kit/compiled_cache_test.jl
+
+diff --git a/.github/workflows/run_tests_modelkit.yml b/.github/workflows/run_tests_modelkit.yml
+index f896a22..dbf1021 100644
+--- a/.github/workflows/run_tests_modelkit.yml
++++ b/.github/workflows/run_tests_modelkit.yml
+@@ -9,6 +9,7 @@ on:
+       - main
+ env:
+   HC_TESTSET: "model_kit"
++  JULIA_NUM_THREADS: "2"
+ 
+ jobs:
+   test:
+diff --git a/src/model_kit/compiled_system_homotopy.jl b/src/model_kit/compiled_system_homotopy.jl
+index 2a1e5fe..1229515 100644
+--- a/src/model_kit/compiled_system_homotopy.jl
++++ b/src/model_kit/compiled_system_homotopy.jl
+@@ -1,4 +1,5 @@
+ const TSYSTEM_TABLE = Dict{UInt,Vector{System}}()
++const _TSYSTEM_TABLE_LOCK = ReentrantLock()
+ 
+ """
+     CompiledSystem <: AbstractSystem
+@@ -37,22 +38,25 @@ function CompiledSystem(F::System)
+     cleard_exprs = subs(expressions(F), D)
+     sys = System(cleard_exprs, _x_, _p_)
+     h = hash(cleard_exprs)
+-    k = 0
+-    if haskey(TSYSTEM_TABLE, h)
+-        # check that it is identical
+-        for (i, vi) in enumerate(TSYSTEM_TABLE[h])
+-            if vi == sys
+-                k = i
+-                break
++    k = lock(_TSYSTEM_TABLE_LOCK) do
++        k = 0
++        if haskey(TSYSTEM_TABLE, h)
++            # check that it is identical
++            for (i, vi) in enumerate(TSYSTEM_TABLE[h])
++                if vi == sys
++                    k = i
++                    break
++                end
+             end
++            if k == 0
++                push!(TSYSTEM_TABLE[h], sys)
++                k = length(TSYSTEM_TABLE[h])
++            end
++        else
++            k = 1
++            TSYSTEM_TABLE[h] = [sys]
+         end
+-        if k == 0
+-            push!(TSYSTEM_TABLE[h], sys)
+-            k = length(TSYSTEM_TABLE[h])
+-        end
+-    else
+-        k = 1
+-        TSYSTEM_TABLE[h] = [sys]
++        k
+     end
+     return CompiledSystem{(h, k)}(n, nvars, nparams, F)
+ end
+@@ -64,7 +68,11 @@ end
+ (F::CompiledSystem)(x, p = nothing) = F.system(x, p)
+ 
+ interpret(TS::CompiledSystem) = TS.system
+-interpret(::Type{CompiledSystem{HI}}) where {HI} = TSYSTEM_TABLE[first(HI)][last(HI)]
++function interpret(::Type{CompiledSystem{HI}}) where {HI}
++    lock(_TSYSTEM_TABLE_LOCK) do
++        TSYSTEM_TABLE[first(HI)][last(HI)]
++    end
++end
+ 
+ Base.size(CS::CompiledSystem) = (CS.nexpressions, CS.nvariables)
+ Base.size(CS::CompiledSystem, i::Integer) = size(CS)[i]
+@@ -84,6 +92,7 @@ Base.:(==)(::CompiledSystem{A}, ::CompiledSystem{B}) where {A,B} = A == B
+ ######################
+ 
+ const THOMOTOPY_TABLE = Dict{UInt,Vector{Homotopy}}()
++const _THOMOTOPY_TABLE_LOCK = ReentrantLock()
+ 
+ """
+     CompiledHomotopy <: AbstractHomotopy
+@@ -124,22 +133,25 @@ function CompiledHomotopy(H::Homotopy)
+     homotopy = Homotopy(cleard_exprs, _x_, _t_, _p_)
+     h = hash(cleard_exprs)
+ 
+-    k = 0
+-    if haskey(THOMOTOPY_TABLE, h)
+-        # check that it is identical
+-        for (i, vi) in enumerate(THOMOTOPY_TABLE[h])
+-            if vi == homotopy
+-                k = i
+-                break
++    k = lock(_THOMOTOPY_TABLE_LOCK) do
++        k = 0
++        if haskey(THOMOTOPY_TABLE, h)
++            # check that it is identical
++            for (i, vi) in enumerate(THOMOTOPY_TABLE[h])
++                if vi == homotopy
++                    k = i
++                    break
++                end
+             end
++            if k == 0
++                push!(THOMOTOPY_TABLE[h], homotopy)
++                k = length(THOMOTOPY_TABLE[h])
++            end
++        else
++            k = 1
++            THOMOTOPY_TABLE[h] = [homotopy]
+         end
+-        if k == 0
+-            push!(THOMOTOPY_TABLE[h], homotopy)
+-            k = length(THOMOTOPY_TABLE[h])
+-        end
+-    else
+-        k = 1
+-        THOMOTOPY_TABLE[h] = [homotopy]
++        k
+     end
+     return CompiledHomotopy{(h, k)}(n, nvars, nparams, H)
+ end
+@@ -156,7 +168,11 @@ function Base.show(io::IO, TH::CompiledHomotopy)
+ end
+ 
+ interpret(CH::CompiledHomotopy) = CH.homotopy
+-interpret(::Type{CompiledHomotopy{HI}}) where {HI} = THOMOTOPY_TABLE[first(HI)][last(HI)]
++function interpret(::Type{CompiledHomotopy{HI}}) where {HI}
++    lock(_THOMOTOPY_TABLE_LOCK) do
++        THOMOTOPY_TABLE[first(HI)][last(HI)]
++    end
++end
+ 
+ 
+ ################
+diff --git a/test/model_kit/compiled_cache_test.jl b/test/model_kit/compiled_cache_test.jl
+new file mode 100644
+index 0000000..125bce2
+--- /dev/null
++++ b/test/model_kit/compiled_cache_test.jl
+@@ -0,0 +1,98 @@
++@testset "Compiled cache thread safety" begin
++    if Threads.nthreads() < 2
++        @test_skip "requires at least two Julia threads"
++    else
++        n_compiled_cache_test_systems = 128
++
++        @var x t
++        systems = [
++            System([x^2 + (10_000 + i) * x + i], [x]) for
++            i = 1:n_compiled_cache_test_systems
++        ]
++        homotopies = [
++            Homotopy([x^2 + (20_000 + i) * x + t + i], [x], t) for
++            i = 1:n_compiled_cache_test_systems
++        ]
++
++        function compile_concurrently(inputs, compile)
++            ready = Threads.Atomic{Int}(0)
++            start = Base.Event()
++            tasks = map(1:2) do worker
++                Threads.@spawn begin
++                    Threads.atomic_add!(ready, 1)
++                    wait(start)
++                    compiled = Any[]
++                    for i = worker:2:length(inputs)
++                        c = compile(inputs[i])
++                        push!(compiled, (i, c, ModelKit.interpret(typeof(c))))
++                    end
++                    compiled
++                end
++            end
++            while ready[] < length(tasks)
++                yield()
++            end
++            notify(start)
++            reduce(vcat, fetch.(tasks))
++        end
++
++        function run_while_lock_is_held(f, cache_lock)
++            task = lock(cache_lock) do
++                task = Threads.@spawn f()
++                @test Base.timedwait(() -> istaskdone(task), 0.25) == :timed_out
++                task
++            end
++            fetch(task)
++        end
++
++        # Warm up both constructor paths before checking that they wait for the
++        # corresponding cache lock.
++        CompiledSystem(System([x^2 + 30_001 * x + 1], [x]))
++        CompiledHomotopy(Homotopy([x^2 + 40_001 * x + t + 1], [x], t))
++
++        blocking_system = System([x^2 + 30_002 * x + 2], [x])
++        compiled_system = run_while_lock_is_held(
++            () -> CompiledSystem(blocking_system),
++            ModelKit._TSYSTEM_TABLE_LOCK,
++        )
++        cached_system = run_while_lock_is_held(
++            () -> ModelKit.interpret(typeof(compiled_system)),
++            ModelKit._TSYSTEM_TABLE_LOCK,
++        )
++        @test cached_system([0.25]) ≈ blocking_system([0.25])
++
++        blocking_homotopy = Homotopy([x^2 + 40_002 * x + t + 2], [x], t)
++        compiled_homotopy = run_while_lock_is_held(
++            () -> CompiledHomotopy(blocking_homotopy),
++            ModelKit._THOMOTOPY_TABLE_LOCK,
++        )
++        cached_homotopy = run_while_lock_is_held(
++            () -> ModelKit.interpret(typeof(compiled_homotopy)),
++            ModelKit._THOMOTOPY_TABLE_LOCK,
++        )
++        @test cached_homotopy([0.25], 0.5) ≈ blocking_homotopy([0.25], 0.5)
++
++        system_entries_before = sum(length, values(ModelKit.TSYSTEM_TABLE); init = 0)
++        compiled_systems = compile_concurrently(systems, CompiledSystem)
++        system_entries_after = sum(length, values(ModelKit.TSYSTEM_TABLE); init = 0)
++
++        @test length(compiled_systems) == n_compiled_cache_test_systems
++        @test system_entries_after - system_entries_before == n_compiled_cache_test_systems
++        @test all(compiled_systems) do (i, compiled, cached)
++            compiled([0.25]) ≈ cached([0.25]) ≈ systems[i]([0.25])
++        end
++        @test allunique(typeof(c) for (_, c, _) in compiled_systems)
++
++        homotopy_entries_before = sum(length, values(ModelKit.THOMOTOPY_TABLE); init = 0)
++        compiled_homotopies = compile_concurrently(homotopies, CompiledHomotopy)
++        homotopy_entries_after = sum(length, values(ModelKit.THOMOTOPY_TABLE); init = 0)
++
++        @test length(compiled_homotopies) == n_compiled_cache_test_systems
++        @test homotopy_entries_after - homotopy_entries_before ==
++              n_compiled_cache_test_systems
++        @test all(compiled_homotopies) do (i, compiled, cached)
++            compiled([0.25], 0.5) ≈ cached([0.25], 0.5) ≈ homotopies[i]([0.25], 0.5)
++        end
++        @test allunique(typeof(c) for (_, c, _) in compiled_homotopies)
++    end
++end
+diff --git a/test/model_kit_test.jl b/test/model_kit_test.jl
+index 922809b..d0dbc25 100644
+--- a/test/model_kit_test.jl
++++ b/test/model_kit_test.jl
+@@ -5,4 +5,5 @@ using HomotopyContinuation.ModelKit
+     include("./model_kit/operations_test.jl")
+     include("./model_kit/e2e_test.jl")
+     include("./model_kit/slp_test.jl")
++    include("./model_kit/compiled_cache_test.jl")
+ end
+-- 
+2.43.0
+

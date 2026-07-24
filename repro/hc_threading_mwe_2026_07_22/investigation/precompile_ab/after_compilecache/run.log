@@ -1,0 +1,50 @@
+COMPILECACHE_PROBE phase=before_compilecache source=/tmp/odepe-hardening-20260723/src/ODEParameterEstimation.jl
+
+[2320] signal 15: Terminated
+
+[2163] signal 15: Terminated
+in expression starting at stdin:5
+in expression starting at /home/orebas/.julia/packages/MKL_jll/A29wq/src/MKL_jll.jl:5
+
+[2166] signal 15: Terminated
+in expression starting at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/LazyArtifacts/src/LazyArtifacts.jl:13
+epoll_pwait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+
+[2298] signal 15: Terminated
+in expression starting at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/LibCURL_jll/src/LibCURL_jll.jl:6
+
+[2114] signal 15: Terminated
+in expression starting at /home/orebas/.julia/packages/ImplicitDiscreteSolve/QBIWs/src/ImplicitDiscreteSolve.jl:5
+epoll_pwait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+
+[2117] signal 15: Terminated
+in expression starting at /home/orebas/.julia/packages/NonlinearSolveFirstOrder/D1sOU/src/NonlinearSolveFirstOrder.jl:15
+epoll_pwait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv__io_poll at /workspace/srcdir/libuv/src/unix/linux.c:1404
+uv_run at /workspace/srcdir/libuv/src/unix/core.c:430
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:457
+uv__io_poll at /workspace/srcdir/libuv/src/unix/linux.c:1404
+uv_run at /workspace/srcdir/libuv/src/unix/core.c:430
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:457
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_trywait at ./asyncevent.jl:185
+#634 at ./asyncevent.jl:359
+jfptr_YY.634_15147.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+Allocations: 633302 (Pool: 633249; Big: 53); GC: 1
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_trywait at ./asyncevent.jl:185
+#634 at ./asyncevent.jl:359
+jfptr_YY.634_15147.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+Allocations: 623014 (Pool: 622980; Big: 34); GC: 1

@@ -1,0 +1,154 @@
+{
+  "all_exited_on_term": true,
+  "all_provenance_verified": true,
+  "all_ready": true,
+  "ambient_julia_processes_at_finish_namespace_local": [],
+  "cases": {
+    "base_idle": {
+      "complete": true,
+      "expected_runs": 3,
+      "kill_cleanup_elapsed_seconds": [
+        null,
+        null,
+        null
+      ],
+      "kill_required": 0,
+      "other_outcomes": [],
+      "ready": 3,
+      "ready_seconds": [
+        0.552520887,
+        0.452133156,
+        0.452038132
+      ],
+      "runs": 3,
+      "term_exit": 3,
+      "term_exit_seconds": [
+        0.150382506,
+        0.100266322,
+        0.100238022
+      ],
+      "term_grace_elapsed_seconds": [
+        0.150382506,
+        0.100266322,
+        0.100238022
+      ]
+    },
+    "hc_idle": {
+      "complete": true,
+      "expected_runs": 3,
+      "kill_cleanup_elapsed_seconds": [
+        null,
+        null,
+        null
+      ],
+      "kill_required": 0,
+      "other_outcomes": [],
+      "ready": 3,
+      "ready_seconds": [
+        37.990544462,
+        36.084996405,
+        35.969828889
+      ],
+      "runs": 3,
+      "term_exit": 3,
+      "term_exit_seconds": [
+        0.400933438,
+        0.350693933,
+        0.400927963
+      ],
+      "term_grace_elapsed_seconds": [
+        0.400933438,
+        0.350693933,
+        0.400927963
+      ]
+    },
+    "odepe_idle": {
+      "complete": true,
+      "expected_runs": 3,
+      "kill_cleanup_elapsed_seconds": [
+        null,
+        null,
+        null
+      ],
+      "kill_required": 0,
+      "other_outcomes": [],
+      "ready": 3,
+      "ready_seconds": [
+        19.065961993,
+        16.961976975,
+        16.508858409
+      ],
+      "runs": 3,
+      "term_exit": 3,
+      "term_exit_seconds": [
+        0.501094794,
+        0.551218154,
+        0.501094931
+      ],
+      "term_grace_elapsed_seconds": [
+        0.501094794,
+        0.551218154,
+        0.501094931
+      ]
+    }
+  },
+  "cleanup_failure_count": 0,
+  "complete": true,
+  "completed_utc": "2026-07-24T04:28:13.789Z",
+  "expected_run_count": 9,
+  "metadata": {
+    "ambient_julia_processes_at_start_namespace_local": [],
+    "cases": [
+      {
+        "command": [
+          "julia",
+          "--startup-file=no",
+          "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/base_idle.jl"
+        ],
+        "name": "base_idle",
+        "script": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/base_idle.jl"
+      },
+      {
+        "command": [
+          "julia",
+          "--startup-file=no",
+          "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/hc_idle.jl"
+        ],
+        "name": "hc_idle",
+        "script": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/hc_idle.jl"
+      },
+      {
+        "command": [
+          "julia",
+          "--startup-file=no",
+          "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/odepe_idle.jl"
+        ],
+        "name": "odepe_idle",
+        "script": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/odepe_idle.jl"
+      }
+    ],
+    "expected_odepe_root": "/tmp/odepe-hardening-20260723",
+    "host": "Bassik-Main",
+    "julia_depot_path_env": "/tmp/odepe-hardening-depot-20260723:/home/orebas/.julia",
+    "julia_executable": "julia",
+    "julia_executable_realpath": "/home/orebas/.juliaup/bin/julialauncher",
+    "julia_executable_which": "/home/orebas/.juliaup/bin/julia",
+    "julia_load_path_env": "/tmp/odepe-hardening-20260723:@stdlib",
+    "julia_num_gc_threads_env": null,
+    "julia_num_threads_env": "7",
+    "kill_wait_seconds": 5.0,
+    "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "ready_timeout_seconds": 180.0,
+    "repetition_start": 1,
+    "repetitions": 3,
+    "runner": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723/run_ladder.py",
+    "schema_version": "julia-termination-ladder-v2",
+    "started_utc": "2026-07-24T04:25:08.867Z",
+    "term_grace_seconds": 15.0,
+    "working_directory": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/termination_ladder_20260723"
+  },
+  "run_count": 9,
+  "schema_version": "julia-termination-ladder-v2",
+  "sigkill_count": 0
+}

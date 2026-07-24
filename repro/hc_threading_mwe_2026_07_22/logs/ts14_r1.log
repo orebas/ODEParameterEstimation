@@ -1,0 +1,46 @@
+HUNT2 start mode=fanout TSYS-STRESS nworkers=12 nthreads=14 ngcthreads=14 iters_per_worker=60000 seed_base=123383 pid=2362567 julia=1.12.6 2026-07-22T17:40:22.002
+ATTEMPT 3 W3 START tsys 2026-07-22T17:40:27.096
+ATTEMPT 6 W6 START tsys 2026-07-22T17:40:27.088
+ATTEMPT 10 W10 START tsys 2026-07-22T17:40:27.109
+ATTEMPT 8 W8 START tsys 2026-07-22T17:40:27.100
+ATTEMPT 8 W8 SOLVE tsys 2026-07-22T17:40:27.345
+ATTEMPT 6 W6 SOLVE tsys 2026-07-22T17:40:27.345
+ATTEMPT 2 W2 START tsys 2026-07-22T17:40:27.092
+ATTEMPT 2 W2 SOLVE tsys 2026-07-22T17:40:27.349
+ATTEMPT 10 W10 SOLVE tsys 2026-07-22T17:40:27.368
+ATTEMPT 4 W4 START tsys 2026-07-22T17:40:27.116
+ATTEMPT 4 W4 SOLVE tsys 2026-07-22T17:40:27.384
+ATTEMPT 3 W3 SOLVE tsys 2026-07-22T17:40:27.385
+ATTEMPT 1 W1 START tsys 2026-07-22T17:40:27.113
+ATTEMPT 1 W1 SOLVE tsys 2026-07-22T17:40:27.388
+ATTEMPT 11 W11 START tsys 2026-07-22T17:40:27.104
+ATTEMPT 7 W7 START tsys 2026-07-22T17:40:27.108
+ATTEMPT 7 W7 SOLVE tsys 2026-07-22T17:40:27.392
+ATTEMPT 11 W11 SOLVE tsys 2026-07-22T17:40:27.392
+ATTEMPT 9 W9 START tsys 2026-07-22T17:40:27.109
+ATTEMPT 9 W9 SOLVE tsys 2026-07-22T17:40:27.400
+ATTEMPT 12 W12 START tsys 2026-07-22T17:40:27.088
+ATTEMPT 12 W12 SOLVE tsys 2026-07-22T17:40:27.401
+ATTEMPT 5 W5 START tsys 2026-07-22T17:40:27.093
+ATTEMPT 5 W5 SOLVE tsys 2026-07-22T17:40:27.445
+
+[2362567] signal 11 (1): Segmentation fault
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/tsys_stress.jl:87
+jl_egal_ at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:1884 [inlined]
+idset_eq at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/idset.c:15
+jl_smallintset_lookup at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/smallintset.c:137
+jl_idset_get at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/idset.c:40
+jl_as_global_root at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/staticdata.c:2995 [inlined]
+jl_as_global_root at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/staticdata.c:2975
+inst_datatype_inner at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jltypes.c:2275
+inst_type_w_ at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jltypes.c:2744
+ijl_instantiate_unionall at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jltypes.c:1535
+ijl_apply_type at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jltypes.c:1469
+CompiledSystem at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/model_kit/compiled_system_homotopy.jl:57
+worker at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/tsys_stress.jl:67
+#2 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/tsys_stress.jl:91
+unknown function (ip: 0x72d98011950f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+Allocations: 16231940 (Pool: 16231781; Big: 159); GC: 11
+timeout: the monitored command dumped core

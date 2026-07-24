@@ -1,0 +1,937 @@
+HUNT start  nthreads=14  nsolves=40  seed_base=1914711  shape=mix  pid=2579318  2026-07-22T18:15:27.911
+ATTEMPT 1 START n=8 d=2 seed=1914712 neq=8 2026-07-22T18:17:46.796
+Computing mixed cells... 2    Time: 0:00:07[K
+   mixed_volume: 8[K[A
+[K[AComputing mixed cells... 55    Time: 0:00:07[K
+   mixed_volume: 256[K
+
+[2579318] signal 3: Quit
+==== Thread 1 created 2 live tasks
+     ---- Root task (0x73550b3fc010)
+          (sticky: 1, started: 1, state: 0, tid: 1)
+jl_start_fiber_swap at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1438
+ctx_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:650
+ijl_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:690
+try_yieldto at ./task.jl:1143
+wait at ./task.jl:1229
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_wait at ./task.jl:312
+sync_end at ./task.jl:589
+macro expansion at ./task.jl:663 [inlined]
+#threaded_solve#304 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:657
+unknown function (ip: 0x73544f5d2243) at (unknown file)
+threaded_solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:628
+#solve#299 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:560
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:547 [inlined]
+#solve#298 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:543
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:532
+unknown function (ip: 0x73544f5af6de) at (unknown file)
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447 [inlined]
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/hunt.jl:76
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1024
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:975
+ijl_toplevel_eval at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1047
+ijl_toplevel_eval_in at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1092
+eval at ./boot.jl:489
+include_string at ./loading.jl:2874
+_include at ./loading.jl:2934
+include at ./Base.jl:306
+exec_options at ./client.jl:317
+_start at ./client.jl:550
+jfptr__start_63319.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+true_main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:971
+jl_repl_entrypoint at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:1139
+main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/cli/loader_exe.c:58
+unknown function (ip: 0x735524e2a1c9) at /lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+     ---- End root task
+     ---- Task 1 (0x73550d12e2c0)
+          (sticky: 1, started: 1, state: 0, tid: 1)
+jl_record_backtrace at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1299
+jlbacktracet at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1398
+jl_print_task_backtraces at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1458
+jl_critical_error at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/signal-handling.c:640
+jl_exit_thread0_cb at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/signals-unix.c:563
+     ---- End task 1
+==== End thread 1
+==== Thread 2 created 1 live tasks
+     ---- Task 1 (0x73543fe47c10)
+          (sticky: 0, started: 1, state: 0, tid: 2)
+_ZN4llvm10BasicBlock20renumberInstructionsEv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZNK4llvm11Instruction11comesBeforeEPKS0_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN12_GLOBAL__N_113VectorCombine20scalarizeLoadExtractERN4llvm11InstructionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17VectorCombinePass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManager.h:543 [inlined]
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/pipeline.cpp:741
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1459
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1420 [inlined]
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1572 [inlined]
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2031
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 2
+==== Thread 3 created 1 live tasks
+     ---- Task 1 (0x73543fe47ee0)
+          (sticky: 0, started: 1, state: 0, tid: 3)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 3
+==== Thread 4 created 1 live tasks
+     ---- Task 1 (0x73543fd7c010)
+          (sticky: 0, started: 1, state: 0, tid: 4)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 4
+==== Thread 5 created 1 live tasks
+     ---- Task 1 (0x73543fd7c100)
+          (sticky: 0, started: 1, state: 0, tid: 5)
+__lll_lock_wait_private at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x735524eab518) at /lib/x86_64-linux-gnu/libc.so.6
+__libc_free at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+_ZN4llvm9DwarfFileD2Ev at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm10DwarfDebugD1Ev at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm10DwarfDebugD0Ev at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm10AsmPrinter14doFinalizationERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager14doFinalizationERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm3orc14SimpleCompilerclERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1561
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2044
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 5
+==== Thread 6 created 2 live tasks
+     ---- Task 1 (0x73550b3fc3d0)
+          (sticky: 0, started: 1, state: 0, tid: 0)
+jl_start_fiber_swap at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1438
+ctx_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:650
+ijl_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:690
+try_yieldto at ./task.jl:1143
+wait at ./task.jl:1229
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_trywait at ./asyncevent.jl:185
+profile_printing_listener at ./Base.jl:332
+#start_profile_listener##0 at ./Base.jl:352
+jfptr_YY.start_profile_listenerYY.YY.0_16003.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+     ---- Task 2 (0x73543fd7c1f0)
+          (sticky: 0, started: 1, state: 0, tid: 6)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 2
+==== End thread 6
+==== Thread 7 created 1 live tasks
+     ---- Task 1 (0x73543fd7c2e0)
+          (sticky: 0, started: 1, state: 0, tid: 7)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 7
+==== Thread 8 created 1 live tasks
+     ---- Task 1 (0x73543fd7c3d0)
+          (sticky: 0, started: 1, state: 0, tid: 8)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 8
+==== Thread 9 created 1 live tasks
+     ---- Task 1 (0x73543fd7c6a0)
+          (sticky: 0, started: 1, state: 0, tid: 9)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 9
+==== Thread 10 created 1 live tasks
+     ---- Task 1 (0x73543fd7c790)
+          (sticky: 0, started: 1, state: 0, tid: 10)
+_ZN12_GLOBAL__N_122MachineCopyPropagation20runOnMachineFunctionERN4llvm15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm3orc14SimpleCompilerclERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1561
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2044
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 10
+==== Thread 11 created 1 live tasks
+     ---- Task 1 (0x73543fd7c880)
+          (sticky: 0, started: 1, state: 0, tid: 11)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 11
+==== Thread 12 created 1 live tasks
+     ---- Task 1 (0x73543fd7ca60)
+          (sticky: 0, started: 1, state: 0, tid: 12)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 12
+==== Thread 13 created 1 live tasks
+     ---- Task 1 (0x73543fd7cb50)
+          (sticky: 0, started: 1, state: 0, tid: 13)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 13
+==== Thread 14 created 1 live tasks
+     ---- Task 1 (0x73543fe47df0)
+          (sticky: 0, started: 1, state: 0, tid: 14)
+_ZN4llvm22CriticalAntiDepBreaker10StartBlockEPNS_17MachineBasicBlockE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN12_GLOBAL__N_115PostRAScheduler20runOnMachineFunctionERN4llvm15MachineFunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm3orc14SimpleCompilerclERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1561
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2044
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 14
+==== Thread 15 created 1 live tasks
+     ---- Task 1 (0x73543fe47d00)
+          (sticky: 0, started: 1, state: 0, tid: 15)
+unknown function (ip: 0x735524ea9c00) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x3f) at (unknown file)
+unknown function (ip: 0x735484033dbf) at (unknown file)
+     ---- End task 1
+==== End thread 15
+==== Skipping backtrace for parallel/concurrent GC thread 16
+==== Skipping backtrace for parallel/concurrent GC thread 17
+==== Skipping backtrace for parallel/concurrent GC thread 18
+==== Skipping backtrace for parallel/concurrent GC thread 19
+==== Skipping backtrace for parallel/concurrent GC thread 20
+==== Skipping backtrace for parallel/concurrent GC thread 21
+==== Skipping backtrace for parallel/concurrent GC thread 22
+==== Skipping backtrace for parallel/concurrent GC thread 23
+==== Skipping backtrace for parallel/concurrent GC thread 24
+==== Skipping backtrace for parallel/concurrent GC thread 25
+==== Skipping backtrace for parallel/concurrent GC thread 26
+==== Skipping backtrace for parallel/concurrent GC thread 27
+==== Skipping backtrace for parallel/concurrent GC thread 28
+==== Done
+in expression starting at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/hunt.jl:68
+unknown function (ip: 0x735524ea9c00) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x3f) at (unknown file)
+unknown function (ip: 0x735484033dbf) at (unknown file)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm3orc14SimpleCompilerclERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1561
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2044
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+include at ./Base.jl:306
+exec_options at ./client.jl:317
+_start at ./client.jl:550
+jfptr__start_63319.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+true_main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:971
+jl_repl_entrypoint at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:1139
+main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/cli/loader_exe.c:58
+unknown function (ip: 0x735524e2a1c9) at /lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x735524e9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x735524f29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:958
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:953
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:953
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+unknown function (ip: 0x73544f5e2d19) at (unknown file)
+unknown function (ip: 0x73544f5e1fb0) at (unknown file)
+update_weights! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:66 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:436
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_ZN4llvm10BasicBlock20renumberInstructionsEv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZNK4llvm11Instruction11comesBeforeEPKS0_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZZN4llvm13slpvectorizer7BoUpSLP13vectorizeTreeERKNS_9MapVectorIPNS_5ValueENS_11SmallVectorIPNS_11InstructionELj2EEENS_8DenseMapIS4_jNS_12DenseMapInfoIS4_vEENS_6detail12DenseMapPairIS4_jEEEENS5_ISt4pairIS4_S8_ELj0EEEEERNS_15SmallVectorImplISG_IS4_S4_EEES7_ENKUlS4_E_clES4_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13slpvectorizer7BoUpSLP13vectorizeTreeERKNS_9MapVectorIPNS_5ValueENS_11SmallVectorIPNS_11InstructionELj2EEENS_8DenseMapIS4_jNS_12DenseMapInfoIS4_vEENS_6detail12DenseMapPairIS4_jEEEENS5_ISt4pairIS4_S8_ELj0EEEEERNS_15SmallVectorImplISG_IS4_S4_EEES7_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13slpvectorizer7BoUpSLP13vectorizeTreeEv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass18tryToVectorizeListENS_8ArrayRefIPNS_5ValueEEERNS_13slpvectorizer7BoUpSLPEb at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass14tryToVectorizeEPNS_11InstructionERNS_13slpvectorizer7BoUpSLPE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass14tryToVectorizeENS_8ArrayRefINS_14WeakTrackingVHEEERNS_13slpvectorizer7BoUpSLPE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass16vectorizeInsertsERNS_14SmallSetVectorIPNS_11InstructionELj8EEEPNS_10BasicBlockERNS_13slpvectorizer7BoUpSLPE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZZN4llvm17SLPVectorizerPass22vectorizeChainsInBlockEPNS_10BasicBlockERNS_13slpvectorizer7BoUpSLPEENKUlbE2_clEb at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass22vectorizeChainsInBlockEPNS_10BasicBlockERNS_13slpvectorizer7BoUpSLPE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass7runImplERNS_8FunctionEPNS_15ScalarEvolutionEPNS_19TargetTransformInfoEPNS_17TargetLibraryInfoEPNS_9AAResultsEPNS_8LoopInfoEPNS_13DominatorTreeEPNS_15AssumptionCacheEPNS_12DemandedBitsEPNS_25OptimizationRemarkEmitterE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm17SLPVectorizerPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManager.h:543 [inlined]
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+run at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/pipeline.cpp:741
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1459
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1420 [inlined]
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1572 [inlined]
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2031
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x73544f5e2d59) at (unknown file)
+unknown function (ip: 0x73544f5e266f) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:639 [inlined]
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:950 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:456
+unknown function (ip: 0x73544f5e1cab) at (unknown file)
+unknown function (ip: 0x73544f5dd1a9) at (unknown file)
+unknown function (ip: 0x73544f5dd16e) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x73544f5dca47) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x735524e98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_f__call_in_world_total at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/builtins.c:919
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_f__apply_iterate at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/builtins.c:868
+concrete_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:1009
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:874
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+handle1 at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+jfptr_typeinf_local_82127.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+const_prop_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:1353
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:899
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+handle1 at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+jfptr_typeinf_local_82127.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+const_prop_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:1353
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:899
+abstract_call_method_with_const_args at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+handle1 at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+jfptr_typeinf_local_82127.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1256
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1439 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1448
+jfptr_typeinf_ext_toplevel_80206.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:466
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+Allocations: 131460334 (Pool: 131459259; Big: 1075); GC: 25

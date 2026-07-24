@@ -1,0 +1,15 @@
+julia=release t=14 run=1 -> TIMEOUT_HANG
+julia=release t=14 run=2 -> TIMEOUT_HANG
+julia=release t=14 run=3 -> SEGFAULT
+julia=release t=8 run=1 -> TIMEOUT_HANG
+julia=release t=8 run=2 -> OK
+julia=release t=8 run=3 -> TIMEOUT_HANG
+julia=release t=4 run=1 -> OK
+julia=release t=4 run=2 -> OK
+julia=release t=4 run=3 -> OK
+julia=1.11.5 t=14 run=1 -> TIMEOUT_HANG
+julia=1.11.5 t=14 run=2 -> TIMEOUT_HANG
+julia=1.11.5 t=14 run=3 -> TIMEOUT_HANG
+julia=1.11.5 t=14 run=3 -> TIMEOUT_HANG
+julia=release t=2 run=1 -> OK
+julia=release t=2 run=2 -> OK

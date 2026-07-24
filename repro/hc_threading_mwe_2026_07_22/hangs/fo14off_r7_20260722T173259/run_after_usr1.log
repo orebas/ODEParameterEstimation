@@ -1,0 +1,449 @@
+HUNT2 start mode=fanout hcthr=off nworkers=8 nthreads=14 ngcthreads=14 nsolves=48 seed_base=716508 shape=mix pid=2266385 julia=1.12.6 HC=2.20.0 2026-07-22T17:24:57.429
+ATTEMPT 3 W8 START 9x2 seed=716511 2026-07-22T17:25:01.163
+ATTEMPT 1 W1 START 8x2 seed=716509 2026-07-22T17:25:01.161
+ATTEMPT 8 W7 START 10x2 seed=716516 2026-07-22T17:25:01.164
+ATTEMPT 6 W4 START 6x3 seed=716514 2026-07-22T17:25:01.167
+ATTEMPT 5 W6 START 11x2 seed=716513 2026-07-22T17:25:01.163
+ATTEMPT 7 W3 START 8x2 seed=716515 2026-07-22T17:25:01.161
+ATTEMPT 4 W2 START 7x3 seed=716512 2026-07-22T17:25:01.167
+ATTEMPT 2 W5 START 10x2 seed=716510 2026-07-22T17:25:01.161
+ATTEMPT 2 W5 SOLVE 10x2 2026-07-22T17:25:07.528
+ATTEMPT 4 W2 SOLVE 7x3 2026-07-22T17:25:07.524
+ATTEMPT 8 W7 SOLVE 10x2 2026-07-22T17:25:07.535
+ATTEMPT 7 W3 SOLVE 8x2 2026-07-22T17:25:07.507
+ATTEMPT 5 W6 SOLVE 11x2 2026-07-22T17:25:07.532
+ATTEMPT 6 W4 SOLVE 6x3 2026-07-22T17:25:07.520
+ATTEMPT 1 W1 SOLVE 8x2 2026-07-22T17:25:07.515
+ATTEMPT 3 W8 SOLVE 9x2 2026-07-22T17:25:07.512
+Computing mixed cells... 2    Time: 0:00:02Computing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 5[K[A[K
+   mixed_volume: 49[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 2[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 16[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 5[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 8[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 12[K[AComputing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 4[K[A
+[K[AComputing mixed cells... 33    Time: 0:00:03[K
+   mixed_volume: 256[K
+[K[AComputing mixed cells... 42    Time: 0:00:03[K
+   mixed_volume: 256[K
+[K[AComputing mixed cells... 55    Time: 0:00:03[K
+   mixed_volume: 729[K
+[K[AComputing mixed cells... 106    Time: 0:00:03[K
+   mixed_volume: 1024[K
+
+
+
+
+[K[AComputing mixed cells... 171    Time: 0:00:03[K
+   mixed_volume: 1024[K
+
+[K[AComputing mixed cells... 110    Time: 0:00:02[K
+   mixed_volume: 512[K
+
+[K[AComputing mixed cells... 162    Time: 0:00:03[K
+   mixed_volume: 2187[K
+
+[K[AComputing mixed cells... 187    Time: 0:00:03[K
+   mixed_volume: 2048[K
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 1.0 second profile
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/julia 2266385 running 21 of 28
+
+signal (10): User defined signal 1
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+jl_parallel_gc_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:177
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+task_done_hook at ./task.jl:868
+jfptr_task_done_hook_59905.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_finish_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:341
+jl_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:122
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:970
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:177
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+task_done_hook at ./task.jl:868
+jfptr_task_done_hook_59905.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_finish_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:341
+jl_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:122
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+jl_running_under_rr at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:162
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:958
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:177
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+serial_solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:603
+#solve#299 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:568
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:547 [inlined]
+#solve#298 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:543
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:532
+unknown function (ip: 0x752b1af244ce) at (unknown file)
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447
+unknown function (ip: 0x752b5e16de06) at (unknown file)
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:175
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:971
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+serial_solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:603
+#solve#299 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:568
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:547 [inlined]
+#solve#298 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:543
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:532
+unknown function (ip: 0x752b1d7eeeae) at (unknown file)
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447
+unknown function (ip: 0x752b5e16de06) at (unknown file)
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:175
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
++ at ./float.jl:495 [inlined]
++ at ./complex.jl:297 [inlined]
++ at ./operators.jl:642 [inlined]
+op_add4 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/model_kit/operations.jl:245 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/model_kit/instruction_sequence.jl:92 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/model_kit/compiled_system_homotopy.jl:238 [inlined]
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/model_kit/compiled_system_homotopy.jl:277
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/homotopies/toric_homotopy.jl:211 [inlined]
+#newton!#129 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/newton_corrector.jl:143
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:870
+#track!#142 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:964 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/tracker.jl:937 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:476
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#serial_solve#303 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:614
+unknown function (ip: 0x752b1a55919c) at (unknown file)
+serial_solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:603
+#solve#299 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:568
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:547 [inlined]
+#solve#298 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:543
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:532
+unknown function (ip: 0x752b1d7d7b0e) at (unknown file)
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447
+unknown function (ip: 0x752b5e16de06) at (unknown file)
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:175
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+task_done_hook at ./task.jl:868
+jfptr_task_done_hook_59905.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_finish_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:341
+jl_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:122
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+task_done_hook at ./task.jl:868
+jfptr_task_done_hook_59905.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_finish_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:341
+jl_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:122
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+task_done_hook at ./task.jl:868
+jfptr_task_done_hook_59905.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_finish_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:341
+jl_threadfun at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:122
+unknown function (ip: 0x752bf9a9caa3) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x752bf9b29c6b) at /lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: (nil)) at (unknown file)
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1376
+_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:679 [inlined]
+fl_foreach at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:2276
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1174
+_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:679 [inlined]
+fl_foreach at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:2276
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1174
+_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:679 [inlined]
+fl_foreach at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:2276
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1174
+_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:679 [inlined]
+fl_foreach at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:2276
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1174
+do_trycatch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:895
+apply_cl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:1804
+_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:679
+fl_applyn at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/flisp/flisp.c:719
+jl_call_scm_on_ast_and_loc at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/ast.c:916
+jl_expand_in_world at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/ast.c:1300
+generated_body_to_codeinfo at ./expr.jl:1668
+GeneratedFunctionStub at ./expr.jl:1705
+jl_call_staged at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/method.c:662
+ijl_code_for_staged at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/method.c:735
+call_get_staged at ./../usr/share/julia/Compiler/src/utilities.jl:103 [inlined]
+get_staged at ./../usr/share/julia/Compiler/src/utilities.jl:88
+jfptr_get_staged_6039.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+tojlinvoke85090.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+j_get_staged_77205.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+retrieve_code_info at ./../usr/share/julia/Compiler/src/utilities.jl:121
+InferenceState at ./../usr/share/julia/Compiler/src/inferencestate.jl:602
+typeinf_edge at ./../usr/share/julia/Compiler/src/typeinfer.jl:956
+abstract_call_method at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:735
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:167
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+jfptr_typeinf_local_82127.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1256
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1439 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1448
+jfptr_typeinf_ext_toplevel_80206.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:466
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447
+unknown function (ip: 0x752b5e16de06) at (unknown file)
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:175
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+_jl_mutex_wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+_jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+jl_mutex_lock at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65 [inlined]
+jl_type_infer at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+#solve#292 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:516
+solve at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:447
+unknown function (ip: 0x752b5e16de06) at (unknown file)
+one_attempt at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:175
+#16 at /home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/attempt.jl:199
+unknown function (ip: 0x752b5e11797f) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_trywait at ./asyncevent.jl:185
+profile_printing_listener at ./Base.jl:332
+#start_profile_listener##0 at ./Base.jl:352
+jfptr_YY.start_profile_listenerYY.YY.0_16003.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+unknown function (ip: 0x752bf9a98d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+uv_cond_wait at /workspace/srcdir/libuv/src/unix/thread.c:822
+ijl_task_get_next at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/scheduler.c:523
+poptask at ./task.jl:1216
+wait at ./task.jl:1228
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+#start_gc_msgs_task##2 at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/Distributed/src/remotecall.jl:281 [inlined]
+lock at ./lock.jl:335
+lock at ./condition.jl:80 [inlined]
+#start_gc_msgs_task##0 at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/Distributed/src/remotecall.jl:279
+unknown function (ip: 0x752b5e11d0df) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+
+==============================================================
+Profile collected. A report will print at the next yield point
+==============================================================
+

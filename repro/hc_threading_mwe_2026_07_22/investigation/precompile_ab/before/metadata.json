@@ -1,0 +1,64 @@
+{
+  "algorithmic_progress_age_seconds": 5.012411563,
+  "algorithmic_transition_count": 0,
+  "child_returncode": 1,
+  "command": [
+    "julia",
+    "--startup-file=no",
+    "investigation/precompile_ab/import_probe.jl"
+  ],
+  "configuration": {
+    "cpu_threshold_percent": 1.0,
+    "gdb_on_stall": false,
+    "heartbeat_seconds": 30.0,
+    "low_cpu_samples": 3,
+    "max_rss_mb": 4096.0,
+    "sample_seconds": 5.0,
+    "sigusr1_on_stall": false,
+    "stall_seconds": 120.0,
+    "term_grace_seconds": 15.0,
+    "terminate_on_stall": false,
+    "wall_seconds": 600.0
+  },
+  "discovered_processes": [
+    {
+      "pid": 3,
+      "starttime": 46308921
+    },
+    {
+      "pid": 5,
+      "starttime": 46308922
+    }
+  ],
+  "finished_utc": "2026-07-24T02:23:25.897Z",
+  "heartbeat_age_seconds": null,
+  "heartbeat_count": 0,
+  "heartbeats_since_last_algorithmic": 0,
+  "interpretation": "suspected_no_progress requires algorithmic quiet plus repeated low-CPU samples; it is not proof of a hang, deadlock, or absence of work",
+  "last_algorithmic_event": null,
+  "last_heartbeat_event": null,
+  "last_valid_event": null,
+  "leader_pid": 3,
+  "malformed_progress_rows": 0,
+  "max_observed_aggregate_rss_mb": 0.28125,
+  "max_observed_cpu_percent": 14.398831497387024,
+  "outcome": "child_failed",
+  "output_directory": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/precompile_ab/before",
+  "process_group_id": 3,
+  "progress_rotations": 0,
+  "progress_sequence_gaps": 0,
+  "remaining_live_pids": [],
+  "remaining_zombie_pids": [],
+  "sample_count": 2,
+  "schema_version": "odepe-watchdog-v2",
+  "stall_capture_count": 0,
+  "stall_captures": [],
+  "started_utc": "2026-07-24T02:23:20.882Z",
+  "suspected_no_progress": false,
+  "termination": null,
+  "termination_reason": null,
+  "unknown_progress_events": 0,
+  "watchdog_exit_code": 1,
+  "watchdog_pid": 2,
+  "working_directory": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22"
+}

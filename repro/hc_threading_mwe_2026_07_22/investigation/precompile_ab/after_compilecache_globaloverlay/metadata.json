@@ -1,0 +1,35 @@
+{
+  "command": [
+    "julia",
+    "--startup-file=no",
+    "--project=/home/orebas/.julia/environments/v1.12",
+    "investigation/precompile_ab/compilecache_probe.jl",
+    "/tmp/odepe-hardening-20260723/src/ODEParameterEstimation.jl"
+  ],
+  "configuration": {
+    "cpu_threshold_percent": 1.0,
+    "gdb_on_stall": false,
+    "heartbeat_seconds": 30.0,
+    "low_cpu_samples": 3,
+    "max_rss_mb": 4096.0,
+    "sample_seconds": 5.0,
+    "sigusr1_on_stall": false,
+    "stall_seconds": 120.0,
+    "term_grace_seconds": 15.0,
+    "terminate_on_stall": false,
+    "wall_seconds": 600.0
+  },
+  "interpretation": "suspected_no_progress requires algorithmic quiet plus repeated low-CPU samples; it is not proof of a hang, deadlock, or absence of work",
+  "leader_pid": 3,
+  "output_directory": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22/investigation/precompile_ab/after_compilecache_globaloverlay",
+  "process_group_id": 3,
+  "schema_version": "odepe-watchdog-v2",
+  "stall_capture_count": 0,
+  "stall_captures": [],
+  "started_utc": "2026-07-24T03:20:14.434Z",
+  "suspected_no_progress": false,
+  "termination": null,
+  "termination_reason": null,
+  "watchdog_pid": 2,
+  "working_directory": "/home/orebas/.julia/dev/ODEParameterEstimation/repro/hc_threading_mwe_2026_07_22"
+}

@@ -1,0 +1,2162 @@
+┌ Warning: terminal_fallback is ignored when flow=FlowDirectOpt (FlowDirectOpt already is the terminal optimizer)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1381
+[ Info: backsolve_recovery is ignored outside FlowStandard
+┌ Error: t0_state_completion must be :strict or :seed_for_polish
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1342
+┌ Error: uq_failure_policy must be :return_failed or :throw
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1410
+┌ Error: Unknown si_placeholder_fail_categories: [:not_a_real_category]
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1416
+┌ Error: branch_completion_max_anchors must be positive (got 0)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1330
+┌ Error: branch_completion_residual_tol must be non-negative (got -1.0)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1334
+┌ Error: system_construction_policy must be :legacy or :noise_frontier (got unknown)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1397
+┌ Error: construction_candidate_limit must be positive (got 0)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1401
+┌ Error: construction_beam_width must be positive (got 0)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1405
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003694165 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000658785 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 1.0755e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000322185
+[ Info: Selecting generators in 0.208787918
+[ Info: Inclusion checked with probability 0.995 in 0.002170984 seconds
+[ Info: The search for identifiable functions concluded in 0.521718764 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.26s, Groebner 4.17s, quotient_basis 0.85s, ring: 9 vars × 11 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003401232 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.00084485 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 3.1104e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000272493
+[ Info: Selecting generators in 0.000160723
+[ Info: Inclusion checked with probability 0.995 in 0.002356161 seconds
+[ Info: The search for identifiable functions concluded in 0.009598778 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003559337 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000579324 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 7.766e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000252497
+[ Info: Selecting generators in 0.000149318
+[ Info: Inclusion checked with probability 0.995 in 0.001760752 seconds
+[ Info: The search for identifiable functions concluded in 0.008294257 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 9 vars × 11 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003044306 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000561164 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 7.061e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000243404
+[ Info: Selecting generators in 0.0001603
+[ Info: Inclusion checked with probability 0.995 in 0.001832399 seconds
+[ Info: The search for identifiable functions concluded in 0.007898167 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [DEBUG-EQ-COUNT] Final SI template: 8 equations after structural fixing
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003114528 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000586 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 6.713e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000329237
+[ Info: Selecting generators in 0.000171273
+[ Info: Inclusion checked with probability 0.995 in 0.002019006 seconds
+[ Info: The search for identifiable functions concluded in 0.008695698 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 9 vars × 11 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003398985 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000650362 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 9.64e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000299384
+[ Info: Selecting generators in 0.000174465
+[ Info: Inclusion checked with probability 0.995 in 0.001928179 seconds
+[ Info: The search for identifiable functions concluded in 0.008796608 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (8): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 8 equations, 8 variables
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+┌ Warning: Numerical identifiability advisory failed; continuing with deterministic heuristics
+│   exception = synthetic advisory failure
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/core/parameter_estimation_helpers.jl:254
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 31 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 31 equations, 26 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (31, 26)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 26
+[ Info: [DEBUG-ALG-INDEP] Found 26 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 26 equations (current_rank=26)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 26 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 5
+└   required_order = 8
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.00550659 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.001731562 seconds
+[ Info: Dimensions of the Wronskians [5, 1]
+[ Info: Ranks of the Wronskians computed in 7.659e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.001363474
+[ Info: Selecting generators in 0.000625568
+[ Info: Inclusion checked with probability 0.995 in 0.003240551 seconds
+[ Info: The search for identifiable functions concluded in 0.015862168 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 26
+│   derivative_symbol_count = 18
+│   max_derivative_order = 8
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 3
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 3 entries:
+│      :state_jet              => 5
+│      :parameter_or_ic_symbol => 3
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 3 entries:
+│      :state_jet              => ["E_0", "E_1", "S_0", "E_2", "S_1"]
+│      :parameter_or_ic_symbol => ["a_0", "nu_0", "b_0"]
+└      :measured_rhs_jet       => ["In_0", "In_1", "N_0", "N_1", "In_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 5
+└   required_order = 8
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 31 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 2  (setup 0.0s, Groebner 5.19s, quotient_basis 0.61s, ring: 27 vars × 32 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 31 equations, 26 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (31, 26)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 26
+[ Info: [DEBUG-ALG-INDEP] Found 26 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 26 equations (current_rank=26)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 26 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 5
+└   required_order = 8
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.006199161 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.002123786 seconds
+[ Info: Dimensions of the Wronskians [5, 1]
+[ Info: Ranks of the Wronskians computed in 9.662e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.001441095
+[ Info: Selecting generators in 0.000783719
+[ Info: Inclusion checked with probability 0.995 in 0.002614314 seconds
+[ Info: The search for identifiable functions concluded in 0.017410729 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 26
+│   derivative_symbol_count = 18
+│   max_derivative_order = 8
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 3
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 3 entries:
+│      :state_jet              => 5
+│      :parameter_or_ic_symbol => 3
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 3 entries:
+│      :state_jet              => ["E_0", "E_1", "S_0", "E_2", "S_1"]
+│      :parameter_or_ic_symbol => ["a_0", "nu_0", "b_0"]
+└      :measured_rhs_jet       => ["In_0", "In_1", "N_0", "N_1", "In_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 5
+└   required_order = 8
+[ Info: [RESOLVE] Re-running SIAN with 3 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 0.2
+[ Info: [PRE-FIX] Substituting b => 0.4
+[ Info: [PRE-FIX] Substituting nu => 0.15
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 3)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -0.4 will be converted to -2//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.15 will be converted to -3//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.4 will be converted to 2//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.15 will be converted to 3//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.2 will be converted to -1//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 13 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 12 vars × 14 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 13 equations, 11 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (13, 11)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 11
+[ Info: [DEBUG-ALG-INDEP] Found 11 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 11 equations (current_rank=11)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 11 equations
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 11
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :state_jet        => 5
+│      :measured_rhs_jet => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :state_jet        => ["E_0", "E_1", "S_0", "E_2", "S_1"]
+└      :measured_rhs_jet => ["N_0", "N_1", "In_0", "In_1", "In_2"]
+[ Info: [RESOLVE] SIAN re-run produced 11 template eqs, 12 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (11): Any[N_0, N_1, In_0, In_1, E_0, In_2, E_1, S_0, E_2, In_3, S_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 11 equations, 11 variables
+[ Info: [RESOLVE] Instantiated system: 11 eqs, 11 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 11 variables
+[ Info: [RESOLVE] Re-running SIAN with 3 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 0.2
+[ Info: [PRE-FIX] Substituting b => 0.4
+[ Info: [PRE-FIX] Substituting nu => 0.15
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 3)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -0.4 will be converted to -2//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.15 will be converted to -3//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.4 will be converted to 2//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.15 will be converted to 3//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value -0.2 will be converted to -1//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 13 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 12 vars × 14 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 13 equations, 11 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (13, 11)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 11
+[ Info: [DEBUG-ALG-INDEP] Found 11 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 11 equations (current_rank=11)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 11 equations
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 11
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :state_jet        => 5
+│      :measured_rhs_jet => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :state_jet        => ["E_0", "E_1", "S_0", "E_2", "S_1"]
+└      :measured_rhs_jet => ["N_0", "N_1", "In_0", "In_1", "In_2"]
+[ Info: [RESOLVE] SIAN re-run produced 11 template eqs, 12 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (11): Any[N_0, N_1, In_0, In_1, E_0, In_2, E_1, S_0, E_2, In_3, S_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 11 equations, 11 variables
+[ Info: [RESOLVE] Instantiated system: 11 eqs, 11 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 11 variables
+┌ Warning: nth_deriv_at is deprecated due to inefficient recursive ForwardDiff. Using nth_deriv (TaylorDiff) instead.
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/core/derivatives.jl:222
+┌ Warning: Data variable zz_unmapped not found in DD.obs_lhs mapping
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/core/homotopy_continuation.jl:1287
+┌ Warning: terminal_fallback is ignored when flow=FlowDirectOpt (FlowDirectOpt already is the terminal optimizer)
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:1381
+[ Info: backsolve_recovery is ignored outside FlowStandard
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003620098 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000623351 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 9.009e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000433435
+[ Info: Selecting generators in 0.000275694
+[ Info: Inclusion checked with probability 0.995 in 0.002726088 seconds
+[ Info: The search for identifiable functions concluded in 0.011020827 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 9 vars × 11 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003352606 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000854091 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 1.1142e-5 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000284217
+[ Info: Selecting generators in 0.000156877
+[ Info: Inclusion checked with probability 0.995 in 0.002142207 seconds
+[ Info: The search for identifiable functions concluded in 0.009284508 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [DEBUG-EQ-COUNT] Final SI template: 8 equations after structural fixing
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000053772
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000053772 will be converted to 74384336071//371921680354.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.5999999057870233
+[ Info: [PRE-FIX] Substituting b => 0.19999981259578373
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.5999999057870233 will be converted to -54344952//33965597.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999981259578373 will be converted to 23905523//119527727.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.599998364995335
+[ Info: [PRE-FIX] Substituting b => 0.19999967002112132
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.599998364995335 will be converted to -97858948//61161905.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999967002112132 will be converted to 21577103//107885693.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.600000005546615
+[ Info: [PRE-FIX] Substituting b => 0.20000000000056684
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.600000005546615 will be converted to -57692845//36058028.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000056684 will be converted to 70563759255//352818796274.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000212661052
+[ Info: [PRE-FIX] Substituting b => 0.1999999970931638
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000212661052 will be converted to -75237097//47023185.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.1999999970931638 will be converted to 13760665//68803326.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000342589393
+[ Info: [PRE-FIX] Substituting b => 0.19999999928352227
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000342589393 will be converted to -74725024//46703139.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999999928352227 will be converted to 55828670//279143351.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000053772
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000053772 will be converted to 74384336071//371921680354.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000059592
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000059592 will be converted to 67119604719//335598023594.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003279248 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000597945 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 9.594e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000293622
+[ Info: Selecting generators in 0.000154051
+[ Info: Inclusion checked with probability 0.995 in 0.001819663 seconds
+[ Info: The search for identifiable functions concluded in 0.008363418 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 9 vars × 11 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003297277 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000666955 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 9.36e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000322561
+[ Info: Selecting generators in 0.000171547
+[ Info: Inclusion checked with probability 0.995 in 0.00212871 seconds
+[ Info: The search for identifiable functions concluded in 0.008935234 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [DEBUG-EQ-COUNT] Final SI template: 8 equations after structural fixing
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: [DEBUG-SI-VARS] Final variables list (10): Any[x2_0, x1_0, b_0, x2_1, a_0, x1_1, x2_2, x1_2, y2_2, y1_2]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 10 equations, 10 variables
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.0 will be converted to -1//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 10 equations
+[ Info: [DEBUG-ALG-INDEP] Input: 10 equations, 8 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (10, 8)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 8
+[ Info: [DEBUG-ALG-INDEP] Found 8 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 8 equations (current_rank=8)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4, 5, 6, 7, 8], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 8 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: Checking identifiability
+[ Info: Computing IO-equations
+[ Info: Computed IO-equations in 0.003087262 seconds
+[ Info: Computing Wronskians
+[ Info: Computed Wronskians in 0.000639398 seconds
+[ Info: Dimensions of the Wronskians [2, 2]
+[ Info: Ranks of the Wronskians computed in 9.998e-6 seconds
+[ Info: Simplifying generating set. Simplification level: standard
+[ Info: Search for polynomial generators concluded in 0.000272634
+[ Info: Selecting generators in 0.000184102
+[ Info: Inclusion checked with probability 0.995 in 0.002500407 seconds
+[ Info: The search for identifiable functions concluded in 0.008996472 seconds
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 8
+│   derivative_symbol_count = 12
+│   max_derivative_order = 5
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 2
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 2 entries:
+│      :parameter_or_ic_symbol => 2
+│      :measured_rhs_jet       => 5
+│   samples =
+│    Dict{Symbol, Vector{String}} with 2 entries:
+│      :parameter_or_ic_symbol => ["b_0", "a_0"]
+└      :measured_rhs_jet       => ["x2_0", "x1_0", "x2_1", "x1_1", "x2_2"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 5
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000053772
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000053772 will be converted to 74384336071//371921680354.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.5999999057870233
+[ Info: [PRE-FIX] Substituting b => 0.19999981259578373
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.5999999057870233 will be converted to -54344952//33965597.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999981259578373 will be converted to 23905523//119527727.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.599998364995335
+[ Info: [PRE-FIX] Substituting b => 0.19999967002112132
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.599998364995335 will be converted to -97858948//61161905.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999967002112132 will be converted to 21577103//107885693.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.600000005546615
+[ Info: [PRE-FIX] Substituting b => 0.20000000000056684
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.600000005546615 will be converted to -57692845//36058028.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000056684 will be converted to 70563759255//352818796274.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000212661052
+[ Info: [PRE-FIX] Substituting b => 0.1999999970931638
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000212661052 will be converted to -75237097//47023185.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.1999999970931638 will be converted to 13760665//68803326.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000342589393
+[ Info: [PRE-FIX] Substituting b => 0.19999999928352227
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000342589393 will be converted to -74725024//46703139.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.19999999928352227 will be converted to 55828670//279143351.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000053772
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000053772 will be converted to 74384336071//371921680354.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [RESOLVE] Re-running SIAN with 2 fixed parameters
+[ Info: [PRE-FIX] Substituting a => 1.6000000000006032
+[ Info: [PRE-FIX] Substituting b => 0.20000000000059592
+[ Info: [PRE-FIX] Created modified model with 0 parameters (removed 2)
+[ Info: Getting equation system from StructuralIdentifiability.jl
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -1.6000000000006032 will be converted to -530342195029//331463871893.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+┌ Warning: Floating point value 0.20000000000059592 will be converted to 67119604719//335598023594.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/gt3mc/ext/ModelingToolkitSIExt.jl:78
+[ Info: Getting polynomial system from SIAN
+[ Info: Built polynomial system with 6 equations
+[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 5 vars × 7 polys)
+[ Info: [DEBUG-ALG-INDEP] Input: 6 equations, 4 indeterminates
+[ Info: [DEBUG-ALG-INDEP] Jacobian size: (6, 4)
+[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 4
+[ Info: [DEBUG-ALG-INDEP] Found 4 pivot columns
+[ Info: [DEBUG-ALG-INDEP] Selected 4 equations (current_rank=4)
+[ Info: [DEBUG-ALG-INDEP] Returning: output_ids=[1, 2, 3, 4], alg_indep has 0 vars
+[ Info: Reduced polynomial system to 4 equations
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: Checking identifiability
+┌ Info: [SI-STRUCTURAL] SIAN/SI template summary
+│   template_equation_count = 4
+│   derivative_symbol_count = 8
+│   max_derivative_order = 3
+│   structural_unidentifiable_count = 0
+└   identifiable_function_count = 0
+┌ Info: [SI-MAP] Classified symbolic SI support variables while converting SIAN output
+│   counts =
+│    Dict{Symbol, Int64} with 1 entry:
+│      :measured_rhs_jet => 4
+│   samples =
+│    Dict{Symbol, Vector{String}} with 1 entry:
+└      :measured_rhs_jet => ["x1_0", "x2_0", "x1_1", "x2_1"]
+┌ Info: [SI-MAP] Extending DerivativeData support for SI template
+│   current_order = 1
+└   required_order = 3
+[ Info: [RESOLVE] SIAN re-run produced 4 template eqs, 8 deriv vars
+[ Info: [DEBUG-SI-VARS] Final variables list (4): Any[x1_0, x2_0, x1_1, x2_1]
+[ Info: [DEBUG-EQ-VAR-COUNT] After template instantiation: 4 equations, 4 variables
+[ Info: [RESOLVE] Instantiated system: 4 eqs, 4 state vars (square)
+[ Info: [RESOLVE] Solving square system with HC.jl
+[ Info: [RESOLVE] HC.jl found 1 solution(s)
+[ Info: [RESOLVE] Final: 1 solution(s) with 4 variables
+[ Info: [TRANSCENDENTAL] Detected 1 transcendental expression(s):
+[ Info:   sin(0.5 * t) → _trfn_sin_0_5(t)
+[ Info: [TRANSCENDENTAL] Detected 1 transcendental expression(s):
+[ Info:   sin(0.5 * t) → _trfn_sin_0_5(t)
+[ Info: [TRANSCENDENTAL] Detected 1 transcendental expression(s):
+[ Info:   sin(0.5 * t) → _trfn_sin_0_5(t)
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+┌ Warning: [INTERP-GATE] Skipping S2AAAMLE: σ̂=0.01809375050114703 > threshold 0.0001
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:860
+┌ Warning: [INTERP-GATE] Skipping S2AAAMLE: σ̂=0.01809375050114703 > threshold 0.0001
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/types/estimation_options.jl:860
+┌ Warning: [INTERP-GATE] All interpolators filtered out (σ̂=0.01809375050114703); falling back to InterpolatorAAADGPR
+└ @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/core/optimized_multishot_estimation.jl:277
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+[ Info: diagnostics=true but nooutput=true; diagnostic output will be suppressed
+ERROR: LoadError: Some tests did not pass: 1205 passed, 0 failed, 2 errored, 0 broken.
+in expression starting at /tmp/odepe-hardening-20260723/test/runtests.jl:4
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(2)
+LinearAlgebra.PosDefException(3)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(5)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(4)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(11)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(6)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(8)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(7)
+LinearAlgebra.PosDefException(9)
+LinearAlgebra.PosDefException(10)
+LinearAlgebra.PosDefException(11)
+Bilby loader fixture: Error During Test at /tmp/odepe-hardening-20260723/test/fast_core.jl:1280
+  Got exception outside of a @test
+  LoadError: ArgumentError: Package CSV not found in current path.
+  - Run `import Pkg; Pkg.add("CSV")` to install the CSV package.
+  Stacktrace:
+    [1] macro expansion
+      @ ./loading.jl:2405 [inlined]
+    [2] macro expansion
+      @ ./lock.jl:376 [inlined]
+    [3] __require(into::Module, mod::Symbol)
+      @ Base ./loading.jl:2388
+    [4] require(into::Module, mod::Symbol)
+      @ Base ./loading.jl:2364
+    [5] eval(m::Module, e::Any)
+      @ Core ./boot.jl:489
+    [6] include_string(mapexpr::typeof(identity), mod::Module, code::String, filename::String)
+      @ Base ./loading.jl:2874
+    [7] include_string
+      @ ./loading.jl:2884 [inlined]
+    [8] _load_bilby_case(case_dir::String)
+      @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/research/benchmark_sweeps.jl:80
+    [9] top-level scope
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:9
+   [10] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [11] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:1281 [inlined]
+   [12] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [13] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:1355 [inlined]
+   [14] include(mapexpr::Function, mod::Module, _path::String)
+      @ Base ./Base.jl:307
+   [15] top-level scope
+      @ /tmp/odepe-hardening-20260723/test/runtests.jl:5
+   [16] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [17] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/runtests.jl:6 [inlined]
+   [18] include(mapexpr::Function, mod::Module, _path::String)
+      @ Base ./Base.jl:307
+   [19] top-level scope
+      @ none:1
+   [20] eval(m::Module, e::Any)
+      @ Core ./boot.jl:489
+   [21] exec_options(opts::Base.JLOptions)
+      @ Base ./client.jl:283
+   [22] _start()
+      @ Base ./client.jl:550
+  in expression starting at /tmp/jl_YSamgA/script.jl:5
+Benchmark result candidate import fixture: Error During Test at /tmp/odepe-hardening-20260723/test/fast_core.jl:1363
+  Got exception outside of a @test
+  LoadError: ArgumentError: Package CSV not found in current path.
+  - Run `import Pkg; Pkg.add("CSV")` to install the CSV package.
+  Stacktrace:
+    [1] macro expansion
+      @ ./loading.jl:2405 [inlined]
+    [2] macro expansion
+      @ ./lock.jl:376 [inlined]
+    [3] __require(into::Module, mod::Symbol)
+      @ Base ./loading.jl:2388
+    [4] require(into::Module, mod::Symbol)
+      @ Base ./loading.jl:2364
+    [5] eval(m::Module, e::Any)
+      @ Core ./boot.jl:489
+    [6] include_string(mapexpr::typeof(identity), mod::Module, code::String, filename::String)
+      @ Base ./loading.jl:2874
+    [7] include_string
+      @ ./loading.jl:2884 [inlined]
+    [8] _load_bilby_case(case_dir::String)
+      @ ODEParameterEstimation /tmp/odepe-hardening-20260723/src/research/benchmark_sweeps.jl:80
+    [9] top-level scope
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:9
+   [10] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [11] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:1364 [inlined]
+   [12] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [13] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/fast_core.jl:1424 [inlined]
+   [14] include(mapexpr::Function, mod::Module, _path::String)
+      @ Base ./Base.jl:307
+   [15] top-level scope
+      @ /tmp/odepe-hardening-20260723/test/runtests.jl:5
+   [16] macro expansion
+      @ ~/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/share/julia/stdlib/v1.12/Test/src/Test.jl:1777 [inlined]
+   [17] macro expansion
+      @ /tmp/odepe-hardening-20260723/test/runtests.jl:6 [inlined]
+   [18] include(mapexpr::Function, mod::Module, _path::String)
+      @ Base ./Base.jl:307
+   [19] top-level scope
+      @ none:1
+   [20] eval(m::Module, e::Any)
+      @ Core ./boot.jl:489
+   [21] exec_options(opts::Base.JLOptions)
+      @ Base ./client.jl:283
+   [22] _start()
+      @ Base ./client.jl:550
+  in expression starting at /tmp/jl_lGaT5W/script.jl:5
+PosDefException(6)
+PosDefException(5)
+PosDefException(5)
+PosDefException(7)
+PosDefException(7)
+PosDefException(6)
+PosDefException(10)
+PosDefException(9)
+PosDefException(5)
+PosDefException(9)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(7)
+PosDefException(6)
+PosDefException(10)
+PosDefException(10)
+PosDefException(6)
+PosDefException(6)
+PosDefException(9)
+PosDefException(6)
+PosDefException(7)
+PosDefException(6)
+PosDefException(6)
+PosDefException(6)
+PosDefException(11)
+PosDefException(7)
+PosDefException(11)
+PosDefException(10)
+PosDefException(7)
+PosDefException(6)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(10)
+PosDefException(7)
+PosDefException(8)
+PosDefException(9)
+PosDefException(9)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(9)
+PosDefException(10)
+PosDefException(6)
+PosDefException(7)
+PosDefException(9)
+PosDefException(6)
+PosDefException(11)
+PosDefException(11)
+PosDefException(7)
+PosDefException(8)
+PosDefException(11)
+PosDefException(7)
+PosDefException(8)
+PosDefException(8)
+PosDefException(8)
+PosDefException(11)
+PosDefException(10)
+PosDefException(10)
+PosDefException(6)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(10)
+PosDefException(8)
+PosDefException(10)
+PosDefException(9)
+PosDefException(8)
+PosDefException(10)
+PosDefException(6)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(11)
+PosDefException(8)
+PosDefException(9)
+PosDefException(8)
+PosDefException(9)
+PosDefException(8)
+PosDefException(5)
+PosDefException(8)
+PosDefException(2)
+PosDefException(2)
+PosDefException(2)
+PosDefException(3)
+PosDefException(4)
+PosDefException(4)
+PosDefException(5)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(6)
+PosDefException(10)
+PosDefException(5)
+PosDefException(4)
+PosDefException(5)
+PosDefException(6)
+PosDefException(6)
+PosDefException(10)
+PosDefException(4)
+PosDefException(7)
+PosDefException(6)
+PosDefException(8)
+PosDefException(11)
+PosDefException(10)
+PosDefException(7)
+PosDefException(9)
+PosDefException(6)
+PosDefException(9)
+PosDefException(10)
+PosDefException(10)
+PosDefException(10)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(8)
+PosDefException(8)
+PosDefException(7)
+PosDefException(8)
+PosDefException(7)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(11)
+PosDefException(6)
+PosDefException(5)
+PosDefException(5)
+PosDefException(7)
+PosDefException(7)
+PosDefException(6)
+PosDefException(10)
+PosDefException(9)
+PosDefException(5)
+PosDefException(9)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(7)
+PosDefException(6)
+PosDefException(10)
+PosDefException(10)
+PosDefException(6)
+PosDefException(6)
+PosDefException(9)
+PosDefException(6)
+PosDefException(7)
+PosDefException(6)
+PosDefException(6)
+PosDefException(6)
+PosDefException(11)
+PosDefException(7)
+PosDefException(11)
+PosDefException(10)
+PosDefException(7)
+PosDefException(6)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(10)
+PosDefException(7)
+PosDefException(8)
+PosDefException(9)
+PosDefException(9)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(9)
+PosDefException(10)
+PosDefException(6)
+PosDefException(7)
+PosDefException(9)
+PosDefException(6)
+PosDefException(11)
+PosDefException(11)
+PosDefException(7)
+PosDefException(8)
+PosDefException(11)
+PosDefException(7)
+PosDefException(8)
+PosDefException(8)
+PosDefException(8)
+PosDefException(11)
+PosDefException(10)
+PosDefException(10)
+PosDefException(6)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(10)
+PosDefException(8)
+PosDefException(10)
+PosDefException(9)
+PosDefException(8)
+PosDefException(10)
+PosDefException(6)
+PosDefException(9)
+PosDefException(6)
+PosDefException(6)
+PosDefException(11)
+PosDefException(8)
+PosDefException(9)
+PosDefException(8)
+PosDefException(9)
+PosDefException(8)
+PosDefException(5)
+PosDefException(8)
+PosDefException(2)
+PosDefException(2)
+PosDefException(2)
+PosDefException(3)
+PosDefException(4)
+PosDefException(4)
+PosDefException(5)
+PosDefException(8)
+PosDefException(6)
+PosDefException(8)
+PosDefException(6)
+PosDefException(10)
+PosDefException(5)
+PosDefException(4)
+PosDefException(5)
+PosDefException(6)
+PosDefException(6)
+PosDefException(10)
+PosDefException(4)
+PosDefException(7)
+PosDefException(6)
+PosDefException(8)
+PosDefException(11)
+PosDefException(10)
+PosDefException(7)
+PosDefException(9)
+PosDefException(6)
+PosDefException(9)
+PosDefException(10)
+PosDefException(10)
+PosDefException(10)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(8)
+PosDefException(8)
+PosDefException(7)
+PosDefException(8)
+PosDefException(7)
+PosDefException(7)
+PosDefException(9)
+PosDefException(10)
+PosDefException(11)
+Test Summary:                                                     | Pass  Error  Total      Time
+ODEParameterEstimation fast suite                                 | 1205      2   1207  19m12.3s
+  Package precompile policy                                       |    3             3      0.7s
+  Fast Core Contracts                                             |  400      2    402   9m24.4s
+    Ordered ODE construction                                      |    8             8     28.9s
+    Option helpers                                                |   41            41   1m09.6s
+    Transcendental data variable evaluation                       |    8             8      0.4s
+    Transcendental template pruning preserves equation provenance |    7             7      4.9s
+    HC conversion accepts empty parameter lists                   |    7             7     30.4s
+    Noise-frontier construction probes                            |   50            50   2m14.8s
+    Noise-frontier hoist timing capture                           |   13            13   1m18.4s
+    Branch-stress example registry                                |   42            42      3.2s
+    Polish coordinate transforms                                  |   12            12      0.3s
+    Polish method dispatch                                        |   10            10      0.0s
+    Consensus estimation smoke                                    |    6             6   1m11.3s
+    Synthesized finalizer smoke                                   |    8             8     42.5s
+    Branch consensus v1 smoke                                     |   12            12     19.2s
+    Block consensus v2 smoke                                      |   11            11     11.0s
+    Block consensus v2 reuse path                                 |   13            13      3.9s
+    Tryhard finalists smoke                                       |   12            12     11.1s
+    Tryhard additive merge compatibility                          |    4             4      3.0s
+    Tryhard frontier admits additive Inf-fit family reps          |    4             4      1.6s
+    Consensus benchmark rendering                                 |   10            10      1.3s
+    Synthesized benchmark rendering                               |    6             6      0.5s
+    Bilby loader fixture                                          |           1      1      0.7s
+    Benchmark result candidate import fixture                     |           1      1      0.0s
+    Bilby selector fallback                                       |    4             4      1.2s
+    Bilby sweep rendering                                         |    8             8      0.9s
+    Block study rendering                                         |    4             4      3.3s
+    Tryhard representative tie-break                              |    6             6      0.0s
+    Unsupported model-class validation                            |    5             5      0.3s
+    Sampling validation                                           |    3             3      3.3s
+    Derivative order guard                                        |    5             5      0.0s
+    UQ policy helper                                              |    2             2      0.0s
+    SI placeholder policy helpers                                 |   16            16      0.3s
+    SEIR algebraic rescue resolves states at t0 and shooting time |   16            16     35.3s
+    Math helpers                                                  |    7             7      0.2s
+    SI template shape guard                                       |    3             3      0.1s
+    Result compatibility helpers                                  |    9             9      0.1s
+    Algebraic resolve failure stays candidate-local               |    4             4      0.0s
+    Analysis and UQ helpers handle unscored candidates            |    7             7      1.2s
+    Branch-diverse M selection                                    |    8             8      0.2s
+    Multipoint Diagnostic Rendering                               |    9             9      0.6s
+  Refactor safety net (pre-cleanup)                               |   28            28      5.7s
+  Label parser characterization                                   |   49            49      0.0s
+  Example canaries                                                |   71            71   3m00.2s
+  Example script smoke tests                                      |   14            14   1m57.0s
+  Identifiability regressions                                     |   27            27     57.8s
+  Result processing helpers                                       |   40            40     10.3s
+  Feature regressions                                             |  201           201   2m16.9s
+  shade_lm_estimate (`simple` model, zero noise)                  |   15            15      9.0s
+  Problem rescaling (power-of-2)                                  |  122           122      3.5s
+  Core Types                                                      |   43            43      0.1s
+  column scaling helpers                                          |   12            12      0.1s
+  HC solve configuration                                          |   35            35     26.2s
+  task-scoped live progress                                       |   38            38      0.6s
+  nested progress scopes reuse one stream                         |    8             8      0.4s
+  progress failures never mask work                               |   16            16      1.0s
+  lock events describe a real acquisition                         |    5             5      0.2s
+  diagnostic entrypoint                                           |   18            18     24.5s
+  Linux ODEPE watchdog contract                                   |   60            60      8.1s
+RNG of the outermost testset: Xoshiro(0xa7e840f943d33d78, 0x0a4d29b1990e4c45, 0x136ddebc267414d9, 0x9e2c944d2640cbe4, 0x7b2d25d6db081dc0)

@@ -1,0 +1,33 @@
+
+[194099] signal 15: Terminated
+in expression starting at /tmp/claude-1000/-home-orebas--julia-dev-ODEParameterEstimation/9e466809-61df-4446-8b7c-1c215da052aa/scratchpad/diag_sumtest.jl:13
+_ZN4llvm23SmallVectorTemplateBaseIjLb1EE9push_backEj at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZL15AddNodeIDCustomRN4llvm16FoldingSetNodeIDEPKNS_6SDNodeE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm10FoldingSetINS_6SDNodeEE10NodeEqualsEPKNS_14FoldingSetBaseEPNS3_4NodeERKNS_16FoldingSetNodeIDEjRS8_ at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm14FoldingSetBase19FindNodeOrInsertPosERKNS_16FoldingSetNodeIDERPvRKNS0_14FoldingSetInfoE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm12SelectionDAG19FindNodeOrInsertPosERKNS_16FoldingSetNodeIDERKNS_5SDLocERPv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm12SelectionDAG11getConstantERKNS_11ConstantIntERKNS_5SDLocENS_3EVTEbb at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm12SelectionDAG11getConstantEmRKNS_5SDLocENS_3EVTEbb at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZL10combineCMPPN4llvm6SDNodeERNS_12SelectionDAGERKNS_12X86SubtargetE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN12_GLOBAL__N_111DAGCombiner7combineEPN4llvm6SDNodeE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm12SelectionDAG7CombineENS_12CombineLevelEPNS_9AAResultsENS_15CodeGenOptLevelE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm16SelectionDAGISel17CodeGenAndEmitDAGEv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm16SelectionDAGISel20SelectAllBasicBlocksERKNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm16SelectionDAGISel20runOnMachineFunctionERNS_15MachineFunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN12_GLOBAL__N_115X86DAGToDAGISel20runOnMachineFunctionERN4llvm15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm3orc14SimpleCompilerclERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+operator() at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1561
+addModule at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2044
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_compile_method_internal at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+_jl_invoke at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+unknown function (ip: (nil)) at (unknown file)
+Allocations: 116183936 (Pool: 116181824; Big: 2112); GC: 75

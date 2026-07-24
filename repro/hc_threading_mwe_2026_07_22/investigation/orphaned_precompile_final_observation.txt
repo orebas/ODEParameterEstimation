@@ -1,0 +1,50 @@
+Read-only lifecycle observations, 2026-07-23
+
+No signal was sent by this investigation.
+
+LATER HOST OBSERVATION at 2026-07-24T07:23:57-04:00:
+
+PID 1686904 was still present with the exact compile-cache command, 1m25s
+cumulative CPU, 2,272,232 KiB RSS, and the same three-thread wait pattern.
+A GDB attempt was rejected by Yama/ptrace policy before attachment. The target
+was not stopped or signalled, and a host snapshot immediately afterward showed
+it unaffected. See `orphaned_precompile_gdb_attempt_2026-07-24.txt`.
+
+CORRECTION at 2026-07-23T23:34:04-04:00:
+
+The 21:06 conclusion below that PID 1686904 had exited was a
+PID-namespace visibility error. A later host-namespace check found the same
+process identity and exact compile-cache command still alive. The process was
+not signalled.
+
+The corrected host-level process snapshot showed:
+
+    PID    PPID    PGID     SID                  STARTED     ELAPSED     TIME STAT %CPU %MEM   RSS WCHAN                            CMD
+1686904  394107 1685799 1685760 Wed Jul 22 18:20:12 2026  1-05:10:20 00:01:25 SNl   0.0  5.0 2272232 futex_do_wait                  /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/julia -C native -J/home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so -g1 --startup-file=no --output-o /home/orebas/.julia/compiled/v1.12/ODEParameterEstimation/jl_9hb9G3 --output-ji /home/orebas/.julia/compiled/v1.12/ODEParameterEstimation/jl_8LjlOu --output-incremental=yes --startup-file=no --history-file=no --warn-overwrite=yes --color=auto -
+
+The corrected host-level thread snapshot showed:
+
+1686904 1686904  394107 SNl    1-05:10:05 00:01:25  0.0 futex_do_wait                  julia
+1686904 1686906  394107 SNl    1-05:10:05 00:00:00  0.0 io_sq_thread                   iou-sqp-5820
+1686904 1686907  394107 SNl    1-05:10:05 00:00:00  0.0 do_sigtimedwait.isra.0         julia
+
+`/proc/1686904/status` reported three threads, no pending per-thread or
+shared signal, `VmRSS` 2,272,232 KiB, and `VmHWM` 2,525,452 KiB. Parent PID
+394107 is `/init`. This establishes continued existence and idleness; it does
+not identify the owner of the futex or the original reason for non-exit.
+
+The last successful host-level ps snapshot returned:
+
+    PID    PPID                  STARTED     ELAPSED     TIME %CPU %MEM   RSS    VSZ STAT WCHAN                          CMD
+1686904  394107 Wed Jul 22 18:08:07 2026  1-02:57:50 00:01:25  0.0  5.0 2272232 3583136 SNl futex_do_wait                /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/julia -C native -J/home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so -g1 --startup-file=no --output-o /home/orebas/.julia/compiled/v1.12/ODEParameterEstimation/jl_9hb9G3 --output-ji /home/orebas/.julia/compiled/v1.12/ODEParameterEstimation/jl_8LjlOu --output-incremental=yes --startup-file=no --history-file=no --warn-overwrite=yes --color=auto -
+
+Its thread snapshot still showed exactly three threads:
+
+1686904 1686904  1-02:57:50 00:01:25  0.0 SNl  futex_do_wait                    julia
+1686904 1686906  1-02:57:50 00:00:00  0.0 SNl  io_sq_thread                     iou-sqp-5820
+1686904 1686907  1-02:57:50 00:00:00  0.0 SNl  do_sigtimedwait.isra.0           julia
+
+At 2026-07-23T21:06:41-04:00, a namespace-local check returned only the ps
+header and could not see `/proc/1686904`. It was incorrectly recorded as a
+host-level disappearance. The corrected host check above proves that inference
+false.

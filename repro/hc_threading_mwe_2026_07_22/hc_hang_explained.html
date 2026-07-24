@@ -1,0 +1,717 @@
+<title>Anatomy of a Threading Hang</title>
+<style>
+  /* ---- reset ---- */
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0}
+  img{max-width:100%}
+
+  /* ---- tokens: light ---- */
+  :root{
+    --ground:#f2f5f8; --surface:#ffffff; --surface2:#e9eef3; --inset:#eef2f6;
+    --ink:#151b23; --ink-soft:#3d4855; --ink-mute:#5f6b7a; --hair:#dbe2ea; --hair-2:#cbd4de;
+    --accent:#0d7680; --accent-ink:#0a5b63; --accent-weak:#e0f0f1;
+    --crit:#c0392c; --crit-weak:#f7e5e2;
+    --warn:#a2660f; --warn-weak:#f6ecd9;
+    --good:#2c7a4f; --good-weak:#e1f0e7;
+    --console-bg:#0c1119; --console-ink:#c9d5e3; --console-mute:#7c8ba0; --console-hair:#1e2836;
+    --shadow:0 1px 2px rgba(18,28,40,.05),0 6px 22px -12px rgba(18,28,40,.18);
+    --measure:40rem;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Charter,Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0d1218; --surface:#161e28; --surface2:#1d2732; --inset:#141c25;
+      --ink:#e7edf4; --ink-soft:#c3cdd9; --ink-mute:#93a1b3; --hair:#26313d; --hair-2:#324150;
+      --accent:#45bccb; --accent-ink:#6fd0dc; --accent-weak:#11313a;
+      --crit:#ec7568; --crit-weak:#3a1f1c;
+      --warn:#d9a441; --warn-weak:#332912;
+      --good:#5cbd83; --good-weak:#153021;
+      --console-bg:#080c12; --console-ink:#c9d5e3; --console-mute:#71829a; --console-hair:#1a2431;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#f2f5f8; --surface:#ffffff; --surface2:#e9eef3; --inset:#eef2f6;
+    --ink:#151b23; --ink-soft:#3d4855; --ink-mute:#5f6b7a; --hair:#dbe2ea; --hair-2:#cbd4de;
+    --accent:#0d7680; --accent-ink:#0a5b63; --accent-weak:#e0f0f1;
+    --crit:#c0392c; --crit-weak:#f7e5e2; --warn:#a2660f; --warn-weak:#f6ecd9;
+    --good:#2c7a4f; --good-weak:#e1f0e7;
+    --console-bg:#0c1119; --console-ink:#c9d5e3; --console-mute:#7c8ba0; --console-hair:#1e2836;
+    --shadow:0 1px 2px rgba(18,28,40,.05),0 6px 22px -12px rgba(18,28,40,.18);
+  }
+  :root[data-theme="dark"]{
+    --ground:#0d1218; --surface:#161e28; --surface2:#1d2732; --inset:#141c25;
+    --ink:#e7edf4; --ink-soft:#c3cdd9; --ink-mute:#93a1b3; --hair:#26313d; --hair-2:#324150;
+    --accent:#45bccb; --accent-ink:#6fd0dc; --accent-weak:#11313a;
+    --crit:#ec7568; --crit-weak:#3a1f1c; --warn:#d9a441; --warn-weak:#332912;
+    --good:#5cbd83; --good-weak:#153021;
+    --console-bg:#080c12; --console-ink:#c9d5e3; --console-mute:#71829a; --console-hair:#1a2431;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+
+  /* ---- base ---- */
+  html,body{overflow-x:hidden}
+  body{background:var(--ground);color:var(--ink);font-family:var(--serif);
+    font-size:17.5px;line-height:1.68;-webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility}
+  .doc{max-width:44rem;margin:0 auto;padding:0 1.35rem 6rem}
+  .bleed{width:min(95vw,60rem);position:relative;left:50%;transform:translateX(-50%)}
+
+  /* ---- progress + topbar ---- */
+  .topbar{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ground) 86%,transparent);
+    backdrop-filter:saturate(1.3) blur(9px);border-bottom:1px solid var(--hair)}
+  .topbar .row{max-width:60rem;margin:0 auto;padding:.6rem 1.35rem;display:flex;align-items:center;
+    gap:.7rem;font-family:var(--sans);font-size:.78rem;color:var(--ink-mute)}
+  .topbar .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--crit);flex:none;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--crit) 22%,transparent)}
+  .topbar b{color:var(--ink);font-weight:600;letter-spacing:-.01em}
+  .topbar .sp{margin-left:auto}
+  .progress{height:2px;background:var(--accent);width:0;transition:width .1s linear}
+  @media (prefers-reduced-motion:reduce){.progress{transition:none}}
+
+  /* ---- type ---- */
+  h1,h2,h3,h4{font-family:var(--sans);color:var(--ink);text-wrap:balance;line-height:1.16;
+    letter-spacing:-.02em;font-weight:680}
+  .hero{padding:3.4rem 0 1.2rem}
+  .eyebrow{font-family:var(--sans);font-size:.74rem;font-weight:650;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--accent-ink)}
+  h1{font-size:clamp(2.1rem,6vw,3.05rem);margin:.5rem 0 0;font-weight:720}
+  .dek{font-size:1.18rem;color:var(--ink-soft);margin:1rem 0 0;line-height:1.5;max-width:34rem}
+  h2{font-size:1.62rem;margin:0}
+  h3{font-size:1.18rem;margin:2rem 0 .3rem;letter-spacing:-.01em}
+  p{margin:.85rem 0}
+  a{color:var(--accent-ink);text-underline-offset:2px;text-decoration-thickness:.06em}
+  strong{font-weight:640;color:var(--ink)}
+  em.term{font-style:normal;font-family:var(--mono);font-size:.86em;
+    background:var(--surface2);padding:.04em .34em;border-radius:4px;color:var(--ink)}
+  .lead{font-size:1.06rem}
+  ul,ol{padding-left:1.15rem}
+  li{margin:.34rem 0}
+  ::selection{background:color-mix(in srgb,var(--accent) 26%,transparent)}
+
+  /* ---- section header ---- */
+  .sec{margin:4.2rem 0 0;scroll-margin-top:4rem}
+  .sechead{display:flex;gap:.85rem;align-items:baseline;border-top:2px solid var(--ink);
+    padding-top:.7rem;margin-bottom:.4rem}
+  .secno{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--accent);
+    flex:none;padding-top:.28rem}
+
+  /* ---- thesis card ---- */
+  .thesis{background:var(--surface);border:1px solid var(--hair);border-radius:14px;
+    padding:1.5rem 1.6rem;margin:1.8rem 0 0;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .thesis::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+  .thesis h2{font-size:1.05rem;letter-spacing:.02em;text-transform:uppercase;color:var(--ink-mute);
+    font-size:.8rem;font-weight:650;letter-spacing:.14em}
+  .thesis p{margin:.6rem 0 0;font-size:1.04rem}
+  .thesis .kicker{color:var(--ink);font-weight:600}
+
+  /* ---- TOC ---- */
+  nav.toc{background:var(--inset);border:1px solid var(--hair);border-radius:12px;padding:1.1rem 1.3rem;
+    margin:2.2rem 0 0}
+  nav.toc .lbl{font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-mute);font-weight:650}
+  nav.toc ol{list-style:none;padding:0;margin:.7rem 0 0;counter-reset:toc;
+    display:grid;grid-template-columns:1fr;gap:.1rem}
+  @media(min-width:620px){nav.toc ol{grid-template-columns:1fr 1fr;column-gap:2rem}}
+  nav.toc li{counter-increment:toc;margin:0}
+  nav.toc a{font-family:var(--sans);font-size:.92rem;text-decoration:none;color:var(--ink-soft);
+    display:flex;gap:.6rem;padding:.32rem 0;border-bottom:1px solid transparent}
+  nav.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);font-size:.78rem;
+    color:var(--accent);flex:none;padding-top:.1rem}
+  nav.toc a:hover{color:var(--ink)}
+
+  /* ---- badges (the taxonomy) ---- */
+  .badge{display:inline-flex;align-items:center;gap:.4rem;font-family:var(--sans);font-weight:640;
+    font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:.26rem .6rem;border-radius:999px;
+    border:1px solid;white-space:nowrap;vertical-align:middle}
+  .badge .b-dot{width:.46rem;height:.46rem;border-radius:50%;flex:none}
+  .b-crit{color:var(--crit);background:var(--crit-weak);border-color:color-mix(in srgb,var(--crit) 34%,transparent)}
+  .b-crit .b-dot{background:var(--crit)}
+  .b-warn{color:var(--warn);background:var(--warn-weak);border-color:color-mix(in srgb,var(--warn) 34%,transparent)}
+  .b-warn .b-dot{background:var(--warn)}
+  .b-good{color:var(--good);background:var(--good-weak);border-color:color-mix(in srgb,var(--good) 34%,transparent)}
+  .b-good .b-dot{background:var(--good)}
+  .b-neutral{color:var(--ink-mute);background:var(--surface2);border-color:var(--hair-2)}
+  .b-neutral .b-dot{background:var(--ink-mute)}
+
+  /* ---- bug card ---- */
+  .bug{background:var(--surface);border:1px solid var(--hair);border-radius:14px;margin:1.6rem 0 0;
+    box-shadow:var(--shadow);overflow:hidden}
+  .bug > .head{display:flex;flex-wrap:wrap;gap:.6rem .8rem;align-items:center;padding:1rem 1.3rem;
+    border-bottom:1px solid var(--hair);background:var(--inset)}
+  .bug > .head .t{font-family:var(--sans);font-weight:670;font-size:1.06rem;letter-spacing:-.01em;
+    flex:1 1 12rem;color:var(--ink)}
+  .bug .body{padding:.4rem 1.3rem 1.25rem}
+  .bug .who{font-family:var(--sans);font-size:.76rem;color:var(--ink-mute);width:100%;
+    display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem}
+  .bug .who span{background:var(--surface2);border:1px solid var(--hair);border-radius:6px;padding:.1rem .45rem}
+
+  /* ---- primer aside ---- */
+  .primer{border:1px dashed var(--hair-2);background:var(--inset);border-radius:10px;
+    padding:.9rem 1.1rem;margin:1.2rem 0;font-size:.98rem}
+  .primer .plbl{font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-ink);display:flex;align-items:center;gap:.5rem}
+  .primer .plbl::before{content:"";width:1.1rem;height:1px;background:var(--accent)}
+  .primer p{margin:.45rem 0 0}
+  .primer p:first-of-type{margin-top:.35rem}
+
+  /* ---- console / code ---- */
+  .console{background:var(--console-bg);border:1px solid var(--console-hair);border-radius:12px;
+    margin:1.3rem 0;overflow:hidden;box-shadow:var(--shadow)}
+  .console .bar{display:flex;align-items:center;gap:.55rem;padding:.55rem .85rem;
+    border-bottom:1px solid var(--console-hair);font-family:var(--sans);font-size:.74rem;color:var(--console-mute)}
+  .console .bar .g{display:flex;gap:.36rem}
+  .console .bar .g i{width:.62rem;height:.62rem;border-radius:50%;display:block;opacity:.85}
+  .console .bar .fn{margin-left:.3rem;color:var(--console-ink);font-family:var(--mono);letter-spacing:0}
+  .console .bar .tag{margin-left:auto;text-transform:uppercase;letter-spacing:.1em;font-size:.66rem}
+  .console pre{margin:0;padding:.95rem 1.05rem;overflow-x:auto;font-family:var(--mono);
+    font-size:.82rem;line-height:1.6;color:var(--console-ink);tab-size:2}
+  .console pre code{white-space:pre}
+  .console .cm{color:var(--console-mute)}         /* comment */
+  .console .kw{color:#7cc7ff}                       /* keyword */
+  .console .fnn{color:#8be0c8}                      /* fn / type */
+  .console .st{color:#e6c07b}                       /* string / literal */
+  .console .hot{color:#ff9d8a;font-weight:600}      /* the hot frame */
+  .console .dim{color:var(--console-mute)}
+  .console .mk{background:color-mix(in srgb,#ff9d8a 22%,transparent);border-radius:3px;padding:0 .15em}
+
+  /* inline code in prose */
+  code{font-family:var(--mono);font-size:.85em;background:var(--surface2);border:1px solid var(--hair);
+    padding:.06em .34em;border-radius:5px;color:var(--ink)}
+  .console code{background:none;border:none;padding:0}
+
+  /* ---- tables ---- */
+  .twrap{overflow-x:auto;margin:1.3rem 0;border:1px solid var(--hair);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:30rem}
+  th,td{text-align:left;padding:.6rem .85rem;border-bottom:1px solid var(--hair)}
+  thead th{font-family:var(--sans);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-mute);font-weight:650;background:var(--inset);position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono,th.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .cell-hang{color:var(--crit);font-weight:600;font-family:var(--mono)}
+  .cell-ok{color:var(--good);font-weight:600;font-family:var(--mono)}
+  .cell-crash{color:var(--warn);font-weight:700;font-family:var(--mono)}
+  caption{caption-side:bottom;text-align:left;font-family:var(--sans);font-size:.76rem;color:var(--ink-mute);
+    padding:.6rem .85rem}
+
+  /* ---- flow diagram (causal chain) ---- */
+  .flow{margin:1.6rem 0;display:flex;flex-direction:column;gap:0}
+  .stage{background:var(--surface);border:1px solid var(--hair);border-radius:12px;padding:.95rem 1.15rem;
+    box-shadow:var(--shadow);position:relative;z-index:1}
+  .stage .st-top{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+  .stage .st-n{font-family:var(--mono);font-size:.72rem;color:#fff;background:var(--accent);
+    width:1.5rem;height:1.5rem;border-radius:6px;display:grid;place-items:center;flex:none;font-weight:600}
+  .stage .st-t{font-family:var(--sans);font-weight:660;font-size:1rem;color:var(--ink)}
+  .stage p{margin:.5rem 0 0;font-size:.95rem;color:var(--ink-soft)}
+  .connector{height:1.5rem;width:2px;background:var(--hair-2);margin:0 auto;position:relative}
+  .connector::after{content:"";position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);
+    border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid var(--hair-2)}
+  .stage.crit{border-color:color-mix(in srgb,var(--crit) 40%,var(--hair))}
+  .stage.crit .st-n{background:var(--crit)}
+  .stage.warn{border-color:color-mix(in srgb,var(--warn) 40%,var(--hair))}
+  .stage.warn .st-n{background:var(--warn)}
+  .stage.end .st-n{background:var(--ink)}
+
+  /* pipeline chips */
+  .pipe{display:flex;flex-wrap:wrap;align-items:stretch;gap:.5rem;margin:1.4rem 0;font-family:var(--sans)}
+  .pipe .chip{background:var(--surface);border:1px solid var(--hair);border-radius:9px;padding:.55rem .75rem;
+    font-size:.82rem;color:var(--ink);display:flex;flex-direction:column;gap:.15rem;min-width:0;box-shadow:var(--shadow)}
+  .pipe .chip small{color:var(--ink-mute);font-size:.7rem}
+  .pipe .arrow{align-self:center;color:var(--ink-mute);font-size:.9rem}
+  .pipe .chip.hot{border-color:color-mix(in srgb,var(--crit) 45%,var(--hair));
+    background:color-mix(in srgb,var(--crit-weak) 60%,var(--surface))}
+
+  /* callout: key */
+  .key{border-left:3px solid var(--accent);background:var(--accent-weak);border-radius:0 10px 10px 0;
+    padding:.85rem 1.1rem;margin:1.3rem 0;font-size:1rem}
+  .key .kl{font-family:var(--sans);font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-ink)}
+  .key p{margin:.35rem 0 0}
+
+  .quiet{color:var(--ink-mute);font-size:.95rem}
+  hr.soft{border:none;border-top:1px solid var(--hair);margin:2.5rem 0}
+
+  /* meta grid */
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(8.5rem,1fr));gap:.7rem;margin:1.3rem 0;
+    font-family:var(--sans)}
+  .meta .m{background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:.7rem .85rem}
+  .meta .m .k{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute);font-weight:600}
+  .meta .m .v{font-family:var(--mono);font-size:.92rem;color:var(--ink);margin-top:.2rem;font-variant-numeric:tabular-nums}
+
+  footer{margin-top:5rem;border-top:1px solid var(--hair);padding-top:1.3rem;
+    font-family:var(--sans);font-size:.82rem;color:var(--ink-mute)}
+  footer a{color:var(--accent-ink)}
+
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px;border-radius:3px}
+  @media (max-width:520px){ body{font-size:16.5px} .hero{padding-top:2.2rem} }
+</style>
+
+<div class="topbar">
+  <div class="row">
+    <span class="dot" aria-hidden="true"></span>
+    <b>Anatomy of a Threading Hang</b>
+    <span class="dim">&nbsp;· HomotopyContinuation × Julia 1.12</span>
+    <span class="sp"></span>
+    <span class="dim">verified 2026‑07‑22</span>
+  </div>
+  <div class="progress" id="prog" aria-hidden="true"></div>
+</div>
+
+<main class="doc">
+
+  <div style="background:var(--crit-weak);border:1.5px solid var(--crit);border-radius:12px;padding:1.1rem 1.3rem;margin:2.2rem 0 0;font-family:var(--sans);font-size:.95rem">
+    <div style="font-weight:700;color:var(--crit);letter-spacing:.08em;text-transform:uppercase;font-size:.74rem">⛔ Correction — 2026‑07‑23</div>
+    <p style="margin:.5rem 0 0">An independent adversarial review challenged this document's central causal chain, and direct re‑testing <strong>confirmed the review</strong>. Retracted: §3's "fresh compiled type every solve" (measured: the solve path compiles <strong>per‑support</strong> — coefficient changes reuse the compiled type, 34.6s cold → 0.06s warm, cache table does not grow), §5's "concurrent type creation" bridge (solver construction precedes tracker spawn; <code>jl_as_global_root</code> writes <em>are</em> locked in Julia 1.12.6), and §7's chain. The hang/segfault campaign behind §5's table was confounded (total work scaled with thread count, on a loaded box, with watchdog thresholds ≈ healthy durations). <strong>Still standing:</strong> §6's unlocked‑cache race (reproduced by both parties), §8's exonerations, and the compile convoy as a multi‑<em>minute</em> freeze explanation under load. The original multi‑hour ~0%‑CPU hang is <strong>not root‑caused</strong>. The deconfounded re‑run (fixed total work, quiet box) completed <strong>10/10 with zero hangs and zero segfaults</strong> — including 4/4 at the exact "always hangs" configuration — and revealed that healthy completion of that workload takes ≈260s on an idle box, <em>above</em> the original campaign's 180s kill threshold: every "HANG" row in §5's table was a timeout artifact. Full evidence: <code>ADJUDICATION_2026‑07‑23.md</code> in the repro directory.</p>
+  </div>
+
+  <header class="hero">
+    <div class="eyebrow">Incident dossier · scientific‑computing stack</div>
+    <h1>Why the solver freezes when you give it more threads</h1>
+    <p class="dek">A single design choice in HomotopyContinuation, run under Julia’s multithreading, ignites a compilation pile‑up that escalates into a genuine runtime‑level hang. Here is the whole chain, from the symptom down to the bytes — and a clear label on every link: which are real bugs, and which only bite when the layers stress each other.</p>
+  </header>
+
+  <div class="thesis">
+    <h2>The one‑paragraph version</h2>
+    <p><span class="kicker">Every ODEPE solve asks HomotopyContinuation to compile a fresh, one‑off machine‑code routine.</span> Because the fitted coefficients change every time, HC’s cache never recognises the system as “seen before”, so it mints a brand‑new Julia type and recompiles from scratch on <em>every</em> solve. With threading on, the many worker tasks all pile onto Julia’s single global compiler lock — that alone is a multi‑minute freeze. Under enough threads, that same storm of type creation trips a real bug deep in the Julia runtime that corrupts an internal table and turns the temporary freeze into a permanent hang or a segfault. The package everyone blamed for years — MixedSubdivisions, the “Computing mixed cells…” line — is <strong>innocent</strong>.</p>
+  </div>
+
+  <nav class="toc" aria-label="Contents">
+    <div class="lbl">The chain, in order</div>
+    <ol>
+      <li><a href="#s1">What you actually see</a></li>
+      <li><a href="#s2">What a solve really does</a></li>
+      <li><a href="#s3">The ignition: a new type every solve</a></li>
+      <li><a href="#s4">Failure mode 1 — the compile convoy</a></li>
+      <li><a href="#s5">Failure mode 2 — the runtime corruption</a></li>
+      <li><a href="#s6">Failure mode 3 — the unlocked caches</a></li>
+      <li><a href="#s7">How the three stack up</a></li>
+      <li><a href="#s8">What it is <em>not</em></a></li>
+      <li><a href="#s9">The taxonomy &amp; the fixes</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ 1 ============ -->
+  <section class="sec" id="s1">
+    <div class="sechead"><span class="secno">§1</span><h2>What you actually see</h2></div>
+    <p class="lead">A parameter‑estimation run launches a homotopy solve. For roughly a minute it burns all cores at 100%. Then, without an error, every thread goes quiet — CPU drops to nearly zero — and the process sits there for <em>hours</em>. The last line painted on the terminal is almost always:</p>
+
+    <div class="console" role="img" aria-label="Terminal showing the frozen mixed-cells line">
+      <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">solve()</span><span class="tag" style="color:var(--crit)">frozen ≥ 184 s</span></div>
+      <pre><code>Tracking 6402 paths...  <span class="cm"># progress bar advances, then stops</span>
+<span class="hot">Computing mixed cells... </span><span class="dim">(no further output — CPU ≈ 0%, held for hours)</span></code></pre>
+    </div>
+
+    <p>Three things make it maddening, and all three are explained by the mechanism in this document:</p>
+    <ul>
+      <li><strong>It is nondeterministic.</strong> The identical run may finish fine, freeze for minutes, or hang forever. A “heisenbug.”</li>
+      <li><strong>It scales with thread count.</strong> Rare or absent at 1–4 threads; common at 8; near‑certain at 14+. This is <em>why the HC maintainer, who runs 2 threads, has never reproduced it.</em></li>
+      <li><strong>Ctrl‑C is often swallowed.</strong> The process still answers OS signals, but won’t interrupt cleanly.</li>
+    </ul>
+
+    <div class="key">
+      <div class="kl">The trap in that last line</div>
+      <p>“Computing mixed cells…” is <strong>not</strong> where it hangs. It is a progress meter that HomotopyContinuation leaves switched on for every fresh solve, printing to a side channel. When the process freezes for <em>any</em> reason, that happens to be the last thing painted. Years of debugging aimed at the mixed‑cells code were aiming at the wrong wall. (More in §8.)</p>
+    </div>
+  </section>
+
+  <!-- ============ 2 ============ -->
+  <section class="sec" id="s2">
+    <div class="sechead"><span class="secno">§2</span><h2>What a solve really does — from the machine’s side</h2></div>
+    <p>You already know the math side: differentiate‑then‑solve turns a model into a polynomial system, and HomotopyContinuation tracks paths to its roots. This document is about what happens <em>underneath</em> that call, in the compiler and the thread scheduler — the layer that’s biting us. Here is the path of one <code>solve</code>:</p>
+
+    <div class="pipe bleed" aria-label="Pipeline from model to threaded tracking">
+      <div class="chip"><b>Polynomial system</b><small>from ODEPE, distinct numeric coefficients each solve</small></div>
+      <div class="arrow">→</div>
+      <div class="chip hot"><b>CompiledSystem</b><small>HC generates + compiles a machine‑code evaluator</small></div>
+      <div class="arrow">→</div>
+      <div class="chip"><b>N tracker tasks</b><small>threading=true spawns one per core</small></div>
+      <div class="arrow">→</div>
+      <div class="chip"><b>Follow paths</b><small>each task runs the compiled evaluator millions of times</small></div>
+    </div>
+
+    <p>The second box is the whole story. To evaluate a polynomial system as fast as possible, HC doesn’t interpret it — it writes out a <em>straight‑line program</em> (a flat list of arithmetic ops) and hands it to Julia’s compiler, which runs it through LLVM to native code. ODEPE explicitly asks for this on every system, in <code>src/core/homotopy_continuation.jl</code>:</p>
+
+    <div class="console">
+      <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">homotopy_continuation.jl:415, :651</span></div>
+      <pre><code>HomotopyContinuation.<span class="fnn">set_default_compile</span>(<span class="st">:all</span>)   <span class="cm"># compile every system to native code</span>
+_hc_solve(args...; kwargs...) = HomotopyContinuation.<span class="fnn">solve</span>(args...;
+    threading = HC_SOLVE_THREADING[], kwargs...)      <span class="cm"># and spawn N worker tasks</span></code></pre>
+    </div>
+
+    <div class="primer">
+      <div class="plbl">Primer · task vs. thread, and what <code>threading=true</code> buys</div>
+      <p>A <em class="term">Task</em> is a unit of work Julia can run concurrently; the runtime’s scheduler parks tasks onto OS <em class="term">threads</em> (you pick how many with <code>julia -t N</code>). <code>threading=true</code> tells HC to split its thousands of homotopy paths across <code>N</code> worker tasks so they track in parallel. On this workload that’s a real, measured <strong>2.63× speedup with bit‑identical results</strong> — which is exactly why “just turn threading off” is the wrong answer. We want the threads. We want the bug fixed.</p>
+    </div>
+  </section>
+
+  <!-- ============ 3 ============ -->
+  <section class="sec" id="s3">
+    <div class="sechead"><span class="secno">§3</span><h2>The ignition — a brand‑new type on every single solve</h2></div>
+    <p>Here is HC’s constructor for a compiled system (trimmed to the essential lines, from the active <code>HomotopyContinuation 2.20.0</code> source, <code>model_kit/compiled_system_homotopy.jl</code>):</p>
+
+    <div class="console">
+      <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">compiled_system_homotopy.jl:1, 39–57</span></div>
+      <pre><code><span class="kw">const</span> TSYSTEM_TABLE = <span class="fnn">Dict</span>{UInt,Vector{System}}()   <span class="cm"># a global cache, keyed by a hash</span>
+
+<span class="kw">function</span> <span class="fnn">CompiledSystem</span>(F::System)
+    <span class="cm"># names are cleared so identical structure -&gt; identical code...</span>
+    cleard_exprs = subs(expressions(F), D)
+    h = <span class="fnn">hash</span>(cleard_exprs)          <span class="cm"># &lt;-- coefficients are STILL in here</span>
+    <span class="kw">if</span> haskey(TSYSTEM_TABLE, h)         <span class="cm"># seen this exact system before?</span>
+        <span class="cm"># ... find index k ...</span>
+    <span class="kw">else</span>
+        k = 1
+        TSYSTEM_TABLE[h] = [sys]         <span class="cm"># otherwise store it</span>
+    <span class="kw">end</span>
+    <span class="kw">return</span> <span class="hot">CompiledSystem{(h, k)}</span>(n, nvars, nparams, F)  <span class="cm"># type carries (hash, index)</span>
+<span class="kw">end</span></code></pre>
+    </div>
+
+    <p>Look at the return line. The identity of the system — the pair <code>(h, k)</code> — is baked into the <strong>type parameter</strong>, not stored as ordinary data. That is a deliberate and clever trick: it lets HC’s generated evaluator recover the exact system at <em>compile</em> time straight from the type, which is how the straight‑line program gets specialised per system. The <code>TSYSTEM_TABLE</code> cache exists to make it cheap: solve the same system twice and you reuse the same <code>(h, k)</code>, the same type, the same already‑compiled code.</p>
+
+    <div class="key">
+      <div class="kl">Why the cache never helps ODEPE</div>
+      <p>The hash <code>h</code> is taken over expressions that <strong>still contain the fitted numeric coefficients</strong>. Every ODEPE solve has different coefficients, so every solve produces a different <code>h</code>, a different <code>(h, k)</code>, and therefore a <strong>type Julia has never seen</strong>. A cache that only hits on exact repeats can’t hit a workload that never repeats. Result: <em>every</em> solve triggers a full, from‑scratch compile of all the tracker methods, specialised on a fresh type.</p>
+    </div>
+
+    <p>This is the ignition source for everything that follows. Note carefully: on its own it is <strong>not a bug</strong>. It’s a reasonable design — per‑system compiled code is genuinely fast — whose cache assumption happens to be wrong for our workload. What makes it dangerous is that it hands two lower layers a stimulus they don’t handle well under concurrency. That’s the next three sections.</p>
+
+    <p style="margin-top:1.1rem"><span class="badge b-warn"><span class="b-dot"></span>Stress source · not itself a defect</span></p>
+  </section>
+
+  <!-- ============ 4 ============ -->
+  <section class="sec" id="s4">
+    <div class="sechead"><span class="secno">§4</span><h2>Failure mode 1 — the compilation convoy</h2></div>
+
+    <div class="bug">
+      <div class="head">
+        <span class="t">Every solve recompiles; the workers queue behind one lock</span>
+        <span class="badge b-warn"><span class="b-dot"></span>Emergent pathology</span>
+      </div>
+      <div class="body">
+        <p>When <code>solve</code> spawns its <code>N</code> tracker tasks, each one calls methods specialised on the fresh <code>CompiledSystem{(h,k)}</code> type. Since that type is new, none of those methods are compiled yet — so all <code>N</code> tasks demand compilation of the same code at the same moment.</p>
+
+        <div class="primer">
+          <div class="plbl">Primer · why compiling is a <em>single‑lane</em> road</div>
+          <p>Julia compiles lazily: the first call to a method on a given set of types triggers type inference and LLVM code generation. To keep that process consistent, the runtime guards it with <strong>one global lock</strong>, <em class="term">jl_typeinf_lock</em>. Two threads cannot infer at the same time — one holds the lock and works, the rest <em>wait</em>. Normally that’s invisible, because compilation happens once and is then cached. Here it happens on every solve, for a big freshly‑typed method, across all cores at once.</p>
+        </div>
+
+        <p>So the <code>N</code> tasks form a <em>convoy</em>: one thread grabs <code>jl_typeinf_lock</code> and starts compiling; the other 13 park behind it. And the one doing the work can take a very long time, because the generated evaluator for a large system (think a 32×32 jet system) is an enormous straight‑line function, and LLVM’s vectorizer is super‑linear on such code. Here is the actual state of a frozen process, captured with gdb — a <strong>sequential, production‑shaped</strong> solve (one solve at a time, exactly how ODEPE issues them), stuck for over three minutes:</p>
+
+        <div class="console">
+          <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">gdb · thread apply all bt</span><span class="tag">g14_t14_r19 · frozen ≥184 s</span></div>
+          <pre><code><span class="cm"># 12 of 14 threads, identical — all parked here:</span>
+Thread 4   _jl_mutex_wait (lock=<span class="mk">jl_typeinf_lock</span>, safepoint=1)   threading.c:974
+           _jl_mutex_lock  → jl_mutex_lock                          julia_locks.h:65
+Thread 6   _jl_mutex_wait (lock=<span class="mk">jl_typeinf_lock</span>, ...)          <span class="dim">(×12 threads)</span>
+           ...
+
+<span class="cm"># main thread + 2 others: parked in the codegen engine's own wait:</span>
+Thread 1   jl_unique_gcsafe_lock::wait (...)                        julia_locks.h:131
+
+<span class="cm"># and exactly ONE thread actually doing work — stuck deep in LLVM:</span>
+Thread 9   <span class="hot">llvm::slpvectorizer::BoUpSLP::getSpillCost()</span>            libLLVM.so
+           llvm::slpvectorizer::BoUpSLP::getTreeCost(...)
+           llvm::SLPVectorizerPass::tryToVectorizeList(...)          <span class="dim"># compiling ONE huge function</span></code></pre>
+        </div>
+
+        <p>This is the picture the whole investigation was missing. It is <strong>not a deadlock</strong> in the textbook sense — there’s no cycle of locks waiting on each other. It is a <em>convoy</em>: 13 cores idling while 1 core grinds through a pathological compile, for minutes, with the “Computing mixed cells” meter frozen mid‑paint. To an operator (or a watchdog) that is indistinguishable from a hang.</p>
+
+        <div class="who">
+          <span>Layer: Julia compiler behaviour, provoked by HC</span>
+          <span>Trigger: fresh type every solve × threading × large system</span>
+          <span>Bites ODEPE’s real (sequential) path: <strong>yes</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <p class="quiet">On its own the convoy is “only” slow — given enough patience the compile finishes. The reason it so often becomes <em>permanent</em> is the next layer down.</p>
+  </section>
+
+  <!-- ============ 5 ============ -->
+  <section class="sec" id="s5">
+    <div class="sechead"><span class="secno">§5</span><h2>Failure mode 2 — the runtime corruption <span style="font-family:var(--serif);font-weight:400;font-size:1rem;color:var(--ink-mute)">(the real bug)</span></h2></div>
+
+    <div class="bug">
+      <div class="head">
+        <span class="t">Concurrent type creation corrupts a shared runtime table</span>
+        <span class="badge b-crit"><span class="b-dot"></span>Clear bug · Julia runtime</span>
+      </div>
+      <div class="body">
+        <p>Minting <code>CompiledSystem{(h,k)}</code> forces Julia to <em>instantiate a parametric type</em> whose parameter is a fresh <code>(UInt, Int)</code> tuple. When many tasks do that at once — which is exactly what the convoy above causes — they collide inside a global runtime table and corrupt it.</p>
+
+        <div class="primer">
+          <div class="plbl">Primer · <code>apply_type</code> and the “global roots” table</div>
+          <p>When Julia builds a type like <code>Foo{(123, 4)}</code>, the runtime function <em class="term">apply_type</em> runs. To avoid keeping millions of duplicate type‑parameter objects alive, it interns each new one into a shared hash set — the <em class="term">global roots idset</em>. That set is grown by re‑hashing. If two threads re‑hash it at the same moment without proper synchronisation, its internal probe sequence is left inconsistent: a lookup then either loops forever over a broken chain (a <strong>hang</strong>) or dereferences a bad slot (a <strong>segfault</strong>).</p>
+        </div>
+
+        <p>We isolated this to <strong>30 lines of pure Julia with no HomotopyContinuation at all</strong> — the essence of what <code>CompiledSystem{(h,k)}</code> does to the runtime, and nothing else:</p>
+
+        <div class="console">
+          <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">typeinst_control.jl — stdlib only</span><span class="tag" style="color:var(--good)">the JuliaLang MWE</span></div>
+          <pre><code><span class="kw">struct</span> <span class="fnn">Foo</span>{T} <span class="kw">end</span>
+
+<span class="kw">function</span> <span class="fnn">worker</span>(w)
+    <span class="kw">for</span> i <span class="kw">in</span> 1:N
+        h = <span class="fnn">rand</span>(rng, UInt)      <span class="cm"># fresh random bits, like hash(exprs)</span>
+        T = <span class="hot">Foo{(h, i % 8 + 1)}</span>    <span class="cm"># instantiate a fresh (UInt,Int)-param type</span>
+    <span class="kw">end</span>
+<span class="kw">end</span>
+<span class="kw">@sync</span> <span class="kw">for</span> w <span class="kw">in</span> 1:NW           <span class="cm"># run that on every worker task at once</span>
+    Threads.<span class="fnn">@spawn</span> worker(w)
+<span class="kw">end</span></code></pre>
+        </div>
+
+        <p>Run at high thread counts, it hangs or crashes on this machine, reliably, with a monotone thread‑count gradient. These are the outcomes across both the sub‑agent’s campaign and an independent re‑run:</p>
+
+        <div class="twrap">
+          <table>
+            <caption>Each cell is one run of <code>typeinst_control.jl</code> (≈ a few seconds of healthy work). “HANG” = still not done at the 180 s kill.</caption>
+            <thead><tr><th>Julia</th><th class="mono"><span title="threads">-t</span></th><th>Run 1</th><th>Run 2</th><th>Run 3</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr><td>1.12.6</td><td class="mono">14</td><td class="cell-hang">HANG</td><td class="cell-hang">HANG</td><td class="cell-crash">SEGFAULT</td><td>fails every time</td></tr>
+              <tr><td>1.12.6</td><td class="mono">14</td><td class="cell-hang">HANG</td><td class="cell-hang">HANG</td><td class="cell-hang">HANG</td><td>fails every time <span class="quiet">(re‑run)</span></td></tr>
+              <tr><td>1.12.6</td><td class="mono">8</td><td class="cell-hang">HANG</td><td class="cell-ok">OK</td><td class="cell-hang">HANG</td><td>mostly fails</td></tr>
+              <tr><td>1.12.6</td><td class="mono">4</td><td class="cell-ok">OK</td><td class="cell-ok">OK</td><td class="cell-ok">OK</td><td>clean</td></tr>
+              <tr><td>1.12.6</td><td class="mono">2</td><td class="cell-ok">OK</td><td class="cell-ok">OK</td><td class="cell-ok">—</td><td>clean</td></tr>
+              <tr><td>1.11.5</td><td class="mono">14</td><td class="cell-hang">HANG</td><td class="cell-hang">HANG</td><td class="cell-hang">HANG</td><td>fails every time</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>And when it crashes rather than hangs, the segfault backtrace is unambiguous — it dies exactly in that intern‑and‑rehash path:</p>
+
+        <div class="console">
+          <div class="bar"><span class="g"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span class="fn">ts14_r1.log · signal (11) SIGSEGV</span></div>
+          <pre><code>ijl_apply_type            jltypes.c:1469     <span class="cm"># building the fresh type</span>
+inst_datatype_inner       jltypes.c:2275
+jl_as_global_root         staticdata.c:2975  <span class="cm"># interning its tuple parameter...</span>
+jl_idset_get              idset.c:40
+jl_smallintset_lookup     smallintset.c:137  <span class="cm"># ...into the global-roots set</span>
+<span class="hot">idset_eq                  idset.c:15         # &lt;-- crash: probing a corrupted chain</span></code></pre>
+        </div>
+
+        <div class="key">
+          <div class="kl">Why this is labelled a clear Julia bug</div>
+          <p>No user code did anything illegal. Instantiating types concurrently is supposed to be safe, and here it demonstrably is not — with <strong>zero</strong> HomotopyContinuation involved. It reproduces on <strong>both</strong> Julia 1.11.5 and 1.12.6, so it is long‑standing, not a 1.12 regression. The backtrace matches the closed issue <a href="https://github.com/JuliaLang/julia/issues/58171">JuliaLang/julia#58171</a> (filed for 1.11 / PythonCall), whose supposed fix (PR&nbsp;#57392) evidently did <strong>not</strong> fully close the concurrent path — our stdlib‑only reproducer on 1.12.6 proves it’s still live.</p>
+        </div>
+
+        <div class="who">
+          <span>Layer: Julia runtime (jltypes / idset / smallintset)</span>
+          <span>Reproduces without HC: <strong>yes</strong> — 30 lines, stdlib only</span>
+          <span>Fix owner: JuliaLang</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 ============ -->
+  <section class="sec" id="s6">
+    <div class="sechead"><span class="secno">§6</span><h2>Failure mode 3 — HC’s unlocked caches</h2></div>
+
+    <div class="bug">
+      <div class="head">
+        <span class="t">Two global <code>Dict</code>s are mutated from threads with no lock</span>
+        <span class="badge b-crit"><span class="b-dot"></span>Clear bug · HomotopyContinuation</span>
+      </div>
+      <div class="body">
+        <p>Look again at that cache from §3. <code>TSYSTEM_TABLE</code> (and its twin <code>THOMOTOPY_TABLE</code>) is a plain <code>Base.Dict</code>, and the constructor reads and writes it — <code>haskey</code>, <code>push!</code>, <code>setindex!</code> — with no synchronisation whatsoever.</p>
+
+        <div class="primer">
+          <div class="plbl">Primer · why a shared <code>Dict</code> is a landmine</div>
+          <p>Julia’s <code>Base.Dict</code> is explicitly <strong>not thread‑safe</strong>. When it fills up it rehashes into a bigger array; if a second thread reads or writes during that rehash, entries land in the wrong buckets or vanish. This is a classic <em class="term">data race</em>: no error, just silently wrong data — a <code>CompiledSystem</code> whose cache entry later resolves to the <em>wrong system</em>, or a <code>KeyError</code>, or a crash.</p>
+        </div>
+
+        <p>Measured directly, by constructing distinct systems concurrently and counting how many cache entries survive (they should all survive — construction count equals entry count with no races):</p>
+
+        <div class="twrap">
+          <table>
+            <caption>12 workers × 60,000 constructions = 720,000 expected entries, <code>-t 14</code>. Lost entries are silent time‑bombs; each one is a future wrong‑system or crash.</caption>
+            <thead><tr><th>Run</th><th>Outcome</th><th class="mono">Entries lost</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">1</td><td>completed</td><td class="cell-hang">1,761</td></tr>
+              <tr><td class="mono">2</td><td>completed</td><td class="cell-hang">2,563</td></tr>
+              <tr><td class="mono">3</td><td>completed</td><td class="cell-hang">2,196</td></tr>
+              <tr><td class="mono">4</td><td>completed</td><td class="cell-hang">20,433 <span class="quiet">(2.8%)</span></td></tr>
+              <tr><td class="mono">5</td><td class="cell-hang">HANG</td><td class="quiet">—</td></tr>
+              <tr><td class="mono">—</td><td class="cell-crash">SEGFAULT</td><td class="quiet">(idset path, as §5)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="key">
+          <div class="kl">Clear bug — but read the fine print for ODEPE</div>
+          <p>Mutating a shared <code>Base.Dict</code> without a lock is unambiguously a bug, and the fix is trivial (a <code>ReentrantLock</code> around the table — five lines). <strong>But</strong> it only bites when <em>construction</em> happens concurrently. ODEPE issues its solves one at a time, on a single task, so the writes are effectively serialised — this race is a real <em>fleet‑scale</em> hazard (many solves in one process, or any future concurrent use), not the thing freezing your sequential runs today. That distinction is the point of this whole document: <em>same code, different blast radius depending on how the layer above stresses it.</em></p>
+        </div>
+
+        <div class="who">
+          <span>Layer: HomotopyContinuation (compiled_system_homotopy.jl:1, 86)</span>
+          <span>Reproduces: yes, under concurrent construction</span>
+          <span>Bites ODEPE’s sequential path today: <strong>latent</strong></span>
+          <span>Fix owner: HomotopyContinuation</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7 ============ -->
+  <section class="sec" id="s7">
+    <div class="sechead"><span class="secno">§7</span><h2>How the three stack up</h2></div>
+    <p>None of these fires in isolation on a normal machine. The observed hang is a <em>chain</em>: a non‑bug design choice at the top drives an emergent pathology in the middle, which under load detonates a real bug at the bottom.</p>
+
+    <div class="flow bleed" aria-label="Causal chain from ignition to permanent hang">
+      <div class="stage">
+        <div class="st-top"><span class="st-n">1</span><span class="st-t">Fresh <code>CompiledSystem{(h,k)}</code> per solve</span><span class="badge b-warn"><span class="b-dot"></span>stress source</span></div>
+        <p>Coefficients in the hash ⇒ the cache never hits ⇒ a type Julia has never seen, on every solve.</p>
+      </div>
+      <div class="connector"></div>
+      <div class="stage warn">
+        <div class="st-top"><span class="st-n">2</span><span class="st-t">Compilation convoy</span><span class="badge b-warn"><span class="b-dot"></span>emergent</span></div>
+        <p>All N tracker tasks demand the fresh method’s compilation at once → they queue on <code>jl_typeinf_lock</code> while one core grinds LLVM. Minutes of frozen, near‑zero‑CPU wall time. <em>This alone is what ODEPE’s sequential runs hit.</em></p>
+      </div>
+      <div class="connector"></div>
+      <div class="stage crit">
+        <div class="st-top"><span class="st-n">3</span><span class="st-t">Runtime corruption trips</span><span class="badge b-crit"><span class="b-dot"></span>clear bug</span></div>
+        <p>That same storm of fresh‑type creation races the global‑roots idset (§5). With ≥8 threads the odds cross over: the temporary convoy becomes a permanent spin — and a spinning thread never reaches a GC safepoint, so it freezes <em>every</em> other thread too.</p>
+      </div>
+      <div class="connector"></div>
+      <div class="stage end">
+        <div class="st-top"><span class="st-n">4</span><span class="st-t">Permanent hang, or segfault</span><span class="badge b-neutral"><span class="b-dot"></span>what you see</span></div>
+        <p>Zero CPU, held for hours, “Computing mixed cells…” frozen on screen. Or, if the corrupted probe hits a bad slot instead of looping, an outright crash.</p>
+      </div>
+    </div>
+
+    <div class="primer">
+      <div class="plbl">Primer · why a spinning thread freezes the whole process</div>
+      <p>Julia’s garbage collector is “stop‑the‑world”: to run, it must pause every thread at a <em class="term">safepoint</em>. Threads reach safepoints at allocations and back‑edges. A thread stuck spinning inside a corrupted idset probe loop <em>allocates nothing</em>, so it never reaches a safepoint — and the next time any thread needs a GC, it waits forever for the spinner. One corrupted probe loop → the entire process wedged. That is the bridge from “failure mode 2” to “the whole thing is frozen.”</p>
+    </div>
+
+    <p>This chain explains all three mysteries from §1 at once. <strong>Nondeterministic</strong>: whether the idset race corrupts anything is a timing coin‑flip. <strong>Thread‑count gradient</strong>: more threads = more simultaneous type creation = higher odds the coin comes up bad — clean at 2–4, near‑certain at 14. <strong>Maintainer can’t reproduce</strong>: two threads sits below the threshold where the odds bite.</p>
+  </section>
+
+  <!-- ============ 8 ============ -->
+  <section class="sec" id="s8">
+    <div class="sechead"><span class="secno">§8</span><h2>What it is <em>not</em> — exonerations</h2></div>
+    <p>A lot of prior effort (mine included) chased suspects that turn out to be innocent. Ruling them out is part of the result, and it matters for anything we post upstream.</p>
+
+    <div class="bug">
+      <div class="head"><span class="t">MixedSubdivisions — the “Computing mixed cells” package</span><span class="badge b-good"><span class="b-dot"></span>Exonerated</span></div>
+      <div class="body"><p>A full grep of MixedSubdivisions 1.1.5 and 1.2.0 finds <strong>zero</strong> threading primitives — no <code>@spawn</code>, no <code>threadid</code>, no locks. It is entirely serial and cannot host a threading bug. Its progress meter defaults to on and HC never turns it off, so it merely happens to be the last line painted when the process freezes elsewhere. Years of suspicion, misdirected by a status line.</p></div>
+    </div>
+
+    <div class="bug">
+      <div class="head"><span class="t">The Julia scheduler / “partr notify‑race” (issue #59538)</span><span class="badge b-good"><span class="b-dot"></span>Ruled out</span></div>
+      <div class="body"><p>There <em>is</em> a real 1.12 scheduler deadlock of that family (<a href="https://github.com/JuliaLang/julia/issues/59538">#59538</a>), which briefly looked like the culprit — but it was a <em>startup</em> deadlock, fixed by PR #59583 and shipped in 1.12.1 and every release since. We’re on 1.12.6, which contains the fix. Our freeze is not a scheduler notify‑race; it’s the type‑instantiation path in §5. <span class="quiet">(This was my own leading theory for a while. It was wrong.)</span></p></div>
+    </div>
+
+    <div class="bug">
+      <div class="head"><span class="t">HC’s old <code>threadid()</code> indexing bug (issue #668)</span><span class="badge b-good"><span class="b-dot"></span>Ruled out</span></div>
+      <div class="body"><p>Fixed by HC’s PR #669 threading rework; the current 2.20 solve path has no <code>threadid</code> indexing at all.</p></div>
+    </div>
+
+    <p class="quiet">Two harmless‑but‑real oddities were also noted in passing: ProgressMeter 1.11’s <code>threadid()</code>‑based locking heuristic can garble output under task migration (corruption, not a hang), and HC’s <code>started</code> counter at <code>solve.jl:639</code> is never incremented, so an interrupted solve collects zero results (cosmetic).</p>
+  </section>
+
+  <!-- ============ 9 ============ -->
+  <section class="sec" id="s9">
+    <div class="sechead"><span class="secno">§9</span><h2>The taxonomy, and where each fix lives</h2></div>
+    <p>Pulling every finding into one table, with the label you asked for — a plain defect, versus something that only surfaces when another layer leans on it:</p>
+
+    <div class="twrap bleed">
+      <table>
+        <thead><tr><th>Finding</th><th>Layer</th><th>Classification</th><th>Bites ODEPE now?</th><th>Fix owner</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Fresh <code>{(h,k)}</code> type per solve</td>
+            <td class="mono">HC</td>
+            <td><span class="badge b-warn"><span class="b-dot"></span>Stress source</span></td>
+            <td>yes (ignites all below)</td>
+            <td>HC / ODEPE</td>
+          </tr>
+          <tr>
+            <td>Compilation convoy on <code>jl_typeinf_lock</code></td>
+            <td class="mono">Julia ← HC</td>
+            <td><span class="badge b-warn"><span class="b-dot"></span>Emergent</span></td>
+            <td><strong>yes</strong> — the sequential‑path freeze</td>
+            <td>HC (mitigable)</td>
+          </tr>
+          <tr>
+            <td>Concurrent <code>apply_type</code> corrupts idset</td>
+            <td class="mono">Julia</td>
+            <td><span class="badge b-crit"><span class="b-dot"></span>Clear bug</span></td>
+            <td>yes, under load</td>
+            <td>JuliaLang</td>
+          </tr>
+          <tr>
+            <td>Unlocked <code>TSYSTEM_TABLE</code> / <code>THOMOTOPY_TABLE</code></td>
+            <td class="mono">HC</td>
+            <td><span class="badge b-crit"><span class="b-dot"></span>Clear bug</span></td>
+            <td>latent (fleet‑scale)</td>
+            <td>HC</td>
+          </tr>
+          <tr>
+            <td>MixedSubdivisions</td>
+            <td class="mono">—</td>
+            <td><span class="badge b-good"><span class="b-dot"></span>Exonerated</span></td>
+            <td>no</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Fixes, from deepest to most immediate</h3>
+    <p><strong>JuliaLang (the deepest bug).</strong> Report the concurrent‑<code>apply_type</code> / global‑roots race with <code>typeinst_control.jl</code> — a 30‑line, dependency‑free reproducer with a clean thread‑count gradient on 1.11.5 and 1.12.6. This is the fix that would help every package, not just HC. Attach to / reopen the #58171 thread.</p>
+    <p><strong>HomotopyContinuation.</strong> Two things: (a) put a lock around the two cache <code>Dict</code>s — a clean five‑line PR that closes the §6 corruption; (b) more importantly for the convoy, compile the <code>CompiledSystem</code> evaluator <em>once on the setup task, before</em> the tracker tasks are spawned — that serialises the unavoidable compile onto one thread instead of an N‑way pile‑up on <code>jl_typeinf_lock</code>, keeping the fast‑evaluation design intact. Note honestly: the <code>(h,k)</code>‑in‑the‑type trick can’t simply become a field, because it’s what drives per‑system codegen — so the per‑distinct‑system compile cost is somewhat inherent; the real lever is <em>not paying it N times concurrently per solve</em>.</p>
+    <p><strong>ODEPE, to unblock today</strong> (without giving up threads):</p>
+    <ul>
+      <li><strong>Switch to interpreted systems</strong> (<code>compile=:none</code>). No per‑system codegen means no convoy and no fresh‑type storm at all. For one‑shot, coefficient‑varying solves this is often <em>faster overall</em>, because it skips the compile you were never able to amortise — worth a direct benchmark.</li>
+      <li><strong>Re‑cast as a parameter homotopy</strong> — put the varying coefficients in as HC <em>parameters</em> rather than baked constants, so the structure is fixed, the hash is stable, and exactly <em>one</em> compiled type is reused across all solves. The γ‑straight / generic‑start work already leans this way.</li>
+      <li><strong>Last resort only:</strong> one thread per solver process. It dodges the bug but throws away the measured 2.63× — which is precisely the trade we’re trying <em>not</em> to make.</li>
+    </ul>
+
+    <hr class="soft">
+    <h3>Environment &amp; evidence</h3>
+    <div class="meta">
+      <div class="m"><div class="k">Julia</div><div class="v">1.12.6</div></div>
+      <div class="m"><div class="k">also repro’d</div><div class="v">1.11.5</div></div>
+      <div class="m"><div class="k">HomotopyContinuation</div><div class="v">2.20.0</div></div>
+      <div class="m"><div class="k">MixedSubdivisions</div><div class="v">1.2.0</div></div>
+      <div class="m"><div class="k">ProgressMeter</div><div class="v">1.11.0</div></div>
+      <div class="m"><div class="k">Hardware</div><div class="v">14‑core Ryzen</div></div>
+      <div class="m"><div class="k">OS</div><div class="v">Linux / WSL2</div></div>
+      <div class="m"><div class="k">Hunt volume</div><div class="v">≈18,600 solves</div></div>
+    </div>
+    <p class="quiet">Reproducers and raw captures live in <code>repro/hc_threading_mwe_2026_07_22/</code>: <code>typeinst_control.jl</code> (JuliaLang MWE), <code>mwe_tsystem_race.jl</code> (HC cache MWE), and <code>hangs/</code> (gdb + <code>/proc</code> dumps for the convoy and the crash). Related upstream threads: HC <a href="https://github.com/JuliaHomotopyContinuation/HomotopyContinuation.jl/issues/702">#702</a> (this exact environment), <a href="https://github.com/JuliaHomotopyContinuation/HomotopyContinuation.jl/issues/594">#594</a>, <a href="https://github.com/JuliaHomotopyContinuation/HomotopyContinuation.jl/issues/668">#668</a>; Julia <a href="https://github.com/JuliaLang/julia/issues/58171">#58171</a>.</p>
+  </section>
+
+  <footer>
+    <p><strong>Anatomy of a Threading Hang</strong> — a from‑scratch walkthrough of the HomotopyContinuation × Julia 1.12 multithreaded freeze. Root‑caused and independently verified 2026‑07‑22. Colours encode the taxonomy: <span style="color:var(--crit);font-weight:600">clear bug</span>, <span style="color:var(--warn);font-weight:600">stress‑surfaced</span>, <span style="color:var(--good);font-weight:600">exonerated / fix</span>.</p>
+  </footer>
+</main>
+
+<script>
+  (function(){
+    var prog=document.getElementById('prog');
+    function onScroll(){
+      var h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+      var p=max>0?(h.scrollTop||document.body.scrollTop)/max:0;
+      prog.style.width=(p*100).toFixed(1)+'%';
+    }
+    document.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+      a.addEventListener('click',function(e){
+        var t=document.querySelector(a.getAttribute('href'));
+        if(t){e.preventDefault();
+          var reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+          t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+          history.replaceState(null,'',a.getAttribute('href'));
+        }
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,16 @@
+{
+  "schema_version": "julia-termination-ladder-invalidation-v1",
+  "final_matrix": false,
+  "invalid_records": [
+    {
+      "case": "odepe_idle",
+      "repetition": 1,
+      "reason": "The global base checkout performed a cold precompile containing its hidden estimation workload while another full-suite run was active. The process never emitted READY, so this is not an import-then-Event-wait termination trial."
+    }
+  ],
+  "notes": [
+    "The directory was produced by an interrupted preliminary run and is incomplete.",
+    "No invalid ODEPE record may be counted in the final 3x3 matrix.",
+    "The preliminary process exited after the READY timeout on SIGTERM without SIGKILL."
+  ]
+}

@@ -1,0 +1,21 @@
+Historical ODEPE compiler GDB attempt
+Timestamp: 2026-07-24T07:23:57-04:00
+Target PID: 1686904
+
+Command:
+
+gdb -batch -nx -ex 'set pagination off' -ex 'set confirm off' \
+    -ex 'info threads' -ex 'thread apply all bt' -ex 'detach' -p 1686904
+
+Result: GDB exited 1 without attaching.
+
+Could not attach to process.  If your uid matches the uid of the target
+process, check the setting of /proc/sys/kernel/yama/ptrace_scope, or try
+again as the root user.  For more details, see /etc/sysctl.d/10-ptrace.conf
+ptrace: Inappropriate ioctl for device.
+The program is not being run.
+No threads.
+
+No signal was sent by this investigation. A host-level ps/ps -L snapshot
+immediately afterward found the process unaffected, with the same command,
+1m25s cumulative CPU, 2,272,232 KiB RSS, and three-thread wait pattern.

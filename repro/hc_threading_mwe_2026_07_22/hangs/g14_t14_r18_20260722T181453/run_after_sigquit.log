@@ -1,0 +1,120 @@
+HUNT start  nthreads=14  nsolves=40  seed_base=1821045  shape=mix  pid=2514337  2026-07-22T18:04:04.629
+ATTEMPT 1 START n=8 d=2 seed=1821046 neq=8 2026-07-22T18:04:32.272
+Computing mixed cells... 2    Time: 0:00:03[K
+   mixed_volume: 3[K[A
+[K[AComputing mixed cells... 64    Time: 0:00:03[K
+   mixed_volume: 256[K
+ATTEMPT 1 DONE  n=8 d=2 seed=1821046 nsol=256  118.25s  2026-07-22T18:06:31.275
+ATTEMPT 2 START n=10 d=2 seed=1821047 neq=10 2026-07-22T18:06:32.118
+ATTEMPT 2 DONE  n=10 d=2 seed=1821047 nsol=1024  71.88s  2026-07-22T18:07:44.004
+ATTEMPT 3 START n=9 d=2 seed=1821048 neq=9 2026-07-22T18:07:44.007
+ATTEMPT 3 DONE  n=9 d=2 seed=1821048 nsol=512  68.13s  2026-07-22T18:08:52.143
+ATTEMPT 4 START n=7 d=3 seed=1821049 neq=7 2026-07-22T18:08:52.147
+ATTEMPT 4 DONE  n=7 d=3 seed=1821049 nsol=2187  177.04s  2026-07-22T18:11:49.187
+ATTEMPT 5 START n=11 d=2 seed=1821050 neq=11 2026-07-22T18:11:49.210
+
+[2514337] signal 3: Quit
+==== Thread 1 created 2 live tasks
+     ---- Root task (0x779ac8dfc010)
+          (sticky: 1, started: 1, state: 0, tid: 1)
+jl_record_backtrace at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1299
+jlbacktracet at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1398
+jl_print_task_backtraces at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/stackwalk.c:1441
+jl_critical_error at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/signal-handling.c:640
+jl_exit_thread0_cb at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/signals-unix.c:563
+     ---- End root task
+     ---- Task 1 (0x779acab2e2c0)
+          (sticky: 1, started: 1, state: 0, tid: 1)
+jl_swap_fiber at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1348
+ctx_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:587
+ijl_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:690
+try_yieldto at ./task.jl:1143
+wait at ./task.jl:1229
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+#start_gc_msgs_task##2 at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/Distributed/src/remotecall.jl:281 [inlined]
+lock at ./lock.jl:335
+lock at ./condition.jl:80 [inlined]
+#start_gc_msgs_task##0 at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/Distributed/src/remotecall.jl:279
+unknown function (ip: 0x779a2cdaefbf) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 1
+==== Thread 2 created 1 live tasks
+     ---- Task 1 (0x7799f42bc1f0)
+          (sticky: 0, started: 1, state: 0, tid: 2)
+unknown function (ip: 0x779ae2898d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x779ac79992f9) at (unknown file)
+unknown function (ip: 0x779ac7998df2) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:260 [inlined]
+#track!#165 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:306 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:297 [inlined]
+#track#168 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:902 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:515
+unknown function (ip: 0x779ac799585b) at (unknown file)
+unknown function (ip: 0x779ac79932c9) at (unknown file)
+unknown function (ip: 0x779ac799328f) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x779ac7992ba7) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 2
+==== Thread 3 created 1 live tasks
+     ---- Task 1 (0x7799f42bc2e0)
+          (sticky: 0, started: 1, state: 0, tid: 3)
+unknown function (ip: 0x779ae2898d6f) at /lib/x86_64-linux-gnu/libc.so.6
+pthread_cond_wait at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+wait at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131 [inlined]
+jl_compile_codeinst_now at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+jl_compile_codeinst_impl at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+jl_fptr_wait_for_compiled at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+unknown function (ip: 0x779ac79992f9) at (unknown file)
+unknown function (ip: 0x779ac7998df2) at (unknown file)
+init! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:260 [inlined]
+#track!#165 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:306 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:297 [inlined]
+#track#168 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/endgame_tracker.jl:902 [inlined]
+#track#249 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:515
+unknown function (ip: 0x779ac799585b) at (unknown file)
+unknown function (ip: 0x779ac79932c9) at (unknown file)
+unknown function (ip: 0x779ac799328f) at (unknown file)
+track at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/polyhedral.jl:414 [inlined]
+#307 at /home/orebas/.julia/packages/HomotopyContinuation/98yZ2/src/solve.jl:669
+unknown function (ip: 0x779ac7992ba7) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+==== End thread 3
+==== Thread 4 created 2 live tasks
+     ---- Task 1 (0x779ac8dfc3d0)
+          (sticky: 0, started: 1, state: 0, tid: 0)
+jl_start_fiber_swap at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1438
+ctx_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:650
+ijl_switch at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:690
+try_yieldto at ./task.jl:1143
+wait at ./task.jl:1229
+#wait#398 at ./condition.jl:141
+wait at ./condition.jl:136 [inlined]
+_trywait at ./asyncevent.jl:185
+profile_printing_listener at ./Base.jl:332
+#start_profile_listener##0 at ./Base.jl:352
+jfptr_YY.start_profile_listenerYY.YY.0_16003.1 at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+start_task at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+     ---- End task 1
+     ---- Task 2 (0x7799f42bcd30)
+          (sticky: 0, started: 1, state: 0, tid: 4)
+_ZN12_GLOBAL__N_18EarlyCSE3runEv at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)
+_ZN4llvm12EarlyCSEPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl (unknown line)

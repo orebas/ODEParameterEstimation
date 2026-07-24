@@ -1,0 +1,804 @@
+[New LWP 2579444]
+[New LWP 2579443]
+[New LWP 2579442]
+[New LWP 2579441]
+[New LWP 2579440]
+[New LWP 2579439]
+[New LWP 2579438]
+[New LWP 2579437]
+[New LWP 2579436]
+[New LWP 2579435]
+[New LWP 2579434]
+[New LWP 2579433]
+[New LWP 2579432]
+[New LWP 2579431]
+[New LWP 2579430]
+[New LWP 2579429]
+[New LWP 2579428]
+[New LWP 2579427]
+[New LWP 2579426]
+[New LWP 2579425]
+[New LWP 2579424]
+[New LWP 2579423]
+[New LWP 2579422]
+[New LWP 2579421]
+[New LWP 2579420]
+[New LWP 2579419]
+[New LWP 2579418]
+[New LWP 2579417]
+[New LWP 2579416]
+[New LWP 2579415]
+[New LWP 2579414]
+[New LWP 2579413]
+[New LWP 2579412]
+[New LWP 2579334]
+[New LWP 2579331]
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29525, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:57
+
+warning: 57	./nptl/futex-internal.c: No such file or directory
+
+Thread 36 (Thread 0x7355250c9140 (LWP 2579331) "iou-sqp-23435"):
+#0  0x0000000000000000 in ?? ()
+Backtrace stopped: Cannot access memory at address 0x0
+
+Thread 35 (Thread 0x7355101ff6c0 (LWP 2579334) "julia"):
+#0  0x0000735524e45fc8 in __GI___sigtimedwait (set=set@entry=0x7355101fe9e0, info=info@entry=0x7355101fea60, timeout=timeout@entry=0x0) at ../sysdeps/unix/sysv/linux/sigtimedwait.c:31
+#1  0x0000735524e4602b in __GI___sigwaitinfo (set=set@entry=0x7355101fe9e0, info=info@entry=0x7355101fea60) at ../sysdeps/unix/sysv/linux/sigwaitinfo.c:25
+#2  0x00007355242bef38 in signal_listener (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/signals-unix.c:975
+#3  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#4  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 34 (Thread 0x7355097fc6c0 (LWP 2579412) "julia"):
+#0  0x000073551fe2e2ab in llvm::slpvectorizer::BoUpSLP::getSpillCost() const () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#1  0x000073551fe711bb in llvm::slpvectorizer::BoUpSLP::getTreeCost(llvm::ArrayRef<llvm::Value*>) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#2  0x000073551fe85ef5 in llvm::SLPVectorizerPass::tryToVectorizeList(llvm::ArrayRef<llvm::Value*>, llvm::slpvectorizer::BoUpSLP&, bool) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#3  0x000073551fe884f6 in llvm::SLPVectorizerPass::tryToVectorize(llvm::Instruction*, llvm::slpvectorizer::BoUpSLP&) [clone .part.0] () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#4  0x000073551fe88851 in llvm::SLPVectorizerPass::tryToVectorize(llvm::ArrayRef<llvm::WeakTrackingVH>, llvm::slpvectorizer::BoUpSLP&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#5  0x000073551fe8dd04 in llvm::SLPVectorizerPass::vectorizeInserts(llvm::SmallSetVector<llvm::Instruction*, 8u>&, llvm::BasicBlock*, llvm::slpvectorizer::BoUpSLP&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#6  0x000073551fe8ee36 in llvm::SLPVectorizerPass::vectorizeChainsInBlock(llvm::BasicBlock*, llvm::slpvectorizer::BoUpSLP&)::{lambda(bool)#4}::operator()(bool) const () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#7  0x000073551fe92284 in llvm::SLPVectorizerPass::vectorizeChainsInBlock(llvm::BasicBlock*, llvm::slpvectorizer::BoUpSLP&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#8  0x000073551fe9338d in llvm::SLPVectorizerPass::runImpl(llvm::Function&, llvm::ScalarEvolution*, llvm::TargetTransformInfo*, llvm::TargetLibraryInfo*, llvm::AAResults*, llvm::LoopInfo*, llvm::DominatorTree*, llvm::AssumptionCache*, llvm::DemandedBits*, llvm::OptimizationRemarkEmitter*) [clone .part.0] () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#9  0x000073551fe93fe3 in llvm::SLPVectorizerPass::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#10 0x0000735523d8f936 in llvm::detail::PassModel<llvm::Function, llvm::SLPVectorizerPass, llvm::PreservedAnalyses, llvm::AnalysisManager<llvm::Function>>::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) (this=<optimized out>, IR=..., AM=...) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+#11 0x0000735523d9ba41 in llvm::PassManager<llvm::Function, llvm::AnalysisManager<llvm::Function>>::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) (AM=..., IR=..., this=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManager.h:543
+#12 llvm::detail::PassModel<llvm::Function, llvm::PassManager<llvm::Function, llvm::AnalysisManager<llvm::Function>>, llvm::PreservedAnalyses, llvm::AnalysisManager<llvm::Function>>::run(llvm::Function&, llvm::AnalysisManager<llvm::Function>&) (this=<optimized out>, IR=..., AM=...) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+#13 0x000073551e6992ec in llvm::ModuleToFunctionPassAdaptor::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#14 0x0000735523d90106 in llvm::detail::PassModel<llvm::Module, llvm::ModuleToFunctionPassAdaptor, llvm::PreservedAnalyses, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) (this=<optimized out>, IR=..., AM=...) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/IR/PassManagerInternal.h:89
+#15 0x000073551e69b083 in llvm::PassManager<llvm::Module, llvm::AnalysisManager<llvm::Module>>::run(llvm::Module&, llvm::AnalysisManager<llvm::Module>&) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#16 0x0000735523d8c879 in NewPM::run (this=this@entry=0x7354c800e160, M=...) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/pipeline.cpp:741
+#17 0x0000735523cfb292 in <lambda(llvm::Module&)>::operator()(llvm::Module &) (M=..., this=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1459
+#18 0x0000735523cfbb82 in llvm::orc::ThreadSafeModule::withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > (F=..., this=0x7354189fdab0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136
+#19 (anonymous namespace)::sizedOptimizerT<4>::operator() (TSM=..., this=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1420
+#20 JuliaOJIT::OptimizerT::operator() (TSM=..., this=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:1572
+#21 JuliaOJIT::addModule (this=0x14c84b10, TSM=...) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:2031
+#22 0x0000735523cfd25c in jl_compile_codeinst_now (codeinst=<optimized out>, codeinst@entry=0x73543ebeeec0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:626
+#23 0x0000735523cfeb20 in jl_compile_codeinst_impl (ci=0x73543ebeeec0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+#24 0x0000735524248e33 in jl_fptr_wait_for_compiled (f=0x7354455b3d20 <jl_system_image_data+1558240>, args=0x7354189fdd48, nargs=<optimized out>, m=0x73543ebeeec0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3611
+#25 0x000073544f5e2d5a in ?? ()
+#26 0x00007354189fdf50 in ?? ()
+#27 0x000073544f5e2670 in ?? ()
+#28 0x000073542eae6920 in ?? ()
+#29 0x0000735420e81590 in ?? ()
+#30 0x0000735420e815a0 in ?? ()
+#31 0x0000735420e815b0 in ?? ()
+#32 0x0000735420e815d0 in ?? ()
+#33 0x000073551d38d680 in jl_system_image_data () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#34 0x000073551d38d680 in jl_system_image_data () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#35 0x00007354455f3e60 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#36 0x000073542b58fa10 in ?? ()
+#37 0x000073550ebd0430 in ?? ()
+#38 0x0000735420e815e0 in ?? ()
+#39 0x0000735420e815f0 in ?? ()
+#40 0x0000000000000024 in ?? ()
+#41 0x00007354189fe110 in ?? ()
+#42 0x0000735420e815f0 in ?? ()
+#43 0x0000735420e815e0 in ?? ()
+#44 0x000073542b58fa10 in ?? ()
+#45 0x000073551d38d680 in jl_system_image_data () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#46 0x000073551d38d680 in jl_system_image_data () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#47 0x0000735420e815d0 in ?? ()
+#48 0x0000735420e815b0 in ?? ()
+#49 0x0000735420e815a0 in ?? ()
+#50 0x0000735420e81590 in ?? ()
+#51 0x000073550ebd0430 in ?? ()
+#52 0x3feccccccccccccd in ?? ()
+#53 0x0000000000000000 in ?? ()
+
+Thread 33 (Thread 0x735508ffb6c0 (LWP 2579413) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29525, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29525, abstime=0x0, clockid=0, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735523deca4c <engine_wait+44>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735523deca60 <engine_lock>, cond=0x735523deca20 <engine_wait>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735523deca20 <engine_wait>, mutex=0x735523deca60 <engine_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x0000735523cfd86b in jl_unique_gcsafe_lock::wait (cond=..., this=0x7354171fdbd0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131
+#6  jl_compile_codeinst_now (codeinst=<optimized out>, codeinst@entry=0x73543e664880) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+#7  0x0000735523cfeb20 in jl_compile_codeinst_impl (ci=0x73543e664880) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+#8  0x00007355242543e2 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+#9  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354171fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#10 ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354171fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#11 0x000073544f5e2d1a in ?? ()
+#12 0x00007354171fdf50 in ?? ()
+#13 0x000073544f5e1fb1 in ?? ()
+#14 0x000073547414b800 in ?? ()
+#15 0x000073550f344020 in ?? ()
+#16 0x000073550f400008 in ?? ()
+#17 0x00007354455cf6b0 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#18 0x000073542fe78010 in ?? ()
+#19 0x0000735443a6d650 in ?? ()
+#20 0x0000735443a6df90 in ?? ()
+#21 0x000073543b48efe0 in ?? ()
+#22 0x0000000000000008 in ?? ()
+#23 0x00007354171fe110 in ?? ()
+#24 0x000073542fe78010 in ?? ()
+#25 0x000073550f344020 in ?? ()
+#26 0x00007354171fe0d8 in ?? ()
+#27 0x0000735443a6df90 in ?? ()
+#28 0x0000735443a6d650 in ?? ()
+#29 0x000073543b48efe0 in ?? ()
+#30 0x0000735442f3a150 in ?? ()
+#31 0x0000735442f3a3d0 in ?? ()
+#32 0x0000735442f3a850 in ?? ()
+#33 0x000073550f400008 in ?? ()
+#34 0x0000735422fe38e0 in ?? ()
+#35 0x000073543f440bb0 in ?? ()
+#36 0x0000735443b9ee50 in ?? ()
+#37 0x0000735443b9eeb0 in ?? ()
+#38 0x0000735443b9ef10 in ?? ()
+#39 0x0000735443b9f010 in ?? ()
+#40 0x0000735443b9f070 in ?? ()
+#41 0x0000735443b9f110 in ?? ()
+#42 0x0000735443b9f170 in ?? ()
+#43 0x0000735443b9f1d0 in ?? ()
+#44 0x0000735443b9f210 in ?? ()
+#45 0x0000735443b9f250 in ?? ()
+#46 0x000073543ed8dc30 in ?? ()
+#47 0x000073543ed8dc30 in ?? ()
+#48 0x000073543ed8dc30 in ?? ()
+#49 0x000073550f400008 in ?? ()
+#50 0x0000735443a6df90 in ?? ()
+#51 0x0000735443a6d650 in ?? ()
+#52 0x0000735443b9f210 in ?? ()
+#53 0x00007354171fe9d0 in ?? ()
+#54 0x00007354171fe9c0 in ?? ()
+#55 0x000073544f5dfb54 in ?? ()
+#56 0x00007354740f9610 in ?? ()
+#57 0xffffffffffffff80 in ?? ()
+#58 0x0000000000000000 in ?? ()
+
+Thread 32 (Thread 0x7355087fa6c0 (LWP 2579414) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c010, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c010, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354169fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354169fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354169fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x000073546c026b80 in ?? ()
+#11 0x000073550f34c020 in ?? ()
+#12 0x000073550f400008 in ?? ()
+#13 0x00007354455cf6b0 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#14 0x000073543c9d0010 in ?? ()
+#15 0x00007354437210f0 in ?? ()
+#16 0x00007354437214f0 in ?? ()
+#17 0x000073543b1a0d00 in ?? ()
+#18 0x0000000000000008 in ?? ()
+#19 0x00007354169fe110 in ?? ()
+#20 0x000073543c9d0010 in ?? ()
+#21 0x000073550f34c020 in ?? ()
+#22 0x00007354169fe0d8 in ?? ()
+#23 0x00007354437214f0 in ?? ()
+#24 0x00007354437210f0 in ?? ()
+#25 0x000073543b1a0d00 in ?? ()
+#26 0x0000735443a6e4f0 in ?? ()
+#27 0x0000735443a6e770 in ?? ()
+#28 0x0000735443a6ebf0 in ?? ()
+#29 0x000073550f400008 in ?? ()
+#30 0x000073542305b090 in ?? ()
+#31 0x000073543f441a50 in ?? ()
+#32 0x0000735443772750 in ?? ()
+#33 0x00007354437727b0 in ?? ()
+#34 0x0000735443772810 in ?? ()
+#35 0x0000735443772910 in ?? ()
+#36 0x0000735443772970 in ?? ()
+#37 0x0000735443772a10 in ?? ()
+#38 0x0000735443772a70 in ?? ()
+#39 0x0000735443772ad0 in ?? ()
+#40 0x0000735443772b10 in ?? ()
+#41 0x0000735443772b50 in ?? ()
+#42 0x000073543ed8ee60 in ?? ()
+#43 0x000073543ed8ee60 in ?? ()
+#44 0x000073543ed8ee60 in ?? ()
+#45 0x000073550f400008 in ?? ()
+#46 0x00007354437214f0 in ?? ()
+#47 0x00007354437210f0 in ?? ()
+#48 0x0000735443772b10 in ?? ()
+#49 0x00007354169fe9d0 in ?? ()
+#50 0x00007354169fe9c0 in ?? ()
+#51 0x000073544f5dfb54 in ?? ()
+#52 0x000073546c0d4910 in ?? ()
+#53 0xffffffffffffff80 in ?? ()
+#54 0x0000000000000000 in ?? ()
+
+Thread 31 (Thread 0x7354fffff6c0 (LWP 2579415) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c100, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c100, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354161fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354161fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354161fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x00007354f029ca60 in ?? ()
+#11 0x000073550f2e0020 in ?? ()
+#12 0x000073550f400008 in ?? ()
+#13 0x00007354455cf6b0 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#14 0x000073542bbe4010 in ?? ()
+#15 0x0000735443510830 in ?? ()
+#16 0x0000735443510bd0 in ?? ()
+#17 0x000073543b1a0d00 in ?? ()
+#18 0x0000000000000008 in ?? ()
+#19 0x00007354161fe110 in ?? ()
+#20 0x000073542bbe4010 in ?? ()
+#21 0x000073550f2e0020 in ?? ()
+#22 0x00007354161fe0d8 in ?? ()
+#23 0x0000735443510bd0 in ?? ()
+#24 0x0000735443510830 in ?? ()
+#25 0x000073543b1a0d00 in ?? ()
+#26 0x0000735443721a50 in ?? ()
+#27 0x0000735443721cd0 in ?? ()
+#28 0x0000735443722210 in ?? ()
+#29 0x000073550f400008 in ?? ()
+#30 0x0000735423066420 in ?? ()
+#31 0x000073543f442a70 in ?? ()
+#32 0x0000735443509cf0 in ?? ()
+#33 0x0000735443509d50 in ?? ()
+#34 0x0000735443509db0 in ?? ()
+#35 0x0000735443509eb0 in ?? ()
+#36 0x0000735443509f10 in ?? ()
+#37 0x0000735443509fb0 in ?? ()
+#38 0x000073544350a010 in ?? ()
+#39 0x000073544350a070 in ?? ()
+#40 0x000073544350a0b0 in ?? ()
+#41 0x000073544350a0f0 in ?? ()
+#42 0x000073543ed74580 in ?? ()
+#43 0x000073543ed74580 in ?? ()
+#44 0x000073543ed74580 in ?? ()
+#45 0x000073550f400008 in ?? ()
+#46 0x0000735443510bd0 in ?? ()
+#47 0x0000735443510830 in ?? ()
+#48 0x000073544350a0b0 in ?? ()
+#49 0x00007354161fe9d0 in ?? ()
+#50 0x00007354161fe9c0 in ?? ()
+#51 0x000073544f5dfb54 in ?? ()
+#52 0x00007354161fdfb0 in ?? ()
+#53 0x0000735524eab43a in _int_free (av=0x7354161fe9d0, p=<optimized out>, have_lock=<optimized out>) at ./malloc/malloc.c:4646
+Backtrace stopped: previous frame inner to this frame (corrupt stack?)
+
+Thread 30 (Thread 0x735507ff96c0 (LWP 2579416) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c1f0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c1f0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354159fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354159fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354159fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 29 (Thread 0x7355077f86c0 (LWP 2579417) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c2e0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c2e0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354151fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354151fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354151fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 28 (Thread 0x735506ff76c0 (LWP 2579418) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c3d0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c3d0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354149fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354149fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354149fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 27 (Thread 0x7355067f66c0 (LWP 2579419) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c6a0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c6a0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354141fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354141fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354141fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 26 (Thread 0x735505ff56c0 (LWP 2579420) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7c790, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:971
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c790, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354139fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354139fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354139fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 25 (Thread 0x7355057f46c0 (LWP 2579421) "julia"):
+#0  0x00007355242b286a in _jl_mutex_wait (self=self@entry=0x73543fd7c880, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:953
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7c880, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354131fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354131fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354131fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 24 (Thread 0x735504ff36c0 (LWP 2579422) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fd7ca60, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fd7ca60, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354129fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354129fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354129fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000000 in ?? ()
+
+Thread 23 (Thread 0x7354ff7fe6c0 (LWP 2579423) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735523deca4c <engine_wait+44>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735523deca60 <engine_lock>, cond=0x735523deca20 <engine_wait>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735523deca20 <engine_wait>, mutex=0x735523deca60 <engine_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x0000735523cfd86b in jl_unique_gcsafe_lock::wait (cond=..., this=0x7354121fdbd0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131
+#6  jl_compile_codeinst_now (codeinst=<optimized out>, codeinst@entry=0x73543e664880) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+#7  0x0000735523cfeb20 in jl_compile_codeinst_impl (ci=0x73543e664880) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+#8  0x00007355242543e2 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+#9  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354121fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#10 ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354121fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#11 0x000073544f5e2d1a in ?? ()
+#12 0x00007354121fdf50 in ?? ()
+#13 0x000073544f5e1fb1 in ?? ()
+#14 0x0000000000000000 in ?? ()
+
+Thread 22 (Thread 0x7354feffd6c0 (LWP 2579424) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fe47df0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fe47df0, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354179fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354179fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354179fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000000000000080 in ?? ()
+#11 0x000073550f33c020 in ?? ()
+#12 0x000073550f400008 in ?? ()
+#13 0x00007354455cf6b0 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#14 0x000073542a5c8010 in ?? ()
+#15 0x0000735442f39870 in ?? ()
+#16 0x0000735442f39bf0 in ?? ()
+#17 0x000073543b1a0d60 in ?? ()
+#18 0x0000000000000008 in ?? ()
+#19 0x00007354179fe110 in ?? ()
+#20 0x000073542a5c8010 in ?? ()
+#21 0x000073550f33c020 in ?? ()
+#22 0x00007354179fe0d8 in ?? ()
+#23 0x0000735442f39bf0 in ?? ()
+#24 0x0000735442f39870 in ?? ()
+#25 0x000073543b1a0d60 in ?? ()
+#26 0x0000735442ecdfd0 in ?? ()
+#27 0x0000735442ece250 in ?? ()
+#28 0x0000735442ece6d0 in ?? ()
+#29 0x000073550f400008 in ?? ()
+#30 0x0000735422f98010 in ?? ()
+#31 0x000073543f4c3c10 in ?? ()
+#32 0x0000735442f43030 in ?? ()
+#33 0x0000735442f43090 in ?? ()
+#34 0x0000735442f430f0 in ?? ()
+#35 0x0000735442f431f0 in ?? ()
+#36 0x0000735442f43250 in ?? ()
+#37 0x0000735442f432f0 in ?? ()
+#38 0x0000735442f43350 in ?? ()
+#39 0x0000735442f433b0 in ?? ()
+#40 0x0000735442f433f0 in ?? ()
+#41 0x0000735442f43430 in ?? ()
+#42 0x000073543ed8c7c0 in ?? ()
+#43 0x000073543ed8c7c0 in ?? ()
+#44 0x000073543ed8c7c0 in ?? ()
+#45 0x000073550f400008 in ?? ()
+#46 0x0000735442f39bf0 in ?? ()
+#47 0x0000735442f39870 in ?? ()
+#48 0x0000735442f433f0 in ?? ()
+#49 0x00007354179fe9d0 in ?? ()
+#50 0x00007354179fe9c0 in ?? ()
+#51 0x000073544f5dfb54 in ?? ()
+#52 0x00007354c81c4290 in ?? ()
+#53 0x00007354179fdfe8 in ?? ()
+#54 0x00007354c80919f0 in ?? ()
+#55 0x0000735422f98010 in ?? ()
+#56 0x0000735442f431f0 in ?? ()
+#57 0x0000735442f433b0 in ?? ()
+#58 0x0000735442f43030 in ?? ()
+#59 0x000073543f4c3c10 in ?? ()
+#60 0x000073550f400008 in ?? ()
+#61 0x00007354440182f0 in ?? ()
+#62 0x0000735442ece6d0 in ?? ()
+#63 0x0000735520387459 in llvm::MCObjectStreamer::emitValueImpl(llvm::MCExpr const*, unsigned int, llvm::SMLoc) () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#64 0x000073551f080580 in llvm::AsmPrinter::emitDwarfDIE(llvm::DIE const&) const () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.18.1jl
+#65 0x0000000000000000 in ?? ()
+
+Thread 21 (Thread 0x7354fe7fc6c0 (LWP 2579425) "julia"):
+#0  _jl_mutex_wait (self=self@entry=0x73543fe47d00, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>, safepoint=safepoint@entry=1) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:974
+#1  0x00007355242b29b3 in _jl_mutex_lock (self=self@entry=0x73543fe47d00, lock=lock@entry=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/threading.c:1002
+#2  0x0000735524255c03 in jl_mutex_lock (lock=0x73552456d530 <jl_typeinf_lock>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:65
+#3  jl_type_infer (mi=mi@entry=0x73543789cf10, world=world@entry=38879, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:464
+#4  0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543789cf10, world=world@entry=38879) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#5  0x0000735524254ffd in _jl_invoke (world=<optimized out>, mfunc=0x73543789cf10, nargs=7, args=0x7354181fde18, F=0x7354455cf4a0 <jl_system_image_data+1670752>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#6  ijl_invoke (F=0x7354455cf4a0 <jl_system_image_data+1670752>, args=0x7354181fde18, nargs=7, mfunc=0x73543789cf10) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4021
+#7  0x000073544f5e2d1a in ?? ()
+#8  0x00007354181fdf50 in ?? ()
+#9  0x000073544f5e1fb1 in ?? ()
+#10 0x0000735484115ad0 in ?? ()
+#11 0x000073550f364020 in ?? ()
+#12 0x000073550f400008 in ?? ()
+#13 0x00007354455cf6b0 in jl_system_image_data () from /home/orebas/.julia/compiled/v1.12/HomotopyContinuation/bmV6V_vj51v.so
+#14 0x000073543e8c0010 in ?? ()
+#15 0x0000735443195f30 in ?? ()
+#16 0x0000735442e71290 in ?? ()
+#17 0x000073543b1a0d60 in ?? ()
+#18 0x0000000000000008 in ?? ()
+#19 0x00007354181fe110 in ?? ()
+#20 0x000073543e8c0010 in ?? ()
+#21 0x000073550f364020 in ?? ()
+#22 0x00007354181fe0d8 in ?? ()
+#23 0x0000735442e71290 in ?? ()
+#24 0x0000735443195f30 in ?? ()
+#25 0x000073543b1a0d60 in ?? ()
+#26 0x000073550db599f0 in ?? ()
+#27 0x000073550ce22230 in ?? ()
+#28 0x000073550ce226b0 in ?? ()
+#29 0x000073550f400008 in ?? ()
+#30 0x0000735422980360 in ?? ()
+#31 0x000073544291e1d0 in ?? ()
+#32 0x000073550cc3ddd0 in ?? ()
+#33 0x000073550c56ff70 in ?? ()
+#34 0x000073550c5f4050 in ?? ()
+#35 0x000073550c5f4190 in ?? ()
+#36 0x000073550c5f41f0 in ?? ()
+#37 0x000073550c5f4290 in ?? ()
+#38 0x000073550c5f42f0 in ?? ()
+#39 0x000073550c5f4350 in ?? ()
+#40 0x000073550c5f4390 in ?? ()
+#41 0x000073550c5f43d0 in ?? ()
+#42 0x00007354408de800 in ?? ()
+#43 0x00007354408de800 in ?? ()
+#44 0x00007354408de800 in ?? ()
+#45 0x000073550f400008 in ?? ()
+#46 0x0000735442e71290 in ?? ()
+#47 0x0000735443195f30 in ?? ()
+#48 0x000073550c5f4390 in ?? ()
+#49 0x00007354181fe9d0 in ?? ()
+#50 0x00007354181fe9c0 in ?? ()
+#51 0x000073544f5dfb54 in ?? ()
+#52 0x0000735484131c60 in ?? ()
+#53 0xffffffffffffff80 in ?? ()
+#54 0x0000000000000000 in ?? ()
+
+Thread 20 (Thread 0x7354fdffb6c0 (LWP 2579426) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 19 (Thread 0x7354fd7fa6c0 (LWP 2579427) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 18 (Thread 0x7354fcff96c0 (LWP 2579428) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 17 (Thread 0x7354fc7f86c0 (LWP 2579429) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 16 (Thread 0x7354fbff76c0 (LWP 2579430) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 15 (Thread 0x7354fb7f66c0 (LWP 2579431) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 14 (Thread 0x7354faff56c0 (LWP 2579432) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 13 (Thread 0x7354fa7f46c0 (LWP 2579433) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 12 (Thread 0x7354f9ff36c0 (LWP 2579434) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 11 (Thread 0x7354f97f26c0 (LWP 2579435) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 10 (Thread 0x7354f8ff16c0 (LWP 2579436) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 9 (Thread 0x7354f87f06c0 (LWP 2579437) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 8 (Thread 0x7354f7fef6c0 (LWP 2579438) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29524, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29524, abstime=0x0, clockid=0, expected=0, futex_word=0x735524831228 <gc_threads_cond+40>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735524831228 <gc_threads_cond+40>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735524831240 <gc_threads_lock>, cond=0x735524831200 <gc_threads_cond>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073552435a786 in uv_cond_wait (cond=0x735524831200 <gc_threads_cond>, mutex=0x735524831240 <gc_threads_lock>) at src/unix/thread.c:822
+#6  0x00007355243109c0 in jl_parallel_gc_threadfun (arg=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3640
+#7  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#8  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 7 (Thread 0x735461dff6c0 (LWP 2579439) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2be0 <thread_status+96>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2be0 <thread_status+96>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2be0 <thread_status+96>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2b90 <thread_status+16>, cond=0x73546bec2bb8 <thread_status+56>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2bb8 <thread_status+56>, mutex=0x73546bec2b90 <thread_status+16>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 6 (Thread 0x7354615fe6c0 (LWP 2579440) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2c60 <thread_status+224>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2c60 <thread_status+224>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2c60 <thread_status+224>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2c10 <thread_status+144>, cond=0x73546bec2c38 <thread_status+184>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2c38 <thread_status+184>, mutex=0x73546bec2c10 <thread_status+144>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 5 (Thread 0x735460dfd6c0 (LWP 2579441) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2ce0 <thread_status+352>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2ce0 <thread_status+352>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2ce0 <thread_status+352>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2c90 <thread_status+272>, cond=0x73546bec2cb8 <thread_status+312>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2cb8 <thread_status+312>, mutex=0x73546bec2c90 <thread_status+272>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 4 (Thread 0x7354605fc6c0 (LWP 2579442) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2d60 <thread_status+480>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2d60 <thread_status+480>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2d60 <thread_status+480>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2d10 <thread_status+400>, cond=0x73546bec2d38 <thread_status+440>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2d38 <thread_status+440>, mutex=0x73546bec2d10 <thread_status+400>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 3 (Thread 0x73545fdfb6c0 (LWP 2579443) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2de0 <thread_status+608>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2de0 <thread_status+608>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2de0 <thread_status+608>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2d90 <thread_status+528>, cond=0x73546bec2db8 <thread_status+568>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2db8 <thread_status+568>, mutex=0x73546bec2d90 <thread_status+528>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 2 (Thread 0x73545f5fa6c0 (LWP 2579444) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=0, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x73546bec2e60 <thread_status+736>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=0, abstime=0x0, clockid=0, expected=0, futex_word=0x73546bec2e60 <thread_status+736>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x73546bec2e60 <thread_status+736>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x73546bec2e10 <thread_status+656>, cond=0x73546bec2e38 <thread_status+696>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x73546bec2e38 <thread_status+696>, mutex=0x73546bec2e10 <thread_status+656>) at ./nptl/pthread_cond_wait.c:627
+#5  0x000073546a1a633b in blas_thread_server () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/bin/../lib/julia/libopenblas64_.so
+#6  0x0000735524e9caa4 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x0000735524f29c6c in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 1 (Thread 0x7355250c9140 (LWP 2579318) "julia"):
+#0  0x0000735524e98d71 in __futex_abstimed_wait_common64 (private=29525, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=29525, abstime=0x0, clockid=0, expected=0, futex_word=0x735523deca4c <engine_wait+44>) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x735523deca4c <engine_wait+44>, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x0000735524e9b7ed in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x735523deca60 <engine_lock>, cond=0x735523deca20 <engine_wait>) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x735523deca20 <engine_wait>, mutex=0x735523deca60 <engine_lock>) at ./nptl/pthread_cond_wait.c:627
+#5  0x0000735523cfd86b in jl_unique_gcsafe_lock::wait (cond=..., this=0x7354119f6730) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia_locks.h:131
+#6  jl_compile_codeinst_now (codeinst=<optimized out>, codeinst@entry=0x7355146e0860 <jl_system_image_data+8604768>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:742
+#7  0x0000735523cfeb20 in jl_compile_codeinst_impl (ci=0x7355146e0860 <jl_system_image_data+8604768>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jitlayers.cpp:824
+#8  0x00007355242543e2 in jl_compile_method_internal (mi=mi@entry=0x7355146e0ab0 <jl_system_image_data+8605360>, world=world@entry=38757) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3528
+#9  0x0000735524255402 in _jl_invoke (world=38757, mfunc=<optimized out>, nargs=2, args=0x7354119f6b08, F=0x735513efd570 <jl_system_image_data+334192>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#10 ijl_apply_generic (F=0x735513efd570 <jl_system_image_data+334192>, args=0x7354119f6b08, nargs=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+#11 0x0000735524263bea in jl_apply (nargs=3, args=0x7354119f6b00) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391
+#12 jl_f__call_in_world_total (F=<optimized out>, args=0x7354119f6af8, nargs=4) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/builtins.c:919
+#13 0x0000735524266049 in jl_apply (nargs=<optimized out>, args=0x7354119f6af0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391
+#14 jl_f__apply_iterate (F=<optimized out>, args=<optimized out>, nargs=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/builtins.c:868
+#15 0x00007355117350de in julia_concrete_eval_call_13984 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:1009
+#16 0x0000735510bcdcf5 in julia_abstract_call_method_with_const_args_78007 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:874
+#17 0x00007355108941ed in julia_abstract_call_method_with_const_args_78004 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+#18 0x00007355104d52db in julia_handle1_77987 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+#19 0x0000735513667197 in julia_infercalls_77933 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+#20 0x00007355133fd889 in julia_abstract_call_gf_by_type_77922 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+#21 0x0000735512b36b77 in julia_abstract_call_known_77886 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+#22 0x0000735510f10d36 in julia_abstract_call_78089 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+#23 0x00007355131ca7fb in abstract_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896
+#24 julia_abstract_call_78629 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+#25 0x000073551117c876 in abstract_eval_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074
+#26 julia_abstract_eval_statement_expr_78659 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+#27 0x0000735511cf30db in abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849
+#28 abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806
+#29 julia_typeinf_local_82126 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+#30 0x00007355108e420c in jfptr_typeinf_local_82127 () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#31 0x000073551203a34d in julia_typeinf_77005 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+#32 0x0000735511b50e8b in julia_const_prop_call_78047 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:1353
+#33 0x0000735510bce027 in julia_abstract_call_method_with_const_args_78007 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:899
+#34 0x00007355108941ed in julia_abstract_call_method_with_const_args_78004 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+#35 0x00007355104d52db in julia_handle1_77987 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+#36 0x0000735513667197 in julia_infercalls_77933 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+#37 0x00007355133fd889 in julia_abstract_call_gf_by_type_77922 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+#38 0x0000735512b36b77 in julia_abstract_call_known_77886 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+#39 0x0000735510f10d36 in julia_abstract_call_78089 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+#40 0x00007355131ca7fb in abstract_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896
+#41 julia_abstract_call_78629 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+#42 0x000073551117c876 in abstract_eval_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074
+#43 julia_abstract_eval_statement_expr_78659 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+#44 0x0000735511cf30db in abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849
+#45 abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806
+#46 julia_typeinf_local_82126 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+#47 0x00007355108e420c in jfptr_typeinf_local_82127 () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#48 0x000073551203a34d in julia_typeinf_77005 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+#49 0x0000735511b50e8b in julia_const_prop_call_78047 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:1353
+#50 0x0000735510bce027 in julia_abstract_call_method_with_const_args_78007 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:899
+#51 0x00007355108941ed in julia_abstract_call_method_with_const_args_78004 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:868
+#52 0x00007355104d52db in julia_handle1_77987 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+#53 0x0000735513667197 in julia_infercalls_77933 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:252
+#54 0x00007355133fd889 in julia_abstract_call_gf_by_type_77922 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:338
+#55 0x0000735512b36b77 in julia_abstract_call_known_77886 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2796
+#56 0x0000735510f10d36 in julia_abstract_call_78089 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2903
+#57 0x00007355131ca7fb in abstract_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:2896
+#58 julia_abstract_call_78629 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3056
+#59 0x000073551117c876 in abstract_eval_call () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3074
+#60 julia_abstract_eval_statement_expr_78659 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3403
+#61 0x0000735511cf30db in abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3849
+#62 abstract_eval_basic_statement () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:3806
+#63 julia_typeinf_local_82126 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4356
+#64 0x00007355108e420c in jfptr_typeinf_local_82127 () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#65 0x000073551203a34d in julia_typeinf_77005 () at ../usr/share/julia/Compiler/src/abstractinterpretation.jl:4514
+#66 0x0000735511fcc89f in julia_typeinf_ext_79297 () at ../usr/share/julia/Compiler/src/typeinfer.jl:1256
+#67 0x000073551110f291 in typeinf_ext_toplevel () at ../usr/share/julia/Compiler/src/typeinfer.jl:1439
+#68 julia_typeinf_ext_toplevel_80205 () at ../usr/share/julia/Compiler/src/typeinfer.jl:1448
+#69 0x0000735511fd1417 in jfptr_typeinf_ext_toplevel_80206 () from /home/orebas/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so
+#70 0x0000735524255dcd in jl_apply (nargs=5, args=0x7354119ffb80) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391
+#71 jl_type_infer (mi=mi@entry=0x73543cec2310, world=world@entry=38757, source_mode=source_mode@entry=1 '\001', trim_mode=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:466
+#72 0x00007355242547c6 in jl_compile_method_internal (mi=mi@entry=0x73543cec2310, world=world@entry=38757) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:3516
+#73 0x0000735524255402 in _jl_invoke (world=38757, mfunc=<optimized out>, nargs=0, args=0x73550d12e2f8, F=0x735452aac6a0 <jl_system_image_data+275936>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4006
+#74 ijl_apply_generic (F=0x735452aac6a0 <jl_system_image_data+275936>, args=0x73550d12e2f8, nargs=<optimized out>) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gf.c:4214
+#75 0x000073552427bbea in jl_apply (nargs=1, args=0x73550d12e2f0) at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391
+#76 start_task () at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/task.c:1252
+[Inferior 1 (process 2579318) detached]
