@@ -79,6 +79,7 @@ include("types/estimation_options.jl")  # New options struct
 
 # Include utility modules
 include("core/logging_utils.jl")
+include("core/run_context.jl")  # per-run scoped state (RunContext; replaces run-state globals)
 include("core/math_utils.jl")
 include("core/model_utils.jl")
 include("core/analysis_utils.jl")

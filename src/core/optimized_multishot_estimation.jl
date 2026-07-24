@@ -8,15 +8,12 @@
 # Phase Profiling Helpers
 # ============================================================================
 
-const _TIMING_CAPTURE_ENABLED = Ref(false)
-const _LAST_ESTIMATION_TIMING = Ref{Union{Nothing, TimingBreakdown}}(nothing)
+# Run-scoped state (timing capture flag, timing breakdown, auto-M hand-off,
+# timing sinks) lives on the scoped RunContext (run_context.jl) as of
+# 2026-07-24. The reuse bundle below stays module-global BY DESIGN: it is a
+# cross-run hand-off consumed after the run completes (consensus/benchmark
+# flows via `_last_estimation_reuse()`).
 const _LAST_ESTIMATION_REUSE = Ref{Any}(nothing)
-# Auto-computed algebraic multiplicity from the most recent SI template build.
-# Set by `prepare_si_template_with_structural_fix` (via si_equation_builder's
-# `algebraic_multiplicity` Groebner step). Consumed by
-# `analyze_parameter_estimation_problem` to override `opts.algebraic_multiplicity`
-# when the user left it unset.
-const _LAST_ESTIMATION_AUTO_M = Ref{Union{Nothing, Int}}(nothing)
 
 function _accumulate_timing!(dict::OrderedDict{Symbol, Float64}, key::Symbol, seconds::Real)
 	dict[key] = get(dict, key, 0.0) + Float64(seconds)
@@ -46,15 +43,8 @@ function _phase_stats_to_breakdown(
 end
 
 function _capture_estimation_timing(f::Function)
-	previous = _TIMING_CAPTURE_ENABLED[]
-	_TIMING_CAPTURE_ENABLED[] = true
-	_LAST_ESTIMATION_TIMING[] = nothing
-	try
-		value = f()
-		return value, _LAST_ESTIMATION_TIMING[]
-	finally
-		_TIMING_CAPTURE_ENABLED[] = previous
-	end
+	value, ctx = _with_run_context(f; capture_timing = true)
+	return value, ctx.timing
 end
 
 """
@@ -612,9 +602,7 @@ Optimized parameter estimation using precomputed derivatives.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	# Check input validity
-	_LAST_ESTIMATION_TIMING[] = nothing
 	_LAST_ESTIMATION_REUSE[] = nothing
-	_LAST_ESTIMATION_AUTO_M[] = nothing
 	if isnothing(PEP.data_sample)
 		error("No data sample provided in the ParameterEstimationProblem")
 	end
@@ -643,7 +631,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 	# shooting points in this run. This mirrors PE.jl construction.
 	if opts.use_si_template
 		# Phase profiling: initialize stats collector (nothing = disabled, zero overhead)
-		phase_stats = (opts.profile_phases || _TIMING_CAPTURE_ENABLED[]) ? OrderedDict{String, NamedTuple}() : nothing
+		phase_stats = (opts.profile_phases || _run_ctx_capture_timing()) ? OrderedDict{String, NamedTuple}() : nothing
 		timing_details = OrderedDict{Symbol, Any}()
 		interpolant_creation_seconds_by_source = OrderedDict{Symbol, Float64}()
 		single_point_data_eval_seconds_by_source = OrderedDict{Symbol, Float64}()
@@ -664,10 +652,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		reusable_order_cache = Dict{Any, Any}()
 		resolve_timing_records = NamedTuple[]
 		detailed_timing_records = NamedTuple[]
-		previous_resolve_timing_sink = _RESOLVE_TIMING_SINK[]
-		previous_detailed_timing_sink = _DETAILED_TIMING_SINK[]
-		_RESOLVE_TIMING_SINK[] = resolve_timing_records
-		_DETAILED_TIMING_SINK[] = detailed_timing_records
+		_run_ctx_install_sinks!(resolve_timing_records, detailed_timing_records)
 		noise_frontier_sp_cache_hits = 0
 		noise_frontier_sp_cache_misses = 0
 		noise_frontier_mp_cache_hits = 0
@@ -750,7 +735,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		if hasproperty(si_template, :rank_trimming_metadata) &&
 		   hasproperty(si_template.rank_trimming_metadata, :algebraic_multiplicity) &&
 		   !isnothing(si_template.rank_trimming_metadata.algebraic_multiplicity)
-			_LAST_ESTIMATION_AUTO_M[] = si_template.rank_trimming_metadata.algebraic_multiplicity
+			_run_ctx_set_auto_m!(si_template.rank_trimming_metadata.algebraic_multiplicity)
 		end
 
 		good_udict = OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in si_template.structural_fix_set)
@@ -2143,11 +2128,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end
 		timing_details[:reusable_system_cache_entries] = length(reusable_system_cache)
-		_LAST_ESTIMATION_TIMING[] = _phase_stats_to_breakdown(
+		_run_ctx_set_timing!(_phase_stats_to_breakdown(
 			phase_stats,
 			:optimized_multishot;
 			details = timing_details,
-		)
+		))
 		_LAST_ESTIMATION_REUSE[] = (
 			model_system = PEP.model.system,
 			data_length = length(t_vector),
@@ -2166,8 +2151,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# The return signature is designed for compatibility with other workflows
 		return (solved_res, good_udict, trivial_dict, setup_data.all_unidentifiable)
 		finally
-			_RESOLVE_TIMING_SINK[] = previous_resolve_timing_sink
-			_DETAILED_TIMING_SINK[] = previous_detailed_timing_sink
+			# Timing-sink lifetime is scoped via RunContext (run_context.jl);
+			# nothing to restore here anymore.
 		end
 	end
 

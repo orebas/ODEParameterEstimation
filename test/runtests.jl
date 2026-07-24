@@ -15,4 +15,5 @@ using Test
     include("test_core_types.jl")     # re-homed 2026-07-21 (was orphaned + red; now green)
     include("column_scaling.jl")      # re-homed 2026-07-21 (was orphaned; green)
     include("test_interrupt_propagation.jl")  # Ctrl-C class fix 2026-07-24 (_rethrow_if_interrupt)
+    include("test_run_context.jl")            # scoped RunContext contracts 2026-07-24
 end

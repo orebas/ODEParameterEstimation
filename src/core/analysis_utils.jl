@@ -910,6 +910,16 @@ end
 
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Establish a per-run RunContext (auto-M hand-off, timing, sinks) unless an
+	# outer scope (e.g. with_estimation_timing) already bound one.
+	if _run_ctx() === nothing
+		value, _ = _with_run_context(() -> _analyze_parameter_estimation_problem_impl(PEP, opts))
+		return value
+	end
+	return _analyze_parameter_estimation_problem_impl(PEP, opts)
+end
+
+function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
 
 	# Auto-handle transcendental functions (sin/cos/exp) at the top level
@@ -975,14 +985,12 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	end
 
 	# Auto-populate algebraic_multiplicity if the caller left it unset and the
-	# SI template build produced a value (see optimized_multishot_estimation.jl
-	# `_LAST_ESTIMATION_AUTO_M`). When set explicitly by the caller, we
-	# never override. CONSUME-ONCE: the Ref is cleared at the read so a value
-	# written by this run's SI estimation can never leak into a later analysis
-	# that does not write it (e.g. the direct-opt flow, which never runs the SI
-	# template build — a stale M from a previous run truncated its output).
-	auto_m = _LAST_ESTIMATION_AUTO_M[]
-	_LAST_ESTIMATION_AUTO_M[] = nothing
+	# SI template build produced a value (RunContext auto-M hand-off; see
+	# run_context.jl). When set explicitly by the caller, we never override.
+	# CONSUME-ONCE via _run_ctx_take_auto_m!() so a value written by this run's
+	# SI estimation can never leak into a later analysis sharing an outer
+	# scope (e.g. the direct-opt flow under one with_estimation_timing block).
+	auto_m = _run_ctx_take_auto_m!()
 	if isnothing(opts.algebraic_multiplicity) && !isnothing(auto_m)
 		opts = EstimationOptions(;
 			(name => getfield(opts, name) for name in fieldnames(EstimationOptions) if name !== :algebraic_multiplicity)...,

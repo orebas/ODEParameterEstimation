@@ -23,4 +23,5 @@ using Test
 	include("column_scaling.jl")         # compute_column_scales / scale_hc_system / order_mag
 	include("test_model_utils.jl")       # ordered model construction helpers
 	include("test_label_parsers.jl")     # SIAN/Symbolics derivative-name parsing (name round-tripping)
+	include("test_run_context.jl")       # scoped RunContext contracts (auto-M hand-off, sinks, isolation)
 end

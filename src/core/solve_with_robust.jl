@@ -35,7 +35,7 @@ function solve_with_robust(poly_system, varlist;
 
 	robust_t0 = time()
 	robust_stages = OrderedDict{Symbol, Float64}()
-	timing_enabled = _DETAILED_TIMING_SINK[] !== nothing
+	timing_enabled = _run_ctx_detailed_sink() !== nothing
 	residual_call_count = 0
 	residual_seconds = 0.0
 	jacobian_call_count = 0

@@ -30,9 +30,10 @@ function _numeric_residual_value(expr)
 	end
 end
 
-const _RESOLVE_TIMING_SINK = Ref{Union{Nothing, Vector{NamedTuple}}}(nothing)
+# Timing SINKS live on the scoped RunContext (run_context.jl) as of 2026-07-24.
+# The two context-label STACKS below remain module-global (worst case under
+# concurrent runs: mislabeled timing rows) — follow-up candidate.
 const _RESOLVE_TIMING_CONTEXT_STACK = Symbol[]
-const _DETAILED_TIMING_SINK = Ref{Union{Nothing, Vector{NamedTuple}}}(nothing)
 const _DETAILED_TIMING_CONTEXT_STACK = Symbol[]
 
 function _current_resolve_timing_context()
@@ -49,7 +50,7 @@ function _with_resolve_timing_context(f::Function, context::Symbol)
 end
 
 function _record_resolve_timing!(record::NamedTuple)
-	sink = _RESOLVE_TIMING_SINK[]
+	sink = _run_ctx_resolve_sink()
 	isnothing(sink) && return nothing
 	push!(sink, record)
 	return nothing
@@ -78,7 +79,7 @@ function _with_detailed_timing_context(f::Function, context::Symbol)
 end
 
 function _record_detailed_timing!(record::NamedTuple)
-	sink = _DETAILED_TIMING_SINK[]
+	sink = _run_ctx_detailed_sink()
 	isnothing(sink) && return nothing
 	push!(sink, record)
 	return nothing
