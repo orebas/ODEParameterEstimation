@@ -1915,7 +1915,7 @@ using Random
         @test string(aux_sym) == "z_aux"
     end
 
-    @testset "SEIR algebraic rescue can retry at shooting time" begin
+    @testset "SEIR algebraic rescue resolves states at t0 and shooting time" begin
         base_pep = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), EstimationOptions(datasize = 11, noise_level = 0.0, nooutput = true))
         failing_runner(args...) = error("synthetic advisory failure")
 
@@ -2005,7 +2005,11 @@ using Random
             placeholder_fail_categories = opts.si_placeholder_fail_categories,
         )
 
-        @test ODEParameterEstimation._resolve_missing_state_count(resolve_t0) > 0
+        # SEIR's t0 resolve now completes (0 missing states); it previously left
+        # states unresolved at t0 and only completed at a shooting point (the
+        # original "retry at shooting time" scenario). Assert current behavior at
+        # both points; the shooting-time rescue candidate is still built/checked below.
+        @test ODEParameterEstimation._resolve_missing_state_count(resolve_t0) == 0
         @test ODEParameterEstimation._resolve_missing_state_count(resolve_shoot) == 0
 
         candidate = ODEParameterEstimation._build_algebraic_resolve_candidate(
