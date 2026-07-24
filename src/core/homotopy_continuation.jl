@@ -15,7 +15,14 @@
 # hang recurs in HC's "Computing mixed cells", set this back to `false`.
 # All HomotopyContinuation.solve calls in this module route through `_hc_solve`.
 const HC_SOLVE_THREADING = Ref(true)
-_hc_solve(args...; kwargs...) = HomotopyContinuation.solve(args...; threading = HC_SOLVE_THREADING[], kwargs...)
+# Compile mode for HC systems, passed EXPLICITLY per solve. Historically set
+# via `HomotopyContinuation.set_default_compile(:all)`, which mutates HC's
+# process-global default for every other caller/task in the process — a
+# composability defect (2026-07 review). Same Ref pattern as
+# HC_SOLVE_THREADING; promoting both to EstimationOptions fields is tracked
+# follow-up work.
+const HC_COMPILE_MODE = Ref{Symbol}(:all)
+_hc_solve(args...; kwargs...) = HomotopyContinuation.solve(args...; threading = HC_SOLVE_THREADING[], compile = HC_COMPILE_MODE[], kwargs...)
 
 """
 	solve_with_nlopt(poly_system, varlist;
@@ -417,7 +424,7 @@ function convert_to_hc_format(poly_system, varlist)
 
 	# Parse and eval into HC expressions; hmcs returns ModelKit.Variable
 	parsed = eval.(Meta.parse.(string_target))
-	HomotopyContinuation.set_default_compile(:all)
+	# (compile mode is passed per solve via _hc_solve; no global mutation)
 
 	# Build variables list in the same order as varlist for consistent output
 	hc_variables = [HomotopyContinuation.ModelKit.Variable(Symbol(sanitized[i])) for i in eachindex(varlist)]
@@ -654,7 +661,7 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 
 	# Parse and eval into HC expressions
 	parsed = eval.(Meta.parse.(string_target))
-	HomotopyContinuation.set_default_compile(:all)
+	# (compile mode is passed per solve via _hc_solve; no global mutation)
 
 	# Build variables list in the same order as solve_vars
 	hc_variables = HomotopyContinuation.ModelKit.Variable[
