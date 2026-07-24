@@ -1693,6 +1693,7 @@ function _build_polish_context(
 			try
 				ModelingToolkit.solve(prob_opt, solver; saveat = t_vector, abstol = abstol, reltol = reltol, maxiters = ode_maxiters)
 			catch e
+				_rethrow_if_interrupt(e)
 				ode_threw = true
 				@warn "ODE solver failed during polish" exception = (e, catch_backtrace())
 				nothing
@@ -1822,7 +1823,8 @@ function _trajectory_sse(ctx::PolishContext, p_external::AbstractVector{<:Real})
 	sol_opt = try
 		ModelingToolkit.solve(prob_opt, ctx.solver; saveat = ctx.t_vector,
 			abstol = ctx.abstol, reltol = ctx.reltol, maxiters = ctx.polish_ode_maxiters)
-	catch
+	catch err
+		_rethrow_if_interrupt(err)
 		return Inf
 	end
 	(sol_opt === nothing || sol_opt.retcode != ReturnCode.Success) && return Inf
@@ -2378,6 +2380,7 @@ function _polish_batch_from_context(
 			end
 			push!(task_results[task_idx], polished_result)
 		catch e
+			_rethrow_if_interrupt(e)
 			dt = time() - t0
 			@warn "Failed to polish solution $rep_idx ($(round(dt; digits=1))s): $e"
 		end

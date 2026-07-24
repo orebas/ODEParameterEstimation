@@ -1541,6 +1541,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								rank_atol = (opts.system_construction_policy == :noise_frontier) ? validation.rank_atol : missing,
 							))
 						catch e
+							_rethrow_if_interrupt(e)
 							# A systematic combo-eval failure must not be
 							# indistinguishable from "no combos available".
 							@warn "[MULTIPOINT] combo evaluation failed" exception = (e, catch_backtrace()) maxlog = 10
@@ -1617,6 +1618,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		end  # end multipoint
 
 		catch e
+			_rethrow_if_interrupt(e)
 			@error "Interpolator $interp_sym failed" exception=(e, catch_backtrace())
 			println(stderr, "[HC-CRASH] Interpolator $interp_sym threw $(typeof(e)): $e")
 			if @isdefined(param_values_list) && isa(param_values_list, AbstractVector)
@@ -1778,6 +1780,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							)
 						end
 					catch err
+						_rethrow_if_interrupt(err)
 						_note_algebraic_resolve_failure!(solved_res, indices, err)
 						if opts.diagnostics
 							@warn "[RESOLVE] Algebraic re-solve at t=0 failed; leaving original blown candidates unchanged for this parameter set." exception = err source_candidate_indices = indices

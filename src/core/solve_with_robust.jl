@@ -420,6 +420,7 @@ function solve_with_robust(poly_system, varlist;
 			end
 
 		catch e
+			_rethrow_if_interrupt(e)
 			algorithm_failure_count += 1
 			if !_nonlinear_solve_recorded
 				robust_stages[:nonlinear_solve] = get(robust_stages, :nonlinear_solve, 0.0) + (time() - _nonlinear_solve_t0)

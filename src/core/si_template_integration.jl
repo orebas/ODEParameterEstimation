@@ -676,7 +676,8 @@ function resolve_states_with_fixed_params(
 						if diagnostics
 							@info "[RESOLVE] Cascade (pass $cascade_pass): solved $v = $solved"
 						end
-					catch
+					catch err
+						_rethrow_if_interrupt(err)
 						push!(new_eqs, eq)
 					end
 				else

@@ -463,6 +463,7 @@ function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = f
 
 		return solutions, varlist, Dict(), varlist
 	catch e
+		_rethrow_if_interrupt(e)
 		@error "solve_with_hc failed" exception=(e, catch_backtrace())
 		println("SOLVER_ERROR: HomotopyContinuation.solve threw exception:")
 		println("  Type: ", typeof(e))
@@ -1079,6 +1080,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		prev_params = current_params
 
 		catch e
+			_rethrow_if_interrupt(e)
 			@error "[HC-PARAM] Point $i failed" exception=(e, catch_backtrace())
 			println(stderr, "[HC-CRASH] Point $i threw $(typeof(e)): $e")
 			println(stderr, "[HC-CRASH] current_params = $current_params")

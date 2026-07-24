@@ -30,12 +30,11 @@ Manifest.toml
 
 # Temporary test files and output
 *.log
-test_*.jl
-!test_debug_options.jl
-!test_option_passing.jl
-!test_shade_lm.jl
-!test_label_parsers.jl
-!test_rescaling.jl
+# Root-anchored: scratch test scripts at repo root only. An unanchored
+# `test_*.jl` silently ignored every NEW file under test/ (each `!` exception
+# below was a prior victim of that trap). All tracked test/deprecated files
+# are unaffected by anchoring.
+/test_*.jl
 !repro/multiplicity_complete_2026_05_19/test_compute_M.jl
 !repro/multiplicity_complete_2026_05_19/test_patched_sian.jl
 tmp/

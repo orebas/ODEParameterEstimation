@@ -82,6 +82,20 @@ function log_dict(dict, title; level=Logging.Debug)
     end
 end
 
+# ── Cancellation discipline ──────────────────────────────────────────────────
+# Broad production catches must never swallow Ctrl-C. Drop this as the FIRST
+# statement of any `catch` that handles expected numerical failure, so an
+# InterruptException always propagates (2026-07 review finding: 0/64 catches
+# filtered it, turning Ctrl-C into "log, return empty, keep trying fallbacks").
+
+"""
+    _rethrow_if_interrupt(err)
+
+Rethrow `err` if it is an `InterruptException` (cancellation must propagate);
+otherwise do nothing. Use as the first statement of broad `catch` blocks.
+"""
+@inline _rethrow_if_interrupt(err) = err isa InterruptException ? rethrow(err) : nothing
+
 # ── Phase heartbeats ──────────────────────────────────────────────────────────
 # Live, flushed, timestamped phase markers so a silent log still localizes the
 # running phase (2026-07 hang post-mortem: buffered output made a stalled run
