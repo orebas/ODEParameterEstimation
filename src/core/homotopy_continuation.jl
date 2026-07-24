@@ -458,7 +458,7 @@ function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = f
 		# `only_nonsingular=true`; ODEPE should keep singular algebraic roots too,
 		# then let downstream residual/bounds/ranking filters decide usability.
 		res = _hc_solve(hc_system, show_progress = false)
-		real_tol = get(options, :real_tol, 1e-9)
+		real_tol = get(options, :real_tol, _OPT_STRUCT_DEFAULTS.hc_real_tol)
 		sols = HomotopyContinuation.solutions(
 			res;
 			only_nonsingular = false,
@@ -851,13 +851,17 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 	)
 
 	# Get options
-	show_progress = get(options, :show_progress, false)
-	real_tol = get(options, :real_tol, 1e-9)
+	# Fallbacks come from _OPT_STRUCT_DEFAULTS (single source of truth) so a
+	# caller passing a partial options Dict gets the documented struct defaults,
+	# not drifted literals (this cluster used to silently downgrade to
+	# use_column_scaling=false / :gamma_straight for partial dicts).
+	show_progress = get(options, :show_progress, _OPT_STRUCT_DEFAULTS.hc_show_progress)
+	real_tol = get(options, :real_tol, _OPT_STRUCT_DEFAULTS.hc_real_tol)
 	debug = get(options, :debug, false)
-	use_column_scaling = get(options, :use_column_scaling, false)
-	tracking_mode = get(options, :homotopy_tracking_mode, :gamma_straight)
-	gamma_max_seeds = get(options, :gamma_max_seeds, 5)
-	gamma_seed = get(options, :gamma_seed, 0)
+	use_column_scaling = get(options, :use_column_scaling, _OPT_STRUCT_DEFAULTS.use_column_scaling)
+	tracking_mode = get(options, :homotopy_tracking_mode, _OPT_STRUCT_DEFAULTS.homotopy_tracking_mode)
+	gamma_max_seeds = get(options, :gamma_max_seeds, _OPT_STRUCT_DEFAULTS.gamma_max_seeds)
+	gamma_seed = get(options, :gamma_seed, _OPT_STRUCT_DEFAULTS.gamma_seed)
 	# Deterministic by default: gamma_seed==0 derives a STABLE seed from the problem inputs (solve_vars +
 	# data values), so runs are reproducible and A/B arms see the same γ stream, while different problems
 	# still get different γ. A fixed γ sequence stays generic w.r.t. any one problem's discriminant

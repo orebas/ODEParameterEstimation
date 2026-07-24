@@ -593,6 +593,14 @@ Base.@kwdef struct EstimationOptions
 	save_filepath::String = ""
 end
 
+# Single source of truth for option-bridge fallbacks: internal solver paths that
+# receive a plain options Dict must default missing keys to THESE struct
+# defaults, never to hardcoded literals (which silently drift — the 2026-07
+# review found `use_column_scaling` falling back to false and
+# `homotopy_tracking_mode` to :gamma_straight while the struct defaults are
+# true / :generic_start). Constructed once at load; read-only.
+const _OPT_STRUCT_DEFAULTS = EstimationOptions()
+
 """
 	get_solver_function(method::SystemSolverMethod) -> Function
 
