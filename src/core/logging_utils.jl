@@ -82,6 +82,58 @@ function log_dict(dict, title; level=Logging.Debug)
     end
 end
 
+# ── Phase heartbeats ──────────────────────────────────────────────────────────
+# Live, flushed, timestamped phase markers so a silent log still localizes the
+# running phase (2026-07 hang post-mortem: buffered output made a stalled run
+# unlocatable — see repro/hc_threading_mwe_2026_07_22/PROVENANCE_*.md). Coarse
+# by design: once-per-run phases plus one line per interpolator — never inside
+# per-point/per-combo inner loops.
+
+"""
+    _heartbeat(opts, phase; kind=:start, extra="")
+
+Emit a flushed, timestamped `[HB HH:MM:SS] ▶/✓ phase` marker. No-op unless
+`opts.heartbeat` is true and `opts.nooutput` is false. `kind` is `:start`,
+`:done`, or `:note`; `extra` is appended verbatim.
+"""
+function _heartbeat(opts, phase::AbstractString; kind::Symbol = :start, extra::AbstractString = "")
+    (opts.heartbeat && !opts.nooutput) || return nothing
+    mark = kind === :start ? "▶" : kind === :done ? "✓" : "•"
+    stamp = Dates.format(Dates.now(), "HH:MM:SS")
+    if isempty(extra)
+        println("[HB ", stamp, "] ", mark, " ", phase)
+    else
+        println("[HB ", stamp, "] ", mark, " ", phase, " ", extra)
+    end
+    flush(stdout)
+    flush(stderr)
+    return nothing
+end
+
+"""
+    _heartbeat_run_header(opts, model_name)
+
+One-line self-identifying run header (model, pid, julia/ODEPE/HC versions,
+thread counts) so any log fragment is attributable without external context.
+"""
+function _heartbeat_run_header(opts, model_name::AbstractString)
+    (opts.heartbeat && !opts.nooutput) || return nothing
+    hc_ver = try
+        string(pkgversion(HomotopyContinuation))
+    catch
+        "?"
+    end
+    odepe_ver = try
+        string(pkgversion(@__MODULE__))
+    catch
+        "?"
+    end
+    _heartbeat(opts, "run";
+        extra = string("model=", model_name, " pid=", Base.Libc.getpid(),
+            " julia=", VERSION, " odepe=", odepe_ver, " hc=", hc_ver,
+            " threads=", Threads.nthreads(), " gcthreads=", Threads.ngcthreads()))
+end
+
 # Enable debug logging if environment variable is set
 if haskey(ENV, "ODEPE_DEBUG") && ENV["ODEPE_DEBUG"] == "true"
     configure_logging(Logging.Debug)

@@ -940,6 +940,7 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 	if !opts.nooutput
 		println("Starting model: ", PEP.name)
 	end
+	_heartbeat_run_header(opts, PEP.name)
 
 	# Initialize variables outside try blocks
 	solved_res = []
@@ -991,12 +992,17 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 		end
 	end
 
+	_heartbeat(opts, "Clustering + analysis")
 	results_tuple_to_return = analyze_estimation_result(PEP, solved_res, nooutput = opts.nooutput, opts = opts)
+	_heartbeat(opts, "Clustering + analysis"; kind = :done)
 
+	opts.compute_uncertainty && _heartbeat(opts, "UQ (GP/IFT sidecar)")
 	uq_result = _compute_uq_result(PEP, solved_res, opts)
+	opts.compute_uncertainty && _heartbeat(opts, "UQ (GP/IFT sidecar)"; kind = :done)
 	if !isnothing(scale_info)
 		uq_result = unrescale_uncertainty_report(uq_result, scale_info)
 	end
+	_heartbeat(opts, "run"; kind = :done)
 
 	# Un-rescale results to original units (params/states). Done AFTER clustering/
 	# ranking (analyze_estimation_result) and UQ, which are self-consistent in scaled

@@ -195,10 +195,10 @@ function _summarize_detailed_timing(records::Vector{NamedTuple})
 end
 
 """
-	_record_phase!(f, stats, name)
+	_record_phase!(f, stats, opts, name)
 
 Lightweight phase profiling helper. When `stats` is `nothing`, simply calls `f()`
-with zero overhead. When `stats` is an OrderedDict, wraps `f()` with `@timed`
+(plus a flushed `_heartbeat` bracket). When `stats` is an OrderedDict, wraps `f()` with `@timed`
 and records time, bytes, GC time, and peak RSS at phase end (+ Δ since phase
 start). The RSS fields are observability-only -- they're not propagated to
 `TimingPhaseEntry` (struct API stays stable) and are dropped silently by
@@ -207,16 +207,21 @@ start). The RSS fields are observability-only -- they're not propagated to
 
 The `f` argument comes first to support Julia's `do` block syntax:
 ```julia
-result = _record_phase!(phase_stats, "Phase name") do
+result = _record_phase!(phase_stats, opts, "Phase name") do
     expensive_computation()
 end
 ```
 """
-function _record_phase!(f::Function, stats::Nothing, name::String)
-	return f()
+function _record_phase!(f::Function, stats::Nothing, opts, name::String)
+	_heartbeat(opts, name)
+	t0 = time()
+	result = f()
+	_heartbeat(opts, name; kind = :done, extra = @sprintf("(%.1fs)", time() - t0))
+	return result
 end
 
-function _record_phase!(f::Function, stats::OrderedDict{String, NamedTuple}, name::String)
+function _record_phase!(f::Function, stats::OrderedDict{String, NamedTuple}, opts, name::String)
+	_heartbeat(opts, name)
 	rss_start = Sys.maxrss()
 	result = @timed f()
 	rss_end = Sys.maxrss()
@@ -230,6 +235,7 @@ function _record_phase!(f::Function, stats::OrderedDict{String, NamedTuple}, nam
 		rss_mb = rss_mb,
 		rss_delta_mb = rss_delta_mb,
 	)
+	_heartbeat(opts, name; kind = :done, extra = @sprintf("(%.1fs)", result.time))
 	return result.value
 end
 
@@ -673,7 +679,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		try
 		# Get common setup: identifiability analysis ONLY (shared across all interpolators)
-		ident_data = _record_phase!(phase_stats, "Setup (identifiability)") do
+		ident_data = _record_phase!(phase_stats, opts, "Setup (identifiability)") do
 		setup_identifiability(
 			PEP,
 			max_num_points = 1,
@@ -719,7 +725,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# SI outputs, then require a square effective template.
 		ordered_model = isa(PEP.model.system, OrderedODESystem) ? PEP.model.system : OrderedODESystem(PEP.model.system, states, params)
 
-		si_template, template_equations = _record_phase!(phase_stats, "SI Template (SIAN analysis)") do
+		si_template, template_equations = _record_phase!(phase_stats, opts, "SI Template (SIAN analysis)") do
 		si_template, _template_structure = prepare_si_template_with_structural_fix(
 			ordered_model,
 			PEP.measured_quantities,
@@ -849,7 +855,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
-		_record_phase!(phase_stats, "Equation construction + Solving") do
+		_record_phase!(phase_stats, opts, "Equation construction + Solving") do
 
 		# ============================================================================
 		# PARAMETER-HOMOTOPY TEMPLATE (shared across interpolators)
@@ -893,6 +899,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		for (interp_idx, (interp_method, interp_custom)) in enumerate(interpolator_list)
 			interp_func = get_interpolator_function(interp_method, interp_custom; s3_adapt_k = opts.s3_adapt_k)
 			interp_sym = interpolator_method_to_symbol(interp_method)
+			_heartbeat(opts, "interpolator", extra = string(interp_idx, "/", length(interpolator_list), " ", interp_sym))
 
 			# Create interpolants for this interpolator
 			_t_interp_start = time()
@@ -1190,6 +1197,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				)
 				_t_hc_elapsed = time() - _t_hc_start
 				_accumulate_timing!(single_point_hc_seconds_by_source, interp_sym, _t_hc_elapsed)
+				_heartbeat(opts, "HC solve (single-point)"; kind = :done,
+					extra = @sprintf("%s %d pts (%.1fs)", interp_sym, length(valid_param_values_list), _t_hc_elapsed))
 				if opts.diagnostics
 					println("  [$interp_sym] HC solve: $(round(_t_hc_elapsed, digits=3))s")
 				end
@@ -1566,6 +1575,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					end
 					_t_mpt_solve_elapsed = time() - _t_mpt_solve_start
 					_accumulate_timing!(multipoint_solve_seconds_by_source, interp_sym, _t_mpt_solve_elapsed)
+					_heartbeat(opts, "HC solve (multipoint)"; kind = :done,
+						extra = @sprintf("%s (%.1fs)", interp_sym, _t_mpt_solve_elapsed))
 
 					if !isnothing(solutions_by_combo) && !isempty(all_final_varlists)
 						# Project multipoint solutions to single-point varlist ordering.
@@ -1679,7 +1690,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# Reuse existing processing pipeline (without polish — polish gets its own phase below)
 		opts_no_polish = merge_options(opts; polish_solutions = false)
-		solved_res = _record_phase!(phase_stats, "Result processing") do
+		solved_res = _record_phase!(phase_stats, opts, "Result processing") do
 			_with_detailed_timing_context(:result_processing) do
 				process_estimation_results(
 					PEP,
@@ -1712,6 +1723,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 
 			if !isempty(blown_indices)
+				_heartbeat(opts, "Backsolve algebraic re-solve",
+					extra = "($(length(blown_indices))/$(length(solved_res)) blown)")
 				if !opts.nooutput
 					println("Detected $(length(blown_indices))/$(length(solved_res)) blown backsolves, attempting algebraic re-solve at t=0")
 				end
@@ -1978,7 +1991,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# both for downstream polish AND for the no-polish output (each seed gets an
 		# err evaluated via the polish-context loss closure inside _maybe_augment_*).
 		if opts.use_sensitivity_seeds && !isempty(solved_res)
-			solved_res = _record_phase!(phase_stats, "Sensitivity seeds") do
+			solved_res = _record_phase!(phase_stats, opts, "Sensitivity seeds") do
 				try
 					_with_detailed_timing_context(:sensitivity_seeds) do
 						ctx_for_seeds = _build_polish_context(PEP; opts = opts)
@@ -1999,7 +2012,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		# tagged with provenance.source_type = :synthesized_aggregate. Sidecar log at
 		# artifacts/diagnostics/<model>/synthesis_log.csv.
 		if opts.synthesize_aggregate_candidates && !isempty(solved_res)
-			solved_res = _record_phase!(phase_stats, "Synthesize aggregates") do
+			solved_res = _record_phase!(phase_stats, opts, "Synthesize aggregates") do
 				try
 					_with_detailed_timing_context(:synthesis) do
 						_maybe_synthesize_aggregate_candidates(
@@ -2016,7 +2029,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# PHASE: Polish solutions (separate phase for profiling visibility)
 		if opts.polish_solutions || (opts.terminal_fallback == :direct_opt && isempty(solved_res))
-			solved_res = _record_phase!(phase_stats, "Polish (BFGS)") do
+			solved_res = _record_phase!(phase_stats, opts, "Polish (BFGS)") do
 				if isempty(solved_res)
 					if opts.terminal_fallback == :direct_opt
 						# Terminal rescue: keep parity with direct optimization, but make the provenance explicit.
@@ -2072,7 +2085,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		end
 
 		if opts.branch_completion && !isempty(solved_res)
-			solved_res = _record_phase!(phase_stats, "Branch completion") do
+			solved_res = _record_phase!(phase_stats, opts, "Branch completion") do
 				maybe_replace_with_branch_completion(PEP, solved_res, setup_data, opts)
 			end
 		end

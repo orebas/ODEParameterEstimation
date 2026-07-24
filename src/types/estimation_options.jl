@@ -531,6 +531,7 @@ Base.@kwdef struct EstimationOptions
 	debug_dimensional_analysis::Bool = false
 	trap_debug::Bool = false
 	profile_phases::Bool = false  # Print per-phase timing/allocation breakdown
+	heartbeat::Bool = true        # Live flushed [HB] phase markers (suppressed by nooutput)
 
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
