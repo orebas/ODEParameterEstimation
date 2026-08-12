@@ -16,4 +16,7 @@ using Test
     include("column_scaling.jl")      # re-homed 2026-07-21 (was orphaned; green)
     include("test_interrupt_propagation.jl")  # Ctrl-C class fix 2026-07-24 (_rethrow_if_interrupt)
     include("test_run_context.jl")            # scoped RunContext contracts 2026-07-24
+    include("test_gp_kernel_optimization.jl") # recovered 2026-08-12 (gitignore-trap survivor, Feb 2026)
+    include("test_cross_observable_covariance.jl")  # recovered 2026-08-12 (joint-GP covariance, Mar 2026)
+    include("test_polish_maxtime.jl")         # recovered 2026-08-12 (polish_maxtime enforcement, May 2026)
 end
