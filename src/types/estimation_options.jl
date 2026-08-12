@@ -311,7 +311,7 @@ Base.@kwdef struct EstimationOptions
 	branch_err_factor::Float64 = 100.0
 	branch_resid_factor::Float64 = 100.0
 	branch_min_size::Int = 1
-	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default S2 = (saturation_count, is_neg1, err)) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps). **Acts as a safety cap** when `algebraic_multiplicity` is set: actual output is `min(algebraic_multiplicity, branch_top_k, length(cluster_reps))`.
+	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default `:err_only`; the retired S2 = (saturation_count, is_neg1, err) remains selectable) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps). **Acts as a safety cap** when `algebraic_multiplicity` is set: actual output is `min(algebraic_multiplicity, branch_top_k, length(cluster_reps))`.
 
 	# Algebraic multiplicity of the parameter-estimation problem — the number of
 	# distinct (params, IC) tuples in the identifiable subspace that produce
@@ -319,16 +319,17 @@ Base.@kwdef struct EstimationOptions
 	# (capped above by `branch_top_k` as a safety net). When `nothing`, output is
 	# the full top-K candidate list (length up to `branch_top_k`).
 	#
-	# Computing M structurally requires running SI/HC machinery (see the open
-	# investigation at PEB `results/wallaby_analysis/multiplicity/M_INFERENCE_INVESTIGATION.md`).
-	# Today this field is set by the caller — typically PEB's per-cell template
-	# injects the value from `config/systems.json[*].algebraic_multiplicity`,
-	# a hand-curated catalog whose values were derived via HC root-counting per
-	# `repro/multiplicity_complete_2026_05_19/MULTIPLICITY_COMPLETE.md`.
-	#
-	# A future patch will add an auto-compute fallback inside ODEPE (SI gate
-	# `n_locally == 0 ⇒ M = 1`, then HC root count for the M>1 case via a
-	# small upstream patch to SIAN-Julia or StructuralIdentifiability.jl).
+	# AUTO-COMPUTED since 2026-07: when this field is left `nothing`, ODEPE
+	# detects M during the SI template build (si_equation_builder.jl —
+	# `Groebner.quotient_basis` on the SIAN ideal; gauge/positive-dimensional
+	# systems via projection to finite-valued coordinates) and hands it off
+	# through the scoped RunContext (`_run_ctx_take_auto_m!`, consumed once in
+	# `analyze_parameter_estimation_problem`). A caller-supplied value always
+	# overrides auto-detection — PEB's per-cell template may still inject the
+	# hand-curated `config/systems.json[*].algebraic_multiplicity` (derived via
+	# HC root-counting, `repro/multiplicity_complete_2026_05_19/`). Detection
+	# failure leaves the field `nothing`: no truncation, no M≥2 full-space
+	# clustering protection.
 	#
 	# Type: positive Int (the multiplicity), or `nothing` (use full top-K).
 	algebraic_multiplicity::Union{Int, Nothing} = nothing
@@ -374,10 +375,13 @@ Base.@kwdef struct EstimationOptions
 	# collapses 50+ near-duplicate rows along practical-non-identifiability axes
 	# (e.g. slow_fast's 50 mirror-basin rows that differ only on xA/xB/eB) while
 	# preserving algebraically-distinct basins. `:bit_identical` restores the
-	# legacy 1e-5 relative-distance dedup. Pools actually produced by successful
-	# branch completion always use full-space dedup so algebraic siblings remain
-	# distinct; merely enabling `branch_completion` does not override this option.
-	# See `cluster_solutions_identifiable_subspace`.
+	# legacy 1e-5 relative-distance dedup. Full-space dedup ALWAYS applies when
+	# algebraic siblings may be present — pools produced by successful branch
+	# completion AND any pool with detected/declared algebraic_multiplicity ≥ 2
+	# (raw M≥2 pools carry siblings too; completion can fail on its single
+	# default anchor). Merely enabling `branch_completion` does not override
+	# this option. See `cluster_solutions_identifiable_subspace` and
+	# `_cluster_output_candidates`.
 	cluster_method::Symbol = :identifiable_subspace
 	# Rough-cluster threshold for stage-1 (basin identification). 1.0 = parameters
 	# differ by more than the mean magnitude (i.e. different basins). Tight

@@ -454,18 +454,14 @@ function si_template_lineage_kwargs(si_template)
 		return NamedTuple()
 	end
 	structural_fix_set = hasproperty(si_template, :structural_fix_set) ? deepcopy(si_template.structural_fix_set) : OrderedDict{Num, Float64}()
-	residual_fix_set = hasproperty(si_template, :residual_fix_set) ? deepcopy(si_template.residual_fix_set) : OrderedDict{Num, Float64}()
-	template_status_before = hasproperty(si_template, :template_status_before_residual_fix) ? si_template.template_status_before_residual_fix : nothing
-	template_status_after = hasproperty(si_template, :template_status_after_residual_fix) ? si_template.template_status_after_residual_fix : nothing
+	template_status_value = hasproperty(si_template, :template_status) ? si_template.template_status : nothing
 	rank_trim_meta = hasproperty(si_template, :rank_trimming_metadata) ? si_template.rank_trimming_metadata : nothing
 	dropped_equations = (!isnothing(rank_trim_meta) && hasproperty(rank_trim_meta, :dropped_equation_indices)) ? copy(rank_trim_meta.dropped_equation_indices) : Int[]
 	numerical_advisory = hasproperty(si_template, :numerical_advisory) ? si_template.numerical_advisory : nothing
 	practical_status = hasproperty(si_template, :practical_identifiability_status) ? si_template.practical_identifiability_status : practical_status_from_advisory(numerical_advisory)
 	return (
 		structural_fix_set = structural_fix_set,
-		residual_fix_set = residual_fix_set,
-		template_status_before_residual_fix = template_status_before,
-		template_status_after_residual_fix = template_status_after,
+		template_status = template_status_value,
 		equations_dropped_by_rank_trimming = dropped_equations,
 		practical_identifiability_status = practical_status,
 		numerical_advisory = numerical_advisory,

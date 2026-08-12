@@ -222,9 +222,7 @@ const FAST_DIRECT_OPTS = EstimationOptions(
         @test state_has_transformed_input(best)
         @test !isempty(best.all_unidentifiable)
         @test !isempty(best.provenance.structural_fix_set)
-        @test isempty(best.provenance.residual_fix_set)
-        @test best.provenance.template_status_before_residual_fix == :determined
-        @test best.provenance.template_status_after_residual_fix == :determined
+        @test best.provenance.template_status == :determined
         @test best.provenance.practical_identifiability_status == :advisory_available
         @test !isnothing(best.provenance.numerical_advisory)
         @test best.provenance.numerical_advisory.status == :available

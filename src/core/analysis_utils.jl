@@ -452,11 +452,15 @@ end
 """
 	_cluster_output_candidates(sorted_results, opts) -> Vector{Vector{Any}}
 
-Apply the configured output-stage clustering policy. A pool that was actually
-replaced by algebraic branch completion is clustered in full coordinate space
-so observationally equivalent sibling branches remain distinct. Otherwise the
-user-selected `cluster_method` is honored independently of whether the
-`branch_completion` feature flag is enabled.
+Apply the configured output-stage clustering policy. Full-coordinate-space
+clustering is used whenever algebraic siblings may be present — a pool actually
+replaced by branch completion, OR a pool whose detected/declared
+`algebraic_multiplicity` is ≥ 2 (siblings can sit in a RAW pool too: the solver
+finds both branches organically, and completion can be inactive or fail with a
+single anchor — the protection follows the math, not the feature's bookkeeping).
+Otherwise the user-selected `cluster_method` is honored independently of whether
+the `branch_completion` feature flag is enabled. Note the M≥2 arm only fires on
+an affirmative detection: undetected M degrades to the honored `cluster_method`.
 
 # Arguments
 - `sorted_results`: Finite-error candidates sorted by ascending fit error.
@@ -466,7 +470,8 @@ user-selected `cluster_method` is honored independently of whether the
 - Candidate clusters in input rank order.
 """
 function _cluster_output_candidates(sorted_results, opts::EstimationOptions)::Vector{Vector{Any}}
-	if _pool_was_branch_completed(sorted_results)
+	if _pool_was_branch_completed(sorted_results) ||
+	   (opts.algebraic_multiplicity !== nothing && opts.algebraic_multiplicity >= 2)
 		return cluster_solutions(sorted_results)
 	elseif opts.cluster_method === :identifiable_subspace
 		return cluster_solutions_identifiable_subspace(sorted_results;
@@ -863,9 +868,11 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 	# - Best RMS relative error across all results
 	#
 	# When opts.branch_detection is true (default), the returned representatives
-	# are err-sorted cluster reps capped at branch_top_k. cluster_reps comes from
-	# cluster_solutions(sorted_results) which preserves err order (lowest first),
-	# so a simple slice gives top-K by data residual. branch_size is annotated below.
+	# are cluster reps ranked by rank_strategy and capped at min(M, branch_top_k).
+	# cluster_reps comes from _cluster_output_candidates (full-space when the pool
+	# is branch-completed or M≥2; otherwise the configured cluster_method — by
+	# default cluster_solutions_identifiable_subspace). Each method preserves err
+	# order within clusters (first member = err-best). branch_size is annotated below.
 	#
 	# Historically this stage called _detect_branches to do additional L∞-MAD
 	# clustering on identifiable axes and filter by branch_resid_factor / branch_min_size.
@@ -884,12 +891,11 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		cluster_reps[i].branch_size = length(c)
 	end
 	returned_results = if opts.branch_detection
-		# Apply rank_strategy before top-K slicing. Default :sat_neg1_err sorts by
-		# (saturation_count, is_neg1, err) — demotes bound-saturated rows and rows
-		# without HC provenance to elevate truth-near candidates that would
-		# otherwise be lost in the tail under pure err-sort (Tier 1.1 recommendation
-		# from the 2026-05-15 fresh-look investigation, RECOMMENDATIONS.md).
-		# Legacy `:err_only` preserves the upstream err order verbatim.
+		# Apply rank_strategy before top-K slicing. Default `:err_only` preserves
+		# the upstream err order verbatim (the 2026-06-14 selection study found
+		# err_only near-optimal; the earlier `:sat_neg1_err` default — sorting by
+		# (saturation_count, is_neg1, err) to demote bound-saturated rows — was
+		# retired but remains selectable).
 		sorted_reps = rank_cluster_representatives(cluster_reps, opts)
 		# Truncation policy:
 		#   - `opts.algebraic_multiplicity = nothing` (default) → keep up to

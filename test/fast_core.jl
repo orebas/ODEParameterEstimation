@@ -2132,7 +2132,7 @@ using Random
             source_candidate_index = 7,
             polish_applied = true,
             structural_fix_set = OrderedDict(a => 1.0),
-            template_status_after_residual_fix = :determined,
+            template_status = :determined,
             practical_identifiability_status = :advisory_available,
             numerical_advisory = ODEParameterEstimation.NumericalIdentifiabilityAdvisory(
                 status = :available,
@@ -2378,6 +2378,38 @@ using Random
             identifiable_opts,
         )
         @test length(completed_clusters) == 3
+
+        # A RAW pool with detected/declared M >= 2 gets the same full-space
+        # protection: siblings found organically by the solver must survive
+        # even when branch completion was inactive or failed (its default
+        # anchor budget is 1) — the protection keys on the math, not on the
+        # completion feature's bookkeeping.
+        m2_raw_opts = EstimationOptions(
+            branch_completion = true,
+            cluster_method = :identifiable_subspace,
+            rough_cluster_eps = 1.0,
+            subspace_cluster_eps = 0.05,
+            algebraic_multiplicity = 2,
+        )
+        m2_raw_clusters = ODEParameterEstimation._cluster_output_candidates(
+            ordinary_candidates,
+            m2_raw_opts,
+        )
+        @test length(m2_raw_clusters) == 3
+
+        # ...and M = 1 (globally identifiable) keeps the honored cluster_method.
+        m1_opts = EstimationOptions(
+            branch_completion = true,
+            cluster_method = :identifiable_subspace,
+            rough_cluster_eps = 1.0,
+            subspace_cluster_eps = 0.05,
+            algebraic_multiplicity = 1,
+        )
+        m1_clusters = ODEParameterEstimation._cluster_output_candidates(
+            ordinary_candidates,
+            m1_opts,
+        )
+        @test length(m1_clusters) == 1
     end
 
     @testset "Multipoint Diagnostic Rendering" begin

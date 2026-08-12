@@ -59,9 +59,7 @@ end
         @test analysis[2] < 0.2
         @test result_name_set(best.all_unidentifiable) == Set(["c", "x1(t)", "x2(t)"])
         @test result_name_set(keys(best.provenance.structural_fix_set)) == Set(["c"])
-        @test isempty(best.provenance.residual_fix_set)
-        @test best.provenance.template_status_before_residual_fix == :determined
-        @test best.provenance.template_status_after_residual_fix == :determined
+        @test best.provenance.template_status == :determined
         @test best.provenance.practical_identifiability_status == :advisory_available
         @test !isnothing(best.provenance.numerical_advisory)
         @test best.provenance.numerical_advisory.status == :available

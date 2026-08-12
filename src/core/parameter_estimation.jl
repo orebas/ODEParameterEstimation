@@ -572,9 +572,7 @@ function prepare_si_template_with_structural_fix(
 		rank_trimming_metadata = final_template.rank_trimming_metadata,
 		structural_unidentifiable = structural_unidentifiable,
 		structural_fix_set = structural_fix_report,
-		residual_fix_set = OrderedDict{Num, Float64}(),
-		template_status_before_residual_fix = structure.status,
-		template_status_after_residual_fix = structure.status,
+		template_status = structure.status,
 		practical_identifiability_status = :not_assessed,
 	)
 	throw_on_nonsquare_si_template(structure, structural_fix_report, final_template.si_variable_role_summary)
