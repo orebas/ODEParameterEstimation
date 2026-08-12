@@ -1172,6 +1172,25 @@ Throws warnings for potentially problematic configurations.
 function validate_options(opts::EstimationOptions)
 	valid = true
 
+	# Check algorithm selections that otherwise fail only after expensive setup.
+	if !(opts.opt_ad_backend in (:forward, :enzyme, :finite))
+		@error "opt_ad_backend must be :forward, :enzyme, or :finite (got $(opts.opt_ad_backend))"
+		valid = false
+	end
+
+	if isempty(opts.interpolators)
+		if opts.interpolator == InterpolatorCustom && isnothing(opts.custom_interpolator)
+			@error "InterpolatorCustom requires custom_interpolator when interpolators is empty"
+			valid = false
+		end
+	else
+		required_custom = count(==(InterpolatorCustom), opts.interpolators)
+		if length(opts.custom_interpolators) < required_custom
+			@error "interpolators contains $required_custom InterpolatorCustom entr$(required_custom == 1 ? "y" : "ies"), but only $(length(opts.custom_interpolators)) custom_interpolators function(s) were provided"
+			valid = false
+		end
+	end
+
 	# Check tolerances
 	if opts.abstol <= 0 || opts.reltol <= 0
 		@error "Tolerances must be positive"

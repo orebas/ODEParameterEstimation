@@ -70,6 +70,21 @@ using Random
         @test first(resolved_custom)[1] == InterpolatorCustom
         @test first(resolved_custom)[2] === custom_interp
 
+        plural_custom_opts = EstimationOptions(
+            interpolators = [InterpolatorCustom, InterpolatorAAAD, InterpolatorCustom],
+            custom_interpolators = Function[custom_interp, custom_interp],
+        )
+        @test ODEParameterEstimation.validate_options(plural_custom_opts)
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(
+            interpolators = InterpolatorMethod[],
+            interpolator = InterpolatorCustom,
+        ))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(
+            interpolators = [InterpolatorCustom, InterpolatorCustom],
+            custom_interpolators = Function[custom_interp],
+        ))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(opt_ad_backend = :bogus))
+
         @test ODEParameterEstimation.compute_shooting_indices(0, 21) == [10]
         @test ODEParameterEstimation.compute_shooting_indices(3, 21; warp = false) == [1, 11, 21]
         @test merged.terminal_fallback == :direct_opt
