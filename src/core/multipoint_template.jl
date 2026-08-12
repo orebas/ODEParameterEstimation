@@ -320,7 +320,8 @@ function _sensitivity_aware_strip(equations::Vector, variables::Vector,
         n_r < n_c && return Inf  # underdetermined
         svs = try
             svdvals(J_active)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             return Inf
         end
         isempty(svs) && return Inf
@@ -583,6 +584,7 @@ function select_time_points_by_conditioning(
                 best_indices = idx_pair
             end
         catch e
+            _rethrow_if_interrupt(e)
             if diagnostics
                 println("  [TP-SCAN] pair $(idx_pair) → FAILED: $e")
             end
@@ -1136,6 +1138,7 @@ function solve_multipoint_overdetermined(
     f_od = try
         _compile_system_function(inst_all_eqs, remaining_vars)
     catch e
+        _rethrow_if_interrupt(e)
         diagnostics && println("  [MP-OD] Failed to compile overdetermined system: $e")
         return hc_solutions  # fall back to HC solutions
     end
@@ -1170,6 +1173,7 @@ function solve_multipoint_overdetermined(
                 diagnostics && println("  [MP-OD] Solution $si: LM diverged ($(@sprintf("%.2e", res_lm)) > $(@sprintf("%.2e", res_hc))), keeping HC")
             end
         catch e
+            _rethrow_if_interrupt(e)
             push!(refined, x0)  # LM failed, keep HC
             diagnostics && println("  [MP-OD] Solution $si: LM failed ($e), keeping HC")
         end
@@ -1310,7 +1314,8 @@ function _gp_quality_score(t_idx::Int, interpolants::Dict, mq, template_DD, t_ve
             var = try
                 _, v = mean_and_var(interp, t, order)
                 v
-            catch
+            catch err
+                _rethrow_if_interrupt(err)
                 # Fallback: penalize boundaries (derivative accuracy degrades there)
                 n_t = length(t_vec)
                 boundary_dist = min(t_idx - 1, n_t - t_idx) / n_t
@@ -1435,7 +1440,8 @@ function select_time_point_pairs_sensitivity(
     for pair in candidates
         eval_result = try
             evaluate_multipoint_template(mpt, pair, interpolants, data_sample)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             continue
         end
         any(!isfinite, eval_result.data_values) && continue
@@ -1447,7 +1453,8 @@ function select_time_point_pairs_sensitivity(
 
         J = try
             ForwardDiff.jacobian(f_sys, x_probe)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             continue
         end
 
@@ -1458,7 +1465,8 @@ function select_time_point_pairs_sensitivity(
         cond_num = try
             svs = svdvals(J_solve)
             svs[1] / max(svs[end], 1e-15)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             Inf
         end
 
@@ -1493,7 +1501,12 @@ end
 
 """
     select_time_point_pairs_homotopy_probed(mpt, n_pairs, interpolants, data_sample;
-        margin, n_candidates, real_params)
+        margin, n_candidates, options)
+
+`options` is forwarded to the probe's `solve_multipoint_parameterized` call;
+unset keys take the production struct defaults (`_OPT_STRUCT_DEFAULTS`), so by
+default the probe ranks pairs on the same solution set the production solve
+would accept.
 
 Adaptive strategy: generate many candidate pairs, solve each via cheap parameter
 homotopy, and keep the pairs that produce the best solutions.
@@ -1510,6 +1523,7 @@ function select_time_point_pairs_homotopy_probed(
         mpt::MultiPointTemplate, n_pairs::Int,
         interpolants::Dict, data_sample;
         margin::Float64 = 0.1, n_candidates::Int = 20,
+        options::Dict = Dict(),
 )
     t_vec = data_sample["t"]
     n_t = length(t_vec)
@@ -1533,7 +1547,8 @@ function select_time_point_pairs_homotopy_probed(
     for pair in all_candidates
         ev = try
             evaluate_multipoint_template(mpt, pair, interpolants, data_sample)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             continue
         end
         all(isfinite, ev.data_values) && push!(valid_evals, (pair, ev))
@@ -1543,10 +1558,15 @@ function select_time_point_pairs_homotopy_probed(
 
     # Solve all candidates via parameter homotopy (cheap!)
     evals_only = [ev for (_, ev) in valid_evals]
+    # Probe with the caller's options; unset keys fall back to the production
+    # struct defaults via _OPT_STRUCT_DEFAULTS (show_progress=false,
+    # real_tol=1e-9, same tracking mode) so the probe ranks pairs on the same
+    # solution set the production solve would accept. (Historically hardcoded
+    # :real_tol => 1e-6 — 1000x looser than production — with no caller hook.)
     solutions_by_pair = try
-        solve_multipoint_parameterized(mpt, evals_only;
-            options = Dict(:show_progress => false, :real_tol => 1e-6))
-    catch
+        solve_multipoint_parameterized(mpt, evals_only; options = options)
+    catch err
+        _rethrow_if_interrupt(err)
         return select_time_point_pairs(n_t, n_pairs, n_pts; strategy = :spread, margin = margin)
     end
 
@@ -1570,7 +1590,8 @@ function select_time_point_pairs_homotopy_probed(
         inst_eqs = [Symbolics.substitute(eq, subst_dict) for eq in mpt.stripped_equations]
         f_inst = try
             _compile_system_function(inst_eqs, mpt.solve_vars)
-        catch
+        catch err
+            _rethrow_if_interrupt(err)
             push!(scored, (1e10, pair))
             continue
         end
@@ -1579,7 +1600,8 @@ function select_time_point_pairs_homotopy_probed(
         for sol in sols
             res = try
                 norm(f_inst(sol))
-            catch
+            catch err
+                _rethrow_if_interrupt(err)
                 Inf
             end
             best_residual = min(best_residual, res)

@@ -171,6 +171,7 @@ function compute_error_budget(
                 sens_nonlin = norm(residual) / max(norm(dx_actual_vec), 1e-300)
             end
         catch e
+            _rethrow_if_interrupt(e)
             @warn "[ERROR_BUDGET] Nonlinearity check failed: $e"
         end
     end
@@ -264,7 +265,8 @@ function _lookup_production_data_value(
             interp = setup_data.interpolants[obs_rhs]
             return try
                 Float64(nth_deriv(x -> interp(x), deriv_order, t_eval))
-            catch
+            catch err
+                _rethrow_if_interrupt(err)
                 NaN
             end
         end
@@ -412,6 +414,7 @@ function _build_multipoint_combo_metrics(
     hc_solutions = try
         solve_multipoint_direct(eval_result)
     catch e
+        _rethrow_if_interrupt(e)
         @warn "[MP_BUDGET] HC solve failed for combo $(time_indices): $e"
         Vector{Float64}[]
     end
@@ -655,7 +658,8 @@ function _compute_multipoint_sensitivity(
     cond_Jx = try
         svs_x = svd(J_x).S
         length(svs_x) > 0 ? svs_x[1] / max(svs_x[end], 1e-300) : Inf
-    catch
+    catch err
+        _rethrow_if_interrupt(err)
         Inf
     end
 
@@ -747,6 +751,7 @@ function compute_multipoint_error_budget(
     hc_solutions = try
         solve_multipoint_direct(eval_result)
     catch e
+        _rethrow_if_interrupt(e)
         @warn "[MP_BUDGET] HC solve failed: $e"
         Vector{Float64}[]
     end
@@ -974,6 +979,7 @@ function _try_multipoint_error_budget(
 
         return (error_budget = mp_eb, derivative_reports = da_per_point, analysis = analysis)
     catch e
+        _rethrow_if_interrupt(e)
         @warn "[MP_BUDGET] Multipoint error budget failed" exception = (e, catch_backtrace())
         return nothing
     end
