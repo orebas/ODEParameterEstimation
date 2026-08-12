@@ -1257,9 +1257,7 @@ function lookup_value(var, var_search, soln_index::Int,
 			# Candidate template names, in order:
 			#   1. The FULL model-style name + "_<deriv_count>". A parameter named
 			#      k_1 must map to the jet variable k_1_0 — treating its trailing
-			#      _1 as a derivative order collided distinct parameters onto one
-			#      template variable (k_1 AND k_2 both resolved to k_2_0 via the
-			#      base-name startswith fallback below; review P0#4).
+			#      _1 as a derivative order can collide distinct parameters.
 			#   2. If the name already carries a _n suffix, the name verbatim
 			#      (covers callers that pass jet-style names like y1_2 directly).
 			has_suffix = occursin(r"_[0-9]+$", name_str)
@@ -1280,27 +1278,6 @@ function lookup_value(var, var_search, soln_index::Int,
 					isnothing(idx_str) || (index = idx_str)
 				end
 				isnothing(index) || break
-			end
-
-			# Extra base-name fallback: prefer `_0`, then any `_n`
-			if isnothing(index)
-				base_name = has_suffix ? replace(name_str, r"_[0-9]+$" => "") : name_str
-				preferred = base_name * "_0"
-				idx0 = findfirst(i -> string(final_varlist[i]) == preferred, eachindex(final_varlist))
-				if isnothing(idx0)
-					idx0 = findfirst(i -> string(trimmed_varlist[i]) == preferred, eachindex(trimmed_varlist))
-				end
-				if !isnothing(idx0)
-					index = idx0
-				else
-					idx_any = findfirst(i -> startswith(string(final_varlist[i]), base_name * "_"), eachindex(final_varlist))
-					if isnothing(idx_any)
-						idx_any = findfirst(i -> startswith(string(trimmed_varlist[i]), base_name * "_"), eachindex(trimmed_varlist))
-					end
-					if !isnothing(idx_any)
-						index = idx_any
-					end
-				end
 			end
 		catch e
 			_rethrow_if_interrupt(e)

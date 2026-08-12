@@ -249,6 +249,21 @@ end
         # Unresolvable search throws — no silent fabrication of a value.
         unresolvable = only(ModelingToolkit.@variables nonexistent_q)
         @test_throws Exception lv(unresolvable)
+
+        # A missing exact jet must never borrow a similarly prefixed variable.
+        # The removed fallback stripped k_1 to k, then returned the first k_*;
+        # in this case it silently returned k_10_0's value for k_1.
+        prefix_neighbor = only(ModelingToolkit.@variables k_10_0)
+        @test_throws Exception ODEParameterEstimation.lookup_value(
+            params[1],
+            params[1],
+            1,
+            Dict{Any, Any}(),
+            Dict{Any, Any}(),
+            Any[prefix_neighbor],
+            Any[],
+            [[99.0]],
+        )
     end
 
     @testset "template_var_map drives SI-workflow lookups (Phase B)" begin
