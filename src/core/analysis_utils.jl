@@ -429,6 +429,55 @@ function ranked_full_space_representatives(candidates, opts::EstimationOptions)
 end
 
 """
+	_pool_was_branch_completed(results) -> Bool
+
+Return whether the candidate pool contains results produced by successful
+algebraic branch completion.
+
+# Arguments
+- `results`: Candidate results carrying structured provenance.
+
+# Returns
+- `true` when at least one candidate has `source_type == :branch_completed`;
+  otherwise `false`.
+"""
+function _pool_was_branch_completed(results)::Bool
+	return any(results) do result
+		hasproperty(result, :provenance) || return false
+		provenance = result.provenance
+		return hasproperty(provenance, :source_type) && provenance.source_type === :branch_completed
+	end
+end
+
+"""
+	_cluster_output_candidates(sorted_results, opts) -> Vector{Vector{Any}}
+
+Apply the configured output-stage clustering policy. A pool that was actually
+replaced by algebraic branch completion is clustered in full coordinate space
+so observationally equivalent sibling branches remain distinct. Otherwise the
+user-selected `cluster_method` is honored independently of whether the
+`branch_completion` feature flag is enabled.
+
+# Arguments
+- `sorted_results`: Finite-error candidates sorted by ascending fit error.
+- `opts`: Estimation configuration selecting the clustering method.
+
+# Returns
+- Candidate clusters in input rank order.
+"""
+function _cluster_output_candidates(sorted_results, opts::EstimationOptions)::Vector{Vector{Any}}
+	if _pool_was_branch_completed(sorted_results)
+		return cluster_solutions(sorted_results)
+	elseif opts.cluster_method === :identifiable_subspace
+		return cluster_solutions_identifiable_subspace(sorted_results;
+			rough_eps = opts.rough_cluster_eps,
+			subspace_eps = opts.subspace_cluster_eps)
+	else
+		return cluster_solutions(sorted_results)
+	end
+end
+
+"""
 	lognorm_score(candidate) → Float64
 
 Sum of squared log10-magnitudes of the candidate's positive parameters:
@@ -649,16 +698,12 @@ function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 	# `cluster_method` selects between two-stage rough/within-basin clustering
 	# (default `:identifiable_subspace`, collapses near-duplicates along
 	# practical-non-identifiability axes; see RECOMMENDATIONS.md Tier 3.2) and
-	# the legacy 1e-5 bit-identical dedup (`:bit_identical`).
-	clusters = if opts.branch_completion
-		cluster_solutions(sorted_results)
-	elseif opts.cluster_method === :identifiable_subspace
-		cluster_solutions_identifiable_subspace(sorted_results;
-			rough_eps = opts.rough_cluster_eps,
-			subspace_eps = opts.subspace_cluster_eps)
-	else
-		cluster_solutions(sorted_results)
-	end
+	# the legacy 1e-5 bit-identical dedup (`:bit_identical`). Successful branch
+	# completion is the one exception: its observationally equivalent sibling
+	# branches must remain distinct in full coordinate space. Key this exception
+	# off result provenance, not the default-on feature flag, because completion
+	# is a no-op for M <= 1 and may fail while retaining the original pool.
+	clusters = _cluster_output_candidates(sorted_results, opts)
 
 	# Show unidentifiable parameters if any
 	if !isempty(sorted_results)

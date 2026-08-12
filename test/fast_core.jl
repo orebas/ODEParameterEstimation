@@ -2320,6 +2320,49 @@ using Random
         )
         @test length(multiplicity_one) == 1
         @test multiplicity_one[1] === best
+
+        # The default-on branch_completion flag must not silently override the
+        # configured output clustering method when completion was a no-op.
+        ordinary_candidates = [
+            branch_result(10.0, 10.0, 1.0),
+            branch_result(10.01, 10.01, 1.1),
+            branch_result(10.02, 10.02, 1.2),
+        ]
+        identifiable_opts = EstimationOptions(
+            branch_completion = true,
+            cluster_method = :identifiable_subspace,
+            rough_cluster_eps = 1.0,
+            subspace_cluster_eps = 0.05,
+        )
+        identifiable_clusters = ODEParameterEstimation._cluster_output_candidates(
+            ordinary_candidates,
+            identifiable_opts,
+        )
+        @test length(identifiable_clusters) == 1
+        @test length(only(identifiable_clusters)) == 3
+
+        bit_identical_clusters = ODEParameterEstimation._cluster_output_candidates(
+            ordinary_candidates,
+            EstimationOptions(branch_completion = true, cluster_method = :bit_identical),
+        )
+        @test length(bit_identical_clusters) == 3
+
+        # A pool genuinely replaced by branch completion is the sole exception:
+        # keep its observationally equivalent algebraic siblings distinct in
+        # full coordinate space even under identifiable-subspace clustering.
+        completed_candidates = [
+            branch_result(10.0, 10.0, 1.0),
+            branch_result(10.01, 10.01, 1.1),
+            branch_result(10.02, 10.02, 1.2),
+        ]
+        for candidate in completed_candidates
+            candidate.provenance.source_type = :branch_completed
+        end
+        completed_clusters = ODEParameterEstimation._cluster_output_candidates(
+            completed_candidates,
+            identifiable_opts,
+        )
+        @test length(completed_clusters) == 3
     end
 
     @testset "Multipoint Diagnostic Rendering" begin

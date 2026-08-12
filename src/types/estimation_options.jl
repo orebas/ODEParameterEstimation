@@ -374,7 +374,10 @@ Base.@kwdef struct EstimationOptions
 	# collapses 50+ near-duplicate rows along practical-non-identifiability axes
 	# (e.g. slow_fast's 50 mirror-basin rows that differ only on xA/xB/eB) while
 	# preserving algebraically-distinct basins. `:bit_identical` restores the
-	# legacy 1e-5 relative-distance dedup. See `cluster_solutions_identifiable_subspace`.
+	# legacy 1e-5 relative-distance dedup. Pools actually produced by successful
+	# branch completion always use full-space dedup so algebraic siblings remain
+	# distinct; merely enabling `branch_completion` does not override this option.
+	# See `cluster_solutions_identifiable_subspace`.
 	cluster_method::Symbol = :identifiable_subspace
 	# Rough-cluster threshold for stage-1 (basin identification). 1.0 = parameters
 	# differ by more than the mean magnitude (i.e. different basins). Tight
