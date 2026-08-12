@@ -114,10 +114,11 @@ Common fields:
   Candidate index within that phase.
 - `structural_fix_set`
   Representative structural fixes derived from SI structural outputs.
-- `residual_fix_set`
-  Residual template repair set. In the supported default flow this is normally empty.
-- `template_status_before_residual_fix` and `template_status_after_residual_fix`
-  SI template dimension status.
+- `template_status`
+  SI template dimension status after structural fixing. (2026-08: replaced the
+  vestigial `residual_fix_set` + `template_status_before/after_residual_fix`
+  triple — no residual-repair mechanism ever existed, so the pair was identical
+  by construction and the set always empty.)
 - `practical_identifiability_status`
   Current practical/numerical-identifiability headline for the run.
 - `numerical_advisory`
