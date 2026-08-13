@@ -284,11 +284,57 @@ actually describes.
 worse estimator than the one being reported. The LV "failure" was estimand
 mismatch, not broken machinery.
 
-**Degradation with noise is systematic and always overconfident** (σ̂ 2–3× too
-small, coverage 50–70% at 1e-2): the first-order delta method losing validity as
-the perturbation grows — the documented curvature/second-order limitation, now
-quantified. **Therefore the deliverable is a per-model noise ceiling, not a list
-of models.** `run_noise_threshold.jl` sweeps 1e-6 … 1e-2 to find it.
+> ### ⚠ RETRACTED: "degrades overconfidently with noise"
+>
+> An earlier draft of this section claimed systematic overconfident degradation
+> with noise (σ̂ 2–3× too small, coverage 50–70% at 1e-2), attributed to the
+> first-order delta method. **That claim was not supported — it was N=10
+> sampling noise read as signal, from a single cell.**
+>
+> The noise sweep (§5.4a) re-ran `simple` @ 1e-2 at different seeds and got
+> med|z| = [0.65, 1.0, 1.0, 0.89] where the screen had reported
+> [1.46, 0.79, 0.93, 0.72]. Both are draws from the same truth.
+>
+> **The arithmetic that should have been done first:** the sampling sd of
+> median|z| over N replicates is ≈ 1/(2 f(0.674) √N) = 0.787/√N, where f is the
+> density of |z| at its median. At N=10 that is **0.25**, so a perfectly
+> calibrated coordinate lands anywhere in ≈ [0.17, 1.17] at 2σ. The
+> `regime_verdict` band [0.34, 1.35] is therefore roughly a ±2σ window — about
+> 5% of correctly calibrated coordinates are flagged by chance, and with 4–6
+> coordinates per cell **a quarter or more of cells read "marginal" for no
+> reason at all.** Every scattered verdict in §5.5 and §5.4a is consistent with
+> this, `threesp_cubed` included.
+>
+> **Methodological rule going forward: N=10 cannot resolve calibration.** Use
+> N ≥ 60 (sd ≈ 0.10) for any per-cell verdict, or report med|z| with its
+> sampling interval rather than a binary.
+
+### 5.4a Noise sweep — the corrected picture (`run_noise_threshold.jl`, N=10)
+
+med|z| per coordinate, 1e-6 → 1e-2, single SE-GPR / unpolished / single point:
+
+| model | 1e-6 | 1e-5 | 1e-4 | 1e-3 | 1e-2 | worst rel err (1e-6 → 1e-2) |
+|---|---|---|---|---|---|---|
+| `simple` | 0.26–1.1 | 0.81–1.0 | 0.39–0.72 | 0.57–0.82 | 0.65–1.0 | 0.0007% → 2.5% |
+| `simple_linear_combination` | 0.49–0.77 | 0.47–1.1 | 0.73–0.89 | 0.32–0.76 | 0.49–1.2 | 0.0008% → 2.3% |
+| `onesp_cubed` | 0.14, 1.1 | 0.19, 1.3 | 0.19, 1.1 | 0.22, 1.4 | 0.38, 1.3 | 0.0004% → 1.2% |
+| `threesp_cubed` | 0.08–0.64 | 0.23–2.7 | 0.09–1.3 | 0.16–0.78 | 0.59–1.6 | 0.0003% → 2.0% |
+
+**There is no monotone degradation with noise.** med|z| sits in roughly 0.5–1.2
+across four orders of magnitude while the estimator's own error grows by four
+orders of magnitude — i.e. **σ̂ tracks the realized error across the whole
+range.** That is a stronger result than the retracted one.
+
+Two patterns that survive the sampling-noise caveat because they are consistent
+across *several* cells rather than one:
+
+- **Low-noise conservatism.** `onesp_cubed`'s first coordinate sits at
+  med|z| = 0.14–0.22 for 1e-6 through 1e-3 (σ̂ several times too large), and
+  `threesp_cubed`'s three parameter coordinates behave the same way. Consistent
+  with a floor in the GP's learned observation-noise variance: below some level
+  the GP cannot learn σ, so σ̂ stops shrinking. **Checkable and worth checking.**
+- **`threesp_cubed` splits by role** — parameters conservative, states near or
+  above 1. Not obviously a bug; needs N ≥ 60 before interpreting.
 
 ### 5.5 Regime screen (7 models × 2 noise levels)
 
@@ -307,9 +353,13 @@ of models.** `run_noise_threshold.jl` sweeps 1e-6 … 1e-2 to find it.
 > `875944c` — the loose band passed a coordinate with 50% coverage. The 1e-2
 > `in_regime` cells should be re-run to confirm.
 
-`threesp_cubed` at **marginal** (accurate estimator, mis-scaled interval) is the
-one signature that would indicate a genuine bug in the covariance chain rather
-than an estimator limitation. **Highest-value thing to dissect next.**
+`threesp_cubed` at **marginal** (accurate estimator, mis-scaled interval) looked
+like the one signature that would indicate a genuine bug in the covariance
+chain. **Downgrade that reading** in light of §5.4: at N=10 a quarter of cells
+read marginal by chance, and `threesp_cubed` has six coordinates, so it is the
+*most* likely model to be flagged spuriously. Its one non-random-looking feature
+is the parameter/state split noted in §5.4a. Re-check at N ≥ 60 before
+investigating.
 
 ### 5.6 `two_exp` is not scorable by name — and a paper flag
 
