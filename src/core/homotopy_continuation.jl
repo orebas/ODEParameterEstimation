@@ -22,7 +22,13 @@ const HC_SOLVE_THREADING = Ref(true)
 # HC_SOLVE_THREADING; promoting both to EstimationOptions fields is tracked
 # follow-up work.
 const HC_COMPILE_MODE = Ref{Symbol}(:all)
-_hc_solve(args...; kwargs...) = HomotopyContinuation.solve(args...; threading = HC_SOLVE_THREADING[], compile = HC_COMPILE_MODE[], kwargs...)
+# Per-analysis overrides come from the scoped RunContext (set from
+# EstimationOptions.hc_threading / hc_compile_mode at analyze entry); the Refs
+# above are the fallback for bare solver calls outside any bound context.
+_hc_solve(args...; kwargs...) = HomotopyContinuation.solve(args...;
+	threading = something(_run_ctx_hc_threading(), HC_SOLVE_THREADING[]),
+	compile = something(_run_ctx_hc_compile_mode(), HC_COMPILE_MODE[]),
+	kwargs...)
 
 """
 	solve_with_nlopt(poly_system, varlist;

@@ -972,6 +972,8 @@ end
 
 function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
+	# Carry the per-analysis HC solver config to _hc_solve via the bound context.
+	_run_ctx_set_hc_opts!(opts.hc_threading, opts.hc_compile_mode)
 
 	# Auto-handle transcendental functions (sin/cos/exp) at the top level
 	# so the transformed PEP is used consistently for both estimation and analysis

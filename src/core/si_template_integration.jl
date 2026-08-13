@@ -36,16 +36,24 @@ end
 const _RESOLVE_TIMING_CONTEXT_STACK = Symbol[]
 const _DETAILED_TIMING_CONTEXT_STACK = Symbol[]
 
+# Label stacks live on the scoped RunContext when one is bound (per-run
+# isolation); the module stacks below remain the fallback for bare calls
+# outside analyze_* (8 of the 12 push sites can run context-free).
+_resolve_label_stack() = (c = _run_ctx(); c === nothing ? _RESOLVE_TIMING_CONTEXT_STACK : c.resolve_timing_labels)
+_detailed_label_stack() = (c = _run_ctx(); c === nothing ? _DETAILED_TIMING_CONTEXT_STACK : c.detailed_timing_labels)
+
 function _current_resolve_timing_context()
-	return isempty(_RESOLVE_TIMING_CONTEXT_STACK) ? :unspecified : last(_RESOLVE_TIMING_CONTEXT_STACK)
+	stack = _resolve_label_stack()
+	return isempty(stack) ? :unspecified : last(stack)
 end
 
 function _with_resolve_timing_context(f::Function, context::Symbol)
-	push!(_RESOLVE_TIMING_CONTEXT_STACK, context)
+	stack = _resolve_label_stack()
+	push!(stack, context)
 	try
 		return f()
 	finally
-		pop!(_RESOLVE_TIMING_CONTEXT_STACK)
+		pop!(stack)
 	end
 end
 
@@ -66,15 +74,17 @@ function _timed_resolve_stage!(f::Function, stages::OrderedDict{Symbol, Float64}
 end
 
 function _current_detailed_timing_context()
-	return isempty(_DETAILED_TIMING_CONTEXT_STACK) ? :unspecified : last(_DETAILED_TIMING_CONTEXT_STACK)
+	stack = _detailed_label_stack()
+	return isempty(stack) ? :unspecified : last(stack)
 end
 
 function _with_detailed_timing_context(f::Function, context::Symbol)
-	push!(_DETAILED_TIMING_CONTEXT_STACK, context)
+	stack = _detailed_label_stack()
+	push!(stack, context)
 	try
 		return f()
 	finally
-		pop!(_DETAILED_TIMING_CONTEXT_STACK)
+		pop!(stack)
 	end
 end
 

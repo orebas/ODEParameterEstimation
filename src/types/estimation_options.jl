@@ -571,6 +571,12 @@ Base.@kwdef struct EstimationOptions
 	# and unscales solutions by s. Benign (~identity) when observable-derivative magnitudes are ~O(1). Tames the
 	# ~1e7 jet-coordinate dynamic range that defeats unscaled polyhedral tracking on stiff/transient systems.
 	hc_real_tol::Float64 = 1e-9
+	# Per-analysis HC solver config, carried to _hc_solve via the scoped
+	# RunContext (run_context.jl). The module Refs HC_SOLVE_THREADING /
+	# HC_COMPILE_MODE remain the manual/global escape hatch when no context
+	# is bound (bare solver calls outside analyze_*).
+	hc_threading::Bool = true
+	hc_compile_mode::Symbol = :all  # :all | :none | :mixed (HC compile policy)
 	hc_show_progress::Bool = false
 	# Multi-shot parameter-transition tracking mode (points i>1). :gamma_straight tracks
 	# F(·;p_start)→F(·;p_target) via HC.jl's fixed-system StraightLineHomotopy WITH the γ-trick
@@ -1179,6 +1185,11 @@ function validate_options(opts::EstimationOptions)
 	# Check algorithm selections that otherwise fail only after expensive setup.
 	if !(opts.opt_ad_backend in (:forward, :enzyme, :finite))
 		@error "opt_ad_backend must be :forward, :enzyme, or :finite (got $(opts.opt_ad_backend))"
+		valid = false
+	end
+
+	if !(opts.hc_compile_mode in (:all, :none, :mixed))
+		@error "hc_compile_mode must be :all, :none, or :mixed (got $(opts.hc_compile_mode))"
 		valid = false
 	end
 

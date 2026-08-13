@@ -68,4 +68,38 @@ const _OPE = ODEParameterEstimation
 	v, timing = _OPE.with_estimation_timing(() -> 42)
 	@test v == 42
 	@test timing === nothing
+
+	# HC solver-config carry: nothing-fallback without a context, carried values
+	# inside one, cleared with the scope (2026-08-12 hardening).
+	@test _OPE._run_ctx_hc_threading() === nothing
+	@test _OPE._run_ctx_hc_compile_mode() === nothing
+	_OPE._run_ctx_set_hc_opts!(false, :none)          # no-op without a context
+	@test _OPE._run_ctx_hc_threading() === nothing
+	_, ctx_hc = _OPE._with_run_context() do
+		_OPE._run_ctx_set_hc_opts!(false, :none)
+		@test _OPE._run_ctx_hc_threading() === false
+		@test _OPE._run_ctx_hc_compile_mode() === :none
+		nothing
+	end
+	@test ctx_hc.hc_compile_mode === :none
+	@test _OPE._run_ctx_hc_threading() === nothing    # scope exited
+
+	# Timing context-label stacks: per-run when bound, module fallback bare.
+	@test _OPE._current_detailed_timing_context() === :unspecified
+	_OPE._with_run_context() do
+		_OPE._with_detailed_timing_context(:outer) do
+			@test _OPE._current_detailed_timing_context() === :outer
+			_OPE._with_detailed_timing_context(:inner) do
+				@test _OPE._current_detailed_timing_context() === :inner
+			end
+			@test _OPE._current_detailed_timing_context() === :outer
+		end
+		@test _OPE._current_detailed_timing_context() === :unspecified
+		nothing
+	end
+	# Bare-call fallback still functions (module stacks).
+	_OPE._with_resolve_timing_context(:bare) do
+		@test _OPE._current_resolve_timing_context() === :bare
+	end
+	@test _OPE._current_resolve_timing_context() === :unspecified
 end

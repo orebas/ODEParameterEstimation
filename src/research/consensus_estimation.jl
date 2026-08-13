@@ -1046,7 +1046,12 @@ function _prepare_consensus_inputs(
     end
 
     run_opts = est_opts.flow == FlowStandard ? est_opts : merge_options(est_opts; flow = FlowStandard)
-    raw_results, _, _, _ = optimized_multishot_parameter_estimation(pep_with_data, run_opts)
+    # Own RunContext: a bare optimized_multishot call would otherwise write its
+    # auto-M into whatever outer context happens to be bound, where a LATER
+    # analyze_parameter_estimation_problem under the same scope would consume
+    # it (2026-08-12 audit leak path).
+    _result_tuple, _ = _with_run_context(() -> optimized_multishot_parameter_estimation(pep_with_data, run_opts))
+    raw_results, _, _, _ = _result_tuple
     raw_candidates = ParameterEstimationResult[result for result in raw_results]
     return pep_with_data, run_opts, raw_candidates
 end

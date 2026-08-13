@@ -23,9 +23,19 @@ mutable struct RunContext
 	auto_m::Union{Nothing, Int}
 	resolve_timing_sink::Union{Nothing, Vector{NamedTuple}}
 	detailed_timing_sink::Union{Nothing, Vector{NamedTuple}}
+	# Per-analysis HC solver config (from EstimationOptions; nothing = fall back
+	# to the module Refs HC_SOLVE_THREADING / HC_COMPILE_MODE).
+	hc_threading::Union{Nothing, Bool}
+	hc_compile_mode::Union{Nothing, Symbol}
+	# Timing context-label stacks (formerly module-global in
+	# si_template_integration.jl; per-run here so concurrent runs cannot
+	# mislabel each other's timing rows).
+	resolve_timing_labels::Vector{Symbol}
+	detailed_timing_labels::Vector{Symbol}
 end
 RunContext(; capture_timing::Bool = false) =
-	RunContext(capture_timing, nothing, nothing, nothing, nothing)
+	RunContext(capture_timing, nothing, nothing, nothing, nothing,
+		nothing, nothing, Symbol[], Symbol[])
 
 const RUN_CONTEXT = ScopedValue{Union{Nothing, RunContext}}(nothing)
 
@@ -58,6 +68,16 @@ function _run_ctx_install_sinks!(resolve_records::Vector{NamedTuple}, detailed_r
 end
 _run_ctx_resolve_sink() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.resolve_timing_sink)
 _run_ctx_detailed_sink() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.detailed_timing_sink)
+
+function _run_ctx_set_hc_opts!(threading::Bool, compile_mode::Symbol)
+	c = RUN_CONTEXT[]
+	c === nothing && return nothing
+	c.hc_threading = threading
+	c.hc_compile_mode = compile_mode
+	return nothing
+end
+_run_ctx_hc_threading() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_threading)
+_run_ctx_hc_compile_mode() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_compile_mode)
 
 """
 	_with_run_context(f; capture_timing=false) -> (value, ctx)
