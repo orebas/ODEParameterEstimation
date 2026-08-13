@@ -1478,6 +1478,7 @@ function build_noise_frontier_multipoint_template(
 		per_point_indices,
 		hasproperty(si_template, :template_DD) ? si_template.template_DD : setup.good_DD,
 		pep.measured_quantities,
+		_build_data_var_meta(data_vars, n_points, pep.measured_quantities),
 	)
 end
 

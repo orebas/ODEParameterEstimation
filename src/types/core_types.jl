@@ -1054,6 +1054,29 @@ end
 # ─── Multi-point template types ──────────────────────────────────────
 
 """
+    DataVarMeta
+
+Construction-time metadata for one multipoint data variable — the
+authoritative (observable, order, point, kind) record consumed by UQ Σ_d
+assembly. Downstream label/name parsing is display-only.
+
+# Fields
+- `clean_name::String`: `_ptK`-stripped SIAN-style name (e.g. `"y1_2"`)
+- `obs_idx::Union{Nothing, Int}`: index into `measured_quantities`
+  (`nothing` for `:transcendental`/`:unresolved`)
+- `order::Int`: derivative order (0 for transcendental/unresolved)
+- `point::Int`: 1-based multipoint index (1 = unsuffixed)
+- `kind::Symbol`: `:observable_jet` | `:transcendental` | `:unresolved`
+"""
+struct DataVarMeta
+    clean_name::String
+    obs_idx::Union{Nothing, Int}
+    order::Int
+    point::Int
+    kind::Symbol
+end
+
+"""
     MultiPointTemplate
 
 Pre-computed multi-point polynomial template. Built once per model from the
@@ -1092,6 +1115,10 @@ struct MultiPointTemplate
     per_point_data_var_indices::Vector{Vector{Int}}
     template_DD::Any           # DerivativeData for observable → variable mapping
     measured_quantities::Vector{ModelingToolkit.Equation}
+    # Authoritative per-data-var metadata (aligned 1:1 with data_vars) for UQ
+    # Σ_d assembly — label/name parsing downstream is display-only. Appended
+    # last to keep the positional constructors stable.
+    data_var_meta::Vector{DataVarMeta}
 end
 
 """

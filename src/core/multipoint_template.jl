@@ -82,6 +82,60 @@ function _per_point_data_indices(data_vars, n_points::Int)
     return per_point
 end
 
+"""
+    _build_data_var_meta(data_vars, n_points, mq) → Vector{DataVarMeta}
+
+Construction-time classification of every data variable into
+(clean_name, obs_idx, order, point, kind), aligned 1:1 with `data_vars`.
+Mirrors the resolution logic of `evaluate_multipoint_template` (trfn name
+pattern, SIAN-name parse, exact observable-name map, `y<N>` positional
+fallback) so UQ Σ_d assembly never re-derives it from display labels.
+"""
+function _build_data_var_meta(data_vars, n_points::Int, mq)
+    obs_name_to_idx = Dict{String, Int}()
+    for (idx, mq_eq) in enumerate(mq)
+        obs_name_to_idx[replace(string(mq_eq.lhs), r"\(.*\)$" => "")] = idx
+    end
+
+    per_point = _per_point_data_indices(data_vars, n_points)
+    point_of = Dict{Int, Int}()
+    for (pt, idxs) in enumerate(per_point), i in idxs
+        point_of[i] = pt
+    end
+
+    meta = Vector{DataVarMeta}(undef, length(data_vars))
+    for (i, dv) in enumerate(data_vars)
+        clean = replace(string(dv), r"_pt\d+$" => "")
+        pt = point_of[i]
+
+        if contains(clean, "_trfn_")
+            meta[i] = DataVarMeta(clean, nothing, 0, pt, :transcendental)
+            continue
+        end
+
+        parsed = parse_derivative_variable_name(clean)
+        if isnothing(parsed)
+            meta[i] = DataVarMeta(clean, nothing, 0, pt, :unresolved)
+            continue
+        end
+        base_name, order = parsed
+
+        obs_idx = get(obs_name_to_idx, string(base_name), nothing)
+        if isnothing(obs_idx)
+            # Positional fallback mirrored from evaluate_multipoint_template
+            m = match(r"^y(\d+)$", string(base_name))
+            if !isnothing(m)
+                cand = parse(Int, m.captures[1])
+                obs_idx = 1 <= cand <= length(mq) ? cand : nothing
+            end
+        end
+
+        meta[i] = DataVarMeta(clean, obs_idx, order, pt,
+            isnothing(obs_idx) ? :unresolved : :observable_jet)
+    end
+    return meta
+end
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Variable classification for multi-point
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -889,6 +943,7 @@ function build_multipoint_template(
         per_point_data_indices,
         template_DD,
         mq,
+        _build_data_var_meta(data_vars, n_points, mq),
     )
 end
 

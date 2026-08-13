@@ -32,6 +32,34 @@ using Symbolics
 		@test isempty(idx3[2])
 	end
 
+	@testset "_build_data_var_meta classifies (obs, order, point, kind)" begin
+		v(s) = Symbolics.variable(Symbol(s))
+		pep_meta = ODEParameterEstimation.simple()   # observes y1 ~ x1, y2 ~ x2
+		mq = pep_meta.measured_quantities
+
+		data_vars = Any[
+			v("y1_0"),               # obs 1, order 0, point 1
+			v("y2_3_pt2"),           # obs 2, order 3, point 2
+			v("_obs_trfn_u_0"),      # transcendental (name pattern)
+			v("q_1"),                # parses but matches no observable → unresolved
+			v("y2_1"),               # obs 2 via exact name map, point 1
+		]
+		meta = ODEParameterEstimation._build_data_var_meta(data_vars, 2, mq)
+		@test length(meta) == 5
+
+		@test meta[1].kind == :observable_jet && meta[1].obs_idx == 1 &&
+		      meta[1].order == 0 && meta[1].point == 1 && meta[1].clean_name == "y1_0"
+		@test meta[2].kind == :observable_jet && meta[2].obs_idx == 2 &&
+		      meta[2].order == 3 && meta[2].point == 2 && meta[2].clean_name == "y2_3"
+		@test meta[3].kind == :transcendental && meta[3].obs_idx === nothing
+		@test meta[4].kind == :unresolved && meta[4].obs_idx === nothing
+		@test meta[5].kind == :observable_jet && meta[5].obs_idx == 2 && meta[5].point == 1
+
+		# y<N> positional fallback stays bounded by length(mq)
+		meta_fb = ODEParameterEstimation._build_data_var_meta(Any[v("y9_0")], 1, mq)
+		@test meta_fb[1].kind == :unresolved && meta_fb[1].obs_idx === nothing
+	end
+
 	@testset "_match_obs_name is exact-only (y1 vs y10)" begin
 		d = Dict("y1" => 1, "y10" => 2)
 		@test ODEParameterEstimation._match_obs_name("y1", d) == 1

@@ -442,6 +442,17 @@ using Random
         @test all(isfinite, mpe.data_values)
         @test length(mpe.data_values) == length(mpt.data_vars)
 
+        # data_var_meta: authoritative (obs, order, point, kind) aligned to data_vars
+        @test length(mpt.data_var_meta) == length(mpt.data_vars)
+        @test all(m -> m.kind in (:observable_jet, :transcendental), mpt.data_var_meta)
+        for (i, m) in enumerate(mpt.data_var_meta)
+            @test m.point == (endswith(string(mpt.data_vars[i]), "_pt2") ? 2 : 1)
+            if m.kind == :observable_jet
+                @test 1 <= m.obs_idx <= length(mpt.measured_quantities)
+                @test m.order >= 0
+            end
+        end
+
         csv_path = joinpath(mktempdir(), "noise_frontier.csv")
         @test ODEParameterEstimation.write_noise_frontier_csv(csv_path, sp) == csv_path
         @test isfile(csv_path)
