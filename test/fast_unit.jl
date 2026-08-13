@@ -24,4 +24,5 @@ using Test
 	include("test_model_utils.jl")       # ordered model construction helpers
 	include("test_label_parsers.jl")     # SIAN/Symbolics derivative-name parsing (name round-tripping)
 	include("test_run_context.jl")       # scoped RunContext contracts (auto-M hand-off, sinks, isolation)
+	include("test_hc_sanitize.jl")       # HC name injectivity + cross-list dedup (silent-collision class)
 end

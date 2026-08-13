@@ -338,6 +338,27 @@ function sanitize_vars(varlist)
 		startswith(s, r"[0-9]") ? "v_" * s : s
 	end
 	sanitized = sanitize.(var_names)
+	# Injective-on-collision: the char-replacement above is lossy (xˍt and x_t
+	# both become x_t), and a collision silently IDENTIFIES two variables in
+	# the HC system — duplicate names pass HC's checks, one slot goes dead, and
+	# positionally-returned values are garbage for the first variable (traced
+	# 2026-08-12 audit). First occurrence keeps the clean name; later ones get
+	# __2, __3, …
+	seen = Dict{String, Int}()
+	for i in eachindex(sanitized)
+		s = sanitized[i]
+		n = get(seen, s, 0) + 1
+		seen[s] = n
+		if n > 1
+			candidate = string(s, "__", n)
+			while haskey(seen, candidate)
+				n += 1
+				candidate = string(s, "__", n)
+			end
+			seen[candidate] = 1
+			sanitized[i] = candidate
+		end
+	end
 	return sanitized
 end
 
@@ -391,8 +412,12 @@ function convert_to_hc_format(poly_system, varlist)
 	# Convert expressions to strings and replace variable names with hmcs("name")
 	string_target = string.(poly_system)
 
-	# Sanitize variable names to be HC-friendly (alphanumeric and underscores)
+	# Sanitize variable names to be HC-friendly (alphanumeric and underscores);
+	# sanitize_vars is injective per call, but fail fast if that ever regresses
+	# (a duplicate HC name = silent wrong values, not an HC error).
 	sanitized = sanitize_vars(varlist)
+	allunique(sanitized) || throw(ArgumentError(
+		"convert_to_hc_format: sanitized HC names are not unique: $(sanitized)"))
 
 	# Build mapping from original variable string to hmcs("sanitized_name") placeholder
 	variable_string_mapping = Dict{String, String}()
@@ -625,6 +650,28 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 	sanitized_solve = sanitize_vars(solve_vars)
 	sanitized_data = sanitize_vars(data_vars)
 
+	# Data vars carry a p_ prefix in HC — which can collide ACROSS lists with a
+	# solve variable literally named p_<something> (e.g. solve var `p_y` vs data
+	# var `y`; 2026-08-12 audit finding). Deduplicate the prefixed data names
+	# against the solve-name set, then assert global uniqueness.
+	prefixed_data = ["p_" * s for s in sanitized_data]
+	taken = Set{String}(sanitized_solve)
+	for i in eachindex(prefixed_data)
+		name = prefixed_data[i]
+		if name in taken
+			k = 2
+			while string(name, "__", k) in taken
+				k += 1
+			end
+			name = string(name, "__", k)
+		end
+		push!(taken, name)
+		prefixed_data[i] = name
+	end
+	all_hc_names = vcat(sanitized_solve, prefixed_data)
+	allunique(all_hc_names) || throw(ArgumentError(
+		"convert_to_hc_format_with_params: sanitized HC names are not unique after dedup: $(all_hc_names)"))
+
 	# Build mapping from original variable string to hmcs("sanitized_name") placeholder
 	variable_string_mapping = Dict{String, String}()
 
@@ -635,11 +682,10 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 		variable_string_mapping[orig_name] = "hmcs(\"" * sanitized_name * "\")"
 	end
 
-	# Map data variables (parameters in HC)
+	# Map data variables (parameters in HC; prefixed + deduped names)
 	for (i, v) in enumerate(data_vars)
 		orig_name = string(v)
-		sanitized_name = sanitized_data[i]
-		variable_string_mapping[orig_name] = "hmcs(\"p_" * sanitized_name * "\")"
+		variable_string_mapping[orig_name] = "hmcs(\"" * prefixed_data[i] * "\")"
 	end
 
 	# Apply textual replacement (two-pass, longest-first to avoid substring collisions)
@@ -668,9 +714,10 @@ function convert_to_hc_format_with_params(poly_system, solve_vars, data_vars)
 		HomotopyContinuation.ModelKit.Variable(Symbol(sanitized_solve[i])) for i in eachindex(solve_vars)
 	]
 
-	# Build parameters list in the same order as data_vars (with p_ prefix)
+	# Build parameters list in the same order as data_vars (prefixed + deduped —
+	# MUST match the names used in variable_string_mapping above)
 	hc_params = HomotopyContinuation.ModelKit.Variable[
-		HomotopyContinuation.ModelKit.Variable(Symbol("p_" * sanitized_data[i])) for i in eachindex(data_vars)
+		HomotopyContinuation.ModelKit.Variable(Symbol(prefixed_data[i])) for i in eachindex(data_vars)
 	]
 
 	# Construct the parameterized system
