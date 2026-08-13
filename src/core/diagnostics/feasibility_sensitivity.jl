@@ -625,6 +625,45 @@ function diagnose_sensitivity(
 end
 
 """
+    _ift_solve(J_x, J_d) → (S, cond_Jx, degraded::Bool)
+
+Factorized IFT sensitivity `S = -(J_x \\ J_d)`. Above the conditioning
+threshold this DEGRADES LOUDLY (warn + `degraded = true`) instead of the old
+silent `pinv` fallback: the pseudoinverse picks the minimum-norm derivative,
+which SUPPRESSES weak-direction sensitivity and makes the downstream
+covariance overconfident exactly when conditioning is worst. The factorized
+solve keeps the ill-conditioned amplification visible; consumers should treat
+`degraded = true` results as unreliable rather than trusting a quietly
+optimistic S. (Decision: Oren 2026-08-13, "degrade loudly".)
+"""
+function _ift_solve(J_x::AbstractMatrix{<:Real}, J_d::AbstractMatrix{<:Real};
+    cond_threshold::Float64 = 1e6,
+)
+    cond_Jx = try
+        svs_x = svd(J_x).S
+        length(svs_x) > 0 ? svs_x[1] / max(svs_x[end], 1e-300) : Inf
+    catch
+        Inf
+    end
+
+    degraded = cond_Jx > cond_threshold
+    if degraded
+        @warn "[DIAG] J_x ill-conditioned (cond = $cond_Jx > $cond_threshold) — IFT sensitivity S is unreliable; downstream UQ should be treated as degraded" maxlog = 10
+    end
+
+    S = try
+        -(J_x \ J_d)
+    catch err
+        _rethrow_if_interrupt(err)
+        # Exactly singular factorization: no local IFT derivative exists.
+        @warn "[DIAG] J_x factorization failed ($err) — returning empty S"
+        return Matrix{Float64}(undef, 0, 0), cond_Jx, true
+    end
+
+    return S, cond_Jx, degraded
+end
+
+"""
     _compute_data_sensitivity(pep, setup_data, t_eval, prod_vars, true_vals; kwargs...)
 
 Compute the parameter-data sensitivity matrix S = -(∂F/∂x)⁻¹ · (∂F/∂d) via the
@@ -796,19 +835,8 @@ function _compute_data_sensitivity(
     J_x = J_full[:, 1:n_x]
     J_d = J_full[:, (n_x + 1):end]
 
-    # Step 8: IFT: S = -(J_x \ J_d)  or pinv for ill-conditioned systems
-    cond_Jx = try
-        svs_x = svd(J_x).S
-        length(svs_x) > 0 ? svs_x[1] / max(svs_x[end], 1e-300) : Inf
-    catch
-        Inf
-    end
-
-    S = if cond_Jx > 1e6
-        -(pinv(J_x) * J_d)
-    else
-        -(J_x \ J_d)
-    end
+    # Step 8: IFT solve (factorized; degrades loudly instead of silent pinv)
+    S, cond_Jx, ift_degraded = _ift_solve(J_x, J_d)
 
     # Build labels and roles
     d_labels = [string(v) for v in data_vars]
