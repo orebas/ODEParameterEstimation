@@ -601,6 +601,10 @@ end
 Optimized parameter estimation using precomputed derivatives.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Carry the per-analysis HC solver config onto whatever RunContext is bound —
+	# covers direct callers (consensus/benchmark flows) that bypass
+	# analyze_parameter_estimation_problem; no-op when no context is bound.
+	_run_ctx_set_hc_opts!(opts.hc_threading, opts.hc_compile_mode)
 	# Check input validity
 	_LAST_ESTIMATION_REUSE[] = nothing
 	if isnothing(PEP.data_sample)

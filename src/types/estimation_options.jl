@@ -153,7 +153,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 12)
 - `shooting_warp::Bool`: Use exponential warp to cluster points near t=0 (default: true)
 - `shooting_warp_beta::Float64`: Warp strength; 0≈uniform, 3=default (default: 3.0)
-- `point_hint::Float64`: Hint for time point selection, in [0,1] range (default: 0.5)
+- `point_hint::Float64`: Hint for time point selection, in [0,1] range (default: 0.5). Consumed by the UQ sidecar's `setup_parameter_estimation` and legacy/diagnostics paths; the main flow's shooting-point selection is governed by `shooting_points`/`shooting_warp` instead
 
 ## Derivative and Reconstruction Parameters
 
@@ -235,9 +235,8 @@ opts = EstimationOptions(abstol=1e-12, reltol=1e-12)
 
 # Create with custom solver and interpolator
 opts = EstimationOptions(
-	system_solver=solve_with_hc,
-	interpolator=aaad,
-	use_monodromy=true
+	system_solver=SolverHC,
+	interpolators=[InterpolatorAAAD]
 )
 
 # Create with debugging enabled
@@ -1437,9 +1436,8 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 	categories = [
 		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator, :interpolators]),
 		("Tolerances", [:abstol, :reltol]),
-		("Solution Validation", [:imag_threshold, :clustering_threshold]),
+		("Solution Validation", [:clustering_threshold]),
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
-		("Derivatives and Reconstruction", [:max_deriv_level]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :opt_ad_backend, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
 		("SHADE+LM Baseline", [:shade_total_max_evals, :shade_total_max_time, :shade_global_eval_fraction,

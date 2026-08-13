@@ -30,6 +30,13 @@ using OrderedCollections
 
 	# gp_s3_refinement shim survives (deprecation warning path, not deleted).
 	@test EstimationOptions(gp_s3_refinement = false).gp_s3_refinement === false
+
+	# The ordinary DISPLAY paths must never reference deleted fields
+	# (2026-08-13 regression: show() FieldError'd on a stale print group that
+	# the full gate never exercised).
+	@test !isempty(sprint(show, EstimationOptions()))
+	@test !isempty(sprint(io -> print_options(io, EstimationOptions())))
+	@test !isempty(sprint(io -> print_options(io, EstimationOptions(); compact = true)))
 end
 
 @testset "provenance_metadata_dict (single-source metadata block)" begin

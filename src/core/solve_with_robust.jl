@@ -333,9 +333,11 @@ function solve_with_robust(poly_system, varlist;
 					result = Optim.optimize(objective,
 						(g, u) -> grad_func(g, u), x0,
 						Optim.BFGS(linesearch = Optim.LineSearches.BackTracking()),
-						Optim.Options(g_tol = abstol, iterations = maxiters))
+						Optim.Options(g_tol = abstol, iterations = maxiters,
+							time_limit = max(timeout - (time() - start_time), 1.0)))
 				else
-					result = Optim.optimize(objective, x0, Optim.BFGS())
+					result = Optim.optimize(objective, x0, Optim.BFGS(),
+						Optim.Options(time_limit = max(timeout - (time() - start_time), 1.0)))
 				end
 
 				sol = (u = result.minimizer,
@@ -351,6 +353,7 @@ function solve_with_robust(poly_system, varlist;
 				opt.upper_bounds = fill(100.0, n)
 				opt.ftol_abs = abstol^2  # Since we're minimizing ||f||^2
 				opt.maxeval = maxiters
+				opt.maxtime = max(timeout - (time() - start_time), 1.0)
 
 				(minf, minx, ret) = NLopt.optimize(opt, x0)
 
@@ -490,6 +493,14 @@ function solve_with_robust(poly_system, varlist;
 			println("[ROBUST] No solutions found")
 		end
 		_record_robust_timing!(0)
+		# Fill the shared stats keys before the early return — the no-solution
+		# case is exactly when maxtime_hits matters most (everything timed out).
+		stats[:algorithm] = selected_algo
+		stats[:jacobian] = jac_mode
+		stats[:maxtime_hits] = maxtime_hit_count
+		stats[:best_residual] = best_residual
+		stats[:num_solutions] = 0
+		stats[:multistart] = multistart
 		# Return empty result
 		return ([], Dict(), stats, varlist)
 	end

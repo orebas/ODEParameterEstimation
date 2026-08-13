@@ -1,6 +1,14 @@
 # ODEParameterEstimation Review Map
 
-**Status:** Current coordination map for multi-agent review.
+> **⚠️ STALE (flagged 2026-07-21, still true 2026-08-13).** This map's snapshot
+> predates: the src/research/ + deprecated/ reorg, the SI-template/noise-frontier
+> default flow, RunContext, the 2026-07/08 fix-class arcs, and the current gate
+> tiers. Until rewritten, use instead: `docs/2026-07-21_code_review_findings.md`
+> (verified review findings), `repro/hc_threading_mwe_2026_07_22/ADJUDICATION_*`
+> (audit method), and the gates — `test/fast_unit.jl` (contract tier, seconds),
+> `test/fast_core.jl` (~6 min), full `test/runtests.jl` (~15 min, the merge bar).
+
+**Status:** STALE — historical coordination map; do not assign review lanes from it.
 **Snapshot date:** 2026-05-29.
 **Audience:** AI reviewers first, maintainers second.
 

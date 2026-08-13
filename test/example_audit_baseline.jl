@@ -278,6 +278,12 @@ function restart_worker!(pid_ref::Base.RefValue{Int})
 				run(ignorestatus(`kill -KILL $(ospid)`))
 			catch
 			end
+			deadline = time() + 5.0
+			while time() < deadline && success(`kill -0 $(ospid)`)
+				sleep(0.25)
+			end
+			success(`kill -0 $(ospid)`) &&
+				@warn "audit worker OS pid $(ospid) survived SIGKILL wait window; possible leak"
 		end
 		delete!(_WORKER_OS_PID, old)
 	end
@@ -476,5 +482,11 @@ let final_pid = worker_ref[]
 			run(ignorestatus(`kill -KILL $(ospid)`))
 		catch
 		end
+		deadline = time() + 5.0
+		while time() < deadline && success(`kill -0 $(ospid)`)
+			sleep(0.25)
+		end
+		success(`kill -0 $(ospid)`) &&
+			@warn "audit worker OS pid $(ospid) survived SIGKILL wait window; possible leak"
 	end
 end
