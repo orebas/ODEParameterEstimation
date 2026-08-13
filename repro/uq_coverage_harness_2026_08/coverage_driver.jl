@@ -244,6 +244,14 @@ struct CoverageResult
 	zs::Dict{String, Vector{Float64}}
 	z_crit::Float64
 	statuses::Vector{Symbol}
+	# Added 2026-08-14 after the single-point-regime run: mean/sd of z are
+	# destroyed by a single σ̂≈0 replicate (|z| → 1e7), and coverage alone
+	# cannot distinguish "calibrated" from "estimate is hopeless but the
+	# interval is honestly enormous". Track the estimator's own error and
+	# count the degenerate-σ̂ replicates instead of silently averaging them in.
+	rel_errs::Dict{String, Vector{Float64}}   # |estimate − truth| / |truth|
+	sigmas::Dict{String, Vector{Float64}}     # σ̂ per replicate
+	n_zero_sigma::Dict{String, Int}           # σ̂ ≤ 0 or non-finite z
 end
 
 function run_coverage(pep_ctor;
@@ -265,6 +273,9 @@ function run_coverage(pep_ctor;
 	covered = Dict{String, Int}()
 	usable = Dict{String, Int}()
 	zs = Dict{String, Vector{Float64}}()
+	rel_errs = Dict{String, Vector{Float64}}()
+	sigmas = Dict{String, Vector{Float64}}()
+	n_zero_sigma = Dict{String, Int}()
 	statuses = Symbol[]
 	labels_seen = String[]
 	n_reported = 0
@@ -277,33 +288,102 @@ function run_coverage(pep_ctor;
 		n_reported += 1
 		for (j, l) in enumerate(rep.labels)
 			l in labels_seen || push!(labels_seen, l)
-			z = (rep.center[j] - rep.truth[j]) / rep.sigma[j]
-			isfinite(z) || continue
+			tv = rep.truth[j]
+			if isfinite(tv) && abs(tv) > 1e-15 && isfinite(rep.center[j])
+				push!(get!(rel_errs, l, Float64[]), abs(rep.center[j] - tv) / abs(tv))
+			end
+			isfinite(rep.sigma[j]) && push!(get!(sigmas, l, Float64[]), rep.sigma[j])
+			z = (rep.center[j] - tv) / rep.sigma[j]
+			if !isfinite(z)
+				# σ̂ ≈ 0 (or non-finite center/truth): an infinite z is not a
+				# coverage miss, it is an unusable measurement. Count it.
+				n_zero_sigma[l] = get(n_zero_sigma, l, 0) + 1
+				continue
+			end
 			usable[l] = get(usable, l, 0) + 1
 			push!(get!(zs, l, Float64[]), z)
 			abs(z) <= z_crit && (covered[l] = get(covered, l, 0) + 1)
 		end
 	end
 
-	return CoverageResult(labels_seen, N, n_reported, covered, usable, zs, z_crit, statuses)
+	return CoverageResult(labels_seen, N, n_reported, covered, usable, zs, z_crit, statuses,
+		rel_errs, sigmas, n_zero_sigma)
 end
 
 coverage_fraction(res::CoverageResult, label::String) =
 	get(res.usable, label, 0) == 0 ? NaN :
 	get(res.covered, label, 0) / res.usable[label]
 
+_fmt3(x) = isempty(x) ? "—" : string(round(median(x); sigdigits = 3))
+
+"""
+Robust per-coordinate summary. `med|z|` near 0.67 and `p90|z|` near 1.64 indicate
+a calibrated interval (the median and 90th percentile of a standard normal);
+much smaller means the interval is conservative, much larger means overconfident.
+`med relerr` is the estimator's own accuracy — a coordinate can be perfectly
+"covered" by an interval so wide it says nothing, which is exactly the
+out-of-regime signature.
+"""
 function print_coverage(res::CoverageResult)
 	println("UQ coverage: $(res.n_reported)/$(res.n_total) replicates produced a report; z_crit = $(res.z_crit)")
-	println(rpad("coordinate", 16), rpad("coverage", 12), rpad("n", 6),
-		rpad("mean z", 10), "sd z")
+	println(rpad("coordinate", 14), rpad("coverage", 10), rpad("n", 4), rpad("bad_σ", 6),
+		rpad("med|z|", 9), rpad("p90|z|", 9), rpad("med relerr", 12), "med σ̂")
 	for l in res.labels
 		zv = get(res.zs, l, Float64[])
+		az = sort(abs.(zv))
+		p90 = isempty(az) ? NaN : az[max(1, ceil(Int, 0.9 * length(az)))]
 		cov = coverage_fraction(res, l)
-		println(rpad(l, 16),
-			rpad(isnan(cov) ? "—" : string(round(100 * cov; digits = 1), "%"), 12),
-			rpad(string(length(zv)), 6),
-			rpad(string(round(mean(zv); digits = 3)), 10),
-			string(round(std(zv); digits = 3)))
+		println(rpad(l, 14),
+			rpad(isnan(cov) ? "—" : string(round(100 * cov; digits = 1), "%"), 10),
+			rpad(string(length(zv)), 4),
+			rpad(string(get(res.n_zero_sigma, l, 0)), 6),
+			rpad(_fmt3(az), 9),
+			rpad(isnan(p90) ? "—" : string(round(p90; sigdigits = 3)), 9),
+			rpad(_fmt3(get(res.rel_errs, l, Float64[])), 12),
+			_fmt3(get(res.sigmas, l, Float64[])))
 	end
 	return nothing
+end
+
+"""
+    regime_verdict(res; relerr_tol = 0.05) → (:in_regime | :marginal | :out_of_regime, notes)
+
+Classify a (model, config) cell for the single-point-unpolished UQ regime:
+the estimator must be ACCURATE (median relative error ≤ tol on every
+coordinate) and the interval CALIBRATED (median |z| in a loose band around
+the standard-normal median 0.674). Wide-but-covering is NOT in-regime.
+"""
+function regime_verdict(res::CoverageResult; relerr_tol::Float64 = 0.05)
+	res.n_reported < max(1, res.n_total ÷ 2) && return (:out_of_regime, "only $(res.n_reported)/$(res.n_total) replicates reported")
+	notes = String[]
+	worst_err = 0.0
+	calibrated = true
+	# Standard-normal median |z| = 0.674; accept a factor of 2 either way.
+	# (The earlier [0.15, 2.5] band was too permissive — it passed a
+	# coordinate with med|z| = 1.89 and 50% coverage.)
+	lo, hi = 0.34, 1.35
+	for l in res.labels
+		re = get(res.rel_errs, l, Float64[])
+		isempty(re) || (worst_err = max(worst_err, median(re)))
+		az = abs.(get(res.zs, l, Float64[]))
+		if isempty(az)
+			calibrated = false
+			push!(notes, "$l: no usable z")
+			continue
+		end
+		m = median(az)
+		if m > hi
+			calibrated = false
+			push!(notes, "$l: OVERCONFIDENT med|z|=$(round(m; sigdigits = 3))")
+		elseif m < lo
+			calibrated = false
+			push!(notes, "$l: conservative med|z|=$(round(m; sigdigits = 3))")
+		end
+		get(res.n_zero_sigma, l, 0) > 0 && push!(notes, "$l: $(res.n_zero_sigma[l]) degenerate σ̂")
+	end
+	accurate = worst_err <= relerr_tol
+	verdict = accurate && calibrated ? :in_regime :
+			  accurate ? :marginal : :out_of_regime
+	push!(notes, "worst med relerr = $(round(100 * worst_err; sigdigits = 3))%")
+	return verdict, notes
 end
