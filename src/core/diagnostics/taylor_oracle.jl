@@ -237,6 +237,57 @@ end
 # ─── Oracle Taylor coefficient computation ────────────────────────────
 
 """
+    _propagate_state_taylor(sys, state_values, param_vals, t_eval, max_order)
+
+Propagate Taylor coefficients of all states about `t_eval` from point values
+alone: seed `coeffs[1] = state_values[i]` and recurse through the symbolic
+RHS (`x_{k+1} = f_k / (k+1)` via Cauchy products on the expression tree).
+No trajectory is needed — the jet of an ODE solution at a point is an
+algebraic function of (state values, parameters) at that point.
+
+`state_values` must be ordered like `ModelingToolkit.unknowns(sys)`.
+Returns `Dict{Num, Vector{Float64}}` with `coeffs[k+1] = x^(k)(t_eval) / k!`.
+"""
+function _propagate_state_taylor(
+    sys,
+    state_values::AbstractVector{<:Real},
+    param_vals::Dict{Num, Float64},
+    t_eval::Float64,
+    max_order::Int,
+)
+    t_iv = ModelingToolkit.get_iv(sys)
+    states = ModelingToolkit.unknowns(sys)
+    eqs = ModelingToolkit.equations(sys)
+    length(state_values) == length(states) ||
+        error("_propagate_state_taylor: got $(length(state_values)) state values for $(length(states)) states")
+
+    state_coeffs = Dict{Num, Vector{Float64}}()
+    for (si, s) in enumerate(states)
+        c = zeros(max_order + 1)
+        c[1] = Float64(state_values[si])
+        state_coeffs[s] = c
+    end
+
+    # Extract symbolic RHS from each equation: D(x_i) ~ f_i(...)
+    rhs_exprs = Num[]
+    for eq in eqs
+        push!(rhs_exprs, eq.rhs)
+    end
+
+    # Recursion — for each order k, compute the (k+1)-th Taylor coefficient
+    # x^(k+1)(t_eval) / (k+1)! = f^(k)(t_eval) / (k+1)!
+    # The k-th Taylor coefficient of f gives the (k+1)-th of x: x_{k+1} = f_k / (k+1)
+    for k in 0:(max_order - 1)
+        for (si, s) in enumerate(states)
+            rhs_tc = _taylor_coeffs_expr(rhs_exprs[si], state_coeffs, param_vals, Num(t_iv), t_eval, k)
+            state_coeffs[s][k+2] = rhs_tc[k+1] / (k + 1)
+        end
+    end
+
+    return state_coeffs
+end
+
+"""
     compute_oracle_taylor_coefficients(pep, t_eval, max_order; kwargs...)
 
 Compute machine-precision Taylor coefficients for all states at `t_eval`
@@ -257,10 +308,8 @@ function compute_oracle_taylor_coefficients(
 )
     model = pep.model
     sys = model.system
-    t_iv = ModelingToolkit.get_iv(sys)
     states = ModelingToolkit.unknowns(sys)
     params = ModelingToolkit.parameters(sys)
-    eqs = ModelingToolkit.equations(sys)
 
     # Step 1: Solve ODE at high accuracy to get state values at t_eval.
     # The data sample's t-vector is the canonical source of the integration range
@@ -291,40 +340,14 @@ function compute_oracle_taylor_coefficients(
     end
     sol = ModelingToolkit.solve(prob, solver; abstol, reltol, dense = true)
 
-    # Step 2: Extract state values at t_eval
+    # Step 2: Extract state values at t_eval and propagate jets algebraically
     param_vals = Dict{Num, Float64}()
     for (p, v) in pep.p_true
         param_vals[p] = v
     end
 
-    state_coeffs = Dict{Num, Vector{Float64}}()
-    for s in states
-        c = zeros(max_order + 1)
-        c[1] = sol(t_eval, idxs = s)
-        state_coeffs[s] = c
-    end
-
-    # Step 3: Extract symbolic RHS from each equation: D(x_i) ~ f_i(...)
-    rhs_exprs = Num[]
-    for eq in eqs
-        push!(rhs_exprs, eq.rhs)
-    end
-
-    # Step 4: Recursion — for each order k, compute the (k+1)-th Taylor coefficient
-    # x^(k+1)(t0) / (k+1)! = f^(k)(t0) / (k+1)!
-    # But f^(k) as Taylor coeff = (Taylor coeff of f at order k)
-    # So state_coeffs[i][k+2] = f_taylor_coeffs[i][k+1] / (k+1)
-    for k in 0:(max_order - 1)
-        # Compute Taylor coefficients of each RHS expression using current state_coeffs
-        for (si, s) in enumerate(states)
-            rhs_tc = _taylor_coeffs_expr(rhs_exprs[si], state_coeffs, param_vals, Num(t_iv), t_eval, k)
-            # The k-th Taylor coefficient of f gives us the (k+1)-th of x:
-            # x_{k+1} = f_k / (k+1)
-            state_coeffs[s][k+2] = rhs_tc[k+1] / (k + 1)
-        end
-    end
-
-    return state_coeffs
+    state_values = Float64[sol(t_eval, idxs = s) for s in states]
+    return _propagate_state_taylor(sys, state_values, param_vals, t_eval, max_order)
 end
 
 """
@@ -359,6 +382,109 @@ function compute_observable_taylor_coefficients(
         obs_coeffs[key] = tc
     end
 
+    return obs_coeffs
+end
+
+# ─── Estimate-conditioned Taylor coefficients (Stream B, 2026-08) ─────
+# The estimate-value siblings of the oracle builders above. They evaluate the
+# same jets at the ESTIMATE instead of truth, so the UQ chain can run on real
+# data where `pep.p_true`/`pep.ic` are unavailable.
+
+"""
+    compute_estimate_taylor_coefficients(pep, estimate, t_eval, max_order)
+
+Estimate-conditioned sibling of [`compute_oracle_taylor_coefficients`](@ref):
+Taylor coefficients of all states about `t_eval` evaluated at the estimate.
+θ̂ comes from `estimate.parameters` (with `estimate.unident_dict` as fallback
+for fixed unidentifiable parameters); x̂(t_eval) is resolved by
+`_uq_state_values_at_time` (the estimate's retained trajectory when present,
+else a forward solve from its t0 states). Higher orders come from the same
+symbolic RHS recursion the oracle uses — no truth values are touched.
+
+Returns `state_coeffs::Dict{Num, Vector{Float64}}` with
+`coeffs[k+1] = x̂^(k)(t_eval) / k!`.
+"""
+function compute_estimate_taylor_coefficients(
+    pep::ParameterEstimationProblem,
+    estimate::ParameterEstimationResult,
+    t_eval::Float64,
+    max_order::Int,
+)
+    if isnothing(pep.data_sample) || !haskey(pep.data_sample, "t")
+        error("compute_estimate_taylor_coefficients requires `pep.data_sample` with a \"t\" key")
+    end
+    sys = pep.model.system
+    completed_sys = ModelingToolkit.complete(sys)
+    completed_states = ModelingToolkit.unknowns(completed_sys)
+    completed_params = ModelingToolkit.parameters(completed_sys)
+
+    param_values = _uq_ordered_result_values(estimate.parameters, completed_params)
+    # Unidentifiable parameters may carry their fixed value only in unident_dict
+    if !isnothing(estimate.unident_dict)
+        fallback = _uq_ordered_result_values(estimate.unident_dict, completed_params)
+        for i in eachindex(param_values)
+            isfinite(param_values[i]) || (param_values[i] = fallback[i])
+        end
+    end
+    any(!isfinite, param_values) &&
+        error("compute_estimate_taylor_coefficients: estimate is missing finite values for some model parameters")
+
+    t0 = Float64(pep.data_sample["t"][1])
+    x_at_eval = _uq_state_values_at_time(
+        pep, estimate, completed_sys, completed_states, completed_params,
+        param_values, t0, t_eval,
+    )
+
+    # Order the anchor like unknowns(sys) (the propagation ordering) via cleaned names
+    by_name = Dict(_uq_clean_name(s) => x_at_eval[i] for (i, s) in enumerate(completed_states))
+    states = ModelingToolkit.unknowns(sys)
+    state_values = Float64[get(by_name, _uq_clean_name(s), NaN) for s in states]
+    any(!isfinite, state_values) &&
+        error("compute_estimate_taylor_coefficients: could not resolve estimate state values at t = $t_eval")
+
+    param_vals = Dict{Num, Float64}()
+    for (i, p) in enumerate(completed_params)
+        param_vals[p] = param_values[i]
+    end
+
+    return _propagate_state_taylor(sys, state_values, param_vals, t_eval, max_order)
+end
+
+"""
+    interpolant_taylor_coefficients(pep, interpolants, t_eval, max_order)
+
+Taylor-coefficient-shaped view of the production interpolants' jets:
+`coeffs[k+1] = interp^(k)(t_eval) / k!`, keyed like `precomputed_interpolants`
+(by `diff2term`'d observable RHS). These are the observation-derivative values
+the solver actually consumed — the estimate-conditioned replacement for
+`compute_observable_taylor_coefficients` (which requires truth).
+"""
+function interpolant_taylor_coefficients(
+    pep::ParameterEstimationProblem,
+    interpolants::AbstractDict,
+    t_eval::Float64,
+    max_order::Int,
+)
+    obs_coeffs = Dict{Num, Vector{Float64}}()
+    for mq in pep.measured_quantities
+        key = ModelingToolkit.diff2term(mq.rhs)
+        haskey(interpolants, key) || continue
+        interp = interpolants[key]
+        tc = zeros(max_order + 1)
+        all_finite = true
+        for k in 0:max_order
+            val = try
+                Float64(nth_deriv(x -> interp(x), k, t_eval))
+            catch
+                NaN
+            end
+            isfinite(val) || (all_finite = false)
+            tc[k+1] = val / factorial(k)
+        end
+        all_finite ||
+            @warn "[UQ] Non-finite interpolant jet for $(mq.lhs) at t = $t_eval (orders ≤ $max_order)"
+        obs_coeffs[key] = tc
+    end
     return obs_coeffs
 end
 

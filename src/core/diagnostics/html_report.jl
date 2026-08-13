@@ -764,8 +764,11 @@ end
 function _write_html_sens_section(io, sr::SensitivityReport)
     println(io, "<details><summary>Sensitivity Analysis</summary><div class=\"detail-body\">")
     # Provenance annotation
-    println(io, """<div class="provenance">J = ∂F/∂x evaluated at true values, where F = SI polynomial system, x = unknowns (params, ICs, state derivatives).<br>Condition number κ = σ_max / σ_min bounds worst-case error amplification: ‖δx‖/‖x‖ ≤ κ · ‖δd‖/‖d‖.<br>The <b>Parameter–Data Sensitivity</b> matrix below gives the actual per-variable amplification via the implicit function theorem.</div>""")
+    eval_point = sr.value_source === :estimate ?
+        "the ESTIMATE (θ̂, x̂ jets, GP interpolant data jets)" : "true values"
+    println(io, """<div class="provenance">J = ∂F/∂x evaluated at $(eval_point), where F = SI polynomial system, x = unknowns (params, ICs, state derivatives).<br>Condition number κ = σ_max / σ_min bounds worst-case error amplification: ‖δx‖/‖x‖ ≤ κ · ‖δd‖/‖d‖.<br>The <b>Parameter–Data Sensitivity</b> matrix below gives the actual per-variable amplification via the implicit function theorem.</div>""")
     println(io, "<dl class=\"kv\">")
+    println(io, "<dt>Evaluation point</dt><dd>$(sr.value_source)</dd>")
     cond_cls = isnan(sr.jacobian_cond) ? "" : sr.jacobian_cond < 1e6 ? "err-ok" : sr.jacobian_cond < 1e12 ? "err-warn" : "err-bad"
     println(io, "<dt>Jacobian condition</dt><dd class=\"$cond_cls\">$(_fmt(sr.jacobian_cond))</dd>")
     println(io, "<dt>Effective rank</dt><dd>$(sr.effective_rank) / $(length(sr.singular_values))</dd>")

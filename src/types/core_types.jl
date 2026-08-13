@@ -623,7 +623,9 @@ end
 """
     SensitivityReport
 
-Jacobian conditioning and root-displacement analysis at the true solution.
+Jacobian conditioning and root-displacement analysis at the report's
+evaluation point (`value_source`: truth for `:oracle`, the estimate for
+`:estimate`).
 
 # Fields
 - `model_name::String`: Name of the model
@@ -638,6 +640,9 @@ Jacobian conditioning and root-displacement analysis at the true solution.
 - `data_sensitivity_matrix::Matrix{Float64}`: n_unknowns × n_data sensitivity dx*/dd via IFT
 - `data_sensitivity_data_labels::Vector{String}`: Data variable names (columns of S)
 - `data_sensitivity_data_roles::Dict{String, Symbol}`: Data var name → role
+- `value_source::Symbol`: Evaluation point provenance — `:oracle` (truth + oracle
+  Taylor jets; calibration/testing diagnostics) or `:estimate` (θ̂/x̂ + GP
+  interpolant jets; the production UQ path, runs on real data)
 """
 struct SensitivityReport
     model_name::String
@@ -654,6 +659,14 @@ struct SensitivityReport
     data_sensitivity_data_roles::Dict{String, Symbol}
     data_sensitivity_unknown_labels::Vector{String}
     data_sensitivity_unknown_roles::Dict{String, Symbol}
+    value_source::Symbol
+end
+
+# 14-arg constructor (pre-value_source callers; historical reports were oracle-conditioned)
+function SensitivityReport(name, cond, rank, svs, sens, jac_mat, row_labels, col_labels, col_roles,
+        s_mat, d_labels, d_roles, x_labels, x_roles)
+    SensitivityReport(name, cond, rank, svs, sens, jac_mat, row_labels, col_labels, col_roles,
+        s_mat, d_labels, d_roles, x_labels, x_roles, :oracle)
 end
 
 # 12-arg constructor (Phase 2 callers without unknown labels)

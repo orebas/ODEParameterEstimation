@@ -26,4 +26,5 @@ using Test
 	include("test_run_context.jl")       # scoped RunContext contracts (auto-M hand-off, sinks, isolation)
 	include("test_hc_sanitize.jl")       # HC name injectivity + cross-list dedup (silent-collision class)
 	include("test_options_contracts.jl") # deleted-field loud errors + wired-field defaults (dead-options cleanup)
+	include("test_taylor_propagation.jl") # estimate-conditioned Taylor cores (jet recursion + GP-jet view)
 end

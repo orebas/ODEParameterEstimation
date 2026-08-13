@@ -625,7 +625,11 @@ function _compute_uq_result(
 	# deprecated/uq_fd_path.jl. Mirrors _save_diagnostic_html's incantation.
 	uq_result = try
 		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true, point_hint = opts.point_hint)
-		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time)
+		# Estimate-conditioned S (Stream B, 2026-08): passing estimate_result makes
+		# the sensitivity evaluate at (θ̂, x̂, GP jets) instead of truth, so this
+		# path needs no ground-truth values and works on real data.
+		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time,
+			estimate_result = best_solution)
 		r = diagnose_uncertainty(PEP, setup_uq, best_solution.at_time, sens)
 		local_uq = isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
 		isnothing(local_uq) ? nothing : physicalize_uncertainty_report(PEP, best_solution, local_uq)

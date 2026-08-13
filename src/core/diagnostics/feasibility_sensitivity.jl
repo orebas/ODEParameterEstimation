@@ -273,9 +273,13 @@ function _capture_data_variable_values(
 end
 
 """
-Build a vector of true values in the order of `varlist` by matching
+Build a vector of evaluation-point values in the order of `varlist` by matching
 variable names to parameters, states, and their derivatives.
-Uses oracle Taylor coefficients to resolve derivative variables (e.g., x1_1, x2_2).
+Uses the supplied Taylor coefficients to resolve derivative variables (e.g., x1_1, x2_2).
+
+The values are whatever `pep` carries: truth for the oracle path, or the
+estimate when called with a `_pep_with_estimate_values` copy (estimate-conditioned
+UQ path).
 """
 function _build_true_value_vector(pep::ParameterEstimationProblem, varlist;
     state_taylor::Union{Nothing, Dict{Num, Vector{Float64}}} = nothing,
@@ -288,6 +292,46 @@ function _build_true_value_vector(pep::ParameterEstimationProblem, varlist;
         push!(true_vals, val)
     end
     return true_vals
+end
+
+"""
+Shallow copy of `pep` with `p_true`/`ic` replaced by ESTIMATE values (θ̂, and
+x̂(t_eval) = the order-0 estimate Taylor coefficients), so the truth-lookup
+machinery (`_build_true_value_vector` / `_lookup_true_value`) evaluates at the
+estimate without duplicating the SIAN name-parsing logic. Every other field is
+shared with the original problem.
+"""
+function _pep_with_estimate_values(
+    pep::ParameterEstimationProblem,
+    estimate::ParameterEstimationResult,
+    state_taylor::Dict{Num, Vector{Float64}},
+)
+    sys = pep.model.system
+    params = ModelingToolkit.parameters(sys)
+    states = ModelingToolkit.unknowns(sys)
+
+    param_values = _uq_ordered_result_values(estimate.parameters, params)
+    if !isnothing(estimate.unident_dict)
+        fallback = _uq_ordered_result_values(estimate.unident_dict, params)
+        for i in eachindex(param_values)
+            isfinite(param_values[i]) || (param_values[i] = fallback[i])
+        end
+    end
+
+    p_hat = OrderedDict{Num, Float64}()
+    for (i, p) in enumerate(params)
+        p_hat[p] = param_values[i]
+    end
+    ic_hat = OrderedDict{Num, Float64}()
+    for s in states
+        tc = get(state_taylor, s, nothing)
+        ic_hat[s] = (isnothing(tc) || isempty(tc)) ? NaN : tc[1]
+    end
+
+    return ParameterEstimationProblem(
+        pep.name, pep.model, pep.measured_quantities, pep.data_sample,
+        pep.recommended_time_interval, pep.solver, p_hat, ic_hat, pep.unident_count,
+    )
 end
 
 function _lookup_true_value(pep::ParameterEstimationProblem, var;
@@ -443,8 +487,18 @@ end
 """
     diagnose_sensitivity(pep; kwargs...) → SensitivityReport
 
-Compute Jacobian conditioning at the true solution and root displacement
-between perfect and production polynomial systems.
+Compute Jacobian conditioning and the IFT parameter-data sensitivity S at a
+chosen evaluation point, plus root displacement between perfect and
+production polynomial systems.
+
+The evaluation point is controlled by `value_source`:
+- `:oracle` (default without an estimate) — truth (`pep.p_true`/`pep.ic` plus
+  oracle Taylor jets). Requires ground truth; this is the calibration/testing
+  diagnostic mode.
+- `:estimate` (default when `estimate_result` is given) — the estimate
+  (θ̂, x̂ propagated to state jets, GP-interpolant jets for the data
+  variables). Touches no truth values, so it runs on real data. This is the
+  production UQ path.
 """
 function diagnose_sensitivity(
     pep::ParameterEstimationProblem;
@@ -453,8 +507,14 @@ function diagnose_sensitivity(
     poly_report::Union{Nothing, PolynomialFeasibilityReport} = nothing,
     t_eval::Union{Nothing, Float64} = nothing,
     max_order::Union{Nothing, Int} = nothing,
+    estimate_result::Union{Nothing, ParameterEstimationResult} = nothing,
+    value_source::Symbol = isnothing(estimate_result) ? :oracle : :estimate,
     kwargs...,
 )
+    value_source in (:oracle, :estimate) ||
+        throw(ArgumentError("value_source must be :oracle or :estimate, got :$value_source"))
+    value_source === :estimate && isnothing(estimate_result) &&
+        throw(ArgumentError("value_source = :estimate requires an `estimate_result` (ParameterEstimationResult)"))
     if isnothing(setup_data)
         t_var_for_trfn = ModelingToolkit.get_iv(pep.model.system)
         pep, _ = try
@@ -480,9 +540,20 @@ function diagnose_sensitivity(
     model = pep.model.system
     mq = pep.measured_quantities
 
-    # Compute oracle Taylor for true-value lookup
-    state_taylor = compute_oracle_taylor_coefficients(pep, t_eval, max_order + 2; kwargs...)
-    obs_taylor = compute_observable_taylor_coefficients(pep, state_taylor, t_eval, max_order + 2)
+    # Evaluation point for every Jacobian in this report (see docstring):
+    # :oracle → truth + oracle Taylor jets; :estimate → θ̂/x̂ jets + the GP
+    # interpolant jets the solver actually consumed. `value_pep` carries the
+    # point values through the shared truth-lookup machinery (same SIAN
+    # name-parsing, different value dictionaries).
+    if value_source === :oracle
+        state_taylor = compute_oracle_taylor_coefficients(pep, t_eval, max_order + 2; kwargs...)
+        obs_taylor = compute_observable_taylor_coefficients(pep, state_taylor, t_eval, max_order + 2)
+        value_pep = pep
+    else
+        state_taylor = compute_estimate_taylor_coefficients(pep, estimate_result, t_eval, max_order + 2)
+        obs_taylor = interpolant_taylor_coefficients(pep, setup_data.interpolants, t_eval, max_order + 2)
+        value_pep = _pep_with_estimate_values(pep, estimate_result, state_taylor)
+    end
 
     # Build production system to get equations + varlist
     prod_eqs, prod_vars = construct_equation_system_from_si_template(
@@ -494,7 +565,7 @@ function diagnose_sensitivity(
         precomputed_interpolants = setup_data.interpolants,
     )
 
-    true_vals = _build_true_value_vector(pep, prod_vars;
+    true_vals = _build_true_value_vector(value_pep, prod_vars;
         state_taylor = state_taylor, obs_taylor = obs_taylor, t_eval = t_eval)
     n_vars = length(prod_vars)
 
@@ -542,7 +613,7 @@ function diagnose_sensitivity(
 
     try
         S_matrix, data_labels, data_roles, unknown_labels, unknown_roles = _compute_data_sensitivity(
-            pep, setup_data, t_eval, prod_vars, true_vals;
+            value_pep, setup_data, t_eval, prod_vars, true_vals;
             state_taylor = state_taylor, obs_taylor = obs_taylor, kwargs...)
     catch e
         @warn "[DIAG] Data sensitivity computation failed: $e"
@@ -550,7 +621,7 @@ function diagnose_sensitivity(
 
     return SensitivityReport(pep.name, jac_cond, eff_rank, svs, root_sens,
         J_matrix, eq_labels, var_names, var_roles,
-        S_matrix, data_labels, data_roles, unknown_labels, unknown_roles)
+        S_matrix, data_labels, data_roles, unknown_labels, unknown_roles, value_source)
 end
 
 """
@@ -674,9 +745,10 @@ function _compute_data_sensitivity(
         return Matrix{Float64}(undef, 0, 0), String[], Dict{String, Symbol}(), String[], Dict{String, Symbol}()
     end
 
-    # Step 6: Build true values for all variables
+    # Step 6: Build evaluation-point values for all variables (truth on the
+    # oracle path; θ̂/x̂ + GP jets when `pep` is a _pep_with_estimate_values copy).
     # Unknowns use _build_true_value_vector (SIAN naming).
-    # Data vars use oracle Taylor coefficients directly via DD.obs_lhs mapping.
+    # Data vars use the obs Taylor coefficients directly via DD.obs_lhs mapping.
     unknown_true = _build_true_value_vector(pep, unknown_vars;
         state_taylor = state_taylor, obs_taylor = obs_taylor, t_eval = t_eval)
 
