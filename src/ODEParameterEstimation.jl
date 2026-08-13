@@ -113,6 +113,7 @@ include("core/svg_plots.jl")
 # original include order preserved.
 include("core/diagnostics/taylor_oracle.jl")
 include("core/diagnostics/feasibility_sensitivity.jl")
+include("core/diagnostics/multipoint_sensitivity.jl")  # estimate-conditioned S over multipoint templates
 include("core/diagnostics/error_budget.jl")
 include("core/diagnostics/orchestrators.jl")
 include("core/diagnostics/html_report.jl")
