@@ -24,4 +24,5 @@ using Test
     include("test_taylor_propagation.jl")     # estimate-conditioned Taylor cores 2026-08-13
     include("test_estimate_conditioned_uq.jl") # estimate-conditioned S = default UQ path 2026-08-13
     include("test_uq_coverage_smoke.jl")      # N=20 two_exp coverage tripwires (repro/ harness) 2026-08-13
+    include("test_exact_index_matching.jl")   # per-point index lists + exact obs-name match 2026-08-13
 end

@@ -20,20 +20,13 @@ end
 """
     _match_obs_name(base_name, obs_name_to_idx) → Union{Int, Nothing}
 
-Find the observable index matching a base name. Tries exact match then prefix match.
+Find the observable index matching a base name. Exact match only: the previous
+`startswith` prefix fallback could match "y1" to "y10" depending on dict
+iteration order (same silent-mismatch class as the removed `lookup_value`
+prefix fallback). Callers warn and skip the label when this returns `nothing`.
 """
 function _match_obs_name(base_name::AbstractString, obs_name_to_idx::Dict{String, Int})
-    # Exact match
-    haskey(obs_name_to_idx, base_name) && return obs_name_to_idx[base_name]
-
-    # Prefix match (e.g. "y1" matching "y1_extra")
-    for (oname, oidx) in obs_name_to_idx
-        if oname == base_name || startswith(oname, base_name)
-            return oidx
-        end
-    end
-
-    return nothing
+    return get(obs_name_to_idx, base_name, nothing)
 end
 
 const _UQ_IA_PHYSICAL_ROLES = Set([:parameter, :state_ic])
