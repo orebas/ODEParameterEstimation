@@ -814,6 +814,33 @@ struct JetInfluenceEstimate{M<:AbstractMatrix{Float64}}
 end
 
 """
+    StackedJetInfluenceEstimate
+
+Multi-time sibling of [`JetInfluenceEstimate`](@ref): the estimator-sampling
+covariance of one observable's posterior-mean jets at SEVERAL evaluation
+times, factorized as `W_stack · Σ_y · W_stackᵀ`. Cross-time blocks are nonzero
+because every jet is a linear functional of the SAME training observations.
+PSD by construction; genuine singularity (e.g. repeated times) is preserved
+rather than repaired.
+
+Row order is time-major: for each time in `t_evals`, orders `0:max_deriv`.
+Use [`stacked_jet_index`](@ref) to map (time_idx, order) → row/column.
+"""
+struct StackedJetInfluenceEstimate{M<:AbstractMatrix{Float64}}
+    observable_name::String
+    t_evals::Vector{Float64}
+    orders::Vector{Int}            # 0:max_deriv, shared by every time
+    labels::Vector{String}         # length = length(t_evals) * length(orders)
+    mean::Vector{Float64}
+    W_stack::Matrix{Float64}
+    observation_covariance::M
+    jet_covariance::Matrix{Float64}
+    covariance_kind::Symbol
+    noise_source::Symbol
+    warnings::Vector{String}
+end
+
+"""
     PracticalIdentifiabilityIndex
 
 Scale-normalized covariance summary for the selected physical unknowns.

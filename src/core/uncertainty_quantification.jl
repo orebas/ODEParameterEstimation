@@ -368,15 +368,41 @@ function _psd_symmetric_matrix(Σ::AbstractMatrix{<:Real}; jitter_floor::Float64
 end
 
 """
+Resolve the observation-noise covariance Σ_y for estimator-sampling
+propagation: GP-learned homoscedastic σ²I by default, or a caller-supplied
+n×n matrix (validated; provenance relabeled). Shared by the scalar and
+stacked `joint_derivative_estimator_covariance` methods.
+"""
+function _resolve_observation_covariance(
+	interp::AGPInterpolatorUQ,
+	noise_source::Symbol,
+	observation_covariance::Union{Nothing, AbstractMatrix{<:Real}},
+)
+	n = length(interp.xs_train)
+	if observation_covariance === nothing
+		if noise_source != :learned_gp_homoscedastic
+			throw(ArgumentError("noise_source=$noise_source requires explicit observation_covariance"))
+		end
+		return Diagonal(fill(learned_observation_noise_variance(interp), n)), noise_source
+	end
+	size(observation_covariance) == (n, n) ||
+		throw(ArgumentError("observation_covariance has size $(size(observation_covariance)); expected ($n, $n)"))
+	resolved = noise_source == :learned_gp_homoscedastic ? :user_supplied_covariance : noise_source
+	return Matrix{Float64}(observation_covariance), resolved
+end
+
+"""
 	joint_derivative_estimator_covariance(interp, t, max_deriv=2; kwargs...)
 
-Compute the sampling covariance of the GP posterior-mean derivative estimator,
-conditional on learned GP hyperparameters.
+Compute the sampling covariance of the GP posterior-mean derivative estimator.
+More precisely: the repeated-observation sampling covariance evaluated at
+plug-in (fitted) hyperparameters — how the jet estimates would fluctuate if
+the observations were redrawn around a fixed underlying signal with noise
+covariance Σ_y. (Hyperparameter-estimation variability is omitted; the
+direction and magnitude of the resulting covariance error are not guaranteed.)
 
 This is intentionally different from `joint_derivative_covariance`, which
-returns the latent GP posterior covariance.  The estimator covariance answers:
-"if the observations were resampled with the learned observation noise, how
-would the derivative estimates vary?"
+returns the latent GP posterior covariance.
 """
 function joint_derivative_estimator_covariance(
 	interp::AGPInterpolatorUQ,
@@ -387,20 +413,7 @@ function joint_derivative_estimator_covariance(
 	observation_covariance::Union{Nothing, AbstractMatrix{<:Real}} = nothing,
 )::JetInfluenceEstimate
 	μ, W = gp_derivative_influence_matrix(interp, t, max_deriv)
-	n = length(interp.xs_train)
-	resolved_noise_source = noise_source
-
-	Σ_y = if observation_covariance === nothing
-		if noise_source != :learned_gp_homoscedastic
-			throw(ArgumentError("noise_source=$noise_source requires explicit observation_covariance"))
-		end
-		Diagonal(fill(learned_observation_noise_variance(interp), n))
-	else
-		size(observation_covariance) == (n, n) ||
-			throw(ArgumentError("observation_covariance has size $(size(observation_covariance)); expected ($n, $n)"))
-		resolved_noise_source = noise_source == :learned_gp_homoscedastic ? :user_supplied_covariance : noise_source
-		Matrix{Float64}(observation_covariance)
-	end
+	Σ_y, resolved_noise_source = _resolve_observation_covariance(interp, noise_source, observation_covariance)
 
 	Σ_jet = _psd_symmetric_matrix(W * Σ_y * W')
 	warnings = String[]
@@ -426,6 +439,107 @@ function joint_derivative_estimator_covariance(
 		resolved_noise_source,
 		warnings,
 	)
+end
+
+"""
+	joint_derivative_estimator_covariance(interp, ts::AbstractVector, max_deriv=2; kwargs...)
+
+Stacked multi-time estimator-sampling covariance of one observable's jets:
+`Σ = W_stack · Σ_y · W_stackᵀ` with `W_stack = vcat(W(t₁), …, W(t_T))`.
+Cross-time blocks `W(tᵢ) Σ_y W(tⱼ)ᵀ` are nonzero because every jet is a
+linear functional of the SAME training observations — this is the
+repeated-observation sampling covariance at plug-in hyperparameters, NOT the
+latent GP posterior cross-time covariance (`build_observation_covariance`
+computes that distinct object; the two must never be mixed).
+
+Factorized construction is PSD up to roundoff whenever Σ_y is PSD. Tiny
+negative eigenvalues are clipped to zero; materially negative ones warn
+loudly (construction-bug indicator). Genuine singularity — e.g. repeated
+evaluation times — is preserved, never shifted away: `S Σ_d Sᵀ` downstream
+needs no inverse of this matrix.
+
+Row order is time-major (per time, orders `0:max_deriv`); map indices with
+[`stacked_jet_index`](@ref).
+"""
+function joint_derivative_estimator_covariance(
+	interp::AGPInterpolatorUQ,
+	ts::AbstractVector{<:Real},
+	max_deriv::Int = 2;
+	observable_name::AbstractString = "",
+	noise_source::Symbol = :learned_gp_homoscedastic,
+	observation_covariance::Union{Nothing, AbstractMatrix{<:Real}} = nothing,
+)::StackedJetInfluenceEstimate
+	isempty(ts) && throw(ArgumentError("ts must be non-empty"))
+	Σ_y, resolved_noise_source = _resolve_observation_covariance(interp, noise_source, observation_covariance)
+
+	means = Vector{Float64}[]
+	Ws = Matrix{Float64}[]
+	for t in ts
+		μ_t, W_t = gp_derivative_influence_matrix(interp, t, max_deriv)
+		push!(means, μ_t)
+		push!(Ws, W_t)
+	end
+	W_stack = vcat(Ws...)
+	μ = vcat(means...)
+
+	Σ_sym = Symmetric(W_stack * Σ_y * W_stack')
+	warnings = String[]
+	evals, evecs = eigen(Σ_sym)
+	min_eig = isempty(evals) ? 0.0 : minimum(evals)
+	max_eig = isempty(evals) ? 0.0 : maximum(abs, evals)
+	Σ_jet = if min_eig < 0
+		if min_eig < -1e-10 * max(max_eig, 1e-300)
+			msg = "Stacked jet covariance materially indefinite (min eig $(min_eig), max $(max_eig)) — clipped to zero; investigate construction."
+			push!(warnings, msg)
+			@warn "[UQ] $msg"
+		end
+		Matrix{Float64}(Symmetric(evecs * Diagonal(max.(evals, 0.0)) * evecs'))
+	else
+		Matrix{Float64}(Σ_sym)
+	end
+
+	if !interp.hyperparams_optimized
+		push!(warnings, "GP hyperparameter optimization did not converge; estimator covariance uses fallback hyperparameters.")
+	end
+	if resolved_noise_source == :learned_gp_homoscedastic && learned_observation_noise_variance(interp) <= 0
+		push!(warnings, "Learned GP observation noise variance is zero; estimator covariance may be underestimated.")
+	end
+
+	obs_name = String(observable_name)
+	labels = String[]
+	for t in ts
+		append!(labels,
+			isempty(obs_name) ? ["order_$d" for d in 0:max_deriv] : _make_jet_labels(obs_name, t, max_deriv))
+	end
+
+	return StackedJetInfluenceEstimate(
+		obs_name,
+		Float64.(collect(ts)),
+		collect(0:max_deriv),
+		labels,
+		μ,
+		W_stack,
+		Σ_y,
+		Σ_jet,
+		:estimator_sampling,
+		resolved_noise_source,
+		warnings,
+	)
+end
+
+"""
+	stacked_jet_index(est::StackedJetInfluenceEstimate, time_idx, order) -> Int
+
+Row/column index of (time `time_idx`, derivative `order`) in the time-major
+stacked jet ordering.
+"""
+function stacked_jet_index(est::StackedJetInfluenceEstimate, time_idx::Int, order::Int)
+	n_orders = length(est.orders)
+	1 <= time_idx <= length(est.t_evals) ||
+		throw(ArgumentError("time_idx $time_idx out of range 1:$(length(est.t_evals))"))
+	0 <= order < n_orders ||
+		throw(ArgumentError("order $order out of range 0:$(n_orders - 1)"))
+	return (time_idx - 1) * n_orders + order + 1
 end
 
 """
