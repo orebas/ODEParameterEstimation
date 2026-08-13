@@ -258,14 +258,34 @@ function init_audit_worker!(pid::Int)
 	return nothing
 end
 
+# OS pid of each Distributed worker, captured at spawn so a wedged worker that
+# rmprocs cannot reap gets SIGKILLed instead of leaking (verified-death rule:
+# repro/hc_threading_mwe_2026_07_22/ORPHAN_PRECOMPILE_DEADLOCK_2026-07-24.md).
+const _WORKER_OS_PID = Dict{Int, Int32}()
+
 function restart_worker!(pid_ref::Base.RefValue{Int})
 	if pid_ref[] != 0
-		try
-			rmprocs(pid_ref[])
+		old = pid_ref[]
+		reaped = try
+			rmprocs(old; waitfor = 15)
+			true
 		catch
+			false
 		end
+		ospid = get(_WORKER_OS_PID, old, Int32(0))
+		if !reaped && ospid != 0
+			try
+				run(ignorestatus(`kill -KILL $(ospid)`))
+			catch
+			end
+		end
+		delete!(_WORKER_OS_PID, old)
 	end
 	newpid = only(addprocs(1))
+	try
+		_WORKER_OS_PID[newpid] = Int32(remotecall_fetch(getpid, newpid))
+	catch
+	end
 	init_audit_worker!(newpid)
 	pid_ref[] = newpid
 	return newpid
@@ -442,4 +462,19 @@ for case_id in cases
 	end
 end
 
-rmprocs(worker_ref[])
+# Bounded teardown with verified death (same rule as restart_worker!).
+let final_pid = worker_ref[]
+	reaped = try
+		rmprocs(final_pid; waitfor = 15)
+		true
+	catch
+		false
+	end
+	ospid = get(_WORKER_OS_PID, final_pid, Int32(0))
+	if !reaped && ospid != 0
+		try
+			run(ignorestatus(`kill -KILL $(ospid)`))
+		catch
+		end
+	end
+end

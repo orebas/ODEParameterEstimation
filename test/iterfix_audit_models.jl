@@ -205,7 +205,11 @@ function spawn_job(spec::ModelSpec)
     key_log_path = joinpath(KEY_DIR, string(sanitize_filename(spec.name), ".log"))
     io = open(raw_log_path, "w")
     julia_bin = joinpath(Sys.BINDIR, Base.julia_exename())
-    cmd = `$julia_bin --project=$(PROJECT_ROOT) $(CASE_RUNNER) $(String(spec.name)) $(String(spec.category))`
+    # setsid: the child leads its own process GROUP (pgid == its pid), so a
+    # timeout can signal the whole tree. Killing only the direct child orphans
+    # its precompile workers — one such orphan hung 46h on a futex
+    # (repro/hc_threading_mwe_2026_07_22/ORPHAN_PRECOMPILE_DEADLOCK_2026-07-24.md).
+    cmd = `setsid $julia_bin --project=$(PROJECT_ROOT) $(CASE_RUNNER) $(String(spec.name)) $(String(spec.category))`
     proc = run(pipeline(ignorestatus(cmd), stdout = io, stderr = io); wait = false)
     return ActiveJob(spec, proc, io, time(), raw_log_path, key_log_path)
 end
@@ -240,13 +244,31 @@ function process_status(job::ActiveJob)
 end
 
 function timeout_job!(job::ActiveJob)
+    # TERM the whole process GROUP -> bounded grace -> KILL the group -> bounded
+    # wait. Never block unboundedly on a wedged child (Julia's exit path can
+    # hang after SIGTERM — the specimen class), and never orphan grandchildren.
+    pid = getpid(job.proc)
+    _signal_group(sig) = (run(ignorestatus(`kill -$sig -- -$pid`)); nothing)
     try
-        kill(job.proc)
+        _signal_group("TERM")
     catch
     end
-    try
-        wait(job.proc)
-    catch
+    grace_deadline = time() + 10.0
+    while process_running(job.proc) && time() < grace_deadline
+        sleep(0.25)
+    end
+    if process_running(job.proc)
+        try
+            _signal_group("KILL")
+        catch
+        end
+        kill_deadline = time() + 5.0
+        while process_running(job.proc) && time() < kill_deadline
+            sleep(0.25)
+        end
+    end
+    if process_running(job.proc)
+        @warn "timeout_job!: child $(pid) survived SIGKILL wait window; abandoning wait" model = job.spec.name
     end
     return finalize_job!(job, "timeout")
 end
