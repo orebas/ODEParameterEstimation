@@ -2263,15 +2263,6 @@ using Random
         )
         @test isnothing(uq_result)
 
-        matern_result = first(unscored_results)
-        matern_result.provenance = ODEParameterEstimation.ResultProvenance(
-            interpolator_source = :s3_bic_matern52,
-        )
-        @test ODEParameterEstimation._uq_kernel_for_result(matern_result, EstimationOptions()) == :matern52
-
-        default_result = last(unscored_results)
-        @test ODEParameterEstimation._uq_kernel_for_result(default_result, EstimationOptions()) == :se
-
         @test_throws ArgumentError ODEParameterEstimation.solve_parameter_estimation(pep, (;))
     end
 

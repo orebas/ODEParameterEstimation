@@ -570,33 +570,9 @@ function _best_scored_result(results)
 	return first(sort(scored, by = _result_err_key))
 end
 
-const _UQ_MATERN_INTERPOLATOR_SOURCES = Set((
-	:agp_robust_matern52,
-	:s3_matern52,
-	:s3_adapt_matern52,
-	:s3_bic_matern52,
-))
-
-function _default_uq_interpolator_source(opts::EstimationOptions)
-	if !isempty(opts.interpolators)
-		return interpolator_method_to_symbol(first(opts.interpolators))
-	end
-	return interpolator_method_to_symbol(opts.interpolator)
-end
-
-_uq_kernel_from_interpolator_source(source::Union{Nothing, Symbol}) =
-	source in _UQ_MATERN_INTERPOLATOR_SOURCES ? :matern52 : :se
-
-function _uq_kernel_for_result(candidate, opts::EstimationOptions)::Symbol
-	source = if hasproperty(candidate, :provenance) && !isnothing(candidate.provenance.interpolator_source)
-		candidate.provenance.interpolator_source
-	elseif hasproperty(candidate, :interpolator_source) && !isnothing(candidate.interpolator_source)
-		candidate.interpolator_source
-	else
-		_default_uq_interpolator_source(opts)
-	end
-	return _uq_kernel_from_interpolator_source(source)
-end
+# UQ kernel dispatch (_uq_kernel_for_result and friends) was deleted 2026-08-13:
+# production-uncalled — agp_gpr_uq is SE-only and throws on anything else.
+# Matérn UQ returns together with the coverage harness that can validate it.
 
 function _compute_uq_result(
 	PEP::ParameterEstimationProblem,
