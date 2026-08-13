@@ -21,7 +21,10 @@ This is a plug-in replacement for `solve_with_nlopt` with improved robustness.
   - `:maxiters => 1000`: Maximum iterations
   - `:algorithm => :auto/:trustregion/:bfgs/:bobyqa/:levenberg`: Force specific algorithm
   - `:multistart => true/false`: Use multiple starting points
-  - `:timeout => 30.0`: Maximum time in seconds
+  - `:timeout => 300.0`: Wall-clock budget in seconds. Enforced between starting
+    points AND per solver call (NonlinearSolve `maxtime`, checked per iteration —
+    a single pathological iteration can still overrun; the deadline-Ref-in-residual
+    pattern from polish_residual.jl:22-28 is the escalation lever if that bites)
 
 # Returns
 Same format as solve_with_nlopt: (solutions, varmap, stats, varlist)
@@ -44,6 +47,7 @@ function solve_with_robust(poly_system, varlist;
 	starts_skipped_bad_residual = 0
 	successful_start_count = 0
 	algorithm_failure_count = 0
+	maxtime_hit_count = 0
 
 	# Extract options
 	debug = get(options, :debug, false)
@@ -315,9 +319,13 @@ function solve_with_robust(poly_system, varlist;
 				sol = NonlinearSolve.solve(prob, TrustRegion();
 					abstol = abstol,
 					reltol = reltol,
-					maxiters = maxiters)
+					maxiters = maxiters,
+					maxtime = max(timeout - (time() - start_time), 1.0))
 
 				success = SciMLBase.successful_retcode(sol)
+				if !success && sol.retcode == SciMLBase.ReturnCode.MaxTime
+					maxtime_hit_count += 1
+				end
 
 			elseif selected_algo == :bfgs
 				# Use Optim.BFGS (very robust for optimization)
@@ -362,9 +370,13 @@ function solve_with_robust(poly_system, varlist;
 				sol = NonlinearSolve.solve(prob, LevenbergMarquardt();
 					abstol = abstol,
 					reltol = reltol,
-					maxiters = maxiters)
+					maxiters = maxiters,
+					maxtime = max(timeout - (time() - start_time), 1.0))
 
 				success = SciMLBase.successful_retcode(sol)
+				if !success && sol.retcode == SciMLBase.ReturnCode.MaxTime
+					maxtime_hit_count += 1
+				end
 
 			else
 				# Fallback: NonlinearSolve.TrustRegion
@@ -383,9 +395,13 @@ function solve_with_robust(poly_system, varlist;
 				sol = NonlinearSolve.solve(prob, TrustRegion();
 					abstol = abstol,
 					reltol = reltol,
-					maxiters = maxiters)
+					maxiters = maxiters,
+					maxtime = max(timeout - (time() - start_time), 1.0))
 
 				success = SciMLBase.successful_retcode(sol)
+				if !success && sol.retcode == SciMLBase.ReturnCode.MaxTime
+					maxtime_hit_count += 1
+				end
 			end
 			robust_stages[:nonlinear_solve] = get(robust_stages, :nonlinear_solve, 0.0) + (time() - _nonlinear_solve_t0)
 			_nonlinear_solve_recorded = true
@@ -499,6 +515,7 @@ function solve_with_robust(poly_system, varlist;
 	# Update stats
 	stats[:algorithm] = selected_algo
 	stats[:jacobian] = jac_mode
+	stats[:maxtime_hits] = maxtime_hit_count
 	stats[:best_residual] = best_residual
 	stats[:num_solutions] = length(unique_solutions)
 	stats[:multistart] = multistart
