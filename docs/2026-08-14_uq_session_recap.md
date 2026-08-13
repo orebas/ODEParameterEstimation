@@ -284,12 +284,16 @@ actually describes.
 worse estimator than the one being reported. The LV "failure" was estimand
 mismatch, not broken machinery.
 
-> ### ⚠ RETRACTED: "degrades overconfidently with noise"
+> ### ⚠ RETRACTED, THEN PARTIALLY REINSTATED AT N=60 — read §5.4b
 >
-> An earlier draft of this section claimed systematic overconfident degradation
-> with noise (σ̂ 2–3× too small, coverage 50–70% at 1e-2), attributed to the
-> first-order delta method. **That claim was not supported — it was N=10
-> sampling noise read as signal, from a single cell.**
+> An earlier draft claimed systematic overconfident degradation with noise
+> (σ̂ 2–3× too small, coverage 50–70% at 1e-2). **The magnitude was wrong and
+> the N=10 evidence could not support it** — but the N=60 confirmation
+> (§5.4b) establishes that a **real, milder** effect exists: σ̂ ≈ 1.45× too
+> small at 1e-2, coverage 80–97%, significant at 3σ on all four coordinates
+> simultaneously. So: right direction, overstated magnitude, and originally
+> inferred from evidence too noisy to carry it. The sampling-noise analysis
+> below stands and is why the N=60 run was necessary.
 >
 > The noise sweep (§5.4a) re-ran `simple` @ 1e-2 at different seeds and got
 > med|z| = [0.65, 1.0, 1.0, 0.89] where the screen had reported
@@ -335,6 +339,43 @@ across *several* cells rather than one:
   the GP cannot learn σ, so σ̂ stops shrinking. **Checkable and worth checking.**
 - **`threesp_cubed` splits by role** — parameters conservative, states near or
   above 1. Not obviously a bug; needs N ≥ 60 before interpreting.
+
+### 5.4b N=60 confirmation — the settled numbers (`run_calibration_confirm.jl`)
+
+At N=60 the sampling sd of median|z| is 0.10, so deviations from the calibrated
+target 0.674 are quoted in sampling-σ units. **These are the numbers to trust.**
+
+| cell | coord | med\|z\| | dev | verdict | coverage | med relerr / med σ̂ |
+|---|---|---|---|---|---|---|
+| `simple` @ 1e-4 | a | 0.618 | −0.6σ | **calibrated** | 86.7% | — |
+| | b | 0.754 | +0.8σ | **calibrated** | 90.0% | 3.03e-4 / 3.17e-4 |
+| | x1 | 0.752 | +0.8σ | **calibrated** | 96.7% | 1.78e-5 / 8.13e-6 |
+| | x2 | 0.686 | +0.1σ | **calibrated** | 86.7% | 4.67e-5 / 4.23e-5 |
+| `simple` @ 1e-2 | a | 0.985 | +3.1σ | overconfident | 86.7% | 2.65e-3 / 1.16e-3 |
+| | b | 0.988 | +3.1σ | overconfident | 96.7% | 2.85e-2 / 2.30e-2 |
+| | x1 | 1.01 | +3.3σ | overconfident | 80.0% | 1.58e-3 / 5.07e-4 |
+| | x2 | 0.993 | +3.1σ | overconfident | 91.7% | 4.35e-3 / 3.14e-3 |
+| `onesp_cubed` @ 1e-5 | a | 0.206 | −4.6σ | **conservative** | 100% | 3.52e-5 / 1.68e-5 |
+| | x1 | 1.38 | +6.9σ | **overconfident** | 70.0% | 1.72e-6 / 2.46e-6 |
+
+Three conclusions, all now resting on adequate N:
+
+1. **`simple` at 1e-4 is calibrated**, unambiguously — all four coordinates
+   within 0.8σ of the standard-normal target. This is the clean demonstration
+   that the UQ is correct for its own estimand.
+2. **Noise degradation is real but mild.** All four coordinates move to
+   med|z| ≈ 0.99 at 1e-2 — a coherent +3σ shift, far too consistent to be
+   chance. That is σ̂ ≈ **1.45×** too small (0.99/0.674), with coverage
+   80–97%, *not* the 2–3× and 50–70% originally claimed. Consistent with the
+   first-order delta method starting to bite; the effect is small enough that
+   it does not disqualify 1e-2 for practical use.
+3. **`onesp_cubed` splits by role, and it is not sampling noise**: the
+   parameter `a` is conservative at −4.6σ (σ̂ ~2× too large, 100% coverage)
+   while the state `x1` is overconfident at +6.9σ (70% coverage). A single
+   model cannot be simultaneously over- and under-dispersed by accident — this
+   is structural and is **the highest-value thing to investigate next**,
+   displacing the `threesp_cubed` lead. The low-noise conservatism of §5.4a is
+   confirmed here as real.
 
 ### 5.5 Regime screen (7 models × 2 noise levels)
 
