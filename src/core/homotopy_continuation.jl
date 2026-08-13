@@ -479,7 +479,7 @@ function solve_with_hc(poly_system, varlist; options = Dict())
 		# Convert to HC format
 		hc_system, hc_variables = convert_to_hc_format(poly_system, varlist)
 
-		if display_system
+		if get(options, :debug, false)
 			println("[HC] Solving system with $(length(poly_system)) equations and $(length(varlist)) variables")
 			println("[HC] System to be solved:")
 			println(hc_system)
