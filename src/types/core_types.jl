@@ -317,6 +317,40 @@ function lineage_summary(result)::String
 end
 
 """
+    provenance_metadata_dict(prov::ResultProvenance) -> OrderedDict{String, Any}
+
+Single source of the provenance block written into `odepe_metadata.json` by the
+PEB / experiments benchmark templates. This block used to be copy-pasted into
+~8 template writers across two repos, which produced stragglers on every
+provenance-schema change (2026-08-12 dedup). Values are JSON-friendly (Symbols
+stringified, OrderedDicts re-keyed by string). Template-local extras
+(parameters, states, all_unidentifiable, …) are merged on top by the caller.
+"""
+function provenance_metadata_dict(prov::ResultProvenance)
+    notes_strs = [string(x) for x in prov.notes]
+    _string_keyed(d) = OrderedDict{String, Any}(string(k) => v for (k, v) in d)
+    return OrderedDict{String, Any}(
+        "primary_method" => string(prov.primary_method),
+        "interpolator_source" => isnothing(prov.interpolator_source) ? nothing : string(prov.interpolator_source),
+        "rescue_path" => string(prov.rescue_path),
+        "source_shooting_index" => prov.source_shooting_index,
+        "source_candidate_index" => prov.source_candidate_index,
+        "structural_fix_set" => _string_keyed(prov.structural_fix_set),
+        "representative_assignments" => _string_keyed(prov.representative_assignments),
+        "template_status" => isnothing(prov.template_status) ? nothing : string(prov.template_status),
+        "equations_dropped_by_rank_trimming" => prov.equations_dropped_by_rank_trimming,
+        "practical_identifiability_status" => string(prov.practical_identifiability_status),
+        "notes" => notes_strs,
+        "was_terminal_fallback" => ("terminal_fallback" in notes_strs) || (string(prov.rescue_path) == "direct_opt_fallback"),
+        "source_type" => string(prov.source_type),
+        "multipoint_time_indices" => isnothing(prov.multipoint_time_indices) ? nothing : prov.multipoint_time_indices,
+        "multipoint_combo_index" => prov.multipoint_combo_index,
+        "aggregation_strategy" => string(prov.aggregation_strategy),
+        "aggregation_source_indices" => prov.aggregation_source_indices,
+    )
+end
+
+"""
     ParameterEstimationResult
 
 Struct to store the results of parameter estimation.

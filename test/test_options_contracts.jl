@@ -31,3 +31,20 @@ using OrderedCollections
 	# gp_s3_refinement shim survives (deprecation warning path, not deleted).
 	@test EstimationOptions(gp_s3_refinement = false).gp_s3_refinement === false
 end
+
+@testset "provenance_metadata_dict (single-source metadata block)" begin
+	prov = ResultProvenance(primary_method = :algebraic, source_type = :single_point,
+		template_status = :determined, notes = [:terminal_fallback])
+	d = provenance_metadata_dict(prov)
+	expected = ["aggregation_source_indices", "aggregation_strategy", "equations_dropped_by_rank_trimming",
+		"interpolator_source", "multipoint_combo_index", "multipoint_time_indices", "notes",
+		"practical_identifiability_status", "primary_method", "representative_assignments",
+		"rescue_path", "source_candidate_index", "source_shooting_index", "source_type",
+		"structural_fix_set", "template_status", "was_terminal_fallback"]
+	@test sort(collect(keys(d))) == expected
+	@test d["primary_method"] == "algebraic"
+	@test d["template_status"] == "determined"
+	@test d["was_terminal_fallback"] === true      # via the :terminal_fallback note
+	@test d["interpolator_source"] === nothing
+	@test provenance_metadata_dict(ResultProvenance())["was_terminal_fallback"] === false
+end
