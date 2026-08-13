@@ -436,7 +436,8 @@ using Random
         )
         @test mpt isa ODEParameterEstimation.MultiPointTemplate
         @test length(mpt.stripped_equations) == length(mpt.solve_vars)
-        @test length(mpt.per_point_data_var_ranges) == 2
+        @test length(mpt.per_point_data_var_indices) == 2
+        @test sort(vcat(mpt.per_point_data_var_indices...)) == collect(1:length(mpt.data_vars))
         mpe = ODEParameterEstimation.evaluate_multipoint_template(mpt, [3, 8], interpolants, pep.data_sample)
         @test all(isfinite, mpe.data_values)
         @test length(mpe.data_values) == length(mpt.data_vars)

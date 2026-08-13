@@ -1395,16 +1395,13 @@ function _noise_order_data_vars_by_point(data_vars, n_points::Int)
 	return sort(collect(data_vars); by = v -> (_noise_point_index_for_var(v, n_points), string(v)))
 end
 
-function _noise_per_point_ranges(data_vars, n_points::Int)
+function _noise_per_point_indices(data_vars, n_points::Int)
+	# Exact index lists (no first:last collapse — see _per_point_data_indices).
 	per_point_indices = [Int[] for _ in 1:n_points]
 	for (i, dv) in enumerate(data_vars)
 		push!(per_point_indices[_noise_point_index_for_var(dv, n_points)], i)
 	end
-	ranges = UnitRange{Int}[]
-	for indices in per_point_indices
-		push!(ranges, isempty(indices) ? (1:0) : (first(indices):last(indices)))
-	end
-	return ranges
+	return per_point_indices
 end
 
 function _noise_param_indices_and_names(solve_vars, pep::ParameterEstimationProblem)
@@ -1460,7 +1457,7 @@ function build_noise_frontier_multipoint_template(
 	data_vars = _noise_order_data_vars_by_point(selected.data_vars, n_points)
 	param_indices, param_names = _noise_param_indices_and_names(selected.solve_vars, pep)
 	eq_metadata = [(point = m.point, is_data = false, order = m.max_observed_order) for m in selected.eq_metadata]
-	per_point_ranges = _noise_per_point_ranges(data_vars, n_points)
+	per_point_indices = _noise_per_point_indices(data_vars, n_points)
 	if diagnostics
 		@info "[NOISE-FRONTIER-MP] Selected template" n_points equations = length(selected.equations) solve_vars = length(selected.solve_vars) data_vars = length(data_vars) max_observed_order = selected.max_observed_order mixed_volume = selected.mixed_volume
 	end
@@ -1478,7 +1475,7 @@ function build_noise_frontier_multipoint_template(
 		result.combined_equation_count,
 		selected.selected_equation_indices,
 		selected.dropped_equation_indices,
-		per_point_ranges,
+		per_point_indices,
 		hasproperty(si_template, :template_DD) ? si_template.template_DD : setup.good_DD,
 		pep.measured_quantities,
 	)

@@ -228,8 +228,8 @@ end
 
 function _multipoint_point_data_labels(mpt::MultiPointTemplate)
     groups = [String[] for _ in 1:mpt.n_points]
-    for pt in 1:min(mpt.n_points, length(mpt.per_point_data_var_ranges))
-        for idx in mpt.per_point_data_var_ranges[pt]
+    for pt in 1:min(mpt.n_points, length(mpt.per_point_data_var_indices))
+        for idx in mpt.per_point_data_var_indices[pt]
             idx > length(mpt.data_vars) && continue
             push!(groups[pt], string(mpt.data_vars[idx]))
         end

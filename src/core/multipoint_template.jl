@@ -53,6 +53,35 @@ function _rename_per_point_variables(equations::Vector, variables::Vector,
     return renamed_eqs, rd
 end
 
+"""
+    _per_point_data_indices(data_vars, n_points) → Vector{Vector{Int}}
+
+Exact per-point index lists into `data_vars`, classified by the `_ptK` suffix
+(point 1 = unsuffixed). Returns lists, never ranges: indices are only
+point-major-contiguous as an accident of construction order, and collapsing to
+`first:last` silently mis-assigns data when they interleave.
+
+The lists always partition `1:length(data_vars)` (every var has exactly one
+point), asserted here so a future classification change fails loudly.
+"""
+function _per_point_data_indices(data_vars, n_points::Int)
+    per_point = [Int[] for _ in 1:n_points]
+    for (i, dv) in enumerate(data_vars)
+        name = string(dv)
+        assigned = false
+        for pt in 2:n_points
+            if endswith(name, "_pt$pt")
+                push!(per_point[pt], i)
+                assigned = true
+                break
+            end
+        end
+        assigned || push!(per_point[1], i)
+    end
+    @assert sum(length, per_point) == length(data_vars) "per-point index lists must partition data_vars"
+    return per_point
+end
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Variable classification for multi-point
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -830,33 +859,8 @@ function build_multipoint_template(
         push!(param_names, clean)
     end
 
-    # Compute per-point data variable index lists (may not be contiguous)
-    per_point_data_indices = [Int[] for _ in 1:n_points]
-    for (i, dv) in enumerate(data_vars)
-        name = string(dv)
-        assigned = false
-        for pt in 2:n_points
-            if endswith(name, "_pt$pt")
-                push!(per_point_data_indices[pt], i)
-                assigned = true
-                break
-            end
-        end
-        if !assigned
-            push!(per_point_data_indices[1], i)
-        end
-    end
-
-    # Convert to ranges (they should be contiguous after proper ordering, but use full range)
-    per_point_ranges = UnitRange{Int}[]
-    for pt in 1:n_points
-        indices = per_point_data_indices[pt]
-        if isempty(indices)
-            push!(per_point_ranges, 1:0)
-        else
-            push!(per_point_ranges, first(indices):last(indices))
-        end
-    end
+    # Exact per-point data variable index lists (no contiguity assumption)
+    per_point_data_indices = _per_point_data_indices(data_vars, n_points)
 
     is_square = length(stripped_symb_eqs) == length(solve_vars)
     if diagnostics
@@ -882,7 +886,7 @@ function build_multipoint_template(
         length(combined_inst_eqs),
         Int[kept_equation_indices...],
         Int[dropped_equation_indices...],
-        per_point_ranges,
+        per_point_data_indices,
         template_DD,
         mq,
     )
@@ -916,7 +920,10 @@ function evaluate_multipoint_template(
 
     t_vec = data_sample["t"]
     t_values = Float64[t_vec[i] for i in time_indices]
-    data_values = Float64[]
+    # Filled by exact data_vars index so data_values[i] ↔ mpt.data_vars[i] holds
+    # under ANY per-point index ordering (NaN = not evaluated → rejected by the
+    # downstream all(isfinite, …) guards).
+    data_values = fill(NaN, length(mpt.data_vars))
 
     DD = mpt.template_DD
     mq = mpt.measured_quantities
@@ -933,9 +940,8 @@ function evaluate_multipoint_template(
 
     for (pt, t_idx) in enumerate(time_indices)
         t_point = t_values[pt]
-        range = mpt.per_point_data_var_ranges[pt]
 
-        for dv_idx in range
+        for dv_idx in mpt.per_point_data_var_indices[pt]
             dv = mpt.data_vars[dv_idx]
             dv_name = string(dv)
 
@@ -950,7 +956,7 @@ function evaluate_multipoint_template(
             end
             trfn_eval_seconds += time() - t_trfn
             if !isnothing(trfn_val)
-                push!(data_values, Float64(trfn_val))
+                data_values[dv_idx] = Float64(trfn_val)
                 continue
             end
 
@@ -962,7 +968,6 @@ function evaluate_multipoint_template(
                 # Fail fast: NaN (not 0.0) — the downstream all(isfinite, …)
                 # guards reject this combo instead of solving a wrong system.
                 @warn "[MPT-EVAL] Cannot parse data variable: $dv_name (clean=$clean_name)"
-                push!(data_values, NaN)
                 continue
             end
             base_name, deriv_order = parsed
@@ -1001,9 +1006,8 @@ function evaluate_multipoint_template(
             if isnothing(val)
                 # Fail fast: NaN (not 0.0) — rejected by the all(isfinite, …) guards.
                 @warn "[MPT-EVAL] No interpolant for $dv_name (base=$base_name, order=$deriv_order, obs_idx=$obs_idx)"
-                push!(data_values, NaN)
             else
-                push!(data_values, Float64(val))
+                data_values[dv_idx] = Float64(val)
             end
         end
     end

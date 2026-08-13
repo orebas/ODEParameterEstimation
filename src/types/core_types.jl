@@ -1086,7 +1086,10 @@ struct MultiPointTemplate
     dropped_equation_indices::Vector{Int}
 
     # For data evaluation at arbitrary time points
-    per_point_data_var_ranges::Vector{UnitRange{Int}}  # data_vars[range] for each point
+    # Exact per-point index lists into data_vars. Deliberately NOT ranges: the
+    # old first:last collapse silently mis-assigned data when per-point indices
+    # interleave (they only happen to be contiguous under point-major ordering).
+    per_point_data_var_indices::Vector{Vector{Int}}
     template_DD::Any           # DerivativeData for observable → variable mapping
     measured_quantities::Vector{ModelingToolkit.Equation}
 end

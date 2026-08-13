@@ -48,7 +48,7 @@ function test_build_template(name, pep; n_data = 201, t_interval = nothing, n_po
     @printf("  Stripped: %d eqs, %d solve_vars, %d data_vars\n", n_eqs, n_solve, n_data)
     @printf("  Square: %s\n", is_square)
     @printf("  Params (%d): %s\n", length(mpt.param_var_indices), join(mpt.param_names, ", "))
-    @printf("  Per-point data ranges: %s\n", mpt.per_point_data_var_ranges)
+    @printf("  Per-point data indices: %s\n", mpt.per_point_data_var_indices)
 
     @test is_square
     @test length(mpt.param_var_indices) > 0
