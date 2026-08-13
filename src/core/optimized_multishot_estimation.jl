@@ -720,6 +720,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			states = states,
 			params = params,
 			infolevel = opts.diagnostics ? 1 : 0,
+			si_probability = opts.si_probability,
 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
 		)
 
@@ -763,7 +764,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				end
 			end
 			varlist_template = collect(varset)
-			save_filepath_tpl = joinpath("saved_systems", "si_template_$(now()).jl")
+			save_filepath_tpl = joinpath(isempty(opts.save_filepath) ? "saved_systems" : opts.save_filepath, "si_template_$(now()).jl")
 			mkpath(dirname(save_filepath_tpl))
 			save_poly_system(save_filepath_tpl, template_equations, varlist_template,
 				metadata = Dict(
@@ -1312,7 +1313,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				# Optional: save system for debugging (mirror classic flow behavior)
 				if opts.save_system
 					# Save the instantiated polynomial system for this shooting point
-					save_filepath = "saved_systems/system_point_$(point_idx)_$(now()).jl"
+					save_filepath = joinpath(isempty(opts.save_filepath) ? "saved_systems" : opts.save_filepath, "system_point_$(point_idx)_$(now()).jl")
 					mkpath(dirname(save_filepath))
 					save_poly_system(
 						save_filepath,

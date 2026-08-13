@@ -47,13 +47,13 @@ Group similar solutions into clusters based on relative distances.
 # Returns
 - Vector of solution clusters
 """
-function cluster_solutions(sorted_results)
+function cluster_solutions(sorted_results; threshold::Float64 = CLUSTERING_THRESHOLD)
 	clusters = Vector{Vector{Any}}()
 
 	for sol in sorted_results
 		# Try to find a cluster for this solution
 		cluster_idx = findfirst(cluster ->
-				solution_distance(sol, cluster[1]) < CLUSTERING_THRESHOLD,
+				solution_distance(sol, cluster[1]) < threshold,
 			clusters)
 
 		if isnothing(cluster_idx)
@@ -472,13 +472,13 @@ an affirmative detection: undetected M degrades to the honored `cluster_method`.
 function _cluster_output_candidates(sorted_results, opts::EstimationOptions)::Vector{Vector{Any}}
 	if _pool_was_branch_completed(sorted_results) ||
 	   (opts.algebraic_multiplicity !== nothing && opts.algebraic_multiplicity >= 2)
-		return cluster_solutions(sorted_results)
+		return cluster_solutions(sorted_results; threshold = opts.clustering_threshold)
 	elseif opts.cluster_method === :identifiable_subspace
 		return cluster_solutions_identifiable_subspace(sorted_results;
 			rough_eps = opts.rough_cluster_eps,
 			subspace_eps = opts.subspace_cluster_eps)
 	else
-		return cluster_solutions(sorted_results)
+		return cluster_solutions(sorted_results; threshold = opts.clustering_threshold)
 	end
 end
 
@@ -624,7 +624,7 @@ function _compute_uq_result(
 	# (boundary-zeroed Jacobian rows, substring observable matching) is archived in
 	# deprecated/uq_fd_path.jl. Mirrors _save_diagnostic_html's incantation.
 	uq_result = try
-		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true)
+		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true, point_hint = opts.point_hint)
 		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time)
 		r = diagnose_uncertainty(PEP, setup_uq, best_solution.at_time, sens)
 		local_uq = isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)

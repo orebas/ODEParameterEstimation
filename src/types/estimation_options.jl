@@ -145,11 +145,8 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Numerical Tolerances
 - `abstol::Float64`: Absolute tolerance for ODE solving and optimization (default: 1e-14)
 - `reltol::Float64`: Relative tolerance for ODE solving and optimization (default: 1e-14)
-- `rtol::Float64`: Relative tolerance for matrix rank calculations (default: 1e-12)
-- `output_precision::Int32`: Output precision for RUR solver (default: 20)
 
 ## Solution Filtering and Validation
-- `imag_threshold::Float64`: Threshold for ignoring imaginary components (default: 1e-8)
 - `clustering_threshold::Float64`: Threshold for solution clustering (default: 1e-5)
 
 ## Multi-shot Parameters
@@ -159,7 +156,6 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `point_hint::Float64`: Hint for time point selection, in [0,1] range (default: 0.5)
 
 ## Derivative and Reconstruction Parameters
-- `max_deriv_level::Int`: Maximum allowed derivative level (default: 10)
 
 ## Optimization Parameters
 - `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
@@ -199,7 +195,6 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `debug_solver::Bool`: Enable solver debugging (default: false)
 - `debug_cas_diagnostics::Bool`: Enable CAS system diagnostics (default: false)
 - `debug_dimensional_analysis::Bool`: Enable dimensional analysis debugging (default: false)
-- `trap_debug::Bool`: Enable debug trapping with file output (default: false)
 - `profile_phases::Bool`: Print per-phase timing/allocation breakdown (default: false)
 
 ## Feature Flags
@@ -210,9 +205,6 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `construction_beam_width::Int`: Basis-exchange beam width for noise-frontier probes.
 - `construction_compute_mixed_volume::Bool`: Whether noise-frontier probes compute actual HC mixed volume for candidate bases.
 - `save_system::Bool`: Save polynomial systems to files (default: true)
-- `display_system::Bool`: Display system being solved (default: false)
-- `polish_only::Bool`: Only polish existing solutions (default: false)
-- `ideal::Bool`: Use ideal (noise-free) system construction (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
 - `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
@@ -222,17 +214,14 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `synthesize_aggregate_candidates::Bool`: When true, injects extra synthetic candidates derived by per-component aggregating (median / mean / 25%-trimmed mean) of the existing SP and MP candidates' parameters and ICs. Each synthetic candidate is tagged with `provenance.source_type = :synthesized_aggregate` and `provenance.aggregation_strategy`; full lineage written to `artifacts/diagnostics/<model>/synthesis_log.csv`. Default: `true`. Set to `false` to skip synthesis entirely.
 
 ## HomotopyContinuation Specific
-- `use_monodromy::Bool`: Use monodromy for HomotopyContinuation (default: false)
 - `use_parameter_homotopy::Bool`: Use parameter homotopy for multi-shot estimation (default: true). When enabled, tracks solutions between shooting points instead of solving from scratch at each point. Can provide 2-20x speedup for shooting_points >= 3.
 - `hc_real_tol::Float64`: Tolerance for real solutions in HC (default: 1e-9)
 - `hc_show_progress::Bool`: Show HC solving progress (default: false)
 
 ## StructuralIdentifiability Parameters
 - `si_probability::Float64`: Probability threshold for identifiability analysis (default: 0.99)
-- `si_infolevel::Int`: Information level for SI.jl output (default: 0)
 
 ## File I/O
-- `log_dir::String`: Directory for log files (default: "logs")
 - `save_filepath::String`: Path for saving polynomial systems (default: "")
 
 # Constructors
@@ -290,11 +279,8 @@ Base.@kwdef struct EstimationOptions
 	# Numerical Tolerances
 	abstol::Float64 = 1e-14
 	reltol::Float64 = 1e-14
-	rtol::Float64 = 1e-12
-	output_precision::Int32 = 20
 
 	# Solution Filtering and Validation
-	imag_threshold::Float64 = 1e-8
 	clustering_threshold::Float64 = 1e-5
 
 	# Branch detection (Phase B candidate-reduction). When enabled, replaces the
@@ -309,8 +295,6 @@ Base.@kwdef struct EstimationOptions
 	branch_detection::Bool = true
 	branch_cluster_eps::Float64 = 0.001            # Tightened 0.05→0.001 in 2026-05-13: read as a "target precision in MAD-normalized identifiable space." The 0.05 default was merging truth-near clusters with non-truth-near ones for low-noise cells; 0.001 preserves distinct basins (cost: roughly 2× more rows in nopolish result.csv, mitigated by branch_top_k).
 	branch_err_factor::Float64 = 100.0
-	branch_resid_factor::Float64 = 100.0
-	branch_min_size::Int = 1
 	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default `:err_only`; the retired S2 = (saturation_count, is_neg1, err) remains selectable) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps). **Acts as a safety cap** when `algebraic_multiplicity` is set: actual output is `min(algebraic_multiplicity, branch_top_k, length(cluster_reps))`.
 
 	# Algebraic multiplicity of the parameter-estimation problem — the number of
@@ -429,7 +413,6 @@ Base.@kwdef struct EstimationOptions
 	point_hint::Float64 = 0.5
 
 	# Derivative and Reconstruction Parameters
-	max_deriv_level::Int = 10
 
 	# Optimization Parameters
 	polish_solutions::Bool = false
@@ -536,7 +519,6 @@ Base.@kwdef struct EstimationOptions
 	debug_solver::Bool = false
 	debug_cas_diagnostics::Bool = false
 	debug_dimensional_analysis::Bool = false
-	trap_debug::Bool = false
 	profile_phases::Bool = false  # Print per-phase timing/allocation breakdown
 	heartbeat::Bool = true        # Live flushed [HB] phase markers (suppressed by nooutput)
 
@@ -548,9 +530,6 @@ Base.@kwdef struct EstimationOptions
 	construction_beam_width::Int = 16
 	construction_compute_mixed_volume::Bool = true
 	save_system::Bool = true
-	display_system::Bool = false
-	polish_only::Bool = false
-	ideal::Bool = false
 	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
@@ -562,7 +541,6 @@ Base.@kwdef struct EstimationOptions
 	s3_adapt_k::Float64 = 10.0     # Noise multiplier for S3 adaptive tolerance (higher = fewer support points)
 
 	# HomotopyContinuation Specific
-	use_monodromy::Bool = false
 	use_parameter_homotopy::Bool = true  # Use parameter homotopy for multi-shot (track solutions between points)
 	use_column_scaling::Bool = true  # Data-driven per-order column (variable) rescaling for the parameterized HC
 	# solve. ON by default (validated: regression 446/446 unchanged, no recovery regression on the 9-system
@@ -599,10 +577,8 @@ Base.@kwdef struct EstimationOptions
 
 	# StructuralIdentifiability Parameters
 	si_probability::Float64 = 0.99
-	si_infolevel::Int = 0
 
 	# File I/O
-	log_dir::String = "logs"
 	save_filepath::String = ""
 end
 
@@ -1217,8 +1193,8 @@ function validate_options(opts::EstimationOptions)
 	end
 
 	# Check thresholds
-	if opts.imag_threshold < 0 || opts.clustering_threshold < 0
-		@error "Thresholds must be non-negative"
+	if opts.clustering_threshold < 0
+		@error "clustering_threshold must be non-negative"
 		valid = false
 	end
 
@@ -1231,16 +1207,6 @@ function validate_options(opts::EstimationOptions)
 	if opts.point_hint < 0 || opts.point_hint > 1
 		@error "point_hint must be in [0, 1]"
 		valid = false
-	end
-
-	# Check derivative level
-	if opts.max_deriv_level < 2
-		@error "max_deriv_level must be at least 2"
-		valid = false
-	end
-
-	if opts.max_deriv_level > 20
-		@warn "Very high derivative levels (>20) may cause numerical instability"
 	end
 
 	# Check optimization bounds
@@ -1406,11 +1372,6 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	# Warn about conflicting options
-	if opts.polish_only && !opts.polish_solutions
-		@warn "polish_only=true but polish_solutions=false; no polishing will occur"
-	end
-
 	if opts.nooutput && opts.diagnostics
 		@info "diagnostics=true but nooutput=true; diagnostic output will be suppressed"
 	end
@@ -1455,10 +1416,6 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	if opts.ideal && opts.noise_level > 0
-		@warn "ideal=true but noise_level > 0; these options may conflict"
-	end
-
 	return valid
 end
 
@@ -1479,7 +1436,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 
 	categories = [
 		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator, :interpolators]),
-		("Tolerances", [:abstol, :reltol, :rtol, :output_precision]),
+		("Tolerances", [:abstol, :reltol]),
 		("Solution Validation", [:imag_threshold, :clustering_threshold]),
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
 		("Derivatives and Reconstruction", [:max_deriv_level]),
@@ -1491,14 +1448,14 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
-			:debug_dimensional_analysis, :trap_debug, :profile_phases]),
+			:debug_dimensional_analysis, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
-			:display_system, :polish_only, :ideal, :compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
+			:compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
 			:construction_beam_width, :construction_compute_mixed_volume]),
-		("HomotopyContinuation", [:use_monodromy, :use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
-		("StructuralIdentifiability", [:si_probability, :si_infolevel]),
-		("File I/O", [:log_dir, :save_filepath]),
+		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
+		("StructuralIdentifiability", [:si_probability]),
+		("File I/O", [:save_filepath]),
 	]
 
 	for (category, fields) in categories
@@ -1533,7 +1490,6 @@ end
 # Define show method for pretty printing
 Base.show(io::IO, opts::EstimationOptions) = print_options(io, opts; compact = true)
 
-# get_solver_options_dict (the legacy options::Dict bridge) was removed 2026-06-10:
-# exported but had zero callers anywhere (src/, test/, PEB). The fields it forwarded
-# (:display_system, :polish_only, :use_monodromy, :save_filepath, :output_precision)
-# are wave-2 cleanup candidates — no solver consumes those Dict keys.
+# get_solver_options_dict (the legacy options::Dict bridge) was removed 2026-06-10;
+# its orphaned fields were deleted in the 2026-08-12 dead-options cleanup
+# (save_filepath survived and is now wired as the saved-systems base directory).

@@ -19,4 +19,6 @@ using Test
     include("test_gp_kernel_optimization.jl") # recovered 2026-08-12 (gitignore-trap survivor, Feb 2026)
     include("test_cross_observable_covariance.jl")  # recovered 2026-08-12 (joint-GP covariance, Mar 2026)
     include("test_polish_maxtime.jl")         # recovered 2026-08-12 (polish_maxtime enforcement, May 2026)
+    include("test_hc_sanitize.jl")            # HC name injectivity + cross-list dedup 2026-08-12
+    include("test_options_contracts.jl")      # dead-options cleanup contracts 2026-08-12
 end

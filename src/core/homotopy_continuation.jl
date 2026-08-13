@@ -468,13 +468,13 @@ end
 
 
 """
-	solve_with_hc(poly_system, varlist; options=Dict(), use_monodromy=false, display_system=false)
+	solve_with_hc(poly_system, varlist; options=Dict())
 
 Solve a square polynomial system using HomotopyContinuation.jl. Returns the same
 tuple layout as other solvers: (solutions, hcvarlist, trivial_dict, trimmed_varlist).
 Solutions are vectors of Float64 in the order of `varlist`.
 """
-function solve_with_hc(poly_system, varlist; options = Dict(), use_monodromy = false, display_system = false)
+function solve_with_hc(poly_system, varlist; options = Dict())
 	try
 		# Convert to HC format
 		hc_system, hc_variables = convert_to_hc_format(poly_system, varlist)

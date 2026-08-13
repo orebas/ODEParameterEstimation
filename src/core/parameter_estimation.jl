@@ -471,6 +471,7 @@ function build_si_template_for_fixed_params(
 	data_sample,
 	base_DD;
 	infolevel = 0,
+	si_probability = 0.99,
 	pre_fixed_params = OrderedDict{Num, Float64}(),
 	placeholder_fail_categories = Symbol[],
 	compute_multiplicity = true,
@@ -481,6 +482,7 @@ function build_si_template_for_fixed_params(
 		data_sample;
 		DD = base_DD,
 		infolevel = infolevel,
+		p = si_probability,
 		pre_fixed_params = pre_fixed_params,
 		placeholder_fail_categories = placeholder_fail_categories,
 		compute_multiplicity = compute_multiplicity,
@@ -522,6 +524,7 @@ function prepare_si_template_with_structural_fix(
 	states = nothing,
 	params = nothing,
 	infolevel = diagnostics ? 1 : 0,
+	si_probability = 0.99,
 	placeholder_fail_categories = Symbol[],
 )
 	initial_template = build_si_template_for_fixed_params(
@@ -530,6 +533,7 @@ function prepare_si_template_with_structural_fix(
 		data_sample,
 		base_DD;
 		infolevel = infolevel,
+		si_probability = si_probability,
 		pre_fixed_params = OrderedDict{Num, Float64}(),
 		placeholder_fail_categories = placeholder_fail_categories,
 		# Detection pass: discovers what is unidentifiable on the raw model, so a
@@ -548,6 +552,7 @@ function prepare_si_template_with_structural_fix(
 		data_sample,
 		base_DD;
 		infolevel = infolevel,
+		si_probability = si_probability,
 		pre_fixed_params = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set),
 		placeholder_fail_categories = placeholder_fail_categories,
 	)
