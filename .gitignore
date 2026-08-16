@@ -92,6 +92,10 @@ artifacts/iterfix_audit/
 repro/**/stdout.txt
 repro/**/stderr.txt
 repro/**/artifacts/
+# Audited campaigns write an atomic record before estimation. Keep their
+# resumable runtime directories out of worktree-dirty checks; promote final
+# summaries deliberately with `git add -f` when they belong in the record.
+repro/uq_coverage_harness_2026_08/results/audited_*/
 *_06_lost_recheck.out
 *_06_lost_recheck.err
 

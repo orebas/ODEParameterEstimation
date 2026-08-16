@@ -92,6 +92,11 @@ DAISY/receptor/biohydrogenation cells. It refuses a dirty ODEPE worktree by
 default and fingerprints the complete estimator protocol. `historical_plus_uq`
 checks selection/routing; because the historical winner may be Chebyshev or
 AAAD-GPR, covariance claims use the explicitly narrowed `uq_only` AGPUQ pool.
+Relative `--out=audited_*` directories live under this harness's `results/`
+directory and are ignored as resumable runtime artifacts, so writing the first
+cell cannot make later clean-tree workers reject the same campaign. Promote a
+final summary deliberately with `git add -f` if it belongs in version control;
+an absolute `--out` path is also supported for external scratch storage.
 
 ```sh
 julia --startup-file=no repro/uq_coverage_harness_2026_08/run_audited_repeated_uq.jl \
