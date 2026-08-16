@@ -21,6 +21,10 @@ physicalized report), then per-coordinate z-scores and coverage of the
   constructors are routing stress only.
 - `run_model_assisted_panel.jl` — paired unpolished/corrected/polished
   estimation study using the exact selected SP/MP artifact.
+- `run_model_assisted_replicates.jl` — stable-seed, resumable repeated-noise
+  wrapper for the same model-assisted cells.
+- `summarize_model_assisted_replicates.jl` — truth-for-evaluation-only RMSE,
+  pairwise improvement, and false-accept/false-reject aggregation.
 - `campaign_io.jl` — atomic TOML sidecars with explicit optional-value
   encoding, shared by resumable campaign runners.
 - `summarize_estimator_aware_nonlinear.jl` — variant-aware aggregation with
@@ -104,6 +108,27 @@ Cells are written atomically and skipped on resume. Polish order alternates by
 cell so compilation and warm-cache effects do not systematically favor the
 corrected seed. When cases are launched in separate processes, use
 `--cell-index-offset=1` on every other process to preserve that alternation.
+
+The repeated-noise wrapper makes the seed list independent of case order, so
+models can be partitioned across processes without changing their draws:
+
+```sh
+julia --startup-file=no \
+  repro/uq_coverage_harness_2026_08/run_model_assisted_replicates.jl \
+  --cases=fitzhugh_nagumo_9_1em6 --noises=1e-6 \
+  --seed-start=8163100 --replicates=10 --polish=false \
+  --out=model_assisted_n10_20260816
+
+julia --startup-file=no \
+  repro/uq_coverage_harness_2026_08/summarize_model_assisted_replicates.jl \
+  --dirs=repro/uq_coverage_harness_2026_08/results/model_assisted_n10_20260816 \
+  --out=repro/uq_coverage_harness_2026_08/results/model_assisted_n10_20260816_summary.toml
+```
+
+Schema-v2 cells also record `model_assisted_screened_policy`: the accepted
+correction when the trajectory-SSE screen passes, otherwise the original
+pilot. This is the actual deployable fallback policy; the raw corrected and
+accepted-only records remain available separately.
 
 ## Audited LV staged diagnostics
 

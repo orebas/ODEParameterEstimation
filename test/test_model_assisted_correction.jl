@@ -23,6 +23,59 @@ const ODEPE_MAC = ODEParameterEstimation
     @test root[1] ≈ 1.9 atol = 1e-11
 end
 
+@testset "Model-assisted repeated-noise aggregation" begin
+    include(joinpath(
+        @__DIR__, "..", "repro", "uq_coverage_harness_2026_08",
+        "summarize_model_assisted_replicates.jl",
+    ))
+
+    _mac_test_estimator(error) = Dict{String, Any}(
+        "available" => true,
+        "max_relative_error" => error,
+        "coordinates" => Any[
+            Dict{String, Any}(
+                "role" => "parameter", "relative_error" => error,
+            ),
+        ],
+    )
+    unavailable = Dict{String, Any}("available" => false)
+    function _mac_test_aggregate_record(pilot_error, raw_error; accepted)
+        pilot = _mac_test_estimator(pilot_error)
+        raw = _mac_test_estimator(raw_error)
+        policy = accepted ? raw : pilot
+        return Dict{String, Any}(
+            "estimators" => Dict{String, Any}(
+                "pilot" => pilot,
+                "model_assisted_linear" => unavailable,
+                "model_assisted_resolved" => raw,
+                "model_assisted_screened" => accepted ? raw : unavailable,
+                "model_assisted_screened_policy" => policy,
+            ),
+            "correction_screen_status" => accepted ?
+                "trajectory_objective_improved" :
+                "trajectory_objective_not_improved",
+            "correction_total_seconds" => 0.02,
+            "selected_identity" => Dict{String, Any}(
+                "estimator_kind" => "single_point_algebraic",
+                "time_indices" => [4],
+            ),
+        )
+    end
+
+    summary = _mas_group_summary(Dict{String, Any}[
+        _mac_test_aggregate_record(1.0, 0.5; accepted = true),
+        _mac_test_aggregate_record(2.0, 0.5; accepted = false),
+    ])
+    @test summary["raw_usable"] == 2
+    @test summary["screen_accepts"] == 1
+    @test summary["raw_truth_improvements"] == 2
+    @test summary["accepted_truth_improvements"] == 1
+    @test summary["false_accepts"] == 0
+    @test summary["false_rejects"] == 1
+    @test summary["mechanism_advances"]
+    @test !summary["screened_estimator_advances"]
+end
+
 @testset "Model-assisted correction on a retained SP recipe" begin
     @parameters a
     @variables t x(t) y1(t)

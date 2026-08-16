@@ -213,7 +213,7 @@ function _run_model_assisted_cell(
     )
 
     payload = Dict{String, Any}(
-        "schema_version" => 1,
+        "schema_version" => 2,
         "scope" => "model_assisted_fixed_selected_seed_panel",
         "case_id" => case_id,
         "model" => string(case.model),
@@ -361,6 +361,11 @@ function _run_model_assisted_cell(
             pilot = _mac_physical_result(correction.pilot_result, scale_info)
             linear = _mac_physical_result(correction.linear_result, scale_info)
             resolved = _mac_physical_result(correction.resolved_result, scale_info)
+            screened_choice = isnothing(correction.screened_result) ?
+                correction.pilot_result : correction.screened_result
+            screened_policy = _mac_physical_result(
+                screened_choice, scale_info,
+            )
             pilot_polished = _mac_physical_result(
                 cell_value.pilot_polished, scale_info,
             )
@@ -410,6 +415,10 @@ function _run_model_assisted_cell(
                 "model_assisted_screened" => _mac_result_record(
                     problem,
                     _mac_physical_result(correction.screened_result, scale_info);
+                    elapsed_seconds = cell_value.correction_seconds,
+                ),
+                "model_assisted_screened_policy" => _mac_result_record(
+                    problem, screened_policy;
                     elapsed_seconds = cell_value.correction_seconds,
                 ),
                 "polish_from_pilot" => _mac_result_record(problem, pilot_polished;
