@@ -2,10 +2,13 @@
 
 Date: 2026-08-15
 
-Status: executable staged protocol. The numerical consistency repair is scoped
-to explicitly configured AGPUQ and leaves ordinary estimator interpolators on
-their historical path; all statistical estimator changes remain opt-in until
-the promotion gates below are met.
+Status: executable staged protocol. Stages 1--3 are complete on the frozen LV
+discovery cell; see
+[`2026-08-16_lv_multipoint_bias_results.md`](2026-08-16_lv_multipoint_bias_results.md).
+The numerical consistency repair is scoped to explicitly configured AGPUQ and
+leaves ordinary estimator interpolators on their historical path; all
+statistical estimator changes remain opt-in until the promotion gates below
+are met.
 
 Read first:
 
@@ -80,8 +83,30 @@ it is not claimed to remove statistical smoother bias.
   controls for trading derivative order against polynomial-system size.
 
 The optional arms are research mechanisms, not recommended production
-settings. In particular, `0.75` is a hypothesis from one oracle LV ablation,
-not a universal tuning rule.
+settings. In particular, `0.75--0.6` is a promising region from one oracle LV
+mechanism screen, not a universal tuning rule.
+
+## Results through 2026-08-16
+
+- The default LV multipoint estimate is excellent (0.0102% worst relative
+  parameter error). Its `2.82e7` raw Jacobian condition number does not signal
+  failed arithmetic: row/column equilibration gives `109`, and Float64 IFT
+  agrees with a 256-bit solve to `3.4e-14` relative.
+- The bounded `:boundary_order` arm failed Stage 1; it does not reliably select
+  the accurate basin. The historical top-15 `:spread` set already contains
+  viable pairs, so the 190-pair expansion was skipped.
+- Three points lower the required observed derivative order from 3 to 2 at the
+  same mixed volume of 3. The viable `[25,267,635]` local branch is centered
+  but has coordinate standard errors up to about 190 times the two-point
+  recipe, so it remains research-only.
+- On fixed rows `[25,635]`, shortening the SE lengthscale to 0.75--0.6 removes
+  most projected noiseless smoother bias while widening standard errors about
+  2--4 times. In matched adaptive canaries, factor 0.6 reselected `[8,635]`,
+  increased worst point error from 0.0102% to 0.0455%, reduced max one-run
+  `|z|` from 2.57 to 0.772, and added 2.9% structured time.
+- These are discovery results. No N=60 or default change is authorized until
+  a fixed factor or oracle-free rule is predeclared and survives held-out
+  audited-model checks.
 
 ## Audited model panel
 

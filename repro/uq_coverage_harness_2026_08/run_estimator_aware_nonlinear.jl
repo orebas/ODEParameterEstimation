@@ -24,6 +24,7 @@ using Statistics
 using TOML
 
 include(joinpath(@__DIR__, "coverage_driver.jl"))
+include(joinpath(@__DIR__, "campaign_io.jl"))
 
 const NONLINEAR_CASES = Dict(
 	"lotka_volterra" => (
@@ -243,21 +244,6 @@ function _record_uq_outcome!(payload::Dict{String, Any}, uq)
 		payload["outcome"] = isnothing(uq) ? "uq_disabled_unexpectedly" : "unknown_uq_outcome"
 	end
 	return payload
-end
-
-function _atomic_toml(path::String, payload::Dict{String, Any})
-	mkpath(dirname(path))
-	tmp_path, io = mktemp(dirname(path))
-	try
-		TOML.print(io, payload; sorted = true)
-		close(io)
-		mv(tmp_path, path; force = true)
-	catch
-		isopen(io) && close(io)
-		isfile(tmp_path) && rm(tmp_path; force = true)
-		rethrow()
-	end
-	return path
 end
 
 function _run_path(

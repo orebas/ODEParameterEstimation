@@ -19,13 +19,18 @@ physicalized report), then per-coordinate z-scores and coverage of the
 - `run_estimator_aware_peb_canaries.jl` — SHA-pinned loaders for audited frozen
   PEB paper cells. This is the scientific nonlinear panel; package registry
   constructors are routing stress only.
+- `campaign_io.jl` — atomic TOML sidecars with explicit optional-value
+  encoding, shared by resumable campaign runners.
 - `summarize_estimator_aware_nonlinear.jl` — variant-aware aggregation with
   explicit outcome taxonomy, usable rate, and conditional/unconditional
   coverage denominators.
-- `diagnose_audited_lv_multipoint_uq.jl` — retained-root LV conditioning and
-  GP-jet bias decomposition.
+- `diagnose_audited_lv_multipoint_uq.jl` — retained-root LV conditioning,
+  bounded pair maps, point-count frontiers, fixed k=3 combinations, and the
+  fixed-recipe lengthscale screen.
 - [`../../docs/2026-08-15_estimation_uq_research_program.md`](../../docs/2026-08-15_estimation_uq_research_program.md)
   — promotion gates and the N=10 → N=60 → N=200 ladder.
+- [`../../docs/2026-08-16_lv_multipoint_bias_results.md`](../../docs/2026-08-16_lv_multipoint_bias_results.md)
+  — exact Stage 1--3 decisions for the frozen LV discovery cell.
 
 ## Outcome accounting
 
@@ -43,6 +48,10 @@ An individual UQ sidecar records availability, numerical-linearization status,
 interval-width status, selection scope, and calibration status separately.
 Calibration is always `not_assessed_by_single_run`; `status=:ok` is not a
 coverage certificate.
+
+TOML has no null value. Campaign atomic writers preserve optional `nothing`
+fields with the explicit string sentinel `__missing__`; downstream summaries
+must treat that sentinel as unavailable, not as a scientific value.
 
 ## Optional research arms
 
@@ -66,6 +75,49 @@ julia --startup-file=no repro/uq_coverage_harness_2026_08/run_estimator_aware_pe
   --pair-strategy=boundary_order \
   --lengthscale-factor=0.75
 ```
+
+## Audited LV staged diagnostics
+
+The bounded mechanism maps inspect only 15 ranked pairs:
+
+```sh
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl \
+  --pair-map --scope=spread15
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl \
+  --pair-map --scope=boundary15
+```
+
+Build the k=1:4 structural frontier first, then compute mixed volume only for
+the advancing k=2/3 comparison:
+
+```sh
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl \
+  --frontier --points=1,2,3,4 --mixed-volume=false
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl \
+  --frontier --points=2,3 --mixed-volume=true
+```
+
+The controlled k=3 and fixed-k=2 lengthscale screens are:
+
+```sh
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl --k3-screen
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl --k3-augment
+julia --startup-file=no repro/uq_coverage_harness_2026_08/diagnose_audited_lv_multipoint_uq.jl \
+  --lengthscale-screen --indices=25,635 --factors=1.0,0.9,0.75,0.6
+```
+
+Matched adaptive default/0.6 canaries use `run_estimator_aware_peb_canaries.jl`
+with the same case, arm, pool, and output directory, changing only
+`--lengthscale-factor`. Exact checked-in records are under `results/`:
+
+- `lv_stage1_spread15_20260815.toml`
+- `lv_stage1_boundary15_20260815.toml`
+- `lv_stage2_frontier_nomv_20260816.toml`
+- `lv_stage2_frontier_k2_3_mv_20260816.toml`
+- `lv_stage2_k3_fixed_combos_20260816.toml`
+- `lv_stage2_k3_selected_pair_augmentation_20260816.toml`
+- `lv_stage3_k2_lengthscale_screen_20260816.toml`
+- `lv_stage3_adaptive_canary_20260816/`
 
 ## Modes
 

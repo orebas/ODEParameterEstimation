@@ -23,6 +23,8 @@ drift, prefer `CLAUDE.md`.
   [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md)
   and the staged research protocol
   [`docs/2026-08-15_estimation_uq_research_program.md`](docs/2026-08-15_estimation_uq_research_program.md)
+  and its completed LV Stage 1--3 decision record
+  [`docs/2026-08-16_lv_multipoint_bias_results.md`](docs/2026-08-16_lv_multipoint_bias_results.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60
