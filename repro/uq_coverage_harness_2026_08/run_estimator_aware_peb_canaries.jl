@@ -33,6 +33,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.606, 0.288],
 		time_interval = [0.0, 20.0],
 		data_sha256 = "2d32165c2153f481b948abb3fc5946792501f21c88461a2ddc5bfb54933cf24e",
+		original_data_sha256 = "6cce504380ee17714da94456e4addeaa7df533dcbbf3877c13546a49ef64483b",
 		generator_sha256 = "12ecb6e437d7554809cc5ec59bcd02e995ddf0b4498fc49a2dd1a32d71864646",
 		metadata_sha256 = "c739246934bcd95bae6bc12e73e61a3cb2e3bf34c30284db6974a31566098eb3",
 		historical_run = "odepe_v2_polish_run",
@@ -49,6 +50,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.178, 0.689],
 		time_interval = [0.0, 10.0],
 		data_sha256 = "65ed9a23b41e07298a911dfc2f697621b6a815c12752b5f997c8e276a473ecbb",
+		original_data_sha256 = "64fc24e09ff3c62388dcdfc755edea57e85dd88ea1a28adc0686b01d5920f0af",
 		generator_sha256 = "51edc95bfcaf31d1ff9bf13e1ebe3dca6491edc900b8c1d753c39a7bd090c48b",
 		metadata_sha256 = "29a109daef065b46fe4118acbc02c4dac958fd9574dde17e1db4835a21c61286",
 		historical_run = "odepe_v2_polish_run",
@@ -65,6 +67,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.273, 0.772],
 		time_interval = [0.0, 1.0],
 		data_sha256 = "bddffad5e352f06057c55db44d1e5a67351fd729497030e159d70e58fb4bd111",
+		original_data_sha256 = "d67cb3ff42ba61521dad14cd10c58ccd75f33ecd04ec72bf59afe0ce99d36f34",
 		generator_sha256 = "cdfcc9ad3b76856f027fafa142a765c9f72f515b39747c9415d83ce3121517bf",
 		metadata_sha256 = "243d52ba8726ecbcd81104df997175cf48aca86797e421485e5967296703c487",
 		historical_run = "odepe_v2_polish_run",
@@ -81,6 +84,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.722, 0.879],
 		time_interval = [0.0, 20.0],
 		data_sha256 = "69bd0ba3d4cc4d188cf470591442542e1cf0ca7c5a074b75ff4d63a04ab469bb",
+		original_data_sha256 = "853265a42c7ec5f94e118fa4b134ade273d9b8cae1a5d0fb16b03a93a2daa945",
 		generator_sha256 = "953d072fe9ce13f7ace2fa9ee6c211ff96c88edb33b0fd2e5e58616355e37a84",
 		metadata_sha256 = "d9991ccd917b1cff9b4ca1a434a85c19eab682d670c74692eaa93556715193d3",
 		historical_run = "odepe_v2_nopolish_run",
@@ -97,6 +101,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.888, 0.603],
 		time_interval = [0.0, 1.0],
 		data_sha256 = "18eeb2b90c94199f81f24b850ff0eaed3a5b8ac581b1433ac83e1afda027f51a",
+		original_data_sha256 = "60775077cc9ec8a39d8b20f7893b607d19365db212b5e2bbdca90f57c0347b46",
 		generator_sha256 = "f2f8156c9d8435d9a51dc4adffa6526d8ec8a5d22af31eeb9b164aa8347a6084",
 		metadata_sha256 = "3c64c4135209c92b139305ae1a9d7d234bf8be69027b775c49a50de1d57d8f65",
 		historical_run = "odepe_v2_nopolish_run",
@@ -113,6 +118,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.463, 0.581, 0.276, 0.409, 0.119, 0.237],
 		time_interval = [0.0, 10.0],
 		data_sha256 = "970d1fea278a3f8266e0ef23fc9bfe10089a85df36a048e323222f8103cf2968",
+		original_data_sha256 = "3e4673d441affb4bce4071876eee70879c572d7dda81db1f8a3eb229f29e8b1f",
 		generator_sha256 = "87b7bf11be94302406b2c5b825992a97e9859d3dce8f1d75b64145e5020f3a16",
 		metadata_sha256 = "92c44494ac91efa535f2cdac72c335fe7db56b556c93bcf776f79a80582fc5fa",
 		historical_run = "odepe_v2_nopolish_run",
@@ -129,6 +135,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.766, 0.327, 0.605, 0.87],
 		time_interval = [0.0, 10.0],
 		data_sha256 = "fa0afa689c2fcda01bb5fe1000114fb2f9718b7c79a790e60f1636538a0769b9",
+		original_data_sha256 = "fb0b8a1a95ec45696eb39d448dae018b1f7d7b52a5e2f4db4d9251023a523a0e",
 		generator_sha256 = "a2d6e5bee51351e983a9e8b2ecc165c1d3feb3fe447a6ff9ed29c5678ca05af7",
 		metadata_sha256 = "1461e11da95e56ec5581e3ab77b84c381b225255c7d6af1d6063390d2bc25e6b",
 		historical_run = "odepe_v2_nopolish_run",
@@ -145,6 +152,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.271, 0.868, 0.212, 0.34],
 		time_interval = [0.0, 10.0],
 		data_sha256 = "63c16823d6a74e28387fd9e1f2ae418025a3b8004fa9ea3089af60cda8c05dca",
+		original_data_sha256 = "906838222464451d9b214441dcba38428eea502bf0d20b1ac76cf5cb9c1794f9",
 		generator_sha256 = "4ec8d1e05644a6bafa1f87e582f75a836657d4ce90735790acb97d283ac4a00a",
 		metadata_sha256 = "1e19e1fe3c30a2c29c227a26f9b52a0896861073e6d847838ec7f1321bd054f0",
 		historical_run = "odepe_v2_nopolish_run",
@@ -152,6 +160,8 @@ const PEB_AUDITED_CASES = Dict(
 		historical_time_indices = [25, 635],
 		historical_interpolator = :chebyshev_bic,
 		historical_max_error = 2.5865284235594527e-5,
+		historical_coordinate_max_rel_error = 0.0001239773033482995,
+		unidentifiable_labels = ["x7"],
 	),
 	"receptor_binding_5_1em6" => (
 		model = :receptor_binding,
@@ -161,6 +171,7 @@ const PEB_AUDITED_CASES = Dict(
 		ic = [0.247, 0.542, 0.269],
 		time_interval = [0.0, 8.0],
 		data_sha256 = "1a2186b7111b385cc57f26b52daaabb49b627583d7110b1bf18b6ec3ae555201",
+		original_data_sha256 = "6d1c2cbe3686e12d9c3e1fda0b17871111b3c6d49f0345ba343d49460c693148",
 		generator_sha256 = "a772d838b3c3a76cafb1d8dd11a9ac044488b18d4e9c9f4c87eddbcd06d41887",
 		metadata_sha256 = "3a0e45e4629affd34bf98b994b704efeedc999a8aa53276fe8f8c5d97bf64216",
 		historical_run = "odepe_v2_nopolish_run",
@@ -168,6 +179,7 @@ const PEB_AUDITED_CASES = Dict(
 		historical_time_indices = [36, 635],
 		historical_interpolator = :aaad_gpr,
 		historical_max_error = 1.013147456952175e-5,
+		historical_coordinate_max_rel_error = 4.0526722487967664e-5,
 	),
 )
 
@@ -196,10 +208,13 @@ function _peb_paths(peb_root::AbstractString, case_id::String, case)
 	data = _require_frozen_file(peb_root,
 		joinpath(PEB_RESULTS_SNAPSHOT, "results", "data_noisy", case_id, "data.csv"),
 		case.data_sha256)
+	original_data = _require_frozen_file(peb_root,
+		joinpath(PEB_SNAPSHOT, "filetree", "data_original", "$model_instance.csv"),
+		case.original_data_sha256)
 	metadata = _require_frozen_file(peb_root,
 		joinpath(PEB_RESULTS_SNAPSHOT, "results", case.historical_run, case_id,
 			"odepe_metadata.json"), case.metadata_sha256)
-	return (; generator, data, metadata)
+	return (; generator, data, original_data, metadata)
 end
 
 function _even_row_indices(n_rows::Int, max_observations::Int)
@@ -430,7 +445,7 @@ function _validate_peb_catalog(
 		length(pep.measured_quantities) + 1 == length(pep.data_sample) ||
 			throw(ArgumentError("$case_id measured-data column mismatch"))
 		_historical_interpolator(case.historical_interpolator)
-		println("VALID $case_id rows=$(length(rows)) hashes=data+generator+metadata")
+		println("VALID $case_id rows=$(length(rows)) hashes=original+data+generator+metadata")
 	end
 	return true
 end

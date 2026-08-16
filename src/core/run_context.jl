@@ -19,6 +19,41 @@ using Base.ScopedValues: ScopedValue
 
 abstract type AbstractEstimatorArtifact end
 
+# Research-only selection contracts used by audited conditional-coverage
+# campaigns. They are intentionally scoped to one RunContext instead of added
+# to EstimationOptions: ordinary package callers must retain adaptive point and
+# pair selection byte-for-byte.
+abstract type AbstractCampaignSelectionRecipe end
+
+struct FixedSinglePointRecipe <: AbstractCampaignSelectionRecipe
+	row::Int
+	interpolator_source::Union{Nothing, Symbol}
+	function FixedSinglePointRecipe(
+		row::Integer;
+		interpolator_source::Union{Nothing, Symbol} = nothing,
+	)
+		row > 0 || throw(ArgumentError("fixed single-point row must be positive"))
+		new(Int(row), interpolator_source)
+	end
+end
+
+struct FixedMultipointRecipe <: AbstractCampaignSelectionRecipe
+	rows::Vector{Int}
+	interpolator_source::Union{Nothing, Symbol}
+	function FixedMultipointRecipe(
+		rows::AbstractVector{<:Integer};
+		interpolator_source::Union{Nothing, Symbol} = nothing,
+	)
+		resolved = Int.(rows)
+		isempty(resolved) && throw(ArgumentError("fixed multipoint rows must be non-empty"))
+		all(row -> row > 0, resolved) ||
+			throw(ArgumentError("fixed multipoint rows must be positive"))
+		length(unique(resolved)) == length(resolved) ||
+			throw(ArgumentError("fixed multipoint rows must be unique"))
+		new(resolved, interpolator_source)
+	end
+end
+
 """Exact production recipe retained for one square single-point algebraic root."""
 struct SinglePointUQArtifact{E<:AbstractVector, V<:AbstractVector, D<:AbstractVector,
         R<:AbstractVector, I<:AbstractDict} <: AbstractEstimatorArtifact
@@ -87,12 +122,17 @@ mutable struct RunContext
 	uq_noise_interpolants::Dict{Symbol, AbstractDict}
 	uq_influences::Dict{Int, UQInfluenceArtifact}
 	estimator_lock::ReentrantLock
+	selection_recipe::Union{Nothing, AbstractCampaignSelectionRecipe}
 end
-RunContext(; capture_timing::Bool = false) =
+RunContext(;
+	capture_timing::Bool = false,
+	selection_recipe::Union{Nothing, AbstractCampaignSelectionRecipe} = nothing,
+) =
 	RunContext(capture_timing, nothing, nothing, nothing, nothing,
 		nothing, nothing, Symbol[], Symbol[], false, 1,
 			Dict{Int, AbstractEstimatorArtifact}(), Dict{Int, EstimatorIdentity}(),
-			Dict{Symbol, AbstractDict}(), Dict{Int, UQInfluenceArtifact}(), ReentrantLock())
+			Dict{Symbol, AbstractDict}(), Dict{Int, UQInfluenceArtifact}(), ReentrantLock(),
+			selection_recipe)
 
 const RUN_CONTEXT = ScopedValue{Union{Nothing, RunContext}}(nothing)
 
@@ -135,6 +175,7 @@ function _run_ctx_set_hc_opts!(threading::Bool, compile_mode::Symbol)
 end
 _run_ctx_hc_threading() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_threading)
 _run_ctx_hc_compile_mode() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_compile_mode)
+_run_ctx_selection_recipe() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.selection_recipe)
 
 _run_ctx_set_capture_uq!(enabled::Bool) = (c = RUN_CONTEXT[]; c === nothing || (c.capture_uq = enabled); nothing)
 _run_ctx_capture_uq() = (c = RUN_CONTEXT[]; c !== nothing && c.capture_uq)
@@ -291,14 +332,18 @@ function _run_ctx_lineage(identity::EstimatorIdentity)
 end
 
 """
-	_with_run_context(f; capture_timing=false) -> (value, ctx)
+	_with_run_context(f; capture_timing=false, selection_recipe=nothing) -> (value, ctx)
 
 Bind a fresh `RunContext` for the duration of `f()`; return `(f(), ctx)`. The
 ctx object stays readable after the scope exits (it is an ordinary mutable
 struct), which is how `with_estimation_timing` retrieves the timing breakdown.
 """
-function _with_run_context(f::Function; capture_timing::Bool = false)
-	ctx = RunContext(; capture_timing)
+function _with_run_context(
+	f::Function;
+	capture_timing::Bool = false,
+	selection_recipe::Union{Nothing, AbstractCampaignSelectionRecipe} = nothing,
+)
+	ctx = RunContext(; capture_timing, selection_recipe)
 	value = Base.ScopedValues.with(f, RUN_CONTEXT => ctx)
 	return value, ctx
 end

@@ -1,5 +1,6 @@
 using Test
 using Logging
+using LinearAlgebra
 using OrderedCollections
 using ModelingToolkit
 using JSON3
@@ -193,6 +194,8 @@ using JSON3
         @test metadata["truth_values"] == Any[nothing]
         @test isnothing(metadata["max_cv"])
         @test isnothing(metadata["linearization"]["gradient_norm"])
+        @test isnothing(metadata["linearization"]["jacobian_condition_equilibrated"])
+        @test isnothing(metadata["linearization"]["linear_solve_backward_error"])
         @test metadata["reliability"]["availability"] == "available"
         @test metadata["reliability"]["interval_width"] == "undefined_scale"
         @test JSON3.write(metadata) isa String
@@ -201,6 +204,44 @@ using JSON3
     @testset "operational CV never treats missing truth/centers as zero" begin
         @test isinf(ODEParameterEstimation._uq_max_cv([0.1, 0.2], [NaN, NaN]))
         @test ODEParameterEstimation._uq_max_cv([0.1], [2.0]) == 0.05
+    end
+
+    @testset "smoother residual EDF noise is explicit and typed" begin
+        xs = collect(range(0.0, 1.0; length = 21))
+        ys = @. exp(0.4 * xs) + 1e-3 * sin(17 * xs)
+        interp = with_logger(NullLogger()) do
+            ODEParameterEstimation.agp_gpr_uq(xs, ys)
+        end
+        H = Matrix{Float64}(undef, length(xs), length(xs))
+        for (i, x) in enumerate(xs)
+            _, W = ODEParameterEstimation.gp_derivative_influence_matrix(
+                interp, x, 0,
+            )
+            H[i, :] .= @view W[1, :]
+        end
+        raw = ODEParameterEstimation._raw_training_values(interp)
+        residual = raw - H * raw
+        df = length(xs) - 2 * tr(H) + tr(H' * H)
+        sigma2 = sum(abs2, residual) / df
+        covariance = ODEParameterEstimation._uq_observation_covariance_from_source(
+            interp, :smoother_residual_edf,
+        )
+        @test Matrix(covariance) ≈ sigma2 .* Matrix{Float64}(I, length(xs), length(xs)) rtol = 5e-13
+        @test ishermitian(Matrix(covariance))
+        @test minimum(eigvals(Symmetric(Matrix(covariance)))) >= 0
+
+        estimate = ODEParameterEstimation.joint_derivative_estimator_covariance(
+            interp, [0.4], 1;
+            noise_source = :smoother_residual_edf,
+            observation_covariance = covariance,
+        )
+        @test estimate.noise_source == :smoother_residual_edf
+        @test_throws ArgumentError ODEParameterEstimation._uq_observation_covariance_from_source(
+            interp, :not_a_noise_source,
+        )
+        @test_throws ArgumentError ODEParameterEstimation._uq_residual_edf_variance(
+            Matrix{Float64}(I, length(xs), length(xs)), raw,
+        )
     end
 
     @testset "trajectory calculus helpers recover the retained score" begin

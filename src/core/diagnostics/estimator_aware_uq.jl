@@ -24,6 +24,24 @@ function _uq_unavailable(
     return UQUnavailable(pep.name, target, reason, String(message), warnings)
 end
 
+function _uq_residual_edf_variance(
+    H::AbstractMatrix{<:Real},
+    y::AbstractVector{<:Real},
+)::Float64
+    n = length(y)
+    size(H) == (n, n) || throw(ArgumentError(
+        "smoother matrix has size $(size(H)); expected ($n, $n)",
+    ))
+    residual = y - H * y
+    df_resid = n - 2 * tr(H) + tr(H' * H)
+    isfinite(df_resid) && df_resid > 0 ||
+        throw(ArgumentError("smoother residual effective degrees of freedom is $df_resid"))
+    sigma2 = sum(abs2, residual) / df_resid
+    isfinite(sigma2) && sigma2 >= 0 ||
+        throw(ArgumentError("smoother residual variance is invalid: $sigma2"))
+    return Float64(sigma2)
+end
+
 function _uq_observation_covariance_from_source(
     interp::AGPInterpolatorUQ,
     source::Symbol,
@@ -43,14 +61,8 @@ function _uq_observation_covariance_from_source(
         H[i, :] .= @view W[1, :]
     end
     y = _raw_training_values(interp)
-    residual = y - H * y
-    df_resid = n - 2 * tr(H) + tr(H' * H)
-    isfinite(df_resid) && df_resid > 0 ||
-        throw(ArgumentError("smoother residual effective degrees of freedom is $df_resid"))
-    sigma2 = sum(abs2, residual) / df_resid
-    isfinite(sigma2) && sigma2 >= 0 ||
-        throw(ArgumentError("smoother residual variance is invalid: $sigma2"))
-    return Diagonal(fill(Float64(sigma2), n))
+    sigma2 = _uq_residual_edf_variance(H, y)
+    return Diagonal(fill(sigma2, n))
 end
 
 function _uq_stacked_jet(
@@ -139,7 +151,6 @@ function _uq_gp_factorization_assessment(
         push!(ratios, diagnostics.jitter_to_noise)
         push!(residuals, diagnostics.factorization_residual)
         if diagnostics.status == :material_regularization
-            degraded = true
             push!(warnings,
                 "Observable '$(_uq_observation_name(mq))' required GP Cholesky jitter $(diagnostics.jitter_to_noise)× its learned observation-noise variance.")
         elseif diagnostics.status == :factorization_mismatch
@@ -151,6 +162,26 @@ function _uq_gp_factorization_assessment(
     max_ratio = isempty(ratios) ? NaN : maximum(ratios)
     max_residual = isempty(residuals) ? NaN : maximum(residuals)
     return max_ratio, max_residual, degraded, warnings
+end
+
+function _uq_append_linearization_warnings!(
+    warnings::Vector{String},
+    diagnostics::UQLinearizationDiagnostics,
+)
+    if diagnostics.reason == :scale_sensitive_conditioning
+        push!(warnings,
+            "The raw linearization condition number $(diagnostics.jacobian_condition) is scale-sensitive; one-pass row/column equilibration gives $(diagnostics.jacobian_condition_equilibrated) and the solve backward error is $(diagnostics.linear_solve_backward_error).")
+    elseif diagnostics.reason in (
+        :nonfinite_linearization,
+        :intrinsic_ill_conditioning,
+        :large_backward_error,
+        :forward_error_risk,
+        :factorization_failed,
+    )
+        push!(warnings,
+            "The retained linear solve failed numerical reliability checks ($(diagnostics.reason)): raw condition=$(diagnostics.jacobian_condition), equilibrated condition=$(diagnostics.jacobian_condition_equilibrated), backward error=$(diagnostics.linear_solve_backward_error).")
+    end
+    return warnings
 end
 
 _uq_observation_name(mq) = replace(string(mq.lhs), r"\(.*\)" => "")
@@ -407,19 +438,24 @@ function _uq_exact_ift(
     term_scale = maximum(abs.(J) * abs.(combined_values); init = 0.0)
     residual_rel = residual_abs / max(term_scale, 1e-300)
     n_x = length(solve_vars)
-    S, condition, ift_degraded = _ift_solve(J[:, 1:n_x], J[:, (n_x + 1):end])
+    assessment = _ift_solve_assessment(
+        J[:, 1:n_x], J[:, (n_x + 1):end],
+    )
+    S = assessment.sensitivity
     isempty(S) && throw(LinearAlgebra.SingularException(0))
     residual_degraded = !(residual_rel <= root_residual_rtol)
-    reason = if ift_degraded
-        :ill_conditioned_jacobian
+    reason = if assessment.degraded
+        assessment.reason
     elseif residual_degraded
         :root_residual
     else
-        :ok
+        assessment.reason
     end
     diagnostics = UQLinearizationDiagnostics(
-        reason, residual_abs, residual_rel, condition, NaN, Int[],
-        ift_degraded || residual_degraded,
+        reason, residual_abs, residual_rel,
+        assessment.raw_condition, assessment.equilibrated_condition,
+        assessment.backward_error, NaN, Int[],
+        assessment.degraded || residual_degraded, NaN, NaN,
     )
     return S, diagnostics
 end
@@ -569,14 +605,17 @@ function _uq_build_algebraic_report(
     gp_ratio, gp_residual, gp_degraded, gp_warnings =
         _uq_gp_factorization_assessment(pep, interpolants)
     append!(warnings, gp_warnings)
-    diagnostic_reason = gp_degraded && diagnostics.reason == :ok ?
+    diagnostic_reason = gp_degraded && !diagnostics.degraded ?
         :gp_factorization_regularization : diagnostics.reason
     diagnostics = UQLinearizationDiagnostics(
         diagnostic_reason, diagnostics.root_residual_abs,
         diagnostics.root_residual_rel, diagnostics.jacobian_condition,
+        diagnostics.jacobian_condition_equilibrated,
+        diagnostics.linear_solve_backward_error,
         diagnostics.gradient_norm, copy(diagnostics.active_bounds),
         diagnostics.degraded || gp_degraded, gp_ratio, gp_residual,
     )
+    _uq_append_linearization_warnings!(warnings, diagnostics)
     L, local_labels, local_roles, local_values = _uq_local_output_map(
         pep, solve_vars, augmented_values, root, augmented_metadata, S_augmented,
     )
@@ -1059,7 +1098,6 @@ function _uq_polish_report(
         pep, target, :nonpositive_hessian,
         "selected interior optimum has minimum observed-Hessian curvature $min_curvature (required > $curvature_tolerance)",
     )
-    condition = max_curvature / min_curvature
     B = -2 .* J_prediction'
     influence_internal = try
         factor = cholesky(Symmetric(H))
@@ -1071,6 +1109,9 @@ function _uq_polish_report(
     end
     all(isfinite, influence_internal) || return _uq_unavailable(
         pep, target, :numerical_failure, "optimizer influence contains non-finite values",
+    )
+    linear_assessment = _linear_solve_assessment(
+        H, influence_internal, -B,
     )
 
     Q = ForwardDiff.jacobian(u -> _uq_polish_physical_map(ctx, u), internal)
@@ -1101,13 +1142,16 @@ function _uq_polish_report(
     )
     correlation = _uq_correlation_matrix(Sigma, standard_deviation)
     max_cv = _uq_max_cv(standard_deviation, estimate_values)
-    degraded = condition > 1e6 || gp_degraded
+    degraded = linear_assessment.degraded || gp_degraded
     status = degraded ? :degenerate : _uq_status_from_cv(max_cv)
-    diagnostic_reason = condition > 1e6 ? :ill_conditioned_hessian :
-        gp_degraded ? :gp_factorization_regularization : :ok
+    diagnostic_reason = linear_assessment.degraded ? linear_assessment.reason :
+        gp_degraded ? :gp_factorization_regularization : linear_assessment.reason
     diagnostics = UQLinearizationDiagnostics(
-        diagnostic_reason, NaN, NaN, condition, gradient_norm, active, degraded,
-        gp_ratio, gp_residual,
+        diagnostic_reason, NaN, NaN,
+        linear_assessment.raw_condition,
+        linear_assessment.equilibrated_condition,
+        linear_assessment.backward_error,
+        gradient_norm, active, degraded, gp_ratio, gp_residual,
     )
     warnings = String[
         "Polish/direct UQ is conditional on the selected optimizer basin and unchanged active set.",
@@ -1115,8 +1159,7 @@ function _uq_polish_report(
         "Trajectory score and prediction Jacobian use the production first-order AD path; the full observed Hessian uses central finite differences in retained optimizer coordinates.",
     ]
     append!(warnings, gp_warnings)
-    condition > 1e6 && push!(warnings,
-        "Observed Hessian condition number $condition exceeds 1e6; covariance is unreliable.")
+    _uq_append_linearization_warnings!(warnings, diagnostics)
     ia = compute_practical_identifiability_index(Sigma, labels, roles, estimate_values)
     append!(warnings, ia.warnings)
 
@@ -1453,10 +1496,12 @@ function _uq_branch_completion_report(
     degraded = diagnostics.degraded || fd_degraded || parent_degraded
     status = degraded ? :degenerate : _uq_status_from_cv(max_cv)
     diagnostic_reason = fd_degraded ? :branch_map_unstable :
-        parent_degraded && diagnostics.reason == :ok ? :parent_degraded : diagnostics.reason
+        parent_degraded && !diagnostics.degraded ? :parent_degraded : diagnostics.reason
     diagnostics = UQLinearizationDiagnostics(
         diagnostic_reason, diagnostics.root_residual_abs,
         diagnostics.root_residual_rel, diagnostics.jacobian_condition,
+        diagnostics.jacobian_condition_equilibrated,
+        diagnostics.linear_solve_backward_error,
         fd_discrepancy, Int[], degraded,
         diagnostics.gp_jitter_to_noise,
         diagnostics.gp_factorization_residual,
@@ -1468,6 +1513,7 @@ function _uq_branch_completion_report(
         "The anchor-to-exact-jet Jacobian used two centered step sizes; its relative discrepancy was $(fd_discrepancy).")
     fd_degraded && push!(warnings,
         "The branch-map finite-difference stability gate exceeded 1e-3; covariance is reported for audit but is unreliable.")
+    _uq_append_linearization_warnings!(warnings, diagnostics)
     ia = compute_practical_identifiability_index(
         covariance, labels, roles, estimate_values,
     )

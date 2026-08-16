@@ -129,5 +129,25 @@ Random.seed!(2468)
 		@test uq_ec.estimate_values ≈ vcat(
 			collect(values(analysis_ec.returned_results[1].parameters)),
 			collect(values(analysis_ec.returned_results[1].states)))
+
+		fixed_row = 37
+		fixed_value, _ = _ec_quiet() do
+			ODEParameterEstimation._with_run_context(
+				selection_recipe = ODEParameterEstimation.FixedSinglePointRecipe(
+					fixed_row; interpolator_source = :agp_uq,
+				),
+			) do
+				ODEParameterEstimation._analyze_parameter_estimation_problem_impl(
+					deepcopy(pep_data), uq_opts,
+				)
+			end
+		end
+		_, fixed_analysis, fixed_uq = fixed_value
+		@test fixed_uq isa ODEParameterEstimation.UncertaintyReport
+		@test fixed_uq.target.identity.estimator_kind == :single_point_algebraic
+		@test fixed_uq.target.identity.time_indices == [fixed_row]
+		@test fixed_uq.target.identity.time_values == [pep_data.data_sample["t"][fixed_row]]
+		@test fixed_analysis.returned_results[1].provenance.estimator_identity.time_indices ==
+			[fixed_row]
 	end
 end

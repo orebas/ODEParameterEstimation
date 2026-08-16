@@ -1,0 +1,91 @@
+schema_version = 1
+manifest_id = "odepe_uq_campaign_2026_08_v1"
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+observations = 750
+noise_model = "additive_signed_observable_mean"
+shooting_points = 20
+multipoint_max_pairs = 15
+multipoint_pair_strategy = "spread"
+cell_wall_limit_seconds = 1800
+cell_process_tree_rss_limit_bytes = 17179869184
+initial_machine_hour_budget = 24.0
+warmup_seed = 8164000
+qualification_seed = 8164101
+
+[gates]
+identifiable_coordinate_max_relative_error = 1e-3
+n3_min_complete_finite = 3
+n3_min_accurate = 2
+n5_min_complete_finite = 4
+n5_min_accurate = 4
+n10_min_usable_uq = 9
+n60_min_usable_uq = 54
+n60_min_marginal_coverage = 0.85
+n60_max_absolute_mean_z = 0.5
+
+[h1]
+cases = ["daisy_mamil4_7_1em6", "receptor_binding_5_1em6", "biohydrogenation_7_1em6"]
+arms = ["mp_solver_polish"]
+interpolator_pools = ["historical_plus_uq", "uq_only"]
+data_source = "frozen_noisy"
+master_seeds = [8164101]
+purpose = "qualification; historical_plus_uq is a routing/unsupported-contract check, uq_only is the covariance estimand"
+
+[h2_primary]
+cases = ["daisy_mamil4_7_1em6", "receptor_binding_5_1em6"]
+arms = ["mp_solver_polish"]
+interpolator_pools = ["uq_only"]
+data_source = "synthetic"
+noise = "case"
+master_seeds = [8164101, 8164102, 8164103]
+lengthscale_factors = [1.0]
+
+[h2_bio_pilot]
+cases = ["biohydrogenation_7_1em6"]
+arms = ["mp_solver_polish"]
+interpolator_pools = ["uq_only"]
+data_source = "synthetic"
+noise = 1e-6
+master_seeds = [8164101]
+lengthscale_factors = [1.0]
+
+[h2_bio_conditional]
+cases = ["biohydrogenation_7_1em6"]
+arms = ["mp_solver_polish"]
+interpolator_pools = ["uq_only"]
+data_source = "synthetic"
+noise = 1e-8
+master_seeds = [8164101, 8164102, 8164103]
+lengthscale_factors = [1.0]
+condition = "run only if the named 1e-6 pilot does not qualify at 1e-6 but retains a valid estimator/UQ route"
+
+[h3]
+cases = ["daisy_mamil4_7_1em6", "receptor_binding_5_1em6"]
+arms = ["mp_solver_polish"]
+interpolator_pools = ["uq_only"]
+data_source = "synthetic"
+noise = "case"
+master_seeds = [8164101, 8164102, 8164103, 8164104, 8164105]
+lengthscale_factors = [1.0]
+condition = "run only for cases passing H2"
+
+[u10]
+data_source = "synthetic"
+master_seeds = [8164201, 8164202, 8164203, 8164204, 8164205, 8164206, 8164207, 8164208, 8164209, 8164210]
+cases = [
+  "slow_fast_5_1em6:sp:uq_only",
+  "lotka_volterra_5_1em6:mp_solver_polish:uq_only",
+  "vanderpol_2_1em4:sp_polish:historical_plus_uq",
+  "lotka_volterra_2_1em4:mp_polish:historical_plus_uq",
+  "fitzhugh_nagumo_1_1em4:mp_polish:historical_plus_uq",
+]
+
+[n60_prepared_not_authorized]
+data_source = "synthetic"
+master_seed_start = 8165001
+replicates = 60
+recipes = [
+  "slow_fast_5_1em6:sp:uq_only:fixed_sp=374:agp_uq",
+  "lotka_volterra_5_1em6:mp_solver_polish:uq_only:fixed_mp=25,635:agp_uq",
+  "vanderpol_2_1em4:sp_polish:historical_plus_uq:fixed_sp=267:aaad_gpr",
+]

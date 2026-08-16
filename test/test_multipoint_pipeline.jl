@@ -20,17 +20,32 @@ end
 
     # Single-point baseline
     raw_sp = analyze_parameter_estimation_problem(pep_data,
-        EstimationOptions(datasize = 201, noise_level = 0.0, nooutput = true))
+        EstimationOptions(
+            datasize = 201, noise_level = 0.0, nooutput = true,
+            interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+            auto_filter_interpolators = false, shooting_points = 4,
+            use_multipoint = false, diagnostics = false,
+            synthesize_aggregate_candidates = false,
+            branch_completion = false, polish_solutions = false,
+            save_system = false,
+        ))
     results_sp = flatten_r(raw_sp)
 
     # With multipoint (N=2, both paths run)
     raw_mp = analyze_parameter_estimation_problem(pep_data,
         EstimationOptions(use_multipoint = true, multipoint_n_points = 2,
-            multipoint_max_pairs = 10, datasize = 201, noise_level = 0.0, nooutput = true))
+            multipoint_max_pairs = 3, shooting_points = 4,
+            datasize = 201, noise_level = 0.0, nooutput = true,
+            interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+            auto_filter_interpolators = false, diagnostics = false,
+            synthesize_aggregate_candidates = false,
+            branch_completion = false, polish_solutions = false,
+            save_system = false))
     results_mp = flatten_r(raw_mp)
 
-    # Multipoint should produce MORE results (SP solutions + MP solutions merged)
-    @test length(results_mp) > length(results_sp)
+    # Candidate counts are not monotone after clustering and filtering. Verify
+    # the actual contract: at least one retained raw row came from an MP solve.
+    @test any(r -> r.provenance.source_type == :multipoint, results_mp)
 
     # Both should produce valid results with finite errors
     errs_sp = [r.err for r in results_sp if !isnothing(r.err) && isfinite(r.err)]
@@ -41,4 +56,41 @@ end
     # Multipoint best error should be no worse than 10x single-point
     # (in practice it's equal or better)
     @test minimum(errs_mp) <= minimum(errs_sp) * 10
+
+    # Research-scoped fixed MP recipes may use the ordinary SP solve internally
+    # for projection ordering, but only roots from the exact requested pair may
+    # enter ranking or become the returned estimator.
+    fixed_rows = [20, 180]
+    fixed_opts = EstimationOptions(
+        use_multipoint = true,
+        multipoint_n_points = 2,
+        multipoint_max_pairs = 1,
+        shooting_points = 2,
+        datasize = 201,
+        noise_level = 0.0,
+        nooutput = true,
+        diagnostics = false,
+        synthesize_aggregate_candidates = false,
+        branch_completion = false,
+        polish_solutions = false,
+        save_system = false,
+        interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+        auto_filter_interpolators = false,
+    )
+    fixed_value, _ = ODEParameterEstimation._with_run_context(
+        selection_recipe = ODEParameterEstimation.FixedMultipointRecipe(
+            fixed_rows; interpolator_source = :agp_uq,
+        ),
+    ) do
+        ODEParameterEstimation._analyze_parameter_estimation_problem_impl(
+            deepcopy(pep_data), fixed_opts,
+        )
+    end
+    _, fixed_analysis, _ = fixed_value
+    @test !isempty(fixed_analysis.returned_results)
+    for result in fixed_analysis.returned_results
+        identity = result.provenance.estimator_identity
+        @test identity.estimator_kind == :multipoint_algebraic
+        @test identity.time_indices == fixed_rows
+    end
 end

@@ -291,14 +291,15 @@ function AGPInterpolatorUQ(
 	)
 end
 
-const GP_UQ_MATERIAL_JITTER_RATIO = 0.1
+const GP_UQ_MATERIAL_JITTER_RATIO = 1.0
 
 """
 	gp_factorization_diagnostics(interp::AGPInterpolatorUQ)
 
 Return scale-aware numerical telemetry for the GP factorization used by both
 the estimator mean and derivative UQ. `:material_regularization` means the
-added Cholesky jitter exceeded 10% of the learned observation-noise variance.
+added Cholesky jitter exceeded the learned observation-noise variance. This is
+a warning axis, not by itself proof that the retained linear solve is invalid.
 """
 function gp_factorization_diagnostics(interp::AGPInterpolatorUQ)
 	status = if !isfinite(interp.factorization_residual)

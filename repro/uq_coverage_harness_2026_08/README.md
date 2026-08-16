@@ -19,6 +19,16 @@ physicalized report), then per-coordinate z-scores and coverage of the
 - `run_estimator_aware_peb_canaries.jl` — SHA-pinned loaders for audited frozen
   PEB paper cells. This is the scientific nonlinear panel; package registry
   constructors are routing stress only.
+- `run_audited_repeated_uq.jl` — clean-revision, schema-v2 repeated-noise
+  runner over the audited 750-row PEB models, with paired data hashes and
+  optional research-only fixed SP/MP recipes.
+- `supervise_audited_repeated_uq.jl` — per-cell Linux process-group wall/RSS
+  supervisor with bounded whole-tree TERM/KILL and explicit failure records.
+- `summarize_audited_repeated_uq.jl` — revision-safe aggregation of estimator
+  accuracy, unconditional availability/coverage, full covariance, Mahalanobis,
+  selection frequencies, timing, and memory.
+- `audited_campaign_manifest_v1.toml` — predeclared H1/H2/H3/U10 cells,
+  budgets, seeds, and advancement gates.
 - `run_model_assisted_panel.jl` — paired unpolished/corrected/polished
   estimation study using the exact selected SP/MP artifact.
 - `run_model_assisted_replicates.jl` — stable-seed, resumable repeated-noise
@@ -39,6 +49,8 @@ physicalized report), then per-coordinate z-scores and coverage of the
   — promotion gates and the N=10 → N=60 → N=200 ladder.
 - [`../../docs/2026-08-16_lv_multipoint_bias_results.md`](../../docs/2026-08-16_lv_multipoint_bias_results.md)
   — exact Stage 1--3 decisions for the frozen LV discovery cell.
+- [`../../docs/2026-08-16_audited_repeated_uq_campaign.md`](../../docs/2026-08-16_audited_repeated_uq_campaign.md)
+  — executable hard-model campaign, estimand, stop rules, and results ledger.
 
 ## Outcome accounting
 
@@ -72,6 +84,33 @@ Defaults preserve production behavior. Non-default variants are encoded in the
 result filename and payload, so paired arms cannot silently overwrite one
 another. A useful first causal screen is `1.0, 0.9, 0.75, 0.6`; those values are
 not production recommendations.
+
+### Audited repeated-noise campaign
+
+Use the audited runner—not the package-constructor pilot—for scientific
+DAISY/receptor/biohydrogenation cells. It refuses a dirty ODEPE worktree by
+default and fingerprints the complete estimator protocol. `historical_plus_uq`
+checks selection/routing; because the historical winner may be Chebyshev or
+AAAD-GPR, covariance claims use the explicitly narrowed `uq_only` AGPUQ pool.
+
+```sh
+julia --startup-file=no repro/uq_coverage_harness_2026_08/run_audited_repeated_uq.jl \
+  --cases=daisy_mamil4_7_1em6,receptor_binding_5_1em6,biohydrogenation_7_1em6 \
+  --data-source=synthetic --seeds=8164101 --validate-only=true
+
+julia --startup-file=no repro/uq_coverage_harness_2026_08/supervise_audited_repeated_uq.jl \
+  --cases=daisy_mamil4_7_1em6,receptor_binding_5_1em6 \
+  --arms=mp_solver_polish --interpolator-pools=uq_only \
+  --data-source=synthetic --seeds=8164101,8164102,8164103 \
+  --cell-wall-limit-seconds=1800 --cell-rss-limit-bytes=17179869184 \
+  --machine-hour-budget=24 --out=audited_h2_primary_20260816
+```
+
+The fixed-artifact CLI is `--fixed-sp-row=<row>` or
+`--fixed-mp-rows=<row,row>`, optionally with
+`--fixed-interpolator=agp_uq`. Fixed and adaptive cells are distinct protocol
+groups. Small-N results are qualification/reconnaissance only; the manifest's
+N=60 recipes are prepared but not authorized.
 
 Example frozen canary:
 

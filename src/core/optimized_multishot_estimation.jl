@@ -692,6 +692,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 	# (S2/AAAD/AAADOld). No-op when opts.auto_filter_interpolators is false or when no
 	# noise-sensitive method is in the list. Falls back to AAADGPR if it empties the list.
 	interpolator_list = maybe_filter_interpolators_by_noise(interpolator_list, PEP, opts)
+	selection_recipe = _run_ctx_selection_recipe()
+	if !isnothing(selection_recipe) && !isnothing(selection_recipe.interpolator_source)
+		requested_source = selection_recipe.interpolator_source
+		interpolator_list = [
+			entry for entry in interpolator_list
+			if interpolator_method_to_symbol(first(entry)) == requested_source
+		]
+		isempty(interpolator_list) && throw(ArgumentError(
+			"fixed campaign recipe requested interpolator '$requested_source', but it is absent from the resolved pool",
+		))
+	end
 
 	# Fast path: Use SI template exactly like the standard flow, but reuse it for all selected
 	# shooting points in this run. This mirrors PE.jl construction.
@@ -854,8 +865,26 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end
 
-		# Select shooting points (reuse non-SI logic)
-		if opts.shooting_points == 0
+		# Select shooting points. A research-scoped fixed recipe uses absolute
+		# rows from the current data array; ordinary runs retain the adaptive path.
+		if selection_recipe isa FixedSinglePointRecipe
+			selection_recipe.row <= length(t_vector) || throw(ArgumentError(
+				"fixed single-point row $(selection_recipe.row) exceeds $(length(t_vector)) observations",
+			))
+			point_indices = [selection_recipe.row]
+			n_points = 1
+		elseif selection_recipe isa FixedMultipointRecipe
+			all(row -> row <= length(t_vector), selection_recipe.rows) ||
+				throw(ArgumentError(
+					"fixed multipoint rows $(selection_recipe.rows) exceed $(length(t_vector)) observations",
+				))
+			length(selection_recipe.rows) == opts.multipoint_n_points ||
+				throw(ArgumentError(
+					"fixed multipoint recipe has $(length(selection_recipe.rows)) rows, but multipoint_n_points=$(opts.multipoint_n_points)",
+				))
+			point_indices = copy(selection_recipe.rows)
+			n_points = length(point_indices)
+		elseif opts.shooting_points == 0
 			# Single midpoint
 			mid = max(1, min(length(t_vector), round(Int, 0.499 * length(t_vector))))
 			point_indices = [mid]
@@ -903,7 +932,16 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 		# Check if we should use parameter homotopy and/or multi-point template.
 		# Both can run — single-point always runs, multipoint adds solutions to the pool.
-		use_multipoint = opts.use_multipoint && opts.system_solver == SolverHC
+		use_multipoint = if selection_recipe isa FixedSinglePointRecipe
+			false
+		elseif selection_recipe isa FixedMultipointRecipe
+			opts.system_solver == SolverHC || throw(ArgumentError(
+				"fixed multipoint recipes require SolverHC",
+			))
+			true
+		else
+			opts.use_multipoint && opts.system_solver == SolverHC
+		end
 		use_param_homotopy = opts.use_parameter_homotopy && opts.system_solver == SolverHC && n_points >= 3
 
 		_record_phase!(phase_stats, opts, "Equation construction + Solving") do
@@ -1566,14 +1604,18 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				end
 				# Generate N-tuples from existing shooting points, capped at max_pairs
 				n_pts = opts.multipoint_n_points
-				all_combos = Vector{Vector{Int}}()
-				_generate_combinations!(all_combos, point_indices, n_pts)
-				# Rank using the explicitly selected deterministic pair policy.
-				time_values = Float64.(PEP.data_sample["t"])
-				sort!(all_combos; by = c -> -_multipoint_combo_priority(
-					c, time_values, interpolants, mpt, opts.multipoint_pair_strategy,
-				))
-				combos = all_combos[1:min(opts.multipoint_max_pairs, length(all_combos))]
+				combos = if selection_recipe isa FixedMultipointRecipe
+					[copy(selection_recipe.rows)]
+				else
+					all_combos = Vector{Vector{Int}}()
+					_generate_combinations!(all_combos, point_indices, n_pts)
+					# Rank using the explicitly selected deterministic pair policy.
+					time_values = Float64.(PEP.data_sample["t"])
+					sort!(all_combos; by = c -> -_multipoint_combo_priority(
+						c, time_values, interpolants, mpt, opts.multipoint_pair_strategy,
+					))
+					all_combos[1:min(opts.multipoint_max_pairs, length(all_combos))]
+				end
 
 				if !opts.nooutput || opts.diagnostics
 					println("  [MULTIPOINT] $(length(combos)) $(n_pts)-point combos from $(length(point_indices)) shooting points")
@@ -1730,6 +1772,20 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 			# interp_solutions is empty, so accumulation below appends nothing
 		end  # end try/catch for interpolator
+
+			# A fixed multipoint campaign targets only roots of that exact
+			# multipoint recipe. Single-point solves above are retained internally
+			# because their variable ordering is the production projection contract,
+			# but they cannot enter ranking or become the reported estimator.
+			if selection_recipe isa FixedMultipointRecipe
+				keep = findall(==(:multipoint), interp_source_types)
+				interp_solutions = interp_solutions[keep]
+				interp_time_indices = interp_time_indices[keep]
+				interp_source_types = interp_source_types[keep]
+				interp_mp_time_indices = interp_mp_time_indices[keep]
+				interp_mp_combo_indices = interp_mp_combo_indices[keep]
+				interp_uq_artifacts = interp_uq_artifacts[keep]
+			end
 
 			# Accumulate this pass's solutions into the global pool
 			append!(all_solutions, interp_solutions)

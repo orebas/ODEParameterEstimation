@@ -79,6 +79,9 @@ const MAX_SOLUTIONS = 20              # Maximum number of solutions to consider 
 const DEFAULT_BOUND_MULTIPLIER = 1e9  # Multiplier for data scale: blown-backsolve DETECTION threshold (kept wide on purpose)
 const DEFAULT_POLISH_BOUND_MULTIPLIER = 1e6  # Narrower multiplier for the no-user-bounds POLISH search box (decoupled from detection; tune toward 1e3 if needed)
 const UQ_CI_Z = 1.96                  # Normal 95% quantile — used for BOTH the displayed CI half-width and the coverage check (must stay identical)
+const UQ_EQUILIBRATED_CONDITION_THRESHOLD = 1e6
+const UQ_BACKWARD_ERROR_THRESHOLD = 1e-10
+const UQ_CONDITION_ERROR_PRODUCT_THRESHOLD = 1e-4
 
 """
     NumericalIdentifiabilityAdvisory
@@ -1010,11 +1013,29 @@ struct UQLinearizationDiagnostics
     root_residual_abs::Float64
     root_residual_rel::Float64
     jacobian_condition::Float64
+    jacobian_condition_equilibrated::Float64
+    linear_solve_backward_error::Float64
     gradient_norm::Float64
     active_bounds::Vector{Int}
     degraded::Bool
     gp_jitter_to_noise::Float64
     gp_factorization_residual::Float64
+end
+
+# Backward-compatible constructor from before scale-aware linear-solve
+# diagnostics were retained.  Callers using the historical raw condition only
+# continue to work; the two new values are explicitly unknown rather than
+# silently inferred.
+function UQLinearizationDiagnostics(
+    reason, root_residual_abs, root_residual_rel, jacobian_condition,
+    gradient_norm, active_bounds, degraded,
+    gp_jitter_to_noise, gp_factorization_residual,
+)
+    return UQLinearizationDiagnostics(
+        reason, root_residual_abs, root_residual_rel, jacobian_condition,
+        NaN, NaN, gradient_norm, active_bounds, degraded,
+        gp_jitter_to_noise, gp_factorization_residual,
+    )
 end
 
 function UQLinearizationDiagnostics(
@@ -1232,6 +1253,8 @@ function uq_metadata_dict(report::UncertaintyReport)
             "root_residual_abs" => diagnostics.root_residual_abs,
             "root_residual_rel" => diagnostics.root_residual_rel,
             "jacobian_condition" => diagnostics.jacobian_condition,
+            "jacobian_condition_equilibrated" => diagnostics.jacobian_condition_equilibrated,
+            "linear_solve_backward_error" => diagnostics.linear_solve_backward_error,
             "gradient_norm" => diagnostics.gradient_norm,
             "active_bounds" => copy(diagnostics.active_bounds),
             "degraded" => diagnostics.degraded,

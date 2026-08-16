@@ -227,6 +227,8 @@ function _record_uq_outcome!(payload::Dict{String, Any}, uq)
 			"root_residual_abs" => diagnostics.root_residual_abs,
 			"root_residual_rel" => diagnostics.root_residual_rel,
 			"jacobian_condition" => diagnostics.jacobian_condition,
+			"jacobian_condition_equilibrated" => diagnostics.jacobian_condition_equilibrated,
+			"linear_solve_backward_error" => diagnostics.linear_solve_backward_error,
 			"gradient_norm" => diagnostics.gradient_norm,
 			"active_bounds" => diagnostics.active_bounds,
 			"degraded" => diagnostics.degraded,

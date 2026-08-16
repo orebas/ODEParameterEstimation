@@ -28,7 +28,11 @@ using Test
     include("test_stacked_jet_covariance.jl") # cross-time W-stack Σ_d core (MC-validated) 2026-08-13
     include("test_ift_solve.jl")              # factorized IFT, loud degradation 2026-08-13
     include("test_multipoint_sensitivity.jl") # multipoint estimate-conditioned S + FD validation 2026-08-14
+    include("test_multipoint_pipeline.jl") # actual adaptive + fixed-pair MP production routes 2026-08-16
     include("test_estimator_aware_uq.jl") # exact rank-one target + typed outcome/lineage contract 2026-08-14
+    include("test_polish_uq_pipeline.jl") # actual tiny-ODE polish/direct report + perturb/refit influence 2026-08-16
+    include("test_branch_uq_pipeline.jl") # actual retained parent->jet->sibling covariance composition 2026-08-16
+    include("test_audited_campaign_contracts.jl") # hash/seed/fingerprint/strict-resume campaign contract 2026-08-16
     include("test_gp_factorization_consistency.jl") # one SE recipe + scale-relative jitter telemetry 2026-08-15
     include("test_campaign_toml.jl") # resumable sidecars preserve optional production timing fields 2026-08-16
     include("test_model_assisted_correction.jl") # opt-in one-step estimator + no-UQ contract 2026-08-16

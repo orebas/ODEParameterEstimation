@@ -626,43 +626,157 @@ function diagnose_sensitivity(
         S_matrix, data_labels, data_roles, unknown_labels, unknown_roles, value_source)
 end
 
-"""
-    _ift_solve(J_x, J_d) → (S, cond_Jx, degraded::Bool)
-
-Factorized IFT sensitivity `S = -(J_x \\ J_d)`. Above the conditioning
-threshold this DEGRADES LOUDLY (warn + `degraded = true`) instead of the old
-silent `pinv` fallback: the pseudoinverse picks the minimum-norm derivative,
-which SUPPRESSES weak-direction sensitivity and makes the downstream
-covariance overconfident exactly when conditioning is worst. The factorized
-solve keeps the ill-conditioned amplification visible; consumers should treat
-`degraded = true` results as unreliable rather than trusting a quietly
-optimistic S. (Decision: Oren 2026-08-13, "degrade loudly".)
-"""
-function _ift_solve(J_x::AbstractMatrix{<:Real}, J_d::AbstractMatrix{<:Real};
-    cond_threshold::Float64 = 1e6,
-)
-    cond_Jx = try
-        svs_x = svd(J_x).S
-        length(svs_x) > 0 ? svs_x[1] / max(svs_x[end], 1e-300) : Inf
-    catch
+function _condition_2(A::AbstractMatrix{<:Real})::Float64
+    return try
+        singular_values = svdvals(Matrix{Float64}(A))
+        isempty(singular_values) ? Inf :
+            singular_values[1] / max(singular_values[end], floatmin(Float64))
+    catch err
+        _rethrow_if_interrupt(err)
         Inf
     end
+end
 
-    degraded = cond_Jx > cond_threshold
-    if degraded
-        @warn "[DIAG] J_x ill-conditioned (cond = $cond_Jx > $cond_threshold) — IFT sensitivity S is unreliable; downstream UQ should be treated as degraded" maxlog = 10
+"""
+    _equilibrated_condition_2(A) -> Float64
+
+Condition number after one L2 row-normalization pass followed by one L2
+column-normalization pass. This is diagnostic coordinate equilibration only:
+it never changes the system that was solved. A zero or non-finite row/column
+norm makes the diagnostic infinite.
+"""
+function _equilibrated_condition_2(A::AbstractMatrix{<:Real})::Float64
+    equilibrated = Matrix{Float64}(A)
+    isempty(equilibrated) && return Inf
+    all(isfinite, equilibrated) || return Inf
+    for row in axes(equilibrated, 1)
+        row_norm = norm(@view equilibrated[row, :])
+        isfinite(row_norm) && row_norm > 0 || return Inf
+        @views equilibrated[row, :] ./= row_norm
     end
+    for column in axes(equilibrated, 2)
+        column_norm = norm(@view equilibrated[:, column])
+        isfinite(column_norm) && column_norm > 0 || return Inf
+        @views equilibrated[:, column] ./= column_norm
+    end
+    return _condition_2(equilibrated)
+end
 
+"""
+    _linear_solve_backward_error(A, X, B) -> Float64
+
+Normwise backward error for the already-computed solution of `A*X=B`.
+"""
+function _linear_solve_backward_error(
+    A::AbstractMatrix{<:Real},
+    X::AbstractMatrix{<:Real},
+    B::AbstractMatrix{<:Real},
+)::Float64
+    try
+        residual = Matrix{Float64}(A) * Matrix{Float64}(X) - Matrix{Float64}(B)
+        numerator = opnorm(residual, Inf)
+        denominator = opnorm(Matrix{Float64}(A), Inf) *
+            opnorm(Matrix{Float64}(X), Inf) + opnorm(Matrix{Float64}(B), Inf)
+        return numerator / max(denominator, floatmin(Float64))
+    catch err
+        _rethrow_if_interrupt(err)
+        return Inf
+    end
+end
+
+function _linear_solve_assessment(
+    A::AbstractMatrix{<:Real},
+    X::AbstractMatrix{<:Real},
+    B::AbstractMatrix{<:Real};
+    raw_condition_warning_threshold::Float64 = 1e6,
+    equilibrated_condition_threshold::Float64 = UQ_EQUILIBRATED_CONDITION_THRESHOLD,
+    backward_error_threshold::Float64 = UQ_BACKWARD_ERROR_THRESHOLD,
+    condition_error_product_threshold::Float64 = UQ_CONDITION_ERROR_PRODUCT_THRESHOLD,
+)
+    raw_condition = _condition_2(A)
+    equilibrated_condition = _equilibrated_condition_2(A)
+    backward_error = _linear_solve_backward_error(A, X, B)
+    condition_error_product = raw_condition * backward_error
+    reason = if !all(isfinite,
+        (raw_condition, equilibrated_condition, backward_error,
+         condition_error_product))
+        :nonfinite_linearization
+    elseif equilibrated_condition > equilibrated_condition_threshold
+        :intrinsic_ill_conditioning
+    elseif backward_error > backward_error_threshold
+        :large_backward_error
+    elseif condition_error_product > condition_error_product_threshold
+        :forward_error_risk
+    elseif raw_condition > raw_condition_warning_threshold
+        :scale_sensitive_conditioning
+    else
+        :ok
+    end
+    degraded = reason in (
+        :nonfinite_linearization,
+        :intrinsic_ill_conditioning,
+        :large_backward_error,
+        :forward_error_risk,
+    )
+    return (;
+        raw_condition,
+        equilibrated_condition,
+        backward_error,
+        condition_error_product,
+        reason,
+        degraded,
+    )
+end
+
+function _ift_solve_assessment(
+    J_x::AbstractMatrix{<:Real},
+    J_d::AbstractMatrix{<:Real};
+    cond_threshold::Float64 = 1e6,
+)
     S = try
         -(J_x \ J_d)
     catch err
         _rethrow_if_interrupt(err)
-        # Exactly singular factorization: no local IFT derivative exists.
+        raw_condition = _condition_2(J_x)
+        equilibrated_condition = _equilibrated_condition_2(J_x)
         @warn "[DIAG] J_x factorization failed ($err) — returning empty S"
-        return Matrix{Float64}(undef, 0, 0), cond_Jx, true
+        return (
+            sensitivity = Matrix{Float64}(undef, 0, 0),
+            raw_condition = raw_condition,
+            equilibrated_condition = equilibrated_condition,
+            backward_error = Inf,
+            condition_error_product = Inf,
+            reason = :factorization_failed,
+            degraded = true,
+        )
     end
+    assessment = _linear_solve_assessment(
+        J_x, S, -Matrix{Float64}(J_d);
+        raw_condition_warning_threshold = cond_threshold,
+    )
+    if assessment.degraded
+        @warn "[DIAG] J_x linearization is numerically unreliable ($(assessment.reason)); raw condition=$(assessment.raw_condition), equilibrated condition=$(assessment.equilibrated_condition), backward error=$(assessment.backward_error)" maxlog = 10
+    elseif assessment.reason == :scale_sensitive_conditioning
+        @warn "[DIAG] J_x has scale-sensitive raw conditioning ($(assessment.raw_condition)) but the equilibrated condition ($(assessment.equilibrated_condition)) and backward error ($(assessment.backward_error)) pass" maxlog = 10
+    end
+    return merge((sensitivity = Matrix{Float64}(S),), assessment)
+end
 
-    return S, cond_Jx, degraded
+"""
+    _ift_solve(J_x, J_d) → (S, raw_condition, degraded::Bool)
+
+Factorized IFT sensitivity `S = -(J_x \\ J_d)`. Numerical degradation is based
+on equilibrated conditioning and solve backward error, while the raw condition
+is retained as a scale-sensitivity warning. This avoids both the historical
+silent pseudoinverse and false failure caused solely by heterogeneous units.
+"""
+function _ift_solve(J_x::AbstractMatrix{<:Real}, J_d::AbstractMatrix{<:Real};
+    cond_threshold::Float64 = 1e6,
+)
+    assessment = _ift_solve_assessment(
+        J_x, J_d; cond_threshold = cond_threshold,
+    )
+    return assessment.sensitivity, assessment.raw_condition, assessment.degraded
 end
 
 """

@@ -5,6 +5,9 @@ Date: 2026-08-15
 Status: executable staged protocol. Stages 1--3 are complete on the frozen LV
 discovery cell; see
 [`2026-08-16_lv_multipoint_bias_results.md`](2026-08-16_lv_multipoint_bias_results.md).
+The clean-revision hard-model repeated-noise campaign and its exact stop rules
+are specified in
+[`2026-08-16_audited_repeated_uq_campaign.md`](2026-08-16_audited_repeated_uq_campaign.md).
 The research-only model-assisted branch and its first multi-model discovery
 screen are recorded in
 [`2026-08-16_model_assisted_correction_discovery.md`](2026-08-16_model_assisted_correction_discovery.md).
@@ -68,9 +71,11 @@ interpolant records:
 - retained-factor reconstruction residual;
 - whether hyperparameter optimization converged.
 
-Material relative jitter degrades the numerical-linearization reliability axis
-and is visible in UQ metadata. This repairs an unintended estimator mismatch;
-it is not claimed to remove statistical smoother bias.
+Material relative jitter is visible as its own warning/telemetry axis. It does
+not by itself invalidate an otherwise accurate retained linear solve; repeated
+coverage decides whether that regularization is statistically consequential.
+This repairs an unintended estimator mismatch; it is not claimed to remove
+statistical smoother bias.
 
 ### Opt-in estimator arms
 
@@ -303,6 +308,9 @@ julia --startup-file=no -e 'using ODEParameterEstimation; include("test/test_gp_
 julia --startup-file=no -e 'include("test/runtests.jl")'
 julia --startup-file=no -e 'using ODEParameterEstimation; include("test/benchmark_smoke.jl")'
 ```
+
+The supervised repeated-noise commands, case-specific hard-model ladder, and
+resource limits live in the dated campaign record linked above.
 
 Audited canary examples:
 

@@ -16,6 +16,22 @@ const _OPE = ODEParameterEstimation
 	@test _OPE._run_ctx_take_auto_m!() === nothing
 	@test _OPE._run_ctx_resolve_sink() === nothing
 	@test _OPE._run_ctx_detailed_sink() === nothing
+	@test _OPE._run_ctx_selection_recipe() === nothing
+
+	# Research fixed-selection recipes are validated and scoped to exactly one
+	# run; they never become ambient EstimationOptions state.
+	sp_recipe = _OPE.FixedSinglePointRecipe(7; interpolator_source = :agp_uq)
+	_, ctx_recipe = _OPE._with_run_context(selection_recipe = sp_recipe) do
+		@test _OPE._run_ctx_selection_recipe() === sp_recipe
+		nothing
+	end
+	@test ctx_recipe.selection_recipe === sp_recipe
+	@test _OPE._run_ctx_selection_recipe() === nothing
+	mp_recipe = _OPE.FixedMultipointRecipe([3, 11])
+	@test mp_recipe.rows == [3, 11]
+	@test_throws ArgumentError _OPE.FixedSinglePointRecipe(0)
+	@test_throws ArgumentError _OPE.FixedMultipointRecipe(Int[])
+	@test_throws ArgumentError _OPE.FixedMultipointRecipe([2, 2])
 
 	# Scoped set/take + consume-once semantics.
 	value, ctx = _OPE._with_run_context() do

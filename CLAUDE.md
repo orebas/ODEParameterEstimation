@@ -29,6 +29,8 @@
   [`docs/2026-08-16_model_assisted_correction_discovery.md`](docs/2026-08-16_model_assisted_correction_discovery.md)
   and its repeated-noise/polish decision record
   [`docs/2026-08-16_model_assisted_repeated_noise.md`](docs/2026-08-16_model_assisted_repeated_noise.md)
+  and the clean-revision audited hard-model campaign
+  [`docs/2026-08-16_audited_repeated_uq_campaign.md`](docs/2026-08-16_audited_repeated_uq_campaign.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60
