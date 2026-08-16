@@ -17,6 +17,52 @@
 
 using Base.ScopedValues: ScopedValue
 
+abstract type AbstractEstimatorArtifact end
+
+"""Exact production recipe retained for one square single-point algebraic root."""
+struct SinglePointUQArtifact{E<:AbstractVector, V<:AbstractVector, D<:AbstractVector,
+        R<:AbstractVector, I<:AbstractDict} <: AbstractEstimatorArtifact
+	equations::E
+	solve_vars::V
+	data_vars::D
+	data_values::Vector{Float64}
+	root::R
+	interpolants::I
+	time_index::Int
+	time_value::Float64
+end
+
+"""Exact production recipe retained for one square multipoint algebraic root."""
+struct MultipointUQArtifact{R<:AbstractVector, I<:AbstractDict} <: AbstractEstimatorArtifact
+	evaluation::MultiPointEvaluation
+	root::R
+	interpolants::I
+	interpolator_source::Symbol
+end
+
+"""Local full-trajectory optimizer recipe retained for score-equation UQ."""
+struct PolishUQArtifact{C, R<:AbstractVector, O} <: AbstractEstimatorArtifact
+	context::C
+	internal_optimum::R
+	optimizer_result::O
+	parent_candidate_id::Int
+	objective_kind::Symbol
+end
+
+"""Local branch-completion recipe; concrete payload is owned by branch completion."""
+struct BranchCompletionUQArtifact{P} <: AbstractEstimatorArtifact
+	parent_candidate_id::Int
+	payload::P
+end
+
+"""Physical-estimator influence with respect to the retained raw observations."""
+struct UQInfluenceArtifact
+	influence::Matrix{Float64}
+	observation_covariance::Matrix{Float64}
+	observation_labels::Vector{String}
+	coordinate_labels::Vector{String}
+end
+
 mutable struct RunContext
 	capture_timing::Bool
 	timing::Union{Nothing, TimingBreakdown}
@@ -32,10 +78,21 @@ mutable struct RunContext
 	# mislabel each other's timing rows).
 	resolve_timing_labels::Vector{Symbol}
 	detailed_timing_labels::Vector{Symbol}
+	# Estimator-aware UQ state. Identities are lightweight and always retained;
+	# heavy artifacts are installed only when capture_uq is true.
+	capture_uq::Bool
+	next_candidate_id::Int
+	estimator_artifacts::Dict{Int, AbstractEstimatorArtifact}
+	estimator_identities::Dict{Int, EstimatorIdentity}
+	uq_noise_interpolants::Dict{Symbol, AbstractDict}
+	uq_influences::Dict{Int, UQInfluenceArtifact}
+	estimator_lock::ReentrantLock
 end
 RunContext(; capture_timing::Bool = false) =
 	RunContext(capture_timing, nothing, nothing, nothing, nothing,
-		nothing, nothing, Symbol[], Symbol[])
+		nothing, nothing, Symbol[], Symbol[], false, 1,
+			Dict{Int, AbstractEstimatorArtifact}(), Dict{Int, EstimatorIdentity}(),
+			Dict{Symbol, AbstractDict}(), Dict{Int, UQInfluenceArtifact}(), ReentrantLock())
 
 const RUN_CONTEXT = ScopedValue{Union{Nothing, RunContext}}(nothing)
 
@@ -78,6 +135,160 @@ function _run_ctx_set_hc_opts!(threading::Bool, compile_mode::Symbol)
 end
 _run_ctx_hc_threading() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_threading)
 _run_ctx_hc_compile_mode() = (c = RUN_CONTEXT[]; c === nothing ? nothing : c.hc_compile_mode)
+
+_run_ctx_set_capture_uq!(enabled::Bool) = (c = RUN_CONTEXT[]; c === nothing || (c.capture_uq = enabled); nothing)
+_run_ctx_capture_uq() = (c = RUN_CONTEXT[]; c !== nothing && c.capture_uq)
+
+"""
+	_run_ctx_begin_uq!(enabled)
+
+Start one logical estimator run inside the currently bound context. Timing
+wrappers may intentionally reuse a `RunContext` across multiple analyses, so
+all candidate-scoped UQ state must be reset here to prevent an earlier run's
+noise provider or candidate ID from being matched to a later winner.
+"""
+function _run_ctx_begin_uq!(enabled::Bool)
+	c = RUN_CONTEXT[]
+	c === nothing && return nothing
+	lock(c.estimator_lock) do
+		c.capture_uq = enabled
+		c.next_candidate_id = 1
+		empty!(c.estimator_artifacts)
+		empty!(c.estimator_identities)
+		empty!(c.uq_noise_interpolants)
+		empty!(c.uq_influences)
+	end
+	return nothing
+end
+
+"""
+	_run_ctx_try_uq_capture(f, description)
+
+Build optional UQ-only state without allowing capture failures to change the
+estimator pool. Interrupts still propagate. A later selected candidate whose
+capture failed receives a typed `UQUnavailable(:missing_artifact)` outcome.
+"""
+function _run_ctx_try_uq_capture(f::F, description::AbstractString) where {F}
+	_run_ctx_capture_uq() || return nothing
+	try
+		return f()
+	catch err
+		_rethrow_if_interrupt(err)
+		@warn "Estimator-aware UQ capture failed; retaining the estimator candidate without an artifact" description exception = (err, catch_backtrace())
+		return nothing
+	end
+end
+
+function _run_ctx_new_identity!(;
+	estimator_kind::Symbol,
+	data_scope::Symbol,
+	time_indices::AbstractVector{<:Integer} = Int[],
+	time_values::AbstractVector{<:Real} = Float64[],
+	interpolator_source::Union{Nothing, Symbol} = nothing,
+	parent_candidate_ids::AbstractVector{<:Integer} = Int[],
+)
+	c = RUN_CONTEXT[]
+	if c === nothing
+		return EstimatorIdentity(
+			estimator_kind = estimator_kind, data_scope = data_scope,
+			time_indices = time_indices, time_values = time_values,
+			interpolator_source = interpolator_source,
+			parent_candidate_ids = parent_candidate_ids,
+		)
+	end
+	lock(c.estimator_lock) do
+		candidate_id = c.next_candidate_id
+		c.next_candidate_id += 1
+		identity = EstimatorIdentity(
+			candidate_id = candidate_id, estimator_kind = estimator_kind,
+			data_scope = data_scope, time_indices = time_indices,
+			time_values = time_values, interpolator_source = interpolator_source,
+			parent_candidate_ids = parent_candidate_ids,
+		)
+		c.estimator_identities[candidate_id] = identity
+		return copy_estimator_identity(identity)
+	end
+end
+
+function _run_ctx_register_artifact!(candidate_id::Integer, artifact::AbstractEstimatorArtifact)
+	c = RUN_CONTEXT[]
+	(c === nothing || !c.capture_uq || candidate_id <= 0) && return nothing
+	lock(c.estimator_lock) do
+		c.estimator_artifacts[Int(candidate_id)] = artifact
+	end
+	return nothing
+end
+
+function _run_ctx_artifact(candidate_id::Integer)
+	c = RUN_CONTEXT[]
+	(c === nothing || candidate_id <= 0) && return nothing
+	return lock(c.estimator_lock) do
+		get(c.estimator_artifacts, Int(candidate_id), nothing)
+	end
+end
+
+function _run_ctx_identity(candidate_id::Integer)
+	c = RUN_CONTEXT[]
+	(c === nothing || candidate_id <= 0) && return nothing
+	return lock(c.estimator_lock) do
+		identity = get(c.estimator_identities, Int(candidate_id), nothing)
+		isnothing(identity) ? nothing : copy_estimator_identity(identity)
+	end
+end
+
+function _run_ctx_register_noise_interpolants!(source::Symbol, interpolants::AbstractDict)
+	c = RUN_CONTEXT[]
+	(c === nothing || !c.capture_uq) && return nothing
+	lock(c.estimator_lock) do
+		c.uq_noise_interpolants[source] = interpolants
+	end
+	return nothing
+end
+
+function _run_ctx_noise_interpolants(source::Symbol = :agp_uq)
+	c = RUN_CONTEXT[]
+	c === nothing && return nothing
+	return lock(c.estimator_lock) do
+		get(c.uq_noise_interpolants, source, nothing)
+	end
+end
+
+function _run_ctx_register_uq_influence!(candidate_id::Integer, artifact::UQInfluenceArtifact)
+	c = RUN_CONTEXT[]
+	(c === nothing || candidate_id <= 0) && return nothing
+	lock(c.estimator_lock) do
+		c.uq_influences[Int(candidate_id)] = artifact
+	end
+	return nothing
+end
+
+function _run_ctx_uq_influence(candidate_id::Integer)
+	c = RUN_CONTEXT[]
+	(c === nothing || candidate_id <= 0) && return nothing
+	return lock(c.estimator_lock) do
+		get(c.uq_influences, Int(candidate_id), nothing)
+	end
+end
+
+function _run_ctx_lineage(identity::EstimatorIdentity)
+	c = RUN_CONTEXT[]
+	lineage = EstimatorIdentity[copy_estimator_identity(identity)]
+	c === nothing && return lineage
+	seen = Set{Int}([identity.candidate_id])
+	queue = copy(identity.parent_candidate_ids)
+	while !isempty(queue)
+		candidate_id = popfirst!(queue)
+		candidate_id in seen && continue
+		push!(seen, candidate_id)
+		parent = lock(c.estimator_lock) do
+			get(c.estimator_identities, candidate_id, nothing)
+		end
+		isnothing(parent) && continue
+		push!(lineage, copy_estimator_identity(parent))
+		append!(queue, parent.parent_candidate_ids)
+	end
+	return lineage
+end
 
 """
 	_with_run_context(f; capture_timing=false) -> (value, ctx)

@@ -63,6 +63,7 @@ function _polish_single_residual(
 	lso_x_tol::Float64 = -1.0,
 	lso_f_tol::Float64 = -1.0,
 	lso_g_tol::Float64 = -1.0,
+	retain_internal_optimum::Bool = false,
 )
 	polish_t0 = time()
 	polish_stages = OrderedDict{Symbol, Float64}()
@@ -434,5 +435,7 @@ function _polish_single_residual(
 		polish_all_sentinel = polish_all_sentinel,
 		final_obj = final_obj,
 	))
-	return final_result, solver_result
+	returned_optimizer = retain_internal_optimum ?
+		_PolishSolveRecord(solver_result, Float64.(p_opt_internal)) : solver_result
+	return final_result, returned_optimizer
 end

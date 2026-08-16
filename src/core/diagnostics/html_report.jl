@@ -1367,7 +1367,15 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
     coord_desc = uq.coordinate_system == :physical_initial_conditions ?
         "public coordinates <code>[parameters, initial conditions at t0]</code>" :
         "local algebraic coordinates at <code>t_eval</code>"
-    println(io, """<div class="provenance">Σ<sub>x</sub> = S·Σ<sub>d</sub>·S<sup>T</sup> where S = parameter–data sensitivity, Σ<sub>d</sub> = W·Σ<sub>y</sub>·W<sup>T</sup> at t = $(@sprintf("%.4f", uq.t_eval)). Displaying $coord_desc. Covariance: <code>$(uq.covariance_kind)</code>; noise source: <code>$(uq.noise_source)</code>. $status_badge</div>""")
+    println(io, """<div class="provenance">Estimator-matched local linearization at t = $(@sprintf("%.4f", uq.t_eval)). Displaying $coord_desc. Covariance: <code>$(uq.covariance_kind)</code>; noise source: <code>$(uq.noise_source)</code>. $status_badge</div>""")
+
+    if !isnothing(uq.target)
+        target = uq.target
+        identity = target.identity
+        point_text = isempty(identity.time_indices) ? "not point-local" :
+            "indices <code>$(identity.time_indices)</code>, times <code>$(identity.time_values)</code>"
+        println(io, """<div class="provenance"><b>UQ target:</b> returned rank $(target.selected_rank), <code>$(identity.estimator_kind)</code> candidate $(identity.candidate_id), $point_text. Estimand: <code>$(target.estimand)</code>; artifact: <code>$(target.artifact_match)</code>.</div>""")
+    end
 
     if !isnothing(uq.backsolve_transform)
         bt = uq.backsolve_transform
@@ -1395,9 +1403,9 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
 
     # CI table
     println(io, "<h4>Confidence Intervals</h4>")
-    println(io, "<table><tr><th>Quantity</th><th>Role</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV</th><th>Status</th></tr>")
+    println(io, "<table><tr><th>Quantity</th><th>Role</th><th>Estimate</th><th>True Value</th><th>±1σ (68%)</th><th>95% CI (±1.96σ)</th><th>CV (estimate scale)</th><th>Status</th></tr>")
 
-    n_params = min(length(uq.param_labels), length(uq.param_true_values), length(uq.param_std))
+    n_params = min(length(uq.param_labels), length(uq.param_std))
     for i in 1:n_params
         label = uq.param_labels[i]
         raw_esc = replace(label, "&" => "&amp;", "<" => "&lt;", ">" => "&gt;")
@@ -1406,21 +1414,23 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
         role_label = get(_ROLE_LABELS, role, string(role))
         role_color = get(_HTML_ROLE_COLORS, role, "#333")
 
-        tv = uq.param_true_values[i]
+        center = i <= length(uq.estimate_values) ? uq.estimate_values[i] : NaN
+        tv = i <= length(uq.param_true_values) ? uq.param_true_values[i] : NaN
         σ = uq.param_std[i]
 
+        center_str = isfinite(center) ? _fmt(center) : "—"
         tv_str = isfinite(tv) ? _fmt(tv) : "—"
         σ1_str = _fmt(σ)
         σ2_str = _fmt(UQ_CI_Z * σ)
 
         # CV
-        cv = (isfinite(tv) && abs(tv) > 1e-15) ? σ / abs(tv) : NaN
+        cv = isfinite(center) ? σ / max(abs(center), 1e-8) : NaN
         cv_str = isfinite(cv) ? _fmt_pct(cv) : "—"
         cv_cls = !isfinite(cv) ? "" : cv < 0.10 ? "err-ok" : cv < 0.50 ? "err-warn" : "err-bad"
 
         status_mark = !isfinite(cv) ? "—" : cv < 0.10 ? "✓" : cv < 0.50 ? "~" : "✗"
 
-        println(io, """<tr><td><span title="$raw_esc" style="color:$role_color;font-weight:600;" class="math">$pretty</span></td><td>$role_label</td><td>$tv_str</td><td>±$σ1_str</td><td>±$σ2_str</td><td class="$cv_cls">$cv_str</td><td>$status_mark</td></tr>""")
+        println(io, """<tr><td><span title="$raw_esc" style="color:$role_color;font-weight:600;" class="math">$pretty</span></td><td>$role_label</td><td>$center_str</td><td>$tv_str</td><td>±$σ1_str</td><td>±$σ2_str</td><td class="$cv_cls">$cv_str</td><td>$status_mark</td></tr>""")
     end
     println(io, "</table>")
 

@@ -1,5 +1,14 @@
 # UQ session recap — 2026-08-13/14
 
+> Historical calibration and investigation record. The later production
+> estimator-routing/API contract is documented in
+> [`2026-08-14_estimator_aware_uq.md`](2026-08-14_estimator_aware_uq.md), and
+> the current audited nonlinear canaries are recorded in
+> [`2026-08-14_peb_audited_uq_canaries.md`](2026-08-14_peb_audited_uq_canaries.md).
+> The earlier package-constructor routing pilot is retained as a superseded
+> stress record in
+> [`2026-08-14_simple_nonlinear_estimator_pilot.md`](2026-08-14_simple_nonlinear_estimator_pilot.md).
+
 Session baseline `59eafb0` → head `875944c` (main ≡ uq-revamp-wip, pushed).
 **31 files changed, +2249 / −176.** Full FAST gate 1170 → **1344**; `fast_unit`
 186 → **232**.

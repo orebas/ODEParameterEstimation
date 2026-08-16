@@ -207,6 +207,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `save_system::Bool`: Save polynomial systems to files (default: true)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
+- `uq_noise_source::Symbol`: Raw-observation covariance producer: `:learned_gp_homoscedastic` or `:smoother_residual_edf` (default: `:learned_gp_homoscedastic`)
 - `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 - `auto_rescale::Bool`: Power-of-2 rescaling of states/params/observables/data to O(1) before estimation, with results un-rescaled after (default: true; near-identity on already-O(1) models, rescues ill-scaled ones). Set false to disable. See core/problem_rescaling.jl.
@@ -531,6 +532,7 @@ Base.@kwdef struct EstimationOptions
 	save_system::Bool = true
 	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
+	uq_noise_source::Symbol = :learned_gp_homoscedastic
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	auto_rescale::Bool = true  # Power-of-2 rescale states/params/observables/data to O(1) before estimation, un-rescale results after (see core/problem_rescaling.jl). Near-identity (mild powers of 2) on already-O(1) models; rescues ill-scaled ones (e.g. raw hiv 43.7→1.2e-3). Set false to disable.
@@ -1408,6 +1410,16 @@ function validate_options(opts::EstimationOptions)
 		@error "uq_failure_policy must be :return_failed or :throw"
 		valid = false
 	end
+	if !(opts.uq_noise_source in (:learned_gp_homoscedastic, :smoother_residual_edf))
+		@error "uq_noise_source must be :learned_gp_homoscedastic or :smoother_residual_edf"
+		valid = false
+	end
+	if opts.compute_uncertainty
+		configured = resolve_interpolator_list(opts)
+		if !any(first(pair) == InterpolatorAGPUQ for pair in configured)
+			@warn "compute_uncertainty=true but no exact UQ-capable interpolator is configured. Add InterpolatorAGPUQ explicitly; the estimator pool will not be changed automatically."
+		end
+	end
 
 	invalid_placeholder_categories = [cat for cat in opts.si_placeholder_fail_categories if !(cat in SI_PLACEHOLDER_VALID_CATEGORIES)]
 	if !isempty(invalid_placeholder_categories)
@@ -1448,7 +1460,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
-			:compute_uncertainty, :uq_failure_policy, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
+			:compute_uncertainty, :uq_failure_policy, :uq_noise_source, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
 			:construction_beam_width, :construction_compute_mixed_volume]),
 		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),

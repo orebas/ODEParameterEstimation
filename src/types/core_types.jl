@@ -102,6 +102,50 @@ struct NumericalIdentifiabilityAdvisory
     failure_reason::Union{Nothing, String}
 end
 
+"""
+    EstimatorIdentity
+
+Canonical, run-scoped identity of the estimator that produced one candidate.
+Unlike the legacy flat provenance fields, this record describes the estimator
+that produced the CURRENT values and preserves parent IDs whenever a later
+stage transforms a candidate.
+"""
+struct EstimatorIdentity
+    candidate_id::Int
+    estimator_kind::Symbol
+    data_scope::Symbol
+    time_indices::Vector{Int}
+    time_values::Vector{Float64}
+    interpolator_source::Union{Nothing, Symbol}
+    parent_candidate_ids::Vector{Int}
+end
+
+function EstimatorIdentity(;
+    candidate_id::Integer = 0,
+    estimator_kind::Symbol = :unknown,
+    data_scope::Symbol = :unknown,
+    time_indices::AbstractVector{<:Integer} = Int[],
+    time_values::AbstractVector{<:Real} = Float64[],
+    interpolator_source::Union{Nothing, Symbol} = nothing,
+    parent_candidate_ids::AbstractVector{<:Integer} = Int[],
+)
+    return EstimatorIdentity(
+        Int(candidate_id), estimator_kind, data_scope,
+        Int[time_indices...], Float64[time_values...], interpolator_source,
+        Int[parent_candidate_ids...],
+    )
+end
+
+copy_estimator_identity(identity::EstimatorIdentity) = EstimatorIdentity(
+    candidate_id = identity.candidate_id,
+    estimator_kind = identity.estimator_kind,
+    data_scope = identity.data_scope,
+    time_indices = identity.time_indices,
+    time_values = identity.time_values,
+    interpolator_source = identity.interpolator_source,
+    parent_candidate_ids = identity.parent_candidate_ids,
+)
+
 function NumericalIdentifiabilityAdvisory(;
     status::Symbol = :unavailable,
     recommended_num_points::Union{Nothing, Integer} = nothing,
@@ -169,6 +213,9 @@ mutable struct ResultProvenance
     # 1-based index into the raw HC candidate list passed to _polish_cluster_metadata.
     # Used for offline branch-clustering analysis (paired with EstimationOptions.dump_raw_candidates_path).
     polish_source_hc_idx::Union{Nothing, Int}
+    # Canonical identity of the estimator that produced the current values.
+    # Appended for positional-constructor compatibility.
+    estimator_identity::EstimatorIdentity
 end
 
 function ResultProvenance(;
@@ -193,6 +240,7 @@ function ResultProvenance(;
     aggregation_strategy::Symbol = :none,
     aggregation_source_indices::AbstractVector = Int[],
     polish_source_hc_idx::Union{Nothing, Int} = nothing,
+    estimator_identity::EstimatorIdentity = EstimatorIdentity(),
 )
     return ResultProvenance(
         primary_method,
@@ -216,6 +264,7 @@ function ResultProvenance(;
         aggregation_strategy,
         Int[aggregation_source_indices...],
         polish_source_hc_idx,
+        copy_estimator_identity(estimator_identity),
     )
 end
 
@@ -242,6 +291,7 @@ function copy_provenance(
     aggregation_strategy = provenance.aggregation_strategy,
     aggregation_source_indices = provenance.aggregation_source_indices,
     polish_source_hc_idx = provenance.polish_source_hc_idx,
+    estimator_identity = provenance.estimator_identity,
 )
     return ResultProvenance(
         primary_method = primary_method,
@@ -265,6 +315,7 @@ function copy_provenance(
         aggregation_strategy = aggregation_strategy,
         aggregation_source_indices = copy(aggregation_source_indices),
         polish_source_hc_idx = polish_source_hc_idx,
+        estimator_identity = copy_estimator_identity(estimator_identity),
     )
 end
 
@@ -298,6 +349,9 @@ Compact human-readable summary of result provenance for logs and diagnostics.
 function lineage_summary(result)::String
     prov = result.provenance
     parts = String["method=$(prov.primary_method)"]
+    identity = prov.estimator_identity
+    identity.candidate_id > 0 && push!(parts, "id=$(identity.candidate_id)")
+    identity.estimator_kind != :unknown && push!(parts, "estimator=$(identity.estimator_kind)")
     push!(parts, "source=$(prov.source_type)")
     if prov.source_type == :multipoint
         !isnothing(prov.multipoint_combo_index) && push!(parts, "combo=$(prov.multipoint_combo_index)")
@@ -347,6 +401,11 @@ function provenance_metadata_dict(prov::ResultProvenance)
         "multipoint_combo_index" => prov.multipoint_combo_index,
         "aggregation_strategy" => string(prov.aggregation_strategy),
         "aggregation_source_indices" => prov.aggregation_source_indices,
+        "polish_applied" => prov.polish_applied,
+        "pre_polish_error" => prov.pre_polish_error,
+        "post_polish_error" => prov.post_polish_error,
+        "polish_source_hc_idx" => prov.polish_source_hc_idx,
+        "estimator_identity" => _estimator_identity_metadata(prov.estimator_identity),
     )
 end
 
@@ -898,6 +957,69 @@ struct UQBacksolveTransform
     warnings::Vector{String}
 end
 
+"""Common supertype for requested uncertainty-quantification outcomes."""
+abstract type AbstractUQOutcome end
+
+"""
+    UQTargetSnapshot
+
+Serializable audit record for the exact rank-one estimator targeted by UQ.
+`lineage` contains the selected identity followed by any retained ancestors.
+"""
+struct UQTargetSnapshot
+    selected_rank::Int
+    identity::EstimatorIdentity
+    lineage::Vector{EstimatorIdentity}
+    estimand::Symbol
+    artifact_match::Symbol
+end
+
+function UQTargetSnapshot(;
+    selected_rank::Integer = 1,
+    identity::EstimatorIdentity = EstimatorIdentity(),
+    lineage::AbstractVector{EstimatorIdentity} = EstimatorIdentity[identity],
+    estimand::Symbol = :conditional_on_selected_estimator,
+    artifact_match::Symbol = :unknown,
+)
+    return UQTargetSnapshot(
+        Int(selected_rank), copy_estimator_identity(identity),
+        EstimatorIdentity[copy_estimator_identity(x) for x in lineage],
+        estimand, artifact_match,
+    )
+end
+
+"""Numerical audit values for the local estimator linearization."""
+struct UQLinearizationDiagnostics
+    reason::Symbol
+    root_residual_abs::Float64
+    root_residual_rel::Float64
+    jacobian_condition::Float64
+    gradient_norm::Float64
+    active_bounds::Vector{Int}
+    degraded::Bool
+end
+
+UQLinearizationDiagnostics() = UQLinearizationDiagnostics(
+    :not_recorded, NaN, NaN, NaN, NaN, Int[], false,
+)
+
+"""Typed outcome returned when UQ was requested but cannot be computed honestly."""
+struct UQUnavailable <: AbstractUQOutcome
+    model_name::String
+    target::Union{Nothing, UQTargetSnapshot}
+    reason::Symbol
+    message::String
+    warnings::Vector{String}
+end
+
+struct UQComputationError <: Exception
+    outcome::UQUnavailable
+end
+
+function Base.showerror(io::IO, err::UQComputationError)
+    print(io, "Uncertainty quantification failed [", err.outcome.reason, "]: ", err.outcome.message)
+end
+
 """
     UncertaintyReport
 
@@ -909,7 +1031,7 @@ sensitivity matrix.
 learned GP hyperparameters.  Legacy latent GP posterior covariance is kept as a
 separate diagnostic concept.
 """
-struct UncertaintyReport
+struct UncertaintyReport <: AbstractUQOutcome
     model_name::String
     t_eval::Float64
     # Per-observable jet estimate at t_eval
@@ -937,6 +1059,98 @@ struct UncertaintyReport
     coordinate_system::Symbol                     # :physical_initial_conditions or :local_at_eval
     local_coordinate_report::Union{Nothing, LocalUQSnapshot}
     backsolve_transform::Union{Nothing, UQBacksolveTransform}
+    target::Union{Nothing, UQTargetSnapshot}
+    estimate_values::Vector{Float64}
+    linearization_diagnostics::UQLinearizationDiagnostics
+end
+
+function _estimator_identity_metadata(identity::EstimatorIdentity)
+    return OrderedDict{String, Any}(
+        "candidate_id" => identity.candidate_id,
+        "estimator_kind" => string(identity.estimator_kind),
+        "data_scope" => string(identity.data_scope),
+        "time_indices" => copy(identity.time_indices),
+        "time_values" => copy(identity.time_values),
+        "interpolator_source" => isnothing(identity.interpolator_source) ? nothing : string(identity.interpolator_source),
+        "parent_candidate_ids" => copy(identity.parent_candidate_ids),
+    )
+end
+
+function _uq_target_metadata(target::Union{Nothing, UQTargetSnapshot})
+    isnothing(target) && return nothing
+    return OrderedDict{String, Any}(
+        "selected_rank" => target.selected_rank,
+        "estimand" => string(target.estimand),
+        "artifact_match" => string(target.artifact_match),
+        "identity" => _estimator_identity_metadata(target.identity),
+        "lineage" => [_estimator_identity_metadata(identity) for identity in target.lineage],
+    )
+end
+
+"""JSON-friendly additive sidecar block for a requested UQ outcome."""
+uq_metadata_dict(::Nothing) = nothing
+
+function uq_metadata_dict(outcome::UQUnavailable)
+    return OrderedDict{String, Any}(
+        "outcome" => "unavailable",
+        "model_name" => outcome.model_name,
+        "target" => _uq_target_metadata(outcome.target),
+        "reason" => string(outcome.reason),
+        "message" => outcome.message,
+        "warnings" => copy(outcome.warnings),
+    )
+end
+
+function uq_metadata_dict(report::UncertaintyReport)
+    ia = report.practical_identifiability_index
+    diagnostics = report.linearization_diagnostics
+    return OrderedDict{String, Any}(
+        "outcome" => "report",
+        "model_name" => report.model_name,
+        "target" => _uq_target_metadata(report.target),
+        "status" => string(report.status),
+        "coordinate_system" => string(report.coordinate_system),
+        "t_eval" => report.t_eval,
+        "covariance_kind" => string(report.covariance_kind),
+        "noise_source" => string(report.noise_source),
+        "param_labels" => copy(report.param_labels),
+        "param_roles" => OrderedDict{String, Any}(k => string(v) for (k, v) in report.param_roles),
+        "estimate_values" => copy(report.estimate_values),
+        "truth_values" => copy(report.param_true_values),
+        "param_std" => copy(report.param_std),
+        "param_covariance" => [collect(row) for row in eachrow(report.param_covariance)],
+        "max_cv" => report.max_cv,
+        "practical_identifiability_index" => isnothing(ia) ? nothing : ia.i_a,
+        "linearization" => OrderedDict{String, Any}(
+            "reason" => string(diagnostics.reason),
+            "root_residual_abs" => diagnostics.root_residual_abs,
+            "root_residual_rel" => diagnostics.root_residual_rel,
+            "jacobian_condition" => diagnostics.jacobian_condition,
+            "gradient_norm" => diagnostics.gradient_norm,
+            "active_bounds" => copy(diagnostics.active_bounds),
+            "degraded" => diagnostics.degraded,
+        ),
+        "warnings" => copy(report.warnings),
+    )
+end
+
+# Backward-compatible full constructor for callers written before the
+# estimator-aware target fields were added.
+function UncertaintyReport(
+    model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+    data_covariance, data_labels, param_covariance, param_std, param_labels,
+    param_roles, param_true_values, correlation_matrix, max_cv, status,
+    warnings, covariance_kind, noise_source, practical_identifiability_index,
+    coordinate_system, local_coordinate_report, backsolve_transform,
+)
+    return UncertaintyReport(
+        model_name, t_eval, obs_names, obs_posterior_mean, obs_posterior_std,
+        data_covariance, data_labels, param_covariance, param_std, param_labels,
+        param_roles, param_true_values, correlation_matrix, max_cv, status,
+        warnings, covariance_kind, noise_source, practical_identifiability_index,
+        coordinate_system, local_coordinate_report, backsolve_transform,
+        nothing, Float64[], UQLinearizationDiagnostics(),
+    )
 end
 
 # Backward-compatible constructor for callers that predate explicit coordinate
@@ -1093,7 +1307,10 @@ assembly. Downstream label/name parsing is display-only.
   (`nothing` for `:transcendental`/`:unresolved`)
 - `order::Int`: derivative order (0 for transcendental/unresolved)
 - `point::Int`: 1-based multipoint index (1 = unsuffixed)
-- `kind::Symbol`: `:observable_jet` | `:transcendental` | `:unresolved`
+- `kind::Symbol`: `:observable_jet` | `:raw_observation` |
+  `:transcendental` | `:unresolved`. `:raw_observation` is appended only by
+  estimator-aware UQ when production reports a directly observed state that
+  was eliminated from the algebraic solve coordinates.
 """
 struct DataVarMeta
     clean_name::String

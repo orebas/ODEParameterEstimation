@@ -118,6 +118,7 @@ include("core/diagnostics/error_budget.jl")
 include("core/diagnostics/orchestrators.jl")
 include("core/diagnostics/html_report.jl")
 include("core/diagnostics/uq_and_reports.jl")
+include("core/diagnostics/estimator_aware_uq.jl")
 # Research / benchmark-only consensus + sweep tooling (NOT in the estimation pipeline).
 # Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
 # only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
@@ -131,8 +132,8 @@ include("research/block_consensus_v2.jl")
 include("examples/load_examples.jl")
 
 # Export types
-export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, NumericalIdentifiabilityAdvisory, DerivativeData, UnsupportedModelClassError, SamplingFailureError, UnsupportedDerivativeOrderError, TAYLORDIFF_MAX_DERIVATIVE_ORDER
-export provenance_metadata_dict
+export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, EstimatorIdentity, NumericalIdentifiabilityAdvisory, DerivativeData, UnsupportedModelClassError, SamplingFailureError, UnsupportedDerivativeOrderError, TAYLORDIFF_MAX_DERIVATIVE_ORDER
+export provenance_metadata_dict, uq_metadata_dict
 
 # Export constants
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
@@ -178,7 +179,7 @@ export rescale_pep, unrescale_results, ScaleInfo, choose_scales
 # Export diagnostic functions and types
 export diagnose, diagnose_model, diagnose_derivative_accuracy, diagnose_polynomial_system, diagnose_sensitivity
 export PerfectInterpolant, DiagnosticReport, ComprehensiveDiagnosticReport, DerivativeAccuracyReport, PolynomialFeasibilityReport, SensitivityReport, MultipointDiagnosticAnalysis
-export EstimationResultsReport, BacksolveUQReport, UncertaintyReport, JetInfluenceEstimate, StackedJetInfluenceEstimate, PracticalIdentifiabilityIndex, LocalUQSnapshot, UQBacksolveTransform
+export EstimationResultsReport, BacksolveUQReport, AbstractUQOutcome, UncertaintyReport, UQUnavailable, UQComputationError, UQTargetSnapshot, UQLinearizationDiagnostics, JetInfluenceEstimate, StackedJetInfluenceEstimate, PracticalIdentifiabilityIndex, LocalUQSnapshot, UQBacksolveTransform
 export DerivativeUncertaintyEstimate, compute_sigma_d, get_sigma_d, sigma_d_diagonal
 export SensitivitySeedReport, generate_sensitivity_seeds, seed_vectors_to_candidates
 export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget

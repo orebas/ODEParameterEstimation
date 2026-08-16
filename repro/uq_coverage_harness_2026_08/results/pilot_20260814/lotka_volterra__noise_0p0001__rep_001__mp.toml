@@ -1,0 +1,92 @@
+arm = "mp"
+artifact_match = "exact"
+datasize = 121
+elapsed_seconds = 60.81146597862244
+max_cv = 0.05241095799277429
+model = "lotka_volterra"
+multipoint_max_pairs = 6
+noise = 0.0001
+outcome = "report"
+raw_candidate_count = 23
+replicate = 1
+returned_candidate_count = 1
+schema_version = 1
+seed = 31001
+selected_fit_error = 1.7204110127625998
+shooting_points = 6
+started_at = "2026-08-14T10:31:18.361"
+time_interval = [0.0, 20.0]
+uq_status = "ok"
+
+[[coordinates]]
+covered_95 = true
+estimate = 2.00073804639898
+label = "r"
+relative_error = 0.00036902319948994844
+role = "state"
+sigma = 0.0006273910767249884
+truth = 2.0
+z = 1.176373758505675
+[[coordinates]]
+covered_95 = true
+estimate = 0.9727271554900501
+label = "w"
+relative_error = 0.027272844509949934
+role = "state"
+sigma = 0.01781918669999475
+truth = 1.0
+z = -1.5305325079711953
+[[coordinates]]
+covered_95 = false
+estimate = 0.9880919933586723
+label = "k1"
+relative_error = 0.01190800664132774
+role = "parameter"
+sigma = 0.004637171855096995
+truth = 1.0
+z = -2.567945940635979
+[[coordinates]]
+covered_95 = true
+estimate = 0.5032028076445498
+label = "k2"
+relative_error = 0.006405615289099664
+role = "parameter"
+sigma = 0.006871695622903347
+truth = 0.5
+z = 0.4660869485945916
+[[coordinates]]
+covered_95 = true
+estimate = 0.2961178053018226
+label = "k3"
+relative_error = 0.012940648993924702
+role = "parameter"
+sigma = 0.01551981785458634
+truth = 0.3
+z = -0.2501443467025074
+
+[[lineage]]
+candidate_id = 22
+data_scope = "point_set"
+estimator_kind = "multipoint_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [6, 64]
+time_values = [0.8333333333333334, 10.5]
+
+[linearization]
+active_bounds = []
+degraded = false
+gradient_norm = nan
+jacobian_condition = 24802.072475048877
+reason = "ok"
+root_residual_abs = 5.0199701396866e-16
+root_residual_rel = 3.2895253378021413e-18
+
+[selected_identity]
+candidate_id = 22
+data_scope = "point_set"
+estimator_kind = "multipoint_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [6, 64]
+time_values = [0.8333333333333334, 10.5]

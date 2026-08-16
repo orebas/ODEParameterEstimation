@@ -449,6 +449,74 @@ function set_result_lineage!(
 	return result
 end
 
+function _legacy_estimator_kind(prov::ResultProvenance)::Symbol
+	prov.primary_method == :direct_opt && return :direct_optimization
+	prov.polish_applied && return :trajectory_polish
+	prov.source_type == :synthesized_aggregate && return :synthesized_aggregate
+	prov.source_type == :sensitivity_seed && return :sensitivity_seed
+	prov.source_type == :branch_completed && return :branch_completed
+	prov.rescue_path in (:algebraic_resolve_t0, :algebraic_resolve_shoot,
+		:algebraic_resolve_seeded) && return :state_resolve
+	prov.source_type == :multipoint && return :multipoint_algebraic
+	# `ResultProvenance()` historically defaulted to `:single_point`. Require a
+	# concrete production locator before accepting that legacy classification;
+	# otherwise imported/default rows remain honestly `:unknown`.
+	if prov.source_type == :single_point &&
+	   (!isnothing(prov.source_shooting_index) ||
+		!isnothing(prov.source_candidate_index) ||
+		!isnothing(prov.interpolator_source))
+		return :single_point_algebraic
+	end
+	return :unknown
+end
+
+"""Assign a fresh canonical estimator identity after a value-changing stage."""
+function set_result_estimator_identity!(
+	result::ParameterEstimationResult;
+	estimator_kind::Symbol,
+	data_scope::Symbol,
+	time_indices::AbstractVector{<:Integer} = Int[],
+	time_values::AbstractVector{<:Real} = Float64[],
+	interpolator_source::Union{Nothing, Symbol} = result.provenance.interpolator_source,
+	parent_candidate_ids::AbstractVector{<:Integer} = Int[],
+)
+	identity = _run_ctx_new_identity!(
+		estimator_kind = estimator_kind,
+		data_scope = data_scope,
+		time_indices = time_indices,
+		time_values = time_values,
+		interpolator_source = interpolator_source,
+		parent_candidate_ids = parent_candidate_ids,
+	)
+	result.provenance.estimator_identity = identity
+	return identity
+end
+
+"""Give legacy/imported candidates an explicit non-fabricated identity."""
+function ensure_result_estimator_identity!(result::ParameterEstimationResult)
+	result.provenance.estimator_identity.candidate_id > 0 && return result.provenance.estimator_identity
+	kind = _legacy_estimator_kind(result.provenance)
+	indices = if kind == :multipoint_algebraic && !isnothing(result.provenance.multipoint_time_indices)
+		result.provenance.multipoint_time_indices
+	elseif !isnothing(result.provenance.source_shooting_index)
+		Int[result.provenance.source_shooting_index]
+	else
+		Int[]
+	end
+	# Legacy multipoint rows did not retain all evaluation times. Never expand a
+	# single compatibility `at_time` value into a false multi-point claim.
+	times = length(indices) == 1 ? Float64[result.at_time] : Float64[]
+	return set_result_estimator_identity!(result;
+		estimator_kind = kind,
+		data_scope = kind in (:trajectory_polish, :direct_optimization) ? :full_trajectory :
+			kind == :synthesized_aggregate ? :ensemble :
+			kind in (:state_resolve, :branch_completed, :sensitivity_seed) ? :derived :
+			kind == :unknown ? :unknown : :point_set,
+		time_indices = indices,
+		time_values = times,
+	)
+end
+
 function si_template_lineage_kwargs(si_template)
 	if isnothing(si_template)
 		return NamedTuple()
@@ -685,6 +753,7 @@ function process_estimation_results(
 		soln_source_type = hasfield(typeof(solution_data), :solution_source_types) && soln_index <= length(solution_data.solution_source_types) ? solution_data.solution_source_types[soln_index] : :single_point
 		soln_mp_time_indices = hasfield(typeof(solution_data), :solution_mp_time_indices) && soln_index <= length(solution_data.solution_mp_time_indices) ? solution_data.solution_mp_time_indices[soln_index] : nothing
 		soln_mp_combo_index = hasfield(typeof(solution_data), :solution_mp_combo_indices) && soln_index <= length(solution_data.solution_mp_combo_indices) ? solution_data.solution_mp_combo_indices[soln_index] : nothing
+		soln_uq_artifact = hasfield(typeof(solution_data), :solution_uq_artifacts) && soln_index <= length(solution_data.solution_uq_artifacts) ? solution_data.solution_uq_artifacts[soln_index] : nothing
 		representative_assignments = OrderedDict{Num, Float64}()
 		provenance_notes = Symbol[]
 
@@ -869,6 +938,7 @@ function process_estimation_results(
 			source_type = soln_source_type,
 			mp_time_indices = soln_mp_time_indices,
 			mp_combo_index = soln_mp_combo_index,
+			uq_artifact = soln_uq_artifact,
 		))
 	end
 
@@ -892,6 +962,17 @@ function process_estimation_results(
 		solved_res[end].parameters = ordered_params
 		solved_res[end].solution = ode_solution
 		solved_res[end].err = err
+		solved_res[end].at_time = Float64(t_vector[result_entry.shoot_idx])
+		solved_res[end].report_time = Float64(t_vector[1])
+		identity_time_indices = result_entry.source_type == :multipoint && !isnothing(result_entry.mp_time_indices) ?
+			copy(result_entry.mp_time_indices) : Int[result_entry.shoot_idx]
+		identity = _run_ctx_new_identity!(
+			estimator_kind = result_entry.source_type == :multipoint ? :multipoint_algebraic : :single_point_algebraic,
+			data_scope = :point_set,
+			time_indices = identity_time_indices,
+			time_values = Float64[t_vector[idx] for idx in identity_time_indices],
+			interpolator_source = result_entry.source_interp,
+		)
 		solved_res[end].provenance = ResultProvenance(
 			primary_method = :algebraic,
 			interpolator_source = result_entry.source_interp,
@@ -903,9 +984,13 @@ function process_estimation_results(
 			source_type = result_entry.source_type,
 			multipoint_time_indices = result_entry.mp_time_indices,
 			multipoint_combo_index = result_entry.mp_combo_index,
+			estimator_identity = identity,
 			; si_lineage...,
 			notes = result_entry.notes,
 		)
+		if !isnothing(result_entry.uq_artifact)
+			_run_ctx_register_artifact!(identity.candidate_id, result_entry.uq_artifact)
+		end
 		sync_result_contract!(solved_res[end])
 	end
 

@@ -1,0 +1,104 @@
+arm = "sp"
+artifact_match = "exact"
+datasize = 121
+elapsed_seconds = 0.8831889629364014
+max_cv = 0.9217252427406079
+model = "vanderpol"
+multipoint_max_pairs = 0
+noise = 1.0e-5
+outcome = "report"
+raw_candidate_count = 1
+replicate = 5
+returned_candidate_count = 1
+schema_version = 1
+seed = 32005
+selected_fit_error = 0.13518261319070385
+shooting_points = 1
+started_at = "2026-08-14T11:32:25.245"
+time_interval = [0.0, 10.0]
+uq_status = "wide_ci"
+
+[[candidate_diagnostics]]
+fit_error = 0.13518261319070385
+maximum_error = 0.4453402973160699
+median_error = 0.037172997823771814
+minimum_error = 9.212403736502672e-5
+raw_index = 1
+selected = true
+
+    [candidate_diagnostics.identity]
+    candidate_id = 1
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [60]
+    time_values = [4.916666666666667]
+
+[[coordinates]]
+absolute_error = 0.1465708569018176
+covered_95 = true
+estimate = 2.1465708569018176
+label = "x1"
+relative_error = 0.0732854284509088
+role = "state"
+sigma = 0.12201071648791371
+truth = 2.0
+z = 1.201294944582485
+[[coordinates]]
+absolute_error = 0.4453402973160699
+covered_95 = true
+estimate = -0.4453402973160699
+label = "x2"
+relative_error = 0.4453402973160699
+role = "state"
+sigma = 0.410481393645829
+truth = 0.0
+z = -1.084922006721498
+[[coordinates]]
+absolute_error = 9.212403736502672e-5
+covered_95 = true
+estimate = 1.000092124037365
+label = "a"
+relative_error = 9.212403736502672e-5
+role = "parameter"
+sigma = 6.544912459369099e-5
+truth = 1.0
+z = 1.407567143746138
+[[coordinates]]
+absolute_error = 0.0010605671966348318
+covered_95 = true
+estimate = 1.0010605671966348
+label = "b"
+relative_error = 0.0010605671966348318
+role = "parameter"
+sigma = 0.0008777890383559263
+truth = 1.0
+z = 1.208225610359915
+
+[[lineage]]
+candidate_id = 1
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [4.916666666666667]
+
+[linearization]
+active_bounds = []
+degraded = false
+gradient_norm = nan
+jacobian_condition = 223.5509864260523
+reason = "ok"
+root_residual_abs = 3.13616013813895e-16
+root_residual_rel = 6.362065233488316e-17
+
+[selected_identity]
+candidate_id = 1
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [4.916666666666667]

@@ -438,6 +438,7 @@ function _maybe_augment_with_sensitivity_seeds(
 
     new_candidates = seed_vectors_to_candidates(
         seed_vecs, ctx, t_eval; source_type = :sensitivity_seed,
+        parent_candidate_id = ensure_result_estimator_identity!(ref_candidate).candidate_id,
     )
 
     # Evaluate the ODE-trajectory residual for each seed using the polish-context
@@ -498,6 +499,7 @@ function seed_vectors_to_candidates(
     polish_ctx,
     t0::Real;
     source_type::Symbol = :sensitivity_seed,
+    parent_candidate_id::Int = 0,
 )
     n_ic = length(polish_ctx.unknown_syms)
     n_p = length(polish_ctx.param_syms)
@@ -531,6 +533,12 @@ function seed_vectors_to_candidates(
             source_type = source_type,
             polish_applied = false,
         )
+		set_result_estimator_identity!(result;
+			estimator_kind = :sensitivity_seed,
+			data_scope = :derived,
+			time_values = Float64[t0],
+			parent_candidate_ids = parent_candidate_id > 0 ? Int[parent_candidate_id] : Int[],
+		)
         sync_result_contract!(result)
         push!(out, result)
     end

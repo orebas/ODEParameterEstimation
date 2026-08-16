@@ -12,15 +12,22 @@
 
 ## Open investigations (read before starting reconditioning / numerical-stability work)
 
-- **UQ regime + calibration status.** Read
+- **UQ regime + production contract.** Start with the audited PEB LV/VDP/FHN
+  canaries
+  [`docs/2026-08-14_peb_audited_uq_canaries.md`](docs/2026-08-14_peb_audited_uq_canaries.md),
+  then read the current routing/API contract
+  [`docs/2026-08-14_estimator_aware_uq.md`](docs/2026-08-14_estimator_aware_uq.md)
+  and empirical recap
   [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md)
-  before touching uncertainty quantification. Key facts: Σ_x is the sampling
-  covariance of the *unpolished single-point algebraic estimator* conditioned on
-  one SE-kernel GP fit — it is calibrated against that estimator at low noise
-  (med |z| ≈ 0.674 target) and becomes overconfident as noise grows; it does
-  NOT describe the polished estimate we normally report. `:degenerate` status
-  means "out of regime", not "broken". Harness + reproduction commands live in
-  `repro/uq_coverage_harness_2026_08/`.
+  and the GP-jet bias decision note
+  [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md)
+  before touching uncertainty quantification. Production UQ targets exactly the
+  returned rank-one estimator and supports retained SP/MP algebraic roots,
+  trajectory polish/direct score equations, and branch propagation. The N=60
+  low-noise calibration result applies to the single-point estimator; nonlinear
+  MP/polish coverage remains to be established. The older package-constructor
+  pilot is routing stress, not audited model evidence. `:degenerate` means the
+  numerical/regime gates rejected reliability, not necessarily a software bug.
 
 - **Variable (column) scaling of the polynomial system.** Diagnostics on
   the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)

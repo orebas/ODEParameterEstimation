@@ -1866,15 +1866,16 @@ using Random
         @test isnothing(err.context)
     end
 
-    @testset "UQ policy helper" begin
-        # Phase E2 contract: the UQ result is Union{Nothing, UncertaintyReport};
-        # `nothing` (UQ not computable) or status == :degenerate counts as failure.
-        passthrough_opts = EstimationOptions(uq_failure_policy = :return_failed)
-        throw_opts = EstimationOptions(uq_failure_policy = :throw)
+	@testset "UQ policy helper" begin
+		# Estimator-aware contract: `nothing` is reserved for UQ disabled and is
+		# always a pass-through. Requested failures are typed `UQUnavailable`
+		# outcomes (covered in test_estimator_aware_uq.jl).
+		passthrough_opts = EstimationOptions(uq_failure_policy = :return_failed)
+		throw_opts = EstimationOptions(uq_failure_policy = :throw)
 
-        @test ODEParameterEstimation.apply_uq_failure_policy(nothing, passthrough_opts) === nothing
-        @test_throws ErrorException ODEParameterEstimation.apply_uq_failure_policy(nothing, throw_opts)
-    end
+		@test ODEParameterEstimation.apply_uq_failure_policy(nothing, passthrough_opts) === nothing
+		@test ODEParameterEstimation.apply_uq_failure_policy(nothing, throw_opts) === nothing
+	end
 
     @testset "SI placeholder policy helpers" begin
         @test !ODEParameterEstimation.should_fail_si_placeholder(:dd_observable_index_oob, Symbol[])
@@ -2270,10 +2271,13 @@ using Random
 
         uq_result = ODEParameterEstimation._compute_uq_result(
             pep,
-            unscored_results,
+            analysis,
             EstimationOptions(compute_uncertainty = true, nooutput = true),
         )
-        @test isnothing(uq_result)
+        @test uq_result isa ODEParameterEstimation.UQUnavailable
+        @test uq_result.reason == :no_selected_result
+        @test isnothing(ODEParameterEstimation._compute_uq_result(
+            pep, analysis, EstimationOptions(compute_uncertainty = false, nooutput = true)))
 
         @test_throws ArgumentError ODEParameterEstimation.solve_parameter_estimation(pep, (;))
     end

@@ -1,0 +1,130 @@
+arm = "sp"
+artifact_match = "exact"
+datasize = 121
+elapsed_seconds = 3.2244060039520264
+max_cv = 5.328693609206859
+model = "lotka_volterra"
+multipoint_max_pairs = 0
+noise = 1.0e-5
+outcome = "report"
+raw_candidate_count = 2
+replicate = 3
+returned_candidate_count = 1
+schema_version = 1
+seed = 31003
+selected_fit_error = 16.677532193383797
+shooting_points = 1
+started_at = "2026-08-14T11:29:54.090"
+time_interval = [0.0, 20.0]
+uq_status = "degenerate"
+
+[[candidate_diagnostics]]
+fit_error = 16.677532193383797
+maximum_error = 0.3228783890844362
+median_error = 0.07645061134458264
+minimum_error = 0.03513865914776937
+raw_index = 1
+selected = true
+
+    [candidate_diagnostics.identity]
+    candidate_id = 2
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [60]
+    time_values = [9.833333333333334]
+[[candidate_diagnostics]]
+fit_error = 8.642346427513302e13
+maximum_error = 6.234523925816388
+median_error = 0.2687872650498061
+minimum_error = 4.339715051093762e-6
+raw_index = 2
+selected = false
+
+    [candidate_diagnostics.identity]
+    candidate_id = 3
+    data_scope = "derived"
+    estimator_kind = "state_resolve"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = [1]
+    time_indices = [1]
+    time_values = [0.0]
+
+[[coordinates]]
+absolute_error = 0.07027731829553874
+covered_95 = true
+estimate = 2.0702773182955387
+label = "r"
+relative_error = 0.03513865914776937
+role = "state"
+sigma = 4.081708943448061
+truth = 2.0
+z = 0.01721762116535711
+[[coordinates]]
+absolute_error = 0.3228783890844362
+covered_95 = true
+estimate = 0.6771216109155638
+label = "w"
+relative_error = 0.3228783890844362
+role = "state"
+sigma = 3.608173600741618
+truth = 1.0
+z = -0.08948527005964245
+[[coordinates]]
+absolute_error = 0.06625385482986079
+covered_95 = true
+estimate = 0.9337461451701392
+label = "k1"
+relative_error = 0.06625385482986079
+role = "parameter"
+sigma = 0.9691932146259298
+truth = 1.0
+z = -0.0683598005330982
+[[coordinates]]
+absolute_error = 0.03822530567229132
+covered_95 = true
+estimate = 0.4617746943277087
+label = "k2"
+relative_error = 0.07645061134458264
+role = "parameter"
+sigma = 1.1229840340220663
+truth = 0.5
+z = -0.03403904642827736
+[[coordinates]]
+absolute_error = 0.041651428386520195
+covered_95 = true
+estimate = 0.3416514283865202
+label = "k3"
+relative_error = 0.138838094621734
+role = "parameter"
+sigma = 0.6662140473831014
+truth = 0.3
+z = 0.06251958893711056
+
+[[lineage]]
+candidate_id = 2
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [9.833333333333334]
+
+[linearization]
+active_bounds = []
+degraded = false
+gradient_norm = nan
+jacobian_condition = 1844.2634199860195
+reason = "ok"
+root_residual_abs = 3.433771579885248e-17
+root_residual_rel = 4.820798495109281e-17
+
+[selected_identity]
+candidate_id = 2
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [9.833333333333334]

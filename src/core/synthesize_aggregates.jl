@@ -143,6 +143,7 @@ function _build_synth_candidate(
 	category_notes::Vector{Symbol};
 	all_unidentifiable::Set{Num} = Set{Num}(),
 	structural_fix_set::OrderedDict{Num, Float64} = OrderedDict{Num, Float64}(),
+	parent_candidate_ids::Vector{Int} = Int[],
 )
 	result = ParameterEstimationResult(
 		params,
@@ -173,6 +174,11 @@ function _build_synth_candidate(
 		# candidates of this estimate — an aggregate of them must carry it too, else a
 		# winning aggregate reports an empty structural_fix_set (canary regression).
 		structural_fix_set = structural_fix_set,
+	)
+	set_result_estimator_identity!(result;
+		estimator_kind = :synthesized_aggregate,
+		data_scope = :ensemble,
+		parent_candidate_ids = parent_candidate_ids,
 	)
 	sync_result_contract!(result)
 	return result
@@ -212,6 +218,10 @@ function _synthesize_per_sp_full_aggregate(
 		cat_notes;
 		all_unidentifiable = copy(first(candidates_for_sp).all_unidentifiable),
 		structural_fix_set = _synth_structural_fix_set(first(candidates_for_sp)),
+		parent_candidate_ids = Int[
+			ensure_result_estimator_identity!(candidate).candidate_id
+			for candidate in candidates_for_sp
+		],
 	)
 end
 
@@ -370,6 +380,10 @@ function _synthesize_global_param_aggregate(
 		cat_notes;
 		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
 		structural_fix_set = _synth_structural_fix_set(first(source_candidates)),
+		parent_candidate_ids = Int[
+			ensure_result_estimator_identity!(candidate).candidate_id
+			for candidate in source_candidates
+		],
 	)
 end
 
@@ -450,6 +464,10 @@ function _aggregate_and_resolve_to_candidate(
 		source_indices, strategy, cat_notes;
 		all_unidentifiable = copy(first(source_candidates).all_unidentifiable),
 		structural_fix_set = _synth_structural_fix_set(first(source_candidates)),
+		parent_candidate_ids = Int[
+			ensure_result_estimator_identity!(candidate).candidate_id
+			for candidate in source_candidates
+		],
 	)
 end
 

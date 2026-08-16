@@ -28,4 +28,5 @@ using Test
     include("test_stacked_jet_covariance.jl") # cross-time W-stack Σ_d core (MC-validated) 2026-08-13
     include("test_ift_solve.jl")              # factorized IFT, loud degradation 2026-08-13
     include("test_multipoint_sensitivity.jl") # multipoint estimate-conditioned S + FD validation 2026-08-14
+    include("test_estimator_aware_uq.jl") # exact rank-one target + typed outcome/lineage contract 2026-08-14
 end

@@ -1363,6 +1363,44 @@ Base.@kwdef struct PolishContext
 	softwall_epsilon::Float64 = 0.05
 end
 
+"""
+Internal carrier used only when estimator-aware UQ is enabled. It preserves the
+exact optimizer-space point that production selected (including best-iterate or
+revert-guard recovery) while forwarding ordinary optimizer-result properties to
+keep the private `_polish_single_from_context` return contract compatible.
+"""
+struct _PolishSolveRecord{O}
+	optimizer_result::O
+	internal_optimum::Vector{Float64}
+end
+
+function Base.getproperty(record::_PolishSolveRecord, name::Symbol)
+	if name === :optimizer_result || name === :internal_optimum
+		return getfield(record, name)
+	end
+	return getproperty(getfield(record, :optimizer_result), name)
+end
+
+function Base.propertynames(record::_PolishSolveRecord, private::Bool = false)
+	own = (:optimizer_result, :internal_optimum)
+	inner = propertynames(getfield(record, :optimizer_result), private)
+	return (own..., inner...)
+end
+
+_polish_raw_optimizer_result(result) = result
+_polish_raw_optimizer_result(result::_PolishSolveRecord) = result.optimizer_result
+
+function _polish_retained_internal_vector(
+	ctx::PolishContext,
+	result::ParameterEstimationResult,
+	optimizer_result,
+)
+	if optimizer_result isa _PolishSolveRecord
+		return copy(optimizer_result.internal_optimum)
+	end
+	return _polish_result_internal_vector(ctx, result)
+end
+
 const _POLISH_SHIFT_EPS = 1e-6
 # A box with `lb < 0` still gets `:shifted_log` only when the negative excursion is at
 # least one order of magnitude smaller than the positive reach (|lb| <= ub / RATIO) — the
@@ -1551,6 +1589,16 @@ function _polish_internal_to_external(
 		end
 	end
 	return out
+end
+
+function _polish_result_internal_vector(ctx::PolishContext, result::ParameterEstimationResult)
+	external = Float64[
+		[result.states[s] for s in ctx.unknown_syms]...,
+		[result.parameters[p] for p in ctx.param_syms]...,
+	]
+	return _polish_external_to_internal(
+		external, ctx.coordinate_transforms, ctx.coordinate_shifts,
+	)
 end
 
 """
@@ -1856,6 +1904,7 @@ function _polish_single_from_context(
 	lso_x_tol::Float64 = -1.0,
 	lso_f_tol::Float64 = -1.0,
 	lso_g_tol::Float64 = -1.0,
+	retain_internal_optimum::Bool = false,
 )
 	# Residual-mode polish (LSO / FastLM) uses a separate solver path with native
 	# bound support and a revert guard. Dispatch early so the rest of this body
@@ -1874,6 +1923,7 @@ function _polish_single_from_context(
 			lso_x_tol = lso_x_tol,
 			lso_f_tol = lso_f_tol,
 			lso_g_tol = lso_g_tol,
+			retain_internal_optimum = retain_internal_optimum,
 		)
 	end
 
@@ -2047,7 +2097,9 @@ function _polish_single_from_context(
 		post_polish_error = final_obj,
 	)
 	sync_result_contract!(final_result)
-	return final_result, result
+	returned_optimizer = retain_internal_optimum ?
+		_PolishSolveRecord(result, Float64.(p_opt_internal)) : result
+	return final_result, returned_optimizer
 end
 
 function _polish_cluster_metadata(
@@ -2338,6 +2390,7 @@ function _polish_batch_from_context(
 				lso_x_tol = opts.polish_lso_x_tol,
 				lso_f_tol = opts.polish_lso_f_tol,
 				lso_g_tol = opts.polish_lso_g_tol,
+				retain_internal_optimum = opts.compute_uncertainty,
 			)
 			dt = time() - t0
 			n_iters = try; opt_result.original.iterations; catch err; _rethrow_if_interrupt(err); -1; end
@@ -2365,6 +2418,29 @@ function _polish_batch_from_context(
 				multipoint_time_indices = candidate.provenance.multipoint_time_indices,
 				multipoint_combo_index = candidate.provenance.multipoint_combo_index,
 			)
+			parent_identity = ensure_result_estimator_identity!(candidate)
+			identity = set_result_estimator_identity!(polished_result;
+				estimator_kind = :trajectory_polish,
+				data_scope = :full_trajectory,
+				time_indices = collect(eachindex(ctx.t_vector)),
+				time_values = copy(ctx.t_vector),
+				interpolator_source = candidate.provenance.interpolator_source,
+				parent_candidate_ids = Int[parent_identity.candidate_id],
+			)
+			if opts.compute_uncertainty
+				artifact = _run_ctx_try_uq_capture("trajectory-polish artifact") do
+					internal_optimum = _polish_retained_internal_vector(
+						ctx, polished_result, opt_result,
+					)
+					PolishUQArtifact(
+						ctx, internal_optimum, _polish_raw_optimizer_result(opt_result),
+						parent_identity.candidate_id,
+						is_residual_polish_method(opts.polish_method) ? :residual_least_squares : :trajectory_sse,
+					)
+				end
+				!isnothing(artifact) &&
+					_run_ctx_register_artifact!(identity.candidate_id, artifact)
+			end
 			if !opts.nooutput
 				err_before = isnothing(candidate.err) ? Inf : candidate.err
 				err_after = isnothing(polished_result.err) ? Inf : polished_result.err
@@ -2455,6 +2531,31 @@ Uses the shared PolishContext infrastructure for consistency with the polish pat
 """
 function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions())
+	if _run_ctx() === nothing
+		value, _ = _with_run_context(() -> direct_optimization_parameter_estimation(PEP; opts = opts))
+		return value
+	end
+	_run_ctx_begin_uq!(opts.compute_uncertainty)
+	if opts.compute_uncertainty && isnothing(_run_ctx_noise_interpolants(:agp_uq))
+		configured = resolve_interpolator_list(opts)
+		agp_idx = findfirst(pair -> first(pair) == InterpolatorAGPUQ, configured)
+		if !isnothing(agp_idx)
+			method, custom = configured[agp_idx]
+			interp_func = get_interpolator_function(
+				method, custom; s3_adapt_k = opts.s3_adapt_k,
+			)
+			try
+				interpolants = create_interpolants(
+					PEP.measured_quantities, PEP.data_sample,
+					Float64.(PEP.data_sample["t"]), interp_func,
+				)
+				_run_ctx_register_noise_interpolants!(:agp_uq, interpolants)
+			catch err
+				_rethrow_if_interrupt(err)
+				@warn "Configured AGPUQ observation-noise provider could not be retained for direct-optimizer UQ" exception = (err, catch_backtrace())
+			end
+		end
+	end
 	ctx = _build_polish_context(PEP; opts = opts)
 	p_size = ctx.n_ic + ctx.n_param
 
@@ -2492,6 +2593,7 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 		maxtime = opts.polish_maxtime,
 		divergence_factor = opts.polish_divergence_factor,
 		stagnation_window = opts.polish_stagnation_window,
+		retain_internal_optimum = opts.compute_uncertainty,
 	)
 
 	if !opts.nooutput
@@ -2506,6 +2608,22 @@ function direct_optimization_parameter_estimation(PEP::ParameterEstimationProble
 		post_polish_error = final_result.err,
 		polish_applied = true,
 	)
+	identity = set_result_estimator_identity!(final_result;
+		estimator_kind = :direct_optimization,
+		data_scope = :full_trajectory,
+		time_indices = collect(eachindex(ctx.t_vector)),
+		time_values = copy(ctx.t_vector),
+	)
+	if opts.compute_uncertainty
+		artifact = _run_ctx_try_uq_capture("direct-optimization artifact") do
+			PolishUQArtifact(
+				ctx, _polish_retained_internal_vector(ctx, final_result, opt_result),
+				_polish_raw_optimizer_result(opt_result), 0,
+				:trajectory_sse,
+			)
+		end
+		!isnothing(artifact) && _run_ctx_register_artifact!(identity.candidate_id, artifact)
+	end
 	sync_result_contract!(final_result)
 
 	return [final_result]

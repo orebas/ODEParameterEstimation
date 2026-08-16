@@ -924,6 +924,13 @@ function print_uncertainty_results(uq::UncertaintyReport; io = stdout)
 	println(io, "Status: $(uq.status)   max CV: $(round(uq.max_cv; sigdigits = 3))")
 	println(io, "Coordinate system: $(uq.coordinate_system)   t_eval: $(round(uq.t_eval; sigdigits = 6))")
 	println(io, "Covariance: $(uq.covariance_kind)   noise source: $(uq.noise_source)")
+	if !isnothing(uq.target)
+		target = uq.target
+		identity = target.identity
+		println(io, "Target: rank $(target.selected_rank) $(identity.estimator_kind) candidate $(identity.candidate_id)   estimand: $(target.estimand)")
+		!isempty(identity.time_indices) && println(io,
+			"Estimator points: indices=$(identity.time_indices) times=$(identity.time_values)")
+	end
 	if !isnothing(uq.backsolve_transform)
 		bt = uq.backsolve_transform
 		println(io, "Backsolve transform: $(bt.status)   t0: $(round(bt.t0; sigdigits = 6))   amplification: $(round(bt.amplification; sigdigits = 4))")
@@ -932,12 +939,13 @@ function print_uncertainty_results(uq::UncertaintyReport; io = stdout)
 		ia = uq.practical_identifiability_index
 		println(io, "I_A: $(round(ia.i_a; sigdigits = 3))   status: $(ia.status)")
 	end
-	println(io, rpad("Quantity", 16), " | ", rpad("Role", 14), " | ", rpad("Std. Dev.", 12), " | 95% CI half-width")
+	println(io, rpad("Quantity", 16), " | ", rpad("Role", 14), " | ", rpad("Estimate", 12), " | ", rpad("Std. Dev.", 12), " | 95% CI half-width")
 	println(io, "-"^72)
 	for (i, name) in enumerate(uq.param_labels)
 		σ = uq.param_std[i]
 		role = get(uq.param_roles, name, :unknown)
-		@printf(io, "%-16s | %-14s | %12.6g | %12.6g\n", name, string(role), σ, UQ_CI_Z * σ)
+		center = i <= length(uq.estimate_values) ? uq.estimate_values[i] : NaN
+		@printf(io, "%-16s | %-14s | %12.6g | %12.6g | %12.6g\n", name, string(role), center, σ, UQ_CI_Z * σ)
 	end
 	if !isnothing(uq.local_coordinate_report)
 		local_snapshot = uq.local_coordinate_report

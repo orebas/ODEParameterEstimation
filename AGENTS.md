@@ -12,6 +12,18 @@ drift, prefer `CLAUDE.md`.
 
 ## Open investigations (read before starting reconditioning / numerical-stability work)
 
+- **UQ regime + production contract.** Start with the audited PEB LV/VDP/FHN
+  canaries
+  [`docs/2026-08-14_peb_audited_uq_canaries.md`](docs/2026-08-14_peb_audited_uq_canaries.md),
+  then read
+  [`docs/2026-08-14_estimator_aware_uq.md`](docs/2026-08-14_estimator_aware_uq.md)
+  and [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md),
+  plus the GP-jet bias decision note
+  [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md),
+  before changing UQ. Production UQ targets the returned rank-one estimator;
+  nonlinear MP/polish coverage is still an open validation task. The older
+  package-constructor pilot is routing stress, not audited model evidence.
+
 - **Variable (column) scaling of the polynomial system.** Diagnostics on
   the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)
   show Jacobian condition numbers of 1e+6 to 1e+10 at low noise, driving

@@ -454,14 +454,21 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         # Seed: true values (no perturbation in IC) — exercises the path end-to-end and
         # confirms the revert guard at worst returns the seed.
         p_true = vcat(Float64.(collect(values(pep.ic))), Float64.(collect(values(pep.p_true))))
-        polished, _ = ODEParameterEstimation._polish_single_from_context(
+        polished, retained_polish = ODEParameterEstimation._polish_single_from_context(
             ctx, p_true;
             polish_method = PolishLSOBoundedLog,
             maxiters = 200,
             lso_delta = lso_opts.polish_lso_delta,
+            retain_internal_optimum = true,
         )
         @test polished isa ODEParameterEstimation.ParameterEstimationResult
         @test isfinite(polished.err)
+        @test retained_polish isa ODEParameterEstimation._PolishSolveRecord
+        @test ODEParameterEstimation._polish_retained_internal_vector(
+            ctx, polished, retained_polish,
+        ) == retained_polish.internal_optimum
+        @test ODEParameterEstimation._polish_raw_optimizer_result(retained_polish) ===
+            retained_polish.optimizer_result
         # Polished should not be worse than the perfect seed (revert guard ensures this)
         @test polished.err < 1e-6
 
@@ -1069,10 +1076,13 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         # broken FD-Jacobian path (archived in deprecated/uq_fd_path.jl) to the
         # IFT-based diagnose_uncertainty. End-to-end smoke on simple().
         uq_opts = EstimationOptions(
-            datasize = 21, noise_level = 0.0, shooting_points = 0,
+            datasize = 21, noise_level = 0.0, shooting_points = 1,
             nooutput = true, diagnostics = false, flow = FlowStandard,
             use_si_template = true, use_parameter_homotopy = false,
-            interpolator = InterpolatorAAAD, save_system = false,
+            interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+            auto_filter_interpolators = false, use_multipoint = false,
+            synthesize_aggregate_candidates = false, branch_completion = false,
+            save_system = false,
             polish_solver_solutions = false, polish_solutions = false,
             compute_uncertainty = true,
         )
@@ -1084,6 +1094,11 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         @test uq.coordinate_system == :physical_initial_conditions
         @test uq.covariance_kind == :estimator_sampling
         @test uq.noise_source == :learned_gp_homoscedastic
+		@test uq.target isa ODEParameterEstimation.UQTargetSnapshot
+		@test uq.target.selected_rank == 1
+		@test uq.target.identity.estimator_kind == :single_point_algebraic
+		@test uq.target.identity.time_values == [uq.t_eval]
+		@test length(uq.estimate_values) == length(uq.param_labels)
         @test !isempty(uq.param_std)
         @test any(isfinite, uq.param_std)
         @test all(get(uq.param_roles, label, :unknown) in (:parameter, :state_ic) for label in uq.param_labels)

@@ -1,0 +1,92 @@
+arm = "mp"
+artifact_match = "exact"
+datasize = 121
+elapsed_seconds = 21.73145294189453
+max_cv = 0.5464791098417845
+model = "fitzhugh_nagumo"
+multipoint_max_pairs = 6
+noise = 0.0001
+outcome = "report"
+raw_candidate_count = 24
+replicate = 1
+returned_candidate_count = 1
+schema_version = 1
+seed = 33001
+selected_fit_error = 9.524953445275327e-7
+shooting_points = 6
+started_at = "2026-08-14T10:34:34.345"
+time_interval = [0.0, 0.03]
+uq_status = "degenerate"
+
+[[coordinates]]
+covered_95 = true
+estimate = -0.9999766459332525
+label = "V"
+relative_error = 2.335406674747187e-5
+role = "state"
+sigma = 2.4123888463293647e-5
+truth = -1.0
+z = 0.9680888212945802
+[[coordinates]]
+covered_95 = false
+estimate = 0.4632829464131202
+label = "R"
+relative_error = 4.632829464131202e11
+role = "state"
+sigma = 0.02306824779471682
+truth = 0.0
+z = 20.083144178779936
+[[coordinates]]
+covered_95 = false
+estimate = 9.828501623568345
+label = "g"
+relative_error = 2.276167207856115
+role = "parameter"
+sigma = 1.1070676226709288
+truth = 3.0
+z = 6.168098030989104
+[[coordinates]]
+covered_95 = false
+estimate = 8.998544682940018
+label = "a"
+relative_error = 43.992723414700095
+role = "parameter"
+sigma = 4.419993526264362
+truth = 0.2
+z = 1.9906238845504078
+[[coordinates]]
+covered_95 = true
+estimate = 17.584057787107174
+label = "b"
+relative_error = 86.92028893553586
+role = "parameter"
+sigma = 9.609320246904828
+truth = 0.2
+z = 1.8090829882276636
+
+[[lineage]]
+candidate_id = 12
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [121]
+time_values = [0.03]
+
+[linearization]
+active_bounds = []
+degraded = true
+gradient_norm = nan
+jacobian_condition = 8.531955474827194e8
+reason = "ok"
+root_residual_abs = 1.0017097723212659e-13
+root_residual_rel = 1.4865422949511825e-18
+
+[selected_identity]
+candidate_id = 12
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [121]
+time_values = [0.03]

@@ -391,6 +391,7 @@ function _build_algebraic_resolve_candidate(
 	state_seed_scale::Float64,
 	opts::EstimationOptions;
 	rescue_path::Symbol,
+	parent_candidate_id::Int = 0,
 )
 	unknown_syms = ModelingToolkit.unknowns(PEP.model.system)
 	current_params = ModelingToolkit.parameters(PEP.model.system)
@@ -518,6 +519,14 @@ function _build_algebraic_resolve_candidate(
 		representative_assignments = representative_assignments,
 		notes = unique(provenance_notes),
 	)
+	set_result_estimator_identity!(candidate;
+		estimator_kind = :state_resolve,
+		data_scope = :derived,
+		time_indices = Int[resolve_time_index],
+		time_values = Float64[t_vector[resolve_time_index]],
+		interpolator_source = source_interp,
+		parent_candidate_ids = parent_candidate_id > 0 ? Int[parent_candidate_id] : Int[],
+	)
 	return candidate
 end
 
@@ -601,6 +610,13 @@ end
 Optimized parameter estimation using precomputed derivatives.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	# Direct callers receive the same run-scoped identity/artifact isolation as
+	# the top-level analysis entrypoint.
+	if _run_ctx() === nothing
+		value, _ = _with_run_context(() -> optimized_multishot_parameter_estimation(PEP, opts))
+		return value
+	end
+	_run_ctx_begin_uq!(opts.compute_uncertainty)
 	# Carry the per-analysis HC solver config onto whatever RunContext is bound —
 	# covers direct callers (consensus/benchmark flows) that bypass
 	# analyze_parameter_estimation_problem; no-op when no context is bound.
@@ -833,6 +849,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		solution_mp_time_indices = Vector{Union{Nothing, Vector{Int}}}()
 		solution_mp_combo_indices = Union{Nothing, Int}[]
 		solution_interpolator_sources = Symbol[]  # track which interpolator produced each solution
+		solution_uq_artifacts = Union{Nothing, AbstractEstimatorArtifact}[]
 		# Per-source interpolant cache for sensitivity-seed σ_d cross-interpolator spread.
 		# Populated inside the per-interpolator loop; consumed by _maybe_augment_with_sensitivity_seeds
 		# at the polish phase. Keyed by interpolator-source symbol (e.g. :aaad, :aaad_gpr).
@@ -895,6 +912,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			_t_interp_elapsed = time() - _t_interp_start
 			_accumulate_timing!(interpolant_creation_seconds_by_source, interp_sym, _t_interp_elapsed)
 			interpolant_cache_for_seeds[interp_sym] = interpolants
+			interp_sym == :agp_uq && _run_ctx_register_noise_interpolants!(interp_sym, interpolants)
 
 			frontier_sp_candidate = nothing
 			local_template_DD = template_DD
@@ -1027,6 +1045,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			interp_source_types = Symbol[]
 			interp_mp_time_indices = Vector{Union{Nothing, Vector{Int}}}()
 			interp_mp_combo_indices = Union{Nothing, Int}[]
+			interp_uq_artifacts = Union{Nothing, AbstractEstimatorArtifact}[]
 
 		try  # Catch errors in individual interpolators so one crash doesn't lose all results
 
@@ -1257,6 +1276,21 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				end
 
 				append!(interp_solutions, point_solutions)
+				for sol in point_solutions
+					artifact = if opts.compute_uncertainty
+						_run_ctx_try_uq_capture("single-point parameter-homotopy artifact") do
+							SinglePointUQArtifact(
+								local_template_equations, local_solve_vars,
+								local_extended_data_vars, copy(valid_param_values_list[i]),
+								Float64.(real.(sol)), interpolants,
+								point_idx, Float64(t_vector[point_idx]),
+							)
+						end
+					else
+						nothing
+					end
+					push!(interp_uq_artifacts, artifact)
+				end
 				for _ in 1:length(point_solutions)
 					push!(interp_source_types, :single_point)
 					push!(interp_mp_time_indices, nothing)
@@ -1375,6 +1409,25 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				end
 
 				append!(interp_solutions, solutions)
+				for sol in solutions
+					artifact = if opts.compute_uncertainty && !isnothing(frontier_sp_candidate)
+						_run_ctx_try_uq_capture("single-point noise-frontier artifact") do
+							data_values = evaluate_noise_frontier_data_vars_at_point(
+								interpolants, frontier_sp_candidate.data_vars,
+								PEP.measured_quantities, t_vector[point_idx],
+							)
+							SinglePointUQArtifact(
+								frontier_sp_candidate.equations, frontier_sp_candidate.solve_vars,
+								frontier_sp_candidate.data_vars, data_values,
+								Float64.(real.(sol)), interpolants,
+								point_idx, Float64(t_vector[point_idx]),
+							)
+						end
+					else
+						nothing
+					end
+					push!(interp_uq_artifacts, artifact)
+				end
 				for _ in 1:length(solutions)
 					push!(interp_source_types, :single_point)
 					push!(interp_mp_time_indices, nothing)
@@ -1594,6 +1647,13 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								push!(interp_source_types, :multipoint)
 								push!(interp_mp_time_indices, copy(evals[pidx].time_indices))
 								push!(interp_mp_combo_indices, pidx)
+								artifact = opts.compute_uncertainty ?
+									_run_ctx_try_uq_capture("multipoint algebraic artifact") do
+										MultipointUQArtifact(
+											evals[pidx], Float64.(real.(sol)), interpolants, interp_sym,
+										)
+									end : nothing
+								push!(interp_uq_artifacts, artifact)
 								n_projected += 1
 							end
 						end
@@ -1628,6 +1688,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			append!(solution_source_types, interp_source_types)
 			append!(solution_mp_time_indices, interp_mp_time_indices)
 			append!(solution_mp_combo_indices, interp_mp_combo_indices)
+			append!(solution_uq_artifacts, interp_uq_artifacts)
 			for _ in 1:length(interp_solutions)
 				push!(solution_interpolator_sources, interp_sym)
 			end
@@ -1671,6 +1732,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			solution_source_types = solution_source_types,
 			solution_mp_time_indices = solution_mp_time_indices,
 			solution_mp_combo_indices = solution_mp_combo_indices,
+			solution_uq_artifacts = solution_uq_artifacts,
 			# Phase B: explicit MTK→jet-0 template map (built at SI template
 			# construction; see si_equation_builder.jl). Consumed by
 			# process_estimation_results so SI-workflow lookups hit the exact
@@ -1747,6 +1809,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					# Build known_param_dict for parameter substitution
 					known_param_dict = OrderedDict{Any, Float64}(k => Float64(v) for (k, v) in params_dict)
 					base_candidate = solved_res[first(indices)]
+					base_identity = ensure_result_estimator_identity!(base_candidate)
 					source_shoot_idx = base_candidate.provenance.source_shooting_index
 					source_interp = base_candidate.provenance.interpolator_source
 
@@ -1842,6 +1905,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 									state_seed_scale,
 									opts;
 									rescue_path = resolve_time_index == 1 ? :algebraic_resolve_t0 : :algebraic_resolve_shoot,
+									parent_candidate_id = base_identity.candidate_id,
 								)
 							catch err
 								if err isa ErrorException && occursin("missing from the SIAN re-solve output", err.msg)
@@ -1948,6 +2012,14 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								representative_assignments = representative_assignments,
 								; si_template_lineage_kwargs(setup_data.si_template)...,
 								notes = unique(provenance_notes),
+							)
+							set_result_estimator_identity!(candidate;
+								estimator_kind = :state_resolve,
+								data_scope = :derived,
+								time_indices = Int[1],
+								time_values = Float64[PEP.data_sample["t"][1]],
+								interpolator_source = source_interp,
+								parent_candidate_ids = Int[base_identity.candidate_id],
 							)
 							sync_result_contract!(candidate)
 							push!(resolved_candidates, candidate)
@@ -2059,14 +2131,32 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							isfinite(loss0) && break
 							p0 = _draw(1.0 * 1.3^attempt)
 						end
-						result, _ = _polish_single_from_context(ctx, p0;
+						result, opt_result = _polish_single_from_context(ctx, p0;
 							optimizer = LBFGS(), maxiters = opts.polish_maxiters,
 							maxtime = opts.polish_maxtime,
 							divergence_factor = opts.polish_divergence_factor,
-							stagnation_window = opts.polish_stagnation_window)
+							stagnation_window = opts.polish_stagnation_window,
+							retain_internal_optimum = opts.compute_uncertainty)
 						result.provenance.rescue_path = :direct_opt_fallback
 						result.provenance.primary_method = :direct_opt
 						note_provenance!(result.provenance, :terminal_fallback)
+						identity = set_result_estimator_identity!(result;
+							estimator_kind = :direct_optimization,
+							data_scope = :full_trajectory,
+							time_indices = collect(eachindex(ctx.t_vector)),
+							time_values = copy(ctx.t_vector),
+						)
+						if opts.compute_uncertainty
+							artifact = _run_ctx_try_uq_capture("terminal direct-optimization artifact") do
+								PolishUQArtifact(
+									ctx, _polish_retained_internal_vector(ctx, result, opt_result),
+									_polish_raw_optimizer_result(opt_result), 0,
+									:trajectory_sse,
+								)
+							end
+							!isnothing(artifact) &&
+								_run_ctx_register_artifact!(identity.candidate_id, artifact)
+						end
 						sync_result_contract!(result)
 						[result]
 					else

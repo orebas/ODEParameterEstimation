@@ -20,6 +20,7 @@ using OrderedCollections
 	@test o.save_filepath == ""              # empty = legacy "saved_systems/" base
 	@test o.hc_threading === true
 	@test o.hc_compile_mode === :all
+	@test o.uq_noise_source === :learned_gp_homoscedastic
 
 	# clustering_threshold genuinely controls full-space clustering: with a huge
 	# threshold everything merges into one cluster; with a tiny one nothing does.
@@ -43,15 +44,18 @@ end
 	prov = ResultProvenance(primary_method = :algebraic, source_type = :single_point,
 		template_status = :determined, notes = [:terminal_fallback])
 	d = provenance_metadata_dict(prov)
-	expected = ["aggregation_source_indices", "aggregation_strategy", "equations_dropped_by_rank_trimming",
+	expected = sort(["aggregation_source_indices", "aggregation_strategy", "equations_dropped_by_rank_trimming",
+		"estimator_identity",
 		"interpolator_source", "multipoint_combo_index", "multipoint_time_indices", "notes",
+		"polish_applied", "polish_source_hc_idx", "post_polish_error", "pre_polish_error",
 		"practical_identifiability_status", "primary_method", "representative_assignments",
 		"rescue_path", "source_candidate_index", "source_shooting_index", "source_type",
-		"structural_fix_set", "template_status", "was_terminal_fallback"]
+		"structural_fix_set", "template_status", "was_terminal_fallback"])
 	@test sort(collect(keys(d))) == expected
 	@test d["primary_method"] == "algebraic"
 	@test d["template_status"] == "determined"
 	@test d["was_terminal_fallback"] === true      # via the :terminal_fallback note
 	@test d["interpolator_source"] === nothing
+	@test d["estimator_identity"]["estimator_kind"] == "unknown"
 	@test provenance_metadata_dict(ResultProvenance())["was_terminal_fallback"] === false
 end

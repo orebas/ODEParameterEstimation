@@ -544,13 +544,19 @@ end
 
 
 function apply_uq_failure_policy(uq_result, opts::EstimationOptions)
-	# Phase E2: uq_result is Union{Nothing, UncertaintyReport} (nothing = UQ could
-	# not be computed; :degenerate = computed but meaningless).
-	failed = isnothing(uq_result) ||
+	failed = uq_result isa UQUnavailable ||
 			 (uq_result isa UncertaintyReport && uq_result.status in (:degenerate, :failed))
 	if failed && opts.uq_failure_policy == :throw
-		msg = isnothing(uq_result) ? "no report produced" : join(uq_result.warnings, "; ")
-		error("Uncertainty quantification failed: $msg")
+		outcome = if uq_result isa UQUnavailable
+			uq_result
+		else
+			UQUnavailable(
+				uq_result.model_name, uq_result.target, :degenerate,
+				"computed covariance was classified as $(uq_result.status)",
+				copy(uq_result.warnings),
+			)
+		end
+		throw(UQComputationError(outcome))
 	end
 	return uq_result
 end
@@ -576,47 +582,51 @@ end
 
 function _compute_uq_result(
 	PEP::ParameterEstimationProblem,
-	solved_res,
+	analysis,
 	opts::EstimationOptions,
 )
-	if !(opts.compute_uncertainty && !isempty(solved_res))
+	if !opts.compute_uncertainty
 		return nothing
 	end
 
-	best_solution = _best_scored_result(solved_res)
-	if isnothing(best_solution)
+	selected = hasproperty(analysis, :returned_results) ? analysis.returned_results : []
+	if isempty(selected)
 		if !opts.nooutput
 			println("\nSkipping parameter uncertainty: no finite-error solution available.")
 		end
-		return nothing
+		return apply_uq_failure_policy(UQUnavailable(
+			PEP.name, nothing, :no_selected_result,
+			"analysis returned no finite rank-one estimator", String[],
+		), opts)
 	end
+	best_solution = first(selected)
+	identity = ensure_result_estimator_identity!(best_solution)
+	target = UQTargetSnapshot(
+		identity = identity,
+		lineage = _run_ctx_lineage(identity),
+		estimand = :conditional_on_selected_estimator,
+		artifact_match = isnothing(_run_ctx_artifact(identity.candidate_id)) ? :missing : :exact,
+	)
 
 	if !opts.nooutput
 		println("\nComputing parameter uncertainty (experimental)...")
 	end
 
-	# Phase E2 (review P0#5, rewire chosen): route through the IFT-based
-	# diagnose_uncertainty path. The legacy FD-Jacobian estimate_parameter_uncertainty
-	# (boundary-zeroed Jacobian rows, substring observable matching) is archived in
-	# deprecated/uq_fd_path.jl. Mirrors _save_diagnostic_html's incantation.
 	uq_result = try
-		setup_uq = setup_parameter_estimation(PEP; interpolator = agp_gpr_uq, nooutput = true, point_hint = opts.point_hint)
-		# Estimate-conditioned S (Stream B, 2026-08): passing estimate_result makes
-		# the sensitivity evaluate at (θ̂, x̂, GP jets) instead of truth, so this
-		# path needs no ground-truth values and works on real data.
-		sens = diagnose_sensitivity(PEP; setup_data = setup_uq, t_eval = best_solution.at_time,
-			estimate_result = best_solution)
-		r = diagnose_uncertainty(PEP, setup_uq, best_solution.at_time, sens)
-		local_uq = isnothing(r) ? nothing : first(r)   # diagnose_uncertainty returns (report, uq_interps)
-		isnothing(local_uq) ? nothing : physicalize_uncertainty_report(PEP, best_solution, local_uq)
+		_compute_estimator_aware_uq(PEP, best_solution, target, opts)
 	catch e
 		_rethrow_if_interrupt(e)
 		@warn "Parameter uncertainty computation failed" exception = (e, catch_backtrace())
-		nothing
+		UQUnavailable(
+			PEP.name, target, :numerical_failure,
+			sprint(showerror, e), String["Estimator-aware UQ threw while processing the selected estimator."],
+		)
 	end
 	uq_result = apply_uq_failure_policy(uq_result, opts)
-	if !opts.nooutput && !isnothing(uq_result)
+	if !opts.nooutput && uq_result isa UncertaintyReport
 		print_uncertainty_results(uq_result)
+	elseif !opts.nooutput && uq_result isa UQUnavailable
+		println("UQ unavailable for rank-one $(identity.estimator_kind): $(uq_result.reason) — $(uq_result.message)")
 	end
 	return uq_result
 end
@@ -653,6 +663,9 @@ Analyze the results of parameter estimation, including clustering solutions and 
 """
 function analyze_estimation_result(problem::ParameterEstimationProblem, result;
 		nooutput = false, opts::EstimationOptions = EstimationOptions())
+	for candidate in result
+		candidate isa ParameterEstimationResult && ensure_result_estimator_identity!(candidate)
+	end
 	# Merge dictionaries into a single OrderedDict
 	all_params = merge(OrderedDict(), problem.ic, problem.p_true)
 
@@ -952,6 +965,7 @@ end
 
 function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
+	_run_ctx_begin_uq!(opts.compute_uncertainty)
 	# Carry the per-analysis HC solver config to _hc_solve via the bound context.
 	_run_ctx_set_hc_opts!(opts.hc_threading, opts.hc_compile_mode)
 
@@ -1039,7 +1053,7 @@ function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProb
 	_heartbeat(opts, "Clustering + analysis"; kind = :done)
 
 	opts.compute_uncertainty && _heartbeat(opts, "UQ (GP/IFT sidecar)")
-	uq_result = _compute_uq_result(PEP, solved_res, opts)
+	uq_result = _compute_uq_result(PEP, results_tuple_to_return, opts)
 	opts.compute_uncertainty && _heartbeat(opts, "UQ (GP/IFT sidecar)"; kind = :done)
 	if !isnothing(scale_info)
 		uq_result = unrescale_uncertainty_report(uq_result, scale_info)

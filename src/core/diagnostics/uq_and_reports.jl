@@ -357,22 +357,8 @@ function diagnose_uncertainty(
     end
 
     # Step 6: Quality classification
-    max_cv = 0.0
-    for i in 1:n_unknowns
-        tv = param_true_values[i]
-        if isfinite(tv) && abs(tv) > 1e-15
-            cv = param_std[i] / abs(tv)
-            max_cv = max(max_cv, cv)
-        end
-    end
-
-    status = if max_cv < 0.5
-        :ok
-    elseif max_cv < 2.0
-        :wide_ci
-    else
-        :degenerate
-    end
+    max_cv = _uq_max_cv(param_std, param_true_values)
+    status = _uq_status_from_cv(max_cv)
 
     ia = compute_practical_identifiability_index(
         Matrix(Σ_x), param_labels, param_roles, param_true_values,
@@ -859,16 +845,15 @@ function _uq_status_from_cv(max_cv::Float64)
     end
 end
 
-function _uq_max_cv(param_std::Vector{Float64}, values::Vector{Float64})
-    max_cv = 0.0
-    for i in eachindex(param_std)
-        i <= length(values) || continue
-        v = values[i]
-        if isfinite(v) && abs(v) > 1e-15
-            max_cv = max(max_cv, param_std[i] / abs(v))
-        end
-    end
-    return max_cv
+function _uq_max_cv(param_std::Vector{Float64}, values::Vector{Float64}; scale_floor::Float64 = 1e-8)
+	max_cv = isempty(param_std) ? NaN : 0.0
+	for i in eachindex(param_std)
+		i <= length(values) || return Inf
+		v = values[i]
+		isfinite(v) || return Inf
+		max_cv = max(max_cv, param_std[i] / max(abs(v), scale_floor))
+	end
+	return max_cv
 end
 
 function _uq_lookup_value(result_dict, truth_dict, name::String)
@@ -972,6 +957,26 @@ function _uq_physical_truth_values(
     return values
 end
 
+function _uq_physical_estimate_values(
+    best_result::ParameterEstimationResult,
+    labels::Vector{String},
+    roles::Dict{String, Symbol},
+)
+    values = Float64[]
+    empty_truth = OrderedDict{Any, Any}()
+    for label in labels
+        role = get(roles, label, :unknown)
+        if role == :parameter
+            push!(values, _uq_lookup_value(best_result.parameters, empty_truth, label))
+        elseif role == :state_ic
+            push!(values, _uq_lookup_value(best_result.states, empty_truth, label))
+        else
+            push!(values, NaN)
+        end
+    end
+    return values
+end
+
 function _uq_source_covariance(
     uq::UncertaintyReport,
     source_labels::Vector{String},
@@ -1022,6 +1027,7 @@ function _uq_failed_physicalization_report(
         uq.correlation_matrix, uq.max_cv, :failed, warnings,
         uq.covariance_kind, uq.noise_source, uq.practical_identifiability_index,
         :local_at_eval, local_snapshot, nothing,
+        uq.target, copy(uq.estimate_values), uq.linearization_diagnostics,
     )
 end
 
@@ -1097,12 +1103,13 @@ function physicalize_uncertainty_report(
         source_cov = _uq_source_covariance(local_uq, source_labels, warnings)
         Σ_phys = _psd_symmetric_matrix(transform * source_cov * transform')
         param_std = sqrt.(max.(diag(Σ_phys), 0.0))
-        target_values = _uq_physical_truth_values(pep, best_result, target_labels, target_roles)
+        truth_values = _uq_physical_truth_values(pep, best_result, target_labels, target_roles)
+        estimate_values = _uq_physical_estimate_values(best_result, target_labels, target_roles)
         corr = _uq_correlation_matrix(Σ_phys, param_std)
-        max_cv = _uq_max_cv(param_std, target_values)
+        max_cv = _uq_max_cv(param_std, estimate_values)
         status = _uq_status_from_cv(max_cv)
         ia = compute_practical_identifiability_index(
-            Matrix(Σ_phys), target_labels, target_roles, target_values,
+            Matrix(Σ_phys), target_labels, target_roles, estimate_values,
         )
         append!(warnings, ia.warnings)
 
@@ -1117,10 +1124,11 @@ function physicalize_uncertainty_report(
             local_uq.model_name, local_uq.t_eval,
             local_uq.obs_names, local_uq.obs_posterior_mean, local_uq.obs_posterior_std,
             local_uq.data_covariance, local_uq.data_labels,
-            Matrix(Σ_phys), param_std, target_labels, target_roles, target_values,
+            Matrix(Σ_phys), param_std, target_labels, target_roles, truth_values,
             corr, max_cv, status, warnings,
             local_uq.covariance_kind, local_uq.noise_source, ia,
             :physical_initial_conditions, local_snapshot, backsolve,
+            local_uq.target, estimate_values, local_uq.linearization_diagnostics,
         )
     catch e
         return _uq_failed_physicalization_report(local_uq, local_snapshot, sprint(showerror, e))
@@ -1175,7 +1183,7 @@ function _uq_rescale_snapshot(
     values = _uq_scaled_values(snapshot.coordinate_values, factors)
     corr = _uq_correlation_matrix(Σ, σ)
     max_cv = _uq_max_cv(σ, values)
-    status = _uq_status_from_cv(max_cv)
+    status = snapshot.status in (:degenerate, :failed) ? snapshot.status : _uq_status_from_cv(max_cv)
 
     return LocalUQSnapshot(
         snapshot.t_eval,
@@ -1200,10 +1208,12 @@ before `unrescale_results`, because the solver trajectory and local algebraic
 coordinates are still in the scaled problem at that point.
 """
 function unrescale_uncertainty_report(
-    uq::Union{Nothing, UncertaintyReport},
+    uq::Union{Nothing, AbstractUQOutcome},
     info::ScaleInfo,
 )
     isnothing(uq) && return nothing
+    uq isa UQUnavailable && return uq
+    uq isa UncertaintyReport || return uq
 
     factors = [
         _uq_scale_factor(label, get(uq.param_roles, label, :unknown), info)
@@ -1212,10 +1222,14 @@ function unrescale_uncertainty_report(
     D = Diagonal(factors)
     Σ = _psd_symmetric_matrix(D * uq.param_covariance * D)
     σ = sqrt.(max.(diag(Σ), 0.0))
-    values = _uq_scaled_values(uq.param_true_values, factors)
+    truth_values = _uq_scaled_values(uq.param_true_values, factors)
+    estimate_values = isempty(uq.estimate_values) ?
+        _uq_scaled_values(uq.param_true_values, factors) :
+        _uq_scaled_values(uq.estimate_values, factors)
     corr = _uq_correlation_matrix(Σ, σ)
-    max_cv = _uq_max_cv(σ, values)
-    status = _uq_status_from_cv(max_cv)
+    max_cv = _uq_max_cv(σ, estimate_values)
+    status = (uq.status in (:degenerate, :failed) || uq.linearization_diagnostics.degraded) ?
+        :degenerate : _uq_status_from_cv(max_cv)
     warnings = copy(uq.warnings)
     if any(!=(1.0), factors)
         push!(warnings, "UQ covariance and reported values were converted from internal power-of-two rescaled coordinates to original units.")
@@ -1254,7 +1268,7 @@ function unrescale_uncertainty_report(
     end
 
     ia = compute_practical_identifiability_index(
-        Matrix(Σ), copy(uq.param_labels), copy(uq.param_roles), values,
+        Matrix(Σ), copy(uq.param_labels), copy(uq.param_roles), estimate_values,
     )
     append!(warnings, ia.warnings)
 
@@ -1270,7 +1284,7 @@ function unrescale_uncertainty_report(
         σ,
         copy(uq.param_labels),
         copy(uq.param_roles),
-        values,
+        truth_values,
         corr,
         max_cv,
         status,
@@ -1281,6 +1295,9 @@ function unrescale_uncertainty_report(
         uq.coordinate_system,
         local_snapshot,
         backsolve,
+        uq.target,
+        estimate_values,
+        uq.linearization_diagnostics,
     )
 end
 

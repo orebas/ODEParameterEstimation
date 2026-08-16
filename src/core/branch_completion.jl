@@ -349,6 +349,35 @@ function complete_branches_from_anchor_report(
 	if isempty(completed)
 		return _branch_completion_report(status = :no_processed_rows, n_hc_roots = length(solutions))
 	end
+	anchor_identity = ensure_result_estimator_identity!(anchor)
+	for (idx, candidate) in enumerate(completed)
+		identity = set_result_estimator_identity!(candidate;
+			estimator_kind = :branch_completed,
+			data_scope = :derived,
+			time_indices = Int[1],
+			time_values = Float64[t0],
+			interpolator_source = :branch_completion,
+			parent_candidate_ids = Int[anchor_identity.candidate_id],
+		)
+		if opts.compute_uncertainty && idx <= length(solutions)
+			artifact = _run_ctx_try_uq_capture("branch-completion artifact") do
+				payload = (
+					pep = PEP,
+					anchor = anchor,
+					anchor_pep = anchor_pep,
+					si_template = si_template,
+					perfect_interpolants = perfect_interpolants,
+					instantiated = instantiated,
+					solve_vars = copy(hc_vars),
+					root = Float64.(real.(solutions[idx])),
+					max_required_deriv = max_required_deriv,
+					t0 = t0,
+				)
+				BranchCompletionUQArtifact(anchor_identity.candidate_id, payload)
+			end
+			!isnothing(artifact) && _run_ctx_register_artifact!(identity.candidate_id, artifact)
+		end
+	end
 
 	dropped_equations = _branch_completion_dropped_equations(si_template)
 	dropped_instantiation = if isempty(dropped_equations)

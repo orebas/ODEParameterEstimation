@@ -1,0 +1,83 @@
+arm = "sp"
+artifact_match = "exact"
+datasize = 121
+elapsed_seconds = 40.84796094894409
+max_cv = 2.7850261821909794
+model = "vanderpol"
+multipoint_max_pairs = 0
+noise = 0.0001
+outcome = "report"
+raw_candidate_count = 1
+replicate = 1
+returned_candidate_count = 1
+schema_version = 1
+seed = 32001
+selected_fit_error = 3.4992919920024788
+shooting_points = 1
+started_at = "2026-08-14T10:32:59.597"
+time_interval = [0.0, 10.0]
+uq_status = "degenerate"
+
+[[coordinates]]
+covered_95 = true
+estimate = 2.637995550625396
+label = "x1"
+relative_error = 0.318997775312698
+role = "state"
+sigma = 1.2869472819817374
+truth = 2.0
+z = 0.4957433451687026
+[[coordinates]]
+covered_95 = true
+estimate = -2.6773389305670023
+label = "x2"
+relative_error = 2.6773389305670024e12
+role = "state"
+sigma = 7.456459020228299
+truth = 0.0
+z = -0.35906305168495767
+[[coordinates]]
+covered_95 = true
+estimate = 1.0000054129939087
+label = "a"
+relative_error = 5.412993908660013e-6
+role = "parameter"
+sigma = 0.0004485767156544921
+truth = 1.0
+z = 0.01206704164473234
+[[coordinates]]
+covered_95 = true
+estimate = 1.003558286472842
+label = "b"
+relative_error = 0.003558286472842065
+role = "parameter"
+sigma = 0.0047107536111227095
+truth = 1.0
+z = 0.7553539765782872
+
+[[lineage]]
+candidate_id = 1
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [4.916666666666667]
+
+[linearization]
+active_bounds = []
+degraded = false
+gradient_norm = nan
+jacobian_condition = 224.2249780173195
+reason = "ok"
+root_residual_abs = 4.797519279840743e-17
+root_residual_rel = 9.70161065889838e-18
+
+[selected_identity]
+candidate_id = 1
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [60]
+time_values = [4.916666666666667]

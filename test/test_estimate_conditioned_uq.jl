@@ -111,7 +111,12 @@ Random.seed!(2468)
 	@testset "full pipeline: compute_uncertainty runs estimate-conditioned" begin
 		uq_opts = EstimationOptions(
 			datasize = 121, time_interval = [0.0, 1.0], noise_level = 0.0,
-			nooutput = true, diagnostics = false, compute_uncertainty = true)
+			nooutput = true, diagnostics = false, compute_uncertainty = true,
+			interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+			auto_filter_interpolators = false, shooting_points = 1,
+			use_parameter_homotopy = false, use_multipoint = false,
+			synthesize_aggregate_candidates = false, polish_solutions = false,
+			branch_completion = false, save_system = false)
 		raw_ec, analysis_ec, uq_ec = _ec_quiet() do
 			ODEParameterEstimation.analyze_parameter_estimation_problem(pep_data, uq_opts)
 		end
@@ -119,5 +124,10 @@ Random.seed!(2468)
 		@test uq_ec.status in (:ok, :wide_ci)
 		@test !isempty(uq_ec.param_std)
 		@test all(isfinite, uq_ec.param_std)
+		@test uq_ec.target.identity.candidate_id ==
+			analysis_ec.returned_results[1].provenance.estimator_identity.candidate_id
+		@test uq_ec.estimate_values ≈ vcat(
+			collect(values(analysis_ec.returned_results[1].parameters)),
+			collect(values(analysis_ec.returned_results[1].states)))
 	end
 end

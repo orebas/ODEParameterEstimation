@@ -155,4 +155,88 @@ end
 		@test ODEParameterEstimation._multipoint_solve_var_point("w_2_pt3") == (3, "w_2")
 		@test ODEParameterEstimation._multipoint_solve_var_point("k1_0") == (1, "k1_0")
 	end
+
+	@testset "exact retained multipoint artifact produces estimator-matched UQ" begin
+		agp_interpolants = _mps_quiet() do
+			ODEParameterEstimation.create_interpolants(
+				pep_mps.measured_quantities, pep_mps.data_sample,
+				Float64.(pep_mps.data_sample["t"]), ODEParameterEstimation.agp_gpr_uq)
+		end
+		evaluation = ODEParameterEstimation.evaluate_multipoint_template(
+			mpt, combo, agp_interpolants, pep_mps.data_sample)
+		fn = ODEParameterEstimation._compile_system_function(
+			mpt.stripped_equations, vcat(mpt.solve_vars, mpt.data_vars))
+		root, root_ok = _mps_newton(fn, info.x_hat, evaluation.data_values)
+		@test root_ok
+
+		(report, retained_influence), _ = ODEParameterEstimation._with_run_context() do
+			ODEParameterEstimation._run_ctx_set_capture_uq!(true)
+			identity = ODEParameterEstimation.set_result_estimator_identity!(est_mps;
+				estimator_kind = :multipoint_algebraic,
+				data_scope = :point_set,
+				time_indices = combo,
+				time_values = evaluation.t_values,
+				interpolator_source = :agp_uq)
+			artifact = ODEParameterEstimation.MultipointUQArtifact(
+				evaluation, root, agp_interpolants, :agp_uq)
+			ODEParameterEstimation._run_ctx_register_artifact!(identity.candidate_id, artifact)
+			target = UQTargetSnapshot(
+				identity = identity,
+				lineage = ODEParameterEstimation._run_ctx_lineage(identity),
+				artifact_match = :exact)
+			report = ODEParameterEstimation._compute_estimator_aware_uq(
+				pep_mps, est_mps, target,
+				EstimationOptions(compute_uncertainty = true,
+					uq_noise_source = :learned_gp_homoscedastic,
+					nooutput = true))
+			(report, ODEParameterEstimation._run_ctx_uq_influence(identity.candidate_id))
+		end
+
+		@test report isa UncertaintyReport
+		@test report.target.identity.estimator_kind == :multipoint_algebraic
+		@test report.target.identity.time_indices == combo
+		@test report.target.identity.time_values == evaluation.t_values
+		@test report.target.artifact_match == :exact
+		@test report.t_eval == evaluation.t_values[1]
+		@test size(report.data_covariance) == (length(report.data_labels), length(report.data_labels))
+		@test length(report.data_labels) == length(mpt.data_vars) + 2
+		@test count(label -> startswith(label, "raw::"), report.data_labels) == 2
+		@test size(report.param_covariance, 1) == length(report.param_labels)
+		@test length(report.estimate_values) == length(report.param_labels)
+		@test all(isfinite, report.estimate_values)
+		@test report.linearization_diagnostics.reason == :ok
+		@test !isnothing(retained_influence)
+		@test retained_influence.coordinate_labels == report.param_labels
+		@test size(retained_influence.influence, 1) == length(report.param_labels)
+		@test size(retained_influence.observation_covariance, 1) ==
+			length(retained_influence.observation_labels)
+
+		# This stripped system happens to use only point-2 GP jets, while production
+		# reports its eliminated directly observed states from point 1. Their
+		# covariance must still share the same raw-observation block; treating the
+		# supplemental state rows as independent would zero every entry below.
+		cross_entries = Float64[]
+		for (i, meta) in enumerate(mpt.data_var_meta)
+			meta.kind == :observable_jet || continue
+			obs_name = replace(string(pep_mps.measured_quantities[meta.obs_idx].lhs), r"\(.*\)" => "")
+			j = findfirst(==("raw::$obs_name(t_index=$(combo[1]))"), report.data_labels)
+			isnothing(j) || push!(cross_entries, report.data_covariance[i, j])
+		end
+		@test !isempty(cross_entries)
+		@test maximum(abs, cross_entries) > 0
+
+		# The retained local estimator values must reproduce the exact raw values
+		# used by `process_estimation_results`, not the GP posterior mean at point 1.
+		local_snapshot = report.local_coordinate_report
+		@test !isnothing(local_snapshot)
+		for state in pep_mps.model.original_states
+			state_name = replace(string(state), "(t)" => "")
+			row = findfirst(==(state_name), local_snapshot.param_labels)
+			obs_idx = findfirst(mq -> isequal(ModelingToolkit.diff2term(mq.rhs), state),
+			                    pep_mps.measured_quantities)
+			raw_series = ODEParameterEstimation._uq_measurement_series(
+				pep_mps, pep_mps.measured_quantities[obs_idx])
+			@test local_snapshot.coordinate_values[row] == raw_series[combo[1]]
+		end
+	end
 end

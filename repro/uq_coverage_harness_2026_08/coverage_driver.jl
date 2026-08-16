@@ -182,16 +182,20 @@ function run_replicate(pep_ctor, opts::EstimationOptions;
 	pep_data = ODEParameterEstimation.sample_problem_data(pep, opts)
 
 	if estimator === :full_pipeline
-		raw, analysis, uq = _cov_quiet() do
+		_raw, analysis, uq = _cov_quiet() do
 			ODEParameterEstimation.analyze_parameter_estimation_problem(pep_data, opts)
 		end
 		isnothing(uq) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_report)
-		best = ODEParameterEstimation._best_scored_result(raw[1])
+		uq isa ODEParameterEstimation.UQUnavailable &&
+			return CoverageReplicate(String[], Float64[], Float64[], Float64[], :uq_unavailable)
+		uq isa ODEParameterEstimation.UncertaintyReport ||
+			return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_report)
+		best = isempty(analysis.returned_results) ? nothing : first(analysis.returned_results)
 		isnothing(best) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_estimate)
 		labels = uq.param_labels
 		return CoverageReplicate(labels,
 			[_truth_for_label(pep_data, l) for l in labels],
-			[_center_for_label(best, l) for l in labels],
+			copy(uq.estimate_values),
 			copy(uq.param_std), uq.status)
 	end
 
@@ -284,7 +288,7 @@ function run_coverage(pep_ctor;
 		Random.seed!(seed0 + i)
 		rep = run_replicate(pep_ctor, opts; value_source, estimator)
 		push!(statuses, rep.status)
-		rep.status in (:no_report, :no_estimate, :no_physicalization) && continue
+		rep.status in (:no_report, :no_estimate, :no_physicalization, :uq_unavailable) && continue
 		n_reported += 1
 		for (j, l) in enumerate(rep.labels)
 			l in labels_seen || push!(labels_seen, l)
