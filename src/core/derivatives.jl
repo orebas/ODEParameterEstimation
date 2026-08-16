@@ -251,6 +251,19 @@ function nth_deriv(f::Function, n::Int, t::Real)::Real
 	return TaylorDiff.derivative(f, t, Val(n))
 end
 
+"""
+	_estimation_derivative(interp, n, t) -> Real
+
+Evaluate an interpolant derivative on estimation and diagnostic call paths.
+The generic route preserves the historical TaylorDiff-through-callable
+behavior. Interpolators with an exact derivative operator specialize this
+helper so production data values and their retained influence map use the same
+calculus.
+"""
+function _estimation_derivative(interp, n::Int, t::Real)::Real
+	return nth_deriv(x -> interp(x), n, t)
+end
+
 
 """
 	aaad_old_reliable(xs::AbstractArray{T}, ys::AbstractArray{T}) -> AAADapprox

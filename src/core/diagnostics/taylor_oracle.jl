@@ -474,7 +474,7 @@ function interpolant_taylor_coefficients(
         all_finite = true
         for k in 0:max_order
             val = try
-                Float64(nth_deriv(x -> interp(x), k, t_eval))
+                Float64(_estimation_derivative(interp, k, t_eval))
             catch
                 NaN
             end
@@ -579,9 +579,9 @@ function diagnose_derivative_accuracy(
         prod_interp = setup_data.interpolants[obs_rhs]
 
         for order in 0:max_order
-            true_val = nth_deriv(x -> perf_interp(x), order, t_eval)
+            true_val = _estimation_derivative(perf_interp, order, t_eval)
             interp_val = try
-                nth_deriv(x -> prod_interp(x), order, t_eval)
+                _estimation_derivative(prod_interp, order, t_eval)
             catch
                 NaN
             end
@@ -611,4 +611,3 @@ function diagnose_derivative_accuracy(
         interpolator_name,
     )
 end
-

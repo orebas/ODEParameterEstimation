@@ -1044,14 +1044,18 @@ function evaluate_multipoint_template(
                 obs_rhs = ModelingToolkit.diff2term(mq[obs_idx].rhs)
                 if haskey(interpolants, obs_rhs)
                     t_nth = time()
-                    val = nth_deriv(x -> interpolants[obs_rhs](x), deriv_order, t_point)
+                    val = _estimation_derivative(
+                        interpolants[obs_rhs], deriv_order, t_point,
+                    )
                     nth_deriv_seconds += time() - t_nth
                     nth_deriv_calls += 1
                 else
                     obs_lhs_wrapped = Symbolics.wrap(mq[obs_idx].lhs)
                     if haskey(interpolants, obs_lhs_wrapped)
                         t_nth = time()
-                        val = nth_deriv(x -> interpolants[obs_lhs_wrapped](x), deriv_order, t_point)
+                        val = _estimation_derivative(
+                            interpolants[obs_lhs_wrapped], deriv_order, t_point,
+                        )
                         nth_deriv_seconds += time() - t_nth
                         nth_deriv_calls += 1
                     end

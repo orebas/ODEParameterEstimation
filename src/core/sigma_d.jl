@@ -147,7 +147,7 @@ function compute_sigma_d(
                 haskey(inner, obs_rhs) || continue
                 interp = inner[obs_rhs]
                 val = try
-                    Float64(nth_deriv(x -> interp(x), order, Float64(t_eval)))
+                    Float64(_estimation_derivative(interp, order, Float64(t_eval)))
                 catch
                     NaN
                 end

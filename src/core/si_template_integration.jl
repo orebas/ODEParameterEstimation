@@ -159,7 +159,7 @@ function instantiate_si_template_equations(
 			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
 				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
 				val = try
-					nth_deriv(x -> obs_interp(x), i, t_point)
+					_estimation_derivative(obs_interp, i, t_point)
 				catch err
 					if err isa UnsupportedDerivativeOrderError
 						context = "while instantiating $(lhs_var) for observable $(obs_rhs) at time $(t_point)"

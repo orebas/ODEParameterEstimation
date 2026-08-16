@@ -57,7 +57,7 @@ function _consensus_interpolated_value(
     haskey(interpolants, rhs) || return NaN
     interp = interpolants[rhs]
     return try
-        Float64(nth_deriv(x -> interp(x), deriv_order, t_eval))
+        Float64(_estimation_derivative(interp, deriv_order, t_eval))
     catch
         NaN
     end

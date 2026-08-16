@@ -1237,14 +1237,14 @@ function evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quant
 
 			if haskey(interpolants, obs_rhs)
 				interp_func = interpolants[obs_rhs]
-				val = nth_deriv(x -> interp_func(x), deriv_level, t_point)
+				val = _estimation_derivative(interp_func, deriv_level, t_point)
 				push!(values, Float64(val))
 			else
 				# Try with wrapped LHS
 				obs_lhs_wrapped = Symbolics.wrap(measured_quantities[obs_idx].lhs)
 				if haskey(interpolants, obs_lhs_wrapped)
 					interp_func = interpolants[obs_lhs_wrapped]
-					val = nth_deriv(x -> interp_func(x), deriv_level, t_point)
+					val = _estimation_derivative(interp_func, deriv_level, t_point)
 					push!(values, Float64(val))
 				else
 					# Analytic transformed observables (y ~ _trfn_* / _obs_trfn_*)

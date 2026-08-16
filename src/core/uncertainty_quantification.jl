@@ -615,6 +615,13 @@ function nth_deriv(f::AGPInterpolatorUQ, n::Int, t::Real)::Real
 	return f.y_std * dot(K_star_n[n+1, :], f.alpha)
 end
 
+# Do not hide the analytic AGPUQ derivative behind an anonymous closure on
+# production estimation paths.  UQ propagates this exact fixed-smoother
+# influence operator, so the estimator must consume the same operator.
+function _estimation_derivative(f::AGPInterpolatorUQ, n::Int, t::Real)::Real
+	return nth_deriv(f, n, t)
+end
+
 """
     joint_derivative_covariance(interp::AGPInterpolatorUQ, t::Real, max_deriv::Int=2)
 

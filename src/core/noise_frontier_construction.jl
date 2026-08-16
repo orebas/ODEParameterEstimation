@@ -1118,11 +1118,15 @@ function _noise_evaluate_data_var(v, interpolants, measured_quantities, obs_name
 	if !isnothing(obs_idx) && obs_idx <= length(measured_quantities)
 		obs_rhs = ModelingToolkit.diff2term(measured_quantities[obs_idx].rhs)
 		if haskey(interpolants, obs_rhs)
-			return Float64(nth_deriv(x -> interpolants[obs_rhs](x), deriv_order, t_point))
+			return Float64(_estimation_derivative(
+				interpolants[obs_rhs], deriv_order, t_point,
+			))
 		end
 		obs_lhs_wrapped = Symbolics.wrap(measured_quantities[obs_idx].lhs)
 		if haskey(interpolants, obs_lhs_wrapped)
-			return Float64(nth_deriv(x -> interpolants[obs_lhs_wrapped](x), deriv_order, t_point))
+			return Float64(_estimation_derivative(
+				interpolants[obs_lhs_wrapped], deriv_order, t_point,
+			))
 		end
 	end
 

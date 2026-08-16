@@ -258,7 +258,9 @@ function _capture_data_variable_values(
             if haskey(setup_data.interpolants, ModelingToolkit.diff2term(mq[obs_idx].rhs))
                 interp = setup_data.interpolants[ModelingToolkit.diff2term(mq[obs_idx].rhs)]
                 try
-                    d_prod_val = Float64(nth_deriv(x -> interp(x), deriv_level, t_point))
+                    d_prod_val = Float64(_estimation_derivative(
+                        interp, deriv_level, t_point,
+                    ))
                 catch
                 end
             end

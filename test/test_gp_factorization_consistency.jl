@@ -68,6 +68,19 @@ using Symbolics: Num
         @test diagnostics.factorization_residual < 1e-12
         @test diagnostics.status in (:ok, :material_regularization)
 
+        # Production estimation must consume the same analytic fixed-smoother
+        # derivative whose raw-data influence is propagated by estimator-aware
+        # UQ. Wrapping AGPUQ in an anonymous function used to defeat this
+        # dispatch and introduce an avoidable low-noise calculus discrepancy.
+        t_eval = 0.137
+        for order in 0:3
+            @test ODEParameterEstimation._estimation_derivative(
+                interp, order, t_eval,
+            ) == ODEParameterEstimation.nth_deriv(interp, order, t_eval)
+        end
+        @test ODEParameterEstimation._estimation_derivative(sin, 2, t_eval) ≈
+            ODEParameterEstimation.nth_deriv(x -> sin(x), 2, t_eval)
+
         metadata = ODEParameterEstimation.DataVarMeta[
             ODEParameterEstimation.DataVarMeta("y_0", 1, 0, 1, :observable_jet),
             ODEParameterEstimation.DataVarMeta("y_3", 1, 3, 1, :observable_jet),

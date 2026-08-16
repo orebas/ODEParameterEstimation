@@ -264,7 +264,7 @@ function _lookup_production_data_value(
         if haskey(setup_data.interpolants, obs_rhs)
             interp = setup_data.interpolants[obs_rhs]
             return try
-                Float64(nth_deriv(x -> interp(x), deriv_order, t_eval))
+                Float64(_estimation_derivative(interp, deriv_order, t_eval))
             catch err
                 _rethrow_if_interrupt(err)
                 NaN
@@ -984,4 +984,3 @@ function _try_multipoint_error_budget(
         return nothing
     end
 end
-
