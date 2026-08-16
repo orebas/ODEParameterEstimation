@@ -19,6 +19,8 @@ physicalized report), then per-coordinate z-scores and coverage of the
 - `run_estimator_aware_peb_canaries.jl` — SHA-pinned loaders for audited frozen
   PEB paper cells. This is the scientific nonlinear panel; package registry
   constructors are routing stress only.
+- `run_model_assisted_panel.jl` — paired unpolished/corrected/polished
+  estimation study using the exact selected SP/MP artifact.
 - `campaign_io.jl` — atomic TOML sidecars with explicit optional-value
   encoding, shared by resumable campaign runners.
 - `summarize_estimator_aware_nonlinear.jl` — variant-aware aggregation with
@@ -75,6 +77,33 @@ julia --startup-file=no repro/uq_coverage_harness_2026_08/run_estimator_aware_pe
   --pair-strategy=boundary_order \
   --lengthscale-factor=0.75
 ```
+
+### Model-assisted correction
+
+The model-assisted runner compares the selected unpolished pilot, literal IFT
+one-step update, same-branch local polynomial re-solve, and fixed-seed
+trajectory polish from both the original and corrected candidates. It uses
+audited benchmark constructors with paired synthetic additive-noise draws.
+Corrected UQ remains deliberately unavailable until the
+pilot-through-correction influence is derived and tested.
+
+The runner retains both raw corrected candidates. Its conservative
+`model_assisted_screened` arm is present only when the lower-SSE corrected
+candidate also improves on the reconstructed pilot's observed-data trajectory
+SSE. This is a truth-free catastrophe screen, not a guarantee of lower
+parameter error or faster downstream polishing.
+
+```sh
+julia --startup-file=no \
+  repro/uq_coverage_harness_2026_08/run_model_assisted_panel.jl \
+  --cases=lotka_volterra_5_1em6,fitzhugh_nagumo_9_1em6,slow_fast_5_1em6,receptor_binding_5_1em6 \
+  --noises=1e-6,1e-4,1e-2 --polish=true
+```
+
+Cells are written atomically and skipped on resume. Polish order alternates by
+cell so compilation and warm-cache effects do not systematically favor the
+corrected seed. When cases are launched in separate processes, use
+`--cell-index-offset=1` on every other process to preserve that alternation.
 
 ## Audited LV staged diagnostics
 

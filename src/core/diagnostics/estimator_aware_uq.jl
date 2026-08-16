@@ -1504,6 +1504,17 @@ function _compute_estimator_aware_uq(
     opts::EstimationOptions,
 )
     identity = target.identity
+    if identity.estimator_kind in (
+            :model_assisted_linear,
+            :model_assisted_local_resolve,
+        )
+        return _uq_unavailable(
+            pep,
+            _uq_target_with_match(target, :unsupported),
+            :unsupported_estimator,
+            "model-assisted correction UQ is unavailable pending the pilot-through-correction influence map",
+        )
+    end
     artifact = _run_ctx_artifact(identity.candidate_id)
     if isnothing(artifact)
         return _uq_unavailable(

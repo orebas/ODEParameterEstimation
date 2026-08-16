@@ -31,4 +31,5 @@ using Test
     include("test_estimator_aware_uq.jl") # exact rank-one target + typed outcome/lineage contract 2026-08-14
     include("test_gp_factorization_consistency.jl") # one SE recipe + scale-relative jitter telemetry 2026-08-15
     include("test_campaign_toml.jl") # resumable sidecars preserve optional production timing fields 2026-08-16
+    include("test_model_assisted_correction.jl") # opt-in one-step estimator + no-UQ contract 2026-08-16
 end

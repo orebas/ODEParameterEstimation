@@ -169,7 +169,7 @@ end
 		root, root_ok = _mps_newton(fn, info.x_hat, evaluation.data_values)
 		@test root_ok
 
-		(report, retained_influence), _ = ODEParameterEstimation._with_run_context() do
+		(report, retained_influence, correction), _ = ODEParameterEstimation._with_run_context() do
 			ODEParameterEstimation._run_ctx_set_capture_uq!(true)
 			identity = ODEParameterEstimation.set_result_estimator_identity!(est_mps;
 				estimator_kind = :multipoint_algebraic,
@@ -189,7 +189,14 @@ end
 				EstimationOptions(compute_uncertainty = true,
 					uq_noise_source = :learned_gp_homoscedastic,
 					nooutput = true))
-			(report, ODEParameterEstimation._run_ctx_uq_influence(identity.candidate_id))
+			correction = research_model_assisted_one_step(
+				pep_mps, est_mps, artifact,
+			)
+			(
+				report,
+				ODEParameterEstimation._run_ctx_uq_influence(identity.candidate_id),
+				correction,
+			)
 		end
 
 		@test report isa UncertaintyReport
@@ -210,6 +217,12 @@ end
 		@test size(retained_influence.influence, 1) == length(report.param_labels)
 		@test size(retained_influence.observation_covariance, 1) ==
 			length(retained_influence.observation_labels)
+		@test correction.status == :resolved
+		@test correction.pilot_residual < 1e-8
+		@test correction.resolved_residual < 1e-8
+		@test !isnothing(correction.resolved_result)
+		@test correction.resolved_result.provenance.estimator_identity.estimator_kind ==
+			:model_assisted_local_resolve
 
 		# This stripped system happens to use only point-2 GP jets, while production
 		# reports its eliminated directly observed states from point 1. Their

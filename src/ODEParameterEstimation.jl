@@ -123,6 +123,7 @@ include("core/diagnostics/estimator_aware_uq.jl")
 # Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
 # only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
 include("research/research_types.jl")
+include("research/model_assisted_correction.jl")
 include("research/consensus_estimation.jl")
 include("research/consensus_reporting.jl")
 include("research/synthesized_finalizer.jl")
@@ -186,6 +187,7 @@ export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multip
 export ParameterSpreadEntry, CrossSolutionSpread, compute_cross_solution_spread
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
 export ConsensusOptions, CandidateEvidence, CandidateFamily, ConsensusEstimationReport, research_consensus_estimation
+export ModelAssistedCorrectionReport, research_model_assisted_one_step
 export SynthesizedFinalizerOptions, SynthesizedSeed, SynthesizedFinalizerReport, research_synthesized_finalizer
 export TimingPhaseEntry, TimingBreakdown, with_estimation_timing, timing_breakdown_to_dict
 export BranchConsensusOptions, BranchVariableSupport, BranchBlockSupport, BranchHypothesis, BranchConsensusReport, research_branch_consensus_v1

@@ -320,3 +320,41 @@ struct TryhardFinalistReport
     basin_summary::Vector{Dict{Symbol, Any}}
     selection_summary::Dict{Symbol, Any}
 end
+
+"""
+    ModelAssistedCorrectionReport
+
+Research-only record for one model-assisted algebraic correction.  The pilot
+ODE trajectory is passed through the *retained* GP smoother, its model-exact
+observable jets are subtracted, and the selected polynomial branch is updated
+both by one IFT step and (when possible) a local Newton re-solve.
+
+The corrected estimators intentionally carry no uncertainty report yet: their
+influence includes the noisy pilot through the simulated correction and must be
+derived and perturb/refit-tested before estimator-aware UQ can be claimed.
+"""
+struct ModelAssistedCorrectionReport
+    status::Symbol
+    message::String
+    screen_status::Symbol
+    screen_message::String
+    pilot_result::ParameterEstimationResult
+    linear_result::Union{Nothing, ParameterEstimationResult}
+    resolved_result::Union{Nothing, ParameterEstimationResult}
+    screened_result::Union{Nothing, ParameterEstimationResult}
+    data_labels::Vector{String}
+    observed_data_values::Vector{Float64}
+    model_smoothed_values::Vector{Float64}
+    model_exact_values::Vector{Float64}
+    estimated_bias::Vector{Float64}
+    corrected_data_values::Vector{Float64}
+    pilot_root::Vector{Float64}
+    linear_root::Vector{Float64}
+    resolved_root::Vector{Float64}
+    pilot_residual::Float64
+    linear_residual::Float64
+    resolved_residual::Float64
+    newton_iterations::Int
+    correction_norm::Float64
+    timings::OrderedDict{Symbol, Float64}
+end
