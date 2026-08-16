@@ -5,6 +5,9 @@ Date: 2026-08-15
 Status: executable staged protocol. Stages 1--3 are complete on the frozen LV
 discovery cell; see
 [`2026-08-16_lv_multipoint_bias_results.md`](2026-08-16_lv_multipoint_bias_results.md).
+The research-only model-assisted branch and its first multi-model discovery
+screen are recorded in
+[`2026-08-16_model_assisted_correction_discovery.md`](2026-08-16_model_assisted_correction_discovery.md).
 The numerical consistency repair is scoped to explicitly configured AGPUQ and
 leaves ordinary estimator interpolators on their historical path; all
 statistical estimator changes remain opt-in until the promotion gates below
@@ -264,17 +267,21 @@ LV alone.
 
 ## Model-assisted correction: gated design branch
 
-The proposed one-step correction
+The research-only one-step correction
 
 ```text
 b_hat(theta0) = W f_theta0 - L f_theta0
 d_corrected    = W y - b_hat(theta0)
 ```
 
-is not part of the initial implementation. It changes the estimator and its
-influence contains both the direct `W` term and the pilot-through-correction
-term. Prototype it only if repaired factorization, pair selection, point count,
-and undersmoothing leave consequential projected bias.
+is now implemented as an explicit post-selection prototype. It changes the
+estimator and its influence contains both the direct `W` term and the
+pilot-through-correction term. It remains outside `EstimationOptions` and the
+production candidate pool. A first one-draw screen found strong low-noise
+improvement on FHN and smaller improvements on slow--fast/Van der Pol, but
+a sharp breakdown by `1e-5` and uniform regression or failure at
+`1e-4`/`1e-2`. Its in-sample trajectory screen catches large failures but is
+not a parameter-risk certificate; see the linked discovery note.
 
 Before it may return intervals it needs:
 

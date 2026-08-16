@@ -25,6 +25,8 @@ drift, prefer `CLAUDE.md`.
   [`docs/2026-08-15_estimation_uq_research_program.md`](docs/2026-08-15_estimation_uq_research_program.md)
   and its completed LV Stage 1--3 decision record
   [`docs/2026-08-16_lv_multipoint_bias_results.md`](docs/2026-08-16_lv_multipoint_bias_results.md)
+  and the model-assisted correction prototype/discovery record
+  [`docs/2026-08-16_model_assisted_correction_discovery.md`](docs/2026-08-16_model_assisted_correction_discovery.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60
