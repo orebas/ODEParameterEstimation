@@ -27,6 +27,8 @@
   [`docs/2026-08-16_lv_multipoint_bias_results.md`](docs/2026-08-16_lv_multipoint_bias_results.md)
   and the model-assisted correction prototype/discovery record
   [`docs/2026-08-16_model_assisted_correction_discovery.md`](docs/2026-08-16_model_assisted_correction_discovery.md)
+  and its repeated-noise/polish decision record
+  [`docs/2026-08-16_model_assisted_repeated_noise.md`](docs/2026-08-16_model_assisted_repeated_noise.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60

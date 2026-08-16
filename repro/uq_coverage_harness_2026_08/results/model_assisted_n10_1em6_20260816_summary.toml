@@ -1,0 +1,137 @@
+generated_at = "2026-08-16T05:39:25.406"
+mechanism_advancement_rule = "raw usable >= N-1, truth improvement in >=70% of pairs, and all-coordinate relative RMSE <=80% of pilot"
+schema_version = 1
+screened_advancement_rule = "false accepts <=1 and all-coordinate relative RMSE <=90% of pilot"
+source_directories = ["/home/orebas/.julia/dev/ODEParameterEstimation/repro/uq_coverage_harness_2026_08/results/model_assisted_n10_1em6_20260816"]
+truth_usage = "evaluation_only"
+
+[groups."fitzhugh_nagumo_9_1em6__noise_1.0e-6"]
+accepted_truth_improvements = 2
+case_id = "fitzhugh_nagumo_9_1em6"
+false_accepts = 0
+false_rejects = 2
+mechanism_advances = false
+median_correction_seconds = 0.043374573
+median_raw_max_error_ratio = 1.8999350004897013
+median_screened_max_error_ratio = 1.0
+noise = 1.0e-6
+pilot_relative_rmse_all = 0.020742373682483252
+pilot_relative_rmse_parameters = 0.026765824260250367
+pilot_relative_rmse_states = 0.0010005710687020586
+raw_relative_rmse_all = 0.04717494847104436
+raw_relative_rmse_parameters = 0.06087283868602996
+raw_relative_rmse_states = 0.0023314531029138847
+raw_to_pilot_rmse_ratio_all = 2.2743273837980835
+raw_truth_improvements = 4
+raw_usable = 10
+replicates = 10
+screen_accepts = 2
+screened_estimator_advances = false
+screened_policy_relative_rmse_all = 0.02005142677932147
+screened_policy_relative_rmse_parameters = 0.02587371328037671
+screened_policy_relative_rmse_states = 0.0009877911436695504
+screened_to_pilot_rmse_ratio_all = 0.9666891112011312
+seeds = [8163101, 8163102, 8163103, 8163104, 8163105, 8163106, 8163107, 8163108, 8163109, 8163110]
+
+    [groups."fitzhugh_nagumo_9_1em6__noise_1.0e-6".selected_route_counts]
+    "multipoint_algebraic@[101, 750]" = 1
+    "multipoint_algebraic@[36, 635]" = 3
+    "multipoint_algebraic@[80, 750]" = 2
+    "single_point_algebraic@[320]" = 2
+    "single_point_algebraic@[381]" = 1
+    "single_point_algebraic@[453]" = 1
+
+[groups."lotka_volterra_5_1em6__noise_1.0e-6"]
+accepted_truth_improvements = 0
+case_id = "lotka_volterra_5_1em6"
+false_accepts = 3
+false_rejects = 4
+mechanism_advances = false
+median_correction_seconds = 0.049705315
+median_raw_max_error_ratio = 1.050298473752446
+median_screened_max_error_ratio = 1.0
+noise = 1.0e-6
+pilot_relative_rmse_all = 0.0002344014500366259
+pilot_relative_rmse_parameters = 0.00023124104903862565
+pilot_relative_rmse_states = 0.0002390637264568926
+raw_relative_rmse_all = 0.00017198227955866552
+raw_relative_rmse_parameters = 0.00020252056266410114
+raw_relative_rmse_states = 0.0001114580358377595
+raw_to_pilot_rmse_ratio_all = 0.7337082579130495
+raw_truth_improvements = 4
+raw_usable = 10
+replicates = 10
+screen_accepts = 3
+screened_estimator_advances = false
+screened_policy_relative_rmse_all = 0.00023620655251576774
+screened_policy_relative_rmse_parameters = 0.00023275178579066564
+screened_policy_relative_rmse_states = 0.00024129597581672285
+screened_to_pilot_rmse_ratio_all = 1.0077009015040639
+seeds = [8163101, 8163102, 8163103, 8163104, 8163105, 8163106, 8163107, 8163108, 8163109, 8163110]
+
+    [groups."lotka_volterra_5_1em6__noise_1.0e-6".selected_route_counts]
+    "multipoint_algebraic@[25, 635]" = 6
+    "multipoint_algebraic@[36, 635]" = 1
+    "multipoint_algebraic@[8, 635]" = 3
+
+[groups."slow_fast_5_1em6__noise_1.0e-6"]
+accepted_truth_improvements = 3
+case_id = "slow_fast_5_1em6"
+false_accepts = 1
+false_rejects = 1
+mechanism_advances = false
+median_correction_seconds = 0.056633355499999996
+median_raw_max_error_ratio = 1.370897301957586
+median_screened_max_error_ratio = 1.0
+noise = 1.0e-6
+pilot_relative_rmse_all = 2.9535516134636875e-5
+pilot_relative_rmse_parameters = 4.425696343151484e-5
+pilot_relative_rmse_states = 2.2588404408598214e-5
+raw_relative_rmse_all = 2.381919492214118e-5
+raw_relative_rmse_parameters = 3.107206198633637e-5
+raw_relative_rmse_states = 2.084820656453927e-5
+raw_to_pilot_rmse_ratio_all = 0.806459410208442
+raw_truth_improvements = 4
+raw_usable = 10
+replicates = 10
+screen_accepts = 4
+screened_estimator_advances = true
+screened_policy_relative_rmse_all = 1.3216126077101457e-5
+screened_policy_relative_rmse_parameters = 2.118859039707899e-5
+screened_policy_relative_rmse_states = 9.123369094952017e-6
+screened_to_pilot_rmse_ratio_all = 0.4474655535679855
+seeds = [8163101, 8163102, 8163103, 8163104, 8163105, 8163106, 8163107, 8163108, 8163109, 8163110]
+
+    [groups."slow_fast_5_1em6__noise_1.0e-6".selected_route_counts]
+    "single_point_algebraic@[374]" = 10
+
+[groups."vanderpol_2_1em4__noise_1.0e-6"]
+accepted_truth_improvements = 5
+case_id = "vanderpol_2_1em4"
+false_accepts = 0
+false_rejects = 0
+mechanism_advances = false
+median_correction_seconds = 0.039967786500000005
+median_raw_max_error_ratio = 0.8330661805425947
+median_screened_max_error_ratio = 0.8239676019005838
+noise = 1.0e-6
+pilot_relative_rmse_all = 0.0010008140354358388
+pilot_relative_rmse_parameters = 5.466204911138373e-6
+pilot_relative_rmse_states = 0.0014153542269179846
+raw_relative_rmse_all = 0.0007677350404848196
+raw_relative_rmse_parameters = 2.5721448150182027e-6
+raw_relative_rmse_states = 0.0010857382598248556
+raw_to_pilot_rmse_ratio_all = 0.7671105852851904
+raw_truth_improvements = 5
+raw_usable = 10
+replicates = 10
+screen_accepts = 5
+screened_estimator_advances = true
+screened_policy_relative_rmse_all = 0.000579801230496031
+screened_policy_relative_rmse_parameters = 3.670586353068958e-6
+screened_policy_relative_rmse_states = 0.0008199545478654583
+screened_to_pilot_rmse_ratio_all = 0.5793296356435855
+seeds = [8163101, 8163102, 8163103, 8163104, 8163105, 8163106, 8163107, 8163108, 8163109, 8163110]
+
+    [groups."vanderpol_2_1em4__noise_1.0e-6".selected_route_counts]
+    "single_point_algebraic@[374]" = 10

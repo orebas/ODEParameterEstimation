@@ -1,0 +1,472 @@
+algebraic_arm = "sp"
+analysis_allocated_bytes = 15883838312
+analysis_seconds = 67.001337275
+case_id = "vanderpol_2_1em4"
+completed_at = "2026-08-16T05:21:03.328"
+corrected_uq_policy = "unavailable_pending_pilot_through_correction_influence"
+correction_allocated_bytes = 8220008
+correction_message = "model-assisted local branch re-solve converged"
+correction_relative_data_norm = 4.520089653507147e-6
+correction_screen_message = "corrected candidates did not lower the observed-data trajectory objective"
+correction_screen_status = "trajectory_objective_not_improved"
+correction_status = "resolved"
+correction_total_seconds = 0.028597714
+data_sha256 = "65ed9a23b41e07298a911dfc2f697621b6a815c12752b5f997c8e276a473ecbb"
+elapsed_seconds = 67.0382890701294
+generator_sha256 = "51edc95bfcaf31d1ff9bf13e1ebe3dca6491edc900b8c1d753c39a7bd090c48b"
+historical_interpolator = "aaad_gpr"
+historical_kind = "single_point_algebraic"
+historical_max_error = 1.5240685054897487e-6
+interpolator_pool = "uq_only"
+linear_root = [2.3175327620284176, 1.702002728989982, 0.26563198769071195, 3.4004935195235713, 1.369995613260727, 3.1750097175677836, -4.449107284181326, 4.658661204536602]
+linear_root_residual = 1.323843319269672e-10
+max_rss_bytes = 0x01110b3000
+metadata_sha256 = "29a109daef065b46fe4118acbc02c4dac958fd9574dde17e1db4835a21c61286"
+model = "vanderpol"
+multipoint_max_pairs = 15
+newton_iterations = 1
+noise = 1.0e-6
+noise_model = "additive_homoskedastic"
+noise_seed = 8163107
+original_observations = 750
+outcome = "ok"
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+pilot_root = [2.31753264774632, 1.7020117029515576, 0.2656323282556411, 3.4005116144707257, 1.370002920294087, 3.1750264952893463, -4.449146563140786, 4.658710842318855]
+pilot_root_residual = 3.453154452478131e-16
+polish_context_allocated_bytes = 0
+polish_context_seconds = nan
+polish_maxtime = 120.0
+polish_method = "PolishLSOBoundedLog"
+polish_order = []
+raw_candidate_count = 1
+resolved_root = [2.3175327620284176, 1.7020027289923674, 0.26563198769071195, 3.4004935195235713, 1.3699956132610873, 3.1750097175677836, -4.449107284315496, 4.658661204670048]
+resolved_root_residual = 1.8916690059504995e-16
+run_polish = false
+schema_version = 2
+scope = "model_assisted_fixed_selected_seed_panel"
+shooting_points = 20
+started_at = "2026-08-16T05:19:56.289"
+used_observations = 750
+
+[[correction_data_coordinates]]
+corrected = 2.3175327620284176
+estimated_bias = -1.1428209756303431e-7
+label = "y2_0"
+observed = 2.31753264774632
+pilot_model_exact = 2.317532647746353
+pilot_model_smoothed = 2.3175325334642554
+[[correction_data_coordinates]]
+corrected = 0.13281599384535597
+estimated_bias = 1.7028246457329033e-7
+label = "y1_0"
+observed = 0.13281616412782055
+pilot_model_exact = 0.13281616412783576
+pilot_model_smoothed = 0.13281633441030033
+[[correction_data_coordinates]]
+corrected = 3.4004935195235713
+estimated_bias = 1.8094947154434493e-5
+label = "y2_1"
+observed = 3.4005116144707257
+pilot_model_exact = 3.4005116144706835
+pilot_model_smoothed = 3.400529709417838
+[[correction_data_coordinates]]
+corrected = 1.5875048587838918
+estimated_bias = 8.388860781360918e-6
+label = "y1_1"
+observed = 1.5875132476446732
+pilot_model_exact = 1.5875132476446956
+pilot_model_smoothed = 1.587521636505477
+
+[correction_stage_seconds]
+linear_update = 0.002913951873779297
+local_polynomial_resolve = 0.00023412704467773438
+model_bias_estimation = 0.0022470951080322266
+pilot_reconstruction = 0.008147001266479492
+
+[estimators.model_assisted_linear]
+available = true
+elapsed_seconds = 0.028597714
+fit_sse = 0.00019390664384872112
+max_absolute_error = 0.0008813861160614778
+max_relative_error = 0.0012792251321646993
+median_relative_error = 0.0006065437513962918
+notes = ["model_assisted_one_step", "uq_unavailable_pending_model_assisted_influence", "rescaled"]
+polish_applied = false
+source_type = "model_assisted_correction"
+
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.00021535961959151528
+    estimate = 0.17778464038040848
+    label = "x1"
+    relative_error = 0.0012098855033231197
+    role = "state"
+    truth = 0.178
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.0008813861160614778
+    estimate = 0.6881186138839385
+    label = "x2"
+    relative_error = 0.0012792251321646993
+    role = "state"
+    truth = 0.689
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 2.193369636582787e-6
+    estimate = 0.6849978066303635
+    label = "a"
+    relative_error = 3.2019994694639226e-6
+    role = "parameter"
+    truth = 0.685
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 1.3644949909963344e-6
+    estimate = 0.851001364494991
+    label = "b"
+    relative_error = 1.60340186956091e-6
+    role = "parameter"
+    truth = 0.851
+
+    [estimators.model_assisted_linear.identity]
+    candidate_id = 2
+    data_scope = "model_assisted_point_set"
+    estimator_kind = "model_assisted_linear"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = [1]
+    time_indices = [374]
+    time_values = [4.979973297730307]
+
+[estimators.model_assisted_resolved]
+available = true
+elapsed_seconds = 0.028597714
+fit_sse = 0.00019390670578196137
+max_absolute_error = 0.0008813862558474383
+max_relative_error = 0.0012792253350470805
+median_relative_error = 0.0006065438480875975
+notes = ["model_assisted_one_step", "uq_unavailable_pending_model_assisted_influence", "rescaled"]
+polish_applied = false
+source_type = "model_assisted_correction"
+
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.000215359654060443
+    estimate = 0.17778464034593955
+    label = "x1"
+    relative_error = 0.001209885696968781
+    role = "state"
+    truth = 0.178
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.0008813862558474383
+    estimate = 0.6881186137441525
+    label = "x2"
+    relative_error = 0.0012792253350470805
+    role = "state"
+    truth = 0.689
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 2.19336945639359e-6
+    estimate = 0.6849978066305437
+    label = "a"
+    relative_error = 3.201999206414e-6
+    role = "parameter"
+    truth = 0.685
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 1.3644961837089298e-6
+    estimate = 0.8510013644961837
+    label = "b"
+    relative_error = 1.6034032711033252e-6
+    role = "parameter"
+    truth = 0.851
+
+    [estimators.model_assisted_resolved.identity]
+    candidate_id = 3
+    data_scope = "model_assisted_point_set"
+    estimator_kind = "model_assisted_local_resolve"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = [1]
+    time_indices = [374]
+    time_values = [4.979973297730307]
+
+[estimators.model_assisted_screened]
+available = false
+elapsed_seconds = 0.028597714
+
+[estimators.model_assisted_screened_policy]
+available = true
+elapsed_seconds = 0.028597714
+fit_sse = 2.3605773844018614e-5
+max_absolute_error = 0.00030569930327706274
+max_relative_error = 0.00044368549096816074
+median_relative_error = 0.00021684187309009673
+notes = ["rescaled"]
+polish_applied = false
+source_type = "single_point"
+
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 7.597177886634054e-5
+    estimate = 0.17792402822113365
+    label = "x1"
+    relative_error = 0.0004268077464401154
+    role = "state"
+    truth = 0.178
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 0.00030569930327706274
+    estimate = 0.6886943006967229
+    label = "x2"
+    relative_error = 0.00044368549096816074
+    role = "state"
+    truth = 0.689
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 1.460147043497173e-6
+    estimate = 0.6850014601470436
+    label = "a"
+    relative_error = 2.1316015233535373e-6
+    role = "parameter"
+    truth = 0.685
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 5.851475778806403e-6
+    estimate = 0.8510058514757788
+    label = "b"
+    relative_error = 6.87599974007803e-6
+    role = "parameter"
+    truth = 0.851
+
+    [estimators.model_assisted_screened_policy.identity]
+    candidate_id = 1
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [374]
+    time_values = [4.979973297730307]
+
+[estimators.pilot]
+available = true
+elapsed_seconds = nan
+fit_sse = 2.3605773844018614e-5
+max_absolute_error = 0.00030569930327706274
+max_relative_error = 0.00044368549096816074
+median_relative_error = 0.00021684187309009673
+notes = ["rescaled"]
+polish_applied = false
+source_type = "single_point"
+
+    [[estimators.pilot.coordinates]]
+    absolute_error = 7.597177886634054e-5
+    estimate = 0.17792402822113365
+    label = "x1"
+    relative_error = 0.0004268077464401154
+    role = "state"
+    truth = 0.178
+    [[estimators.pilot.coordinates]]
+    absolute_error = 0.00030569930327706274
+    estimate = 0.6886943006967229
+    label = "x2"
+    relative_error = 0.00044368549096816074
+    role = "state"
+    truth = 0.689
+    [[estimators.pilot.coordinates]]
+    absolute_error = 1.460147043497173e-6
+    estimate = 0.6850014601470436
+    label = "a"
+    relative_error = 2.1316015233535373e-6
+    role = "parameter"
+    truth = 0.685
+    [[estimators.pilot.coordinates]]
+    absolute_error = 5.851475778806403e-6
+    estimate = 0.8510058514757788
+    label = "b"
+    relative_error = 6.87599974007803e-6
+    role = "parameter"
+    truth = 0.851
+
+    [estimators.pilot.identity]
+    candidate_id = 1
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [374]
+    time_values = [4.979973297730307]
+
+[estimators.polish_from_corrected]
+available = false
+elapsed_seconds = nan
+
+[estimators.polish_from_pilot]
+available = false
+elapsed_seconds = nan
+
+[polish_allocated_bytes]
+corrected = 0
+pilot = 0
+
+[selected_identity]
+candidate_id = 1
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [374]
+time_values = [4.979973297730307]
+
+[structured_timing]
+label = "optimized_multishot"
+total_seconds = 25.464257950999997
+
+    [structured_timing.details]
+    mp_generic_start_cache_hits = 0
+    mp_generic_start_cache_misses = 0
+    n_interpolators = 1
+    n_shooting_points = 1
+    noise_frontier_mp_cache_hits = 0
+    noise_frontier_mp_cache_misses = 0
+    noise_frontier_sp_cache_hits = 0
+    noise_frontier_sp_cache_misses = 1
+    resolve_states_with_fixed_params_records = []
+    reusable_system_cache_entries = 1
+    sp_generic_start_cache_hits = 0
+    sp_generic_start_cache_misses = 0
+    used_multipoint = false
+    used_parameter_homotopy = false
+
+        [[structured_timing.details.detailed_timing_records]]
+        best_rank = 8
+        category = "noise_rank_matrix"
+        context = "unspecified"
+        equation_count = 10
+        finite_probe_count = 3
+        n_rank_probes = 3
+        total_seconds = 0.051103830337524414
+        variable_count = 8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            compile_system_function = 0.0007228851318359375
+            forwarddiff_jacobian = 0.0006310939788818359
+            rank_eval = 0.04965496063232422
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 2
+        err = 2.3605773844018614e-5
+        ode_success = true
+        ode_threw = false
+        parameter_count = 2
+        state_count = 2
+        total_seconds = 0.0043408870697021484
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005970001220703125
+            ode_problem_build = 0.0030868053436279297
+            ode_solve = 0.0006229877471923828
+
+        [structured_timing.details.detailed_timing_summary.noise_rank_matrix]
+        count = 1
+        max_seconds = 0.051103830337524414
+        total_seconds = 0.051103830337524414
+
+            [structured_timing.details.detailed_timing_summary.noise_rank_matrix.context_counts]
+            unspecified = 1
+
+            [structured_timing.details.detailed_timing_summary.noise_rank_matrix.stage_seconds]
+            compile_system_function = 0.0007228851318359375
+            forwarddiff_jacobian = 0.0006310939788818359
+            rank_eval = 0.04965496063232422
+
+        [structured_timing.details.detailed_timing_summary.process_raw_solution]
+        count = 1
+        max_seconds = 0.0043408870697021484
+        total_seconds = 0.0043408870697021484
+
+            [structured_timing.details.detailed_timing_summary.process_raw_solution.context_counts]
+            result_processing = 1
+
+            [structured_timing.details.detailed_timing_summary.process_raw_solution.stage_seconds]
+            error_eval = 0.0005970001220703125
+            ode_problem_build = 0.0030868053436279297
+            ode_solve = 0.0006229877471923828
+
+        [structured_timing.details.interpolant_creation_seconds_by_source]
+        agp_uq = 66.47110795974731
+
+        [structured_timing.details.multipoint_eval_seconds_by_source]
+
+        [structured_timing.details.multipoint_generic_start_seconds_by_source]
+
+        [structured_timing.details.multipoint_solve_seconds_by_source]
+
+        [structured_timing.details.multipoint_template_eval_seconds_by_source]
+
+        [structured_timing.details.multipoint_template_seconds_by_source]
+
+        [structured_timing.details.multipoint_validation_seconds_by_source]
+
+        [structured_timing.details.raw_solver_polish_instantiate_seconds_by_source]
+
+        [structured_timing.details.raw_solver_polish_solve_seconds_by_source]
+
+        [structured_timing.details.resolve_states_with_fixed_params_summary]
+
+        [structured_timing.details.si_template_algebraic_multiplicity_timing]
+        groebner_seconds = 0.0053261
+        multiplicity = 1
+        polynomial_count = 11
+        quotient_basis_seconds = 0.000495826
+        ring_variable_count = 9
+        setup_seconds = 0.000404275
+        skipped = false
+
+        [structured_timing.details.si_template_equation_builder_timing]
+        assess_identifiability = 0.028863191604614258
+        convert_to_si_ode = 0.0013549327850341797
+        ensure_dd_support = 0.01758885383605957
+        extract_unidentifiable = 1.0013580322265625e-5
+        find_identifiable_functions = 0.02831101417541504
+        get_polynomial_system_from_sian = 0.01309514045715332
+        nemo_to_symbolics_conversion = 0.0008120536804199219
+        prefixed_substitutions = 0.0
+        variable_role_mapping = 0.0023741722106933594
+
+        [structured_timing.details.si_template_sian_timing]
+        algebraic_independence = 0.0010981559753417969
+        degree_bound = 7.605552673339844e-5
+        derivative_mapping = 0.00010704994201660156
+        evaluate_Et_base = 0.00042891502380371094
+        get_equations = 0.000428404
+        get_x_y_eq = 0.0009560585021972656
+        local_identifiability_jacobians = 0.0011868476867675781
+        rank_construction = 0.0014519691467285156
+        reduce_system = 5.2928924560546875e-5
+        sample_point = 0.0003380775451660156
+        variable_filtering = 9.298324584960938e-5
+        variable_setup = 6.9141387939453125e-6
+
+        [structured_timing.details.single_point_data_eval_seconds_by_source]
+
+        [structured_timing.details.single_point_frontier_seconds_by_source]
+        agp_uq = 0.06100296974182129
+
+        [structured_timing.details.single_point_generic_start_seconds_by_source]
+
+        [structured_timing.details.single_point_hc_seconds_by_source]
+
+        [structured_timing.details.single_point_system_seconds_by_source]
+        agp_uq = 0.004532814025878906
+
+        [structured_timing.details.single_point_validation_seconds_by_source]
+
+    [[structured_timing.phases]]
+    bytes = 1948216
+    gctime = 0.0
+    name = "Setup (identifiability)"
+    seconds = 0.025625184
+    [[structured_timing.phases]]
+    bytes = 37397504
+    gctime = 0.0
+    name = "SI Template (SIAN analysis)"
+    seconds = 0.388059924
+    [[structured_timing.phases]]
+    bytes = 7905033688
+    gctime = 1.766780064
+    name = "Equation construction + Solving"
+    seconds = 25.033042174
+    [[structured_timing.phases]]
+    bytes = 2389992
+    gctime = 0.0
+    name = "Result processing"
+    seconds = 0.017530669

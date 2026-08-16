@@ -1,0 +1,56 @@
+excluded_warmup_records = 3
+generated_at = "2026-08-16T06:13:08.733"
+schema_version = 1
+source_directories = ["repro/uq_coverage_harness_2026_08/results/model_assisted_polish_vdp_n5_20260816", "repro/uq_coverage_harness_2026_08/results/model_assisted_polish_slow_fast_n5_20260816"]
+truth_usage = "evaluation_only"
+warmup_seeds = [8163101, 8163200]
+
+[groups."slow_fast_5_1em6__noise_1.0e-6"]
+case_id = "slow_fast_5_1em6"
+false_accepts = 0
+false_rejects = 0
+max_paired_polished_error_difference = 1.6763069165673042e-11
+max_paired_polished_estimate_relative_difference = 1.0604296418652133e-10
+median_corrected_polish_seconds = 0.08022881800000001
+median_corrected_polished_max_relative_error = 2.741400003851416e-6
+median_paired_polish_time_ratio = 1.5095694875140548
+median_paired_seed_max_error_ratio = 0.11128525991723227
+median_pilot_polish_seconds = 0.065990433
+median_pilot_polished_max_relative_error = 2.7413918050004607e-6
+median_raw_prepolish_max_error_ratio = 0.11614129243235788
+noise = 1.0e-6
+paired_polish_records = 4
+raw_truth_improvements = 4
+replicates = 5
+screen_accepts = 4
+seeds = [8163201, 8163202, 8163203, 8163204, 8163205]
+unpaired_records = 1
+
+    [groups."slow_fast_5_1em6__noise_1.0e-6".polish_order_counts]
+    "corrected->pilot" = 2
+    "pilot->corrected" = 2
+
+[groups."vanderpol_2_1em4__noise_1.0e-6"]
+case_id = "vanderpol_2_1em4"
+false_accepts = 0
+false_rejects = 0
+max_paired_polished_error_difference = 1.2038427020112167e-12
+max_paired_polished_estimate_relative_difference = 1.203842702028236e-12
+median_corrected_polish_seconds = 0.061365619
+median_corrected_polished_max_relative_error = 1.4343110943425583e-7
+median_paired_polish_time_ratio = 1.6206156160983416
+median_paired_seed_max_error_ratio = 0.583283014810471
+median_pilot_polish_seconds = 0.042555097
+median_pilot_polished_max_relative_error = 1.4342990559155382e-7
+median_raw_prepolish_max_error_ratio = 0.583283014810471
+noise = 1.0e-6
+paired_polish_records = 5
+raw_truth_improvements = 5
+replicates = 5
+screen_accepts = 5
+seeds = [8163201, 8163202, 8163203, 8163204, 8163205]
+unpaired_records = 0
+
+    [groups."vanderpol_2_1em4__noise_1.0e-6".polish_order_counts]
+    "corrected->pilot" = 3
+    "pilot->corrected" = 2

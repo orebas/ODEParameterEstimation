@@ -6,6 +6,12 @@ Status: research prototype and one-draw mechanism screen. The default estimator
 is unchanged. Corrected uncertainty is explicitly unavailable pending a derived
 pilot-through-correction influence map and repeated-noise validation.
 
+The repeated-noise validation is now complete in
+[`2026-08-16_model_assisted_repeated_noise.md`](2026-08-16_model_assisted_repeated_noise.md).
+It supersedes this document for policy conclusions: the FHN rescue below did
+not generalize across selected routes, while screened slow--fast and Van der
+Pol corrections advanced to repeated polish.
+
 ## Question
 
 For the exact algebraic estimator selected by production, can the model itself

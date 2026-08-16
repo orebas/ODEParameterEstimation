@@ -1,0 +1,3706 @@
+algebraic_arm = "mp"
+analysis_allocated_bytes = 7875404936
+analysis_seconds = 30.205581541
+case_id = "fitzhugh_nagumo_9_1em6"
+completed_at = "2026-08-16T05:16:36.784"
+corrected_uq_policy = "unavailable_pending_pilot_through_correction_influence"
+correction_allocated_bytes = 9703992
+correction_message = "model-assisted local branch re-solve converged"
+correction_relative_data_norm = 0.007781927880493048
+correction_screen_message = "corrected candidates did not lower the observed-data trajectory objective"
+correction_screen_status = "trajectory_objective_not_improved"
+correction_status = "resolved"
+correction_total_seconds = 0.045269409
+data_sha256 = "18eeb2b90c94199f81f24b850ff0eaed3a5b8ac581b1433ac83e1afda027f51a"
+elapsed_seconds = 30.26176905632019
+generator_sha256 = "f2f8156c9d8435d9a51dc4adffa6526d8ec8a5d22af31eeb9b164aa8347a6084"
+historical_interpolator = "s3_adapt_rq"
+historical_kind = "multipoint_algebraic"
+historical_max_error = 0.0008993598587535475
+interpolator_pool = "uq_only"
+linear_root = [0.8567506208104195, 0.13836261615884418, -0.06950808571084167, 3.4802521245109177, 0.2913666075876989, -0.7590087550429315, 0.6147812458827283, 0.78226274811807, -1.557804261420153, -0.1970521987116487, -0.24683064549479553, 5.97550125889866, 1.1640034838050917, -21.546182226972824]
+linear_root_residual = 0.0012786319714624373
+max_rss_bytes = 0x0103f79000
+metadata_sha256 = "3c64c4135209c92b139305ae1a9d7d234bf8be69027b775c49a50de1d57d8f65"
+model = "fitzhugh_nagumo"
+multipoint_max_pairs = 15
+newton_iterations = 2
+noise = 1.0e-6
+noise_model = "additive_homoskedastic"
+noise_seed = 8163103
+original_observations = 750
+outcome = "ok"
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+pilot_root = [0.8567505963698756, 0.13836060801899247, -0.0701576502265355, 3.459133161558323, 0.29140224230412975, -0.7603999159572542, 0.597337497476355, 0.7236285780866581, -1.5556765413514089, -0.19150079391516872, -0.24600948028727435, 5.927330759830249, 1.1718331903964823, -21.207239563188214]
+pilot_root_residual = 1.9179714796578624e-15
+polish_context_allocated_bytes = 0
+polish_context_seconds = nan
+polish_maxtime = 120.0
+polish_method = "PolishLSOBoundedLog"
+polish_order = []
+raw_candidate_count = 70
+resolved_root = [0.8567506208104195, 0.13836261615884418, -0.06951420843312385, 3.4801805481486823, 0.2913666075876989, -0.7590218360089924, 0.6147539818353296, 0.7821040514291611, -1.557804261420153, -0.1969931718312888, -0.24686875460543753, 5.97550125889866, 1.1640689937565945, -21.547103199517643]
+resolved_root_residual = 1.1496395787394292e-15
+run_polish = false
+schema_version = 2
+scope = "model_assisted_fixed_selected_seed_panel"
+shooting_points = 20
+started_at = "2026-08-16T05:16:06.522"
+used_observations = 750
+
+[[correction_data_coordinates]]
+corrected = -0.8567506208104195
+estimated_bias = 2.4440543922032987e-8
+label = "y1_0"
+observed = -0.8567505963698756
+pilot_model_exact = -0.8567505963698773
+pilot_model_smoothed = -0.8567505719293333
+[[correction_data_coordinates]]
+corrected = -0.13836261615884418
+estimated_bias = 2.0081398517113325e-6
+label = "y1_1"
+observed = -0.13836060801899247
+pilot_model_exact = -0.13836060801899558
+pilot_model_smoothed = -0.13835859987914387
+[[correction_data_coordinates]]
+corrected = -0.2913666075876989
+estimated_bias = -3.563471643086569e-5
+label = "y1_2"
+observed = -0.29140224230412975
+pilot_model_exact = -0.2914022423041132
+pilot_model_smoothed = -0.2914378770205441
+[[correction_data_coordinates]]
+corrected = 1.557804261420153
+estimated_bias = -0.0021277200687441766
+label = "y1_3"
+observed = 1.5556765413514089
+pilot_model_exact = 1.5556765413513465
+pilot_model_smoothed = 1.5535488212826023
+[[correction_data_coordinates]]
+corrected = -5.97550125889866
+estimated_bias = 0.04817049906841131
+label = "y1_4"
+observed = -5.927330759830249
+pilot_model_exact = -5.927330759830028
+pilot_model_smoothed = -5.8791602607616165
+
+[correction_stage_seconds]
+linear_update = 0.008793830871582031
+local_polynomial_resolve = 0.0013699531555175781
+model_bias_estimation = 0.0024309158325195312
+pilot_reconstruction = 0.013067007064819336
+
+[estimators.model_assisted_linear]
+available = true
+elapsed_seconds = 0.045269409
+fit_sse = 2.3181688369076654e-6
+max_absolute_error = 0.05326274811806997
+max_relative_error = 0.07306275462012342
+median_relative_error = 0.0046917218565005
+notes = ["model_assisted_one_step", "uq_unavailable_pending_model_assisted_influence", "rescaled"]
+polish_applied = false
+source_type = "model_assisted_correction"
+
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.0002636644087550266
+    estimate = 0.888263664408755
+    label = "Vm"
+    relative_error = 0.00029691937922863356
+    role = "state"
+    truth = 0.888
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.001417807672001059
+    estimate = 0.6015821923279989
+    label = "R"
+    relative_error = 0.0023512565041476936
+    role = "state"
+    truth = 0.603
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.0020315155638647164
+    estimate = 0.4350315155638647
+    label = "g"
+    relative_error = 0.0046917218565005
+    role = "parameter"
+    truth = 0.433
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.012781245882728332
+    estimate = 0.6147812458827283
+    label = "a"
+    relative_error = 0.021231305453037096
+    role = "parameter"
+    truth = 0.602
+    [[estimators.model_assisted_linear.coordinates]]
+    absolute_error = 0.05326274811806997
+    estimate = 0.78226274811807
+    label = "b"
+    relative_error = 0.07306275462012342
+    role = "parameter"
+    truth = 0.729
+
+    [estimators.model_assisted_linear.identity]
+    candidate_id = 71
+    data_scope = "model_assisted_point_set"
+    estimator_kind = "model_assisted_linear"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = [31]
+    time_indices = [381]
+    time_values = [0.507343124165554]
+
+[estimators.model_assisted_resolved]
+available = true
+elapsed_seconds = 0.045269409
+fit_sse = 2.085527894905768e-6
+max_absolute_error = 0.05310405142916108
+max_relative_error = 0.0728450636888355
+median_relative_error = 0.004671058934377109
+notes = ["model_assisted_one_step", "uq_unavailable_pending_model_assisted_influence", "rescaled"]
+polish_applied = false
+source_type = "model_assisted_correction"
+
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.0002526464750203239
+    estimate = 0.8882526464750203
+    label = "Vm"
+    relative_error = 0.0002845117961940584
+    role = "state"
+    truth = 0.888
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.0014182963079797384
+    estimate = 0.6015817036920202
+    label = "R"
+    relative_error = 0.002352066845737543
+    role = "state"
+    truth = 0.603
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.002022568518585288
+    estimate = 0.4350225685185853
+    label = "g"
+    relative_error = 0.004671058934377109
+    role = "parameter"
+    truth = 0.433
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.012753981835329609
+    estimate = 0.6147539818353296
+    label = "a"
+    relative_error = 0.021186016337756824
+    role = "parameter"
+    truth = 0.602
+    [[estimators.model_assisted_resolved.coordinates]]
+    absolute_error = 0.05310405142916108
+    estimate = 0.7821040514291611
+    label = "b"
+    relative_error = 0.0728450636888355
+    role = "parameter"
+    truth = 0.729
+
+    [estimators.model_assisted_resolved.identity]
+    candidate_id = 72
+    data_scope = "model_assisted_point_set"
+    estimator_kind = "model_assisted_local_resolve"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = [31]
+    time_indices = [381]
+    time_values = [0.507343124165554]
+
+[estimators.model_assisted_screened]
+available = false
+elapsed_seconds = 0.045269409
+
+[estimators.model_assisted_screened_policy]
+available = true
+elapsed_seconds = 0.045269409
+fit_sse = 9.228260321667474e-7
+max_absolute_error = 0.005371421913341834
+max_relative_error = 0.007745020803396966
+median_relative_error = 0.00140497645544942
+notes = ["rescaled"]
+polish_applied = false
+source_type = "single_point"
+
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 0.0001558603685266613
+    estimate = 0.8878441396314734
+    label = "Vm"
+    relative_error = 0.00017551843302551946
+    role = "state"
+    truth = 0.888
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 9.862819871098161e-5
+    estimate = 0.603098628198711
+    label = "R"
+    relative_error = 0.0001635625185920093
+    role = "state"
+    truth = 0.603
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 0.0006083548052095988
+    estimate = 0.4323916451947904
+    label = "g"
+    relative_error = 0.00140497645544942
+    role = "parameter"
+    truth = 0.433
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 0.0046625025236449735
+    estimate = 0.597337497476355
+    label = "a"
+    relative_error = 0.007745020803396966
+    role = "parameter"
+    truth = 0.602
+    [[estimators.model_assisted_screened_policy.coordinates]]
+    absolute_error = 0.005371421913341834
+    estimate = 0.7236285780866581
+    label = "b"
+    relative_error = 0.007368205642444217
+    role = "parameter"
+    truth = 0.729
+
+    [estimators.model_assisted_screened_policy.identity]
+    candidate_id = 31
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [381]
+    time_values = [0.507343124165554]
+
+[estimators.pilot]
+available = true
+elapsed_seconds = nan
+fit_sse = 9.228260321667474e-7
+max_absolute_error = 0.005371421913341834
+max_relative_error = 0.007745020803396966
+median_relative_error = 0.00140497645544942
+notes = ["rescaled"]
+polish_applied = false
+source_type = "single_point"
+
+    [[estimators.pilot.coordinates]]
+    absolute_error = 0.0001558603685266613
+    estimate = 0.8878441396314734
+    label = "Vm"
+    relative_error = 0.00017551843302551946
+    role = "state"
+    truth = 0.888
+    [[estimators.pilot.coordinates]]
+    absolute_error = 9.862819871098161e-5
+    estimate = 0.603098628198711
+    label = "R"
+    relative_error = 0.0001635625185920093
+    role = "state"
+    truth = 0.603
+    [[estimators.pilot.coordinates]]
+    absolute_error = 0.0006083548052095988
+    estimate = 0.4323916451947904
+    label = "g"
+    relative_error = 0.00140497645544942
+    role = "parameter"
+    truth = 0.433
+    [[estimators.pilot.coordinates]]
+    absolute_error = 0.0046625025236449735
+    estimate = 0.597337497476355
+    label = "a"
+    relative_error = 0.007745020803396966
+    role = "parameter"
+    truth = 0.602
+    [[estimators.pilot.coordinates]]
+    absolute_error = 0.005371421913341834
+    estimate = 0.7236285780866581
+    label = "b"
+    relative_error = 0.007368205642444217
+    role = "parameter"
+    truth = 0.729
+
+    [estimators.pilot.identity]
+    candidate_id = 31
+    data_scope = "point_set"
+    estimator_kind = "single_point_algebraic"
+    interpolator_source = "agp_uq"
+    parent_candidate_ids = []
+    time_indices = [381]
+    time_values = [0.507343124165554]
+
+[estimators.polish_from_corrected]
+available = false
+elapsed_seconds = nan
+
+[estimators.polish_from_pilot]
+available = false
+elapsed_seconds = nan
+
+[polish_allocated_bytes]
+corrected = 0
+pilot = 0
+
+[selected_identity]
+candidate_id = 31
+data_scope = "point_set"
+estimator_kind = "single_point_algebraic"
+interpolator_source = "agp_uq"
+parent_candidate_ids = []
+time_indices = [381]
+time_values = [0.507343124165554]
+
+[structured_timing]
+label = "optimized_multishot"
+total_seconds = 20.627781558
+
+    [structured_timing.details]
+    mp_generic_start_cache_hits = 0
+    mp_generic_start_cache_misses = 1
+    n_interpolators = 1
+    n_shooting_points = 20
+    noise_frontier_mp_cache_hits = 0
+    noise_frontier_mp_cache_misses = 1
+    noise_frontier_sp_cache_hits = 0
+    noise_frontier_sp_cache_misses = 1
+    resolve_states_with_fixed_params_records = []
+    reusable_system_cache_entries = 15
+    sp_generic_start_cache_hits = 0
+    sp_generic_start_cache_misses = 1
+    used_multipoint = true
+    used_parameter_homotopy = true
+
+        [[structured_timing.details.detailed_timing_records]]
+        best_rank = 14
+        category = "noise_rank_matrix"
+        context = "unspecified"
+        equation_count = 15
+        finite_probe_count = 3
+        n_rank_probes = 3
+        total_seconds = 0.09952306747436523
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            compile_system_function = 0.0006029605865478516
+            forwarddiff_jacobian = 0.0016531944274902344
+            rank_eval = 0.09715414047241211
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 1
+        time_value = 0.0
+        total_seconds = 0.0005600452423095703
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0005490779876708984
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 8
+        time_value = 0.0093457943925233
+        total_seconds = 0.00024390220642089844
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0002410411834716797
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 16
+        time_value = 0.0200267022696929
+        total_seconds = 0.0001900196075439453
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001881122589111328
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 25
+        time_value = 0.0320427236315086
+        total_seconds = 0.00015497207641601562
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00015282630920410156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 36
+        time_value = 0.0467289719626168
+        total_seconds = 0.00014495849609375
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001430511474609375
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 48
+        time_value = 0.0627503337783711
+        total_seconds = 0.0001461505889892578
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00014400482177734375
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 63
+        time_value = 0.082777036048064
+        total_seconds = 0.0001900196075439453
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00018596649169921875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 80
+        time_value = 0.1054739652870494
+        total_seconds = 0.0003478527069091797
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0003428459167480469
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 101
+        time_value = 0.1335113484646194
+        total_seconds = 0.0001850128173828125
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00018310546875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 124
+        time_value = 0.1642189586114819
+        total_seconds = 0.00020813941955566406
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0002040863037109375
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 152
+        time_value = 0.2016021361815754
+        total_seconds = 0.00018405914306640625
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001811981201171875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 185
+        time_value = 0.2456608811748998
+        total_seconds = 0.0001590251922607422
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00015687942504882812
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 223
+        time_value = 0.2963951935914553
+        total_seconds = 0.00014901161193847656
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00014781951904296875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 267
+        time_value = 0.3551401869158878
+        total_seconds = 0.00012993812561035156
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00012993812561035156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 320
+        time_value = 0.4259012016021362
+        total_seconds = 0.00012803077697753906
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00012612342834472656
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 381
+        time_value = 0.507343124165554
+        total_seconds = 0.0001270771026611328
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001270771026611328
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 453
+        time_value = 0.6034712950600801
+        total_seconds = 0.00015306472778320312
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.00015211105346679688
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 537
+        time_value = 0.7156208277703605
+        total_seconds = 0.0001418590545654297
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001399517059326172
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 635
+        time_value = 0.8464619492656876
+        total_seconds = 0.0001308917999267578
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001308917999267578
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_param_eval"
+        context = "agp_uq"
+        param_count = 5
+        point_index = 750
+        time_value = 1.0
+        total_seconds = 0.0001671314239501953
+        used_noise_frontier = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            noise_frontier_data_vars = 0.0001671314239501953
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 0.00024390220642089844
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 0.00023698806762695312
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 1
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 0.0002579689025878906
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 0.0002579689025878906
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 9.417533874511719e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 9.202957153320312e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 8
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 9.608268737792969e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 9.608268737792969e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.416175842285156e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 8.296966552734375e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 16
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.606910705566406e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 8.606910705566406e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.20159912109375e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 8.0108642578125e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 25
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.392333984375e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 8.392333984375e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.987022399902344e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.796287536621094e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 36
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.20159912109375e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 8.20159912109375e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.796287536621094e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.700920104980469e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 48
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.891654968261719e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.891654968261719e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.200241088867188e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.200241088867188e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 63
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.414817810058594e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.414817810058594e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.414817810058594e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 1.1920928955078125e-6
+            prepare_validation_cache = 7.295608520507812e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 80
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.510185241699219e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.510185241699219e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.605552673339844e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.510185241699219e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 101
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.796287536621094e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.796287536621094e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.200241088867188e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 7.104873657226562e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 124
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.319450378417969e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.319450378417969e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.104873657226562e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 7.009506225585938e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 152
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.295608520507812e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.295608520507812e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.295608520507812e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.200241088867188e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 185
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.510185241699219e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.510185241699219e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.104873657226562e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.009506225585938e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 223
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.295608520507812e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.295608520507812e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.104873657226562e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.104873657226562e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 267
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.414817810058594e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.414817810058594e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.104873657226562e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 1.1920928955078125e-6
+            prepare_validation_cache = 6.985664367675781e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 320
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.295608520507812e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.295608520507812e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 0.00011014938354492188
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.00010800361633300781
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 381
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 0.00011301040649414062
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 0.00011301040649414062
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.082389831542969e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.987022399902344e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 453
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 8.296966552734375e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 8.296966552734375e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.700920104980469e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 7.605552673339844e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 537
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.891654968261719e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.891654968261719e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.510185241699219e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.414817810058594e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 635
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.700920104980469e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.700920104980469e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "unspecified"
+        data_value_count = 5
+        data_var_count = 5
+        equation_count = 14
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.390975952148438e-5
+        unfloored_svd_ratio = 338860.4338220917
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 14
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 7.390975952148438e-5
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        category = "single_point_noise_frontier_validation"
+        condition_proxy = 338860.4338220917
+        context = "agp_uq"
+        point_index = 750
+        rank = 14
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 100.0400968425854
+        sigma_min = 0.0002952250745659742
+        target_rank = 14
+        total_seconds = 7.581710815429688e-5
+        unfloored_svd_ratio = 338860.4338220917
+        valid = true
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            rank_validation = 7.581710815429688e-5
+        [[structured_timing.details.detailed_timing_records]]
+        best_rank = 25
+        category = "noise_rank_matrix"
+        context = "unspecified"
+        equation_count = 30
+        finite_probe_count = 3
+        n_rank_probes = 3
+        total_seconds = 0.4260849952697754
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            compile_system_function = 0.0009450912475585938
+            forwarddiff_jacobian = 0.00805211067199707
+            rank_eval = 0.41683292388916016
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [1, 750]
+        total_seconds = 0.0003948211669921875
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00023794174194335938
+            observable_name_map = 5.2928924560546875e-5
+            other = 3.695487976074219e-5
+            parse_and_lookup = 3.838539123535156e-5
+            transcendental_lookup = 2.86102294921875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003829002380371094
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 1.1920928955078125e-6
+            prepare_validation_cache = 0.0003788471221923828
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [1, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0008320808410644531
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00041103363037109375
+            noise_frontier_validation = 0.00039696693420410156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [8, 750]
+        total_seconds = 0.0002269744873046875
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00017499923706054688
+            observable_name_map = 1.5974044799804688e-5
+            other = 1.7404556274414062e-5
+            parse_and_lookup = 9.5367431640625e-7
+            transcendental_lookup = 1.7642974853515625e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00018596649169921875
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001850128173828125
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [8, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0004341602325439453
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00023603439331054688
+            noise_frontier_validation = 0.0001900196075439453
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [16, 750]
+        total_seconds = 0.00023508071899414062
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00019073486328125
+            observable_name_map = 1.1920928955078125e-5
+            other = 1.621246337890625e-5
+            parse_and_lookup = 2.86102294921875e-6
+            transcendental_lookup = 1.33514404296875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00018906593322753906
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 0.00018596649169921875
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [16, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0004439353942871094
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0002429485321044922
+            noise_frontier_validation = 0.00019311904907226562
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [25, 750]
+        total_seconds = 0.00022101402282714844
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.0001735687255859375
+            observable_name_map = 1.5974044799804688e-5
+            other = 1.4066696166992188e-5
+            parse_and_lookup = 2.1457672119140625e-6
+            transcendental_lookup = 1.52587890625e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00017213821411132812
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001709461212158203
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [25, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00040793418884277344
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.000225067138671875
+            noise_frontier_validation = 0.00017595291137695312
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [36, 750]
+        total_seconds = 0.0001990795135498047
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.0001621246337890625
+            observable_name_map = 9.059906005859375e-6
+            other = 1.4781951904296875e-5
+            parse_and_lookup = 3.0994415283203125e-6
+            transcendental_lookup = 1.0013580322265625e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.000164031982421875
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.00016307830810546875
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [36, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003750324249267578
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0002028942108154297
+            noise_frontier_validation = 0.00016808509826660156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [48, 750]
+        total_seconds = 0.0001990795135498047
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.0001652240753173828
+            observable_name_map = 8.821487426757812e-6
+            other = 1.0967254638671875e-5
+            parse_and_lookup = 3.0994415283203125e-6
+            transcendental_lookup = 1.0967254638671875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00015997886657714844
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 0.00015807151794433594
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [48, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00037097930908203125
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00020313262939453125
+            noise_frontier_validation = 0.000164031982421875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [63, 750]
+        total_seconds = 0.00018310546875
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00015211105346679688
+            observable_name_map = 8.106231689453125e-6
+            other = 8.821487426757812e-6
+            parse_and_lookup = 9.5367431640625e-7
+            transcendental_lookup = 1.3113021850585938e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00015997886657714844
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001590251922607422
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [63, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00035500526428222656
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.000186920166015625
+            noise_frontier_validation = 0.0001628398895263672
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [80, 750]
+        total_seconds = 0.00021696090698242188
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.0001537799835205078
+            observable_name_map = 3.0994415283203125e-5
+            other = 1.621246337890625e-5
+            parse_and_lookup = 3.0994415283203125e-6
+            transcendental_lookup = 1.2874603271484375e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0001709461212158203
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001690387725830078
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [80, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0004029273986816406
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0002219676971435547
+            noise_frontier_validation = 0.00017404556274414062
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [101, 750]
+        total_seconds = 0.0001881122589111328
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00015354156494140625
+            observable_name_map = 1.0013580322265625e-5
+            other = 1.0728836059570312e-5
+            parse_and_lookup = 2.86102294921875e-6
+            transcendental_lookup = 1.0967254638671875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00015807151794433594
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001571178436279297
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [101, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003590583801269531
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0001919269561767578
+            noise_frontier_validation = 0.0001621246337890625
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [1, 635]
+        total_seconds = 0.0001850128173828125
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00015211105346679688
+            observable_name_map = 1.0013580322265625e-5
+            other = 7.62939453125e-6
+            parse_and_lookup = 4.291534423828125e-6
+            transcendental_lookup = 1.0967254638671875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00015807151794433594
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 1.1920928955078125e-6
+            prepare_validation_cache = 0.00015592575073242188
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [1, 635]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003578662872314453
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00018906593322753906
+            noise_frontier_validation = 0.00016188621520996094
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [8, 635]
+        total_seconds = 0.0002510547637939453
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00020599365234375
+            observable_name_map = 9.059906005859375e-6
+            other = 1.5974044799804688e-5
+            parse_and_lookup = 6.9141387939453125e-6
+            transcendental_lookup = 1.3113021850585938e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00017499923706054688
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 1.1920928955078125e-6
+            prepare_validation_cache = 0.0001728534698486328
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [8, 635]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00044798851013183594
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0002579689025878906
+            noise_frontier_validation = 0.00017905235290527344
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [124, 750]
+        total_seconds = 0.00018906593322753906
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00014901161193847656
+            observable_name_map = 1.2159347534179688e-5
+            other = 1.0728836059570312e-5
+            parse_and_lookup = 4.0531158447265625e-6
+            transcendental_lookup = 1.3113021850585938e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00015592575073242188
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.00015497207641601562
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [124, 750]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.00035881996154785156
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00019311904907226562
+            noise_frontier_validation = 0.00015997886657714844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [16, 635]
+        total_seconds = 0.0002200603485107422
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.0001747608184814453
+            observable_name_map = 1.0013580322265625e-5
+            other = 1.7881393432617188e-5
+            parse_and_lookup = 3.0994415283203125e-6
+            transcendental_lookup = 1.430511474609375e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0001659393310546875
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 9.5367431640625e-7
+            prepare_validation_cache = 0.000164031982421875
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [16, 635]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0004019737243652344
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00022602081298828125
+            noise_frontier_validation = 0.00016999244689941406
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [25, 635]
+        total_seconds = 0.00019598007202148438
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00015163421630859375
+            observable_name_map = 1.4066696166992188e-5
+            other = 1.52587890625e-5
+            parse_and_lookup = 9.5367431640625e-7
+            transcendental_lookup = 1.4066696166992188e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.000164031982421875
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.00016307830810546875
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [25, 635]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003731250762939453
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.00019979476928710938
+            noise_frontier_validation = 0.00016808509826660156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "multipoint_template_evaluate"
+        context = "agp_uq"
+        data_value_count = 8
+        data_var_count = 8
+        max_deriv_order = 3
+        nth_deriv_calls = 8
+        point_count = 2
+        time_indices = [36, 635]
+        total_seconds = 0.00018906593322753906
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            nth_deriv = 0.00015544891357421875
+            observable_name_map = 1.0013580322265625e-5
+            other = 7.152557373046875e-6
+            parse_and_lookup = 3.0994415283203125e-6
+            transcendental_lookup = 1.33514404296875e-5
+        [[structured_timing.details.detailed_timing_records]]
+        cache_usable = true
+        category = "noise_frontier_validation"
+        condition_proxy = 3.479395920662366e8
+        context = "unspecified"
+        data_value_count = 8
+        data_var_count = 8
+        equation_count = 25
+        finite_probe_count = 3
+        jacobian_data_dependent = false
+        n_rank_probes = 3
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0001590251922607422
+        unfloored_svd_ratio = 3.479395920662366e8
+        validation_mode = "cached_data_independent_rank"
+        variable_count = 25
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            cached_validation = 0.0
+            prepare_validation_cache = 0.0001571178436279297
+            reuse_data_independent_rank = 0.0
+        [[structured_timing.details.detailed_timing_records]]
+        accepted = true
+        category = "multipoint_combo_eval"
+        combo = [36, 635]
+        condition_proxy = 3.479395920662366e8
+        context = "agp_uq"
+        data_value_count = 8
+        rank = 25
+        rank_atol = 1.0e-8
+        reason = "ok"
+        sigma_max = 1679.6270574316075
+        sigma_min = 4.827352493739373e-6
+        target_rank = 25
+        total_seconds = 0.0003612041473388672
+        unfloored_svd_ratio = 3.479395920662366e8
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            evaluate_template = 0.0001938343048095703
+            noise_frontier_validation = 0.0001621246337890625
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 2.1270466587229024
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.007924795150756836
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004589557647705078
+            ode_problem_build = 0.007050037384033203
+            ode_solve = 0.0003790855407714844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.8423622670159986
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.003763914108276367
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003981590270996094
+            ode_problem_build = 0.003025054931640625
+            ode_solve = 0.00031113624572753906
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 2.1315289219990996
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.003443002700805664
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004260540008544922
+            ode_problem_build = 0.0026481151580810547
+            ode_solve = 0.00034499168395996094
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.6739743441647766
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004636049270629883
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003681182861328125
+            ode_problem_build = 0.00392913818359375
+            ode_solve = 0.00031113624572753906
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.4636981113541949
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0033659934997558594
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004000663757324219
+            ode_problem_build = 0.0026738643646240234
+            ode_solve = 0.00027108192443847656
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 2.161304467012929
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0035800933837890625
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00036597251892089844
+            ode_problem_build = 0.0027680397033691406
+            ode_solve = 0.00042510032653808594
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.2445832287264531
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00347900390625
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043392181396484375
+            ode_problem_build = 0.0026831626892089844
+            ode_solve = 0.0003249645233154297
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005572080612182617
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 9.5367431640625e-7
+            ode_problem_build = 0.0032110214233398438
+            ode_solve = 0.0023300647735595703
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.06903810012669073
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.006048917770385742
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005669593811035156
+            ode_problem_build = 0.0050280094146728516
+            ode_solve = 0.0004048347473144531
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0060689449310302734
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0
+            ode_problem_build = 0.004334926605224609
+            ode_solve = 0.0016961097717285156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.005924067360506514
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0053670406341552734
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004589557647705078
+            ode_problem_build = 0.00448918342590332
+            ode_solve = 0.00037288665771484375
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005452871322631836
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 1.1920928955078125e-6
+            ode_problem_build = 0.0040950775146484375
+            ode_solve = 0.0013239383697509766
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.002001488857632375
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004904031753540039
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004570484161376953
+            ode_problem_build = 0.0040378570556640625
+            ode_solve = 0.00035381317138671875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0045049190521240234
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 1.1920928955078125e-6
+            ode_problem_build = 0.0036649703979492188
+            ode_solve = 0.0008070468902587891
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.003997423268144063
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005145072937011719
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0006198883056640625
+            ode_problem_build = 0.004130125045776367
+            ode_solve = 0.00035500526428222656
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0051670074462890625
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0
+            ode_problem_build = 0.004323005676269531
+            ode_solve = 0.0008060932159423828
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004965066909790039
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 9.5367431640625e-7
+            ode_problem_build = 0.004144906997680664
+            ode_solve = 0.0007779598236083984
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.0004662650981076823
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0048258304595947266
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005309581756591797
+            ode_problem_build = 0.003920078277587891
+            ode_solve = 0.00034308433532714844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.00012644371914545486
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005376100540161133
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004899501800537109
+            ode_problem_build = 0.004491090774536133
+            ode_solve = 0.00035881996154785156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.0e15
+        ode_success = false
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.006148099899291992
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0
+            ode_problem_build = 0.004848003387451172
+            ode_solve = 0.0012581348419189453
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.00014117446623310268
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0073089599609375
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005600452423095703
+            ode_problem_build = 0.006251096725463867
+            ode_solve = 0.0004420280456542969
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 13.990488214291345
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005166053771972656
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00041604042053222656
+            ode_problem_build = 0.004368782043457031
+            ode_solve = 0.00032901763916015625
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 6.534571374797544
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004090070724487305
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00039196014404296875
+            ode_problem_build = 0.0033409595489501953
+            ode_solve = 0.00032782554626464844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 7.940136467758846e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0046961307525634766
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043892860412597656
+            ode_problem_build = 0.00386810302734375
+            ode_solve = 0.0003581047058105469
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.4964702186515649
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004560947418212891
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004057884216308594
+            ode_problem_build = 0.0037679672241210938
+            ode_solve = 0.0003559589385986328
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.2471736755009973e-5
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00426793098449707
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.000408172607421875
+            ode_problem_build = 0.003495931625366211
+            ode_solve = 0.0003371238708496094
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 5.135163727525374e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0052950382232666016
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043702125549316406
+            ode_problem_build = 0.00447392463684082
+            ode_solve = 0.0003540515899658203
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.35920299747433604
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004494905471801758
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043320655822753906
+            ode_problem_build = 0.0036318302154541016
+            ode_solve = 0.0003991127014160156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.4050896000637951
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005739927291870117
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0006358623504638672
+            ode_problem_build = 0.004665851593017578
+            ode_solve = 0.0004029273986816406
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.5107916674578763e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.006031990051269531
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004570484161376953
+            ode_problem_build = 0.005068063735961914
+            ode_solve = 0.0004589557647705078
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 9.228260321667474e-7
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004768848419189453
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00047707557678222656
+            ode_problem_build = 0.0038280487060546875
+            ode_solve = 0.0004248619079589844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.7151988229101195
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004971027374267578
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005650520324707031
+            ode_problem_build = 0.003932952880859375
+            ode_solve = 0.00043010711669921875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 2.3909952981948845
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0059261322021484375
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005600452423095703
+            ode_problem_build = 0.004900932312011719
+            ode_solve = 0.00043320655822753906
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 7.198061853123425e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0052280426025390625
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043392181396484375
+            ode_problem_build = 0.004393100738525391
+            ode_solve = 0.00036597251892089844
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 10.332684325461923
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004561901092529297
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00042700767517089844
+            ode_problem_build = 0.0033979415893554688
+            ode_solve = 0.0007050037384033203
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.00014688376057398722
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004191875457763672
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004291534423828125
+            ode_problem_build = 0.0033860206604003906
+            ode_solve = 0.000347137451171875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.000418264494336381
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004967927932739258
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004909038543701172
+            ode_problem_build = 0.004064798355102539
+            ode_solve = 0.0003769397735595703
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 57.24789027460971
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.006412982940673828
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00045609474182128906
+            ode_problem_build = 0.005496978759765625
+            ode_solve = 0.0004279613494873047
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1309.8012145842108
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00500798225402832
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00044798851013183594
+            ode_problem_build = 0.003980875015258789
+            ode_solve = 0.0005199909210205078
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 147.68615512046924
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004358768463134766
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004050731658935547
+            ode_problem_build = 0.003515958786010742
+            ode_solve = 0.0004069805145263672
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.025805442211733722
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004554033279418945
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00045609474182128906
+            ode_problem_build = 0.0035810470581054688
+            ode_solve = 0.0004818439483642578
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.8071004321814439
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005387067794799805
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005590915679931641
+            ode_problem_build = 0.004372119903564453
+            ode_solve = 0.00042319297790527344
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 6.415660239412165
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005370140075683594
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043201446533203125
+            ode_problem_build = 0.004544973373413086
+            ode_solve = 0.0003578662872314453
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.011403526155411686
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00487208366394043
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00042510032653808594
+            ode_problem_build = 0.004081010818481445
+            ode_solve = 0.0003349781036376953
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.0036769782691559475
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004687070846557617
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.000408172607421875
+            ode_problem_build = 0.0038521289825439453
+            ode_solve = 0.0003871917724609375
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 5.5448478957585206
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00434112548828125
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003788471221923828
+            ode_problem_build = 0.0035920143127441406
+            ode_solve = 0.0003409385681152344
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 4.8332970197962375
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.00399017333984375
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004858970642089844
+            ode_problem_build = 0.0031669139862060547
+            ode_solve = 0.00030803680419921875
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.0007105363676486725
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004274845123291016
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004150867462158203
+            ode_problem_build = 0.0034911632537841797
+            ode_solve = 0.00033783912658691406
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 4.2446679636677525
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004643917083740234
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0006489753723144531
+            ode_problem_build = 0.0034720897674560547
+            ode_solve = 0.0004911422729492188
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.5648664113115605e-5
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.006028890609741211
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00043201446533203125
+            ode_problem_build = 0.005140066146850586
+            ode_solve = 0.00041294097900390625
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 3.845597950584498
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004163980484008789
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003788471221923828
+            ode_problem_build = 0.0034399032592773438
+            ode_solve = 0.00031685829162597656
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 2.928326414873875e-5
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0038330554962158203
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00036597251892089844
+            ode_problem_build = 0.0031511783599853516
+            ode_solve = 0.00029206275939941406
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 3.5749167336541983
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004006147384643555
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00037407875061035156
+            ode_problem_build = 0.0032629966735839844
+            ode_solve = 0.0003459453582763672
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 3.138630618655541e-5
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004114866256713867
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00045299530029296875
+            ode_problem_build = 0.003287792205810547
+            ode_solve = 0.00034809112548828125
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.22547595303294235
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004559993743896484
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004038810729980469
+            ode_problem_build = 0.003734111785888672
+            ode_solve = 0.00038695335388183594
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 1.5196395558849504e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.004052877426147461
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004911422729492188
+            ode_problem_build = 0.003134012222290039
+            ode_solve = 0.0003979206085205078
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 6.4817191344110925e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005399942398071289
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0006010532379150391
+            ode_problem_build = 0.004243135452270508
+            ode_solve = 0.0005209445953369141
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.2975113136463402
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0064318180084228516
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005049705505371094
+            ode_problem_build = 0.005443096160888672
+            ode_solve = 0.00043892860412597656
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.7657780315573444
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.007420063018798828
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0006320476531982422
+            ode_problem_build = 0.0061550140380859375
+            ode_solve = 0.0005919933319091797
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.018656495031611153
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005018949508666992
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004429817199707031
+            ode_problem_build = 0.0041959285736083984
+            ode_solve = 0.00033593177795410156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 10.072030593257264
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0037200450897216797
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004019737243652344
+            ode_problem_build = 0.0029938220977783203
+            ode_solve = 0.0003001689910888672
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.008378915218066024
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.003226041793823242
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00037217140197753906
+            ode_problem_build = 0.0025839805603027344
+            ode_solve = 0.00025200843811035156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 6.263463197017528e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0037670135498046875
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003719329833984375
+            ode_problem_build = 0.0030608177185058594
+            ode_solve = 0.00031304359436035156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.340179451788338
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.003877878189086914
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00034999847412109375
+            ode_problem_build = 0.0032160282135009766
+            ode_solve = 0.00029015541076660156
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 8.266898224039455
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.003412961959838867
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0003628730773925781
+            ode_problem_build = 0.002763032913208008
+            ode_solve = 0.00026798248291015625
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.0026493058358186927
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0031740665435791016
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.00033211708068847656
+            ode_problem_build = 0.002569913864135742
+            ode_solve = 0.0002529621124267578
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 0.0004946600977063522
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0041141510009765625
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005860328674316406
+            ode_problem_build = 0.0030159950256347656
+            ode_solve = 0.0004892349243164062
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 6.812382771989357
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005822896957397461
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005681514739990234
+            ode_problem_build = 0.0046749114990234375
+            ode_solve = 0.0005428791046142578
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 5.611575909859785
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.005341053009033203
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0005660057067871094
+            ode_problem_build = 0.004246950149536133
+            ode_solve = 0.0004951953887939453
+        [[structured_timing.details.detailed_timing_records]]
+        category = "process_raw_solution"
+        context = "result_processing"
+        data_point_count = 750
+        data_series_count = 1
+        err = 7.003915905183908e-6
+        ode_success = true
+        ode_threw = false
+        parameter_count = 3
+        state_count = 2
+        total_seconds = 0.0051691532135009766
+
+            [structured_timing.details.detailed_timing_records.stage_seconds]
+            error_eval = 0.0004220008850097656
+            ode_problem_build = 0.004377126693725586
+            ode_solve = 0.0003371238708496094
+
+        [structured_timing.details.detailed_timing_summary.multipoint_combo_eval]
+        count = 15
+        max_seconds = 0.0008320808410644531
+        total_seconds = 0.00628209114074707
+
+            [structured_timing.details.detailed_timing_summary.multipoint_combo_eval.context_counts]
+            agp_uq = 15
+
+            [structured_timing.details.detailed_timing_summary.multipoint_combo_eval.stage_seconds]
+            evaluate_template = 0.0033817291259765625
+            noise_frontier_validation = 0.0027883052825927734
+
+        [structured_timing.details.detailed_timing_summary.multipoint_template_evaluate]
+        count = 15
+        max_seconds = 0.0003948211669921875
+        total_seconds = 0.0032944679260253906
+
+            [structured_timing.details.detailed_timing_summary.multipoint_template_evaluate.context_counts]
+            agp_uq = 15
+
+            [structured_timing.details.detailed_timing_summary.multipoint_template_evaluate.stage_seconds]
+            nth_deriv = 0.0025529861450195312
+            observable_name_map = 0.00022912025451660156
+            other = 0.00022077560424804688
+            parse_and_lookup = 7.987022399902344e-5
+            transcendental_lookup = 0.0002117156982421875
+
+        [structured_timing.details.detailed_timing_summary.noise_frontier_validation]
+        count = 35
+        max_seconds = 0.0003829002380371094
+        total_seconds = 0.0044515132904052734
+
+            [structured_timing.details.detailed_timing_summary.noise_frontier_validation.context_counts]
+            unspecified = 35
+
+            [structured_timing.details.detailed_timing_summary.noise_frontier_validation.stage_seconds]
+            cached_validation = 1.2636184692382812e-5
+            prepare_validation_cache = 0.004398345947265625
+            reuse_data_independent_rank = 0.0
+
+        [structured_timing.details.detailed_timing_summary.noise_rank_matrix]
+        count = 2
+        max_seconds = 0.4260849952697754
+        total_seconds = 0.5256080627441406
+
+            [structured_timing.details.detailed_timing_summary.noise_rank_matrix.context_counts]
+            unspecified = 2
+
+            [structured_timing.details.detailed_timing_summary.noise_rank_matrix.stage_seconds]
+            compile_system_function = 0.0015480518341064453
+            forwarddiff_jacobian = 0.009705305099487305
+            rank_eval = 0.5139870643615723
+
+        [structured_timing.details.detailed_timing_summary.process_raw_solution]
+        count = 70
+        max_seconds = 0.007924795150756836
+        total_seconds = 0.3405625820159912
+
+            [structured_timing.details.detailed_timing_summary.process_raw_solution.context_counts]
+            result_processing = 70
+
+            [structured_timing.details.detailed_timing_summary.process_raw_solution.stage_seconds]
+            error_eval = 0.028878211975097656
+            ode_problem_build = 0.2761690616607666
+            ode_solve = 0.03315091133117676
+
+        [structured_timing.details.detailed_timing_summary.single_point_noise_frontier_validation]
+        count = 20
+        max_seconds = 0.0002579689025878906
+        total_seconds = 0.0017812252044677734
+
+            [structured_timing.details.detailed_timing_summary.single_point_noise_frontier_validation.context_counts]
+            agp_uq = 20
+
+            [structured_timing.details.detailed_timing_summary.single_point_noise_frontier_validation.stage_seconds]
+            rank_validation = 0.0017812252044677734
+
+        [structured_timing.details.detailed_timing_summary.single_point_param_eval]
+        count = 20
+        max_seconds = 0.0005600452423095703
+        total_seconds = 0.0038411617279052734
+
+            [structured_timing.details.detailed_timing_summary.single_point_param_eval.context_counts]
+            agp_uq = 20
+
+            [structured_timing.details.detailed_timing_summary.single_point_param_eval.stage_seconds]
+            noise_frontier_data_vars = 0.0037932395935058594
+
+        [structured_timing.details.interpolant_creation_seconds_by_source]
+        agp_uq = 20.320939779281616
+
+        [structured_timing.details.multipoint_eval_seconds_by_source]
+        agp_uq = 0.006345033645629883
+
+        [structured_timing.details.multipoint_generic_start_seconds_by_source]
+        agp_uq = 0.04056811332702637
+
+        [structured_timing.details.multipoint_solve_seconds_by_source]
+        agp_uq = 4.3435328006744385
+
+        [structured_timing.details.multipoint_template_eval_seconds_by_source]
+        agp_uq = 0.0033817291259765625
+
+        [structured_timing.details.multipoint_template_seconds_by_source]
+        agp_uq = 0.7993559837341309
+
+        [structured_timing.details.multipoint_validation_seconds_by_source]
+        agp_uq = 0.0027883052825927734
+
+        [structured_timing.details.raw_solver_polish_instantiate_seconds_by_source]
+
+        [structured_timing.details.raw_solver_polish_solve_seconds_by_source]
+
+        [structured_timing.details.resolve_states_with_fixed_params_summary]
+
+        [structured_timing.details.si_template_algebraic_multiplicity_timing]
+        groebner_seconds = 0.003454597
+        multiplicity = 1
+        polynomial_count = 16
+        quotient_basis_seconds = 0.000523839
+        ring_variable_count = 15
+        setup_seconds = 0.000422617
+        skipped = false
+
+        [structured_timing.details.si_template_equation_builder_timing]
+        assess_identifiability = 0.016851186752319336
+        convert_to_si_ode = 0.0009260177612304688
+        ensure_dd_support = 0.011967182159423828
+        extract_unidentifiable = 5.0067901611328125e-6
+        find_identifiable_functions = 0.013375997543334961
+        get_polynomial_system_from_sian = 0.011461019515991211
+        nemo_to_symbolics_conversion = 0.0023000240325927734
+        prefixed_substitutions = 0.0
+        variable_role_mapping = 0.0026280879974365234
+
+        [structured_timing.details.si_template_sian_timing]
+        algebraic_independence = 0.0015821456909179688
+        degree_bound = 5.2928924560546875e-5
+        derivative_mapping = 4.792213439941406e-5
+        evaluate_Et_base = 0.0002009868621826172
+        get_equations = 0.000198335
+        get_x_y_eq = 0.0004279613494873047
+        local_identifiability_jacobians = 0.0021429061889648438
+        rank_construction = 0.0015408992767333984
+        reduce_system = 7.796287536621094e-5
+        sample_point = 0.00023102760314941406
+        variable_filtering = 0.0001308917999267578
+        variable_setup = 3.0994415283203125e-6
+
+        [structured_timing.details.single_point_data_eval_seconds_by_source]
+        agp_uq = 0.003939151763916016
+
+        [structured_timing.details.single_point_frontier_seconds_by_source]
+        agp_uq = 0.1228790283203125
+
+        [structured_timing.details.single_point_generic_start_seconds_by_source]
+        agp_uq = 0.019025802612304688
+
+        [structured_timing.details.single_point_hc_seconds_by_source]
+        agp_uq = 3.1834840774536133
+
+        [structured_timing.details.single_point_system_seconds_by_source]
+
+        [structured_timing.details.single_point_validation_seconds_by_source]
+        agp_uq = 0.0017812252044677734
+
+    [[structured_timing.phases]]
+    bytes = 3007608
+    gctime = 0.0
+    name = "Setup (identifiability)"
+    seconds = 0.036031041
+    [[structured_timing.phases]]
+    bytes = 42140064
+    gctime = 0.0
+    name = "SI Template (SIAN analysis)"
+    seconds = 0.149923608
+    [[structured_timing.phases]]
+    bytes = 4550515464
+    gctime = 1.263490933
+    name = "Equation construction + Solving"
+    seconds = 19.803971895
+    [[structured_timing.phases]]
+    bytes = 138788928
+    gctime = 0.0
+    name = "Result processing"
+    seconds = 0.637855014

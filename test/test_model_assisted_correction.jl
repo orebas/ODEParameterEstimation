@@ -76,6 +76,65 @@ end
     @test !summary["screened_estimator_advances"]
 end
 
+@testset "Model-assisted repeated-polish aggregation" begin
+    include(joinpath(
+        @__DIR__, "..", "repro", "uq_coverage_harness_2026_08",
+        "summarize_model_assisted_polish.jl",
+    ))
+
+    _mac_polish_estimator(error) = Dict{String, Any}(
+        "available" => true,
+        "max_relative_error" => error,
+        "coordinates" => Any[
+            Dict{String, Any}(
+                "role" => "parameter",
+                "label" => "a",
+                "relative_error" => error,
+                "estimate" => 1.0 + error,
+                "truth" => 1.0,
+            ),
+        ],
+    )
+    polish_unavailable = Dict{String, Any}("available" => false)
+    function _mac_test_polish_record(order, pilot_seconds, corrected_seconds)
+        pilot = _mac_polish_estimator(1.0)
+        raw = _mac_polish_estimator(0.5)
+        pilot_polish = _mac_polish_estimator(0.01)
+        corrected_polish = _mac_polish_estimator(0.01)
+        pilot_polish["elapsed_seconds"] = pilot_seconds
+        corrected_polish["elapsed_seconds"] = corrected_seconds
+        return Dict{String, Any}(
+            "estimators" => Dict{String, Any}(
+                "pilot" => pilot,
+                "model_assisted_linear" => polish_unavailable,
+                "model_assisted_resolved" => raw,
+                "model_assisted_screened" => raw,
+                "model_assisted_screened_policy" => raw,
+                "polish_from_pilot" => pilot_polish,
+                "polish_from_corrected" => corrected_polish,
+            ),
+            "correction_screen_status" => "trajectory_objective_improved",
+            "polish_order" => order,
+        )
+    end
+
+    polish_summary = _map_group_summary(Dict{String, Any}[
+        _mac_test_polish_record(["pilot", "corrected"], 2.0, 1.0),
+        _mac_test_polish_record(["corrected", "pilot"], 1.0, 2.0),
+    ])
+    @test polish_summary["replicates"] == 2
+    @test polish_summary["screen_accepts"] == 2
+    @test polish_summary["paired_polish_records"] == 2
+    @test polish_summary["raw_truth_improvements"] == 2
+    @test polish_summary["median_raw_prepolish_max_error_ratio"] == 0.5
+    @test polish_summary["median_paired_seed_max_error_ratio"] == 0.5
+    @test polish_summary["median_pilot_polish_seconds"] == 1.5
+    @test polish_summary["median_corrected_polish_seconds"] == 1.5
+    @test polish_summary["max_paired_polished_estimate_relative_difference"] == 0
+    @test polish_summary["polish_order_counts"] ==
+          Dict("pilot->corrected" => 1, "corrected->pilot" => 1)
+end
+
 @testset "Model-assisted correction on a retained SP recipe" begin
     @parameters a
     @variables t x(t) y1(t)

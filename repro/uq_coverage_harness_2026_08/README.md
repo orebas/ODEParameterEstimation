@@ -25,6 +25,8 @@ physicalized report), then per-coordinate z-scores and coverage of the
   wrapper for the same model-assisted cells.
 - `summarize_model_assisted_replicates.jl` — truth-for-evaluation-only RMSE,
   pairwise improvement, and false-accept/false-reject aggregation.
+- `summarize_model_assisted_polish.jl` — warm-up-aware paired polish accuracy
+  and alternating-order steady-state timing aggregation.
 - `campaign_io.jl` — atomic TOML sidecars with explicit optional-value
   encoding, shared by resumable campaign runners.
 - `summarize_estimator_aware_nonlinear.jl` — variant-aware aggregation with
@@ -129,6 +131,17 @@ Schema-v2 cells also record `model_assisted_screened_policy`: the accepted
 correction when the trajectory-SSE screen passes, otherwise the original
 pilot. This is the actual deployable fallback policy; the raw corrected and
 accepted-only records remain available separately.
+
+The conditional repeated-polish follow-up has a separate aggregator. It
+excludes the declared warm-up seed, reports paired availability and final
+estimate agreement, and keeps the alternating-order steady-state timings:
+
+```sh
+julia --startup-file=no \
+  repro/uq_coverage_harness_2026_08/summarize_model_assisted_polish.jl \
+  --dirs=repro/uq_coverage_harness_2026_08/results/model_assisted_polish_vdp_n5_20260816 \
+  --warmup-seeds=8163200
+```
 
 ## Audited LV staged diagnostics
 
