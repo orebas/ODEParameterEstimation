@@ -8,6 +8,7 @@ opts = EstimationOptions(
     noise_level = 0.05,
     time_interval = time_interval,
     flow = FlowDirectOpt,
+    interpolators = InterpolatorMethod[InterpolatorAGPUQ],
     compute_uncertainty = true,
     nooutput = true,
 )
@@ -17,4 +18,3 @@ ts = pep_sampled.data_sample["t"]
 
 println("Time points mean: ", mean(ts))
 println("Time points range: ", minimum(ts), " to ", maximum(ts))
-

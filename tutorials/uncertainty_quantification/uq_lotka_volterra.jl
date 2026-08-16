@@ -3,17 +3,16 @@
 # =============================================================================
 #
 # This advanced tutorial demonstrates Uncertainty Quantification (UQ) on a 
-# nonlinear system with PARTIAL OBSERVABILITY.
+# nonlinear system with FULL STATE OBSERVABILITY.
 #
 # System: Lotka-Volterra
 #   dr/dt = k1*r - k2*r*w   (Prey)
 #   dw/dt = k2*r*w - k3*w   (Predator)
 #
-# Measurement:
-#   y1 = r  (We only see the Prey!)
+# Measurements:
+#   y1 = r, y2 = w
 #
-# We will try to estimate k1, k2, k3 AND the hidden predator population w(0)
-# just from observing the prey population.
+# We estimate k1, k2, k3 and both initial conditions from both trajectories.
 #
 # =============================================================================
 
@@ -63,6 +62,8 @@ function setup_makie_theme!()
 end
 
 setup_makie_theme!()
+
+tutorial_base_name(value) = replace(string(value), r"\(.*\)" => "")
 
 # =============================================================================
 # Part 2: Define the Problem
@@ -129,6 +130,7 @@ opts = EstimationOptions(
     noise_level = noise_level,
     time_interval = time_interval,
     flow = FlowDirectOpt,
+    interpolators = InterpolatorMethod[InterpolatorAGPUQ],
     compute_uncertainty = true,
     nooutput = true,
 )
@@ -143,7 +145,7 @@ println("   Noise level: $(noise_level * 100)%")
 # =============================================================================
 
 println("\n🔬 Running Parameter Estimation with UQ...")
-println("   (Attempting to recover hidden predator dynamics...)")
+println("   (Recovering parameters and initial conditions from both observed populations...)")
 
 @time result = analyze_parameter_estimation_problem(pep_sampled, opts)
 results_tuple, analysis_results, uq_result = result
@@ -158,7 +160,7 @@ println("\n" * "=" ^ 80)
 println("RESULTS SUMMARY")
 println("=" ^ 80)
 
-if !isnothing(uq_result) && uq_result.success
+if uq_result isa UncertaintyReport
     println("\n📈 Parameter Estimates with Uncertainty:")
     println("-" ^ 70)
     println(@sprintf("%-15s | %12s | %12s | %12s", "Parameter", "Estimate", "Std Dev", "95% CI Half"))
@@ -182,19 +184,13 @@ if !isnothing(uq_result) && uq_result.success
         end
     end
 
-    for (i, name) in enumerate(uq_result.param_names)
+    for (i, name) in enumerate(uq_result.param_labels)
         std_val = uq_result.param_std[i]
         ci_half = 1.96 * std_val
-        est_val = get(estimates, name, NaN)
+        est_val = uq_result.estimate_values[i]
         
-        # Mark if this is a hidden state or parameter related to hidden state
-        marker = ""
-        if string(name) == "w" || string(name) == "k3"
-            marker = "(hidden)"
-        end
-
-        println(@sprintf("%-15s | %12.6f | %12.6f | %12.6f %s", 
-                string(name), est_val, std_val, ci_half, marker))
+        println(@sprintf("%-15s | %12.6f | %12.6f | %12.6f",
+                string(name), est_val, std_val, ci_half))
     end
     println("-" ^ 70)
 
@@ -204,13 +200,13 @@ if !isnothing(uq_result) && uq_result.success
     stds = sqrt.(max.(diag(cov_mat), 0.0))
     
     print("      ")
-    for name in uq_result.param_names
+    for name in uq_result.param_labels
         print(@sprintf("%7s", string(name)[1:min(7, length(string(name)))]))
     end
     println()
 
     for i in 1:n
-        print(@sprintf("%-6s", string(uq_result.param_names[i])[1:min(6, length(string(uq_result.param_names[i])))]) )
+        print(@sprintf("%-6s", string(uq_result.param_labels[i])[1:min(6, length(string(uq_result.param_labels[i])))]) )
         for j in 1:n
             if stds[i] > 0 && stds[j] > 0
                 corr = cov_mat[i, j] / (stds[i] * stds[j])
@@ -223,7 +219,8 @@ if !isnothing(uq_result) && uq_result.success
     end
 
 else
-    println("\n⚠️  UQ computation did not succeed: $(uq_result.message)")
+    message = uq_result isa UQUnavailable ? uq_result.message : "UQ was not requested"
+    println("\n⚠️  UQ computation did not succeed: $message")
 end
 
 # =============================================================================
@@ -265,28 +262,9 @@ function plot_gp_fit(pep_sampled, uq_result; save_path)
     function plot_obs!(ax, key, interp_idx)
         ys = pep_sampled.data_sample[key]
         
-        # Get interpolator
-        # uq_result.interpolators is an OrderedDict. 
-        # We hope the order matches the keys. 
-        # Let's find the interpolator that corresponds to this key.
-        # The keys in uq_result.interpolators should match the observation keys.
-        if !haskey(uq_result.interpolators, key)
-            # Try string matching
-            found = false
-            for (k, v) in uq_result.interpolators
-                if string(k) == string(key)
-                    interp = v
-                    found = true
-                    break
-                end
-            end
-             # Fallback if not found by key match (simpler lookup)
-            if !found
-                 interp = collect(values(uq_result.interpolators))[interp_idx]
-            end
-        else
-            interp = uq_result.interpolators[key]
-        end
+        # Reports do not retain heavyweight interpolators; refit the explicit
+        # AGPUQ recipe for this time-resolved visualization only.
+        interp = agp_gpr_uq(Float64.(ts), Float64.(ys))
 
         t_fine = range(minimum(ts), maximum(ts), length=200)
         μ = [interp.mean_function(t) for t in t_fine]
@@ -308,21 +286,21 @@ end
 
 # --- Figure 2: Parameter CIs ---
 function plot_param_ci(uq_result, estimates, true_params; save_path)
-    n_params = length(uq_result.param_names)
+    n_params = length(uq_result.param_labels)
     fig = Figure(size = (700, 100 + n_params * 60))
-    ax = Axis(fig[1, 1], title = "Parameter Estimates (Prey observed only)", 
-              yticks = (1:n_params, string.(uq_result.param_names)))
+    ax = Axis(fig[1, 1], title = "Parameter Estimates (Both States Observed)",
+              yticks = (1:n_params, string.(uq_result.param_labels)))
     
     colors = [COLORS.param1, COLORS.param2, COLORS.param3, COLORS.param4, COLORS.param5]
     
-    for (i, name) in enumerate(uq_result.param_names)
+    for (i, name) in enumerate(uq_result.param_labels)
         est = get(estimates, name, NaN)
         std_val = uq_result.param_std[i]
         
         # Find true value
         true_val = nothing
         for (k, v) in true_params
-            if string(k) == string(name) || occursin(string(name), string(k))
+            if tutorial_base_name(k) == tutorial_base_name(name)
                 true_val = v; break
             end
         end
@@ -340,14 +318,14 @@ function plot_param_ci(uq_result, estimates, true_params; save_path)
     return fig
 end
 
-if !isnothing(uq_result) && uq_result.success
+if uq_result isa UncertaintyReport
     # Fig 1
     plot_gp_fit(pep_sampled, uq_result, save_path=joinpath(figures_dir, "01_lv_fit.pdf"))
     
     # Fig 2
     true_params_all = merge(pep.p_true, pep.ic)
-    plot_param_ci(uq_result, estimates, true_params_all, save_path=joinpath(figures_dir, "02_lv_ci.pdf"))
+    report_estimates = Dict(uq_result.param_labels .=> uq_result.estimate_values)
+    plot_param_ci(uq_result, report_estimates, true_params_all, save_path=joinpath(figures_dir, "02_lv_ci.pdf"))
     
     println("\nFigures saved to $figures_dir")
 end
-

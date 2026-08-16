@@ -234,10 +234,15 @@ Stores pre-computed values needed for efficient derivative covariance computatio
 - `alpha::Vector{Float64}`: Pre-computed weights (K⁻¹ y)
 - `chol::Cholesky`: Cholesky factorization of K + σₙ²I
 - `lengthscale::Float64`: Optimized lengthscale
+- `fitted_lengthscale::Float64`: Function-value marginal-likelihood lengthscale
+- `lengthscale_factor::Float64`: Explicit derivative-oriented multiplier
 - `signal_var::Float64`: Optimized signal variance (σ²)
 - `noise_var::Float64`: Optimized noise variance (σₙ²)
 - `y_mean::Float64`: Mean of original y values
 - `y_std::Float64`: Std of original y values
+- `cholesky_jitter::Float64`: Absolute diagonal regularizer used by final factorization
+- `cholesky_jitter_ratio::Float64`: Jitter divided by learned observation-noise variance
+- `factorization_residual::Float64`: Relative residual of the retained Cholesky factor
 """
 struct AGPInterpolatorUQ <: AbstractInterpolator
 	mean_function::Function
@@ -247,12 +252,31 @@ struct AGPInterpolatorUQ <: AbstractInterpolator
 	alpha::Vector{Float64}
 	chol::Cholesky
 	lengthscale::Float64
+	fitted_lengthscale::Float64
+	lengthscale_factor::Float64
 	signal_var::Float64
 	noise_var::Float64
 	y_mean::Float64
 	y_std::Float64
 	cholesky_jitter::Float64
+	cholesky_jitter_ratio::Float64
+	factorization_residual::Float64
 	hyperparams_optimized::Bool
+end
+
+# Backward-compatible 13-arg constructor from before factorization telemetry.
+function AGPInterpolatorUQ(
+	mean_function, std_function, xs_train, ys_train, alpha, chol,
+	lengthscale, signal_var, noise_var, y_mean, y_std,
+	cholesky_jitter, hyperparams_optimized,
+)
+	ratio = cholesky_jitter == 0 ? 0.0 :
+		noise_var > 0 ? cholesky_jitter / noise_var : Inf
+	return AGPInterpolatorUQ(
+		mean_function, std_function, xs_train, ys_train, alpha, chol,
+		lengthscale, lengthscale, 1.0, signal_var, noise_var, y_mean, y_std,
+		cholesky_jitter, ratio, NaN, hyperparams_optimized,
+	)
 end
 
 # Backward-compatible 11-arg constructor (defaults: jitter=0.0, optimized=true)
@@ -264,6 +288,38 @@ function AGPInterpolatorUQ(
 		mean_function, std_function, xs_train, ys_train, alpha, chol,
 		lengthscale, signal_var, noise_var, y_mean, y_std,
 		0.0, true,
+	)
+end
+
+const GP_UQ_MATERIAL_JITTER_RATIO = 0.1
+
+"""
+	gp_factorization_diagnostics(interp::AGPInterpolatorUQ)
+
+Return scale-aware numerical telemetry for the GP factorization used by both
+the estimator mean and derivative UQ. `:material_regularization` means the
+added Cholesky jitter exceeded 10% of the learned observation-noise variance.
+"""
+function gp_factorization_diagnostics(interp::AGPInterpolatorUQ)
+	status = if !isfinite(interp.factorization_residual)
+		:not_recorded
+	elseif interp.factorization_residual > 1e-10
+		:factorization_mismatch
+	elseif interp.cholesky_jitter_ratio > GP_UQ_MATERIAL_JITTER_RATIO
+		:material_regularization
+	else
+		:ok
+	end
+	return (
+		lengthscale = interp.lengthscale,
+		fitted_lengthscale = interp.fitted_lengthscale,
+		lengthscale_factor = interp.lengthscale_factor,
+		signal_variance = interp.signal_var,
+		noise_variance = interp.noise_var,
+		jitter = interp.cholesky_jitter,
+		jitter_to_noise = interp.cholesky_jitter_ratio,
+		factorization_residual = interp.factorization_residual,
+		status = status,
 	)
 end
 
@@ -802,7 +858,8 @@ end
 ==========================================================================#
 
 """
-    agp_gpr_uq(xs::AbstractArray, ys::AbstractArray; kernel_type=:se) -> AGPInterpolatorUQ
+    agp_gpr_uq(xs::AbstractArray, ys::AbstractArray;
+        kernel_type=:se, lengthscale_factor=1.0) -> AGPInterpolatorUQ
 
 Create a GP interpolator with full uncertainty quantification support.
 
@@ -813,16 +870,22 @@ information needed for computing derivative covariances.
 - `xs::AbstractArray`: X coordinates (e.g., time points)
 - `ys::AbstractArray`: Y coordinates (observations)
 - `kernel_type::Symbol`: currently only `:se` (Squared Exponential)
+- `lengthscale_factor::Float64`: opt-in multiplier applied after fitting the
+  function-value marginal-likelihood lengthscale (default: `1.0`)
 
 # Returns
 - `AGPInterpolatorUQ` with full UQ capability
 """
 function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
-	kernel_type::Symbol = :se)::AGPInterpolatorUQ where {T}
+	kernel_type::Symbol = :se,
+	lengthscale_factor::Float64 = 1.0,
+)::AGPInterpolatorUQ where {T}
 	@assert length(xs) == length(ys) "Input arrays must have same length"
 	@assert length(xs) >= 3 "Need at least 3 points for GP interpolation"
 	kernel_type == :se ||
 		throw(ArgumentError("agp_gpr_uq currently supports only kernel_type=:se for derivative estimator UQ; got $kernel_type"))
+	isfinite(lengthscale_factor) && lengthscale_factor > 0 ||
+		throw(ArgumentError("lengthscale_factor must be finite and positive"))
 
 	# Handle constant data edge case
 	y_std_raw = std(ys)
@@ -838,8 +901,9 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 			x -> constant_val,
 			x -> 0.0,
 			xs_vec, ys_norm, alpha, C,
-			1.0, 0.0, 1e-6,
+			1.0, 1.0, lengthscale_factor, 0.0, 1e-6,
 			constant_val, 1.0,
+			0.0, 0.0, 0.0, true,
 		)
 	end
 
@@ -857,23 +921,30 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 
 	# Use shared SE hyperparameter optimizer (same as agp_gpr_robust :se path)
 	D_sq = [abs2(xs_raw[i] - xs_raw[j]) for i in 1:n, j in 1:n]
-	hp = _optimize_se_hyperparams(xs_raw, ys_norm, D_sq)
-	l_opt, σ²_opt, σₙ²_opt, hp_optimized = hp.l, hp.sigma2, hp.noise, hp.converged
+	hp = _optimize_se_hyperparams(
+		xs_raw, ys_norm, D_sq; explicit_se_recipe = true,
+	)
+	l_fitted = hp.l
+	l_opt = l_fitted * lengthscale_factor
+	σ²_opt, σₙ²_opt, hp_optimized = hp.sigma2, hp.noise, hp.converged
 	if !hp_optimized
 		@warn "[UQ] GP hyperparameter optimization did not converge"
 	end
 
-	# Build kernel matrix and Cholesky factorization
-	base_kernel = SqExponentialKernel()
-	I_n = Matrix{Float64}(I, n, n)
-	scaled_kernel = base_kernel ∘ ScaleTransform(1.0 / l_opt)
-	K_train = σ²_opt * kernelmatrix(scaled_kernel, xs_raw)
-	K_noisy = K_train + σₙ²_opt * I_n
-	C, jitter_used = _cholesky_adaptive(K_noisy)
+	# Build the final matrix with the exact same arithmetic recipe as the NLL.
+	# Reconstructing through KernelFunctions here used to differ by a few ulps;
+	# on the audited LV cell that was enough to require jitter 59× the fitted
+	# noise variance and materially change the derivative estimator.
+	K_train = Matrix{Float64}(_se_covariance_matrix(D_sq, l_opt, σ²_opt))
+	K_noisy = _add_diagonal_variance(K_train, σₙ²_opt)
+	C, jitter_used = _cholesky_adaptive(K_noisy; relative_jitter = true)
 	alpha = C \ ys_norm
+	jitter_ratio = jitter_used == 0 ? 0.0 :
+		σₙ²_opt > 0 ? jitter_used / σₙ²_opt : Inf
+	factorization_residual = _cholesky_relative_residual(C, K_noisy, jitter_used)
 
-	if jitter_used > 1e-6
-		@warn "[UQ] GP kernel matrix required large Cholesky jitter ($jitter_used)" lengthscale = l_opt
+	if jitter_ratio > GP_UQ_MATERIAL_JITTER_RATIO
+		@warn "[UQ] GP kernel matrix required material Cholesky regularization" jitter = jitter_used jitter_to_noise = jitter_ratio lengthscale = l_opt
 	end
 
 	# Prediction functions
@@ -886,8 +957,7 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 	end
 
 	function std_pred(x::Real)
-		k_star = [σ²_opt * scaled_kernel(x, xi) for xi in xs_raw]
-		k_star_vec = reshape(k_star, :, 1)
+		k_star = [σ²_opt * exp(-(x - xi)^2 * inv_2l2) for xi in xs_raw]
 		v = C \ k_star
 		prior_var = σ²_opt  # k(x, x) for SE kernel
 		post_var = prior_var - dot(k_star, v)
@@ -897,9 +967,9 @@ function agp_gpr_uq(xs::AbstractArray{T}, ys::AbstractArray{T};
 	return AGPInterpolatorUQ(
 		mean_pred, std_pred,
 		xs_raw, ys_norm, alpha, C,
-		l_opt, σ²_opt, σₙ²_opt,
+		l_opt, l_fitted, lengthscale_factor, σ²_opt, σₙ²_opt,
 		y_mean, y_std,
-		jitter_used, hp_optimized,
+		jitter_used, jitter_ratio, factorization_residual, hp_optimized,
 	)
 end
 

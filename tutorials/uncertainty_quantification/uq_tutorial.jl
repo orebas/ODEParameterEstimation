@@ -62,6 +62,8 @@ end
 
 setup_makie_theme!()
 
+tutorial_base_name(value) = replace(string(value), r"\(.*\)" => "")
+
 # =============================================================================
 # Part 2: Define the Problem
 # =============================================================================
@@ -102,6 +104,7 @@ opts = EstimationOptions(
     noise_level = noise_level,        # 5% relative noise
     time_interval = time_interval,
     flow = FlowDirectOpt,             # Use direct optimization (faster)
+    interpolators = InterpolatorMethod[InterpolatorAGPUQ],
     compute_uncertainty = true,       # Enable uncertainty quantification!
     nooutput = true,                  # Suppress verbose output
 )
@@ -135,7 +138,7 @@ println("\n" * "=" ^ 80)
 println("RESULTS SUMMARY")
 println("=" ^ 80)
 
-if !isnothing(uq_result) && uq_result.success
+if uq_result isa UncertaintyReport
     println("\n📈 Parameter Estimates with Uncertainty:")
     println("-" ^ 60)
     println(@sprintf("%-15s | %12s | %12s | %12s", "Parameter", "Estimate", "Std Dev", "95% CI Half"))
@@ -144,7 +147,7 @@ if !isnothing(uq_result) && uq_result.success
     # Build estimates dict from analysis_results (best solution)
     # analysis_results is a tuple: (Vector{ParameterEstimationResult}, Float64...)
     # So we need analysis_results[1][1] to get the first ParameterEstimationResult
-    # NOTE: UQ param_names contains BOTH states (initial conditions) AND parameters
+    # NOTE: UQ param_labels contains BOTH states (initial conditions) AND parameters
     estimates = Dict{Symbol, Float64}()
 
     if length(analysis_results) >= 1 && isa(analysis_results[1], Vector) && length(analysis_results[1]) >= 1
@@ -160,7 +163,7 @@ if !isnothing(uq_result) && uq_result.success
             return Symbol(key_str)
         end
 
-        # Extract STATES (initial conditions) - these come first in UQ param_names
+        # Extract STATES (initial conditions) - these are included in UQ param_labels
         if hasfield(typeof(first_result), :states)
             for (k, v) in first_result.states
                 estimates[key_to_symbol(k)] = Float64(real(v))
@@ -175,13 +178,11 @@ if !isnothing(uq_result) && uq_result.success
         end
     end
 
-    # Iterate through param_names and param_std from UQ result
-    for (i, name) in enumerate(uq_result.param_names)
+    # Iterate through the exact selected-estimator coordinates in the UQ report.
+    for (i, name) in enumerate(uq_result.param_labels)
         std_val = uq_result.param_std[i]
         ci_half = 1.96 * std_val
-
-        # Get estimate from analysis_results or use NaN
-        estimate_val = get(estimates, name, NaN)
+        estimate_val = uq_result.estimate_values[i]
 
         println(@sprintf("%-15s | %12.6f | %12.6f | %12.6f",
                         string(name), estimate_val, std_val, ci_half))
@@ -197,14 +198,14 @@ if !isnothing(uq_result) && uq_result.success
 
     # Print header
     print("              ")
-    for name in uq_result.param_names
+    for name in uq_result.param_labels
         print(@sprintf("%12s", string(name)[1:min(12, length(string(name)))]))
     end
     println()
 
     # Print correlation matrix
     for i in 1:n
-        print(@sprintf("%-12s ", string(uq_result.param_names[i])[1:min(12, length(string(uq_result.param_names[i])))]))
+        print(@sprintf("%-12s ", string(uq_result.param_labels[i])[1:min(12, length(string(uq_result.param_labels[i])))]))
         for j in 1:n
             if stds[i] > 0 && stds[j] > 0
                 corr = cov_mat[i, j] / (stds[i] * stds[j])
@@ -222,7 +223,7 @@ if !isnothing(uq_result) && uq_result.success
     println("   - Correlations near ±1 suggest parameters are hard to identify independently")
 else
     println("\n⚠️  UQ computation did not succeed")
-    if !isnothing(uq_result)
+    if uq_result isa UQUnavailable
         println("   Message: $(uq_result.message)")
     end
 end
@@ -242,7 +243,7 @@ mkpath(figures_dir)
 # -----------------------------------------------------------------------------
 
 function plot_gp_fit_with_bands(pep_sampled, uq_result; save_path=nothing)
-    if isnothing(uq_result) || !uq_result.success
+    if !(uq_result isa UncertaintyReport)
         @warn "UQ result not available, skipping GP fit plot"
         return nothing
     end
@@ -266,17 +267,9 @@ function plot_gp_fit_with_bands(pep_sampled, uq_result; save_path=nothing)
     obs_key = first(obs_keys)
     ys = pep_sampled.data_sample[obs_key]
 
-    # Get the UQ interpolator
-    interp = nothing
-    for (k, v) in uq_result.interpolators
-        interp = v
-        break
-    end
-
-    if isnothing(interp)
-        @warn "No interpolator found in UQ result"
-        return fig
-    end
+    # Reports intentionally do not retain heavyweight interpolator objects.
+    # Refit the same explicit AGPUQ recipe for this visualization only.
+    interp = agp_gpr_uq(Float64.(ts), Float64.(ys))
 
     # Create fine grid for smooth curves
     t_fine = range(minimum(ts), maximum(ts), length=200)
@@ -321,7 +314,7 @@ end
 # -----------------------------------------------------------------------------
 
 function plot_derivative_uncertainty(pep_sampled, uq_result; save_path=nothing)
-    if isnothing(uq_result) || !uq_result.success
+    if !(uq_result isa UncertaintyReport)
         @warn "UQ result not available, skipping derivative plot"
         return nothing
     end
@@ -339,17 +332,8 @@ function plot_derivative_uncertainty(pep_sampled, uq_result; save_path=nothing)
 
     obs_key = first(obs_keys)
 
-    # Get the UQ interpolator
-    interp = nothing
-    for (k, v) in uq_result.interpolators
-        interp = v
-        break
-    end
-
-    if isnothing(interp)
-        @warn "No interpolator found"
-        return fig
-    end
+    # Refit the configured AGPUQ recipe for a time-resolved diagnostic plot.
+    interp = agp_gpr_uq(Float64.(ts), Float64.(pep_sampled.data_sample[obs_key]))
 
     # Create fine grid (avoid boundaries where uncertainty is higher)
     t_min, t_max = extrema(ts)
@@ -417,32 +401,32 @@ end
 # -----------------------------------------------------------------------------
 
 function plot_parameter_ci(uq_result, true_params, estimates; save_path=nothing)
-    if isnothing(uq_result) || !uq_result.success
+    if !(uq_result isa UncertaintyReport)
         @warn "UQ result not available, skipping parameter CI plot"
         return nothing
     end
 
-    n_params = length(uq_result.param_names)
+    n_params = length(uq_result.param_labels)
 
     fig = Figure(size = (700, 100 + n_params * 60))
     ax = Axis(fig[1, 1],
         xlabel = "Parameter Value",
         ylabel = "",
         title = "Parameter Estimates with 95% Confidence Intervals",
-        yticks = (1:n_params, string.(uq_result.param_names))
+        yticks = (1:n_params, string.(uq_result.param_labels))
     )
 
     # Colors for different parameter types
     colors = [COLORS.param1, COLORS.param2, COLORS.param3]
 
-    for (i, name) in enumerate(uq_result.param_names)
+    for (i, name) in enumerate(uq_result.param_labels)
         std_val = uq_result.param_std[i]
         ci_half = 1.96 * std_val
 
         # Get true value if available
         true_val = nothing
         for (k, v) in true_params
-            if string(k) == string(name) || occursin(string(name), string(k))
+            if tutorial_base_name(k) == tutorial_base_name(name)
                 true_val = v
                 break
             end
@@ -492,12 +476,12 @@ end
 # -----------------------------------------------------------------------------
 
 function plot_covariance_ellipse(uq_result, true_params, estimates; save_path=nothing, param_indices=(1, 2))
-    if isnothing(uq_result) || !uq_result.success
+    if !(uq_result isa UncertaintyReport)
         @warn "UQ result not available, skipping covariance ellipse plot"
         return nothing
     end
 
-    n_params = length(uq_result.param_names)
+    n_params = length(uq_result.param_labels)
     if n_params < 2
         @warn "Need at least 2 parameters for covariance ellipse"
         return nothing
@@ -507,8 +491,8 @@ function plot_covariance_ellipse(uq_result, true_params, estimates; save_path=no
 
     fig = Figure(size = (600, 550))
 
-    param_name_i = uq_result.param_names[i]
-    param_name_j = uq_result.param_names[j]
+    param_name_i = uq_result.param_labels[i]
+    param_name_j = uq_result.param_labels[j]
 
     ax = Axis(fig[1, 1],
         xlabel = string(param_name_i),
@@ -523,10 +507,10 @@ function plot_covariance_ellipse(uq_result, true_params, estimates; save_path=no
     true_i = nothing
     true_j = nothing
     for (k, v) in true_params
-        if string(k) == string(param_name_i) || occursin(string(param_name_i), string(k))
+        if tutorial_base_name(k) == tutorial_base_name(param_name_i)
             true_i = v
         end
-        if string(k) == string(param_name_j) || occursin(string(param_name_j), string(k))
+        if tutorial_base_name(k) == tutorial_base_name(param_name_j)
             true_j = v
         end
     end
@@ -601,7 +585,7 @@ function plot_noise_sensitivity(pep; save_path=nothing)
 
     # Store results
     param_stds_by_noise = Dict{Float64, Vector{Float64}}()
-    param_names = Symbol[]
+    param_names = String[]
 
     for nl in noise_levels
         print("      Testing noise level $(nl*100)%... ")
@@ -611,6 +595,7 @@ function plot_noise_sensitivity(pep; save_path=nothing)
             noise_level = nl,
             time_interval = time_interval,
             flow = FlowDirectOpt,
+            interpolators = InterpolatorMethod[InterpolatorAGPUQ],
             compute_uncertainty = true,
             nooutput = true,
         )
@@ -620,10 +605,10 @@ function plot_noise_sensitivity(pep; save_path=nothing)
         try
             _, _, uq_temp = analyze_parameter_estimation_problem(pep_temp, opts_temp)
 
-            if !isnothing(uq_temp) && uq_temp.success
+            if uq_temp isa UncertaintyReport
                 param_stds_by_noise[nl] = copy(uq_temp.param_std)
                 if isempty(param_names)
-                    param_names = copy(uq_temp.param_names)
+                    param_names = copy(uq_temp.param_labels)
                 end
                 println("✓")
             else
@@ -704,41 +689,15 @@ true_params = merge(pep.p_true, pep.ic)
 
 # Build estimates dict from analysis_results (best solution) for plotting
 # analysis_results[1] is a Vector of results, so we need analysis_results[1][1]
-# Also need both states and parameters since UQ param_names includes both
-estimates = Dict{Symbol, Float64}()
-if length(analysis_results) >= 1 && isa(analysis_results[1], Vector) && length(analysis_results[1]) >= 1
-    first_result = analysis_results[1][1]
-
-    # Helper function to convert key to Symbol (handles Num and other types)
-    function key_to_sym(k)
-        key_str = string(k)
-        # Handle keys like "x1(t)" -> "x1"
-        if occursin("(", key_str)
-            key_str = split(key_str, "(")[1]
-        end
-        return Symbol(key_str)
-    end
-
-    # Extract states (initial conditions)
-    if hasfield(typeof(first_result), :states)
-        for (k, v) in first_result.states
-            estimates[key_to_sym(k)] = Float64(real(v))
-        end
-    end
-
-    # Extract parameters
-    if hasfield(typeof(first_result), :parameters)
-        for (k, v) in first_result.parameters
-            estimates[key_to_sym(k)] = Float64(real(v))
-        end
-    end
-end
+# The report center is guaranteed to match the returned rank-one estimator.
+estimates = uq_result isa UncertaintyReport ?
+    Dict(uq_result.param_labels .=> uq_result.estimate_values) : Dict{String, Float64}()
 
 fig3 = plot_parameter_ci(uq_result, true_params, estimates,
     save_path = joinpath(figures_dir, "03_parameter_confidence.pdf"))
 
 # Figure 4: Covariance Ellipse (if we have at least 2 params)
-if !isnothing(uq_result) && uq_result.success && length(uq_result.param_names) >= 2
+if uq_result isa UncertaintyReport && length(uq_result.param_labels) >= 2
     fig4 = plot_covariance_ellipse(uq_result, true_params, estimates,
         save_path = joinpath(figures_dir, "04_covariance_ellipse.pdf"))
 end

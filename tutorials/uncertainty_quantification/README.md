@@ -22,6 +22,7 @@ pep = simple()  # Built-in example model
 opts = EstimationOptions(
     datasize = 51,
     noise_level = 0.05,           # 5% noise
+    interpolators = InterpolatorMethod[InterpolatorAGPUQ],
     compute_uncertainty = true,    # Enable UQ
     flow = FlowDirectOpt,
 )
@@ -30,11 +31,16 @@ opts = EstimationOptions(
 pep_sampled = sample_problem_data(pep, opts)
 results_tuple, analysis_results, uq_result = analyze_parameter_estimation_problem(pep_sampled, opts)
 
-# Access uncertainties
-if uq_result.success
-    for (param, info) in uq_result.parameter_uncertainties
-        println("$param: $(info.estimate) ± $(1.96 * info.std_dev) (95% CI)")
+# Access uncertainties for the returned rank-one estimator
+if uq_result isa UncertaintyReport
+    for i in eachindex(uq_result.param_labels)
+        label = uq_result.param_labels[i]
+        estimate = uq_result.estimate_values[i]
+        std_dev = uq_result.param_std[i]
+        println("$label: $estimate ± $(1.96 * std_dev) (95% CI)")
     end
+elseif uq_result isa UQUnavailable
+    @warn "UQ unavailable" reason=uq_result.reason message=uq_result.message
 end
 ```
 
@@ -105,6 +111,7 @@ opts = EstimationOptions(
     datasize = 51,
     noise_level = 0.05,  # 5% multiplicative noise
     time_interval = [-0.5, 0.5],
+    interpolators = InterpolatorMethod[InterpolatorAGPUQ],
     compute_uncertainty = true,
     flow = FlowDirectOpt,
 )
@@ -121,24 +128,38 @@ results_tuple, analysis_results, uq_result = analyze_parameter_estimation_proble
 ### 4. Interpret Results
 
 ```julia
-if uq_result.success
+if uq_result isa UncertaintyReport
     println("\n=== Parameter Estimates with 95% Confidence Intervals ===")
 
-    for (param, info) in uq_result.parameter_uncertainties
-        ci_half = 1.96 * info.std_dev
-        lower = info.estimate - ci_half
-        upper = info.estimate + ci_half
+    for i in eachindex(uq_result.param_labels)
+        label = uq_result.param_labels[i]
+        estimate = uq_result.estimate_values[i]
+        std_dev = uq_result.param_std[i]
+        ci_half = 1.96 * std_dev
+        lower = estimate - ci_half
+        upper = estimate + ci_half
 
-        println("$param:")
-        println("  Point estimate: $(info.estimate)")
+        println("$label:")
+        println("  Point estimate: $estimate")
         println("  95% CI: [$lower, $upper]")
-        println("  Relative uncertainty: $(100 * info.std_dev / abs(info.estimate))%")
+        println("  Relative uncertainty: $(100 * std_dev / abs(estimate))%")
     end
 
     println("\nCorrelation Matrix:")
     display(uq_result.correlation_matrix)
 end
 ```
+
+`compute_uncertainty=true` is deliberately non-invasive: it does not add an
+interpolator to the estimator pool. Configure `InterpolatorAGPUQ` explicitly as
+shown above. The third return value is `nothing` only when UQ is disabled,
+`UncertaintyReport` when it is available, and `UQUnavailable` when it was
+requested but cannot be computed honestly for the selected estimator.
+
+Use `uq_reliability(uq_result)` to inspect availability, local numerical
+linearization, interval width, selection conditioning, and empirical
+calibration as separate axes. A locally accepted report is not, by itself, an
+empirical coverage certificate.
 
 ## Interpreting Results
 
@@ -187,12 +208,14 @@ The UQ feature correctly tracks how uncertainty scales with noise:
 
 | Noise Level | Typical Behavior |
 |-------------|------------------|
-| 0.1% | Very tight CIs, near-perfect identifiability |
-| 1% | Good CIs, reliable estimates |
-| 5% | Moderate CIs, typical experimental precision |
-| 10% | Wide CIs, may see identifiability issues |
+| 0.1% | Often tight CIs on well-conditioned models |
+| 1% | Bias and conditioning checks become increasingly important |
+| 5% | Model- and estimator-specific validation is essential |
+| 10% | Wide or unavailable UQ is common |
 
-**Expected relationship**: For well-posed problems, `σ(θ) ∝ σ(noise)` approximately.
+For a fixed, locally linear estimator, `σ(θ) ∝ σ(noise)` is a useful first
+check. GP derivative bias, estimator selection, and nonlinear conditioning can
+break that approximation, so it is not a calibration guarantee.
 
 Run the tutorial with different noise levels to observe this:
 
@@ -200,6 +223,7 @@ Run the tutorial with different noise levels to observe this:
 for noise in [0.001, 0.01, 0.05, 0.1]
     opts = EstimationOptions(
         noise_level = noise,
+        interpolators = InterpolatorMethod[InterpolatorAGPUQ],
         compute_uncertainty = true,
         ...
     )
@@ -209,29 +233,34 @@ end
 
 ## Advanced: Intermediate Results
 
-### Accessing GP Interpolators
+### Accessing GP diagnostics
 
 The UQ computation creates GP interpolators for each observable:
 
 ```julia
 # During UQ computation (internal)
-interp_uq = agp_gpr_uq(ts, ys_noisy, 0, 2)  # AGPInterpolatorUQ object
+interp_uq = agp_gpr_uq(Float64.(ts), Float64.(ys_noisy))
 
-# Query value and variance at a point
-μ, σ² = interp_uq(t_query)
+# Query the fitted mean and latent posterior standard deviation at a point
+μ = interp_uq(t_query)
+posterior_std = interp_uq.std_function(t_query)
 
-# Query derivative and variance
-μ_deriv, σ²_deriv = derivative_estimate(interp_uq, t_query)
+# Query an analytic derivative of the fitted mean
+μ_deriv = nth_deriv(interp_uq, 1, t_query)
 ```
+
+The latent posterior band is a GP-model diagnostic, not the sampling covariance
+of the selected ODE estimator.
 
 ### Joint Derivative Covariance
 
 For a single time point, get the full covariance between value and derivative:
 
 ```julia
-μ, Σ = joint_derivative_covariance(interp_uq, t)
+μ, Σ_posterior = joint_derivative_covariance(interp_uq, t, 1)
+μ, Σ_sampling = joint_derivative_estimator_covariance(interp_uq, t, 1)
 # μ = [y(t), dy/dt(t)]
-# Σ = 2×2 covariance matrix
+# Production algebraic UQ propagates Σ_sampling.
 ```
 
 ### Full Observation Covariance

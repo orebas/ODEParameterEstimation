@@ -2,14 +2,44 @@
 
 Date: 2026-08-14
 
-Status: investigation and decision record. No production behavior is changed by
-this note.
+Status: investigation and decision record. Updated 2026-08-15 with the tested
+numerical-repair checkpoint; statistical estimator changes remain opt-in
+research arms.
 
 Read with:
 
 - [`2026-08-14_lv_multipoint_uq_conditioning.md`](2026-08-14_lv_multipoint_uq_conditioning.md)
 - [`2026-08-14_peb_audited_uq_canaries.md`](2026-08-14_peb_audited_uq_canaries.md)
 - [`2026-08-14_estimator_aware_uq.md`](2026-08-14_estimator_aware_uq.md)
+- [`2026-08-15_estimation_uq_research_program.md`](2026-08-15_estimation_uq_research_program.md)
+
+## 2026-08-15 implementation checkpoint
+
+The first engineering action below is now implemented and deterministically
+verified:
+
+- AGPUQ SE marginal-likelihood optimization and final GP factorization share
+  one explicit matrix-construction recipe. The ordinary non-UQ interpolator
+  paths retain their historical construction to avoid changing the default
+  estimator pool during this research program;
+- fallback jitter is matrix-scale-relative and every AGPUQ artifact records
+  `jitter / learned_noise_variance` plus a retained-factor residual;
+- the high-precision matrix, relative-jitter, retained-factor, JSON sidecar,
+  estimator-routing, option, and coverage-accounting targeted gates pass;
+- all nine audited PEB catalog entries pass their frozen generator, data, and
+  historical-metadata hashes and construct at 750 observations;
+- the older seeded full-scale package benchmark remains green at 10/10.
+
+On the frozen audited LV GP-only diagnostic, the repaired fit used no added
+jitter (`jitter/noise = 0`) and reconstructed its covariance with relative
+residual `1.09e-15`. At the problematic row 25, the worst total jet error fell
+from the prior `22.48` sampling standard deviations to `7.61`; at row 635 the
+worst was `1.85`. This closely matches the earlier explicit-matrix ablation.
+
+The interpretation is deliberately narrow: the hidden numerical ridge was a
+large, removable amplifier, but the remaining first-point order-2 smoother bias
+is still about eight sampling standard deviations. The statistical bias and
+point-selection research questions are therefore not closed.
 
 ## Executive conclusion
 

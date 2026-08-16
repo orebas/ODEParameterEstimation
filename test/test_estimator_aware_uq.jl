@@ -2,6 +2,7 @@ using Test
 using Logging
 using OrderedCollections
 using ModelingToolkit
+using JSON3
 
 @testset "estimator-aware UQ target contract" begin
     pep = ODEParameterEstimation.simple()
@@ -169,6 +170,9 @@ using ModelingToolkit
         @test unavailable isa UQUnavailable
         @test uq_metadata_dict(unavailable)["outcome"] == "unavailable"
         @test uq_metadata_dict(unavailable)["target"]["selected_rank"] == 1
+        unavailable_reliability = uq_reliability(unavailable)
+        @test unavailable_reliability.availability == :unavailable
+        @test unavailable_reliability.selection_scope == :conditional_on_selected_estimator
         @test isnothing(uq_metadata_dict(nothing))
 
         @test_throws UQComputationError ODEParameterEstimation.apply_uq_failure_policy(
@@ -176,6 +180,22 @@ using ModelingToolkit
             EstimationOptions(compute_uncertainty = true,
                 uq_failure_policy = :throw, nooutput = true),
         )
+
+        report = UncertaintyReport(
+            "json_sidecar", 0.0,
+            String[], Vector{Float64}[], Vector{Float64}[],
+            zeros(0, 0), String[],
+            reshape([1.0], 1, 1), [1.0], ["p"], Dict("p" => :parameter),
+            [NaN], reshape([1.0], 1, 1), Inf, :degenerate, String[],
+            :estimator_sampling, :learned_gp_homoscedastic, nothing,
+        )
+        metadata = uq_metadata_dict(report)
+        @test metadata["truth_values"] == Any[nothing]
+        @test isnothing(metadata["max_cv"])
+        @test isnothing(metadata["linearization"]["gradient_norm"])
+        @test metadata["reliability"]["availability"] == "available"
+        @test metadata["reliability"]["interval_width"] == "undefined_scale"
+        @test JSON3.write(metadata) isa String
     end
 
     @testset "operational CV never treats missing truth/centers as zero" begin

@@ -363,16 +363,25 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 end
 
 """
-	_cholesky_adaptive(K; base_jitter=1e-14, max_steps=12)
+	_cholesky_adaptive(K; base_jitter=1e-14, relative_jitter=false, max_steps=12)
 
 Attempt Cholesky factorization with adaptive jitter escalation.
 Tries `cholesky(Symmetric(K))` first; on failure, adds escalating diagonal
-jitter starting from `base_jitter` (×10 each step) until success.
+jitter starting from `base_jitter` (×10 each step) until success. With
+`relative_jitter=true`, `base_jitter` is interpreted as a fraction of the
+largest absolute diagonal entry. The historical default remains absolute so
+ordinary non-UQ interpolators are unchanged; AGPUQ explicitly enables the
+scale-relative policy.
 
 Returns `(C, jitter_used)` where `C` is the Cholesky factor and
 `jitter_used` is the actual jitter added (0.0 if none needed).
 """
-function _cholesky_adaptive(K::AbstractMatrix; base_jitter = 1e-14, max_steps = 12)
+function _cholesky_adaptive(
+	K::AbstractMatrix;
+	base_jitter::Real = 1e-14,
+	relative_jitter::Bool = false,
+	max_steps::Int = 12,
+)
 	n = size(K, 1)
 	# Try without jitter first
 	try
@@ -380,7 +389,10 @@ function _cholesky_adaptive(K::AbstractMatrix; base_jitter = 1e-14, max_steps = 
 	catch
 	end
 	# Escalate jitter
-	jitter = base_jitter
+	diagonal_scale = maximum(abs, diag(K); init = 0.0)
+	diagonal_scale = max(Float64(diagonal_scale), floatmin(Float64))
+	jitter = Float64(base_jitter) * (relative_jitter ? diagonal_scale : 1.0)
+	jitter > 0 || throw(ArgumentError("base_jitter must be positive"))
 	K_work = copy(K)
 	for step in 1:max_steps
 		K_work .= K
@@ -396,21 +408,62 @@ function _cholesky_adaptive(K::AbstractMatrix; base_jitter = 1e-14, max_steps = 
 	error("_cholesky_adaptive: Cholesky failed even with jitter=$jitter")
 end
 
+"""
+	_se_covariance_matrix(D_sq, lengthscale, signal_variance)
+
+Construct the squared-exponential covariance matrix from precomputed squared
+distances. This is the single arithmetic recipe used by SE
+marginal-likelihood optimization and the explicit AGPUQ final factorization;
+keeping that estimator route shared prevents tiny rounding differences from
+becoming a hidden regularizer near the PSD boundary. The ordinary non-UQ GP
+paths retain their historical KernelFunctions assembly. The implementation is
+`ForwardDiff` compatible.
+"""
+function _se_covariance_matrix(
+	D_sq::AbstractMatrix,
+	lengthscale::Real,
+	signal_variance::Real,
+)
+	inv_2l2 = inv(2 * lengthscale * lengthscale)
+	return signal_variance .* exp.((-inv_2l2) .* D_sq)
+end
+
+"""Add observation-noise variance to a covariance diagonal without changing its recipe."""
+function _add_diagonal_variance(K::AbstractMatrix, variance::Real)
+	K_noisy = copy(K)
+	for i in axes(K_noisy, 1)
+		K_noisy[i, i] += variance
+	end
+	return K_noisy
+end
+
+function _cholesky_relative_residual(C::Cholesky, K::AbstractMatrix, jitter::Real)
+	regularized = _add_diagonal_variance(K, jitter)
+	reconstructed = Matrix(C.L * C.L')
+	denominator = max(norm(regularized, Inf), floatmin(Float64))
+	return norm(reconstructed - regularized, Inf) / denominator
+end
+
 # --- Softplus helpers (overflow-safe, module-level for sharing) ---
 _softplus(x::Real) = x > 34.0 ? x : log(1.0 + exp(x))
 _inv_softplus(y::Real) = y > 34.0 ? y : log(exp(y) - 1.0)
 
 """
-	_optimize_se_hyperparams(xs_raw, ys_norm, D_sq; init_noise_override=nothing)
+	_optimize_se_hyperparams(xs_raw, ys_norm, D_sq;
+		init_noise_override=nothing, explicit_se_recipe=false)
 
 Shared SE-kernel hyperparameter optimization used by both `agp_gpr_robust` and `agp_gpr_uq`.
 Uses softplus reparameterization, Fminbox-bounded LBFGS, and ForwardDiff exact gradients.
+The default preserves the historical arithmetic used by the production
+interpolator/noise-filter path. `agp_gpr_uq` opts into `explicit_se_recipe=true`
+so its likelihood and retained factor use exactly the same matrix recipe.
 
 # Arguments
 - `xs_raw::Vector{Float64}`: Raw (unnormalized) x coordinates
 - `ys_norm::Vector{Float64}`: Standardized y values (zero mean, unit variance)
 - `D_sq::Matrix{Float64}`: Precomputed pairwise squared distances
 - `init_noise_override::Union{Nothing,Float64}`: Override initial noise (default: roughness-adaptive)
+- `explicit_se_recipe::Bool`: Use the explicit covariance helper retained by AGPUQ (default: false)
 
 # Returns
 - NamedTuple `(l, sigma2, noise, converged)` with optimized hyperparameters
@@ -420,6 +473,7 @@ function _optimize_se_hyperparams(
 	ys_norm::Vector{Float64},
 	D_sq::Matrix{Float64};
 	init_noise_override::Union{Nothing, Float64} = nothing,
+	explicit_se_recipe::Bool = false,
 )
 	n = length(xs_raw)
 
@@ -451,10 +505,17 @@ function _optimize_se_hyperparams(
 	# Allocating NLL — ForwardDiff-compatible (no in-place mutation on captured matrix)
 	function neg_logpdf_se(θ)
 		l = _softplus(θ[1]); σ² = _softplus(θ[2]); σₙ² = _softplus(θ[3])
-		inv_2l² = 1.0 / (2.0 * l * l)
-		K = σ² .* exp.((-inv_2l²) .* D_sq)
-		for i in 1:n
-			K[i, i] += σₙ²
+		K = if explicit_se_recipe
+			_add_diagonal_variance(_se_covariance_matrix(D_sq, l, σ²), σₙ²)
+		else
+			# Keep this byte-for-byte arithmetic shape: the production noise gate
+			# is sensitive to optimizer movement around its 1e-5 threshold.
+			inv_2l² = 1.0 / (2.0 * l * l)
+			K_historical = σ² .* exp.((-inv_2l²) .* D_sq)
+			for i in 1:n
+				K_historical[i, i] += σₙ²
+			end
+			K_historical
 		end
 		try
 			C = cholesky(Symmetric(K))

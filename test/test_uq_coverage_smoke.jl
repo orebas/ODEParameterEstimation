@@ -27,11 +27,15 @@ include(joinpath(@__DIR__, "..", "repro", "uq_coverage_harness_2026_08", "covera
 		zv = get(res.zs, label, Float64[])
 		# σ̂ finite and nonzero on nearly every reporting replicate
 		@test get(res.usable, label, 0) >= 18
+		@test usable_fraction(res, label) >= 0.9
 		# Coverage tripwire (baseline 100% at nominal 95%)
 		@test coverage_fraction(res, label) >= 0.7
+		@test unconditional_coverage_fraction(res, label) >= 0.7
 		# Center corruption tripwire (baseline |mean z| ≤ 0.1)
 		@test abs(mean(zv)) <= 1.0
 		# σ̂ degeneracy tripwires: collapse (sd z ≫ 1) or blow-up (sd z ≈ 0)
 		@test 0.05 <= std(zv) <= 2.5
 	end
+	@test length(res.covariances) == res.n_reported
+	@test !isempty(coverage_reason_counts(res))
 end

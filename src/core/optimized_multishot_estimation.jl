@@ -107,6 +107,52 @@ function _hc_structure_key(poly_system, solve_vars, data_vars)
 	return hash((string.(poly_system), string.(solve_vars), string.(data_vars)))
 end
 
+function _multipoint_combo_priority(
+	combo::Vector{Int},
+	time_values::AbstractVector{<:Real},
+	interpolants::AbstractDict,
+	mpt::MultiPointTemplate,
+	strategy::Symbol,
+)
+	times = Float64[time_values[index] for index in combo]
+	span = max(Float64(last(time_values) - first(time_values)), floatmin(Float64))
+	# Preserve the historical default exactly: it ranked integer shooting indices,
+	# which differs from time-distance ranking on uneven grids.
+	index_spread = Float64(sum(
+		abs(combo[i] - combo[j])
+		for i in eachindex(combo) for j in (i + 1):length(combo)
+	))
+	strategy == :spread && return index_spread
+	strategy == :boundary_order || throw(ArgumentError(
+		"unknown multipoint pair strategy $strategy",
+	))
+	spread = sum(
+		abs(times[i] - times[j])
+		for i in eachindex(times) for j in (i + 1):length(times)
+	) / span
+
+	# Boundary-aware research strategy: retain separation while penalizing any
+	# selected point whose available one-sided support is short relative to the
+	# fitted GP lengthscale and the highest observed derivative order required by
+	# the exact multipoint template.  It is deterministic and adds no GP fits.
+	max_order = maximum(
+		(meta.order for meta in mpt.data_var_meta if meta.kind == :observable_jet);
+		init = 0,
+	)
+	lengthscales = Float64[
+		interp.lengthscale for interp in values(interpolants)
+		if interp isa AGPInterpolatorUQ
+	]
+	reference_scale = isempty(lengthscales) ? span / 10 : maximum(lengthscales)
+	order_scale = sqrt(max_order + 1.0)
+	boundary_quality = minimum(
+		min(t - first(time_values), last(time_values) - t) /
+		max(reference_scale * order_scale, floatmin(Float64))
+		for t in times
+	)
+	return spread * clamp(boundary_quality, 0.0, 1.0)
+end
+
 # Noise-frontier selection is structural by default: row choice is based on a
 # generic data/transcendental specialization, then reused across interpolators.
 function _noise_frontier_run_cache_key(policy::Symbol, n_points::Int, opts::EstimationOptions; selection_mode::Symbol = :generic, interpolator::Union{Nothing, Symbol} = nothing)
@@ -1522,8 +1568,11 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 				n_pts = opts.multipoint_n_points
 				all_combos = Vector{Vector{Int}}()
 				_generate_combinations!(all_combos, point_indices, n_pts)
-				# Sort by total spread (sum of pairwise distances) for diversity
-				sort!(all_combos; by = c -> -sum(abs(c[i] - c[j]) for i in 1:length(c) for j in i+1:length(c)))
+				# Rank using the explicitly selected deterministic pair policy.
+				time_values = Float64.(PEP.data_sample["t"])
+				sort!(all_combos; by = c -> -_multipoint_combo_priority(
+					c, time_values, interpolants, mpt, opts.multipoint_pair_strategy,
+				))
 				combos = all_combos[1:min(opts.multipoint_max_pairs, length(all_combos))]
 
 				if !opts.nooutput || opts.diagnostics

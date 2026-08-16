@@ -208,6 +208,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
 - `uq_noise_source::Symbol`: Raw-observation covariance producer: `:learned_gp_homoscedastic` or `:smoother_residual_edf` (default: `:learned_gp_homoscedastic`)
+- `gp_derivative_lengthscale_factor::Float64`: Optional multiplier applied to the AGPUQ marginal-likelihood lengthscale after fitting (default: `1.0`). Values below one are an opt-in derivative-undersmoothing research arm.
 - `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
 - `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
 - `auto_rescale::Bool`: Power-of-2 rescaling of states/params/observables/data to O(1) before estimation, with results un-rescaled after (default: true; near-identity on already-O(1) models, rescues ill-scaled ones). Set false to disable. See core/problem_rescaling.jl.
@@ -533,6 +534,7 @@ Base.@kwdef struct EstimationOptions
 	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
 	uq_noise_source::Symbol = :learned_gp_homoscedastic
+	gp_derivative_lengthscale_factor::Float64 = 1.0
 	si_placeholder_fail_categories::Vector{Symbol} = Symbol[]
 	auto_handle_transcendentals::Bool = true  # Automatically detect and handle sin/cos/exp in equations
 	auto_rescale::Bool = true  # Power-of-2 rescale states/params/observables/data to O(1) before estimation, un-rescale results after (see core/problem_rescaling.jl). Near-identity (mild powers of 2) on already-O(1) models; rescues ill-scaled ones (e.g. raw hiv 43.7→1.2e-3). Set false to disable.
@@ -575,6 +577,7 @@ Base.@kwdef struct EstimationOptions
 	use_multipoint::Bool = true   # Enable multi-point polynomial template system
 	multipoint_n_points::Int = 2  # Number of time points per evaluation (2 recommended)
 	multipoint_max_pairs::Int = 20  # Maximum number of time point pairs to solve
+	multipoint_pair_strategy::Symbol = :spread  # :spread | :boundary_order
 
 	# StructuralIdentifiability Parameters
 	si_probability::Float64 = 0.99
@@ -823,6 +826,23 @@ function resolve_interpolator_list(opts::EstimationOptions)
 		)
 		for (m, _) in copy(result)
 			haskey(gp_to_s3, m) && push!(result, (gp_to_s3[m], nothing))
+		end
+	end
+
+	# Optional derivative-oriented undersmoothing for the exact AGPUQ route.
+	# The default leaves the public function object and estimator behavior alone.
+	if opts.gp_derivative_lengthscale_factor != 1.0
+		factor = opts.gp_derivative_lengthscale_factor
+		for i in eachindex(result)
+			method, custom = result[i]
+			if method == InterpolatorAGPUQ && isnothing(custom)
+				result[i] = (
+					method,
+					(xs, ys) -> agp_gpr_uq(
+						xs, ys; lengthscale_factor = factor,
+					),
+				)
+			end
 		end
 	end
 
@@ -1405,6 +1425,10 @@ function validate_options(opts::EstimationOptions)
 		@error "construction_beam_width must be positive (got $(opts.construction_beam_width))"
 		valid = false
 	end
+	if !(opts.multipoint_pair_strategy in (:spread, :boundary_order))
+		@error "multipoint_pair_strategy must be :spread or :boundary_order"
+		valid = false
+	end
 
 	if !(opts.uq_failure_policy in (:return_failed, :throw))
 		@error "uq_failure_policy must be :return_failed or :throw"
@@ -1412,6 +1436,11 @@ function validate_options(opts::EstimationOptions)
 	end
 	if !(opts.uq_noise_source in (:learned_gp_homoscedastic, :smoother_residual_edf))
 		@error "uq_noise_source must be :learned_gp_homoscedastic or :smoother_residual_edf"
+		valid = false
+	end
+	if !(isfinite(opts.gp_derivative_lengthscale_factor) &&
+			opts.gp_derivative_lengthscale_factor > 0)
+		@error "gp_derivative_lengthscale_factor must be finite and positive"
 		valid = false
 	end
 	if opts.compute_uncertainty
@@ -1460,10 +1489,12 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
-			:compute_uncertainty, :uq_failure_policy, :uq_noise_source, :si_placeholder_fail_categories, :auto_handle_transcendentals, :gp_s3_refinement]),
+			:compute_uncertainty, :uq_failure_policy, :uq_noise_source,
+			:gp_derivative_lengthscale_factor, :si_placeholder_fail_categories,
+			:auto_handle_transcendentals, :gp_s3_refinement]),
 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
 			:construction_beam_width, :construction_compute_mixed_volume]),
-		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs]),
+		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs, :multipoint_pair_strategy]),
 		("StructuralIdentifiability", [:si_probability]),
 		("File I/O", [:save_filepath]),
 	]

@@ -34,6 +34,7 @@ using Optim
 using Random
 using Statistics
 using Logging
+using LinearAlgebra
 
 # ─── Anchor model: two decaying exponentials, summed observation ──────
 # y = x1 + x2 with k2 >> k1 makes (x2, k2) the weakly-identified block at
@@ -147,8 +148,13 @@ struct CoverageReplicate
 	truth::Vector{Float64}
 	center::Vector{Float64}
 	sigma::Vector{Float64}
+	covariance::Matrix{Float64}
 	status::Symbol
 end
+
+CoverageReplicate(status::Symbol) = CoverageReplicate(
+	String[], Float64[], Float64[], Float64[], zeros(0, 0), status,
+)
 
 _base_name(x) = replace(string(x), r"\(.*\)" => "")
 
@@ -185,18 +191,18 @@ function run_replicate(pep_ctor, opts::EstimationOptions;
 		_raw, analysis, uq = _cov_quiet() do
 			ODEParameterEstimation.analyze_parameter_estimation_problem(pep_data, opts)
 		end
-		isnothing(uq) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_report)
+		isnothing(uq) && return CoverageReplicate(:no_report)
 		uq isa ODEParameterEstimation.UQUnavailable &&
-			return CoverageReplicate(String[], Float64[], Float64[], Float64[], :uq_unavailable)
+			return CoverageReplicate(uq.reason)
 		uq isa ODEParameterEstimation.UncertaintyReport ||
-			return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_report)
+			return CoverageReplicate(:no_report)
 		best = isempty(analysis.returned_results) ? nothing : first(analysis.returned_results)
-		isnothing(best) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_estimate)
+		isnothing(best) && return CoverageReplicate(:no_estimate)
 		labels = uq.param_labels
 		return CoverageReplicate(labels,
 			[_truth_for_label(pep_data, l) for l in labels],
 			copy(uq.estimate_values),
-			copy(uq.param_std), uq.status)
+			copy(uq.param_std), copy(uq.param_covariance), uq.status)
 	end
 
 	setup = _cov_quiet() do
@@ -223,18 +229,18 @@ function run_replicate(pep_ctor, opts::EstimationOptions;
 	r = _cov_quiet() do
 		ODEParameterEstimation.diagnose_uncertainty(pep_data, setup, t_eval, sens)
 	end
-	isnothing(r) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_report)
+	isnothing(r) && return CoverageReplicate(:no_report)
 	uq_local = first(r)
 	uq = _cov_quiet() do
 		ODEParameterEstimation.physicalize_uncertainty_report(pep_data, est, uq_local)
 	end
-	isnothing(uq) && return CoverageReplicate(String[], Float64[], Float64[], Float64[], :no_physicalization)
+	isnothing(uq) && return CoverageReplicate(:no_physicalization)
 
 	labels = uq.param_labels
 	return CoverageReplicate(labels,
 		[_truth_for_label(pep_data, l) for l in labels],
 		[_center_for_label(est, l) for l in labels],
-		copy(uq.param_std), uq.status)
+		copy(uq.param_std), copy(uq.param_covariance), uq.status)
 end
 
 # ─── N-replicate aggregation ──────────────────────────────────────────
@@ -256,6 +262,8 @@ struct CoverageResult
 	rel_errs::Dict{String, Vector{Float64}}   # |estimate − truth| / |truth|
 	sigmas::Dict{String, Vector{Float64}}     # σ̂ per replicate
 	n_zero_sigma::Dict{String, Int}           # σ̂ ≤ 0 or non-finite z
+	covariances::Vector{Matrix{Float64}}      # full joint covariance per usable report
+	joint_mahalanobis::Vector{Float64}        # e'Σ⁻¹e when finite/positive definite
 end
 
 function run_coverage(pep_ctor;
@@ -281,6 +289,8 @@ function run_coverage(pep_ctor;
 	sigmas = Dict{String, Vector{Float64}}()
 	n_zero_sigma = Dict{String, Int}()
 	statuses = Symbol[]
+	covariances = Matrix{Float64}[]
+	joint_mahalanobis = Float64[]
 	labels_seen = String[]
 	n_reported = 0
 
@@ -288,8 +298,19 @@ function run_coverage(pep_ctor;
 		Random.seed!(seed0 + i)
 		rep = run_replicate(pep_ctor, opts; value_source, estimator)
 		push!(statuses, rep.status)
-		rep.status in (:no_report, :no_estimate, :no_physicalization, :uq_unavailable) && continue
+		isempty(rep.labels) && continue
 		n_reported += 1
+		push!(covariances, copy(rep.covariance))
+		error = rep.center .- rep.truth
+		if size(rep.covariance) == (length(error), length(error)) && all(isfinite, error) &&
+				all(isfinite, rep.covariance)
+			quadratic = try
+				dot(error, cholesky(Symmetric(rep.covariance)) \ error)
+			catch
+				NaN
+			end
+			isfinite(quadratic) && push!(joint_mahalanobis, quadratic)
+		end
 		for (j, l) in enumerate(rep.labels)
 			l in labels_seen || push!(labels_seen, l)
 			tv = rep.truth[j]
@@ -311,12 +332,26 @@ function run_coverage(pep_ctor;
 	end
 
 	return CoverageResult(labels_seen, N, n_reported, covered, usable, zs, z_crit, statuses,
-		rel_errs, sigmas, n_zero_sigma)
+		rel_errs, sigmas, n_zero_sigma, covariances, joint_mahalanobis)
 end
 
 coverage_fraction(res::CoverageResult, label::String) =
 	get(res.usable, label, 0) == 0 ? NaN :
 	get(res.covered, label, 0) / res.usable[label]
+
+unconditional_coverage_fraction(res::CoverageResult, label::String) =
+	res.n_total == 0 ? NaN : get(res.covered, label, 0) / res.n_total
+
+usable_fraction(res::CoverageResult, label::String) =
+	res.n_total == 0 ? NaN : get(res.usable, label, 0) / res.n_total
+
+function coverage_reason_counts(res::CoverageResult)
+	counts = Dict{Symbol, Int}()
+	for status in res.statuses
+		counts[status] = get(counts, status, 0) + 1
+	end
+	return counts
+end
 
 _fmt3(x) = isempty(x) ? "—" : string(round(median(x); sigdigits = 3))
 
@@ -330,21 +365,30 @@ out-of-regime signature.
 """
 function print_coverage(res::CoverageResult)
 	println("UQ coverage: $(res.n_reported)/$(res.n_total) replicates produced a report; z_crit = $(res.z_crit)")
-	println(rpad("coordinate", 14), rpad("coverage", 10), rpad("n", 4), rpad("bad_σ", 6),
+	println("Outcome/status taxonomy: ", coverage_reason_counts(res))
+	println(rpad("coordinate", 14), rpad("cond cov", 10), rpad("all cov", 10),
+		rpad("usable", 9), rpad("n", 4), rpad("bad_σ", 6),
 		rpad("med|z|", 9), rpad("p90|z|", 9), rpad("med relerr", 12), "med σ̂")
 	for l in res.labels
 		zv = get(res.zs, l, Float64[])
 		az = sort(abs.(zv))
 		p90 = isempty(az) ? NaN : az[max(1, ceil(Int, 0.9 * length(az)))]
 		cov = coverage_fraction(res, l)
+		all_cov = unconditional_coverage_fraction(res, l)
+		usable_rate = usable_fraction(res, l)
 		println(rpad(l, 14),
 			rpad(isnan(cov) ? "—" : string(round(100 * cov; digits = 1), "%"), 10),
+			rpad(isnan(all_cov) ? "—" : string(round(100 * all_cov; digits = 1), "%"), 10),
+			rpad(isnan(usable_rate) ? "—" : string(round(100 * usable_rate; digits = 1), "%"), 9),
 			rpad(string(length(zv)), 4),
 			rpad(string(get(res.n_zero_sigma, l, 0)), 6),
 			rpad(_fmt3(az), 9),
 			rpad(isnan(p90) ? "—" : string(round(p90; sigdigits = 3)), 9),
 			rpad(_fmt3(get(res.rel_errs, l, Float64[])), 12),
 			_fmt3(get(res.sigmas, l, Float64[])))
+	end
+	if !isempty(res.joint_mahalanobis)
+		println("Joint Mahalanobis e'Σ⁻¹e: n=$(length(res.joint_mahalanobis)), median=$(round(median(res.joint_mahalanobis); sigdigits=4))")
 	end
 	return nothing
 end
@@ -367,6 +411,11 @@ function regime_verdict(res::CoverageResult; relerr_tol::Float64 = 0.05)
 	# coordinate with med|z| = 1.89 and 50% coverage.)
 	lo, hi = 0.34, 1.35
 	for l in res.labels
+		usable_rate = usable_fraction(res, l)
+		if !isfinite(usable_rate) || usable_rate < 0.9
+			calibrated = false
+			push!(notes, "$l: unconditional usable rate $(round(100 * usable_rate; sigdigits = 3))% < 90%")
+		end
 		re = get(res.rel_errs, l, Float64[])
 		isempty(re) || (worst_err = max(worst_err, median(re)))
 		az = abs.(get(res.zs, l, Float64[]))

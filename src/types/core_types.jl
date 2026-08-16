@@ -961,6 +961,22 @@ end
 abstract type AbstractUQOutcome end
 
 """
+    UQReliabilityAssessment
+
+Orthogonal reliability axes for a UQ outcome.  These deliberately do not
+collapse software availability, local numerical validity, interval width,
+selection conditioning, and empirical calibration into a single status flag.
+`UncertaintyReport.status` remains as a backward-compatible summary.
+"""
+struct UQReliabilityAssessment
+    availability::Symbol
+    numerical_linearization::Symbol
+    interval_width::Symbol
+    selection_scope::Symbol
+    empirical_calibration::Symbol
+end
+
+"""
     UQTargetSnapshot
 
 Serializable audit record for the exact rank-one estimator targeted by UQ.
@@ -997,6 +1013,18 @@ struct UQLinearizationDiagnostics
     gradient_norm::Float64
     active_bounds::Vector{Int}
     degraded::Bool
+    gp_jitter_to_noise::Float64
+    gp_factorization_residual::Float64
+end
+
+function UQLinearizationDiagnostics(
+    reason, root_residual_abs, root_residual_rel, jacobian_condition,
+    gradient_norm, active_bounds, degraded,
+)
+    return UQLinearizationDiagnostics(
+        reason, root_residual_abs, root_residual_rel, jacobian_condition,
+        gradient_norm, active_bounds, degraded, NaN, NaN,
+    )
 end
 
 UQLinearizationDiagnostics() = UQLinearizationDiagnostics(
@@ -1087,28 +1115,106 @@ function _uq_target_metadata(target::Union{Nothing, UQTargetSnapshot})
     )
 end
 
+_uq_selection_scope(::Nothing) = :unknown
+_uq_selection_scope(target::UQTargetSnapshot) = target.estimand
+
+"""
+    uq_reliability(outcome) -> UQReliabilityAssessment
+
+Return the independent reliability axes for a requested UQ outcome.  A single
+run can establish availability and pass local numerical gates, but it cannot
+certify repeated-sampling coverage; empirical calibration therefore remains
+`:not_assessed_by_single_run` for every individual report.
+"""
+function uq_reliability(::Nothing)
+    return UQReliabilityAssessment(
+        :not_requested, :not_computed, :not_computed, :unknown, :not_assessed,
+    )
+end
+
+function uq_reliability(outcome::UQUnavailable)
+    return UQReliabilityAssessment(
+        :unavailable, :not_computed, :not_computed,
+        _uq_selection_scope(outcome.target), :not_assessed,
+    )
+end
+
+function uq_reliability(report::UncertaintyReport)
+    diagnostics = report.linearization_diagnostics
+    numerical = if diagnostics.reason == :not_recorded
+        :not_recorded
+    elseif diagnostics.degraded
+        :degraded
+    else
+        :accepted
+    end
+    interval_width = if isempty(report.param_std)
+        :not_computed
+    elseif any(x -> !isfinite(x) || x < 0.0, report.param_std)
+        :invalid
+    elseif !isfinite(report.max_cv)
+        :undefined_scale
+    elseif report.max_cv < 0.5
+        :narrow
+    elseif report.max_cv < 2.0
+        :wide
+    else
+        :extreme
+    end
+    return UQReliabilityAssessment(
+        :available, numerical, interval_width,
+        _uq_selection_scope(report.target), :not_assessed_by_single_run,
+    )
+end
+
+function _uq_reliability_metadata(assessment::UQReliabilityAssessment)
+    return OrderedDict{String, Any}(
+        "availability" => string(assessment.availability),
+        "numerical_linearization" => string(assessment.numerical_linearization),
+        "interval_width" => string(assessment.interval_width),
+        "selection_scope" => string(assessment.selection_scope),
+        "empirical_calibration" => string(assessment.empirical_calibration),
+    )
+end
+
+# JSON has no representation for NaN or infinities.  Keep the public sidecar
+# dependency-free and recursively normalize all non-finite floating-point
+# values to `nothing` (serialized as JSON null by JSON3 and other encoders).
+_uq_json_safe(value::AbstractFloat) = isfinite(value) ? value : nothing
+_uq_json_safe(value::Tuple) = [_uq_json_safe(item) for item in value]
+_uq_json_safe(values::AbstractArray) = map(_uq_json_safe, values)
+function _uq_json_safe(values::AbstractDict)
+    return OrderedDict{String, Any}(
+        string(key) => _uq_json_safe(value) for (key, value) in values
+    )
+end
+_uq_json_safe(value) = value
+
 """JSON-friendly additive sidecar block for a requested UQ outcome."""
 uq_metadata_dict(::Nothing) = nothing
 
 function uq_metadata_dict(outcome::UQUnavailable)
-    return OrderedDict{String, Any}(
+    metadata = OrderedDict{String, Any}(
         "outcome" => "unavailable",
         "model_name" => outcome.model_name,
         "target" => _uq_target_metadata(outcome.target),
         "reason" => string(outcome.reason),
         "message" => outcome.message,
+        "reliability" => _uq_reliability_metadata(uq_reliability(outcome)),
         "warnings" => copy(outcome.warnings),
     )
+    return _uq_json_safe(metadata)
 end
 
 function uq_metadata_dict(report::UncertaintyReport)
     ia = report.practical_identifiability_index
     diagnostics = report.linearization_diagnostics
-    return OrderedDict{String, Any}(
+    metadata = OrderedDict{String, Any}(
         "outcome" => "report",
         "model_name" => report.model_name,
         "target" => _uq_target_metadata(report.target),
         "status" => string(report.status),
+        "reliability" => _uq_reliability_metadata(uq_reliability(report)),
         "coordinate_system" => string(report.coordinate_system),
         "t_eval" => report.t_eval,
         "covariance_kind" => string(report.covariance_kind),
@@ -1129,9 +1235,12 @@ function uq_metadata_dict(report::UncertaintyReport)
             "gradient_norm" => diagnostics.gradient_norm,
             "active_bounds" => copy(diagnostics.active_bounds),
             "degraded" => diagnostics.degraded,
+            "gp_jitter_to_noise" => diagnostics.gp_jitter_to_noise,
+            "gp_factorization_residual" => diagnostics.gp_factorization_residual,
         ),
         "warnings" => copy(report.warnings),
     )
+    return _uq_json_safe(metadata)
 end
 
 # Backward-compatible full constructor for callers written before the

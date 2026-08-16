@@ -123,6 +123,36 @@ function _uq_exact_interpolant(interpolants::AbstractDict, mq)
     return nothing
 end
 
+function _uq_gp_factorization_assessment(
+    pep::ParameterEstimationProblem,
+    interpolants::AbstractDict,
+)
+    ratios = Float64[]
+    residuals = Float64[]
+    warnings = String[]
+    degraded = false
+    for mq in pep.measured_quantities
+        _is_trfn_observable(Symbolics.wrap(mq.rhs)) && continue
+        interp = _uq_exact_interpolant(interpolants, mq)
+        interp isa AGPInterpolatorUQ || continue
+        diagnostics = gp_factorization_diagnostics(interp)
+        push!(ratios, diagnostics.jitter_to_noise)
+        push!(residuals, diagnostics.factorization_residual)
+        if diagnostics.status == :material_regularization
+            degraded = true
+            push!(warnings,
+                "Observable '$(_uq_observation_name(mq))' required GP Cholesky jitter $(diagnostics.jitter_to_noise)× its learned observation-noise variance.")
+        elseif diagnostics.status == :factorization_mismatch
+            degraded = true
+            push!(warnings,
+                "Observable '$(_uq_observation_name(mq))' has GP factorization residual $(diagnostics.factorization_residual).")
+        end
+    end
+    max_ratio = isempty(ratios) ? NaN : maximum(ratios)
+    max_residual = isempty(residuals) ? NaN : maximum(residuals)
+    return max_ratio, max_residual, degraded, warnings
+end
+
 _uq_observation_name(mq) = replace(string(mq.lhs), r"\(.*\)" => "")
 _uq_raw_observation_label(obs_name::AbstractString, time_index::Integer) =
     "$(obs_name)(t_index=$(Int(time_index)))"
@@ -380,8 +410,15 @@ function _uq_exact_ift(
     S, condition, ift_degraded = _ift_solve(J[:, 1:n_x], J[:, (n_x + 1):end])
     isempty(S) && throw(LinearAlgebra.SingularException(0))
     residual_degraded = !(residual_rel <= root_residual_rtol)
+    reason = if ift_degraded
+        :ill_conditioned_jacobian
+    elseif residual_degraded
+        :root_residual
+    else
+        :ok
+    end
     diagnostics = UQLinearizationDiagnostics(
-        :ok, residual_abs, residual_rel, condition, NaN, Int[],
+        reason, residual_abs, residual_rel, condition, NaN, Int[],
         ift_degraded || residual_degraded,
     )
     return S, diagnostics
@@ -529,6 +566,17 @@ function _uq_build_algebraic_report(
             pep, interpolants, time_indices, times, augmented_metadata,
             augmented_labels, opts.uq_noise_source,
         )
+    gp_ratio, gp_residual, gp_degraded, gp_warnings =
+        _uq_gp_factorization_assessment(pep, interpolants)
+    append!(warnings, gp_warnings)
+    diagnostic_reason = gp_degraded && diagnostics.reason == :ok ?
+        :gp_factorization_regularization : diagnostics.reason
+    diagnostics = UQLinearizationDiagnostics(
+        diagnostic_reason, diagnostics.root_residual_abs,
+        diagnostics.root_residual_rel, diagnostics.jacobian_condition,
+        diagnostics.gradient_norm, copy(diagnostics.active_bounds),
+        diagnostics.degraded || gp_degraded, gp_ratio, gp_residual,
+    )
     L, local_labels, local_roles, local_values = _uq_local_output_map(
         pep, solve_vars, augmented_values, root, augmented_metadata, S_augmented,
     )
@@ -866,6 +914,8 @@ function _uq_polish_observation_covariance(
     interpolants = _run_ctx_noise_interpolants(:agp_uq)
     isnothing(interpolants) &&
         throw(ArgumentError("no explicitly configured AGPUQ observation-noise provider was retained"))
+    gp_ratio, gp_residual, gp_degraded, gp_warnings =
+        _uq_gp_factorization_assessment(pep, interpolants)
     n_total = sum(length(_uq_measurement_series(pep, mq)) for mq in pep.measured_quantities)
     covariance = zeros(n_total, n_total)
     labels = String[]
@@ -908,7 +958,8 @@ function _uq_polish_observation_covariance(
         offset += n
     end
     offset == n_total || throw(ArgumentError("observation covariance assembly length mismatch"))
-    return covariance, labels, obs_names, obs_means, obs_stds
+    return covariance, labels, obs_names, obs_means, obs_stds,
+        gp_ratio, gp_residual, gp_degraded, gp_warnings
 end
 
 function _uq_polish_physical_map(
@@ -949,7 +1000,8 @@ function _uq_polish_report(
     )
 
     observations = reduce(vcat, ctx.data_targets; init = Float64[])
-    observation_covariance, data_labels, obs_names, obs_means, obs_stds = try
+    observation_covariance, data_labels, obs_names, obs_means, obs_stds,
+        gp_ratio, gp_residual, gp_degraded, gp_warnings = try
         _uq_polish_observation_covariance(pep, opts)
     catch err
         _rethrow_if_interrupt(err)
@@ -1049,17 +1101,21 @@ function _uq_polish_report(
     )
     correlation = _uq_correlation_matrix(Sigma, standard_deviation)
     max_cv = _uq_max_cv(standard_deviation, estimate_values)
-    degraded = condition > 1e6
+    degraded = condition > 1e6 || gp_degraded
     status = degraded ? :degenerate : _uq_status_from_cv(max_cv)
+    diagnostic_reason = condition > 1e6 ? :ill_conditioned_hessian :
+        gp_degraded ? :gp_factorization_regularization : :ok
     diagnostics = UQLinearizationDiagnostics(
-        :ok, NaN, NaN, condition, gradient_norm, active, degraded,
+        diagnostic_reason, NaN, NaN, condition, gradient_norm, active, degraded,
+        gp_ratio, gp_residual,
     )
     warnings = String[
         "Polish/direct UQ is conditional on the selected optimizer basin and unchanged active set.",
         "Observation covariance treats GP hyperparameters as fixed plug-in estimates.",
         "Trajectory score and prediction Jacobian use the production first-order AD path; the full observed Hessian uses central finite differences in retained optimizer coordinates.",
     ]
-    degraded && push!(warnings,
+    append!(warnings, gp_warnings)
+    condition > 1e6 && push!(warnings,
         "Observed Hessian condition number $condition exceeds 1e6; covariance is unreliable.")
     ia = compute_practical_identifiability_index(Sigma, labels, roles, estimate_values)
     append!(warnings, ia.warnings)
@@ -1393,13 +1449,17 @@ function _uq_branch_completion_report(
     correlation = _uq_correlation_matrix(covariance, standard_deviation)
     max_cv = _uq_max_cv(standard_deviation, estimate_values)
     fd_degraded = !(isfinite(fd_discrepancy) && fd_discrepancy <= 1e-3)
-    parent_degraded = parent_uq.status == :degenerate
+    parent_degraded = parent_uq.linearization_diagnostics.degraded
     degraded = diagnostics.degraded || fd_degraded || parent_degraded
     status = degraded ? :degenerate : _uq_status_from_cv(max_cv)
+    diagnostic_reason = fd_degraded ? :branch_map_unstable :
+        parent_degraded && diagnostics.reason == :ok ? :parent_degraded : diagnostics.reason
     diagnostics = UQLinearizationDiagnostics(
-        diagnostics.reason, diagnostics.root_residual_abs,
+        diagnostic_reason, diagnostics.root_residual_abs,
         diagnostics.root_residual_rel, diagnostics.jacobian_condition,
         fd_discrepancy, Int[], degraded,
+        diagnostics.gp_jitter_to_noise,
+        diagnostics.gp_factorization_residual,
     )
     warnings = copy(parent_uq.warnings)
     push!(warnings,

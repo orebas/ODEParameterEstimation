@@ -105,18 +105,29 @@ validation-only, so real-data runs with unknown truth cannot falsely report
 
 `provenance_metadata_dict` serializes the estimator identity, and
 `uq_metadata_dict` provides a JSON-friendly additive UQ sidecar block. Existing
-`result.csv` shape does not change.
+`result.csv` shape does not change. Non-finite floating-point values are emitted
+as `null`, so a real report (including intentionally unavailable truth and
+linearization fields) can be passed directly to a standards-compliant JSON
+encoder.
+
+`uq_reliability(outcome)` separates five axes that the legacy `status` field
+historically conflated: availability, numerical linearization, interval width,
+selection scope, and empirical calibration. The last axis is always
+`:not_assessed_by_single_run` on an individual report; only a frozen
+repeated-sampling campaign can establish coverage. The legacy field remains for
+source compatibility and is also retained in the sidecar as `status`.
 
 ## Numerical gates
 
 Algebraic reports retain absolute/relative root residual and Jacobian condition.
 Optimizer reports retain score norm, observed-Hessian condition, and active
 bounds, and require positive local curvature before inversion. A degraded gate
-always forces `status=:degenerate`; automatic
+always forces the backward-compatible summary `status=:degenerate`; automatic
 power-of-two unscaling cannot erase that status.
 
 The covariance remains useful for audit when a residual or conditioning gate is
-degraded, but it must not be treated as calibrated. Singular systems and
+degraded, but neither `status=:ok` nor an accepted numerical-linearization axis
+is an empirical calibration claim. Singular systems and
 unsupported artifacts return `UQUnavailable` rather than a pseudoinverse or
 zero covariance.
 

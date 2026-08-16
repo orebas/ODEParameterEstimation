@@ -21,6 +21,23 @@ using OrderedCollections
 	@test o.hc_threading === true
 	@test o.hc_compile_mode === :all
 	@test o.uq_noise_source === :learned_gp_homoscedastic
+	@test o.gp_derivative_lengthscale_factor == 1.0
+	@test o.multipoint_pair_strategy == :spread
+	@test !validate_options(EstimationOptions(gp_derivative_lengthscale_factor = 0.0))
+	@test !validate_options(EstimationOptions(gp_derivative_lengthscale_factor = Inf))
+	@test !validate_options(EstimationOptions(multipoint_pair_strategy = :unknown))
+
+	undersmoothed = EstimationOptions(
+		interpolators = InterpolatorMethod[InterpolatorAGPUQ],
+		gp_derivative_lengthscale_factor = 0.75,
+	)
+	method, interpolator = only(ODEParameterEstimation.resolve_interpolator_list(undersmoothed))
+	@test method == InterpolatorAGPUQ
+	@test interpolator isa Function
+	xs = collect(range(-0.5, 0.5; length = 15))
+	fit = interpolator(xs, sin.(xs))
+	@test fit.lengthscale_factor == 0.75
+	@test fit.lengthscale ≈ 0.75 * fit.fitted_lengthscale
 
 	# clustering_threshold genuinely controls full-space clustering: with a huge
 	# threshold everything merges into one cluster; with a tiny one nothing does.

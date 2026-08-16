@@ -1356,18 +1356,21 @@ function _write_html_uq_section(io, uq::UncertaintyReport;
         "Local Parameter Uncertainty"
     println(io, "<details open><summary>$title (Estimator Covariance → IFT)</summary><div class=\"detail-body\">")
 
-    # Provenance
-    status_badge = if uq.status == :ok
-        """<span class="badge badge-easy">OK</span>"""
-    elseif uq.status == :wide_ci
-        """<span class="badge badge-moderate">Wide CI</span>"""
-    else
-        """<span class="badge badge-hard">Degenerate</span>"""
-    end
+    # Reliability is intentionally multi-axis. The legacy status remains in
+    # the API, but must not be rendered as a calibration certificate.
+    reliability = uq_reliability(uq)
+    numerical_class = reliability.numerical_linearization == :accepted ?
+        "badge-easy" : reliability.numerical_linearization == :degraded ?
+        "badge-hard" : "badge-moderate"
+    interval_class = reliability.interval_width == :narrow ?
+        "badge-easy" : reliability.interval_width == :wide ?
+        "badge-moderate" : "badge-hard"
+    status_badge = """<span class="badge $numerical_class">linearization: $(reliability.numerical_linearization)</span> <span class="badge $interval_class">intervals: $(reliability.interval_width)</span>"""
     coord_desc = uq.coordinate_system == :physical_initial_conditions ?
         "public coordinates <code>[parameters, initial conditions at t0]</code>" :
         "local algebraic coordinates at <code>t_eval</code>"
     println(io, """<div class="provenance">Estimator-matched local linearization at t = $(@sprintf("%.4f", uq.t_eval)). Displaying $coord_desc. Covariance: <code>$(uq.covariance_kind)</code>; noise source: <code>$(uq.noise_source)</code>. $status_badge</div>""")
+    println(io, """<div class="provenance"><b>Reliability scope:</b> selection <code>$(reliability.selection_scope)</code>; empirical calibration <code>$(reliability.empirical_calibration)</code>. A successful local calculation is not a repeated-sampling coverage certificate.</div>""")
 
     if !isnothing(uq.target)
         target = uq.target
