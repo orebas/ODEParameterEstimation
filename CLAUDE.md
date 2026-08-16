@@ -21,13 +21,17 @@
   [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md)
   and the GP-jet bias decision note
   [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md)
+  and the staged research protocol
+  [`docs/2026-08-15_estimation_uq_research_program.md`](docs/2026-08-15_estimation_uq_research_program.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60
   low-noise calibration result applies to the single-point estimator; nonlinear
   MP/polish coverage remains to be established. The older package-constructor
-  pilot is routing stress, not audited model evidence. `:degenerate` means the
-  numerical/regime gates rejected reliability, not necessarily a software bug.
+  pilot is routing stress, not audited model evidence. `:degenerate` is only the
+  legacy summary flag: inspect `uq_reliability`'s separate numerical and
+  interval-width axes, and never read a single-run status as a calibration
+  certificate.
 
 - **Variable (column) scaling of the polynomial system.** Diagnostics on
   the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)

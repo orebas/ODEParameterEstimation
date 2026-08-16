@@ -64,9 +64,16 @@ function main_lv_gp_bias_decomposition()
 	true_internal = original[:, 2] ./ observable_scale
 	noisy_internal = noisy[:, 2] ./ observable_scale
 	learned_sigma = sqrt(ODEParameterEstimation.learned_observation_noise_variance(agp))
+	factorization = gp_factorization_diagnostics(agp)
 
 	println("FIXED-HYPERPARAMETER GP-JET ERROR DECOMPOSITION")
 	@printf("  learned raw-observation sigma (internal): %.8e\n", learned_sigma)
+	@printf("  fitted/used lengthscale: %.8e / %.8e (factor %.3f)\n",
+		factorization.fitted_lengthscale, factorization.lengthscale,
+		factorization.lengthscale_factor)
+	@printf("  Cholesky jitter/noise ratio: %.8e\n", factorization.jitter_to_noise)
+	@printf("  factorization residual: %.8e\n", factorization.factorization_residual)
+	println("  factorization status: ", factorization.status)
 	for data_index in (25, 635)
 		t_eval = times[data_index]
 		state_taylor = ODEParameterEstimation.compute_oracle_taylor_coefficients(

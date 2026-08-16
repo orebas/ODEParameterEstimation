@@ -15,14 +15,23 @@ drift, prefer `CLAUDE.md`.
 - **UQ regime + production contract.** Start with the audited PEB LV/VDP/FHN
   canaries
   [`docs/2026-08-14_peb_audited_uq_canaries.md`](docs/2026-08-14_peb_audited_uq_canaries.md),
-  then read
+  then read the current routing/API contract
   [`docs/2026-08-14_estimator_aware_uq.md`](docs/2026-08-14_estimator_aware_uq.md)
-  and [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md),
-  plus the GP-jet bias decision note
-  [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md),
-  before changing UQ. Production UQ targets the returned rank-one estimator;
-  nonlinear MP/polish coverage is still an open validation task. The older
-  package-constructor pilot is routing stress, not audited model evidence.
+  and empirical recap
+  [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md)
+  and the GP-jet bias decision note
+  [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md)
+  and the staged research protocol
+  [`docs/2026-08-15_estimation_uq_research_program.md`](docs/2026-08-15_estimation_uq_research_program.md)
+  before touching uncertainty quantification. Production UQ targets exactly the
+  returned rank-one estimator and supports retained SP/MP algebraic roots,
+  trajectory polish/direct score equations, and branch propagation. The N=60
+  low-noise calibration result applies to the single-point estimator; nonlinear
+  MP/polish coverage remains to be established. The older package-constructor
+  pilot is routing stress, not audited model evidence. `:degenerate` is only the
+  legacy summary flag: inspect `uq_reliability`'s separate numerical and
+  interval-width axes, and never read a single-run status as a calibration
+  certificate.
 
 - **Variable (column) scaling of the polynomial system.** Diagnostics on
   the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)

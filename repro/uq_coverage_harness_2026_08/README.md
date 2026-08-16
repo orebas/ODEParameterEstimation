@@ -13,6 +13,59 @@ physicalized report), then per-coordinate z-scores and coverage of the
   - `two_exp_pep()` — the TAC-theory anchor model (ẋᵢ = −kᵢxᵢ, y = x1 + x2;
     k2 ≫ k1 makes (x2, k2) the weakly-identified block).
   - `two_state_observed_pep()` — well-conditioned companion (`simple()`).
+- `run_estimator_aware_nonlinear.jl` — selected-estimator SP/MP/polish campaign
+  runner with atomic TOML records, structured timings, full covariance, and
+  reliability-axis fields.
+- `run_estimator_aware_peb_canaries.jl` — SHA-pinned loaders for audited frozen
+  PEB paper cells. This is the scientific nonlinear panel; package registry
+  constructors are routing stress only.
+- `summarize_estimator_aware_nonlinear.jl` — variant-aware aggregation with
+  explicit outcome taxonomy, usable rate, and conditional/unconditional
+  coverage denominators.
+- `diagnose_audited_lv_multipoint_uq.jl` — retained-root LV conditioning and
+  GP-jet bias decomposition.
+- [`../../docs/2026-08-15_estimation_uq_research_program.md`](../../docs/2026-08-15_estimation_uq_research_program.md)
+  — promotion gates and the N=10 → N=60 → N=200 ladder.
+
+## Outcome accounting
+
+Coverage summaries report both:
+
+- **conditional coverage**, among finite usable intervals; and
+- **unconditional coverage**, with unavailable/nonfinite outcomes retained in
+  the denominator.
+
+They also retain full covariance matrices, joint Mahalanobis statistics, usable
+rate, and a reason taxonomy. Dropping failed rows from the denominator can make
+an unreliable pipeline look calibrated and is not permitted for promotion.
+
+An individual UQ sidecar records availability, numerical-linearization status,
+interval-width status, selection scope, and calibration status separately.
+Calibration is always `not_assessed_by_single_run`; `status=:ok` is not a
+coverage certificate.
+
+## Optional research arms
+
+The estimator-aware runners accept:
+
+- `--pair-strategy=spread|boundary_order`; and
+- `--lengthscale-factor=<positive Float64>`.
+
+Defaults preserve production behavior. Non-default variants are encoded in the
+result filename and payload, so paired arms cannot silently overwrite one
+another. A useful first causal screen is `1.0, 0.9, 0.75, 0.6`; those values are
+not production recommendations.
+
+Example frozen canary:
+
+```sh
+julia --startup-file=no repro/uq_coverage_harness_2026_08/run_estimator_aware_peb_canaries.jl \
+  --cases=lotka_volterra_5_1em6 \
+  --arms=mp_solver_polish \
+  --interpolator-pool=uq_only \
+  --pair-strategy=boundary_order \
+  --lengthscale-factor=0.75
+```
 
 ## Modes
 
