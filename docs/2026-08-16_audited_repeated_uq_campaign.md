@@ -2,10 +2,14 @@
 
 Date: 2026-08-16
 
-Status: infrastructure implemented. H0 is green: the full package gate passed
-1,621/1,621 and the seeded full-scale benchmark smoke passed 10/10. Staged
-scientific cells must run from the final clean commit before results can be
-interpreted.
+Status: H0--H3 executed. H0 is green: the full package gate passed
+1,621/1,621 and the seeded full-scale benchmark smoke passed 10/10. All
+scientific cells ran under process-tree supervision from clean commit
+`2a25aec`. The default estimator passed every availability and accuracy gate
+on DAISY and receptor, but failed the H3 coherent-large-z stop rule; U10 was
+therefore not run. A fixed-pair `0.6` lengthscale-factor research arm removed
+most of the observed bias at N=5, but was chosen with truth in view and is not
+a production default.
 
 This is the execution record for Stages H0--H3 and U10 of the broader
 [`2026-08-15_estimation_uq_research_program.md`](2026-08-15_estimation_uq_research_program.md).
@@ -197,7 +201,75 @@ Populate this section only from clean-revision supervised records.
 
 | Stage | Commit | Result directory | Decision |
 |---|---|---|---|
-| H0 | pending final commit hash | n/a | pass: full gate 1,621/1,621; benchmark smoke 10/10 |
-| H1 | pending | pending | not started |
-| H2 | pending | pending | not started |
-| H3 | pending | pending | not started |
+| H0 | `acfe737` + output-hygiene-only `2a25aec` | n/a | pass: full gate 1,621/1,621; benchmark smoke 10/10; campaign contracts 32/32 after hygiene fix |
+| H1 | `2a25aec` | [`audited_h1_20260816/summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h1_20260816/summary_v2.toml) | DAISY and receptor advance; bio UQ is typed unavailable because unidentifiable `x7` is absent from the retained root |
+| H2 | `2a25aec` | [`audited_h2_primary_20260816/summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h2_primary_20260816/summary_v2.toml) | both primary cases 3/3 usable and accurate; coherent undercoverage detected |
+| H3 | `2a25aec` | [`audited_h3_increment_20260816/combined_n5_summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h3_increment_20260816/combined_n5_summary_v2.toml) | both primary cases 5/5 usable and accurate, but both have 0/5 joint coverage; stop before U10 |
+| fixed `0.6` research arm | `2a25aec` | [DAISY N=5](../repro/uq_coverage_harness_2026_08/results/audited_daisy_ls06_holdout_20260816/combined_n5_summary_v2.toml), [receptor N=5](../repro/uq_coverage_harness_2026_08/results/audited_receptor_ls06_holdout_20260816/combined_n5_summary_v2.toml) | strong causal evidence for GP-jet smoother bias; keep opt-in pending an oracle-free rule |
+
+### H1 qualification
+
+The historical contract arms reproduced all three audited estimator identities:
+DAISY selected Chebyshev-AICc MP rows `[36,635]`, receptor selected AAAD-GPR
+MP rows `[36,635]`, and biohydrogenation selected Chebyshev-BIC MP rows
+`[25,635]`. Each correctly returned typed UQ unavailability for its unsupported
+interpolator.
+
+The UQ-only pool selected exact AGPUQ artifacts. DAISY selected MP rows
+`[16,635]` with maximum coordinate relative error `7.49e-5`; receptor selected
+MP rows `[36,635]` with maximum error `4.72e-5`. Both had finite covariance,
+accepted linear solves, equilibrated Jacobian conditions below 140, and
+backward error below `4e-18`.
+
+Biohydrogenation selected an accurate SP estimate at row 267 (maximum
+identifiable-coordinate error `4.57e-4`), but UQ was unavailable because
+physical state `x7` is structurally unidentifiable, is absent from the retained
+root, and cannot be reconstructed by the physical-state backsolve. The
+declared `1e-8` fallback was not run: lower noise cannot repair an invalid UQ
+route, and the fallback was predeclared only for valid-but-inaccurate cells.
+
+### Default H2/H3 result
+
+The selected estimator was unusually stable: all five DAISY draws chose AGPUQ
+MP `[16,635]`, and all five receptor draws chose AGPUQ MP `[36,635]`. Every
+estimate and covariance was available, every artifact matched exactly, and all
+ten estimates had maximum relative error below `1e-3`. Thus selection
+instability, branch switching, and failed linear algebra do not explain the
+calibration result.
+
+| Case | usable / accurate | maximum error over N=5 | joint 95% coverage | mean Mahalanobis | strongest persistent mean z |
+|---|---:|---:|---:|---:|---|
+| DAISY | 5/5 / 5/5 | `1.10e-4` | 0/5 | 43.36 | `x3=-2.44`, `k31=+2.38`, `k13=+2.27` |
+| receptor | 5/5 / 5/5 | `1.05e-4` | 0/5 | 52.63 | `Ca=-4.96`, `koff1=-3.97`, `R1tot=-3.78`, `kon1=+3.72` |
+
+N=5 is not a calibration estimate, but the invariant routes and same-sign
+coordinate shifts are enough to trigger the H3 stop rule. Running U10 would
+only estimate an already-visible miss more precisely.
+
+### Fixed-pair undersmoothing mechanism check
+
+The explicit SE likelihood/factorization recipe was already unified, retained
+factor residuals were small, and these cells required zero Cholesky jitter.
+The next causal screen therefore held each repeatedly selected pair fixed and
+changed only `gp_derivative_lengthscale_factor`. On seed 8164101, factors
+`0.9`, `0.75`, and `0.6` progressively removed the dominant signed z-errors in
+both models while keeping maximum coordinate error below `2.3e-4`.
+
+Factor `0.6` was then frozen for seeds 8164102--8164105. The last two seeds are
+a small holdout relative to the seed used to choose the factor.
+
+| Case | arm | usable / accurate | maximum error over N=5 | joint 95% coverage | mean Mahalanobis | largest absolute mean z |
+|---|---|---:|---:|---:|---:|---:|
+| DAISY | default adaptive | 5/5 / 5/5 | `1.10e-4` | 0/5 | 43.36 | 2.44 |
+| DAISY | fixed pair, `0.6` | 5/5 / 5/5 | `3.54e-4` | 4/5 | 16.58 | 1.01 |
+| receptor | default adaptive | 5/5 / 5/5 | `1.05e-4` | 0/5 | 52.63 | 4.96 |
+| receptor | fixed pair, `0.6` | 5/5 / 5/5 | `1.53e-4` | 5/5 | 9.68 | 0.80 |
+
+This is strong evidence that function-value marginal-likelihood lengthscales
+oversmooth the derivatives used by these algebraic estimators. It is not a
+license to hardcode `0.6`: the factor was selected using truth, fixed-pair UQ
+still conditions on the chosen recipe, and N=5 remains exploratory. The next
+scientific step is an oracle-free rule based on derivative/estimate stability
+across a short lengthscale ladder, frozen before evaluation on new seeds and
+models. Partial identifiable-subspace physicalization for biohydrogenation is
+a separate typed-UQ design task.

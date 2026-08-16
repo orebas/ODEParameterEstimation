@@ -115,6 +115,19 @@ mechanism screen, not a universal tuning rule.
 - These are discovery results. No N=60 or default change is authorized until
   a fixed factor or oracle-free rule is predeclared and survives held-out
   audited-model checks.
+- The audited DAISY/receptor hard-model campaign confirms that conclusion on
+  models where unpolished estimation is excellent. At the default AGPUQ
+  lengthscale both models were 5/5 usable and accurate with invariant MP pairs,
+  yet both had 0/5 joint 95% coverage and coherent mean z-shifts as large as
+  4.96. This rules out branch switching and failed numerical linearization as
+  the primary explanation.
+- With those pairs fixed, the opt-in `0.6` lengthscale factor kept all ten
+  estimates below `1e-3` error while improving joint coverage from 0/5 to 4/5
+  for DAISY and 5/5 for receptor; mean Mahalanobis fell from 43.36 to 16.58 and
+  from 52.63 to 9.68, respectively. This is causal evidence for GP-jet smoother
+  bias, but the factor was chosen with truth in view. The full execution record
+  and checked-in summaries are in
+  [`2026-08-16_audited_repeated_uq_campaign.md`](2026-08-16_audited_repeated_uq_campaign.md).
 
 ## Audited model panel
 

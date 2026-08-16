@@ -1,0 +1,507 @@
+generated_at = "2026-08-16T19:07:26.144"
+schema_version = 2
+
+[[groups]]
+accurate_estimate_rate_at_1e-3 = 1.0
+accurate_estimates_at_1e-3 = 5
+arm = "mp_solver_polish"
+availability_gate_pass = true
+calibration_claim_permitted = false
+case_id = "receptor_binding_5_1em6"
+data_source = "synthetic"
+estimate_available = 5
+estimate_available_rate = 1.0
+interpolator_pool = "uq_only"
+joint_mahalanobis_coverage_95 = 1.0
+joint_mahalanobis_unconditional_coverage_95 = 1.0
+joint_mahalanobis_usable = 5
+lengthscale_factor = 0.6
+manifest_id = "odepe_uq_campaign_2026_08_v1"
+mean_mahalanobis = 9.67751914530119
+median_elapsed_seconds = 129.97727990150452
+median_gp_jitter_to_noise = 0.0
+multipoint_max_pairs = 15
+multipoint_pair_strategy = "spread"
+n60_calibration_gate_pass = false
+noise = 1.0e-6
+numerically_stable_exact_reports = 5
+observations = 750
+odepe_commit = "2a25aecee79694c4546afc659f7e326e2fa19028"
+odepe_repository_state_sha256 = "clean"
+peak_rss_bytes = 3.302842368e9
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+recipe_interpolator = "agp_uq"
+recipe_kind = "fixed_multipoint"
+recipe_rows = [36, 635]
+replicates = 5
+seeds = [8164101, 8164102, 8164103, 8164104, 8164105]
+shooting_points = 20
+usable_rate = 1.0
+usable_reports = 5
+
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = -2.557634088518057e-7
+    estimator_rmse = 4.1956378535191847e-7
+    label = "Ca"
+    maximum_relative_error = 1.5986066281713837e-6
+    mean_z = -0.6850757046161432
+    median_absolute_error = 2.1516084436346006e-7
+    median_absolute_z = 0.552194729063646
+    median_relative_error = 3.9697572760785986e-7
+    std_z = 1.0033322657064758
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = -5.0823285446810475e-8
+    estimator_rmse = 1.161141468099455e-6
+    label = "Cb"
+    maximum_relative_error = 7.234251258136058e-6
+    mean_z = -0.06432254957125211
+    median_absolute_error = 4.5672153425879713e-7
+    median_absolute_z = 0.5070828505719125
+    median_relative_error = 1.6978495697353053e-6
+    std_z = 1.4415827334565923
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = 4.333389553079492e-7
+    estimator_rmse = 1.6656015028540702e-6
+    label = "L"
+    maximum_relative_error = 1.2881084131743982e-5
+    mean_z = 0.4418073793734455
+    median_absolute_error = 7.939946108093121e-7
+    median_absolute_z = 0.7766305425073311
+    median_relative_error = 3.214553080199644e-6
+    std_z = 1.7785419901720483
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = -4.003156368603822e-6
+    estimator_rmse = 6.038329982287505e-6
+    label = "R1tot"
+    maximum_relative_error = 7.434546325876435e-5
+    mean_z = -0.8014036136536575
+    median_absolute_error = 3.325992800451427e-6
+    median_absolute_z = 0.6592532929714668
+    median_relative_error = 2.0530819755873007e-5
+    std_z = 1.021884071768199
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = 3.7491634026887153e-6
+    estimator_rmse = 2.0168522430077e-5
+    label = "R2tot"
+    maximum_relative_error = 4.573490881127088e-5
+    mean_z = 0.26312085241884836
+    median_absolute_error = 1.7678238627416576e-5
+    median_absolute_z = 1.1988523032677838
+    median_relative_error = 2.3260840299232338e-5
+    std_z = 1.542862905524967
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = -8.075165196075318e-6
+    estimator_rmse = 1.2354919532997764e-5
+    label = "koff1"
+    maximum_relative_error = 2.7844650018864214e-5
+    mean_z = -0.7851062349450608
+    median_absolute_error = 6.675273860889952e-6
+    median_absolute_z = 0.6418384464409593
+    median_relative_error = 7.450082434028964e-6
+    std_z = 1.0266523798838372
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = -1.098363355256371e-5
+    estimator_rmse = 4.333203991364339e-5
+    label = "koff2"
+    maximum_relative_error = 0.00015294137406499512
+    mean_z = -0.30798238728006655
+    median_absolute_error = 1.7379596862987512e-5
+    median_absolute_z = 0.476583262763528
+    median_relative_error = 3.1427842428548845e-5
+    std_z = 1.2658886198755617
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.8
+    estimator_bias = 1.99460441903776e-5
+    estimator_rmse = 2.9765738855175545e-5
+    label = "kon1"
+    maximum_relative_error = 8.391714759430888e-5
+    mean_z = 0.7870788059492542
+    median_absolute_error = 1.4393248646049628e-5
+    median_absolute_z = 0.5626555874217483
+    median_relative_error = 2.0243668981785694e-5
+    std_z = 0.985519610414263
+    unconditional_coverage_95 = 0.8
+    usable_z = 5
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -2.027560157851216e-5
+    estimator_rmse = 3.431429575963951e-5
+    label = "kon2"
+    maximum_relative_error = 0.00010485382193883558
+    mean_z = -0.5409307212740128
+    median_absolute_error = 8.943207332579028e-6
+    median_absolute_z = 0.23898484774017797
+    median_relative_error = 1.3210055144134458e-5
+    std_z = 0.8314021316004725
+    unconditional_coverage_95 = 1.0
+    usable_z = 5
+
+    [groups.covariance_comparison]
+    empirical = [[2.55452100793736e-11, 8.957249767848341e-11, -1.2462967575531753e-10, 1.0857412938014864e-10, 5.281134678357101e-11, 2.0663660884375041e-10, -8.55390150007573e-12, 1.854473749555796e-12, 5.70719153990741e-12], [8.957249767848341e-11, 4.908913384905735e-10, -4.208427536083835e-10, 3.354654989015817e-10, 1.8356736829077756e-10, 9.085160380200325e-10, -3.701107643827527e-11, 6.4950764251270415e-12, 2.702212925056016e-11], [-1.2462967575531753e-10, -4.208427536083835e-10, 6.101931634375139e-10, -5.431700400980675e-10, -2.5772546886521116e-10, -9.987088140727876e-10, 4.1091995788297927e-11, -9.013636557226811e-12, -2.7305668063708014e-11], [1.0857412938014864e-10, 3.354654989015817e-10, -5.431700400980675e-10, 9.57963592636811e-10, 2.294858815984225e-10, 1.233128575849041e-9, -4.023896047756427e-11, 8.219745611572519e-12, 3.023553950282025e-11], [5.281134678357101e-11, 1.8356736829077756e-10, -2.5772546886521116e-10, 2.294858815984225e-10, 1.0929467965367945e-10, 4.2945268214850393e-10, -1.7710436866003393e-11, 3.850925475594696e-12, 1.1824669806679865e-11], [2.0663660884375041e-10, 9.085160380200325e-10, -9.987088140727876e-10, 1.233128575849041e-9, 4.2945268214850393e-10, 2.196281846325726e-9, -8.127512141586894e-11, 1.5299737344199396e-11, 5.993405680734356e-11], [-8.55390150007573e-12, -3.701107643827527e-11, 4.1091995788297927e-11, -4.023896047756427e-11, -1.7710436866003393e-11, -8.127512141586894e-11, 3.2330571451529417e-12, -6.336160916902058e-13, -2.2906404233569267e-12], [1.854473749555796e-12, 6.4950764251270415e-12, -9.013636557226811e-12, 8.219745611572519e-12, 3.850925475594696e-12, 1.5299737344199396e-11, -6.336160916902058e-13, 1.3827356083916846e-13, 4.233191168721771e-13], [5.70719153990741e-12, 2.702212925056016e-11, -2.7305668063708014e-11, 3.023553950282025e-11, 1.1824669806679865e-11, 5.993405680734356e-11, -2.2906404233569267e-12, 4.233191168721771e-13, 1.6820831282456871e-12]]
+    empirical_to_reported_variance_ratio = [0.9875327017665985, 2.398317596938851, 0.9167524227218858, 0.6732657080374382, 0.9953218214860111, 1.6315892325042403, 3.1945801490126824, 0.950648573365309, 2.134557992987305]
+    labels = ["R1tot", "R2tot", "kon1", "kon2", "koff1", "koff2", "L", "Ca", "Cb"]
+    labels_dimension = 9
+    mean_reported = [[2.5867710541307384e-11, -9.493985723242096e-14, -1.3089191019921596e-10, -5.119815676110726e-13, 5.318374464647224e-11, -5.43681021908321e-13, -1.994342394827872e-12, 1.832148303426683e-12, 6.250987932778062e-14], [-9.493985723242096e-14, 2.0468153972481968e-10, 4.98914266186564e-13, 1.9116255426383463e-11, -2.530490246269671e-13, 2.7870150833512136e-10, -8.841032010978674e-12, -3.2708418392028336e-13, 8.97991511544698e-12], [-1.3089191019921596e-10, 4.98914266186564e-13, 6.656030006725464e-10, 2.564169123749732e-12, -2.696377631228708e-10, 2.7424457697612385e-12, 1.004653266083465e-11, -9.234965606032879e-12, -3.1352475562581516e-13], [-5.119815676110726e-13, 1.9116255426383463e-11, 2.564169123749732e-12, 1.4228611099609748e-9, -9.805106758976834e-13, 1.1973609098506418e-9, -2.5133430707286612e-11, -7.428727216591856e-13, 2.3811859027533253e-11], [5.318374464647224e-11, -2.530490246269671e-13, -2.696377631228708e-10, -9.805106758976834e-13, 1.0980838287108281e-10, -1.1323192726737364e-12, -4.179055684154157e-12, 3.833022191951122e-12, 1.3265593776662728e-13], [-5.43681021908321e-13, 2.7870150833512136e-10, 2.7424457697612385e-12, 1.1973609098506418e-9, -1.1323192726737364e-12, 1.3460997428591564e-9, -3.2199355796512076e-11, -1.0383008872147184e-12, 3.130191374428007e-11], [-1.994342394827872e-12, -8.841032010978674e-12, 1.004653266083465e-11, -2.5133430707286612e-11, -4.179055684154157e-12, -3.2199355796512076e-11, 1.0120444610388476e-12, -1.303296005513041e-13, -8.081146985670922e-13], [1.832148303426683e-12, -3.2708418392028336e-13, -9.234965606032879e-12, -7.428727216591856e-13, 3.833022191951122e-12, -1.0383008872147184e-12, -1.303296005513041e-13, 1.4545181543762084e-13, -2.0458853827803428e-14], [6.250987932778062e-14, 8.97991511544698e-12, -3.1352475562581516e-13, 2.3811859027533253e-11, 1.3265593776662728e-13, 3.130191374428007e-11, -8.081146985670922e-13, -2.0458853827803428e-14, 7.880240938741696e-13]]
+
+    [groups.outcome_reason_counts]
+    report = 5
+
+    [groups.selection_counts]
+    "multipoint_algebraic@[36, 635]#agp_uq" = 5
+[[groups]]
+accurate_estimate_rate_at_1e-3 = 1.0
+accurate_estimates_at_1e-3 = 1
+arm = "mp_solver_polish"
+availability_gate_pass = true
+calibration_claim_permitted = false
+case_id = "receptor_binding_5_1em6"
+data_source = "synthetic"
+estimate_available = 1
+estimate_available_rate = 1.0
+interpolator_pool = "uq_only"
+joint_mahalanobis_coverage_95 = 0.0
+joint_mahalanobis_unconditional_coverage_95 = 0.0
+joint_mahalanobis_usable = 1
+lengthscale_factor = 0.75
+manifest_id = "odepe_uq_campaign_2026_08_v1"
+mean_mahalanobis = 16.947158331262912
+median_elapsed_seconds = 126.45430183410645
+median_gp_jitter_to_noise = 0.0
+multipoint_max_pairs = 15
+multipoint_pair_strategy = "spread"
+n60_calibration_gate_pass = false
+noise = 1.0e-6
+numerically_stable_exact_reports = 1
+observations = 750
+odepe_commit = "2a25aecee79694c4546afc659f7e326e2fa19028"
+odepe_repository_state_sha256 = "clean"
+peak_rss_bytes = 3.325218816e9
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+recipe_interpolator = "agp_uq"
+recipe_kind = "fixed_multipoint"
+recipe_rows = [36, 635]
+replicates = 1
+seeds = [8164101]
+shooting_points = 20
+usable_rate = 1.0
+usable_reports = 1
+
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -1.5707262757125307e-7
+    estimator_rmse = 1.5707262757125307e-7
+    label = "Ca"
+    maximum_relative_error = 2.8980189588792077e-7
+    mean_z = -0.5401454758055624
+    median_absolute_error = 1.5707262757125307e-7
+    median_absolute_z = 0.5401454758055624
+    median_relative_error = 2.8980189588792077e-7
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 1.4933679277628897e-6
+    estimator_rmse = 1.4933679277628897e-6
+    label = "Cb"
+    maximum_relative_error = 5.551553634806281e-6
+    mean_z = 2.587557804669605
+    median_absolute_error = 1.4933679277628897e-6
+    median_absolute_z = 2.587557804669605
+    median_relative_error = 5.551553634806281e-6
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -1.2779960490150177e-6
+    estimator_rmse = 1.2779960490150177e-6
+    label = "L"
+    maximum_relative_error = 5.1740730729352945e-6
+    mean_z = -1.8609826507989655
+    median_absolute_error = 1.2779960490150177e-6
+    median_absolute_z = 1.8609826507989655
+    median_relative_error = 5.1740730729352945e-6
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -2.125625160831479e-6
+    estimator_rmse = 2.125625160831479e-6
+    label = "R1tot"
+    maximum_relative_error = 1.312114296809555e-5
+    mean_z = -0.597215011852232
+    median_absolute_error = 2.125625160831479e-6
+    median_absolute_z = 0.597215011852232
+    median_relative_error = 1.312114296809555e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 2.9512544084120407e-5
+    estimator_rmse = 2.9512544084120407e-5
+    label = "R2tot"
+    maximum_relative_error = 3.883229484752685e-5
+    mean_z = 2.4851507765077785
+    median_absolute_error = 2.9512544084120407e-5
+    median_absolute_z = 2.4851507765077785
+    median_relative_error = 3.883229484752685e-5
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -4.57286678845481e-6
+    estimator_rmse = 4.57286678845481e-6
+    label = "koff1"
+    maximum_relative_error = 5.1036459692576004e-6
+    mean_z = -0.6143646986281357
+    median_absolute_error = 4.57286678845481e-6
+    median_absolute_z = 0.6143646986281357
+    median_relative_error = 5.1036459692576004e-6
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 4.627908635990163e-5
+    estimator_rmse = 4.627908635990163e-5
+    label = "koff2"
+    maximum_relative_error = 8.36873171065129e-5
+    mean_z = 2.02149178312578
+    median_absolute_error = 4.627908635990163e-5
+    median_absolute_z = 2.02149178312578
+    median_relative_error = 8.36873171065129e-5
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = 1.2959099519815886e-5
+    estimator_rmse = 1.2959099519815886e-5
+    label = "kon1"
+    maximum_relative_error = 1.8226581603116577e-5
+    mean_z = 0.7206194508751285
+    median_absolute_error = 1.2959099519815886e-5
+    median_absolute_z = 0.7206194508751285
+    median_relative_error = 1.8226581603116577e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = 1.052406620816182e-5
+    estimator_rmse = 1.052406620816182e-5
+    label = "kon2"
+    maximum_relative_error = 1.5545149495069157e-5
+    mean_z = 0.4159676628875605
+    median_absolute_error = 1.052406620816182e-5
+    median_absolute_z = 0.4159676628875605
+    median_relative_error = 1.5545149495069157e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+
+    [groups.covariance_comparison]
+    empirical = [[nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan]]
+    empirical_to_reported_variance_ratio = [nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    labels = ["R1tot", "R2tot", "kon1", "kon2", "koff1", "koff2", "L", "Ca", "Cb"]
+    labels_dimension = 9
+    mean_reported = [[1.26681131175692e-11, -9.355980332816983e-14, -6.38104877800153e-11, -4.3301629045600937e-13, 2.642102488165863e-11, -4.776327611205041e-13, -1.0606821257815188e-12, 9.64814935172208e-13, 3.0900353877881756e-14], [-9.355980332816983e-14, 1.4102880038798124e-10, 4.899038061402077e-13, -6.934089519754125e-11, -2.4380920363439603e-13, 1.2518246692947126e-10, -4.776647546524811e-12, -1.9356597676531225e-13, 4.930550511818432e-12], [-6.38104877800153e-11, 4.899038061402077e-13, 3.2339826778687055e-10, 2.1608960105825545e-12, -1.3337073171632785e-10, 2.4038149428049573e-12, 5.307647091860299e-12, -4.8317472776821605e-12, -1.534669591162497e-13], [-4.3301629045600937e-13, -6.934089519754125e-11, 2.1608960105825545e-12, 6.401002591500997e-10, -8.304220372212002e-13, 4.382668059647986e-10, -7.909263906191581e-12, -2.2495445457845396e-13, 6.9236374265370404e-12], [2.642102488165863e-11, -2.4380920363439603e-13, -1.3337073171632785e-10, -8.304220372212002e-13, 5.540189170100186e-11, -9.984088609060096e-13, -2.2670067564321126e-12, 2.0576885237865905e-12, 6.74811125605732e-14], [-4.776327611205041e-13, 1.2518246692947126e-10, 2.4038149428049573e-12, 4.382668059647986e-10, -9.984088609060096e-13, 5.24113796906664e-10, -1.2785221432055466e-11, -4.397422449550712e-13, 1.2181933493296299e-11], [-1.0606821257815188e-12, -4.776647546524811e-12, 5.307647091860299e-12, -7.909263906191581e-12, -2.2670067564321126e-12, -1.2785221432055466e-11, 4.71600626729609e-13, -7.980272520860381e-14, -3.4444635254408594e-13], [9.64814935172208e-13, -1.9356597676531225e-13, -4.8317472776821605e-12, -2.2495445457845396e-13, 2.0576885237865905e-12, -4.397422449550712e-13, -7.980272520860381e-14, 8.456283452786378e-14, -8.468084239244607e-15], [3.0900353877881756e-14, 4.930550511818432e-12, -1.534669591162497e-13, 6.9236374265370404e-12, 6.74811125605732e-14, 1.2181933493296299e-11, -3.4444635254408594e-13, -8.468084239244607e-15, 3.330838063930292e-13]]
+
+    [groups.outcome_reason_counts]
+    report = 1
+
+    [groups.selection_counts]
+    "multipoint_algebraic@[36, 635]#agp_uq" = 1
+[[groups]]
+accurate_estimate_rate_at_1e-3 = 1.0
+accurate_estimates_at_1e-3 = 1
+arm = "mp_solver_polish"
+availability_gate_pass = true
+calibration_claim_permitted = false
+case_id = "receptor_binding_5_1em6"
+data_source = "synthetic"
+estimate_available = 1
+estimate_available_rate = 1.0
+interpolator_pool = "uq_only"
+joint_mahalanobis_coverage_95 = 0.0
+joint_mahalanobis_unconditional_coverage_95 = 0.0
+joint_mahalanobis_usable = 1
+lengthscale_factor = 0.9
+manifest_id = "odepe_uq_campaign_2026_08_v1"
+mean_mahalanobis = 31.96839173947835
+median_elapsed_seconds = 130.1365339756012
+median_gp_jitter_to_noise = 0.0
+multipoint_max_pairs = 15
+multipoint_pair_strategy = "spread"
+n60_calibration_gate_pass = false
+noise = 1.0e-6
+numerically_stable_exact_reports = 1
+observations = 750
+odepe_commit = "2a25aecee79694c4546afc659f7e326e2fa19028"
+odepe_repository_state_sha256 = "clean"
+peak_rss_bytes = 3.132342272e9
+peb_frozen_sha = "c94e0a3eb5bbd8ab95c73e30f203cbad73485d7b"
+recipe_interpolator = "agp_uq"
+recipe_kind = "fixed_multipoint"
+recipe_rows = [36, 635]
+replicates = 1
+seeds = [8164101]
+shooting_points = 20
+usable_rate = 1.0
+usable_reports = 1
+
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -1.683987757017391e-7
+    estimator_rmse = 1.683987757017391e-7
+    label = "Ca"
+    maximum_relative_error = 3.1069884815819023e-7
+    mean_z = -0.8902342282512973
+    median_absolute_error = 1.683987757017391e-7
+    median_absolute_z = 0.8902342282512973
+    median_relative_error = 3.1069884815819023e-7
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 1.7680497275684992e-6
+    estimator_rmse = 1.7680497275684992e-6
+    label = "Cb"
+    maximum_relative_error = 6.572675567169141e-6
+    mean_z = 4.2317484931222475
+    median_absolute_error = 1.7680497275684992e-6
+    median_absolute_z = 4.2317484931222475
+    median_relative_error = 6.572675567169141e-6
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = -1.5499820925912733e-6
+    estimator_rmse = 1.5499820925912733e-6
+    label = "L"
+    maximum_relative_error = 6.275231144094224e-6
+    mean_z = -3.0701053786538637
+    median_absolute_error = 1.5499820925912733e-6
+    median_absolute_z = 3.0701053786538637
+    median_relative_error = 6.275231144094224e-6
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -2.048736523208028e-6
+    estimator_rmse = 2.048736523208028e-6
+    label = "R1tot"
+    maximum_relative_error = 1.2646521748197703e-5
+    mean_z = -0.8702601370559855
+    median_absolute_error = 2.048736523208028e-6
+    median_absolute_z = 0.8702601370559855
+    median_relative_error = 1.2646521748197703e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 3.159688701270813e-5
+    estimator_rmse = 3.159688701270813e-5
+    label = "R2tot"
+    maximum_relative_error = 4.15748513325107e-5
+    mean_z = 3.3861253615660862
+    median_absolute_error = 3.159688701270813e-5
+    median_absolute_z = 3.3861253615660862
+    median_relative_error = 4.15748513325107e-5
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = -4.337081193517278e-6
+    estimator_rmse = 4.337081193517278e-6
+    label = "koff1"
+    maximum_relative_error = 4.840492403479105e-6
+    mean_z = -0.8870087184316855
+    median_absolute_error = 4.337081193517278e-6
+    median_absolute_z = 0.8870087184316855
+    median_relative_error = 4.840492403479105e-6
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 0.0
+    estimator_bias = 5.6686969283403776e-5
+    estimator_rmse = 5.6686969283403776e-5
+    label = "koff2"
+    maximum_relative_error = 0.0001025080818868061
+    mean_z = 3.122882434024969
+    median_absolute_error = 5.6686969283403776e-5
+    median_absolute_z = 3.122882434024969
+    median_relative_error = 0.0001025080818868061
+    std_z = nan
+    unconditional_coverage_95 = 0.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = 1.2047259653868991e-5
+    estimator_rmse = 1.2047259653868991e-5
+    label = "kon1"
+    maximum_relative_error = 1.6944106404879034e-5
+    mean_z = 1.010526511728459
+    median_absolute_error = 1.2047259653868991e-5
+    median_absolute_z = 1.010526511728459
+    median_relative_error = 1.6944106404879034e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+    [[groups.coordinates]]
+    conditional_coverage_95 = 1.0
+    estimator_bias = 1.950027720376557e-5
+    estimator_rmse = 1.950027720376557e-5
+    label = "kon2"
+    maximum_relative_error = 2.880395451073201e-5
+    mean_z = 0.8696430998886006
+    median_absolute_error = 1.950027720376557e-5
+    median_absolute_z = 0.8696430998886006
+    median_relative_error = 2.880395451073201e-5
+    std_z = nan
+    unconditional_coverage_95 = 1.0
+    usable_z = 1
+
+    [groups.covariance_comparison]
+    empirical = [[nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan], [nan, nan, nan, nan, nan, nan, nan, nan, nan]]
+    empirical_to_reported_variance_ratio = [nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    labels = ["R1tot", "R2tot", "kon1", "kon2", "koff1", "koff2", "L", "Ca", "Cb"]
+    labels_dimension = 9
+    mean_reported = [[5.542095918387587e-12, -8.887052549180164e-14, -2.7924650047282343e-11, -2.481273968887356e-13, 1.1451808450504172e-11, -3.197034202038109e-13, -4.379944037370707e-13, 3.8417284067009764e-13, 9.303666596489794e-15], [-8.887052549180164e-14, 8.7072803793133e-11, 4.622017253913023e-13, -7.301024815107387e-11, -2.3144197268390474e-13, 5.2176944050509834e-11, -2.351840880812059e-12, -1.053638417321325e-13, 2.4842021935362595e-12], [-2.7924650047282343e-11, 4.622017253913023e-13, 1.4212848200759204e-10, 1.2314366121528862e-12, -5.7896084085491045e-11, 1.6055588831451882e-12, 2.1782541500334547e-12, -1.9131619759390364e-12, -4.522531571188451e-14], [-2.481273968887356e-13, -7.301024815107387e-11, 1.2314366121528862e-12, 5.02804851241234e-10, -4.592648997006858e-13, 3.1886313438091423e-10, -5.22397309490659e-12, -1.313367049677321e-13, 4.318713107129312e-12], [1.1451808450504172e-11, -2.3144197268390474e-13, -5.7896084085491045e-11, -4.592648997006858e-13, 2.3907784251351077e-11, -6.777373887349328e-13, -9.522882062424267e-13, 8.324370874984428e-13, 2.1491131082111512e-14], [-3.197034202038109e-13, 5.2176944050509834e-11, 1.6055588831451882e-12, 3.1886313438091423e-10, -6.777373887349328e-13, 3.2949983942007273e-10, -7.368398923495202e-12, -2.460118925083494e-13, 6.802239487368732e-12], [-4.379944037370707e-13, -2.351840880812059e-12, 2.1782541500334547e-12, -5.22397309490659e-12, -9.522882062424267e-13, -7.368398923495202e-12, 2.5488647801211653e-13, -3.313743374885003e-14, -1.833505908564929e-13], [3.8417284067009764e-13, -1.053638417321325e-13, -1.9131619759390364e-12, -1.313367049677321e-13, 8.324370874984428e-13, -2.460118925083494e-13, -3.313743374885003e-14, 3.578238489816124e-14, -4.862766442380299e-15], [9.303666596489794e-15, 2.4842021935362595e-12, -4.522531571188451e-14, 4.318713107129312e-12, 2.1491131082111512e-14, 6.802239487368732e-12, -1.833505908564929e-13, -4.862766442380299e-15, 1.745618174314472e-13]]
+
+    [groups.outcome_reason_counts]
+    report = 1
+
+    [groups.selection_counts]
+    "multipoint_algebraic@[36, 635]#agp_uq" = 1
