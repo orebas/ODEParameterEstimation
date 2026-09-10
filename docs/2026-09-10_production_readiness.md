@@ -138,7 +138,29 @@ ranges. The fresh patched CI profile also passed the **15-assertion SI
 interoperability regression in 2.0s**, using the assembled GP tree, patched SIAN,
 and merged SI fix. That fresh resolution selected ModelingToolkit 11.42.1 and
 SymbolicUtils 4.46.4; the full-suite result above uses the fixed local baseline.
-The workflow has not been run on GitHub in this session.
+Hosted [CI run 34536335730](https://github.com/orebas/ODEParameterEstimation/actions/runs/34536335730)
+checks stabilization commit
+[`ebdbbdc`](https://github.com/orebas/ODEParameterEstimation/commit/ebdbbdc6ad78cdeebdfac0cb507b4b1d3c295d3c),
+pushed directly to `main` at the user's request.
+The run completed successfully: all four required Julia 1.12/1.13 jobs passed.
+
+| Hosted check | Result | Testset time, excluding loading/precompilation |
+|---|---|---|
+| Julia 1.13, registered dependencies, full suite | 1,777/1,777 passed | 20m13.5s |
+| Julia 1.13, modern patched dependencies, full suite | 1,777/1,777 passed | 13m28.2s |
+| Julia 1.12, registered dependencies, full suite | 1,777/1,777 passed | 23m17.3s |
+| Julia 1.13, modern patched dependencies, recovery benchmark | 10/10 passed | 31m33.9s |
+| Julia nightly, registered dependencies | Failed before tests; advisory | Not run |
+
+The full-suite count can differ by one: the model-assisted screening regression
+has an additional assertion when the correction improves the trajectory fit.
+Both acceptance and rejection are checked against the analytic reference.
+
+The nightly job used Julia 1.14.0-DEV.3160 and failed with a segmentation fault
+during GPUCompiler 1.23.0 precompilation (`src/precompile.jl:7`). Enzyme and its
+dependent packages then could not precompile. ODEPE's test files did not run on
+nightly; this is not a passing nightly result or an ODEPE assertion failure.
+The job retains its existing advisory status.
 
 ## Optional integrations
 
@@ -168,14 +190,16 @@ scripts outside the active runner are inventoried in the refreshed
 
 ## Release work
 
-1. Run hosted CI on the final revision. The full modern integration and
-   recovery benchmark gates are green locally; hosted CI remains unrun.
-2. Once GP/SIAN/SI fixes are registered, validate a fresh environment selecting
+Core stabilization and its local and hosted validation are complete. The
+remaining work below concerns a future supported release, not unfinished core
+test repairs. PEtab benchmarking remains a separate follow-up.
+
+1. Once GP/SIAN/SI fixes are registered, validate a fresh environment selecting
    those releases and remove temporary CI patch assembly and dependency bridges
    when their supported version floors make them unnecessary.
-3. Decide whether to restore or omit the unfinished optional extensions from
+2. Decide whether to restore or omit the unfinished optional extensions from
    the first supported release. Their presence must not imply support.
-4. Choose a release version (the checkout remains `1.1.0-DEV`) and check registry
+3. Choose a release version (the checkout remains `1.1.0-DEV`) and check registry
    installation, loading, compatibility, license, and naming requirements. See
    the [General AutoMerge guidelines](https://juliaregistries.github.io/RegistryCI.jl/stable/guidelines/).
    This pass does not register or publish a release.
