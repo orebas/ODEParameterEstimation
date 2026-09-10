@@ -148,7 +148,7 @@ function diagnose_uncertainty(
         obs_name = replace(string(mq.lhs), r"\(.*\)" => "")
         startswith(obs_name, "_obs_trfn_") && continue
 
-        obs_rhs = ModelingToolkit.diff2term(mq.rhs)
+        obs_rhs = Symbolics.diff2term(mq.rhs)
         y_data = _get_observable_data(pep, obs_rhs)
         isnothing(y_data) && continue
 

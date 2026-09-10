@@ -6,8 +6,8 @@
   coordination map. Read this before starting broad code review, refactors, or
   review-lane assignment.
 - [`MULTIPLICITY_INTEGRATION.md`](MULTIPLICITY_INTEGRATION.md) — algebraic
-  multiplicity (M) auto-detection: what's in production, the Groebner.jl
-  PR #218 dependency, expected behavior, and what PEB needs to change. Read
+  multiplicity (M) auto-detection: production behavior, the registered Groebner
+  baseline and historical PR #218 fix, and PEB integration context. Read
   before working on result.csv truncation or multiplicity.
 
 ## Open investigations (read before starting reconditioning / numerical-stability work)
@@ -41,26 +41,30 @@
   interval-width axes, and never read a single-run status as a calibration
   certificate.
 
-- **Variable (column) scaling of the polynomial system.** Diagnostics on
-  the IEEE paper's challenging systems (biohydrogenation, daisy_mamil4)
-  show Jacobian condition numbers of 1e+6 to 1e+10 at low noise, driving
-  recovery error far above what derivative accuracy alone would predict.
-  HC.jl already does Skeel **row** scaling automatically; ODEPE does not
-  do **column** scaling. Implementing variable rescaling at the earliest
-  level possible is on the wishlist. Three implementation levels and the
-  diagnostic numbers are in
-  [`docs/2026-05-01_variable_scaling_investigation.md`](docs/2026-05-01_variable_scaling_investigation.md).
-  See also the top entry in `TODO`.
+- **Variable (column) scaling of the polynomial system.** ODEPE now has
+  power-of-2 problem rescaling (`auto_rescale`) and column scaling for
+  parameterized HC systems (`use_column_scaling`), both enabled by default.
+  Start with [`src/core/problem_rescaling.jl`](src/core/problem_rescaling.jl),
+  [`src/core/homotopy_continuation.jl`](src/core/homotopy_continuation.jl),
+  and their tests in `test/test_rescaling.jl` and `test/column_scaling.jl`.
+  HC.jl also performs Skeel row scaling automatically. The diagnostic numbers
+  and proposed implementation levels in
+  [`docs/2026-05-01_variable_scaling_investigation.md`](docs/2026-05-01_variable_scaling_investigation.md)
+  predate these implementations; use them as historical evidence when
+  investigating remaining conditioning problems.
 
 ## Build/Test Commands
-- **Always use `--startup-file=no`** when invoking Julia (Revise.jl causes exit segfaults on Julia 1.12)
-- Use global Julia environment (plain `julia`, NOT `julia --project`) for running tests
-- Run tests: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/fast_core.jl")'`
-- Run feature regressions: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/feature_regressions.jl")'`
-- Run specific test: `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/specific_test.jl")'`
-- Run examples: `julia --startup-file=no -e 'using ODEParameterEstimation; include("src/examples/run_examples.jl")'`
-- **Full FAST gate** (the only valid gate for estimation-touching changes — fast_core alone is contracts-only): `julia --startup-file=no -e 'include("test/runtests.jl")'`
-- **Benchmark smoke** (seeded, noisy, full-scale recovery guard; NOT in runtests — run before handing a build to the cluster): `julia --startup-file=no -e 'using ODEParameterEstimation; include("test/benchmark_smoke.jl")'`
+- **Always use `--startup-file=no`** when invoking Julia (Revise.jl caused exit segfaults on Julia 1.12).
+- Start local tests from the global Julia environment (plain `julia`, not `julia --project`). `Pkg.test` creates the isolated test environment and installs the dependencies declared in `test/Project.toml`.
+- **Full FAST gate** (required for estimation-touching changes):
+  `julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; allow_reresolve=false)'`
+- **Quiet unit contracts** (does not replace the full gate):
+  `julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=["unit"])'`
+- **Benchmark smoke** (seeded, noisy, full-scale recovery guard; run before handing a build to the cluster):
+  `julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=["benchmark"])'`
+- `test/current.jl` wraps these commands, records the active environment, and verifies that it points at this checkout. `allow_reresolve=false` preserves dependency versions and local development paths; a test dependency conflict must fail visibly.
+- The full gate includes feature regressions and example smoke tests. Direct `include("test/...")` commands require their imports to be direct dependencies of the active environment; they are not a substitute for checking `Pkg.test`.
+- For dependency/registration checks, run `julia --startup-file=no test/registered.jl` to resolve and test a fresh temporary environment using registered dependencies. Do not infer reproducibility from a global environment containing local development overrides. The current baseline and remaining release work are in [`docs/2026-09-10_production_readiness.md`](docs/2026-09-10_production_readiness.md).
 
 ## Code Style Guidelines
 - Imports: Group related packages, with ModelingToolkit, OrdinaryDiffEq first
@@ -68,7 +72,7 @@
 - Functions: Document with docstrings using the triple quote format with Arguments/Returns sections
 - Naming: Use snake_case for functions/variables, PascalCase for types
 - Error handling: Use informative error messages with try/catch for numerical operations
-- Parameters: Use OrderedDict for parameters and states to maintain consistent ordering 
+- Parameters: Use OrderedDict for parameters and states to maintain consistent ordering
 - ODE convention: Use t as the independent variable, D for differentiation
 - Documentation: Document complex algorithms with explanatory inline comments
 
@@ -81,7 +85,7 @@
 - Use @code_warntype to check for type instabilities in critical functions
 
 ## Constants and Configuration
-- Default ODE solver: `package_wide_default_ode_solver = AutoVern9(Rodas4P())`
+- Default ODE solver: `package_wide_default_ode_solver = AutoVern9(Rodas5P())`
 - Algorithm thresholds are defined in core_types.jl
 
 ## Naming Conventions

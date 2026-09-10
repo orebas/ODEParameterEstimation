@@ -43,6 +43,8 @@ using Enzyme
 using SymbolicUtils
 using PDMats
 
+include("core/dependency_compat.jl")
+
 # Disambiguation for GaussianProcesses.jl / PDMats.jl ldiv! conflict.
 # Registry GaussianProcesses.jl defines ldiv!(::PDMat, ::Any), while PDMats.jl
 # defines ldiv!(::AbstractPDMat, ::AbstractVecOrMat).  Matrix RHS dispatch is
@@ -256,7 +258,7 @@ export compatibility_return_code, sync_result_contract!, lineage_summary
 		datasize = 11,
 		noise_level = 0.0,
 		system_solver = SolverHC,
-		interpolator = InterpolatorAAAD,
+		interpolators = [InterpolatorAAAD],
 		shooting_points = 0,
 		nooutput = true,
 		diagnostics = false,
@@ -268,10 +270,16 @@ export compatibility_return_code, sync_result_contract!, lineage_summary
 
 	local _est_problem = sample_problem_data(_pep, _opts)
 	try
-		redirect_stdout(devnull) do
-			redirect_stderr(devnull) do
-				with_logger(NullLogger()) do
-					analyze_parameter_estimation_problem(_est_problem, _opts)
+		# Estimation can emit diagnostic sidecars even with nooutput=true.
+		# Precompilation must not create artifacts in the caller's directory.
+		mktempdir() do workload_dir
+			cd(workload_dir) do
+				redirect_stdout(devnull) do
+					redirect_stderr(devnull) do
+						with_logger(NullLogger()) do
+							analyze_parameter_estimation_problem(_est_problem, _opts)
+						end
+					end
 				end
 			end
 		end

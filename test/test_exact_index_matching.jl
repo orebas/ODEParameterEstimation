@@ -1,3 +1,4 @@
+using ODEParameterEstimation
 # Two silent-mismatch fixes (2026-08-13, multipoint-UQ pre-fixes):
 # 1. _per_point_data_indices returns EXACT per-point index lists — the old
 #    first:last range collapse mis-assigned data when indices interleave.

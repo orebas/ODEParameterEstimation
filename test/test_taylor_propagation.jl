@@ -1,3 +1,4 @@
+using Symbolics
 # Stream B phase 1 (2026-08-13): estimate-conditioned Taylor propagation cores.
 # Pure numerics — no ODE solves, no SIAN, no GP fits. fast_unit tier.
 #
@@ -48,8 +49,8 @@ using LinearAlgebra
 	@testset "interpolant_taylor_coefficients round-trips known jets" begin
 		# simple() observes y1 ~ x1, y2 ~ x2; interpolants are keyed by the
 		# diff2term'd observable RHS (same convention as precomputed_interpolants).
-		k1 = ModelingToolkit.diff2term(pep_tp.measured_quantities[1].rhs)
-		k2 = ModelingToolkit.diff2term(pep_tp.measured_quantities[2].rhs)
+		k1 = Symbolics.diff2term(pep_tp.measured_quantities[1].rhs)
+		k2 = Symbolics.diff2term(pep_tp.measured_quantities[2].rhs)
 		f_poly = t -> 2.0 * t^3 + t          # jets: [2t³+t, 6t²+1, 12t, 12, 0]
 		f_exp = t -> exp(0.5 * t)            # jets: 0.5ᵏ · e^{t/2}
 		interps = Dict{Any, Any}(k1 => f_poly, k2 => f_exp)

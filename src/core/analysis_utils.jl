@@ -23,17 +23,21 @@ Calculate the relative distance between two solutions.
 - `sol2`: Second solution
 
 # Returns
-- Maximum relative difference between corresponding components
+- Maximum relative difference between components matched by symbolic key.
+  Results with different state or parameter keys have infinite distance.
 """
 function solution_distance(sol1, sol2)
-	v1 = get_solution_vector(sol1)
-	v2 = get_solution_vector(sol2)
-	# Use relative distance for each component with better handling of near-zero values
-	rel_diffs = map(zip(v1, v2)) do (x, y)
-		denom = max(abs(x) + abs(y), 1.0)  # Avoid division by zero
-		return abs(x - y) / denom
+	distance = 0.0
+	for (left, right) in ((sol1.states, sol2.states), (sol1.parameters, sol2.parameters))
+		length(left) == length(right) || return Inf
+		for (key, x) in left
+			haskey(right, key) || return Inf
+			y = right[key]
+			denom = max(abs(x) + abs(y), 1.0)
+			distance = max(distance, abs(x - y) / denom)
+		end
 	end
-	return maximum(rel_diffs)
+	return distance
 end
 
 """

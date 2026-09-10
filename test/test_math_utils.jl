@@ -26,6 +26,15 @@ using Statistics
         eq3 = x ~ y
         cleared_eq3 = ODEParameterEstimation.clear_denoms(eq3)
         @test isequal(cleared_eq3, eq3)  # Should remain unchanged
+
+        # Both denominators must disappear, including a fraction only on RHS.
+        cleared_both = ODEParameterEstimation.clear_denoms(x/y ~ z/w)
+        @test isequal(cleared_both.lhs, x*w)
+        @test isequal(cleared_both.rhs, z*y)
+        cleared_rhs = ODEParameterEstimation.clear_denoms(x ~ y/z)
+        @test isequal(cleared_rhs.lhs, x*z)
+        @test isequal(cleared_rhs.rhs, y)
+        @test isequal(ODEParameterEstimation.clear_denoms((x+y)/z), x+y)
     end
     
     @testset "hmcs" begin
@@ -74,7 +83,8 @@ using Statistics
         stats2 = ODEParameterEstimation.calculate_timeseries_stats(series2)
         
         @test stats2.mean ≈ 2.4
-        @test stats2.turns == 2
+        # Local extrema occur at 3.0, 2.0, and 4.0.
+        @test stats2.turns == 3
     end
     
     @testset "calculate_error_stats" begin

@@ -1,6 +1,8 @@
+using ODEParameterEstimation
 using Test
 using Logging
 using ModelingToolkit
+using Symbolics
 using OrderedCollections
 
 function quiet_result_call(f)

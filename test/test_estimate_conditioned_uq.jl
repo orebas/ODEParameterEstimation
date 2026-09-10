@@ -1,3 +1,4 @@
+using ODEParameterEstimation
 # Stream B phase 1 (2026-08-13): estimate-conditioned sensitivity S.
 # The production UQ path (compute_uncertainty=true) must evaluate the IFT
 # sensitivity at (θ̂, x̂, GP interpolant jets) — NOT at ground truth — so it

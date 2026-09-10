@@ -477,6 +477,11 @@ especially when algebraic candidate generation fails.
 
 ## PEtab and External Problem Sources
 
+> 2026-09-10 correction: the entry points and source-plan file described below
+> are absent from the current checkout, and the extension has broken includes
+> and conversion semantics. Treat this section as historical; see the
+> [current source assessment](2026-09-10_public_benchmark_triage.md).
+
 **Verified in code.** ODEPE has optional PEtab entry points:
 
 - `load_petab_problem`

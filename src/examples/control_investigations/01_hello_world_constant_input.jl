@@ -117,7 +117,7 @@ function hello_world_options(; smoke = false)
     return EstimationOptions(
         datasize = smoke ? 31 : 101,
         noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
+        interpolators = [InterpolatorAAAD],
         system_solver = SolverHC,
         flow = FlowStandard,
         use_si_template = true,

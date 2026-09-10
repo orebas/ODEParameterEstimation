@@ -1,7 +1,8 @@
 # Algebraic multiplicity (M) — handoff note
 
 **Audience:** anyone (human or any claude instance) picking up the ODEPE
-multiplicity-aware output work. Last updated 2026-05-20.
+multiplicity-aware output work. Original handoff: 2026-05-20. Dependency status
+checked 2026-09-10; the source-change inventory below remains historical.
 
 ## What's in production now (committed to `main`)
 
@@ -22,24 +23,21 @@ analysis.algebraic_multiplicity   # Int (e.g., 1 or 2), or `nothing` for
 Positional destructure (the form benchmark scripts use) still works because
 NamedTuples support both positional and named access.
 
-## Required upstream dependency: Groebner.jl PR #218
+## Upstream dependency: registered Groebner.jl 0.10.8
 
-The default `Groebner.groebner` path has an off-by-one in
+The older default `Groebner.groebner` path had an off-by-one in
 `_groebner_learn_and_apply` when the parallel-task count is not a power of
 two (most wallaby cluster setups). The bug fires on **biohydrogenation**
 specifically among the 23 wallaby systems.
 
-Fix is at <https://github.com/sumiya11/Groebner.jl/pull/218> (codex's patch
-replacing `align_up`'s bitmask with `cld(x,n) * n`). Until it merges and
-ships:
+The fix described in <https://github.com/sumiya11/Groebner.jl/pull/218>
+replaces `align_up`'s bitmask with `cld(x,n) * n`. The registered 0.10.8 source
+used by the September Julia 1.13 validation contains this implementation, and
+its installed source tree matches the registry's tree hash. A local Groebner
+development override is therefore unnecessary for this fix. See the current
+[dependency and test baseline](docs/2026-09-10_production_readiness.md).
 
-```julia
-using Pkg
-Pkg.develop(path = "/home/orebas/.julia/dev/Groebner")  # local fork w/ the patch
-```
-
-Once Groebner.jl releases a version including PR #218, do
-`Pkg.free("Groebner")` and the package picks up the registered version.
+The separate 30-model multiplicity campaign below was not rerun in that pass.
 
 **There is no fallback in ODEPE for Groebner failures.** If Groebner crashes
 on a new system, ODEPE errors out cleanly rather than degrading silently.
@@ -74,7 +72,10 @@ the catalog as a fallback or sanity reference is fine, but the
 The explicit-value path still works: any user who sets
 `opts.algebraic_multiplicity` explicitly overrides the auto value.
 
-## Source code changes (this work)
+## Source code changes (May 2026 history)
+
+The `_LAST_ESTIMATION_AUTO_M` mechanism described here has since moved into
+the scoped run context in `src/core/run_context.jl`.
 
 - `src/core/si_equation_builder.jl`: gb step at end of
   `get_polynomial_system_from_sian` (reusing `Et_eval_base`, `Q`, `u_hat`,

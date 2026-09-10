@@ -244,7 +244,7 @@ function _capture_data_variable_values(
             # d_true from oracle Taylor
             d_true_val = NaN
             if !isnothing(obs_taylor)
-                obs_rhs_key = ModelingToolkit.diff2term(mq[obs_idx].rhs)
+                obs_rhs_key = Symbolics.diff2term(mq[obs_idx].rhs)
                 if haskey(obs_taylor, obs_rhs_key)
                     tc = obs_taylor[obs_rhs_key]
                     if deriv_level + 1 <= length(tc)
@@ -255,8 +255,8 @@ function _capture_data_variable_values(
 
             # d_prod from production interpolants
             d_prod_val = NaN
-            if haskey(setup_data.interpolants, ModelingToolkit.diff2term(mq[obs_idx].rhs))
-                interp = setup_data.interpolants[ModelingToolkit.diff2term(mq[obs_idx].rhs)]
+            if haskey(setup_data.interpolants, Symbolics.diff2term(mq[obs_idx].rhs))
+                interp = setup_data.interpolants[Symbolics.diff2term(mq[obs_idx].rhs)]
                 try
                     d_prod_val = Float64(_estimation_derivative(
                         interp, deriv_level, t_point,
@@ -411,7 +411,7 @@ function _lookup_true_value(pep::ParameterEstimationProblem, var;
             for mq in pep.measured_quantities
                 obs_lhs_name = replace(string(mq.lhs), "(t)" => "")
                 if obs_lhs_name == base_name
-                    key = ModelingToolkit.diff2term(mq.rhs)
+                    key = Symbolics.diff2term(mq.rhs)
                     if haskey(obs_taylor, key)
                         tc = obs_taylor[key]
                         if deriv_order + 1 <= length(tc)
@@ -919,7 +919,7 @@ function _compute_data_sensitivity(
                     # Get oracle value: obs_taylor gives Taylor coefficients
                     # Taylor coeff[k+1] * k! = f^(k)(t_eval)
                     if !isnothing(obs_taylor) && obs_idx <= length(mq)
-                        obs_rhs_key = ModelingToolkit.diff2term(mq[obs_idx].rhs)
+                        obs_rhs_key = Symbolics.diff2term(mq[obs_idx].rhs)
                         if haskey(obs_taylor, obs_rhs_key)
                             tc = obs_taylor[obs_rhs_key]
                             if deriv_level + 1 <= length(tc)

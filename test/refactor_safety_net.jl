@@ -1,3 +1,4 @@
+using Symbolics
 # Refactor safety net — added 2026-06-09, BEFORE the code-review cleanup
 # (see docs/2026-06-09_code_review.md and docs/2026-06-09_test_safety_net.md).
 #
@@ -116,7 +117,7 @@ import ModelingToolkit
 		)
 		DD.obs_lhs = [[jets[1], jets[4]], [jets[2], jets[5]], [jets[3], jets[6]]]
 		# Interpolant ONLY for observable 1 (y1 ~ x1); observable 2 is analytic.
-		interps = Dict{Any, Any}(ModelingToolkit.diff2term(mq[1].rhs) => (x -> 2.0 * x))
+		interps = Dict{Any, Any}(Symbolics.diff2term(mq[1].rhs) => (x -> 2.0 * x))
 		data_vars = Any[jets[1], jets[2], jets[3], jets[4], jets[5], jets[6], jets[7]]
 		tp = 0.7
 		vals = ODEParameterEstimation.evaluate_data_vars_at_point(interps, data_vars, DD, mq, tp)

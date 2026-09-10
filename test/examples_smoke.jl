@@ -1,9 +1,12 @@
+using ODEParameterEstimation
 using Test
+
+include("estimation_helpers.jl")
 
 const EXAMPLES_ROOT = joinpath(@__DIR__, "..", "src", "examples")
 
 function include_example(parts...)
-    return Base.include(Main, joinpath(EXAMPLES_ROOT, parts...))
+    return Base.include(@__MODULE__, joinpath(EXAMPLES_ROOT, parts...))
 end
 
 function assert_example_result(result_tuple)

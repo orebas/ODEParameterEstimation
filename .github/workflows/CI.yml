@@ -13,9 +13,14 @@ concurrency:
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.dependencies }} - ${{ matrix.group }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 90
+    continue-on-error: ${{ matrix.version == 'nightly' }}
+    env:
+      JULIA_NUM_PRECOMPILE_TASKS: '4'
+      ODEPE_TEST_GROUP: ${{ matrix.group }}
+      ODEPE_TEST_COVERAGE: ${{ matrix.group == 'all' }}
     permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
       actions: write
       contents: read
@@ -23,13 +28,28 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.10'
           - '1.12'
+          - '1.13'
           - 'nightly'
         os:
           - ubuntu-latest
         arch:
           - x64
+        group:
+          - all
+        dependencies:
+          - registered
+        include:
+          - version: '1.13'
+            os: ubuntu-latest
+            arch: x64
+            group: all
+            dependencies: patched
+          - version: '1.13'
+            os: ubuntu-latest
+            arch: x64
+            group: benchmark
+            dependencies: patched
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
@@ -37,5 +57,39 @@ jobs:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
-      - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
+      - name: Checkout GaussianProcesses compatibility fixes
+        if: matrix.dependencies == 'patched'
+        uses: actions/checkout@v4
+        with:
+          repository: orebas/GaussianProcesses.jl
+          ref: 535022d8447d529cf93e8bdc585f7b6c5060ca2e
+          path: .ci-deps/GaussianProcesses
+          persist-credentials: false
+      - name: Assemble the validated GP source tree
+        if: matrix.dependencies == 'patched'
+        run: bash .github/scripts/prepare-gp-checkout.sh .ci-deps/GaussianProcesses
+      - name: Checkout SIAN compatibility fixes
+        if: matrix.dependencies == 'patched'
+        uses: actions/checkout@v4
+        with:
+          repository: orebas/SIAN-Julia
+          ref: 2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9
+          path: .ci-deps/SIAN
+          persist-credentials: false
+      - name: Checkout the merged StructuralIdentifiability fix
+        if: matrix.dependencies == 'patched'
+        uses: actions/checkout@v4
+        with:
+          repository: SciML/StructuralIdentifiability.jl
+          ref: b7919dae8fbde2a65aeab19663277c5e522f42ef
+          path: .ci-deps/StructuralIdentifiability
+          persist-credentials: false
+      - name: Test registered dependencies
+        if: matrix.dependencies == 'registered'
+        run: julia --startup-file=no test/registered.jl "$ODEPE_TEST_GROUP"
+      - name: Test modern patched dependencies
+        if: matrix.dependencies == 'patched'
+        run: >-
+          julia --startup-file=no test/patched.jl
+          .ci-deps/GaussianProcesses .ci-deps/SIAN .ci-deps/StructuralIdentifiability
+          "$ODEPE_TEST_GROUP"

@@ -1,4 +1,7 @@
+using ODEParameterEstimation
 using Test
+
+include("estimation_helpers.jl")
 
 function result_value_by_name(dict_like, name::AbstractString)
     for (k, v) in dict_like
@@ -9,18 +12,6 @@ end
 
 function result_name_set(values_iter)
     return Set(string.(collect(values_iter)))
-end
-
-function oracle_max_param_error(pep, result)
-    unident = Set(string.(collect(result.all_unidentifiable)))
-    rel_errors = Float64[]
-    for (param, true_value) in pep.p_true
-        string(param) in unident && continue
-        haskey(result.parameters, param) || continue
-        denom = max(abs(Float64(true_value)), 1e-6)
-        push!(rel_errors, abs(Float64(result.parameters[param]) - Float64(true_value)) / denom)
-    end
-    return isempty(rel_errors) ? Inf : maximum(rel_errors)
 end
 
 @testset "Identifiability regressions" begin
@@ -68,6 +59,8 @@ end
             isapprox(result_value_by_name(result.parameters, "b"), pep.p_true[collect(keys(pep.p_true))[2]]; atol = 1e-6, rtol = 1e-6)
             for result in analysis[1]
         )
-        @test oracle_max_param_error(pep, best) ≈ minimum(oracle_max_param_error(pep, result) for result in analysis[1]) atol = 1e-10 rtol = 1e-10
+        # The default ranking uses trajectory fit. The accurate-parameter
+        # branch above must be retained, but truth is not a selection input.
+        @test best.err == minimum(result.err for result in analysis.returned_results)
     end
 end

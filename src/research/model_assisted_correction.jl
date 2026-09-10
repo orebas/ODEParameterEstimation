@@ -163,7 +163,7 @@ function _mac_model_data_values(
         if meta.kind == :observable_jet
             obs_idx = something(meta.obs_idx)
             mq = pep.measured_quantities[obs_idx]
-            obs_key = ModelingToolkit.diff2term(mq.rhs)
+            obs_key = Symbolics.diff2term(mq.rhs)
             coefficients = get(observable_taylors[meta.point], obs_key, nothing)
             isnothing(coefficients) && throw(ArgumentError(
                 "model-exact Taylor coefficients are unavailable for '$(_uq_observation_name(mq))'",

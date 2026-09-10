@@ -95,7 +95,7 @@ function nls_polish_estimate(pep_data::ParameterEstimationProblem, t_eval::Float
 	t_vec = Float64.(pep_data.data_sample["t"])
 	tspan = (t_vec[1], t_vec[end])
 
-	obs_keys = [ModelingToolkit.diff2term(mq.rhs) for mq in pep_data.measured_quantities]
+	obs_keys = [ODEParameterEstimation.Symbolics.diff2term(mq.rhs) for mq in pep_data.measured_quantities]
 	y_data = [Float64.(pep_data.data_sample[k]) for k in obs_keys]
 
 	p_truth = [pep_data.p_true[p] for p in params]

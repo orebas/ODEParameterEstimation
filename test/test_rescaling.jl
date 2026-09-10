@@ -1,3 +1,4 @@
+using ODEParameterEstimation
 # Fast unit/contract tests for the opt-in power-of-2 problem rescaling
 # (src/core/problem_rescaling.jl). The slow end-to-end PAYOFF test (hiv recovery
 # with auto_rescale=true) lives in test/benchmark_smoke.jl — NOT here.

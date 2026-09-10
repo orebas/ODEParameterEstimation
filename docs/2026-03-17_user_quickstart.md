@@ -1,6 +1,6 @@
 # User Quickstart
 
-This guide reflects the package state as of 2026-03-17.
+Started 2026-03-17; interpolator and result-selection guidance updated 2026-09-10.
 
 The normal workflow is:
 
@@ -8,9 +8,9 @@ The normal workflow is:
 2. Choose `EstimationOptions`.
 3. Generate or attach data with `sample_problem_data`.
 4. Run `analyze_parameter_estimation_problem`.
-5. Read the analyzed solutions from `analysis[1]`.
+5. Read the analyzed solutions from `analysis.returned_results`.
 
-For a broader description of the current API, see [2026-03-17_results_and_api.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_results_and_api.md).
+For a broader description of the current API, see [2026-03-17_results_and_api.md](2026-03-17_results_and_api.md).
 
 ## Happy Path Example
 
@@ -24,7 +24,7 @@ opts = EstimationOptions(
     noise_level = 0.0,
     flow = FlowStandard,
     use_si_template = true,
-    interpolator = InterpolatorAAAD,
+    interpolators = [InterpolatorAAAD],
     use_parameter_homotopy = false,
     nooutput = true,
     diagnostics = false,
@@ -37,18 +37,18 @@ pep = simple()
 sampled = sample_problem_data(pep, opts)
 raw_results, analysis, _ = analyze_parameter_estimation_problem(sampled, opts)
 
-best = analysis[1][1]
+best = first(analysis.returned_results)
 println(best.parameters)
 println(best.states)
-println(analysis[2])
+println(analysis.best_max_error) # validation metric when ground truth is available
 ```
 
 What to expect:
 
 - `raw_results[1]` contains raw candidate solutions from the estimation workflow.
-- `analysis[1]` contains clustered, analyzed solutions.
-- `analysis[1][1]` is the canonical best analyzed result.
-- `analysis[2]` is the best max relative error on identifiable quantities.
+- `analysis.returned_results` contains clustered, analyzed solutions, ranked by trajectory fit error by default.
+- Its first entry is the selected estimate.
+- `analysis.best_max_error` is a validation summary over the candidate pool when ground truth is known. It can describe a different candidate from the selected estimate.
 
 ## Structural-Unidentifiability Example
 
@@ -62,7 +62,7 @@ opts = EstimationOptions(
     noise_level = 0.0,
     flow = FlowStandard,
     use_si_template = true,
-    interpolator = InterpolatorAAAD,
+    interpolators = [InterpolatorAAAD],
     use_parameter_homotopy = false,
     nooutput = true,
     diagnostics = false,
@@ -75,7 +75,7 @@ pep = trivial_unident()
 sampled = sample_problem_data(pep, opts)
 _, analysis, _ = analyze_parameter_estimation_problem(sampled, opts)
 
-best = analysis[1][1]
+best = first(analysis.returned_results)
 println(best.all_unidentifiable)
 println(best.provenance.structural_fix_set)
 ```
@@ -98,8 +98,8 @@ For a first run, these options matter most:
   Usually `FlowStandard`.
 - `use_si_template`
   Usually `true` for the standard path.
-- `interpolator`
-  Start with `InterpolatorAAAD` or `InterpolatorAAADGPR`.
+- `interpolators`
+  Start with `[InterpolatorAAAD]` for clean data or `[InterpolatorAAADGPR]` for GP interpolation.
 - `use_parameter_homotopy`
   Can speed up multi-shot runs when enabled.
 - `polish_solver_solutions` and `polish_solutions`
@@ -107,10 +107,10 @@ For a first run, these options matter most:
 - `diagnostics`
   Turn this on when you want detailed logs.
 
-The full options surface is defined in [estimation_options.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/types/estimation_options.jl), but most users should start with a small subset.
+The full options surface is defined in [estimation_options.jl](../src/types/estimation_options.jl), but most users should start with a small subset.
 
 ## Where to Look Next
 
-- [2026-03-17_results_and_api.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_results_and_api.md) for the current return contract and result interpretation
-- [2026-03-17_supported_models_and_limitations.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_supported_models_and_limitations.md) for what the package currently supports
-- [src/examples/README.md](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/README.md) for the maintained example surface
+- [2026-03-17_results_and_api.md](2026-03-17_results_and_api.md) for the current return contract and result interpretation
+- [2026-03-17_supported_models_and_limitations.md](2026-03-17_supported_models_and_limitations.md) for what the package currently supports
+- [src/examples/README.md](../src/examples/README.md) for the maintained example surface

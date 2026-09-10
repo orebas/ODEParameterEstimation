@@ -494,7 +494,7 @@ function _build_algebraic_resolve_candidate(
 			else
 				resolved_from_measurement = false
 				for mq in PEP.measured_quantities
-					mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+					mq_rhs = Symbolics.diff2term(mq.rhs)
 					if isequal(mq_rhs, s)
 						mq_key = replace(string(mq.lhs), "(t)" => "")
 						if haskey(PEP.data_sample, mq_key)
@@ -2050,7 +2050,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 								resolved_from_measurement = false
 								for mq in PEP.measured_quantities
-									mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+									mq_rhs = Symbolics.diff2term(mq.rhs)
 									if isequal(mq_rhs, s)
 										mq_key = replace(string(mq.lhs), "(t)" => "")
 										if haskey(PEP.data_sample, mq_key)

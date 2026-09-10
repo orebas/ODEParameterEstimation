@@ -167,6 +167,49 @@ using Symbolics
         @test result.provenance.rescue_path == :none
         @test !result.provenance.polish_applied
         @test isempty(result.provenance.representative_assignments)
+
+        @testset "Mapping conversion across constructor forms" begin
+            # Raw MTK keys and integer values require conversion. Unordered
+            # dictionaries must work without relying on Base.convert, which
+            # OrderedCollections 2 deliberately rejects for this operation.
+            plain_params = Dict(Symbolics.value(a) => 2, Symbolics.value(b) => 3)
+            plain_states = Dict(Symbolics.value(x1) => 4, Symbolics.value(x2) => 5)
+            plain_unident = Dict(Symbolics.value(b) => 3)
+            args = (plain_params, plain_states, 0, nothing, nothing, 10,
+                    nothing, plain_unident, Set([b]), nothing)
+            provenance = ODEParameterEstimation.ResultProvenance()
+            constructed = (
+                ODEParameterEstimation.ParameterEstimationResult(args...),
+                ODEParameterEstimation.ParameterEstimationResult(args..., :aaa, provenance),
+                ODEParameterEstimation.ParameterEstimationResult(args..., :aaa, provenance, 2),
+            )
+            for converted in constructed
+                @test converted.parameters isa OrderedDict{Num, Float64}
+                @test converted.states isa OrderedDict{Num, Float64}
+                @test converted.unident_dict isa OrderedDict{Num, Float64}
+                @test isequal(converted.parameters, OrderedDict(a => 2.0, b => 3.0))
+                @test isequal(converted.states, OrderedDict(x1 => 4.0, x2 => 5.0))
+                @test converted.unident_dict[b] == 3.0
+            end
+            @test constructed[1].branch_size == 1
+            @test constructed[2].provenance === provenance
+            @test constructed[3].branch_size == 2
+
+            ordered_params = OrderedDict{Num, Float64}(b => 3.0, a => 2.0)
+            ordered_states = OrderedDict{Num, Float64}(x2 => 5.0, x1 => 4.0)
+            ordered_unident = OrderedDict{Num, Float64}(b => 3.0)
+            for unident in (nothing, ordered_unident)
+                preserved = @inferred ODEParameterEstimation.ParameterEstimationResult(
+                    ordered_params, ordered_states, 0.0, nothing, nothing, 10,
+                    nothing, unident, Set{Num}([b]), nothing, :aaa, provenance, 1,
+                )
+                @test preserved.parameters === ordered_params
+                @test preserved.states === ordered_states
+                @test preserved.unident_dict === unident
+                @test isequal(collect(keys(preserved.parameters)), [b, a])
+                @test isequal(collect(keys(preserved.states)), [x2, x1])
+            end
+        end
     end
     
     @testset "Constants" begin

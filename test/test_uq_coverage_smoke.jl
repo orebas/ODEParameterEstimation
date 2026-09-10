@@ -1,3 +1,4 @@
+using ODEParameterEstimation
 # UQ coverage smoke (Stream B item 2, 2026-08-13): N=20 two_exp replicates of
 # the full UQ chain (noisy draw → NLS-polish estimate → GP jets → Σ_d →
 # estimate-conditioned S → Σ_x → physicalized report) with loose tripwire

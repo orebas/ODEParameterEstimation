@@ -696,7 +696,7 @@ function _generate_trajectory_plots(pep; uq_interpolants = nothing,
             continue
         end
 
-        obs_rhs = ModelingToolkit.diff2term(mq.rhs)
+        obs_rhs = Symbolics.diff2term(mq.rhs)
 
         # Get data sample for this observable
         y_data = _get_observable_data(pep, obs_rhs)

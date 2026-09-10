@@ -849,7 +849,7 @@ function process_estimation_results(
 					# Try to get its value from the data sample via measured quantities.
 					found_from_mq = false
 					for mq in PEP.measured_quantities
-						mq_rhs = ModelingToolkit.diff2term(mq.rhs)
+						mq_rhs = Symbolics.diff2term(mq.rhs)
 						if isequal(mq_rhs, states[i])
 							# This state is directly observed via this measured quantity
 							mq_lhs_str = string(mq.lhs)

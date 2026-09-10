@@ -1,3 +1,4 @@
+using ODEParameterEstimation
 # Characterization tests for the three label/name parsers — added 2026-06-09
 # (maintainability campaign, Phase A; see docs/2026-06-09_code_review.md).
 #

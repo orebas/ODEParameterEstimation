@@ -445,12 +445,31 @@ mutable struct ParameterEstimationResult
     interpolator_source::Union{Nothing, Symbol}   # Which interpolator produced this result
     provenance::ResultProvenance
     branch_size::Int   # Phase B candidate-reduction: cluster size at output time (1 = singleton or undetected)
+
+    function ParameterEstimationResult(
+        parameters::AbstractDict, states::AbstractDict, at_time, err, return_code, datasize,
+        report_time, unident_dict::Union{Nothing, AbstractDict}, all_unidentifiable, solution,
+        interpolator_source, provenance, branch_size,
+    )
+        # OrderedCollections 2 rejects implicit Dict -> OrderedDict conversion.
+        # Construct mappings explicitly while preserving already-normalized
+        # ordered mappings, including their insertion order and object identity.
+        return new(
+            _result_ordered_dict(parameters), _result_ordered_dict(states),
+            at_time, err, return_code, datasize, report_time,
+            _result_ordered_dict(unident_dict), all_unidentifiable, solution,
+            interpolator_source, provenance, branch_size,
+        )
+    end
 end
+
+_result_ordered_dict(values::OrderedDict{Num, Float64}) = values
+_result_ordered_dict(values::AbstractDict) = OrderedDict{Num, Float64}(values)
+_result_ordered_dict(::Nothing) = nothing
 
 # Backward-compatible constructor (interpolator_source defaults to nothing, provenance to an empty record,
 # branch_size to 1 = singleton)
-# Note: parameter types are relaxed to allow MTK 11's BasicSymbolicImpl keys
-# (Julia's inner struct constructor handles convert() to the declared field types)
+# Symbolic keys and numerical values are normalized by the full constructor.
 function ParameterEstimationResult(
     parameters, states, at_time, err, return_code, datasize,
     report_time, unident_dict, all_unidentifiable, solution,

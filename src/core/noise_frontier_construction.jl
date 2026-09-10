@@ -294,7 +294,7 @@ function _noise_generic_interpolants(measured_quantities, max_required_deriv::In
 	degree = max(max_required_deriv + 3, 4)
 	interpolants = Dict{Any, Any}()
 	for (obs_idx, obs_eqn) in enumerate(measured_quantities)
-		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
+		obs_rhs = Symbolics.diff2term(obs_eqn.rhs)
 		_is_trfn_observable(Symbolics.wrap(obs_rhs)) && continue
 		coeffs = Float64[1.0 + 0.173 * obs_idx + 0.037 * k for k in 0:degree]
 		interpolants[obs_rhs] = let coeffs = coeffs
@@ -561,7 +561,12 @@ function _noise_rank_matrix(equations, variables; rank_atol::Float64 = 1e-8, n_r
 		x = randn(rng, n_var) .* 3.0
 		_jacobian_t0 = time()
 		J = try
-			ForwardDiff.jacobian(f, x)
+			# Generated systems are used for only a few rank probes. Large dual
+			# chunks can spend minutes in LLVM optimization on Julia 1.13;
+			# scalar chunks keep compilation small while evaluating the same
+			# derivatives, at the cost of more calls to the compiled system.
+			config = ForwardDiff.JacobianConfig(f, x, ForwardDiff.Chunk{1}())
+			ForwardDiff.jacobian(f, x, config)
 		catch err
 			_rethrow_if_interrupt(err)
 			zeros(Float64, n_eq, n_var)
@@ -1116,7 +1121,7 @@ function _noise_evaluate_data_var(v, interpolants, measured_quantities, obs_name
 	end
 
 	if !isnothing(obs_idx) && obs_idx <= length(measured_quantities)
-		obs_rhs = ModelingToolkit.diff2term(measured_quantities[obs_idx].rhs)
+		obs_rhs = Symbolics.diff2term(measured_quantities[obs_idx].rhs)
 		if haskey(interpolants, obs_rhs)
 			return Float64(_estimation_derivative(
 				interpolants[obs_rhs], deriv_order, t_point,

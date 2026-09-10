@@ -238,6 +238,13 @@ end
     # correction map remains finite and locally continuous when the data move.
     perturbation = @. 1e-7 * sin(7.0 * times)
     perturbed_values = clean + perturbation
+    perturbed_data = copy(data)
+    perturbed_data[Num(x)] = perturbed_values
+    perturbed_pep = ParameterEstimationProblem(
+        pep.name, pep.model, pep.measured_quantities, perturbed_data,
+        pep.recommended_time_interval, pep.solver, pep.p_true, pep.ic,
+        pep.unident_count,
+    )
     perturbed_interp = agp_gpr_uq(times, perturbed_values)
     perturbed_jet = ODEPE_MAC._estimation_derivative.(
         Ref(perturbed_interp), 0:1, Ref(time_value),
@@ -269,10 +276,28 @@ end
         ),
     )
     perturbed_report = research_model_assisted_one_step(
-        pep, perturbed_selected, perturbed_artifact,
+        perturbed_pep, perturbed_selected, perturbed_artifact,
     )
     @test perturbed_report.status == :resolved
-    @test perturbed_report.screen_status == :trajectory_objective_improved
+    # A local correction need not improve the observed-data objective. Check
+    # screening against an independent, exact trajectory for x' = a*x rather
+    # than assuming acceptance after every GP hyperparameter refit.
+    exact_sse(result) = sum(abs2,
+        result.states[x] .* exp.(result.parameters[a] .* times) .- perturbed_values)
+    candidates = [perturbed_report.linear_result, perturbed_report.resolved_result]
+    pilot_sse = exact_sse(perturbed_report.pilot_result)
+    corrected_sse = minimum(exact_sse, candidates)
+    for result in [perturbed_report.pilot_result; candidates]
+        @test result.err ≈ exact_sse(result) rtol = 1e-5 atol = 1e-20
+    end
+    if corrected_sse < pilot_sse
+        @test perturbed_report.screen_status == :trajectory_objective_improved
+        @test !isnothing(perturbed_report.screened_result)
+        @test exact_sse(perturbed_report.screened_result) ≈ corrected_sse rtol = 1e-5 atol = 1e-20
+    else
+        @test perturbed_report.screen_status == :trajectory_objective_not_improved
+        @test isnothing(perturbed_report.screened_result)
+    end
     perturbed_a = perturbed_report.resolved_result.parameters[a]
     baseline_a = report.resolved_result.parameters[a]
     @test isfinite(perturbed_a)

@@ -1,6 +1,6 @@
 # Results and API
 
-This guide reflects the package state as of 2026-03-17.
+Started 2026-03-17; return fields and default ranking checked 2026-09-10.
 
 ## Main User-Facing Workflow
 
@@ -11,7 +11,7 @@ sampled = sample_problem_data(pep, opts)
 raw_results, analysis, uq = analyze_parameter_estimation_problem(sampled, opts)
 ```
 
-The main public types and entry points are exported from [ODEParameterEstimation.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/ODEParameterEstimation.jl):
+The main public types and entry points are exported from [ODEParameterEstimation.jl](../src/ODEParameterEstimation.jl):
 
 - `ParameterEstimationProblem`
 - `EstimationOptions`
@@ -19,9 +19,8 @@ The main public types and entry points are exported from [ODEParameterEstimation
 - `ResultProvenance`
 - `sample_problem_data`
 - `analyze_parameter_estimation_problem`
-- `estimate`
 
-For a runnable first example, see [2026-03-17_user_quickstart.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_user_quickstart.md).
+For a runnable first example, see [2026-03-17_user_quickstart.md](2026-03-17_user_quickstart.md).
 
 ## What `analyze_parameter_estimation_problem` Returns
 
@@ -37,43 +36,29 @@ This is the raw solver-stage output before clustering and analysis. It is useful
 
 ### `analysis`
 
-`analysis` is the main user-facing summary tuple:
+`analysis` is a named tuple. Prefer named fields; positional access remains available:
 
-```julia
-(
-    analyzed_solutions,
-    besterror,
-    best_min_error,
-    best_mean_error,
-    best_median_error,
-    best_max_error,
-    best_approximation_error,
-    best_rms_error,
-)
-```
+| Field | Position | Meaning |
+|---|---|---|
+| `returned_results` | 1 | Analyzed cluster representatives, ranked by the configured strategy |
+| `besterror` | 2 | Best maximum relative error on identifiable quantities |
+| `best_min_error` | 3 | Best minimum relative error |
+| `best_mean_error` | 4 | Best mean relative error |
+| `best_median_error` | 5 | Best median relative error |
+| `best_max_error` | 6 | Best maximum relative error; same metric as `besterror` |
+| `best_approximation_error` | 7 | Best trajectory-fit error among scored candidates |
+| `best_rms_error` | 8 | Best RMS relative error |
+| `algebraic_multiplicity` | 9 | Multiplicity recorded for the output policy |
 
-Meaning:
+With the defaults (`branch_detection=true`, `rank_strategy=:err_only`),
+`first(analysis.returned_results)` is the selected estimate by trajectory fit
+error. Ground truth is not used for this default ordering. The legacy
+`branch_detection=false` path retains oracle-based ordering.
 
-- `analysis[1]`
-  The analyzed, clustered, oracle-ordered solution vector.
-- `analysis[1][1]`
-  The canonical best analyzed result.
-- `analysis[2]`
-  Best max relative error on identifiable quantities.
-- `analysis[3]`
-  Best minimum relative error.
-- `analysis[4]`
-  Best mean relative error.
-- `analysis[5]`
-  Best median relative error.
-- `analysis[6]`
-  Best maximum relative error.
-- `analysis[7]`
-  Best approximation error.
-- `analysis[8]`
-  Best RMS relative error.
-
-When ground-truth values are known, the analyzed solutions are ordered by oracle-style error over identifiable quantities. In that setting, `analysis[1][1]` is the best result to report or benchmark.
+The relative-error fields require meaningful ground-truth values and summarize
+the candidate pool before output selection. Their minima can come from different
+candidates, including candidates absent from the returned subset. They therefore
+do not describe the parameter error of the selected estimate automatically.
 
 ### `uq`
 
@@ -88,13 +73,13 @@ The most important fields on `ParameterEstimationResult` are:
 - `states`
   Estimated state values.
 - `err`
-  Candidate-level error summary.
+  Candidate trajectory-fit error, used by the default ranking.
 - `all_unidentifiable`
   Structural-unidentifiable variables surfaced by the current flow.
 - `provenance`
   Structured lineage metadata about how the result was produced.
 
-The struct is defined in [core_types.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/types/core_types.jl).
+The struct is defined in [core_types.jl](../src/types/core_types.jl).
 
 ## Reading Provenance
 
@@ -133,4 +118,4 @@ As of this doc:
 - structural representative fixing is explicit and recorded in provenance
 - non-square SI templates after structural fixing fail early instead of being repaired heuristically
 
-For the current support boundaries, see [2026-03-17_supported_models_and_limitations.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_supported_models_and_limitations.md).
+For the current support boundaries, see [2026-03-17_supported_models_and_limitations.md](2026-03-17_supported_models_and_limitations.md).

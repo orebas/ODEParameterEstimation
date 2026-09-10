@@ -1,3 +1,5 @@
+using ODEParameterEstimation
+using Symbolics
 using Test
 using Logging
 using HomotopyContinuation
@@ -203,7 +205,7 @@ using Random
         ]
         measured_quantities = [y ~ x]
         data_sample = OrderedDict{Any, Any}("t" => [0.0, 1.0, 2.0])
-        interpolants = Dict{Any, Any}(ModelingToolkit.diff2term(x) => (τ -> 2.0 * τ + 1.0))
+        interpolants = Dict{Any, Any}(Symbolics.diff2term(x) => (τ -> 2.0 * τ + 1.0))
         template_DD = (obs_lhs = [[y0], [y1]],)
         derivative_dict = Dict{Any, Int}(y0 => 0, y1 => 1)
 
@@ -1323,7 +1325,7 @@ using Random
             "using ModelingToolkit, OrdinaryDiffEq",
             "using OrderedCollections",
             "using ModelingToolkit: t_nounits as t, D_nounits as D",
-            "using CSV",
+            "using DelimitedFiles",
             "using Symbolics: Num",
             "",
             "name = \"simple_fixture\"",
@@ -1350,7 +1352,7 @@ using Random
             "    measured_quantities",
             ")",
             "",
-            "csv_data = CSV.read(joinpath(@__DIR__, \"data.csv\"), Tuple, header=false)",
+            "csv_data = collect(eachcol(readdlm(joinpath(@__DIR__, \"data.csv\"), ',', Float64)))",
             "data_sample = OrderedDict{Union{String, Num}, Vector{Float64}}()",
             "data_sample[\"t\"] = collect(Float64, csv_data[1])",
             "for (i, eq) in enumerate(mq)",
@@ -1411,7 +1413,7 @@ using Random
             "using ModelingToolkit",
             "using OrderedCollections",
             "using ModelingToolkit: t_nounits as t, D_nounits as D",
-            "using CSV",
+            "using DelimitedFiles",
             "using Symbolics: Num",
             "",
             "name = \"simple_fixture\"",
@@ -1425,7 +1427,7 @@ using Random
             "time_interval = [0.0, 1.0]",
             "datasize = 5",
             "model, mq = create_ordered_ode_system(name, states, parameters, state_equations, measured_quantities)",
-            "csv_data = CSV.read(joinpath(@__DIR__, \"data.csv\"), Tuple, header=false)",
+            "csv_data = collect(eachcol(readdlm(joinpath(@__DIR__, \"data.csv\"), ',', Float64)))",
             "data_sample = OrderedDict{Union{String, Num}, Vector{Float64}}()",
             "data_sample[\"t\"] = collect(Float64, csv_data[1])",
             "for (i, eq) in enumerate(mq)",

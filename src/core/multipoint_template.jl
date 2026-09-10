@@ -1041,7 +1041,7 @@ function evaluate_multipoint_template(
 
             val = nothing
             if !isnothing(obs_idx) && obs_idx <= length(mq)
-                obs_rhs = ModelingToolkit.diff2term(mq[obs_idx].rhs)
+                obs_rhs = Symbolics.diff2term(mq[obs_idx].rhs)
                 if haskey(interpolants, obs_rhs)
                     t_nth = time()
                     val = _estimation_derivative(
@@ -1365,7 +1365,7 @@ function _gp_quality_score(t_idx::Int, interpolants::Dict, mq, template_DD, t_ve
     n_evals = 0
 
     for (obs_idx, mq_eq) in enumerate(mq)
-        obs_rhs = ModelingToolkit.diff2term(mq_eq.rhs)
+        obs_rhs = Symbolics.diff2term(mq_eq.rhs)
         if _is_trfn_observable(Symbolics.wrap(obs_rhs))
             continue
         end

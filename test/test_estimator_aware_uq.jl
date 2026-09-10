@@ -1,9 +1,10 @@
+using ODEParameterEstimation
 using Test
 using Logging
 using LinearAlgebra
 using OrderedCollections
 using ModelingToolkit
-using JSON3
+using JSON
 
 @testset "estimator-aware UQ target contract" begin
     pep = ODEParameterEstimation.simple()
@@ -198,7 +199,7 @@ using JSON3
         @test isnothing(metadata["linearization"]["linear_solve_backward_error"])
         @test metadata["reliability"]["availability"] == "available"
         @test metadata["reliability"]["interval_width"] == "undefined_scale"
-        @test JSON3.write(metadata) isa String
+        @test JSON.json(metadata) isa String
     end
 
     @testset "operational CV never treats missing truth/centers as zero" begin

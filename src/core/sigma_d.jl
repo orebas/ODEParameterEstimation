@@ -94,7 +94,7 @@ Build a `DerivativeUncertaintyEstimate` at a single time `t_eval`.
 - `interpolant_cache::Dict{Symbol, <:AbstractDict}` — outer keyed by interpolator
   source symbol (e.g. `:aaad`, `:gpr_pivot`), inner keyed by Symbolics RHS of the
   measured-quantity equations (matches `pep.measured_quantities[i].rhs` after
-  `ModelingToolkit.diff2term` if necessary).
+  `Symbolics.diff2term` if necessary).
 - `measured_quantities` — vector of measured-quantity equations (typically
   `pep.measured_quantities`); used to look up RHS keys.
 - `t_eval::Float64` — evaluation time.
@@ -136,7 +136,7 @@ function compute_sigma_d(
         source_values[i, j] = Tuple{Symbol, Float64}[]
     end
 
-    obs_rhs_lookup = [ModelingToolkit.diff2term(eq.rhs) for eq in measured_quantities]
+    obs_rhs_lookup = [Symbolics.diff2term(eq.rhs) for eq in measured_quantities]
 
     for obs_idx in 1:n_obs
         obs_rhs = obs_rhs_lookup[obs_idx]

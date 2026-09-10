@@ -1,6 +1,24 @@
 # Changelog
 
-## Unreleased (1.1.0-DEV line) — 2026-08
+## Unreleased (1.1.0-DEV line) — 2026-08/09
+
+### Julia 1.13 stabilization
+
+- Normalize dictionary inputs in all `ParameterEstimationResult` constructors
+  explicitly for OrderedCollections 2, preserving already typed ordered maps.
+- Match states and parameters by symbolic key when clustering results.
+- Repair exported derivative utilities and clear equation denominators on both
+  sides; restore their tests to the unit and full gates.
+- Use `Symbolics.diff2term` at symbolic conversion sites and bound ForwardDiff
+  chunk size in the noise-frontier rank probe to reduce compilation cost.
+- Bridge the autonomous-model SI dispatch issue only on affected versions that
+  lack the upstream method; patched SI checkouts receive no redundant bridge.
+- Run isolated test files through `Pkg.test`, preserve active development
+  versions, declare test imports, and contain diagnostic sidecars. CI checks
+  both registered dependencies and reproducible modern GP/SIAN/SI patches.
+- Update the quickstart, result contract, and review map. Verified environments,
+  gate results, and remaining release work are recorded in
+  [production readiness](docs/2026-09-10_production_readiness.md).
 
 ### BREAKING (intentional pre-release breaks; package is 1.1.0-DEV)
 

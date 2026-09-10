@@ -5,10 +5,10 @@
 # exercises noisy, benchmark-scale end-to-end recovery, which is exactly what the
 # benchmark (PEB) stresses. This file is that guard.
 #
-# DELIBERATELY NOT included in runtests.jl (it adds ~5-10 min of estimation).
-# Run on demand, e.g. before handing a build to the cluster:
+# Separate from the default suite; measured timings are in the readiness note.
+# CI runs this group on Julia 1.13. Also run before a cluster handoff:
 #
-#   julia --startup-file=no -e 'using ODEParameterEstimation; include("test/benchmark_smoke.jl")'
+#   julia --startup-file=no test/current.jl benchmark
 #
 # Design notes:
 # - Seeded (Julia's default RNG is seeded randomly per session; unseeded
@@ -22,11 +22,14 @@
 # - Thresholds are LOOSE on purpose (regression tripwires, not quality targets);
 #   calibrated 2026-06-10: LV at 1e-8 additive noise recovers ≲1e-3; bound 1e-2.
 
+using ODEParameterEstimation
 using Test
 using Random
 
 function _smoke_best_of_branch(ctor; datasize, noise, polish, auto_rescale = false)
 	pep = ctor()
+	@info "Benchmark recovery case" model=pep.name datasize noise polish auto_rescale
+	flush(stderr)
 	opts = EstimationOptions(
 		datasize = datasize,
 		noise_level = noise,
@@ -44,6 +47,8 @@ function _smoke_best_of_branch(ctor; datasize, noise, polish, auto_rescale = fal
 		maximum(abs(get(c.parameters, p, NaN) - tv) / max(abs(tv), 1e-12) for (p, tv) in sampled.p_true)
 		for c in analysis[1]
 	)
+	@info "Benchmark recovery result" model=pep.name best_of_branch_error=bob clusters=length(analysis[1]) selected_error=analysis[2]
+	flush(stderr)
 	return (bob, length(analysis[1]), analysis[2])
 end
 

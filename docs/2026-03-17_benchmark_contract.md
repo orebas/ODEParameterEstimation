@@ -1,6 +1,7 @@
 # Benchmark Contract Note
 
-This note reflects the package and benchmark alignment state as of 2026-03-17.
+Started 2026-03-17; default result ordering updated 2026-09-10. External collector
+behavior described below has not been re-audited in this update.
 
 It is meant for ODEPE consumers such as `ParameterEstimationBenchmarking`, not for first-time package users.
 
@@ -14,9 +15,14 @@ raw_results, analysis, uq = analyze_parameter_estimation_problem(sampled, opts)
 
 For benchmark consumers:
 
-- use `analysis[1]` as the analyzed, oracle-ordered solution vector
-- use `analysis[2:8]` as the summary scalars
+- use `analysis.returned_results` (also `analysis[1]`) as the analyzed solution vector, ranked by trajectory fit error by default
+- use the named summary fields documented in [Results and API](2026-03-17_results_and_api.md)
 - ignore `uq` unless you are explicitly working on uncertainty quantification
+
+Report selected-estimate accuracy separately from best-of-branch recovery. The
+first returned result is the selected estimate; the best ground-truth error
+over a pool is a validation metric and may belong to another candidate. The
+summary scalars can also refer to candidates omitted by output selection.
 
 ## Flat Result Compatibility
 

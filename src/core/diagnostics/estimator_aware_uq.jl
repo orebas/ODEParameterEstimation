@@ -124,7 +124,7 @@ function _uq_single_point_meta(artifact::SinglePointUQArtifact, pep::ParameterEs
 end
 
 function _uq_exact_interpolant(interpolants::AbstractDict, mq)
-    rhs = ModelingToolkit.diff2term(mq.rhs)
+    rhs = Symbolics.diff2term(mq.rhs)
     if haskey(interpolants, rhs)
         return interpolants[rhs]
     end
@@ -189,7 +189,7 @@ _uq_raw_observation_label(obs_name::AbstractString, time_index::Integer) =
     "$(obs_name)(t_index=$(Int(time_index)))"
 
 function _uq_measurement_series(pep::ParameterEstimationProblem, mq)::Vector{Float64}
-    rhs = ModelingToolkit.diff2term(mq.rhs)
+    rhs = Symbolics.diff2term(mq.rhs)
     lhs_wrapped = Symbolics.wrap(mq.lhs)
     candidates = Any[
         rhs,
@@ -241,7 +241,7 @@ end
 
 function _uq_direct_observation_for_state(pep::ParameterEstimationProblem, state)
     return findfirst(pep.measured_quantities) do mq
-        isequal(ModelingToolkit.diff2term(mq.rhs), state)
+        isequal(Symbolics.diff2term(mq.rhs), state)
     end
 end
 

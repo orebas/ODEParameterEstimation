@@ -1,3 +1,5 @@
+using ODEParameterEstimation
+using Symbolics
 # Multipoint UQ v1 step 3 (2026-08-14): estimate-conditioned IFT sensitivity
 # over a MultiPointTemplate, with the root-residual and conditioning gates.
 #
@@ -245,7 +247,7 @@ end
 		for state in pep_mps.model.original_states
 			state_name = replace(string(state), "(t)" => "")
 			row = findfirst(==(state_name), local_snapshot.param_labels)
-			obs_idx = findfirst(mq -> isequal(ModelingToolkit.diff2term(mq.rhs), state),
+			obs_idx = findfirst(mq -> isequal(Symbolics.diff2term(mq.rhs), state),
 			                    pep_mps.measured_quantities)
 			raw_series = ODEParameterEstimation._uq_measurement_series(
 				pep_mps, pep_mps.measured_quantities[obs_idx])

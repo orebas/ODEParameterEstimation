@@ -31,7 +31,7 @@ end
 function _consensus_observable_rhs(pep::ParameterEstimationProblem, base_name::String)
     for mq in pep.measured_quantities
         lhs_name = replace(string(mq.lhs), "(t)" => "")
-        lhs_name == base_name && return ModelingToolkit.diff2term(mq.rhs)
+        lhs_name == base_name && return Symbolics.diff2term(mq.rhs)
     end
     return nothing
 end
@@ -460,7 +460,7 @@ function _lookup_candidate_system_value(
         for mq in candidate_pep.measured_quantities
             obs_name = replace(string(mq.lhs), "(t)" => "")
             if obs_name == base_name
-                key = ModelingToolkit.diff2term(mq.rhs)
+                key = Symbolics.diff2term(mq.rhs)
                 ot = obs_taylors[pt_idx]
                 if haskey(ot, key) && deriv_order + 1 <= length(ot[key])
                     return Float64(ot[key][deriv_order + 1] * factorial(deriv_order))
@@ -482,7 +482,7 @@ function _lookup_candidate_system_value(
     for mq in candidate_pep.measured_quantities
         obs_name = replace(string(mq.lhs), "(t)" => "")
         if obs_name == clean_name
-            key = ModelingToolkit.diff2term(mq.rhs)
+            key = Symbolics.diff2term(mq.rhs)
             ot = obs_taylors[pt_idx]
             haskey(ot, key) && return Float64(ot[key][1])
         end

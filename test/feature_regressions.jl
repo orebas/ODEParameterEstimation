@@ -1,3 +1,5 @@
+using ODEParameterEstimation
+using Symbolics
 using Test
 using LinearAlgebra
 using Logging
@@ -545,7 +547,7 @@ const SMALL_SAMPLE_OPTS = EstimationOptions(
         # Use a closure factory to avoid module-scope struct redefinition warnings on rerun.
         make_linear = slope -> (x::Real -> slope * x)
         mq = [y1 ~ y1]
-        key1 = ModelingToolkit.diff2term(mq[1].rhs)
+        key1 = Symbolics.diff2term(mq[1].rhs)
         cache_multi = Dict{Symbol, AbstractDict}(
             :a => Dict{Any, Any}(key1 => make_linear(2.0)),
             :b => Dict{Any, Any}(key1 => make_linear(2.5)),

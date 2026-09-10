@@ -146,7 +146,7 @@ function instantiate_si_template_equations(
 
 	# For each measured quantity, populate all derivatives up to the max required order.
 	for (obs_idx, obs_eqn) in enumerate(measured_quantities_in)
-		obs_rhs = ModelingToolkit.diff2term(obs_eqn.rhs)
+		obs_rhs = Symbolics.diff2term(obs_eqn.rhs)
 		# Skip _trfn_ observables — no interpolant exists (skipped in create_interpolants),
 		# and values are always set analytically by the _trfn_ substitution block below.
 		if _is_trfn_observable(Symbolics.wrap(obs_rhs))

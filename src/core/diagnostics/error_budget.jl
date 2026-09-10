@@ -260,7 +260,7 @@ function _lookup_production_data_value(
     for mq in pep.measured_quantities
         obs_name = replace(string(mq.lhs), r"\(.*\)$" => "")
         obs_name == string(base_name) || continue
-        obs_rhs = ModelingToolkit.diff2term(mq.rhs)
+        obs_rhs = Symbolics.diff2term(mq.rhs)
         if haskey(setup_data.interpolants, obs_rhs)
             interp = setup_data.interpolants[obs_rhs]
             return try
@@ -574,8 +574,8 @@ function _lookup_multipoint_true_value(
         sname = replace(string(s), "(t)" => "")
         if sname == base_name
             obs_rhs_key = s  # the state Symbolics variable
-            if haskey(st, obs_rhs_key) || haskey(st, ModelingToolkit.diff2term(s))
-                key = haskey(st, obs_rhs_key) ? obs_rhs_key : ModelingToolkit.diff2term(s)
+            if haskey(st, obs_rhs_key) || haskey(st, Symbolics.diff2term(s))
+                key = haskey(st, obs_rhs_key) ? obs_rhs_key : Symbolics.diff2term(s)
                 tc = st[key]
                 if deriv_order + 1 <= length(tc)
                     return tc[deriv_order + 1] * factorial(deriv_order)
@@ -588,7 +588,7 @@ function _lookup_multipoint_true_value(
     for (obs_idx, mq) in enumerate(pep.measured_quantities)
         obs_name = replace(string(mq.lhs), r"\(.*\)" => "")
         if obs_name == base_name
-            obs_rhs_key = ModelingToolkit.diff2term(mq.rhs)
+            obs_rhs_key = Symbolics.diff2term(mq.rhs)
             if haskey(ot, obs_rhs_key)
                 tc = ot[obs_rhs_key]
                 if deriv_order + 1 <= length(tc)

@@ -32,24 +32,17 @@ function clear_denoms(eq)
 	simplified_lhs = Symbolics.value(simplify_fractions(lhs_expr))
 	simplified_rhs = Symbolics.value(simplify_fractions(rhs_expr))
 
-	# Check if LHS is a fraction
-	if (iscall(simplified_lhs) && Symbolics.operation(simplified_lhs) == division_op)
-		lhs_num, lhs_denom = Symbolics.arguments(simplified_lhs)
-		# Clear denominator by multiplying both sides
-		new_lhs = lhs_num
-		new_rhs = rhs_expr * lhs_denom
-		return is_equation ? (new_lhs ~ new_rhs) : (new_lhs - new_rhs)
-	end
+	lhs_is_fraction = iscall(simplified_lhs) && Symbolics.operation(simplified_lhs) == division_op
+	rhs_is_fraction = iscall(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op
+	(lhs_is_fraction || rhs_is_fraction) || return eq
 
-	# Check if RHS is a fraction (original behavior)
-	if (!isequal(rhs_expr, 0) && iscall(simplified_rhs) && Symbolics.operation(simplified_rhs) == division_op)
-		rhs_num, rhs_denom = Symbolics.arguments(simplified_rhs)
-		new_lhs = lhs_expr * rhs_denom
-		new_rhs = rhs_num
-		return is_equation ? (new_lhs ~ new_rhs) : (new_lhs - new_rhs)
-	end
-
-	return eq
+	# Cross-multiply both simplified fractions together. Returning after clearing
+	# just one side leaves a denominator behind for equations such as x/y ~ z/w.
+	lhs_num, lhs_denom = lhs_is_fraction ? Symbolics.arguments(simplified_lhs) : (simplified_lhs, 1)
+	rhs_num, rhs_denom = rhs_is_fraction ? Symbolics.arguments(simplified_rhs) : (simplified_rhs, 1)
+	new_lhs = lhs_num * rhs_denom
+	new_rhs = rhs_num * lhs_denom
+	return is_equation ? (new_lhs ~ new_rhs) : (new_lhs - new_rhs)
 end
 
 """
@@ -139,5 +132,4 @@ function calculate_error_stats(predicted, actual)
 		relative = calculate_timeseries_stats(rel_error),
 	)
 end
-
 

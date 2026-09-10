@@ -7,20 +7,24 @@
 #
 # This is NOT a substitute for the full FAST gate. Per CLAUDE.md, any
 # estimation-touching change must still be verified with:
-#     julia --startup-file=no -e 'include("test/runtests.jl")'
+#     julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation")'
 #
-# Composition: standalone unit-test files verified green on 2026-07-21. Files
-# excluded on purpose because they were red that day: test_math_utils.jl
-# (calculate_timeseries_stats), test_derivative_utils.jl (Differential API drift).
+# Composition: standalone unit contracts, including the restored math and
+# derivative utility regressions.
 #
-#     julia --startup-file=no -e 'using ODEParameterEstimation; include("test/fast_unit.jl")'
+#     julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; test_args=["unit"])'
 
 using ODEParameterEstimation
 using Test
 
 @testset "fast_unit (quiet contract gate)" begin
+    include("package_contracts.jl")
 	include("test_core_types.jl")        # Result/PEP/DerivativeData type contracts + constants
+	include("test_solution_distance.jl") # clustering compares symbolic keys, not dictionary positions
+	include("test_math_utils.jl")        # symbolic arithmetic and time-series summaries
+	include("test_derivative_utils.jl")  # analytic derivative identities and input ownership
 	include("column_scaling.jl")         # compute_column_scales / scale_hc_system / order_mag
+	include("test_noise_rank_matrix.jl") # exact Jacobian and full/deficient rank contracts
 	include("test_model_utils.jl")       # ordered model construction helpers
 	include("test_label_parsers.jl")     # SIAN/Symbolics derivative-name parsing (name round-tripping)
 	include("test_run_context.jl")       # scoped RunContext contracts (auto-M hand-off, sinks, isolation)

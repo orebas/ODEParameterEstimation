@@ -1233,7 +1233,7 @@ function evaluate_data_vars_at_point(interpolants, data_vars, DD, measured_quant
 			obs_idx, deriv_level = var_to_obs[v]
 
 			# Get the interpolant for this observable
-			obs_rhs = ModelingToolkit.diff2term(measured_quantities[obs_idx].rhs)
+			obs_rhs = Symbolics.diff2term(measured_quantities[obs_idx].rhs)
 
 			if haskey(interpolants, obs_rhs)
 				interp_func = interpolants[obs_rhs]

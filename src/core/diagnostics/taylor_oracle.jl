@@ -378,7 +378,7 @@ function compute_observable_taylor_coefficients(
         obs_rhs = mq.rhs
         tc = _taylor_coeffs_expr(obs_rhs, state_coeffs, param_vals, Num(t_iv), t_eval, max_order)
         # Key by the diff2term'd rhs (same convention as precomputed_interpolants)
-        key = ModelingToolkit.diff2term(obs_rhs)
+        key = Symbolics.diff2term(obs_rhs)
         obs_coeffs[key] = tc
     end
 
@@ -467,7 +467,7 @@ function interpolant_taylor_coefficients(
 )
     obs_coeffs = Dict{Num, Vector{Float64}}()
     for mq in pep.measured_quantities
-        key = ModelingToolkit.diff2term(mq.rhs)
+        key = Symbolics.diff2term(mq.rhs)
         haskey(interpolants, key) || continue
         interp = interpolants[key]
         tc = zeros(max_order + 1)
@@ -565,7 +565,7 @@ function diagnose_derivative_accuracy(
     worst_rel_error = 0.0
 
     for (obs_idx, mq) in enumerate(pep.measured_quantities)
-        obs_rhs = ModelingToolkit.diff2term(mq.rhs)
+        obs_rhs = Symbolics.diff2term(mq.rhs)
         obs_name = string(mq.lhs)
 
         # Skip _trfn_ auxiliary observables — these are analytically known functions
