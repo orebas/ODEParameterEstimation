@@ -101,7 +101,7 @@ result.construction  # order-by-order equation counts, unknowns and numerical ra
 ```
 
 Start with two conditions. Groups are explicitly limited to six conditions;
-the derivative limit defaults to four and accepts 0–8. Several shooting anchors
+the derivative limit defaults to four and accepts 0–10. Several shooting anchors
 produce several systems with the same block count, rather than one larger system.
 A pool that remains deficient at the limit returns `:rank_deficient_at_limit`.
 This numerical rank check is not a structural-identifiability certificate.
@@ -117,6 +117,11 @@ signal are omitted from candidate generation and listed in the construction
 report. Their original preparations still enter full-objective simulation.
 Auxiliary input states currently require the original
 combined constructor. Separate complete experiment fits remain a future comparison.
+
+The [derivative-cap follow-up](2026-09-11_petab_derivatives_and_bruno.md)
+records explicit cap-10 trials, polynomial degrees and term counts, and a detailed
+Bruno example showing the distinction between a relaxed algebraic root and its
+prepared parameter seed.
 
 ## Current boundaries
 

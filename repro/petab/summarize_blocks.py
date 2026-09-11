@@ -32,6 +32,7 @@ def summarize(directory, reference, require_complete=False):
             baselines.append(baseline.get("result", {}).get("nllh"))
         rows.append(dict(
             problem=name, method=record["method"], status=record["status"],
+            derivative_cap=record.get("experiment_construction", {}).get("max_derivative_order"),
             derivative_order=last.get("derivative_order"), pool_equations=last.get("equation_count"),
             unknowns=last.get("variable_count"), rank=last.get("rank"),
             selected_equations=last.get("selected_equation_count"),
@@ -52,14 +53,14 @@ def summarize(directory, reference, require_complete=False):
              "Same canonical problems and recorded starts as the original pilot. "
              "All scores and refinement use the full original PEtab objective. "
              "Workers overlapped; these are feasibility results, not speed rankings.", "",
-             "| Model | Conditions | Status | Rank / unknowns | Order | Valid seeds | Raw NLLH | Refined NLLH |",
-             "|---|---:|---|---:|---:|---:|---:|---:|"]
+             "| Model | Conditions | Status | Rank / unknowns | Cap | Order reached | Valid seeds | Raw NLLH | Refined NLLH |",
+             "|---|---:|---|---:|---:|---:|---:|---:|---:|"]
     def fmt(value):
         return "—" if value is None else f"{value:.8g}"
     for row in rows:
         lines.append(f"| {row['problem']} | {row['method'].removeprefix('odepe_blocks')} | "
                      f"{row['status']} | {row['rank']}/{row['unknowns']} | "
-                     f"{row['derivative_order']} | {row['valid_candidates']} | "
+                     f"{row['derivative_cap']} | {row['derivative_order']} | {row['valid_candidates']} | "
                      f"{fmt(row['raw_nllh'])} | {fmt(row['refined_nllh'])} |")
     lines += ["", "A deficient capped pool is not a structural-identifiability verdict. "
               "A successful refinement is not proof of global optimality. "

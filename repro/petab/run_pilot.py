@@ -54,6 +54,8 @@ def main():
     parser.add_argument("--python", type=Path, default=Path("/tmp/odepe-pypesto-env/bin/python"))
     parser.add_argument("--model-root", type=Path, default=Path("/tmp/odepe-petab-full-20260910/Benchmark-Models"))
     parser.add_argument("--output", type=Path, default=Path("repro/petab/results"))
+    parser.add_argument("--max-derivative-order", type=int, choices=range(11), default=4,
+                        help="Explicit derivative cap for odepe_blocks methods (default: 4)")
     args = parser.parse_args()
     here = Path(__file__).resolve().parent
     config = tomllib.loads((here / "targets.toml").read_text())
@@ -74,6 +76,8 @@ def main():
                 continue
             command = ["julia", "--startup-file=no", "--compiled-modules=existing",
                        str(here / "run.jl"), model, method, str(args.model_root), str(prefix)]
+            if method.startswith("odepe_blocks"):
+                command.append(str(args.max_derivative_order))
             if method == "pypesto_amici":
                 command = [str(args.python), str(here / "run_pypesto.py"), model,
                            str(args.model_root), str(prefix)]

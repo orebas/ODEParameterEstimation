@@ -33,7 +33,7 @@ end
     @test isnothing(single.frontier.selected)
     @test last(single.trace).rank == 2
     @test last(single.trace).variable_count == 3
-    joint = Ext._experiment_frontier(problem, pep, ["A", "B"]; max_derivative_order=2)
+    joint = Ext._experiment_frontier(problem, pep, ["A", "B"]; max_derivative_order=10)
     @test !isnothing(joint.frontier.selected)
     @test last(joint.trace).derivative_order == 1
     @test last(joint.trace).rank == last(joint.trace).variable_count == 4

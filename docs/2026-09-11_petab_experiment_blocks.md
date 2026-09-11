@@ -29,8 +29,9 @@ Roots are checked against the selected original rational equations and ODE poles
 
 The derivative cap is four in the recorded runs. This cap is a computational
 choice, not a theorem about identifiability or an assertion that four noisy
-derivatives can be estimated accurately. The API permits an explicit cap from
-zero through eight. Rank deficiency at the cap is reported without invoking
+derivatives can be estimated accurately. The API originally permitted an explicit
+cap from zero through eight; the [follow-up](2026-09-11_petab_derivatives_and_bruno.md)
+extends this to ten and records separate higher-cap trials. Rank deficiency at the cap is reported without invoking
 SIAN on the concatenated system or increasing derivative order silently.
 
 Each root keeps its retained states from every selected experiment and their

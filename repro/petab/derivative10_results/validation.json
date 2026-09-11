@@ -1,0 +1,34 @@
+{
+  "julia_version": "1.13.0",
+  "baseline_commit": "45f9a742c90a6adbd47de03b4e09c47022b6ffab",
+  "implementation_sha256": "be6044150833c79d546646352c17372751018c7f2486402909a1c8b1f4073ba0",
+  "trial_count": 3,
+  "checks": {
+    "core": {
+      "passed": 1813,
+      "seconds": 924.5,
+      "log_sha256": "88f585997ad64635cd064a97edfdf1657ecfb1023a3921a8f2df9828974f492c"
+    },
+    "petab": {
+      "passed": 111,
+      "log_sha256": "c3e7756ef28404902a3198750bc027d8e3ae132447ecc193e98af1a2e0231422"
+    },
+    "supervisor": {
+      "passed": 4
+    },
+    "recovery": {
+      "rerun": false,
+      "prior_record": "../block_results/validation.json"
+    }
+  },
+  "global_manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "pilot_manifest_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "original_results_unchanged": true,
+  "canonical_tracked_files_unchanged": true,
+  "notes": [
+    "All copied starts match the original pilot byte for byte.",
+    "All cap-10 workers use one implementation digest.",
+    "Three construction-only probes record polynomial supports without solving.",
+    "Bruno is re-evaluated from recorded vectors by an independent SBML matrix-exponential implementation."
+  ]
+}

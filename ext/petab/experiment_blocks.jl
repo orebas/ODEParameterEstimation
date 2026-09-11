@@ -67,7 +67,7 @@ A named tuple with the selected frontier, block mappings, and construction trace
 """
 function _experiment_frontier(problem::PEtabAlgebraicProblem, pep::ParameterEstimationProblem,
         cids; max_derivative_order::Int=4, progress::Function=identity)
-    0 <= max_derivative_order <= 8 || throw(ArgumentError("Experiment derivative limit must be in 0:8"))
+    0 <= max_derivative_order <= 10 || throw(ArgumentError("Experiment derivative limit must be in 0:10"))
     blocks = _experiment_blocks(problem, pep, cids)
     used = Set(Num(v) for b in blocks for expr in vcat(b.dynamics, b.jets)
         for v in Symbolics.get_variables(expr))

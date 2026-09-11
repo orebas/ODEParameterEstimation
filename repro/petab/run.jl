@@ -4,8 +4,9 @@ using Pkg
 Pkg.activate(get(ENV, "ODEPE_PETAB_ENV", "/tmp/odepe-petab-pilot-env"))
 using ODEParameterEstimation, PEtab, Fides, JSON, Random, TOML, OrdinaryDiffEq, SHA
 
-length(ARGS) == 4 || error("usage: run.jl MODEL METHOD MODEL_ROOT OUTPUT_PREFIX")
-name, method, root, prefix = ARGS
+length(ARGS) in (4, 5) || error("usage: run.jl MODEL METHOD MODEL_ROOT OUTPUT_PREFIX [MAX_DERIVATIVE_ORDER]")
+name, method, root, prefix = ARGS[1:4]
+max_derivative_order = length(ARGS) == 5 ? parse(Int, ARGS[5]) : 4
 method in ("odepe", "odepe_blocks2", "odepe_blocks4", "odepe_blocks6", "petab_julia") || error("Unknown Julia method: $method")
 config = TOML.parsefile(joinpath(@__DIR__, "targets.toml"))
 Random.seed!(config["seed"])
@@ -131,12 +132,12 @@ try
             conditions = collect(keys(adapter.condition_states))
             group_size <= length(conditions) || error("Model has fewer than $group_size experiments")
             group = conditions[1:group_size]
-            record["experiment_construction"] = (; groups=[group], max_derivative_order=4,
+            record["experiment_construction"] = (; groups=[group], max_derivative_order,
                 selection="first conditions in canonical measurement-row order",
                 rank_selector="multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
                 initial_only_projection="available group states only; other entries retain recorded x0",
                 refinement="all conditions and all estimated parameters in original PEtab objective")
-            block_options = (; experiment_groups=[group], max_derivative_order=4)
+            block_options = (; experiment_groups=[group], max_derivative_order)
             write_result(record)
         end
         result = estimate_petab_problem(adapter; options=options, x0=x0,

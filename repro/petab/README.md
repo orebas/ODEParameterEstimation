@@ -55,7 +55,8 @@ implementation retries; those reuse the same vector and are not new starts.
 The optional methods `odepe_blocks2`, `odepe_blocks4`, and `odepe_blocks6` select
 the first 2, 4, or 6 conditions in canonical measurement-row order. They share
 parameters across local state blocks, build observation jets through at most
-order four, and apply the core multipoint basis selector to the combined pool.
+order four by default, and apply the core multipoint basis selector to the combined pool.
+`--max-derivative-order 10` explicitly raises the cap (accepted range: 0–10).
 Only states outside every measured signal's ODE dependency closure are omitted.
 The original full PEtab objective is used for both scoring and refinement.
 
@@ -69,13 +70,26 @@ Copy a model's existing `MODEL.start.json` into the new output directory to reus
 an exact earlier start; otherwise the same seeded scaled-bounds sampler is used.
 Never overwrite `pilot_results`. The retained `block_results` starts are copies
 of that original pilot. Each checkpoint records the active construction stage,
-equation count, unknown count, and numerical rank. A deficient order-four pool
+equation count, unknown count, and numerical rank. A deficient capped pool
 is a bounded construction result, not a structural-identifiability conclusion.
 Successful small groups may leave parameters of other conditions at the recorded
 start until the full-objective optimizer refines them.
 
 The [experiment-block record](../../docs/2026-09-11_petab_experiment_blocks.md)
 reports these attempts separately from the original 30-cell pilot.
+
+The separate `derivative10_results` directory retains the requested higher-cap
+Fujita and Sneyd trials. `inspect_blocks.jl MODEL GROUP_SIZE CAP OUTPUT_JSON`
+reconstructs a selected system without interpolation or solving and records its
+equations, variable mapping, degrees, monomial counts, and loose total-degree
+bound. Run it with Julia's `--startup-file=no --compiled-modules=existing` flags.
+It uses the existing optional environment and canonical model checkout.
+
+`/tmp/odepe-pypesto-env/bin/python repro/petab/explain_bruno.py` independently
+re-evaluates the recorded Bruno vectors by matrix exponentiation of the canonical
+SBML model. It writes the full 77-row prediction table, raw state comparisons,
+likelihood decomposition, and PNG/PDF plots to `bruno_explained` without fitting.
+See the [detailed explanation](../../docs/2026-09-11_petab_derivatives_and_bruno.md).
 
 The checked-in `pilot_results/*.json` files retain successes, unsupported cases,
 timeouts and failure reasons. Generated AMICI models, ready markers, verbose

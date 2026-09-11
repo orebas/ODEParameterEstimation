@@ -1,0 +1,128 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "experiment_construction": {
+    "groups": [
+      [
+        "Ca_dose_response__1",
+        "Ca_dose_response__2",
+        "Ca_dose_response__3",
+        "Ca_dose_response__4"
+      ]
+    ],
+    "initial_only_projection": "available group states only; other entries retain recorded x0",
+    "max_derivative_order": 10,
+    "rank_selector": "multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
+    "refinement": "all conditions and all estimated parameters in original PEtab objective",
+    "selection": "first conditions in canonical measurement-row order"
+  },
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "be6044150833c79d546646352c17372751018c7f2486402909a1c8b1f4073ba0",
+  "initial_nllh": 91.6638740585414,
+  "julia_version": "1.13.0",
+  "method": "odepe_blocks4",
+  "ode_solver": "Rodas5P{AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 20, 0.03)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "k1",
+    "k2",
+    "k3",
+    "k4",
+    "k_1",
+    "k_2",
+    "k_3",
+    "k_4",
+    "l2",
+    "l4",
+    "l6",
+    "l_2",
+    "l_4",
+    "l_6",
+    "sigma"
+  ],
+  "preparation_seconds": 109.08698916435242,
+  "problem": "Sneyd_PNAS2002",
+  "result": {
+    "construction_progress": {
+      "conditions": [
+        "Ca_dose_response__1",
+        "Ca_dose_response__2",
+        "Ca_dose_response__3",
+        "Ca_dose_response__4"
+      ],
+      "stage": "experiment_rank",
+      "trace": [
+        {
+          "derivative_order": 0,
+          "equation_count": 4,
+          "rank": 4,
+          "selected_equation_count": 0,
+          "variable_count": 38
+        },
+        {
+          "derivative_order": 1,
+          "equation_count": 8,
+          "rank": 8,
+          "selected_equation_count": 0,
+          "variable_count": 38
+        }
+      ]
+    }
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "timeout",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "7e7a2374ed6cff4006672e6f98fa1d2fbf86559d4d78ff995e7e98790c9bef14",
+  "x0": [
+    2.8933687087193825,
+    -0.15664104760368147,
+    -1.4198940293825402,
+    4.576762282327829,
+    0.15640862906203878,
+    3.516570743392652,
+    3.116866077327977,
+    -1.8957067274075943,
+    -0.7466428461219223,
+    -1.1738278715028283,
+    -2.6498973703010726,
+    0.5803856477675886,
+    3.5433819912570126,
+    1.5748726739271195,
+    -0.10722455615936433
+  ],
+  "returncode": -15,
+  "worker_returncode": -15,
+  "worker_wall_seconds": 941.4500048490008,
+  "total_seconds": 935.3581790924072
+}
