@@ -128,23 +128,28 @@ function instantiate_si_template_equations(
 	substitute_trfn::Bool = true,
 )
 	# Create a set of all variables present in the template equations
-	vars_in_template = OrderedSet()
+	vars_in_template = OrderedSet{Num}()
 	for eq in template_equations
-		union!(vars_in_template, Symbolics.get_variables(eq))
+		union!(vars_in_template, Num.(Symbolics.get_variables(eq)))
 	end
 
 	# Interpolate data for the required derivatives at the specified time point
 	interpolated_values_dict = Dict()
 	t_point = data_sample["t"][time_index]
 
-	# The derivatives needed are determined by the SI.jl template
-	max_required_deriv = isempty(derivative_dict) ? 0 : maximum(values(derivative_dict))
+	# SIAN's derivative dictionary describes its entire jet ring, including jets
+	# absent from the retained equations. Evaluating that universe can request
+	# unsupported derivatives (Fujita: order 21 although the template uses <= 7).
+	# Determine the required order from the actual template support instead.
+	max_required_deriv = maximum((level - 1
+		for (level, lhs_vars) in enumerate(template_DD.obs_lhs)
+		for lhs_var in lhs_vars if Num(lhs_var) in vars_in_template); init = 0)
 
 	if diagnostics
 		println("[DEBUG-SI] Max derivative order required by template: $max_required_deriv")
 	end
 
-	# For each measured quantity, populate all derivatives up to the max required order.
+	# Populate only observable jets present in these equations.
 	for (obs_idx, obs_eqn) in enumerate(measured_quantities_in)
 		obs_rhs = Symbolics.diff2term(obs_eqn.rhs)
 		# Skip _trfn_ observables — no interpolant exists (skipped in create_interpolants),
@@ -158,6 +163,7 @@ function instantiate_si_template_equations(
 			# Find the corresponding lhs variable in the DD structure
 			if i + 1 <= length(template_DD.obs_lhs) && obs_idx <= length(template_DD.obs_lhs[i+1])
 				lhs_var = template_DD.obs_lhs[i+1][obs_idx]
+				Num(lhs_var) in vars_in_template || continue
 				val = try
 					_estimation_derivative(obs_interp, i, t_point)
 				catch err

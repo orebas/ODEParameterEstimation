@@ -192,6 +192,34 @@ using Random
         ]
     end
 
+    @testset "Template interpolation ignores unused SIAN jets" begin
+        @independent_variables t
+        @variables x(t) y(t) x0
+        D = Differential(t)
+        # Reproduce a parent ring supporting order 26 while the retained system
+        # needs only y'. The interpolator's numeric backend supports <= 20.
+        lhs = [Num[y]]
+        for _ in 1:26
+            push!(lhs, Symbolics.expand_derivatives.(D.(last(lhs))))
+        end
+        dd = (obs_lhs = lhs,)
+        bookkeeping = Dict(only(level) => i - 1 for (i, level) in enumerate(lhs))
+        data = OrderedDict{Any, Any}("t" => [0.0, 1.0, 2.0])
+        interps = Dict{Any, Any}(Symbolics.diff2term(x) => (τ -> 2.0 * τ + 1.0))
+        instantiate(equations) = ODEParameterEstimation.instantiate_si_template_equations(
+            equations, [y ~ x], data, bookkeeping, dd;
+            interpolants = interps, time_index = 2, prune_overdetermined = false)
+
+        inst = instantiate(Num[x0 + only(lhs[2])])
+        @test inst.source_indices == [1]
+        @test isequal(only(inst.equations), x0 + 2.0)
+        @test Set(Num.(inst.vars)) == Set([x0])
+
+        # A genuinely required unsupported derivative must still fail visibly.
+        @test_throws ODEParameterEstimation.UnsupportedDerivativeOrderError instantiate(
+            Num[x0 + only(lhs[22])])
+    end
+
     @testset "Transcendental template pruning preserves equation provenance" begin
         @independent_variables t
         @variables x(t) y(t) y0 y1 x0
