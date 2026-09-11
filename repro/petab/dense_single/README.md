@@ -60,3 +60,20 @@ and preserves it on subsequent refreshes. The retained Bruno and Fujita attempts
 also include hash-verified snapshots of their executed Julia harness source.
 Results and interpretation are recorded in
 [`docs/2026-09-11_dense_single_experiments.md`](../../../docs/2026-09-11_dense_single_experiments.md).
+
+`inspect_fujita_pool.jl` reconstructs only the low-level SIAN polynomial pool,
+with multiplicity disabled through the existing keyword; it does not run global
+SI or estimation. `inspect_fujita.py` uses the existing Python environment's
+SymPy to count support in the saved template or reconstructed JSON pool.
+`inspect_sneyd_gcd.jl` traces GCD inputs in an isolated process; its only method
+replacement adds recording before calling the same GCD backend. Bound it with
+an external timeout, as polynomial expansion can prevent reaching the GCD hook:
+
+```sh
+timeout --signal=INT --kill-after=15s 240s julia --startup-file=no --compiled-modules=existing repro/petab/dense_single/inspect_fujita_pool.jl /tmp/fujita-pool.json
+/tmp/odepe-pypesto-env/bin/python repro/petab/dense_single/inspect_fujita.py /tmp/fujita-pool.json /tmp/fujita-support.json
+timeout --signal=INT --kill-after=15s 210s julia --startup-file=no --compiled-modules=existing repro/petab/dense_single/inspect_sneyd_gcd.jl /tmp/sneyd-gcd.json
+```
+
+The [anatomy follow-up](../../../docs/2026-09-11_symbolic_system_anatomy.md)
+contains the resulting counts, representative equations, and interpretation.

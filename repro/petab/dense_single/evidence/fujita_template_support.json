@@ -1,0 +1,890 @@
+{
+  "source": "repro/petab/dense_single/evidence/fujita_saved_template.txt",
+  "source_sha256": "c2eb26f1f453eb5c7fa18537e75c99a29d6eb62ea7fa630d0185d0a1202bd798",
+  "sympy_version": "1.14.0",
+  "equations": 85,
+  "unknowns": 85,
+  "data_coefficients": 23,
+  "parameters": [
+    "scaling_pEGFR_tot_0",
+    "reaction_4_k1_0",
+    "reaction_9_k1_0",
+    "scaling_pAkt_tot_0",
+    "reaction_6_k1_0",
+    "reaction_1_k2_0",
+    "reaction_2_k1_0",
+    "reaction_8_k1_0",
+    "reaction_7_k1_0",
+    "reaction_2_k2_0",
+    "reaction_1_k1_0",
+    "reaction_5_k2_0",
+    "reaction_3_k1_0",
+    "scaling_pS6_tot_0"
+  ],
+  "state_jet_orders": {
+    "EGF_EGFR": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pAkt_S6": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "pEGFR_Akt": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "S6": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "EGFR": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "pS6": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "Akt": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "pAkt": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "pEGFR": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "data_symbols": [
+    "data_y1_0",
+    "data_y1_1",
+    "data_y1_2",
+    "data_y1_3",
+    "data_y1_4",
+    "data_y1_5",
+    "data_y1_6",
+    "data_y2_0",
+    "data_y2_1",
+    "data_y2_2",
+    "data_y2_3",
+    "data_y2_4",
+    "data_y2_5",
+    "data_y2_6",
+    "data_y2_7",
+    "data_y3_0",
+    "data_y3_1",
+    "data_y3_2",
+    "data_y3_3",
+    "data_y3_4",
+    "data_y3_5",
+    "data_y3_6",
+    "data_y3_7"
+  ],
+  "monomial_occurrences": 466,
+  "distinct_unknown_monomials_across_system": 239,
+  "terms_per_equation_histogram": {
+    "2": 8,
+    "3": 23,
+    "4": 14,
+    "5": 5,
+    "6": 6,
+    "7": 6,
+    "8": 6,
+    "9": 6,
+    "10": 5,
+    "11": 3,
+    "12": 2,
+    "13": 1
+  },
+  "degree_histogram": {
+    "2": 65,
+    "3": 20
+  },
+  "max_individual_variable_degree": 1,
+  "count_convention": "Expanded monomials in solve unknowns; observable jets are coefficients. Constants count as one monomial. Cross-equation union is also reported separately.",
+  "rows": [
+    {
+      "index": 1,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_0"
+      ],
+      "expression": "data_y3_0 - pS6_0*scaling_pS6_tot_0"
+    },
+    {
+      "index": 2,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_0*reaction_6_k1_0 + pS6_0*reaction_8_k1_0 + pS6_1"
+    },
+    {
+      "index": 3,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_0"
+      ],
+      "expression": "data_y2_0 - pAkt_0*scaling_pAkt_tot_0 - pAkt_S6_0*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 4,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_0 + pAkt_S6_0*reaction_5_k2_0 + pAkt_S6_0*reaction_6_k1_0 + pAkt_S6_1"
+    },
+    {
+      "index": 5,
+      "terms": 6,
+      "degree": 2,
+      "unknowns_used": 9,
+      "data_used": [],
+      "expression": "S6_0*pAkt_0 + pAkt_0*reaction_7_k1_0 + pAkt_1 - pAkt_S6_0*reaction_5_k2_0 - pAkt_S6_0*reaction_6_k1_0 - pEGFR_Akt_0*reaction_3_k1_0"
+    },
+    {
+      "index": 6,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_0"
+      ],
+      "expression": "data_y1_0 - pEGFR_0*scaling_pEGFR_tot_0 - pEGFR_Akt_0*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 7,
+      "terms": 6,
+      "degree": 3,
+      "unknowns_used": 10,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_0*reaction_9_k1_0 + pEGFR_0*reaction_4_k1_0 + pEGFR_1 - pEGFR_Akt_0*reaction_2_k2_0 - pEGFR_Akt_0*reaction_3_k1_0"
+    },
+    {
+      "index": 8,
+      "terms": 4,
+      "degree": 3,
+      "unknowns_used": 7,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_0*reaction_2_k2_0 + pEGFR_Akt_0*reaction_3_k1_0 + pEGFR_Akt_1"
+    },
+    {
+      "index": 9,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_1"
+      ],
+      "expression": "data_y3_1 - pS6_1*scaling_pS6_tot_0"
+    },
+    {
+      "index": 10,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_1*reaction_6_k1_0 + pS6_1*reaction_8_k1_0 + pS6_2"
+    },
+    {
+      "index": 11,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_1"
+      ],
+      "expression": "data_y2_1 - pAkt_1*scaling_pAkt_tot_0 - pAkt_S6_1*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 12,
+      "terms": 7,
+      "degree": 2,
+      "unknowns_used": 11,
+      "data_used": [],
+      "expression": "S6_0*pAkt_1 + S6_1*pAkt_0 + pAkt_1*reaction_7_k1_0 + pAkt_2 - pAkt_S6_1*reaction_5_k2_0 - pAkt_S6_1*reaction_6_k1_0 - pEGFR_Akt_1*reaction_3_k1_0"
+    },
+    {
+      "index": 13,
+      "terms": 5,
+      "degree": 2,
+      "unknowns_used": 8,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_1 - S6_1*pAkt_0 + pAkt_S6_1*reaction_5_k2_0 + pAkt_S6_1*reaction_6_k1_0 + pAkt_S6_2"
+    },
+    {
+      "index": 14,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 7,
+      "data_used": [],
+      "expression": "S6_0*pAkt_0 + S6_1 - pAkt_S6_0*reaction_5_k2_0 - pS6_0*reaction_8_k1_0"
+    },
+    {
+      "index": 15,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_1"
+      ],
+      "expression": "data_y1_1 - pEGFR_1*scaling_pEGFR_tot_0 - pEGFR_Akt_1*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 16,
+      "terms": 5,
+      "degree": 3,
+      "unknowns_used": 9,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_1*reaction_2_k1_0 - Akt_1*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_1*reaction_2_k2_0 + pEGFR_Akt_1*reaction_3_k1_0 + pEGFR_Akt_2"
+    },
+    {
+      "index": 17,
+      "terms": 7,
+      "degree": 3,
+      "unknowns_used": 12,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_1*reaction_2_k1_0 + Akt_1*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_1*reaction_9_k1_0 + pEGFR_1*reaction_4_k1_0 + pEGFR_2 - pEGFR_Akt_1*reaction_2_k2_0 - pEGFR_Akt_1*reaction_3_k1_0"
+    },
+    {
+      "index": 18,
+      "terms": 4,
+      "degree": 3,
+      "unknowns_used": 8,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_0*reaction_2_k1_0 + Akt_1 - pAkt_0*reaction_7_k1_0 - pEGFR_Akt_0*reaction_2_k2_0"
+    },
+    {
+      "index": 19,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_0*reaction_1_k1_0 + EGF_EGFR_0*reaction_1_k2_0 + EGF_EGFR_0*reaction_9_k1_0 + EGF_EGFR_1"
+    },
+    {
+      "index": 20,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_2"
+      ],
+      "expression": "data_y3_2 - pS6_2*scaling_pS6_tot_0"
+    },
+    {
+      "index": 21,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_2*reaction_6_k1_0 + pS6_2*reaction_8_k1_0 + pS6_3"
+    },
+    {
+      "index": 22,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_2"
+      ],
+      "expression": "data_y2_2 - pAkt_2*scaling_pAkt_tot_0 - pAkt_S6_2*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 23,
+      "terms": 8,
+      "degree": 2,
+      "unknowns_used": 13,
+      "data_used": [],
+      "expression": "S6_0*pAkt_2 + 2*S6_1*pAkt_1 + S6_2*pAkt_0 + pAkt_2*reaction_7_k1_0 + pAkt_3 - pAkt_S6_2*reaction_5_k2_0 - pAkt_S6_2*reaction_6_k1_0 - pEGFR_Akt_2*reaction_3_k1_0"
+    },
+    {
+      "index": 24,
+      "terms": 6,
+      "degree": 2,
+      "unknowns_used": 10,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_2 - 2*S6_1*pAkt_1 - S6_2*pAkt_0 + pAkt_S6_2*reaction_5_k2_0 + pAkt_S6_2*reaction_6_k1_0 + pAkt_S6_3"
+    },
+    {
+      "index": 25,
+      "terms": 5,
+      "degree": 2,
+      "unknowns_used": 9,
+      "data_used": [],
+      "expression": "S6_0*pAkt_1 + S6_1*pAkt_0 + S6_2 - pAkt_S6_1*reaction_5_k2_0 - pS6_1*reaction_8_k1_0"
+    },
+    {
+      "index": 26,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_2"
+      ],
+      "expression": "data_y1_2 - pEGFR_2*scaling_pEGFR_tot_0 - pEGFR_Akt_2*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 27,
+      "terms": 8,
+      "degree": 3,
+      "unknowns_used": 14,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_2*reaction_2_k1_0 + 2*Akt_1*pEGFR_1*reaction_2_k1_0 + Akt_2*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_2*reaction_9_k1_0 + pEGFR_2*reaction_4_k1_0 + pEGFR_3 - pEGFR_Akt_2*reaction_2_k2_0 - pEGFR_Akt_2*reaction_3_k1_0"
+    },
+    {
+      "index": 28,
+      "terms": 6,
+      "degree": 3,
+      "unknowns_used": 11,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_2*reaction_2_k1_0 - 2*Akt_1*pEGFR_1*reaction_2_k1_0 - Akt_2*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_2*reaction_2_k2_0 + pEGFR_Akt_2*reaction_3_k1_0 + pEGFR_Akt_3"
+    },
+    {
+      "index": 29,
+      "terms": 5,
+      "degree": 3,
+      "unknowns_used": 10,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_1*reaction_2_k1_0 + Akt_1*pEGFR_0*reaction_2_k1_0 + Akt_2 - pAkt_1*reaction_7_k1_0 - pEGFR_Akt_1*reaction_2_k2_0"
+    },
+    {
+      "index": 30,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_1*reaction_1_k1_0 + EGF_EGFR_1*reaction_1_k2_0 + EGF_EGFR_1*reaction_9_k1_0 + EGF_EGFR_2"
+    },
+    {
+      "index": 31,
+      "terms": 5,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "EGFR_0*reaction_1_k1_0 + EGFR_0 + EGFR_1 - EGF_EGFR_0*reaction_1_k2_0 - 34095/32768"
+    },
+    {
+      "index": 32,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_3"
+      ],
+      "expression": "data_y3_3 - pS6_3*scaling_pS6_tot_0"
+    },
+    {
+      "index": 33,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_3*reaction_6_k1_0 + pS6_3*reaction_8_k1_0 + pS6_4"
+    },
+    {
+      "index": 34,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_3"
+      ],
+      "expression": "data_y2_3 - pAkt_3*scaling_pAkt_tot_0 - pAkt_S6_3*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 35,
+      "terms": 9,
+      "degree": 2,
+      "unknowns_used": 15,
+      "data_used": [],
+      "expression": "S6_0*pAkt_3 + 3*S6_1*pAkt_2 + 3*S6_2*pAkt_1 + S6_3*pAkt_0 + pAkt_3*reaction_7_k1_0 + pAkt_4 - pAkt_S6_3*reaction_5_k2_0 - pAkt_S6_3*reaction_6_k1_0 - pEGFR_Akt_3*reaction_3_k1_0"
+    },
+    {
+      "index": 36,
+      "terms": 7,
+      "degree": 2,
+      "unknowns_used": 12,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_3 - 3*S6_1*pAkt_2 - 3*S6_2*pAkt_1 - S6_3*pAkt_0 + pAkt_S6_3*reaction_5_k2_0 + pAkt_S6_3*reaction_6_k1_0 + pAkt_S6_4"
+    },
+    {
+      "index": 37,
+      "terms": 6,
+      "degree": 2,
+      "unknowns_used": 11,
+      "data_used": [],
+      "expression": "S6_0*pAkt_2 + 2*S6_1*pAkt_1 + S6_2*pAkt_0 + S6_3 - pAkt_S6_2*reaction_5_k2_0 - pS6_2*reaction_8_k1_0"
+    },
+    {
+      "index": 38,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_3"
+      ],
+      "expression": "data_y1_3 - pEGFR_3*scaling_pEGFR_tot_0 - pEGFR_Akt_3*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 39,
+      "terms": 7,
+      "degree": 3,
+      "unknowns_used": 13,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_3*reaction_2_k1_0 - 3*Akt_1*pEGFR_2*reaction_2_k1_0 - 3*Akt_2*pEGFR_1*reaction_2_k1_0 - Akt_3*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_3*reaction_2_k2_0 + pEGFR_Akt_3*reaction_3_k1_0 + pEGFR_Akt_4"
+    },
+    {
+      "index": 40,
+      "terms": 9,
+      "degree": 3,
+      "unknowns_used": 16,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_3*reaction_2_k1_0 + 3*Akt_1*pEGFR_2*reaction_2_k1_0 + 3*Akt_2*pEGFR_1*reaction_2_k1_0 + Akt_3*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_3*reaction_9_k1_0 + pEGFR_3*reaction_4_k1_0 + pEGFR_4 - pEGFR_Akt_3*reaction_2_k2_0 - pEGFR_Akt_3*reaction_3_k1_0"
+    },
+    {
+      "index": 41,
+      "terms": 6,
+      "degree": 3,
+      "unknowns_used": 12,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_2*reaction_2_k1_0 + 2*Akt_1*pEGFR_1*reaction_2_k1_0 + Akt_2*pEGFR_0*reaction_2_k1_0 + Akt_3 - pAkt_2*reaction_7_k1_0 - pEGFR_Akt_2*reaction_2_k2_0"
+    },
+    {
+      "index": 42,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_2*reaction_1_k1_0 + EGF_EGFR_2*reaction_1_k2_0 + EGF_EGFR_2*reaction_9_k1_0 + EGF_EGFR_3"
+    },
+    {
+      "index": 43,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "EGFR_1*reaction_1_k1_0 + EGFR_1 + EGFR_2 - EGF_EGFR_1*reaction_1_k2_0"
+    },
+    {
+      "index": 44,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_4"
+      ],
+      "expression": "data_y3_4 - pS6_4*scaling_pS6_tot_0"
+    },
+    {
+      "index": 45,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_4*reaction_6_k1_0 + pS6_4*reaction_8_k1_0 + pS6_5"
+    },
+    {
+      "index": 46,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_4"
+      ],
+      "expression": "data_y2_4 - pAkt_4*scaling_pAkt_tot_0 - pAkt_S6_4*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 47,
+      "terms": 10,
+      "degree": 2,
+      "unknowns_used": 17,
+      "data_used": [],
+      "expression": "S6_0*pAkt_4 + 4*S6_1*pAkt_3 + 6*S6_2*pAkt_2 + 4*S6_3*pAkt_1 + S6_4*pAkt_0 + pAkt_4*reaction_7_k1_0 + pAkt_5 - pAkt_S6_4*reaction_5_k2_0 - pAkt_S6_4*reaction_6_k1_0 - pEGFR_Akt_4*reaction_3_k1_0"
+    },
+    {
+      "index": 48,
+      "terms": 8,
+      "degree": 2,
+      "unknowns_used": 14,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_4 - 4*S6_1*pAkt_3 - 6*S6_2*pAkt_2 - 4*S6_3*pAkt_1 - S6_4*pAkt_0 + pAkt_S6_4*reaction_5_k2_0 + pAkt_S6_4*reaction_6_k1_0 + pAkt_S6_5"
+    },
+    {
+      "index": 49,
+      "terms": 7,
+      "degree": 2,
+      "unknowns_used": 13,
+      "data_used": [],
+      "expression": "S6_0*pAkt_3 + 3*S6_1*pAkt_2 + 3*S6_2*pAkt_1 + S6_3*pAkt_0 + S6_4 - pAkt_S6_3*reaction_5_k2_0 - pS6_3*reaction_8_k1_0"
+    },
+    {
+      "index": 50,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_4"
+      ],
+      "expression": "data_y1_4 - pEGFR_4*scaling_pEGFR_tot_0 - pEGFR_Akt_4*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 51,
+      "terms": 10,
+      "degree": 3,
+      "unknowns_used": 18,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_4*reaction_2_k1_0 + 4*Akt_1*pEGFR_3*reaction_2_k1_0 + 6*Akt_2*pEGFR_2*reaction_2_k1_0 + 4*Akt_3*pEGFR_1*reaction_2_k1_0 + Akt_4*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_4*reaction_9_k1_0 + pEGFR_4*reaction_4_k1_0 + pEGFR_5 - pEGFR_Akt_4*reaction_2_k2_0 - pEGFR_Akt_4*reaction_3_k1_0"
+    },
+    {
+      "index": 52,
+      "terms": 8,
+      "degree": 3,
+      "unknowns_used": 15,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_4*reaction_2_k1_0 - 4*Akt_1*pEGFR_3*reaction_2_k1_0 - 6*Akt_2*pEGFR_2*reaction_2_k1_0 - 4*Akt_3*pEGFR_1*reaction_2_k1_0 - Akt_4*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_4*reaction_2_k2_0 + pEGFR_Akt_4*reaction_3_k1_0 + pEGFR_Akt_5"
+    },
+    {
+      "index": 53,
+      "terms": 7,
+      "degree": 3,
+      "unknowns_used": 14,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_3*reaction_2_k1_0 + 3*Akt_1*pEGFR_2*reaction_2_k1_0 + 3*Akt_2*pEGFR_1*reaction_2_k1_0 + Akt_3*pEGFR_0*reaction_2_k1_0 + Akt_4 - pAkt_3*reaction_7_k1_0 - pEGFR_Akt_3*reaction_2_k2_0"
+    },
+    {
+      "index": 54,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_3*reaction_1_k1_0 + EGF_EGFR_3*reaction_1_k2_0 + EGF_EGFR_3*reaction_9_k1_0 + EGF_EGFR_4"
+    },
+    {
+      "index": 55,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "EGFR_2*reaction_1_k1_0 + EGFR_2 + EGFR_3 - EGF_EGFR_2*reaction_1_k2_0"
+    },
+    {
+      "index": 56,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_5"
+      ],
+      "expression": "data_y3_5 - pS6_5*scaling_pS6_tot_0"
+    },
+    {
+      "index": 57,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_5*reaction_6_k1_0 + pS6_5*reaction_8_k1_0 + pS6_6"
+    },
+    {
+      "index": 58,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_5"
+      ],
+      "expression": "data_y2_5 - pAkt_5*scaling_pAkt_tot_0 - pAkt_S6_5*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 59,
+      "terms": 11,
+      "degree": 2,
+      "unknowns_used": 19,
+      "data_used": [],
+      "expression": "S6_0*pAkt_5 + 5*S6_1*pAkt_4 + 10*S6_2*pAkt_3 + 10*S6_3*pAkt_2 + 5*S6_4*pAkt_1 + S6_5*pAkt_0 + pAkt_5*reaction_7_k1_0 + pAkt_6 - pAkt_S6_5*reaction_5_k2_0 - pAkt_S6_5*reaction_6_k1_0 - pEGFR_Akt_5*reaction_3_k1_0"
+    },
+    {
+      "index": 60,
+      "terms": 9,
+      "degree": 2,
+      "unknowns_used": 16,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_5 - 5*S6_1*pAkt_4 - 10*S6_2*pAkt_3 - 10*S6_3*pAkt_2 - 5*S6_4*pAkt_1 - S6_5*pAkt_0 + pAkt_S6_5*reaction_5_k2_0 + pAkt_S6_5*reaction_6_k1_0 + pAkt_S6_6"
+    },
+    {
+      "index": 61,
+      "terms": 8,
+      "degree": 2,
+      "unknowns_used": 15,
+      "data_used": [],
+      "expression": "S6_0*pAkt_4 + 4*S6_1*pAkt_3 + 6*S6_2*pAkt_2 + 4*S6_3*pAkt_1 + S6_4*pAkt_0 + S6_5 - pAkt_S6_4*reaction_5_k2_0 - pS6_4*reaction_8_k1_0"
+    },
+    {
+      "index": 62,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_5"
+      ],
+      "expression": "data_y1_5 - pEGFR_5*scaling_pEGFR_tot_0 - pEGFR_Akt_5*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 63,
+      "terms": 9,
+      "degree": 3,
+      "unknowns_used": 17,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_5*reaction_2_k1_0 - 5*Akt_1*pEGFR_4*reaction_2_k1_0 - 10*Akt_2*pEGFR_3*reaction_2_k1_0 - 10*Akt_3*pEGFR_2*reaction_2_k1_0 - 5*Akt_4*pEGFR_1*reaction_2_k1_0 - Akt_5*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_5*reaction_2_k2_0 + pEGFR_Akt_5*reaction_3_k1_0 + pEGFR_Akt_6"
+    },
+    {
+      "index": 64,
+      "terms": 11,
+      "degree": 3,
+      "unknowns_used": 20,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_5*reaction_2_k1_0 + 5*Akt_1*pEGFR_4*reaction_2_k1_0 + 10*Akt_2*pEGFR_3*reaction_2_k1_0 + 10*Akt_3*pEGFR_2*reaction_2_k1_0 + 5*Akt_4*pEGFR_1*reaction_2_k1_0 + Akt_5*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_5*reaction_9_k1_0 + pEGFR_5*reaction_4_k1_0 + pEGFR_6 - pEGFR_Akt_5*reaction_2_k2_0 - pEGFR_Akt_5*reaction_3_k1_0"
+    },
+    {
+      "index": 65,
+      "terms": 8,
+      "degree": 3,
+      "unknowns_used": 16,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_4*reaction_2_k1_0 + 4*Akt_1*pEGFR_3*reaction_2_k1_0 + 6*Akt_2*pEGFR_2*reaction_2_k1_0 + 4*Akt_3*pEGFR_1*reaction_2_k1_0 + Akt_4*pEGFR_0*reaction_2_k1_0 + Akt_5 - pAkt_4*reaction_7_k1_0 - pEGFR_Akt_4*reaction_2_k2_0"
+    },
+    {
+      "index": 66,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_4*reaction_1_k1_0 + EGF_EGFR_4*reaction_1_k2_0 + EGF_EGFR_4*reaction_9_k1_0 + EGF_EGFR_5"
+    },
+    {
+      "index": 67,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "EGFR_3*reaction_1_k1_0 + EGFR_3 + EGFR_4 - EGF_EGFR_3*reaction_1_k2_0"
+    },
+    {
+      "index": 68,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_6"
+      ],
+      "expression": "data_y3_6 - pS6_6*scaling_pS6_tot_0"
+    },
+    {
+      "index": 69,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_6*reaction_6_k1_0 + pS6_6*reaction_8_k1_0 + pS6_7"
+    },
+    {
+      "index": 70,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_6"
+      ],
+      "expression": "data_y2_6 - pAkt_6*scaling_pAkt_tot_0 - pAkt_S6_6*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 71,
+      "terms": 10,
+      "degree": 2,
+      "unknowns_used": 18,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_6 - 6*S6_1*pAkt_5 - 15*S6_2*pAkt_4 - 20*S6_3*pAkt_3 - 15*S6_4*pAkt_2 - 6*S6_5*pAkt_1 - S6_6*pAkt_0 + pAkt_S6_6*reaction_5_k2_0 + pAkt_S6_6*reaction_6_k1_0 + pAkt_S6_7"
+    },
+    {
+      "index": 72,
+      "terms": 12,
+      "degree": 2,
+      "unknowns_used": 21,
+      "data_used": [],
+      "expression": "S6_0*pAkt_6 + 6*S6_1*pAkt_5 + 15*S6_2*pAkt_4 + 20*S6_3*pAkt_3 + 15*S6_4*pAkt_2 + 6*S6_5*pAkt_1 + S6_6*pAkt_0 + pAkt_6*reaction_7_k1_0 + pAkt_7 - pAkt_S6_6*reaction_5_k2_0 - pAkt_S6_6*reaction_6_k1_0 - pEGFR_Akt_6*reaction_3_k1_0"
+    },
+    {
+      "index": 73,
+      "terms": 9,
+      "degree": 2,
+      "unknowns_used": 17,
+      "data_used": [],
+      "expression": "S6_0*pAkt_5 + 5*S6_1*pAkt_4 + 10*S6_2*pAkt_3 + 10*S6_3*pAkt_2 + 5*S6_4*pAkt_1 + S6_5*pAkt_0 + S6_6 - pAkt_S6_5*reaction_5_k2_0 - pS6_5*reaction_8_k1_0"
+    },
+    {
+      "index": 74,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y1_6"
+      ],
+      "expression": "data_y1_6 - pEGFR_6*scaling_pEGFR_tot_0 - pEGFR_Akt_6*scaling_pEGFR_tot_0"
+    },
+    {
+      "index": 75,
+      "terms": 12,
+      "degree": 3,
+      "unknowns_used": 22,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_6*reaction_2_k1_0 + 6*Akt_1*pEGFR_5*reaction_2_k1_0 + 15*Akt_2*pEGFR_4*reaction_2_k1_0 + 20*Akt_3*pEGFR_3*reaction_2_k1_0 + 15*Akt_4*pEGFR_2*reaction_2_k1_0 + 6*Akt_5*pEGFR_1*reaction_2_k1_0 + Akt_6*pEGFR_0*reaction_2_k1_0 - EGF_EGFR_6*reaction_9_k1_0 + pEGFR_6*reaction_4_k1_0 + pEGFR_7 - pEGFR_Akt_6*reaction_2_k2_0 - pEGFR_Akt_6*reaction_3_k1_0"
+    },
+    {
+      "index": 76,
+      "terms": 10,
+      "degree": 3,
+      "unknowns_used": 19,
+      "data_used": [],
+      "expression": "-Akt_0*pEGFR_6*reaction_2_k1_0 - 6*Akt_1*pEGFR_5*reaction_2_k1_0 - 15*Akt_2*pEGFR_4*reaction_2_k1_0 - 20*Akt_3*pEGFR_3*reaction_2_k1_0 - 15*Akt_4*pEGFR_2*reaction_2_k1_0 - 6*Akt_5*pEGFR_1*reaction_2_k1_0 - Akt_6*pEGFR_0*reaction_2_k1_0 + pEGFR_Akt_6*reaction_2_k2_0 + pEGFR_Akt_6*reaction_3_k1_0 + pEGFR_Akt_7"
+    },
+    {
+      "index": 77,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 6,
+      "data_used": [],
+      "expression": "-EGFR_5*reaction_1_k1_0 + EGF_EGFR_5*reaction_1_k2_0 + EGF_EGFR_5*reaction_9_k1_0 + EGF_EGFR_6"
+    },
+    {
+      "index": 78,
+      "terms": 9,
+      "degree": 3,
+      "unknowns_used": 18,
+      "data_used": [],
+      "expression": "Akt_0*pEGFR_5*reaction_2_k1_0 + 5*Akt_1*pEGFR_4*reaction_2_k1_0 + 10*Akt_2*pEGFR_3*reaction_2_k1_0 + 10*Akt_3*pEGFR_2*reaction_2_k1_0 + 5*Akt_4*pEGFR_1*reaction_2_k1_0 + Akt_5*pEGFR_0*reaction_2_k1_0 + Akt_6 - pAkt_5*reaction_7_k1_0 - pEGFR_Akt_5*reaction_2_k2_0"
+    },
+    {
+      "index": 79,
+      "terms": 4,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "EGFR_4*reaction_1_k1_0 + EGFR_4 + EGFR_5 - EGF_EGFR_4*reaction_1_k2_0"
+    },
+    {
+      "index": 80,
+      "terms": 2,
+      "degree": 2,
+      "unknowns_used": 2,
+      "data_used": [
+        "data_y3_7"
+      ],
+      "expression": "data_y3_7 - pS6_7*scaling_pS6_tot_0"
+    },
+    {
+      "index": 81,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 5,
+      "data_used": [],
+      "expression": "-pAkt_S6_7*reaction_6_k1_0 + pS6_7*reaction_8_k1_0 + pS6_8"
+    },
+    {
+      "index": 82,
+      "terms": 3,
+      "degree": 2,
+      "unknowns_used": 3,
+      "data_used": [
+        "data_y2_7"
+      ],
+      "expression": "data_y2_7 - pAkt_7*scaling_pAkt_tot_0 - pAkt_S6_7*scaling_pAkt_tot_0"
+    },
+    {
+      "index": 83,
+      "terms": 11,
+      "degree": 2,
+      "unknowns_used": 20,
+      "data_used": [],
+      "expression": "-S6_0*pAkt_7 - 7*S6_1*pAkt_6 - 21*S6_2*pAkt_5 - 35*S6_3*pAkt_4 - 35*S6_4*pAkt_3 - 21*S6_5*pAkt_2 - 7*S6_6*pAkt_1 - S6_7*pAkt_0 + pAkt_S6_7*reaction_5_k2_0 + pAkt_S6_7*reaction_6_k1_0 + pAkt_S6_8"
+    },
+    {
+      "index": 84,
+      "terms": 13,
+      "degree": 2,
+      "unknowns_used": 23,
+      "data_used": [],
+      "expression": "S6_0*pAkt_7 + 7*S6_1*pAkt_6 + 21*S6_2*pAkt_5 + 35*S6_3*pAkt_4 + 35*S6_4*pAkt_3 + 21*S6_5*pAkt_2 + 7*S6_6*pAkt_1 + S6_7*pAkt_0 + pAkt_7*reaction_7_k1_0 + pAkt_8 - pAkt_S6_7*reaction_5_k2_0 - pAkt_S6_7*reaction_6_k1_0 - pEGFR_Akt_7*reaction_3_k1_0"
+    },
+    {
+      "index": 85,
+      "terms": 10,
+      "degree": 2,
+      "unknowns_used": 19,
+      "data_used": [],
+      "expression": "S6_0*pAkt_6 + 6*S6_1*pAkt_5 + 15*S6_2*pAkt_4 + 20*S6_3*pAkt_3 + 15*S6_4*pAkt_2 + 6*S6_5*pAkt_1 + S6_6*pAkt_0 + S6_7 - pAkt_S6_6*reaction_5_k2_0 - pS6_6*reaction_8_k1_0"
+    }
+  ]
+}

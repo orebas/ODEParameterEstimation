@@ -9,6 +9,11 @@ Initial core implementation: `7e926a7`. Julia: 1.13.0. Canonical benchmark check
 `ddaa86d13f708926c57ec8918ce75a6b50e2e562`. Reproduction commands and compact
 evidence are in [`repro/petab/dense_single/`](../repro/petab/dense_single/README.md).
 
+The [symbolic-system anatomy follow-up](2026-09-11_symbolic_system_anatomy.md)
+explains the purpose of fraction GCD cancellation and gives verified Fujita
+monomial counts and equations. It also distinguishes the saved template's
+order-7 observation support from the full pool's additional order-8 rows.
+
 ## Experiment definition
 
 | Setting | This study |
