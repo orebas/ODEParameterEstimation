@@ -50,6 +50,11 @@ jobs:
             arch: x64
             group: benchmark
             dependencies: patched
+          - version: '1.13'
+            os: ubuntu-latest
+            arch: x64
+            group: petab
+            dependencies: patched
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
@@ -93,3 +98,6 @@ jobs:
           julia --startup-file=no test/patched.jl
           .ci-deps/GaussianProcesses .ci-deps/SIAN .ci-deps/StructuralIdentifiability
           "$ODEPE_TEST_GROUP"
+      - name: Test benchmark supervisor
+        if: matrix.group == 'petab'
+        run: python3 repro/petab/test_supervisor.py

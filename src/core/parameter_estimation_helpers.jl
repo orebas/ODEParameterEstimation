@@ -892,7 +892,7 @@ function process_estimation_results(
 		@debug "Constructed parameter values: $parameter_values"
 
 		# Solve the ODE with the estimated parameters
-		tspan = (t_vector[shoot_idx], t_vector[1])
+		tspan = (t_vector[shoot_idx], _initial_time(PEP.data_sample))
 		u0_map = Dict(states .=> initial_conditions)
 		p_map = Dict(params .=> parameter_values)
 		# Opt-in pre-backsolve parameter clamp: when opts.opt_lb / opts.opt_ub are
@@ -914,7 +914,7 @@ function process_estimation_results(
 		try
 			if !(ode_solution === nothing)
 				for (i, s) in enumerate(states)
-					val0 = ode_solution(t_vector[1], idxs = s)
+					val0 = ode_solution(_initial_time(PEP.data_sample), idxs = s)
 					backsolved_initial_conditions[i] = Float64(real(val0))
 				end
 			end
@@ -963,7 +963,7 @@ function process_estimation_results(
 		solved_res[end].solution = ode_solution
 		solved_res[end].err = err
 		solved_res[end].at_time = Float64(t_vector[result_entry.shoot_idx])
-		solved_res[end].report_time = Float64(t_vector[1])
+		solved_res[end].report_time = Float64(_initial_time(PEP.data_sample))
 		identity_time_indices = result_entry.source_type == :multipoint && !isnothing(result_entry.mp_time_indices) ?
 			copy(result_entry.mp_time_indices) : Int[result_entry.shoot_idx]
 		identity = _run_ctx_new_identity!(

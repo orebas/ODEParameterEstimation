@@ -1,0 +1,93 @@
+{
+  "note": "Snapshots from supervisor termination after the 900-second model budget, not whole-run profiles. Verbose logs are retained locally and ignored by git.",
+  "attempts": [
+    {
+      "problem": "Boehm_JProteomeRes2014",
+      "source_log": "repro/petab/pilot_results/Boehm_JProteomeRes2014.odepe.log",
+      "log_sha256": "4600f5ae65c9aa3b038a280b96d01d0782e01e5f44e51d9184047e15016c6306",
+      "termination": "[242830] signal 15: Terminated",
+      "selected_stack_frames": [
+        "expand_derivatives at /home/orebas/.julia/packages/Symbolics/mLvup/src/diff.jl:601",
+        "populate_derivatives at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:76",
+        "default_numerical_advisory_heuristics at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:200",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:745"
+      ]
+    },
+    {
+      "problem": "Bruno_JExpBot2016",
+      "source_log": "repro/petab/pilot_results/Bruno_JExpBot2016.odepe.log",
+      "log_sha256": "b4adbc043dc8d93a43cfa606c33ad5a8363147f3b9783958ab11406c887099f7",
+      "termination": "[241274] signal 15: Terminated",
+      "selected_stack_frames": [
+        "differentiate_all at /home/orebas/.julia/dev/SIAN/src/util.jl:146",
+        "get_x_eq at /home/orebas/.julia/dev/SIAN/src/get_x_eq.jl:9",
+        "get_polynomial_system_from_sian at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:977 [inlined]",
+        "prepare_si_template_with_structural_fix at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:519",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:791"
+      ]
+    },
+    {
+      "problem": "Fujita_SciSignal2010",
+      "source_log": "repro/petab/pilot_results/Fujita_SciSignal2010.odepe.log",
+      "log_sha256": "ba294e357b56bd230a3d6a4f0577a649693e781e37d5aa31848eab86f00ecbb0",
+      "termination": "[246957] signal 15: Terminated",
+      "selected_stack_frames": [
+        "differentiate_all at /home/orebas/.julia/dev/SIAN/src/util.jl:146",
+        "get_x_eq at /home/orebas/.julia/dev/SIAN/src/get_x_eq.jl:9",
+        "get_polynomial_system_from_sian at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:977 [inlined]",
+        "prepare_si_template_with_structural_fix at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:519",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:791"
+      ]
+    },
+    {
+      "problem": "Okuonghae_ChaosSolitonsFractals2020",
+      "source_log": "repro/petab/pilot_results/Okuonghae_ChaosSolitonsFractals2020.odepe.log",
+      "log_sha256": "56632c6f7992fe43271758e6ff5e935b2759551240257f15da5a88e16210b047",
+      "termination": "[232629] signal 15: Terminated",
+      "selected_stack_frames": [
+        "show_mul at /home/orebas/.julia/packages/SymbolicUtils/c9cTZ/src/printing.jl:363",
+        "print_to_string at ./strings/io.jl:145 [inlined]",
+        "populate_derivatives at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:59",
+        "default_numerical_advisory_heuristics at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:200",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:745"
+      ]
+    },
+    {
+      "problem": "Raia_CancerResearch2011",
+      "source_log": "repro/petab/pilot_results/Raia_CancerResearch2011.odepe.log",
+      "log_sha256": "13db10ec4b1e83b8968fa5655cf4b76ad862a2d81971b7c815bac9d8e0ae6c5d",
+      "termination": "[248798] signal 15: Terminated",
+      "selected_stack_frames": [
+        "show_mul at /home/orebas/.julia/packages/SymbolicUtils/c9cTZ/src/printing.jl:385",
+        "print_to_string at ./strings/io.jl:145 [inlined]",
+        "populate_derivatives at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:59",
+        "default_numerical_advisory_heuristics at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation_helpers.jl:200",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:745"
+      ]
+    },
+    {
+      "problem": "Sneyd_PNAS2002",
+      "source_log": "repro/petab/pilot_results/Sneyd_PNAS2002.odepe.log",
+      "log_sha256": "7b04d06bb9fe991d9a7a6d2b55f72ec8a95f18e2560adaae64d5ba217f27f71e",
+      "termination": "[235765] signal 15: Terminated",
+      "selected_stack_frames": [
+        "expand_derivatives at /home/orebas/.julia/packages/Symbolics/mLvup/src/diff.jl:601 [inlined]",
+        "populate_derivatives at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:76",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:745"
+      ]
+    },
+    {
+      "problem": "Zhao_QuantBiol2020",
+      "source_log": "repro/petab/pilot_results/Zhao_QuantBiol2020.odepe.log",
+      "log_sha256": "f3379a71daf04ee903575fb573f60a96fd0024797f5d0bd9aeac8f87b6ed5241",
+      "termination": "[223184] signal 15: Terminated",
+      "selected_stack_frames": [
+        "differentiate_all at /home/orebas/.julia/dev/SIAN/src/util.jl:146",
+        "get_x_eq at /home/orebas/.julia/dev/SIAN/src/get_x_eq.jl:9",
+        "get_polynomial_system_from_sian at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:977 [inlined]",
+        "prepare_si_template_with_structural_fix at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/parameter_estimation.jl:519",
+        "optimized_multishot_parameter_estimation at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:791"
+      ]
+    }
+  ]
+}

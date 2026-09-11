@@ -1,0 +1,31 @@
+problem,cohort,method,status,initial_nllh,raw_candidate_count,unscored_candidate_count,valid_candidate_count,algebraic_nllh,refined_nllh,baseline_nllh,termination,preparation_seconds,total_seconds,reason
+Perelson_Science1996,main,odepe,success,83654112833602.06,122,,5,1303534465065.4185,227.56759766339917,,FTOL,107.10140204429626,843.4423980712891,
+Perelson_Science1996,main,petab_julia,success,83654112833602.06,,,,,,10842.629398169369,FTOL,91.73061084747314,144.05252194404602,
+Perelson_Science1996,main,pypesto_amici,success,83654112650180.48,,,,,,10842.629368386437,ExitFlag.FTOL,11.981024026870728,12.035731792449951,
+Bertozzi_PNAS2020,main,odepe,no_valid_candidates,500.9916568060481,20,,0,,,,no_valid_candidates,120.25843691825867,633.7358918190002,No algebraic vector passed the original PEtab bounds and objective checks
+Bertozzi_PNAS2020,main,petab_julia,success,500.9916568060481,,,,,,158.86797816207087,FTOL,112.66930413246155,174.69339203834534,
+Bertozzi_PNAS2020,main,pypesto_amici,success,500.9916788948517,,,,,,158.86427037639436,ExitFlag.FTOL,20.22919535636902,20.791029930114746,
+Okuonghae_ChaosSolitonsFractals2020,main,odepe,timeout,4033596.2100745444,,,,,,,,130.27774596214294,,Time budget exhausted before a scored candidate was returned
+Okuonghae_ChaosSolitonsFractals2020,main,petab_julia,success,4033596.2100745444,,,,,,675.447368645442,FTOL,118.11798882484436,180.89174699783325,
+Okuonghae_ChaosSolitonsFractals2020,main,pypesto_amici,success,4033596.2100825747,,,,,,675.4473686454413,ExitFlag.FTOL,20.32110571861267,20.71882128715515,
+Bruno_JExpBot2016,main,odepe,timeout,7849332.112063684,,,,,,,,117.6369080543518,,Time budget exhausted before a scored candidate was returned
+Bruno_JExpBot2016,main,petab_julia,success,7849332.112063684,,,,,,874.201246252693,FTOL,125.95323085784912,185.43619394302368,
+Bruno_JExpBot2016,main,pypesto_amici,success,7849332.112082768,,,,,,874.201236293545,ExitFlag.FTOL,13.630712747573853,15.647138118743896,
+Fujita_SciSignal2010,main,odepe,timeout,1.9473918496173594e+28,,,,,,,,116.16561603546143,,Time budget exhausted before a scored candidate was returned
+Fujita_SciSignal2010,main,petab_julia,optimizer_stopped,1.9473918496173594e+28,,,,,,121734279239.62685,DELTA_TOO_SMALL,122.81479787826538,188.20047187805176,Finite objective returned without optimizer convergence (DELTA_TOO_SMALL)
+Fujita_SciSignal2010,main,pypesto_amici,optimizer_stopped,1.947391987679252e+28,,,,,,10010.950976253445,ExitFlag.DELTA_TOO_SMALL,15.096520900726318,20.11442756652832,Finite objective returned without optimizer convergence (ExitFlag.DELTA_TOO_SMALL)
+Zhao_QuantBiol2020,main,odepe,timeout,565210308424280.9,,,,,,,,133.49919295310974,,Time budget exhausted before a scored candidate was returned
+Zhao_QuantBiol2020,main,petab_julia,success,565210308424280.9,,,,,,522.3063691198745,FTOL,116.27972221374512,187.47454404830933,
+Zhao_QuantBiol2020,main,pypesto_amici,success,565210308600201.4,,,,,,547.5123768352208,ExitFlag.FTOL,16.642353296279907,28.748414754867554,
+Sneyd_PNAS2002,main,odepe,timeout,91.6638740585414,,,,,,,,118.19210386276245,,Time budget exhausted before a scored candidate was returned
+Sneyd_PNAS2002,main,petab_julia,success,91.6638740585414,,,,,,-130.4261000992712,FTOL,153.18845295906067,208.83459401130676,
+Sneyd_PNAS2002,main,pypesto_amici,success,91.66387405854138,,,,,,-130.4261000992712,ExitFlag.FTOL,14.366051197052002,14.679368734359741,
+Boehm_JProteomeRes2014,main,odepe,timeout,456927537356.49713,,,,,,,,126.4222400188446,,Time budget exhausted before a scored candidate was returned
+Boehm_JProteomeRes2014,main,petab_julia,success,456927537356.49713,,,,,,164.42570299231016,FTOL,121.17141389846802,179.3480739593506,
+Boehm_JProteomeRes2014,main,pypesto_amici,success,456927537447.76855,,,,,,164.42569650816014,ExitFlag.FTOL,14.818463563919067,16.278287649154663,
+Crauste_CellSystems2017,challenge,odepe,failed,,,,,,,,,,105.32626295089722,ArgumentError: Algebraic interpolation needs an observed interval common to all signals
+Crauste_CellSystems2017,challenge,petab_julia,optimization_failed,,,,,,,,Optmisation_failed,114.47013711929321,180.2980101108551,Original objective was nonfinite at the shared starting vector; no alternative start was sampled
+Crauste_CellSystems2017,challenge,pypesto_amici,optimization_failed,,,,,,,,ExitFlag.NOT_FINITE,0.07674121856689453,0.16429805755615234,Original objective was nonfinite at the shared starting vector; no alternative start was sampled
+Raia_CancerResearch2011,challenge,odepe,timeout,2844291822030.2964,,,,,,,,108.83007097244263,,Time budget exhausted before a scored candidate was returned
+Raia_CancerResearch2011,challenge,petab_julia,success,2844291822030.2964,,,,,,478.6312311572675,FTOL,123.53715085983276,197.02918696403503,
+Raia_CancerResearch2011,challenge,pypesto_amici,success,2844291821432.0674,,,,,,478.6292202302606,ExitFlag.FTOL,15.247292518615723,50.39211678504944,

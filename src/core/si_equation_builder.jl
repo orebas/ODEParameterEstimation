@@ -629,7 +629,7 @@ Returns:
 function get_si_equation_system(
 	ode,  # Will be OrderedODESystem
 	measured_quantities::Vector{ModelingToolkit.Equation},
-	data_sample::OrderedDict;
+	data_sample::AbstractDict;
 	DD = nothing,  # DerivativeData structure for mapping
 	p = 0.99,
 	p_mod = 0,

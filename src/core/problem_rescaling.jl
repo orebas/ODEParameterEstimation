@@ -379,7 +379,20 @@ function rescale_pep(pep::ParameterEstimationProblem; kwargs...)
 	# the downstream pipeline (which looks data up by the new measured-quantity rhs)
 	# finds it, and divide by the observable scale.
 	new_data = pep.data_sample
-	if pep.data_sample !== nothing
+	if pep.data_sample isa ObservationData
+		series = ObservationSeries[]
+		new_expressions = Dict(_rescale_obs_key(omq, pep.data_sample) => nmq.rhs
+			for (omq, nmq) in zip(pep.measured_quantities, new_measured))
+		for s in pep.data_sample.series
+			okey = s.expression
+			haskey(new_expressions, okey) || throw(ArgumentError("Observation $(s.observable_id) is absent from measured_quantities"))
+			os = get(info.observable_scales, okey, 1.0)
+			push!(series, ObservationSeries(s.observable_id, s.experiment_id, new_expressions[okey],
+				s.times, s.values ./ os;
+				noise_std = isnothing(s.noise_std) ? nothing : s.noise_std ./ abs(os)))
+		end
+		new_data = ObservationData(series; initial_time=pep.data_sample.initial_time)
+	elseif pep.data_sample !== nothing
 		new_data = OrderedDict{Union{String, Num}, Vector{Float64}}()
 		haskey(pep.data_sample, "t") && (new_data["t"] = pep.data_sample["t"])
 		for (omq, nmq) in zip(pep.measured_quantities, new_measured)

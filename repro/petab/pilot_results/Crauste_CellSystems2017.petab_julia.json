@@ -1,0 +1,100 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "8539a2d552a384f4d7b3b7597ee3403d849a3b6c37c9794613fc66bf1df3be6f",
+  "import_compatibility_repairs": [],
+  "initial_nllh": "Inf",
+  "julia_version": "1.13.0",
+  "method": "petab_julia",
+  "ode_solver": "Rodas5P{AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 20, 0.03)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "delta_EL",
+    "delta_LM",
+    "delta_NE",
+    "mu_EE",
+    "mu_LE",
+    "mu_LL",
+    "mu_N",
+    "mu_P",
+    "mu_PE",
+    "mu_PL",
+    "rho_E",
+    "rho_P"
+  ],
+  "preparation_seconds": 114.47013711929321,
+  "problem": "Crauste_CellSystems2017",
+  "result": {
+    "converged": false,
+    "iterations": 0,
+    "nllh": "NaN",
+    "status": "Optmisation_failed",
+    "x": [
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN",
+      "NaN"
+    ]
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "optimization_failed",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "total_seconds": 180.2980101108551,
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "91a5853df65ecc8f740623a9212fbb565cc96b19489eee3ae30d3f287cc24a6d",
+  "x0": [
+    0.8933687087193825,
+    -2.1566410476036815,
+    -3.41989402938254,
+    2.576762282327829,
+    -4.8708359777741865,
+    0.5894274580130592,
+    1.1168660773279768,
+    -3.8957067274075943,
+    -6.338294624948124,
+    -3.1738278715028283,
+    -4.649897370301073,
+    -1.4196143522324114
+  ],
+  "worker_returncode": 0,
+  "worker_wall_seconds": 234.59730284499892
+}

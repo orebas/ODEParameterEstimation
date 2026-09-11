@@ -1,0 +1,90 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "8539a2d552a384f4d7b3b7597ee3403d849a3b6c37c9794613fc66bf1df3be6f",
+  "import_compatibility_repairs": [],
+  "initial_nllh": 456927537356.49713,
+  "julia_version": "1.13.0",
+  "method": "petab_julia",
+  "ode_solver": "OrdinaryDiffEqBDF.QNDF{5, AutoForwardDiff{nothing, Nothing}, Nothing, OrdinaryDiffEqNonlinearSolve.NLNewton{Rational{Int64}, Rational{Int64}, Rational{Int64}, Nothing}, Nothing, Nothing, NTuple{5, Rational{Int64}}, typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing, Rational{Int64}}(Val{5}(), nothing, OrdinaryDiffEqNonlinearSolve.NLNewton{Rational{Int64}, Rational{Int64}, Rational{Int64}, Nothing}(1//100, 10, 1//5, 1//5, false, true, nothing), nothing, nothing, :linear, (-37//200, -1//9, -823//10000, -83//2000, 0//1), OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 10//1, 1//1, 2//1)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "Epo_degradation_BaF3",
+    "k_exp_hetero",
+    "k_exp_homo",
+    "k_imp_hetero",
+    "k_imp_homo",
+    "k_phos",
+    "sd_pSTAT5A_rel",
+    "sd_pSTAT5B_rel",
+    "sd_rSTAT5A_rel"
+  ],
+  "preparation_seconds": 121.17141389846802,
+  "problem": "Boehm_JProteomeRes2014",
+  "result": {
+    "iterations": 109,
+    "nllh": 164.42570299231016,
+    "status": "FTOL",
+    "x": [
+      -1.4635172566713683,
+      -2.663614899267394,
+      -2.76684588049497,
+      4.480418861313818,
+      -1.901226800165772,
+      4.380893203401406,
+      0.5326817017376221,
+      0.8655052781208188,
+      1.2161440289865357
+    ]
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "success",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "total_seconds": 179.3480739593506,
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "91a5853df65ecc8f740623a9212fbb565cc96b19489eee3ae30d3f287cc24a6d",
+  "x0": [
+    2.366710885899228,
+    -1.4458013095046018,
+    -3.024867536728175,
+    4.470952852909786,
+    -1.0544892136724515,
+    3.145713429240814,
+    2.646082596659971,
+    -3.619633409259493,
+    -2.183303557652403
+  ],
+  "worker_returncode": 0,
+  "worker_wall_seconds": 237.14182396100296
+}

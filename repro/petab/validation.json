@@ -1,0 +1,53 @@
+{
+  "core_source_sha256": "8a028d21bed4effbb9da7708aa561c7d01a2870b125dfb1cdfe6d22f08603da6",
+  "core_source_hash_recipe": "SHA256 over sorted src/**/*.jl: repository-relative path, NUL byte, file bytes for each file",
+  "checks": [
+    {
+      "name": "core",
+      "command": "julia --startup-file=no test/current.jl",
+      "log": "/tmp/odepe-petab-full-tests.log",
+      "log_sha256": "5d2e27e9e4e57685b61f69e29c1e348d04bcd11f0a9ec3d65fb439a7eb91939d",
+      "passed": 1811,
+      "testset_time": "18m45.9s"
+    },
+    {
+      "name": "recovery",
+      "command": "julia --startup-file=no test/current.jl benchmark",
+      "log": "/tmp/odepe-petab-benchmark-tests.log",
+      "log_sha256": "766815f516ffc68fca2e1c88d5bfb97a627255ebc4ad1f3a123a463d2ec24e15",
+      "passed": 10,
+      "testset_time": "29m01.0s"
+    },
+    {
+      "name": "petab",
+      "command": "julia --startup-file=no --compiled-modules=existing repro/petab/test.jl",
+      "log": "/tmp/odepe-petab-contracts.log",
+      "log_sha256": "01e4f5b9543f2c2797287b66ad09feccc533d4a68415f947e138317330ebd909",
+      "passed": 36,
+      "testset_time": "4m21.5s + 33.4s + 20.4s"
+    },
+    {
+      "name": "petab_fresh_ci_environment",
+      "command": "julia --startup-file=no test/patched.jl /tmp/odepe-gp-ci-check /home/orebas/.julia/dev/SIAN /tmp/odepe-si-upstream petab",
+      "log": "/tmp/odepe-petab-ci-contracts.log",
+      "log_sha256": "514735b050210615c9910bc8bd05915fe3c0f3f03257e6482eeb635435519c88",
+      "passed": 36,
+      "testset_time": "2m27.4s + 31.5s + 17.4s",
+      "versions": {
+        "ModelingToolkit": "11.42.1",
+        "Symbolics": "7.39.2",
+        "SymbolicUtils": "4.46.4",
+        "PEtab": "5.4.3"
+      }
+    }
+  ],
+  "supervisor_contracts": 4,
+  "completed_pilot_cells": 30,
+  "canonical_parameter_vector_checks": 63,
+  "recovery_errors": {
+    "lv_noisy": 5.62862445790957e-05,
+    "simple_noisy": 6.350909659280646e-09,
+    "lv_clean": 1.0168680712278426e-10,
+    "hiv_clean": 2.4963073830264193e-09
+  }
+}

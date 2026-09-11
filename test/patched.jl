@@ -1,13 +1,13 @@
 # Reproduce the modern dependency families with explicitly prepared upstream
 # checkouts. This uses a temporary environment and never edits the caller's.
-# Arguments: GP path, SIAN path, SI path, optional all|unit|benchmark.
+# Arguments: GP path, SIAN path, SI path, optional all|unit|benchmark|petab.
 using Pkg
 using TOML
 
-length(ARGS) in (3, 4) || error("Usage: test/patched.jl GP_PATH SIAN_PATH SI_PATH [all|unit|benchmark]")
+length(ARGS) in (3, 4) || error("Usage: test/patched.jl GP_PATH SIAN_PATH SI_PATH [all|unit|benchmark|petab]")
 gp_path, sian_path, si_path = abspath.(ARGS[1:3])
 group = length(ARGS) == 4 ? ARGS[4] : "all"
-(group in ("all", "unit", "benchmark") ||
+(group in ("all", "unit", "benchmark", "petab") ||
  (basename(group) == group && isfile(joinpath(@__DIR__, group)))) ||
     error("Unknown test group or active test filename: $group")
 
@@ -24,6 +24,17 @@ mktempdir() do environment_dir
         "compat" => Dict("Optim" => "2", "OrdinaryDiffEq" => "7",
                          "SciMLBase" => "3", "OrderedCollections" => "2"),
     )
+    if group == "petab"
+        # Keep PEtab and the adapter's fixtures in a separate CI environment;
+        # importing the core package does not install benchmark dependencies.
+        merge!(project["deps"], Dict(
+            "PEtab" => "48d54b35-e43e-4a66-a5a1-dde6b987cf69",
+            "Test" => "8dfed614-e22c-5e08-85e1-65c5234f0b40",
+            "ModelingToolkit" => "961ee093-0014-501f-94e3-6117800e7a78",
+            "Symbolics" => "0c5d862f-8b57-4792-8d23-62f2024744c7",
+        ))
+        project["compat"]["PEtab"] = "~5.4.3"
+    end
     open(joinpath(environment_dir, "Project.toml"), "w") do io
         TOML.print(io, project)
     end
@@ -35,6 +46,10 @@ mktempdir() do environment_dir
         PackageSpec(path=si_path),
     ])
     Pkg.status(; mode=Pkg.PKGMODE_MANIFEST)
-    Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=[group],
-             coverage=get(ENV, "ODEPE_TEST_COVERAGE", "false") == "true")
+    if group == "petab"
+        include(joinpath(@__DIR__, "petab", "runtests.jl"))
+    else
+        Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=[group],
+                 coverage=get(ENV, "ODEPE_TEST_COVERAGE", "false") == "true")
+    end
 end

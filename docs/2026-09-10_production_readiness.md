@@ -6,8 +6,8 @@ with `Pkg.test(...; allow_reresolve=false)`. An earlier successful run on older
 registered dependencies is historical comparison evidence, not the current gate.
 
 This pass starts from `7636659`. Its scope is the core estimation workflow,
-active tests, dependency interoperability, documentation, and CI. PEtab and
-RS/RUR remain unfinished optional integrations. Research and uncertainty
+active tests, dependency interoperability, documentation, and CI. A subsequent
+PEtab feasibility pilot is documented separately below; RS/RUR remains deferred. Research and uncertainty
 calibration claims retain the limits in the audited August notes.
 
 ## Current dependency baseline
@@ -164,27 +164,27 @@ The job retains its existing advisory status.
 
 ## Optional integrations
 
-RS/RUR restoration is deferred at the user's request. PEtab's immediate goal
-is evaluation on a suitable subset of public benchmarks; the
-[source assessment and proposed first case](2026-09-10_public_benchmark_triage.md)
-record the actual data and model limitations. No public PEtab benchmark was
-run in this stabilization pass.
+RS/RUR restoration is deferred at the user's request. PEtab's subsequent pilot
+evaluates a suitable subset of public benchmarks; the
+[35-problem source assessment and feature roadmap](2026-09-10_public_benchmark_triage.md)
+record the actual data and model limitations. The core stabilization results
+above predate the pilot; see its [implementation/results record](2026-09-10_petab_pilot.md)
+and [API guide](petab.md) for the additional changes and validation.
 
-The core test suite does not load these extensions. They need separate repair
-and representative fixtures before being included in a supported release:
+The core test suite does not load these extensions:
 
-- **PEtab:** the extension entry point includes nonexistent relative paths;
-  the nested loader/converter names do not match its exports. The validation
-  file is a research script with top-level model loops and stale includes,
-  not a safe library include. Its nested project targets an older PEtab/MTK
-  stack. Do not fix this merely by pointing the entry point at those scripts.
+- **PEtab:** the broken entry point has been replaced by a restricted adapter
+  in `ext/petab/`, with separate synthetic contracts and a Julia 1.13 CI profile.
+  It delegates original likelihood scoring to PEtab 5.4.3 and confines import
+  compatibility repairs to that optional layer. The old nested project and
+  research scripts are retained as historical code and are not loaded.
 - **RS/RUR:** the weak dependencies are absent from the inspected General
   registry. The extension imports an absent core helper and injects main-module
   bindings during initialization. The root-conversion and solver behavior need
   a dedicated audit and tests before `SolverRS` is supported.
 
-The source is retained for restoration. Describing it here does not make its
-loading or behavior production-ready. Older multipoint experiments and other
+The RS/RUR source is retained for restoration. PEtab remains a restricted pilot;
+successful import is distinct from successful estimation. Older multipoint experiments and other
 scripts outside the active runner are inventoried in the refreshed
 [review map](review_map.md).
 
@@ -192,13 +192,13 @@ scripts outside the active runner are inventoried in the refreshed
 
 Core stabilization and its local and hosted validation are complete. The
 remaining work below concerns a future supported release, not unfinished core
-test repairs. PEtab benchmarking remains a separate follow-up.
+test repairs. The PEtab pilot has its own narrower support and validation record.
 
 1. Once GP/SIAN/SI fixes are registered, validate a fresh environment selecting
    those releases and remove temporary CI patch assembly and dependency bridges
    when their supported version floors make them unnecessary.
-2. Decide whether to restore or omit the unfinished optional extensions from
-   the first supported release. Their presence must not imply support.
+2. Decide whether to include the restricted PEtab pilot in a supported release
+   and whether to omit deferred RS/RUR. Their presence must not imply broader support.
 3. Choose a release version (the checkout remains `1.1.0-DEV`) and check registry
    installation, loading, compatibility, license, and naming requirements. See
    the [General AutoMerge guidelines](https://juliaregistries.github.io/RegistryCI.jl/stable/guidelines/).

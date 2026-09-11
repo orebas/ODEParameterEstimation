@@ -45,7 +45,7 @@ Paths below are relative to `src/`.
 | Diagnostics/UQ | `core/diagnostics/*.jl`, `core/uncertainty_quantification.jl`, `core/sigma_d.jl`, `core/svg_plots.jl` | Exact returned estimator, covariance propagation, reliability axes, report/artifact correctness. Read the current UQ notes linked by `CLAUDE.md` first. |
 | Research | `research/*.jl` | Consensus/sweeps and opt-in correction; these remain loaded/exported but are outside the default estimation pipeline. |
 | Baseline/examples | `baselines/shade_lm.jl`, `examples/load_examples.jl`, `examples/models/*.jl` | Recovery comparisons and public example constructors. Other example scripts include historical investigations. |
-| Optional integrations | `../ext/` | PEtab and RS/RUR are unfinished and outside the validated core. See the readiness record before attempting to load them. |
+| Optional integrations | `../ext/` | The PEtab pilot lives in `ext/petab/` with separate contracts in `test/petab/`; see `docs/petab.md` and the dated pilot record for its limits. The older nested PEtab scripts are not loaded. RS/RUR remains deferred. |
 | Tests/CI | `../test/`, `../.github/workflows/CI.yml` | Declared imports, dependency version preservation, isolated namespaces/artifacts, substantive assertions. |
 
 ## Active test coverage
@@ -63,6 +63,7 @@ from running. The unit group is assembled in
 | Estimation and examples | `fast_core.jl`, `refactor_safety_net.jl`, `feature_regressions.jl`, `example_canaries.jl`, `examples_smoke.jl`, `identifiability_regressions.jl` |
 | Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_polish_maxtime.jl`, `test_shade_lm.jl` |
 | State and result contracts | `test_run_context.jl`, `test_interrupt_propagation.jl`, `result_processing_helpers.jl`, `test_label_parsers.jl` |
+| Independent grids and preparation | `test_observation_data.jl`; optional joint PEtab mapping and likelihood contracts in `test/petab/runtests.jl` |
 | Multipoint/UQ/campaigns | `test_multipoint_pipeline.jl`, `test_multipoint_sensitivity.jl`, `test_estimator_aware_uq.jl`, `test_polish_uq_pipeline.jl`, `test_branch_uq_pipeline.jl`, covariance/IFT/campaign contract files in the runner |
 | Recovery benchmark | `benchmark_smoke.jl`, selected with the `benchmark` group; separate from the default full suite |
 

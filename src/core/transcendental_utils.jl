@@ -605,6 +605,8 @@ function transform_pep_for_estimation(pep::ParameterEstimationProblem, t_var)
 	if isnothing(tr_info)
 		return pep, nothing
 	end
+	pep.data_sample isa ObservationData && throw(ArgumentError(
+		"Automatic transcendental lifting for ObservationData is not supported; supply explicit auxiliary states and initial values."))
 
 	@info "[TRANSCENDENTAL] Detected $(length(tr_info.entries)) transcendental expression(s):"
 	for entry in tr_info.entries

@@ -21,6 +21,7 @@ const TEST_FILES = [
     "test_solution_distance.jl",
     "test_math_utils.jl",
     "test_derivative_utils.jl",
+    "test_observation_data.jl",
     "test_model_utils.jl",    # ordered model construction; also in the unit group
     "column_scaling.jl",      # re-homed 2026-07-21 (was orphaned; green)
     "test_noise_rank_matrix.jl", # Jacobian values and rank under bounded AD compilation

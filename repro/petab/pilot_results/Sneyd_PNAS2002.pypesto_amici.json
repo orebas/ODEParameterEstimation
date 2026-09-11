@@ -1,0 +1,99 @@
+{
+  "problem": "Sneyd_PNAS2002",
+  "method": "pypesto_amici",
+  "seconds_cap": 900,
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "seed": 20260910,
+  "worker_sha256": "b23ecfb59e37d53a8f04694f64f1ac94753fb5012dc5895efa3d47b0cd7bb9c1",
+  "thread_settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "CMAKE_BUILD_PARALLEL_LEVEL": "1"
+  },
+  "versions": {
+    "amici": "1.1.0",
+    "pypesto": "0.7.0",
+    "petab": "0.9.0",
+    "fides": "0.8.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "ode_solver": "Solver",
+  "ode_tolerances": {
+    "abstol": 1e-16,
+    "reltol": 1e-08
+  },
+  "python_version": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "optimizer_options": {
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "k1",
+    "k2",
+    "k3",
+    "k4",
+    "k_1",
+    "k_2",
+    "k_3",
+    "k_4",
+    "l2",
+    "l4",
+    "l6",
+    "l_2",
+    "l_4",
+    "l_6",
+    "sigma"
+  ],
+  "x0": [
+    2.8933687087193825,
+    -0.15664104760368147,
+    -1.4198940293825402,
+    4.576762282327829,
+    0.15640862906203878,
+    3.516570743392652,
+    3.116866077327977,
+    -1.8957067274075943,
+    -0.7466428461219223,
+    -1.1738278715028283,
+    -2.6498973703010726,
+    0.5803856477675886,
+    3.5433819912570126,
+    1.5748726739271195,
+    -0.10722455615936433
+  ],
+  "initial_nllh": 91.66387405854138,
+  "preparation_seconds": 14.366051197052002,
+  "status": "success",
+  "result": {
+    "x": [
+      2.8933687086907693,
+      -0.15664104757505698,
+      -1.4198940293825402,
+      4.576762282327829,
+      0.1564086290905751,
+      3.516570743389228,
+      3.116866077327977,
+      -1.8957067274075943,
+      -0.7466428460943151,
+      -1.173827871502802,
+      -2.6498973703008675,
+      0.5803856477397787,
+      3.5433819912604365,
+      1.574872673927118,
+      -1.0358174385655465
+    ],
+    "nllh": -130.4261000992712,
+    "status": "ExitFlag.FTOL",
+    "message": "Converged according to fval difference"
+  },
+  "total_seconds": 14.679368734359741,
+  "worker_returncode": 0,
+  "worker_wall_seconds": 17.527662871001667
+}

@@ -116,7 +116,9 @@ For the current taxonomy and caveats, see [Supported Models and Limitations](doc
 
 - The current public return contract is documented explicitly in [Results and API](docs/2026-03-17_results_and_api.md).
 - Uncertainty quantification exists, but it is not part of the recommended default user path and is not the focus of the current user docs.
-- PEtab and RS/RUR integrations are unfinished and are not covered by the core
-  test gates. Their presence under `ext/` is not a supported installation path;
-  see the [readiness record](docs/2026-09-10_production_readiness.md#optional-integrations).
+- The optional [PEtab pilot](docs/petab.md) supports a restricted benchmark
+  subset with joint experiments, independent observation grids and exact PEtab
+  likelihood scoring. Its integration tests run separately from the core gates.
+  RS/RUR restoration remains deferred; see the
+  [readiness record](docs/2026-09-10_production_readiness.md#optional-integrations).
 - The dated investigation docs under [docs](docs) remain useful historical references, but they are no longer the main user-facing entry point.

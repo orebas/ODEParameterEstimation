@@ -1,0 +1,83 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "6efe167af7b94d4240ba554a023ff233b452056d9ee130a32e14313b4e071e00",
+  "initial_nllh": 91.6638740585414,
+  "julia_version": "1.13.0",
+  "method": "odepe",
+  "ode_solver": "Rodas5P{AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 20, 0.03)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "k1",
+    "k2",
+    "k3",
+    "k4",
+    "k_1",
+    "k_2",
+    "k_3",
+    "k_4",
+    "l2",
+    "l4",
+    "l6",
+    "l_2",
+    "l_4",
+    "l_6",
+    "sigma"
+  ],
+  "preparation_seconds": 118.19210386276245,
+  "problem": "Sneyd_PNAS2002",
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "timeout",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "83094c88cc00c383cfa00d0b06e874dc36895f46b40551b53baa617fd59624ec",
+  "x0": [
+    2.8933687087193825,
+    -0.15664104760368147,
+    -1.4198940293825402,
+    4.576762282327829,
+    0.15640862906203878,
+    3.516570743392652,
+    3.116866077327977,
+    -1.8957067274075943,
+    -0.7466428461219223,
+    -1.1738278715028283,
+    -2.6498973703010726,
+    0.5803856477675886,
+    3.5433819912570126,
+    1.5748726739271195,
+    -0.10722455615936433
+  ],
+  "returncode": -15
+}

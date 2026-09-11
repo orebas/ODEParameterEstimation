@@ -63,7 +63,7 @@ struct ParameterEstimationProblem
     name::String
     model::OrderedODESystem
     measured_quantities::Vector{ModelingToolkit.Equation}
-    data_sample::Union{Nothing, OrderedDict{Union{String, Num}, Vector{Float64}}}
+    data_sample::Union{Nothing, OrderedDict{Union{String, Num}, Vector{Float64}}, ObservationData}
     recommended_time_interval::Union{Nothing, Vector{Float64}}
     solver::Any  # Use Any for now since the exact type hierarchy can be complex
     p_true::OrderedDict{Symbolics.Num, Float64}

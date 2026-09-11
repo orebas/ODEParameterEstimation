@@ -135,7 +135,7 @@ Creates interpolant functions for measured quantities using the provided interpo
 """
 function create_interpolants(
 	measured_quantities::Vector{ModelingToolkit.Equation},
-	data_sample::OrderedDict,
+	data_sample::AbstractDict,
 	t_vector::Vector{Float64},
 	interp_func::Function,
 )::Dict{Num, AbstractInterpolator}
@@ -154,7 +154,8 @@ function create_interpolants(
 		y_vector = data_sample[key]
 
 		# Create interpolant and store in dictionary
-		interpolants[r] = interp_func(t_vector, y_vector)
+		series_times = data_sample isa ObservationData ? observation_times(data_sample, key) : t_vector
+		interpolants[r] = interp_func(series_times, y_vector)
 	end
 
 	return interpolants
@@ -677,7 +678,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 
 
 	# Solve ODE problem
-	tspan = (data_sample["t"][begin], data_sample["t"][end])
+	tspan = (_initial_time(data_sample), last(_observation_union(data_sample)))
 
 	prob = _timed_detail_stage!(process_stages, :ode_problem_build) do
 		ODEProblem(complete(model.system), merge(ordered_states, ordered_params), tspan)
@@ -689,7 +690,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 	ode_threw = false
 	ode_solution = _timed_detail_stage!(process_stages, :ode_solve) do
 		try
-			ModelingToolkit.solve(prob, ode_solver, saveat = data_sample["t"], abstol = abstol, reltol = reltol)
+			ModelingToolkit.solve(prob, ode_solver, saveat = _observation_union(data_sample), abstol = abstol, reltol = reltol)
 		catch e
 			_rethrow_if_interrupt(e)
 			ode_threw = true
@@ -713,7 +714,7 @@ function process_raw_solution(raw_sol, model::OrderedODESystem, data_sample, ode
 				# in, so algebraic / polished / synthesized candidates rank in one unit.
 				# (Was `norm(resid)/N` averaged over observables — a different unit that
 				# made small-residual candidates incomparable across sources.)
-				err += sum(abs2, (ode_solution(data_sample["t"])[key]) .- sample)
+				err += sum(abs2, (ode_solution(observation_times(data_sample, key))[key]) .- sample)
 			end
 		else
 			err = 1e+15
@@ -1334,6 +1335,7 @@ Base.@kwdef struct PolishContext
 	new_model::Any
 	obs_funcs::Vector{Function}
 	data_targets::Vector{Vector{Float64}}
+	data_indices::Vector{Vector{Int}} = Vector{Int}[]
 	t_vector::Vector{Float64}
 	tspan::Tuple{Float64, Float64}
 	solver::Any
@@ -1631,6 +1633,7 @@ function _build_polish_context(
 )
 	context_t0 = time()
 	context_stages = OrderedDict{Symbol, Float64}()
+	_validate_observation_options(PEP.data_sample, opts)
 	# When the caller leaves `coordinate_transform` unset, residual polish methods
 	# pick up `opts.polish_coordinate_policy` (default `:auto` = per-variable);
 	# scalar polish methods default to `:linear` to preserve byte-equivalent legacy
@@ -1656,8 +1659,14 @@ function _build_polish_context(
 	new_model = _timed_detail_stage!(context_stages, :complete_model) do
 		complete(PEP.model.system)
 	end
-	t_vector = Float64.(PEP.data_sample["t"])
-	tspan = (t_vector[1], t_vector[end])
+	t_vector = Float64.(_observation_union(PEP.data_sample))
+	tspan = (Float64(_initial_time(PEP.data_sample)), t_vector[end])
+	# ObservationData pools rows for identical signal expressions. Evaluate each
+	# pool once even when the model gives that signal more than one observable ID.
+	quantities = PEP.data_sample isa ObservationData ?
+		unique(eq -> eq.rhs, PEP.measured_quantities) : PEP.measured_quantities
+	data_indices = [Int[searchsortedfirst(t_vector, tx) for tx in
+		observation_times(PEP.data_sample, eq.rhs)] for eq in quantities]
 
 	# Compile observable functions once (not 28× per polish run)
 	obs_funcs = _timed_detail_stage!(context_stages, :build_observable_functions) do
@@ -1665,11 +1674,11 @@ function _build_polish_context(
 			let f_raw = ModelingToolkit.build_function(eq.rhs, unknown_syms, param_syms; expression = Val(false))
 				f_fun = isa(f_raw, Tuple) ? f_raw[1] : f_raw
 				(u::AbstractVector{<:Real}, p::AbstractVector{<:Real}) -> f_fun(u, p)
-			end for eq in PEP.measured_quantities
+			end for eq in quantities
 		]
 	end
 	data_targets = _timed_detail_stage!(context_stages, :materialize_data_targets) do
-		Vector{Float64}[Float64.(PEP.data_sample[eq.rhs]) for eq in PEP.measured_quantities]
+		Vector{Float64}[Float64.(PEP.data_sample[eq.rhs]) for eq in quantities]
 	end
 
 	# Solver and tolerances
@@ -1755,8 +1764,8 @@ function _build_polish_context(
 			for (j, f) in enumerate(obs_funcs)
 				data_true = data_targets[j]
 				local_err = zero(eltype(p_all))
-				@inbounds for i in eachindex(t_vector)
-					val = f(sol_opt.u[i], param_guess)
+				@inbounds for (i, time_index) in enumerate(data_indices[j])
+					val = f(sol_opt.u[time_index], param_guess)
 					diff = val - data_true[i]
 					local_err += diff * diff
 				end
@@ -1794,6 +1803,7 @@ function _build_polish_context(
 		new_model = new_model,
 		obs_funcs = obs_funcs,
 		data_targets = data_targets,
+		data_indices = data_indices,
 		t_vector = t_vector,
 		tspan = tspan,
 		solver = solver,
@@ -1868,13 +1878,16 @@ function _trajectory_sse(ctx::PolishContext, p_external::AbstractVector{<:Real})
 	total_error = 0.0
 	for (j, f) in enumerate(ctx.obs_funcs)
 		data_true = ctx.data_targets[j]
-		@inbounds for i in eachindex(ctx.t_vector)
-			diff = f(sol_opt.u[i], param_guess) - data_true[i]
+		@inbounds for (i, time_index) in enumerate(_polish_data_indices(ctx, j))
+			diff = f(sol_opt.u[time_index], param_guess) - data_true[i]
 			total_error += diff * diff
 		end
 	end
 	return total_error
 end
+
+_polish_data_indices(ctx::PolishContext, j::Int) =
+	isempty(ctx.data_indices) ? eachindex(ctx.t_vector) : ctx.data_indices[j]
 
 """
 	_polish_single_from_context(ctx, p0; optimizer, maxiters, maxtime, divergence_factor, stagnation_window) -> (ParameterEstimationResult, opt_result)
@@ -2083,11 +2096,11 @@ function _polish_single_from_context(
 	final_result = ParameterEstimationResult(
 		params_out,
 		states_out,
-		ctx.t_vector[1],
+		ctx.tspan[1],
 		final_obj,
 		nothing,
 		length(ctx.t_vector),
-		ctx.t_vector[1],
+		ctx.tspan[1],
 		OrderedDict{Num, Float64}(),
 		Set{Num}(),
 		sol_final,
@@ -2531,6 +2544,7 @@ Uses the shared PolishContext infrastructure for consistency with the polish pat
 """
 function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions())
+	_validate_observation_options(PEP.data_sample, opts)
 	if _run_ctx() === nothing
 		value, _ = _with_run_context(() -> direct_optimization_parameter_estimation(PEP; opts = opts))
 		return value

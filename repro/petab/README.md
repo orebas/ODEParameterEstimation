@@ -1,0 +1,71 @@
+# Canonical PEtab pilot
+
+Run from the ODEPE repository root. Julia commands always disable startup files.
+The bootstrap reads the current global dependency versions and development
+paths, then creates `/tmp/odepe-petab-pilot-env`. It does not edit the global
+Project or Manifest. `ODEPE_PETAB_ENV` overrides the destination.
+
+```sh
+julia --startup-file=no repro/petab/setup.jl
+
+git clone https://github.com/Benchmarking-Initiative/Benchmark-Models-PEtab.git /tmp/odepe-petab-models
+git -C /tmp/odepe-petab-models checkout ddaa86d13f708926c57ec8918ce75a6b50e2e562
+
+uv venv --python 3.14 /tmp/odepe-pypesto-env
+uv pip sync --python /tmp/odepe-pypesto-env/bin/python repro/petab/python-requirements.lock.txt
+
+julia --startup-file=no repro/petab/test.jl
+ODEPE_PETAB_MODELS=/tmp/odepe-petab-models/Benchmark-Models julia --startup-file=no repro/petab/check_adapter.jl
+
+python3 repro/petab/run_pilot.py \
+  --model-root /tmp/odepe-petab-models/Benchmark-Models \
+  --output repro/petab/results
+python3 repro/petab/summarize.py repro/petab/results --require-complete
+```
+
+AMICI model compilation needs a C/C++ compiler and CMake. The Python lock
+includes SWIG. Julia Fides maintains its own Python environment through
+CondaPkg; this is separate from the AMICI environment. The Julia environment
+snapshot and dependency report accompany the retained pilot artifacts.
+
+`targets.toml` fixes the model revision, seed, main/challenge lists and time cap.
+The supervisor verifies the checkout revision, refuses incomplete existing cells,
+and skips completed attempts. It never silently retries failures. Use a new
+output directory for a new campaign. `--models` and `--methods` select a subset.
+For a Python-only run, first generate the shared start record with a Julia method.
+
+Each method runs in a separate process. Package loading is excluded, with a
+separate 30-minute load watchdog. Model import, translation, compilation, initial
+objective evaluation and estimation count toward the 900-second budget. A timed
+out attempt retains its latest checkpoint. Julia and Python baselines use
+Fides/BFGS, identical vectors mapped by parameter ID, and the same default Fides
+termination tolerances. Solver choices and preparation costs differ. The two
+nonautonomous Julia models use QNDF to avoid an upstream Rosenbrock time-gradient
+compatibility error. This configuration is shared by Julia baseline and ODEPE
+refinement.
+
+Results distinguish the raw algebraic PEtab objective from subsequent exact
+likelihood refinement. Successful termination is not proof of a global optimum.
+One start, development-era configuration changes and overlapping workers do not
+support speed or reliability rankings. `development_attempts.json` records
+implementation retries; those reuse the same vector and are not new starts.
+
+The checked-in `pilot_results/*.json` files retain successes, unsupported cases,
+timeouts and failure reasons. Generated AMICI models, ready markers, verbose
+logs and environment/bootstrap failures are ignored. Newer worker records also
+include source/environment digests and thread controls; earlier pilot records
+predate that instrumentation and must not be described as having those fields.
+Perelson's stored zero `preparation_residual` also predates the diagnostic fix
+that checks every fixed initial-state constraint; it is not evidence of exact
+algebraic preparation. Its reported PEtab objectives already enforced the
+original preparation. Early rejected-candidate records lack the raw states and
+provenance that the current adapter retains.
+
+```sh
+# Core gates use the original dependency environment, without PEtab:
+julia --startup-file=no test/current.jl
+julia --startup-file=no test/current.jl benchmark
+```
+
+See [the public API and limitations](../../docs/petab.md) and
+[the implementation/results record](../../docs/2026-09-10_petab_pilot.md).

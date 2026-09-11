@@ -76,6 +76,7 @@ const package_wide_default_ode_solver = AutoVern9(Rodas5P())
 
 
 # Include core types first
+include("types/observation_data.jl")
 include("types/core_types.jl")
 include("types/estimation_options.jl")  # New options struct
 
@@ -137,6 +138,8 @@ include("examples/load_examples.jl")
 # Export types
 export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, EstimatorIdentity, NumericalIdentifiabilityAdvisory, DerivativeData, UnsupportedModelClassError, SamplingFailureError, UnsupportedDerivativeOrderError, TAYLORDIFF_MAX_DERIVATIVE_ORDER
 export provenance_metadata_dict, uq_metadata_dict
+export ObservationSeries, ObservationData, observation_times
+export load_petab_problem, estimate_petab_problem
 
 # Export constants
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS

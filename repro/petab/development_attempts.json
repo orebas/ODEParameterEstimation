@@ -1,0 +1,59 @@
+[
+  {
+    "problem": "Fujita_SciSignal2010",
+    "method": "petab_julia",
+    "status": "failed",
+    "initial_nllh": 1.947391937915857e+28,
+    "total_seconds": 163.6751630306244,
+    "reason": "PEtab/Rodas5P nested time differentiation tried to convert a Dual to Float64 before optimization. Retry uses QNDF with the identical recorded starting vector.",
+    "archive": "repro/petab/development_failures/fujita_rosenbrock"
+  },
+  {
+    "problem": "Fujita_SciSignal2010",
+    "method": "petab_julia",
+    "status": "failed",
+    "reason": "Runner referenced QNDF through OrdinaryDiffEq, which no longer exports it. Corrected to its owning PEtab import before optimization. Same starting vector retained.",
+    "archive": "repro/petab/development_failures/fujita_qndf_import"
+  },
+  {
+    "problem": "Perelson_Science1996",
+    "method": "odepe",
+    "status": "failed",
+    "initial_nllh": 83654112833602.06,
+    "total_seconds": 704.4353959560394,
+    "reason": "Fides rejected a plain starting Vector alongside ComponentVector bounds. The corrected runner constructs a matching named vector and reuses the same recorded start. The initial ODEPE attempt reached refinement before this error; candidate checkpointing was added afterward.",
+    "archive": "repro/petab/development_failures/initial_adapter"
+  },
+  {
+    "problem": "Perelson_Science1996",
+    "method": "petab_julia",
+    "status": "failed",
+    "initial_nllh": 83654112833602.06,
+    "total_seconds": 124.8585410118103,
+    "reason": "Fides rejected a plain starting Vector alongside ComponentVector bounds. The corrected runner constructs a matching named vector and reuses the same recorded start. The initial ODEPE attempt reached refinement before this error; candidate checkpointing was added afterward.",
+    "archive": "repro/petab/development_failures/initial_adapter"
+  },
+  {
+    "problem": "Perelson_Science1996",
+    "method": "pypesto_amici",
+    "status": "worker_failed",
+    "initial_nllh": null,
+    "total_seconds": null,
+    "reason": "Python comparator was missing the explicit petab package; installed it and repeated the same recorded start.",
+    "archive": "repro/petab/development_failures/initial_adapter"
+  },
+  {
+    "problem": "Sneyd_PNAS2002",
+    "method": "petab_julia",
+    "status": "supervisor_monitor_error",
+    "reason": "A non-atomic ready marker was observed empty. The supervisor stopped monitoring, but that worker finished successfully. Its completed result is retained; no estimation retry was performed. Ready markers are now atomic and monitoring always cleans up its worker on failure."
+  },
+  {
+    "problem": "Crauste_CellSystems2017",
+    "method": "pypesto_amici",
+    "status": "failed",
+    "initial_nllh": "inf",
+    "reason": "The optimizer returned no vector after a nonfinite initial objective. The worker then failed while formatting that empty result. Fixed formatting and repeated the identical starting vector to record the optimizer failure accurately.",
+    "archive": "repro/petab/development_failures/crauste_missing_optimizer_vector"
+  }
+]

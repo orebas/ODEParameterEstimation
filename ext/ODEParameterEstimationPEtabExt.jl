@@ -1,15 +1,14 @@
 module ODEParameterEstimationPEtabExt
 
-using ODEParameterEstimation
-using PEtab
-using ModelingToolkit
+using ModelingToolkit, OrdinaryDiffEq
+using ODEParameterEstimation, PEtab, Symbolics, OrderedCollections, Random, LinearAlgebra
+import ODEParameterEstimation: load_petab_problem, estimate_petab_problem
 
-# Re-export both the original and new names for compatibility
-export load_model, load_petab_model, convert_petab_model, validate_petab_model
+const ODEPE = ODEParameterEstimation
+const t = ModelingToolkit.t_nounits
+const D = ModelingToolkit.D_nounits
 
-include("petab/loader.jl")
-include("petab/convert_petab.jl")
-include("petab/validate_petab.jl")
-include("petab/petab-runner.jl")
+include("petab/adapter.jl")
+include("petab/estimation.jl")
 
-end # module 
+end # module

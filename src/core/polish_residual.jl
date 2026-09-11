@@ -183,8 +183,8 @@ function _polish_single_residual(
 		idx = 1
 		@inbounds for (j, f) in enumerate(ctx.obs_funcs)
 			data_true = ctx.data_targets[j]
-			for i in eachindex(ctx.t_vector)
-				res[idx] = f(sol_opt.u[i], param_guess) - data_true[i]
+			for (i, time_index) in enumerate(_polish_data_indices(ctx, j))
+				res[idx] = f(sol_opt.u[time_index], param_guess) - data_true[i]
 				idx += 1
 			end
 		end
@@ -391,11 +391,11 @@ function _polish_single_residual(
 	final_result = ParameterEstimationResult(
 		params_out,
 		states_out,
-		ctx.t_vector[1],
+		ctx.tspan[1],
 		final_obj,
 		nothing,
 		length(ctx.t_vector),
-		ctx.t_vector[1],
+		ctx.tspan[1],
 		OrderedDict{Num, Float64}(),
 		Set{Num}(),
 		sol_final,

@@ -1,0 +1,82 @@
+{
+  "problem": "Boehm_JProteomeRes2014",
+  "method": "pypesto_amici",
+  "seconds_cap": 900,
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "seed": 20260910,
+  "worker_sha256": "dcf5ce679477c6fc9c6b443397022e778eb79ec1cb466d0811a33cee2ca447eb",
+  "thread_settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "CMAKE_BUILD_PARALLEL_LEVEL": "1"
+  },
+  "versions": {
+    "amici": "1.1.0",
+    "pypesto": "0.7.0",
+    "petab": "0.9.0",
+    "fides": "0.8.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "ode_solver": "Solver",
+  "ode_tolerances": {
+    "abstol": 1e-16,
+    "reltol": 1e-08
+  },
+  "python_version": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "optimizer_options": {
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "Epo_degradation_BaF3",
+    "k_exp_hetero",
+    "k_exp_homo",
+    "k_imp_hetero",
+    "k_imp_homo",
+    "k_phos",
+    "sd_pSTAT5A_rel",
+    "sd_pSTAT5B_rel",
+    "sd_rSTAT5A_rel"
+  ],
+  "x0": [
+    2.366710885899228,
+    -1.4458013095046018,
+    -3.024867536728175,
+    4.470952852909786,
+    -1.0544892136724515,
+    3.145713429240814,
+    2.646082596659971,
+    -3.619633409259493,
+    -2.183303557652403
+  ],
+  "initial_nllh": 456927537447.76855,
+  "preparation_seconds": 14.818463563919067,
+  "status": "success",
+  "result": {
+    "x": [
+      -1.4634800195170075,
+      -2.6637101232866636,
+      -2.7667224451876673,
+      4.476033867196452,
+      -1.9012555936423674,
+      4.380890104440773,
+      0.5327032332185785,
+      0.8655109159942852,
+      1.2161456021725596
+    ],
+    "nllh": 164.42569650816014,
+    "status": "ExitFlag.FTOL",
+    "converged": true,
+    "message": "Converged according to fval difference"
+  },
+  "total_seconds": 16.278287649154663,
+  "worker_returncode": 0,
+  "worker_wall_seconds": 19.017075585001294
+}

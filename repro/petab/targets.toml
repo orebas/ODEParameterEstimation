@@ -1,0 +1,8 @@
+benchmark_revision = "ddaa86d13f708926c57ec8918ce75a6b50e2e562"
+seed = 20260910
+seconds_per_method = 900
+# Avoid nested automatic differentiation of time in Rosenbrock methods for the
+# two nonautonomous imports; parameter gradients still use ForwardDiff.
+julia_bdf_models = ["Fujita_SciSignal2010", "Boehm_JProteomeRes2014"]
+main = ["Perelson_Science1996", "Bertozzi_PNAS2020", "Okuonghae_ChaosSolitonsFractals2020", "Bruno_JExpBot2016", "Fujita_SciSignal2010", "Zhao_QuantBiol2020", "Sneyd_PNAS2002", "Boehm_JProteomeRes2014"]
+challenge = ["Crauste_CellSystems2017", "Raia_CancerResearch2011"]

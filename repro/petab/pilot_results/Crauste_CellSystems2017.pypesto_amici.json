@@ -1,0 +1,78 @@
+{
+  "problem": "Crauste_CellSystems2017",
+  "method": "pypesto_amici",
+  "seconds_cap": 900,
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "seed": 20260910,
+  "worker_sha256": "6b60de6d6f8ef7fa358682287744475473c339457eab9178a2a76fa1468285ab",
+  "thread_settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "CMAKE_BUILD_PARALLEL_LEVEL": "1"
+  },
+  "versions": {
+    "amici": "1.1.0",
+    "pypesto": "0.7.0",
+    "petab": "0.9.0",
+    "fides": "0.8.0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1"
+  },
+  "ode_solver": "Solver",
+  "ode_tolerances": {
+    "abstol": 1e-16,
+    "reltol": 1e-08
+  },
+  "python_version": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "optimizer_options": {
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "delta_EL",
+    "delta_LM",
+    "delta_NE",
+    "mu_EE",
+    "mu_LE",
+    "mu_LL",
+    "mu_N",
+    "mu_P",
+    "mu_PE",
+    "mu_PL",
+    "rho_E",
+    "rho_P"
+  ],
+  "x0": [
+    0.8933687087193825,
+    -2.1566410476036815,
+    -3.41989402938254,
+    2.576762282327829,
+    -4.8708359777741865,
+    0.5894274580130592,
+    1.1168660773279768,
+    -3.8957067274075943,
+    -6.338294624948124,
+    -3.1738278715028283,
+    -4.649897370301073,
+    -1.4196143522324114
+  ],
+  "initial_nllh": "inf",
+  "preparation_seconds": 0.07674121856689453,
+  "status": "optimization_failed",
+  "result": {
+    "x": null,
+    "nllh": "inf",
+    "status": "ExitFlag.NOT_FINITE",
+    "converged": false,
+    "message": "Encountered non-finite function inf value at initial point."
+  },
+  "total_seconds": 0.16429805755615234,
+  "worker_returncode": 0,
+  "worker_wall_seconds": 3.004261394999048
+}

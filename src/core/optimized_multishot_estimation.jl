@@ -519,11 +519,11 @@ function _build_algebraic_resolve_candidate(
 	end
 
 	raw_sol = Float64[]
-	if resolve_time_index == 1
+	if t_vector[resolve_time_index] == _initial_time(PEP.data_sample)
 		append!(raw_sol, raw_ic)
 	else
 		t_shoot = Float64(t_vector[resolve_time_index])
-		t0 = Float64(t_vector[1])
+		t0 = Float64(_initial_time(PEP.data_sample))
 		ordered_states_shoot = OrderedDict{Num, Float64}(s => raw_ic[i] for (i, s) in enumerate(unknown_syms))
 		ordered_params_shoot = OrderedDict{Num, Float64}(p => Float64(params_dict[p]) for p in current_params)
 		# Opt-in pre-backsolve parameter clamp (mirror of the main-backsolve clamp in
@@ -547,10 +547,10 @@ function _build_algebraic_resolve_candidate(
 
 	candidate = ParameterEstimationResult(
 		ordered_p, ordered_s,
-		Float64(t_vector[1]),
+		Float64(t_vector[resolve_time_index]),
 		err, nothing,
 		length(t_vector),
-		Float64(t_vector[1]),
+		Float64(_initial_time(PEP.data_sample)),
 		OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
 		all_unidentifiable, ode_solution,
 	)
@@ -656,6 +656,7 @@ end
 Optimized parameter estimation using precomputed derivatives.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+	_validate_observation_options(PEP.data_sample, opts)
 	# Direct callers receive the same run-scoped identity/artifact isolation as
 	# the top-level analysis entrypoint.
 	if _run_ctx() === nothing
@@ -2041,7 +2042,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 							for s in unknown_syms
 								sname = replace(string(s), "(t)" => "")
 								if startswith(sname, "_trfn_")
-									t0 = Float64(PEP.data_sample["t"][1])
+									t0 = Float64(_initial_time(PEP.data_sample))
 									trfn_val = evaluate_trfn_template_variable(sname, t0)
 									isnothing(trfn_val) && error("Failed to reconstruct analytical _trfn_ state $sname at t=$t0")
 									push!(raw_ic, trfn_val)
@@ -2099,10 +2100,10 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 							candidate = ParameterEstimationResult(
 								ordered_p, ordered_s,
-								Float64(PEP.data_sample["t"][1]),
+								Float64(_initial_time(PEP.data_sample)),
 								err, nothing,
 								length(PEP.data_sample["t"]),
-								Float64(PEP.data_sample["t"][1]),
+								Float64(_initial_time(PEP.data_sample)),
 								OrderedDict{Num, Float64}(k => Float64(v) for (k, v) in good_udict),
 								setup_data.all_unidentifiable, ode_solution,
 							)
@@ -2122,7 +2123,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								estimator_kind = :state_resolve,
 								data_scope = :derived,
 								time_indices = Int[1],
-								time_values = Float64[PEP.data_sample["t"][1]],
+								time_values = Float64[_initial_time(PEP.data_sample)],
 								interpolator_source = source_interp,
 								parent_candidate_ids = Int[base_identity.candidate_id],
 							)
