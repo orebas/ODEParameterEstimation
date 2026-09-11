@@ -50,6 +50,33 @@ One start, development-era configuration changes and overlapping workers do not
 support speed or reliability rankings. `development_attempts.json` records
 implementation retries; those reuse the same vector and are not new starts.
 
+## Small experiment groups
+
+The optional methods `odepe_blocks2`, `odepe_blocks4`, and `odepe_blocks6` select
+the first 2, 4, or 6 conditions in canonical measurement-row order. They share
+parameters across local state blocks, build observation jets through at most
+order four, and apply the core multipoint basis selector to the combined pool.
+Only states outside every measured signal's ODE dependency closure are omitted.
+The original full PEtab objective is used for both scoring and refinement.
+
+```sh
+python3 repro/petab/run_pilot.py \
+  --models Bruno_JExpBot2016 --methods odepe_blocks2 odepe_blocks4 \
+  --output repro/petab/new_block_results
+```
+
+Copy a model's existing `MODEL.start.json` into the new output directory to reuse
+an exact earlier start; otherwise the same seeded scaled-bounds sampler is used.
+Never overwrite `pilot_results`. The retained `block_results` starts are copies
+of that original pilot. Each checkpoint records the active construction stage,
+equation count, unknown count, and numerical rank. A deficient order-four pool
+is a bounded construction result, not a structural-identifiability conclusion.
+Successful small groups may leave parameters of other conditions at the recorded
+start until the full-objective optimizer refines them.
+
+The [experiment-block record](../../docs/2026-09-11_petab_experiment_blocks.md)
+reports these attempts separately from the original 30-cell pilot.
+
 The checked-in `pilot_results/*.json` files retain successes, unsupported cases,
 timeouts and failure reasons. Generated AMICI models, ready markers, verbose
 logs and environment/bootstrap failures are ignored. Newer worker records also

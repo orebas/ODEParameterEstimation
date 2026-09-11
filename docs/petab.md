@@ -82,6 +82,42 @@ process supervisor is required to interrupt noninterruptible SI/Groebner/HC
 preparation. The provided runner enforces the wall-clock limit and checkpoints
 scored candidates before refinement.
 
+### Bounded experiment groups
+
+The opt-in block constructor uses one local state block per condition and shares
+kinetic/observable parameters by PEtab ID. It expands the local observation jets
+one derivative order at a time, eliminates state derivatives using the local ODE,
+then applies the existing multipoint rank/basis selector to the combined pool.
+It does not run SIAN on the concatenated ODE or fix representatives separately
+inside each experiment.
+
+```julia
+conditions = collect(keys(problem.condition_states))
+result = estimate_petab_problem(problem;
+    options=EstimationOptions(compute_uncertainty=false, shooting_points=3),
+    experiment_groups=[conditions[1:2]], max_derivative_order=4,
+    x0=recorded_start, polish=refine_petab, max_seconds=900.0)
+result.construction  # order-by-order equation counts, unknowns and numerical rank
+```
+
+Start with two conditions. Groups are explicitly limited to six conditions;
+the derivative limit defaults to four and accepts 0–8. Several shooting anchors
+produce several systems with the same block count, rather than one larger system.
+A pool that remains deficient at the limit returns `:rank_deficient_at_limit`.
+This numerical rank check is not a structural-identifiability certificate.
+The current trial examines up to eight bases at the first full-rank order and
+uses the existing parameterized HC solver, without mixed-volume ranking.
+
+Every root retains all of its local states and physical anchor times. Candidate
+projection uses the selected conditions' preparations; parameters that the group
+does not estimate stay at `x0`. Scoring and refinement still use **all** original
+conditions and **all** estimated PEtab parameters. No state trajectories are
+averaged across experiments. States with no ODE dependency path to a measured
+signal are omitted from candidate generation and listed in the construction
+report. Their original preparations still enter full-objective simulation.
+Auxiliary input states currently require the original
+combined constructor. Separate complete experiment fits remain a future comparison.
+
 ## Current boundaries
 
 - The joint ODE and observation formulas must be rational in states and

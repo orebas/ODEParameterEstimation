@@ -190,9 +190,10 @@ scripts outside the active runner are inventoried in the refreshed
 
 ## Release work
 
-Core stabilization and its local and hosted validation are complete. The
-remaining work below concerns a future supported release, not unfinished core
-test repairs. The PEtab pilot has its own narrower support and validation record.
+The Julia 1.13 local gates pass. The later CI result below exposed a Julia 1.12
+test failure and a nightly dependency failure; release readiness must not be
+inferred from the Julia 1.13 results alone. The PEtab pilot has its own narrower
+support and validation record.
 
 1. Once GP/SIAN/SI fixes are registered, validate a fresh environment selecting
    those releases and remove temporary CI patch assembly and dependency bridges
@@ -207,3 +208,25 @@ test repairs. The PEtab pilot has its own narrower support and validation record
 For UQ changes, follow the audited canaries and estimator-specific contracts in
 `CLAUDE.md`. Single-point calibration evidence does not establish multipoint or
 polished-estimator coverage.
+
+## September 11 follow-up
+
+The [bounded experiment construction](2026-09-11_petab_experiment_blocks.md)
+passed 1,813/1,813 core contracts, 10/10 recovery checks, and 111/111 optional
+PEtab contracts on Julia 1.13. Its core change fixes shared-parameter
+classification when the optional truth dictionaries are empty; the new condition
+group constructor is opt-in. No dependency versions changed.
+
+The previous main commit `d33c50e` completed
+[CI run 34560050420](https://github.com/orebas/ODEParameterEstimation/actions/runs/34560050420)
+with all four Julia 1.13 jobs passing (registered/full and patched/full, recovery,
+PEtab). Two other jobs failed before the experiment-block changes:
+
+- Julia 1.12.7 registered/full: 1,808 pass, one failure and three cascading errors.
+  `test_polish_uq_pipeline.jl:116` expected `UncertaintyReport`, but direct
+  optimization returned `UQUnavailable(:optimizer_not_converged)`. Later assertions
+  accessed report-only fields. Investigate optimizer convergence on that dependency
+  stack; do not weaken the UQ availability contract to make the assertion pass.
+- Julia nightly 1.14: GPUCompiler precompilation terminated with signal 11;
+  Enzyme, SciMLSensitivity and dependent extensions then failed to precompile.
+  The package test suite did not run. This is separate from the passing 1.13 gates.

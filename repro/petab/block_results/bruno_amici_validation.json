@@ -1,0 +1,55 @@
+{
+  "problem": "Bruno_JExpBot2016",
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "checks": [
+    {
+      "method": "odepe_blocks2",
+      "stage": "best_raw",
+      "julia_nllh": 7959836.455003022,
+      "amici_nllh": 7959836.455004985,
+      "absolute_difference": 1.9632279872894287e-06
+    },
+    {
+      "method": "odepe_blocks2",
+      "stage": "refined",
+      "julia_nllh": 874.2012375228608,
+      "amici_nllh": 874.2012494859881,
+      "absolute_difference": 1.1963127349190472e-05
+    },
+    {
+      "method": "odepe_blocks4",
+      "stage": "best_raw",
+      "julia_nllh": 448356.7214483418,
+      "amici_nllh": 448356.7303024385,
+      "absolute_difference": 0.008854096697177738
+    },
+    {
+      "method": "odepe_blocks4",
+      "stage": "refined",
+      "julia_nllh": -46.68818122901289,
+      "amici_nllh": -46.6881760955842,
+      "absolute_difference": 5.133428693682163e-06
+    },
+    {
+      "method": "odepe_blocks6",
+      "stage": "best_raw",
+      "julia_nllh": 51.56439167802504,
+      "amici_nllh": 51.564406441443396,
+      "absolute_difference": 1.4763418356267266e-05
+    },
+    {
+      "method": "odepe_blocks6",
+      "stage": "refined",
+      "julia_nllh": -46.688179774217524,
+      "amici_nllh": -46.68817917613007,
+      "absolute_difference": 5.980874533406677e-07
+    }
+  ],
+  "description": "Independent canonical likelihood evaluation; no optimization or new starts",
+  "versions": {
+    "petab": "0.9.0",
+    "pypesto": "0.7.0",
+    "amici": "1.1.0"
+  },
+  "script_sha256": "dbd4a41453081babd6cc7890372a56083e8d1363bc0c1bad1e04b5efb3aa7148"
+}

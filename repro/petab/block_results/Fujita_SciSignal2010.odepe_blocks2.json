@@ -1,0 +1,219 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "experiment_construction": {
+    "groups": [
+      [
+        "condition_step_00_1",
+        "condition_step_00_3"
+      ]
+    ],
+    "initial_only_projection": "available group states only; other entries retain recorded x0",
+    "max_derivative_order": 4,
+    "rank_selector": "multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
+    "refinement": "all conditions and all estimated parameters in original PEtab objective",
+    "selection": "first conditions in canonical measurement-row order"
+  },
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "98b60cbe97a6146d52cdfb34c19b6653cbf0fcb4a64e7840d5123ce95c1300df",
+  "initial_nllh": 1.9473918496173594e+28,
+  "julia_version": "1.13.0",
+  "method": "odepe_blocks2",
+  "ode_solver": "OrdinaryDiffEqBDF.QNDF{5, AutoForwardDiff{nothing, Nothing}, Nothing, OrdinaryDiffEqNonlinearSolve.NLNewton{Rational{Int64}, Rational{Int64}, Rational{Int64}, Nothing}, Nothing, Nothing, NTuple{5, Rational{Int64}}, typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing, Rational{Int64}}(Val{5}(), nothing, OrdinaryDiffEqNonlinearSolve.NLNewton{Rational{Int64}, Rational{Int64}, Rational{Int64}, Nothing}(1//100, 10, 1//5, 1//5, false, true, nothing), nothing, nothing, :linear, (-37//200, -1//9, -823//10000, -83//2000, 0//1), OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 10//1, 1//1, 2//1)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "EGFR_turnover",
+    "init_AKT",
+    "init_EGFR",
+    "init_S6",
+    "reaction_1_k1",
+    "reaction_1_k2",
+    "reaction_2_k1",
+    "reaction_2_k2",
+    "reaction_3_k1",
+    "reaction_4_k1",
+    "reaction_5_k1",
+    "reaction_5_k2",
+    "reaction_6_k1",
+    "reaction_7_k1",
+    "reaction_8_k1",
+    "reaction_9_k1",
+    "scaling_pEGFR_tot",
+    "scaling_pAkt_tot",
+    "scaling_pS6_tot"
+  ],
+  "preparation_seconds": 110.34048795700073,
+  "problem": "Fujita_SciSignal2010",
+  "result": {
+    "algebraic_seconds": 12.279721021652222,
+    "candidates": [],
+    "construction": [
+      {
+        "conditions": [
+          "condition_step_00_1",
+          "condition_step_00_3"
+        ],
+        "omitted_states": {
+          "condition_step_00_1": [],
+          "condition_step_00_3": []
+        },
+        "seconds": 10.50181794166565,
+        "status": "rank_deficient_at_limit",
+        "trace": [
+          {
+            "derivative_order": 0,
+            "equation_count": 6,
+            "rank": 6,
+            "selected_equation_count": 0,
+            "variable_count": 34
+          },
+          {
+            "derivative_order": 1,
+            "equation_count": 12,
+            "rank": 12,
+            "selected_equation_count": 0,
+            "variable_count": 34
+          },
+          {
+            "derivative_order": 2,
+            "equation_count": 18,
+            "rank": 18,
+            "selected_equation_count": 0,
+            "variable_count": 34
+          },
+          {
+            "derivative_order": 3,
+            "equation_count": 24,
+            "rank": 24,
+            "selected_equation_count": 0,
+            "variable_count": 34
+          },
+          {
+            "derivative_order": 4,
+            "equation_count": 30,
+            "rank": 30,
+            "selected_equation_count": 0,
+            "variable_count": 34
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "Joint finite experiment design is constructed before identifiability analysis.",
+      "Algebraic initial states are relaxed; PEtab scoring enforces the original preparation.",
+      "Noise and observable transformations remain in the PEtab objective; interpolation uses raw signal units.",
+      "Candidate generation used bounded condition groups with joint numerical rank selection; no structural-identifiability certificate was computed.",
+      "Absent conditions' unestimated initial-only and kinetic parameters retain x0 until full PEtab refinement."
+    ],
+    "parameter_ids": [
+      "EGFR_turnover",
+      "init_AKT",
+      "init_EGFR",
+      "init_S6",
+      "reaction_1_k1",
+      "reaction_1_k2",
+      "reaction_2_k1",
+      "reaction_2_k2",
+      "reaction_3_k1",
+      "reaction_4_k1",
+      "reaction_5_k1",
+      "reaction_5_k2",
+      "reaction_6_k1",
+      "reaction_7_k1",
+      "reaction_8_k1",
+      "reaction_9_k1",
+      "scaling_pEGFR_tot",
+      "scaling_pAkt_tot",
+      "scaling_pS6_tot"
+    ],
+    "polish_error": null,
+    "polish_seconds": 0.0,
+    "raw_candidate_count": 0,
+    "refined": null,
+    "rejected": [],
+    "scoring_seconds": 1.7881393432617188e-05,
+    "status": "rank_deficient_at_limit",
+    "total_seconds": 13.705696105957031,
+    "unscored_candidate_count": 0,
+    "x0": [
+      3.786737417438765,
+      -2.313282095207363,
+      -4.83978805876508,
+      7.153524564655658,
+      -1.6871827418759224,
+      5.033141486785304,
+      4.233732154655954,
+      -5.7914134548151885,
+      -3.4932856922438447,
+      -4.347655743005657,
+      -7.299794740602145,
+      -0.8392287044648228,
+      5.086763982514025,
+      1.149745347854239,
+      1.7855508876812713,
+      5.201686084253584,
+      4.29828113528318,
+      -6.54718536622336,
+      -3.7035633537491677
+    ]
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "rank_deficient_at_limit",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "total_seconds": 196.11921000480652,
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "e37b6e98ee26044ff5dbeb518694f66f49386bf57887b94cca9a3b6925079f64",
+  "x0": [
+    3.786737417438765,
+    -2.313282095207363,
+    -4.83978805876508,
+    7.153524564655658,
+    -1.6871827418759224,
+    5.033141486785304,
+    4.233732154655954,
+    -5.7914134548151885,
+    -3.4932856922438447,
+    -4.347655743005657,
+    -7.299794740602145,
+    -0.8392287044648228,
+    5.086763982514025,
+    1.149745347854239,
+    1.7855508876812713,
+    5.201686084253584,
+    4.29828113528318,
+    -6.54718536622336,
+    -3.7035633537491677
+  ],
+  "worker_returncode": 0,
+  "worker_wall_seconds": 227.08174889100337
+}

@@ -1,6 +1,6 @@
 # ODEParameterEstimation review map
 
-Updated 2026-09-10. This is the entry point for reviewing the current source
+Updated 2026-09-11. This is the entry point for reviewing the current source
 layout and test coverage. Dependency versions, measured gate results, and
 release blockers live in [Production readiness](2026-09-10_production_readiness.md).
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
@@ -86,3 +86,10 @@ ran, its dependency environment, and any remaining limits. A passing unit test
 is not a full estimation gate; recovery success is not an uncertainty coverage
 certificate. Do not reinterpret historical benchmark or UQ results as evidence
 for a changed estimator.
+
+The [September 11 experiment-block trial](2026-09-11_petab_experiment_blocks.md)
+adds bounded condition groups, shared-parameter classification without truth
+values, and retained public runs. Its new equations use local observation jets
+and joint multipoint rank selection; no new structural-identifiability or UQ
+certificate is claimed. The readiness note records existing Julia 1.12/nightly
+CI failures separately from the passing Julia 1.13 validation.

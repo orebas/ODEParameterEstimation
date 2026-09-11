@@ -142,8 +142,8 @@ function _noise_var_role(v, pep::ParameterEstimationProblem, dd_order_by_obj, dd
 		if base in obs_bases
 			return (role = :data, order = order, base = base)
 		end
-		param_bases = Set(replace(string(p), "(t)" => "") for p in keys(pep.p_true))
-		state_bases = Set(replace(string(s), "(t)" => "") for s in keys(pep.ic))
+		param_bases = Set(replace(string(p), "(t)" => "") for p in pep.model.original_parameters)
+		state_bases = Set(replace(string(s), "(t)" => "") for s in pep.model.original_states)
 		if base in param_bases && order == 0
 			return (role = :parameter, order = 0, base = base)
 		elseif base in state_bases
@@ -210,7 +210,7 @@ end
 
 function _noise_model_param_set(pep::ParameterEstimationProblem)
 	names = Set{String}()
-	for p in keys(pep.p_true)
+	for p in pep.model.original_parameters
 		name = replace(string(p), r"\(.*\)$" => "")
 		push!(names, name)
 		push!(names, "$(name)_0")
@@ -1519,6 +1519,20 @@ function build_noise_frontier_system(
 		n_points = n_points, diagnostics = diagnostics, probe_indices = probe_indices,
 		selection_mode = selection_mode)
 	pool = (; raw_pool..., n_points = n_points)
+	return _noise_select_pool(pep, pool; compute_mixed_volume, candidate_limit,
+		beam_width, rank_atol, n_rank_probes, diagnostics)
+end
+
+# The selector also accepts a pool assembled from distinct experiment blocks.
+# Combining the blocks before this step lets their shared parameters acquire
+# rank jointly; no independent experiment needs an arbitrary representative fix.
+function _noise_select_pool(pep::ParameterEstimationProblem, pool;
+	compute_mixed_volume::Bool = true, candidate_limit::Int = 64,
+	beam_width::Int = 16, rank_atol::Float64 = 1e-8,
+	n_rank_probes::Int = 3, diagnostics::Bool = false)
+	candidate_limit > 0 || throw(ArgumentError("candidate_limit must be positive"))
+	beam_width > 0 || throw(ArgumentError("beam_width must be positive"))
+	n_points = pool.n_points
 	J, full_rank = _noise_rank_matrix(pool.instantiated_equations, pool.instantiated_vars;
 		rank_atol = rank_atol, n_rank_probes = n_rank_probes)
 	target_rank = length(pool.instantiated_vars)

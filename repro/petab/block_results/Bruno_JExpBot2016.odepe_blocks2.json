@@ -1,0 +1,999 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "experiment_construction": {
+    "groups": [
+      [
+        "model1_data1",
+        "model1_data2"
+      ]
+    ],
+    "initial_only_projection": "available group states only; other entries retain recorded x0",
+    "max_derivative_order": 4,
+    "rank_selector": "multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
+    "refinement": "all conditions and all estimated parameters in original PEtab objective",
+    "selection": "first conditions in canonical measurement-row order"
+  },
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "98b60cbe97a6146d52cdfb34c19b6653cbf0fcb4a64e7840d5123ce95c1300df",
+  "initial_nllh": 7849332.112063684,
+  "julia_version": "1.13.0",
+  "method": "odepe_blocks2",
+  "ode_solver": "Rodas5P{AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 20, 0.03)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "init_b10_1",
+    "init_bcar1",
+    "init_bcar2",
+    "init_bcry_1",
+    "init_ohb10_1",
+    "init_zea_1",
+    "k5",
+    "kb1",
+    "kb2",
+    "kc1",
+    "kc2",
+    "kc4",
+    "szea"
+  ],
+  "preparation_seconds": 103.12310791015625,
+  "problem": "Bruno_JExpBot2016",
+  "result": {
+    "algebraic_seconds": 66.02026700973511,
+    "candidates": [
+      {
+        "algebraic_parameters": {
+          "kb1": 0.008273246385912736,
+          "kb2": 0.0017358415879145696,
+          "kc1": 0.0005334220299029539
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -20.8869934353144,
+          "petab_c1_x7(t)": 2.253226495501826,
+          "petab_c2_x6(t)": 0.5968876276770936,
+          "petab_c2_x7(t)": 2.4358413741807547
+        },
+        "index": 11,
+        "nllh": 7959836.455003022,
+        "preparation_residual": 22.389034279576116,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 5,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 124.00000000000001,
+          "model1_data2": 127.2
+        },
+        "x": [
+          0.6420802724762984,
+          0.23292538906234886,
+          -3.41989402938254,
+          2.576762282327829,
+          -1.8435913709379612,
+          1.516570743392652,
+          1.1168660773279768,
+          -2.0823240417370568,
+          -2.7604899108609597,
+          -3.272929052261211,
+          -4.649897370301073,
+          -1.4196143522324114,
+          1.5433819912570126
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.020630309943531624,
+          "kb2": 0.011849925031094567,
+          "kc1": 0.009613227395461273
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 2.5076121849650894,
+          "petab_c1_x7(t)": 3.1940943160231665,
+          "petab_c2_x6(t)": 1.306226659538584,
+          "petab_c2_x7(t)": 2.4384835368716056
+        },
+        "index": 8,
+        "nllh": 13167640.788746048,
+        "preparation_residual": 4.509371934010841,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 2,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 61.0,
+          "model1_data2": 67.80000000000001
+        },
+        "x": [
+          0.5738840493374479,
+          0.7234814415829979,
+          -3.41989402938254,
+          2.576762282327829,
+          -1.8435913709379612,
+          1.516570743392652,
+          1.1168660773279768,
+          -1.6854942472690038,
+          -1.9262843972222263,
+          -2.0171307845758872,
+          -4.649897370301073,
+          -1.4196143522324114,
+          1.5433819912570126
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.015632806465729874,
+          "kb2": 0.008517736076841866,
+          "kc1": 0.016984468146143655
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 0.5741758608269986,
+          "petab_c1_x7(t)": 2.892394357291264,
+          "petab_c2_x6(t)": 0.906722784956893,
+          "petab_c2_x7(t)": 2.306760233387095
+        },
+        "index": 9,
+        "nllh": 28604757.522511065,
+        "preparation_residual": 2.618591437677025,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 3,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 82.0,
+          "model1_data2": 87.6
+        },
+        "x": [
+          0.5433824188416351,
+          0.5522120920369221,
+          -3.41989402938254,
+          2.576762282327829,
+          -1.8435913709379612,
+          1.516570743392652,
+          1.1168660773279768,
+          -1.8059630486494844,
+          -2.069675820724699,
+          -1.7699480481352214,
+          -4.649897370301073,
+          -1.4196143522324114,
+          1.5433819912570126
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.00955367453060063,
+          "kb2": 2.6260138060409597e-05,
+          "kc1": 0.007637537259227433
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -4.548724589597711,
+          "petab_c1_x7(t)": 2.6877517143509126,
+          "petab_c2_x6(t)": 0.7065244957471519,
+          "petab_c2_x7(t)": 2.331400734039318
+        },
+        "index": 4,
+        "nllh": 30443367.80033121,
+        "preparation_residual": 10.046619297475257,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 4,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 103.00000000000001,
+          "model1_data2": 107.4
+        },
+        "x": [
+          0.9107312102716971,
+          0.29474143698893585,
+          -3.41989402938254,
+          2.576762282327829,
+          -1.8435913709379612,
+          1.516570743392652,
+          1.1168660773279768,
+          -2.01982955810938,
+          -4.580702994974779,
+          -2.117046658066914,
+          -4.649897370301073,
+          -1.4196143522324114,
+          1.5433819912570126
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.02117724981540113,
+          "kb2": 0.006106885165338878,
+          "kc1": 0.018176796567028683
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 0.5021174711912263,
+          "petab_c1_x7(t)": 3.4656597751540135,
+          "petab_c2_x6(t)": 1.990525044871968,
+          "petab_c2_x7(t)": 2.1863872723931466
+        },
+        "index": 7,
+        "nllh": 37232125.417118184,
+        "preparation_residual": 1.4763497631138027,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 1,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 40.0,
+          "model1_data2": 48.0
+        },
+        "x": [
+          0.5826845799342848,
+          0.7404314576287251,
+          -3.41989402938254,
+          2.576762282327829,
+          -1.8435913709379612,
+          1.516570743392652,
+          1.1168660773279768,
+          -1.6741304402411357,
+          -2.214180246457148,
+          -1.7404826533389752,
+          -4.649897370301073,
+          -1.4196143522324114,
+          1.5433819912570126
+        ]
+      }
+    ],
+    "construction": [
+      {
+        "conditions": [
+          "model1_data1",
+          "model1_data2"
+        ],
+        "omitted_states": {
+          "model1_data1": [
+            "petab_c1_x1(t)",
+            "petab_c1_x2(t)",
+            "petab_c1_x3(t)",
+            "petab_c1_x4(t)",
+            "petab_c1_x6(t)"
+          ],
+          "model1_data2": [
+            "petab_c2_x1(t)",
+            "petab_c2_x2(t)",
+            "petab_c2_x3(t)",
+            "petab_c2_x4(t)",
+            "petab_c2_x5(t)"
+          ]
+        },
+        "raw_candidate_count": 12,
+        "seconds": 65.14635396003723,
+        "status": "algebraic_complete",
+        "trace": [
+          {
+            "derivative_order": 0,
+            "equation_count": 3,
+            "rank": 3,
+            "selected_equation_count": 0,
+            "variable_count": 7
+          },
+          {
+            "derivative_order": 1,
+            "equation_count": 6,
+            "rank": 6,
+            "selected_equation_count": 0,
+            "variable_count": 7
+          },
+          {
+            "derivative_order": 2,
+            "equation_count": 9,
+            "rank": 7,
+            "selected_equation_count": 7,
+            "variable_count": 7
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "Joint finite experiment design is constructed before identifiability analysis.",
+      "Algebraic initial states are relaxed; PEtab scoring enforces the original preparation.",
+      "Noise and observable transformations remain in the PEtab objective; interpolation uses raw signal units.",
+      "Algebraic state times use per-experiment offsets; original preparation is restored before IC parameter projection.",
+      "Candidate generation used bounded condition groups with joint numerical rank selection; no structural-identifiability certificate was computed.",
+      "Absent conditions' unestimated initial-only and kinetic parameters retain x0 until full PEtab refinement."
+    ],
+    "parameter_ids": [
+      "init_b10_1",
+      "init_bcar1",
+      "init_bcar2",
+      "init_bcry_1",
+      "init_ohb10_1",
+      "init_zea_1",
+      "k5",
+      "kb1",
+      "kb2",
+      "kc1",
+      "kc2",
+      "kc4",
+      "szea"
+    ],
+    "polish_error": null,
+    "polish_seconds": 48.62066388130188,
+    "raw_candidate_count": 12,
+    "refined": {
+      "nllh": 874.2012375228608,
+      "parent_index": 11,
+      "status": "FTOL",
+      "x": [
+        0.626566916679396,
+        0.6492116651683728,
+        0.5175255933198287,
+        0.707118395246189,
+        0.19010269972343322,
+        -0.7431518875731868,
+        1.1791183363450985,
+        -1.7758001144406128,
+        -2.230824282637024,
+        -2.7674732687475037,
+        -2.174935901276786,
+        -2.3484512987604838,
+        -0.2939679026588192
+      ]
+    },
+    "rejected": [
+      {
+        "algebraic_parameters": {
+          "kb1": 0.021189896692197892,
+          "kb2": 0.006124327094623895,
+          "kc1": -1.6447913409492099
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -0.0019481866619617755,
+          "petab_c1_x7(t)": 2.739243878264369,
+          "petab_c2_x6(t)": 1.9914327146288637,
+          "petab_c2_x7(t)": 2.1867924472785325
+        },
+        "index": 1,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 1,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -1.6447913409492099:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 40.0,
+          "model1_data2": 48.0
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.02074116241936603,
+          "kb2": 0.011908040172590367,
+          "kc1": 0.020443685100866527
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 3.116285842008576,
+          "petab_c1_x7(t)": 3.15829336388242,
+          "petab_c2_x6(t)": 1.3052258020565837,
+          "petab_c2_x7(t)": 2.438479698802834
+        },
+        "index": 2,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 2,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -4.012588619177282:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 61.0,
+          "model1_data2": 67.80000000000001
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.01570101931478553,
+          "kb2": 0.0085284282326583,
+          "kc1": 0.1271199320527009
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 0.10616519374698381,
+          "petab_c1_x7(t)": 3.268783865210164,
+          "petab_c2_x6(t)": 0.9039944803734359,
+          "petab_c2_x7(t)": 2.3067612256673433
+        },
+        "index": 3,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 3,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -3822.815710331027:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 82.0,
+          "model1_data2": 87.6
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.0077871406807849385,
+          "kb2": 0.0015814346563458998,
+          "kc1": -0.34547637045245877
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -0.017163320273848856,
+          "petab_c1_x7(t)": 2.271492379423167,
+          "petab_c2_x6(t)": 0.6006847799122201,
+          "petab_c2_x7(t)": 2.436599904980314
+        },
+        "index": 5,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 5,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -0.34547637045245877:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 124.00000000000001,
+          "model1_data2": 127.2
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.010929689410687683,
+          "kb2": 0.006166980970404414,
+          "kc1": 0.3179890430416269
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 0.02854112388515441,
+          "petab_c1_x7(t)": 2.4290017378549527,
+          "petab_c2_x6(t)": 0.5021398337382206,
+          "petab_c2_x7(t)": 2.3398166787955317
+        },
+        "index": 6,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 6,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -3.080384706319909e18:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 145.0,
+          "model1_data2": 147.0
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.009804871630015363,
+          "kb2": 0.00010309182397587528,
+          "kc1": -0.0003912341161088339
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 38.540218283342114,
+          "petab_c1_x7(t)": 2.5737279444934207,
+          "petab_c2_x6(t)": 0.7075678856006826,
+          "petab_c2_x7(t)": 2.3318691078609195
+        },
+        "index": 10,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 4,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -0.0003912341161088339:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 103.00000000000001,
+          "model1_data2": 107.4
+        },
+        "x": []
+      },
+      {
+        "algebraic_parameters": {
+          "kb1": 0.011217414481400607,
+          "kb2": 0.006191846574105066,
+          "kc1": -0.009951949555052953
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 0.1959584905679336,
+          "petab_c1_x7(t)": 1.9468265718080726,
+          "petab_c2_x6(t)": 0.4947246498237452,
+          "petab_c2_x7(t)": 2.337735005566353
+        },
+        "index": 12,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            8,
+            9
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 6,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "reason": "DomainError with -0.009951949555052953:\nlog10 was called with a negative real argument but will only return a complex result if called with a complex argument. Try log10(Complex(x)).",
+        "state_times": {
+          "model1_data1": 145.0,
+          "model1_data2": 147.0
+        },
+        "x": []
+      }
+    ],
+    "scoring_seconds": 17.987365007400513,
+    "status": "success",
+    "total_seconds": 134.73163318634033,
+    "unscored_candidate_count": 0,
+    "x0": [
+      0.8933687087193825,
+      -2.1566410476036815,
+      -3.41989402938254,
+      2.576762282327829,
+      -1.8435913709379612,
+      1.516570743392652,
+      1.1168660773279768,
+      -3.8957067274075943,
+      -2.7466428461219223,
+      -3.1738278715028283,
+      -4.649897370301073,
+      -1.4196143522324114,
+      1.5433819912570126
+    ]
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "success",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "total_seconds": 297.75470185279846,
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "e37b6e98ee26044ff5dbeb518694f66f49386bf57887b94cca9a3b6925079f64",
+  "x0": [
+    0.8933687087193825,
+    -2.1566410476036815,
+    -3.41989402938254,
+    2.576762282327829,
+    -1.8435913709379612,
+    1.516570743392652,
+    1.1168660773279768,
+    -3.8957067274075943,
+    -2.7466428461219223,
+    -3.1738278715028283,
+    -4.649897370301073,
+    -1.4196143522324114,
+    1.5433819912570126
+  ],
+  "worker_returncode": 0,
+  "worker_wall_seconds": 323.5957405059962
+}

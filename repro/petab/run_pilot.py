@@ -49,7 +49,7 @@ def supervise(process, ready, seconds, *, load_seconds=1800, poll_seconds=0.5):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--models", nargs="+")
-    parser.add_argument("--methods", nargs="+", choices=["odepe", "petab_julia", "pypesto_amici"],
+    parser.add_argument("--methods", nargs="+", choices=["odepe", "odepe_blocks2", "odepe_blocks4", "odepe_blocks6", "petab_julia", "pypesto_amici"],
                         default=["odepe", "petab_julia", "pypesto_amici"])
     parser.add_argument("--python", type=Path, default=Path("/tmp/odepe-pypesto-env/bin/python"))
     parser.add_argument("--model-root", type=Path, default=Path("/tmp/odepe-petab-full-20260910/Benchmark-Models"))

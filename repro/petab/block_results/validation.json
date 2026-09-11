@@ -1,0 +1,35 @@
+{
+  "julia_version": "1.13.0",
+  "implementation_sha256": "98b60cbe97a6146d52cdfb34c19b6653cbf0fcb4a64e7840d5123ce95c1300df",
+  "checks": {
+    "core": {
+      "passed": 1813,
+      "log_sha256": "52e892be01ae17c7d8a0b9db543f88c2fa091f6758cb9dfad139da6295d9c691"
+    },
+    "petab": {
+      "passed": 111,
+      "log_sha256": "e7f23b74360f334bb398ac850ec263e9648782401929cae052e039918445604a"
+    },
+    "recovery": {
+      "passed": 10,
+      "log_sha256": "dae3bf89d3c926e64fe5805f43a4441b0a80ea5456445caa1f5d7b9309613bee"
+    }
+  },
+  "validated_parameter_vectors": 32,
+  "trial_count": 7,
+  "trial_status_counts": {
+    "rank_deficient_at_limit": 2,
+    "success": 3,
+    "timeout": 2
+  },
+  "global_manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "pilot_manifest_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "baseline_commit": "d33c50e64c66231265e8e2c1ab56daa83326a014",
+  "notes": [
+    "All four recovery errors match the previous commit.",
+    "All copied starts match the original pilot byte for byte.",
+    "No dependency or benchmark-model source changes.",
+    "Bruno best raw/refined scores independently checked with AMICI.",
+    "Prior main CI has Julia 1.12 optimizer-convergence/UQ and nightly dependency-precompile failures."
+  ]
+}

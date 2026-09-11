@@ -1,0 +1,1334 @@
+{
+  "benchmark_revision": "ddaa86d13f708926c57ec8918ce75a6b50e2e562",
+  "environment_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "experiment_construction": {
+    "groups": [
+      [
+        "model1_data1",
+        "model1_data2",
+        "model1_data3",
+        "model1_data4",
+        "model1_data5",
+        "model1_data6"
+      ]
+    ],
+    "initial_only_projection": "available group states only; other entries retain recorded x0",
+    "max_derivative_order": 4,
+    "rank_selector": "multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
+    "refinement": "all conditions and all estimated parameters in original PEtab objective",
+    "selection": "first conditions in canonical measurement-row order"
+  },
+  "gradient_method": "ForwardDiff",
+  "implementation_sha256": "98b60cbe97a6146d52cdfb34c19b6653cbf0fcb4a64e7840d5123ce95c1300df",
+  "initial_nllh": 7849332.112063684,
+  "julia_version": "1.13.0",
+  "method": "odepe_blocks6",
+  "ode_solver": "Rodas5P{AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, AutoForwardDiff(), nothing, 20, 0.03)",
+  "ode_tolerances": {
+    "abstol": 1e-08,
+    "maxiters": 10000,
+    "reltol": 1e-08
+  },
+  "optimizer_options": {
+    "fatol": 1e-08,
+    "frtol": 1e-08,
+    "gatol": 1e-06,
+    "grtol": 0.0,
+    "hessian": "BFGS",
+    "maxiter": 10000,
+    "xtol": 0.0
+  },
+  "parameter_ids": [
+    "init_b10_1",
+    "init_bcar1",
+    "init_bcar2",
+    "init_bcry_1",
+    "init_ohb10_1",
+    "init_zea_1",
+    "k5",
+    "kb1",
+    "kb2",
+    "kc1",
+    "kc2",
+    "kc4",
+    "szea"
+  ],
+  "preparation_seconds": 115.515939950943,
+  "problem": "Bruno_JExpBot2016",
+  "result": {
+    "algebraic_seconds": 63.149718046188354,
+    "candidates": [
+      {
+        "algebraic_parameters": {
+          "k5": 0.0022950591240813614,
+          "kb1": 0.02117724981540113,
+          "kb2": 0.006106885165338879,
+          "kc1": 0.0010494819025143288,
+          "kc2": 0.008957135927484485,
+          "kc4": 0.005122591298658912,
+          "szea": 0.41061015662303524
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 8.69656456650447,
+          "petab_c1_x7(t)": 3.4656597751540135,
+          "petab_c2_x6(t)": 1.990525044871968,
+          "petab_c2_x7(t)": 2.1863872723931466,
+          "petab_c3_x5(t)": -8.716022123041967,
+          "petab_c3_x6(t)": 2.095266185540204,
+          "petab_c3_x7(t)": 1.0429838351354859,
+          "petab_c4_x1(t)": -7.397158493759245,
+          "petab_c4_x3(t)": 1.1024250427762166,
+          "petab_c4_x5(t)": 3.411883611455449,
+          "petab_c4_x7(t)": 0.2819337286714785,
+          "petab_c5_x3(t)": 1.4010066050805314,
+          "petab_c6_x1(t)": 2.807165095929347,
+          "petab_c6_x3(t)": 0.1932248191169667
+        },
+        "index": 7,
+        "nllh": 51.56439167802504,
+        "preparation_residual": 16.26087585309486,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 1,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 40.0,
+          "model1_data2": 48.0,
+          "model1_data3": 48.0,
+          "model1_data4": 48.0,
+          "model1_data5": 40.0,
+          "model1_data6": 48.0
+        },
+        "x": [
+          0.602344667705169,
+          0.7404314576286644,
+          0.5025087289111958,
+          0.7415935152850108,
+          0.2354287081448498,
+          0.46791282322980393,
+          -2.639206121921257,
+          -1.6741304402411357,
+          -2.214180246457148,
+          -2.9790250460819903,
+          -2.0478308351738894,
+          -2.2905102925362493,
+          -0.38657031236731454
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0023067352416951546,
+          "kb1": 0.021189896692197892,
+          "kb2": 0.006124327094623895,
+          "kc1": 0.0010530241685981923,
+          "kc2": 0.009049278858830277,
+          "kc4": 0.005117103583450067,
+          "szea": 0.40843971393905165
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 3.0430076039120606,
+          "petab_c1_x7(t)": 2.739243878264369,
+          "petab_c2_x6(t)": 1.9914327146288637,
+          "petab_c2_x7(t)": 2.1867924472785325,
+          "petab_c3_x5(t)": -8.54212137015275,
+          "petab_c3_x6(t)": 2.0958383372404548,
+          "petab_c3_x7(t)": 1.0442837524508688,
+          "petab_c4_x1(t)": -7.470673396930971,
+          "petab_c4_x3(t)": 1.1024222861256219,
+          "petab_c4_x5(t)": 3.4045682915788342,
+          "petab_c4_x7(t)": 0.28192437554075567,
+          "petab_c5_x3(t)": 1.4012424686832299,
+          "petab_c6_x1(t)": 2.8071902399997932,
+          "petab_c6_x3(t)": 0.19325199142693622
+        },
+        "index": 1,
+        "nllh": 67.29706259997435,
+        "preparation_residual": 13.762625401936432,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 1,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 40.0,
+          "model1_data2": 48.0,
+          "model1_data3": 48.0,
+          "model1_data4": 48.0,
+          "model1_data5": 40.0,
+          "model1_data6": 48.0
+        },
+        "x": [
+          0.525227403578026,
+          0.7408930871686589,
+          0.5017768135047668,
+          0.7426560240786756,
+          0.23540648537326025,
+          0.46791228751239167,
+          -2.63700224928872,
+          -1.6738711606142531,
+          -2.212941622089285,
+          -2.9775616609433113,
+          -2.0433860285416903,
+          -2.2909757916920483,
+          -0.38887203664869296
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0056201336743180955,
+          "kb1": 0.020630309943531624,
+          "kb2": 0.011849925031094567,
+          "kc1": 0.001998292114694222,
+          "kc2": 0.005866808386863418,
+          "kc4": 0.005936611063854978,
+          "szea": 0.29063379161385583
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 12.063424549612275,
+          "petab_c1_x7(t)": 3.1940943160231665,
+          "petab_c2_x6(t)": 1.306226659538584,
+          "petab_c2_x7(t)": 2.4384835368716056,
+          "petab_c3_x5(t)": 4.103734784363484,
+          "petab_c3_x6(t)": 1.8140171147673911,
+          "petab_c3_x7(t)": 1.2489261119230386,
+          "petab_c4_x1(t)": -0.20050074768333181,
+          "petab_c4_x3(t)": 1.2616323618497667,
+          "petab_c4_x5(t)": 2.8468399398690987,
+          "petab_c4_x7(t)": 0.3193721487420673,
+          "petab_c5_x3(t)": 1.2462846773041647,
+          "petab_c6_x1(t)": 2.7362365672657853,
+          "petab_c6_x3(t)": 0.26965277814966476
+        },
+        "index": 8,
+        "nllh": 85.46873195018944,
+        "preparation_residual": 14.454698157336106,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 2,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 61.0,
+          "model1_data2": 67.80000000000001,
+          "model1_data3": 67.80000000000001,
+          "model1_data4": 67.80000000000001,
+          "model1_data5": 61.0,
+          "model1_data6": 67.80000000000001
+        },
+        "x": [
+          0.633823350659162,
+          0.7234814415829979,
+          0.4351906255934785,
+          0.6859522390281048,
+          0.2528897385346942,
+          0.48524939883261553,
+          -2.250253354657218,
+          -1.6854942472690038,
+          -1.9262843972222263,
+          -2.699341025355923,
+          -2.231598095844826,
+          -2.226461402876977,
+          -0.536653892246367
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.00496715449300471,
+          "kb1": 0.01563280646572987,
+          "kb2": 0.008517736076841868,
+          "kc1": 0.0019394302404796998,
+          "kc2": 0.0028694502068451282,
+          "kc4": 0.006124207541511705,
+          "szea": 0.44474377523432945
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 5.028317809507131,
+          "petab_c1_x7(t)": 2.892394357291264,
+          "petab_c2_x6(t)": 0.906722784956893,
+          "petab_c2_x7(t)": 2.306760233387095,
+          "petab_c3_x5(t)": 1.1749231542784653,
+          "petab_c3_x6(t)": 1.6097831006734384,
+          "petab_c3_x7(t)": 1.4033255433156857,
+          "petab_c4_x1(t)": 1.8841291581051391,
+          "petab_c4_x3(t)": 1.4202437738729976,
+          "petab_c4_x5(t)": 2.51511651577754,
+          "petab_c4_x7(t)": 0.3566196652827781,
+          "petab_c5_x3(t)": 1.0966351458263945,
+          "petab_c6_x1(t)": 2.633340964936204,
+          "petab_c6_x3(t)": 0.3486864945152979
+        },
+        "index": 9,
+        "nllh": 102.77350230148431,
+        "preparation_residual": 6.845578304095851,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 3,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 82.0,
+          "model1_data2": 87.6,
+          "model1_data3": 87.6,
+          "model1_data4": 87.6,
+          "model1_data5": 82.0,
+          "model1_data6": 87.6
+        },
+        "x": [
+          0.6601894686067559,
+          0.5522120920369389,
+          0.4712731928667824,
+          0.5835081023034554,
+          0.2581583427692284,
+          0.5045509499902585,
+          -2.3038923319685387,
+          -1.8059630486494844,
+          -2.0696758207246986,
+          -2.712325836955692,
+          -2.542201307101035,
+          -2.212950100043336,
+          -0.351890121715764
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0052040640968079015,
+          "kb1": 0.01570101931478553,
+          "kb2": 0.0085284282326583,
+          "kc1": 0.0019435693548991314,
+          "kc2": 0.002730185657669188,
+          "kc4": 0.006133248612060023,
+          "szea": 0.4244921312419382
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 6.943777015962891,
+          "petab_c1_x7(t)": 3.268783865210164,
+          "petab_c2_x6(t)": 0.9039944803734359,
+          "petab_c2_x7(t)": 2.3067612256673433,
+          "petab_c3_x5(t)": 1.4690128749314102,
+          "petab_c3_x6(t)": 1.6088830389577011,
+          "petab_c3_x7(t)": 1.4037449031621472,
+          "petab_c4_x1(t)": 1.8695630994296264,
+          "petab_c4_x3(t)": 1.4201678981999928,
+          "petab_c4_x5(t)": 2.5118474333389216,
+          "petab_c4_x7(t)": 0.3566058881710182,
+          "petab_c5_x3(t)": 1.0968144682855863,
+          "petab_c6_x1(t)": 2.6333910890879033,
+          "petab_c6_x3(t)": 0.34864222819901713
+        },
+        "index": 3,
+        "nllh": 112.75633400237007,
+        "preparation_residual": 8.926876338661971,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 3,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 82.0,
+          "model1_data2": 87.6,
+          "model1_data3": 87.6,
+          "model1_data4": 87.6,
+          "model1_data5": 82.0,
+          "model1_data6": 87.6
+        },
+        "x": [
+          0.6863941263342593,
+          0.5534984446232748,
+          0.4600874897138752,
+          0.5778025119569884,
+          0.2585513250046743,
+          0.5045581975679702,
+          -2.2836573630100383,
+          -1.8040721521502046,
+          -2.0691310008115034,
+          -2.7113999572644794,
+          -2.563807819127855,
+          -2.212309430770282,
+          -0.3721303558084362
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.005518147947667389,
+          "kb1": 0.02074116241936603,
+          "kb2": 0.011908040172590367,
+          "kc1": 0.0020105238298028286,
+          "kc2": 0.005831577683622304,
+          "kc4": 0.0059358556524197175,
+          "szea": 0.2959459968322317
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 31.687446571851822,
+          "petab_c1_x7(t)": 3.15829336388242,
+          "petab_c2_x6(t)": 1.3052258020565837,
+          "petab_c2_x7(t)": 2.438479698802834,
+          "petab_c3_x5(t)": 3.7277207590361643,
+          "petab_c3_x6(t)": 1.811612862650189,
+          "petab_c3_x7(t)": 1.2499084151971545,
+          "petab_c4_x1(t)": -0.17790967263956736,
+          "petab_c4_x3(t)": 1.2615891790011704,
+          "petab_c4_x5(t)": 2.838588525917662,
+          "petab_c4_x7(t)": 0.3193562719150157,
+          "petab_c5_x3(t)": 1.2465911429977643,
+          "petab_c6_x1(t)": 2.736276298784035,
+          "petab_c6_x3(t)": 0.269647991632291
+        },
+        "index": 2,
+        "nllh": 312.8725150564134,
+        "preparation_residual": 36.09036403269707,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 2,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 61.0,
+          "model1_data2": 67.80000000000001,
+          "model1_data3": 67.80000000000001,
+          "model1_data4": 67.80000000000001,
+          "model1_data5": 61.0,
+          "model1_data6": 67.80000000000001
+        },
+        "x": [
+          -0.3027581034894572,
+          0.726412618289314,
+          0.4388075968494726,
+          0.6840144227958332,
+          0.2529765075827334,
+          0.48524607744682385,
+          -2.258206659783944,
+          -1.6831669076302167,
+          -1.924159708900616,
+          -2.6966907750402838,
+          -2.2342139346752417,
+          -2.226516668733043,
+          -0.5287875302163049
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.002181397578885756,
+          "kb1": 0.009804871630015363,
+          "kb2": 0.00010309182397587528,
+          "kc1": 0.0007422617074118716,
+          "kc2": 0.0035839821890912287,
+          "kc4": 0.0055071449269955405,
+          "szea": 1.1703515542711733
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -20.313924434145896,
+          "petab_c1_x7(t)": 2.5737279444934207,
+          "petab_c2_x6(t)": 0.7075678856006826,
+          "petab_c2_x7(t)": 2.3318691078609195,
+          "petab_c3_x5(t)": -9.923914391869427,
+          "petab_c3_x6(t)": 1.3436068436519393,
+          "petab_c3_x7(t)": 1.533876746294071,
+          "petab_c4_x1(t)": 3.531889067710746,
+          "petab_c4_x3(t)": 1.571387354416079,
+          "petab_c4_x5(t)": 2.311943089216387,
+          "petab_c4_x7(t)": 0.3915819935374253,
+          "petab_c5_x3(t)": 0.969107247885284,
+          "petab_c6_x1(t)": 2.5108901854767143,
+          "petab_c6_x3(t)": 0.4162791231810244
+        },
+        "index": 10,
+        "nllh": 752.2969996039387,
+        "preparation_residual": 28.184984397602253,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 4,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 103.00000000000001,
+          "model1_data2": 107.4,
+          "model1_data3": 107.4,
+          "model1_data4": 107.4,
+          "model1_data5": 103.00000000000001,
+          "model1_data6": 107.4
+        },
+        "x": [
+          0.6256891615694029,
+          0.3070989699909053,
+          0.663510086134993,
+          0.5657671169523665,
+          0.23271927488251848,
+          0.5189079740473538,
+          -2.661265173219891,
+          -2.0085580879463167,
+          -3.986775776452287,
+          -3.1294429437160534,
+          -2.4456341572684552,
+          -2.2590734943982795,
+          0.0683163362305867
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.001568181563302344,
+          "kb1": 0.008273246385912736,
+          "kb2": 0.0017358415879145694,
+          "kc1": 0.0010455739242343953,
+          "kc2": 0.006481616870175821,
+          "kc4": 0.004068426660287452,
+          "szea": 1.6395218816607766
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -10.655949023397197,
+          "petab_c1_x7(t)": 2.253226495501826,
+          "petab_c2_x6(t)": 0.5968876276770936,
+          "petab_c2_x7(t)": 2.4358413741807547,
+          "petab_c3_x5(t)": -0.8605140928414571,
+          "petab_c3_x6(t)": 1.0385422091363177,
+          "petab_c3_x7(t)": 1.6753551844615036,
+          "petab_c4_x1(t)": 0.03870842350419679,
+          "petab_c4_x3(t)": 1.7088579968357172,
+          "petab_c4_x5(t)": 2.0670076809620186,
+          "petab_c4_x7(t)": 0.42242710817346557,
+          "petab_c5_x3(t)": 0.8752604561648589,
+          "petab_c6_x1(t)": 2.3852803201097026,
+          "petab_c6_x3(t)": 0.4616877724720576
+        },
+        "index": 11,
+        "nllh": 1007.2524316290295,
+        "preparation_residual": 13.220628764908732,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 5,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 124.00000000000001,
+          "model1_data2": 127.2,
+          "model1_data3": 127.2,
+          "model1_data4": 127.2,
+          "model1_data5": 124.00000000000001,
+          "model1_data6": 127.2
+        },
+        "x": [
+          0.6470358008312238,
+          0.23292538906234345,
+          0.7657394482932209,
+          0.7311611070788576,
+          0.1612323185257578,
+          0.5195710263714857,
+          -2.8046036563356185,
+          -2.0823240417370568,
+          -2.7604899108609597,
+          -2.980645256244579,
+          -2.1883166437891695,
+          -2.3905735084306987,
+          0.21471721729761584
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.002323723360274884,
+          "kb1": 0.010929689410687683,
+          "kb2": 0.006166980970404414,
+          "kc1": 0.0022745720234566696,
+          "kc2": 0.01069050472157731,
+          "kc4": 0.0020720052117046443,
+          "szea": 0.957060682020054
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 3.9900977317835467,
+          "petab_c1_x7(t)": 2.4290017378549527,
+          "petab_c2_x6(t)": 0.5021398337382206,
+          "petab_c2_x7(t)": 2.3398166787955317,
+          "petab_c3_x5(t)": 5.559772562598784,
+          "petab_c3_x6(t)": 0.7754815376113091,
+          "petab_c3_x7(t)": 1.8424497828920545,
+          "petab_c4_x1(t)": -3.8772177690491514,
+          "petab_c4_x3(t)": 1.8275586857309438,
+          "petab_c4_x5(t)": 1.707027591102212,
+          "petab_c4_x7(t)": 0.4477677738281809,
+          "petab_c5_x3(t)": 0.8195120378981575,
+          "petab_c6_x1(t)": 2.2732651025628816,
+          "petab_c6_x3(t)": 0.48046465725064763
+        },
+        "index": 6,
+        "nllh": 1182.4287745609508,
+        "preparation_residual": 36.40640074423952,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 6,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 145.0,
+          "model1_data2": 147.0,
+          "model1_data3": 147.0,
+          "model1_data4": 147.0,
+          "model1_data5": 145.0,
+          "model1_data6": 147.0
+        },
+        "x": [
+          0.5416667242200206,
+          0.3985901330412513,
+          0.557375348438722,
+          1.0599477500883734,
+          0.044035099688614895,
+          0.4986295531506359,
+          -2.633815576048204,
+          -1.9613921792342868,
+          -2.209927391684139,
+          -2.6431003068469656,
+          -1.9710017903364565,
+          -2.68360915654663,
+          -0.019060525095711534
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0031152511574472105,
+          "kb1": 0.011217414481400607,
+          "kb2": 0.006191846574105066,
+          "kc1": 0.0023029265780300998,
+          "kc2": 0.010664447823371144,
+          "kc4": 0.002063379918016261,
+          "szea": 0.7134971485829648
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -0.8468220531305647,
+          "petab_c1_x7(t)": 1.9468265718080726,
+          "petab_c2_x6(t)": 0.4947246498237452,
+          "petab_c2_x7(t)": 2.337735005566353,
+          "petab_c3_x5(t)": 6.609373702624096,
+          "petab_c3_x6(t)": 0.8276784033220124,
+          "petab_c3_x7(t)": 1.8461817512859249,
+          "petab_c4_x1(t)": -2.827704954950448,
+          "petab_c4_x3(t)": 1.8275200641498253,
+          "petab_c4_x5(t)": 1.6904882639804872,
+          "petab_c4_x7(t)": 0.44773560818184355,
+          "petab_c5_x3(t)": 0.8201821373767453,
+          "petab_c6_x1(t)": 2.2733630832340057,
+          "petab_c6_x3(t)": 0.4803167668114865
+        },
+        "index": 12,
+        "nllh": 1188.2054513255316,
+        "preparation_residual": 26.94682932083856,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust_rq",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 6,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 145.0,
+          "model1_data2": 147.0,
+          "model1_data3": 147.0,
+          "model1_data4": 147.0,
+          "model1_data5": 145.0,
+          "model1_data6": 147.0
+        },
+        "x": [
+          0.7249667042140171,
+          0.41049774771595343,
+          0.42882133150124313,
+          1.0558660547263363,
+          0.04384691092767831,
+          0.49857029271188397,
+          -2.506506933949811,
+          -1.9501072327284643,
+          -2.2081798134435537,
+          -2.637719908003932,
+          -1.9720616262409125,
+          -2.68542080057401,
+          -0.14660775815852622
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0021406870579657113,
+          "kb1": 0.009553674530600628,
+          "kb2": 2.6260138060409597e-05,
+          "kc1": 0.0007279195024121501,
+          "kc2": 0.003375816039005602,
+          "kc4": 0.005524884713227674,
+          "szea": 1.1929883144651083
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": -47.72650467516399,
+          "petab_c1_x7(t)": 2.6877517143509126,
+          "petab_c2_x6(t)": 0.7065244957471519,
+          "petab_c2_x7(t)": 2.331400734039318,
+          "petab_c3_x5(t)": -10.164932963235367,
+          "petab_c3_x6(t)": 1.351503544574177,
+          "petab_c3_x7(t)": 1.5331467650139712,
+          "petab_c4_x1(t)": 3.828764498524649,
+          "petab_c4_x3(t)": 1.5713103075754233,
+          "petab_c4_x5(t)": 2.317260890321813,
+          "petab_c4_x7(t)": 0.3915800036962809,
+          "petab_c5_x3(t)": 0.9689846291975306,
+          "petab_c6_x1(t)": 2.510919928694052,
+          "petab_c6_x3(t)": 0.41625499603075816
+        },
+        "index": 4,
+        "nllh": 1523.745033467321,
+        "preparation_residual": 54.46798351448412,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 4,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 103.00000000000001,
+          "model1_data2": 107.4,
+          "model1_data3": 107.4,
+          "model1_data4": 107.4,
+          "model1_data5": 103.00000000000001,
+          "model1_data6": 107.4
+        },
+        "x": [
+          0.8072567104979772,
+          0.2947414369888771,
+          0.6624297381867672,
+          0.5563864017377312,
+          0.23345786322493442,
+          0.5189510207332038,
+          -2.6694468165599625,
+          -2.01982955810938,
+          -4.580702994974779,
+          -3.137916644850644,
+          -2.4716212277518195,
+          -2.257676779892886,
+          0.07663618969869347
+        ]
+      },
+      {
+        "algebraic_parameters": {
+          "k5": 0.0012834608716156277,
+          "kb1": 0.0077871406807849385,
+          "kb2": 0.0015814346563458998,
+          "kc1": 0.0010074276738222176,
+          "kc2": 0.006293736292969892,
+          "kc4": 0.004086587801428677,
+          "szea": 2.004457956153234
+        },
+        "algebraic_states": {
+          "petab_c1_x5(t)": 5.885803762592288,
+          "petab_c1_x7(t)": 2.271492379423167,
+          "petab_c2_x6(t)": 0.6006847799122201,
+          "petab_c2_x7(t)": 2.436599904980314,
+          "petab_c3_x5(t)": -1.4763236140368758,
+          "petab_c3_x6(t)": 1.0269612678080615,
+          "petab_c3_x7(t)": 1.672676316414684,
+          "petab_c4_x1(t)": 0.3052921932184181,
+          "petab_c4_x3(t)": 1.7088209885268981,
+          "petab_c4_x5(t)": 2.0814879111238698,
+          "petab_c4_x7(t)": 0.4224429818665008,
+          "petab_c5_x3(t)": 0.8748034824637949,
+          "petab_c6_x1(t)": 2.3852499194378463,
+          "petab_c6_x3(t)": 0.46175274416439627
+        },
+        "index": 5,
+        "nllh": 2074.2903222391274,
+        "preparation_residual": 12.340753850445545,
+        "provenance": {
+          "aggregation_source_indices": [],
+          "aggregation_strategy": "none",
+          "equations_dropped_by_rank_trimming": [
+            21
+          ],
+          "estimator_identity": {
+            "candidate_id": 0,
+            "data_scope": "unknown",
+            "estimator_kind": "unknown",
+            "interpolator_source": null,
+            "parent_candidate_ids": [],
+            "time_indices": [],
+            "time_values": []
+          },
+          "interpolator_source": "agp_robust",
+          "multipoint_combo_index": 1,
+          "multipoint_time_indices": null,
+          "notes": [
+            "bounded_experiment_jets",
+            "joint_rank_selection",
+            "no_structural_certificate"
+          ],
+          "polish_applied": false,
+          "polish_source_hc_idx": null,
+          "post_polish_error": null,
+          "practical_identifiability_status": "not_assessed",
+          "pre_polish_error": null,
+          "primary_method": "algebraic",
+          "representative_assignments": {},
+          "rescue_path": "none",
+          "source_candidate_index": null,
+          "source_shooting_index": 5,
+          "source_type": "multi_experiment",
+          "structural_fix_set": {},
+          "template_status": null,
+          "was_terminal_fallback": false
+        },
+        "state_times": {
+          "model1_data1": 124.00000000000001,
+          "model1_data2": 127.2,
+          "model1_data3": 127.2,
+          "model1_data4": 127.2,
+          "model1_data5": 124.00000000000001,
+          "model1_data6": 127.2
+        },
+        "x": [
+          0.2787864681259308,
+          0.2088258633128705,
+          0.8738302551799675,
+          0.7217066772024231,
+          0.16198353719609743,
+          0.5196525180926587,
+          -2.891617366961723,
+          -2.108621979363602,
+          -2.8009487480888726,
+          -2.996786123338138,
+          -2.201091457944455,
+          -2.3886391657121844,
+          0.30199695128140486
+        ]
+      }
+    ],
+    "construction": [
+      {
+        "conditions": [
+          "model1_data1",
+          "model1_data2",
+          "model1_data3",
+          "model1_data4",
+          "model1_data5",
+          "model1_data6"
+        ],
+        "omitted_states": {
+          "model1_data1": [
+            "petab_c1_x1(t)",
+            "petab_c1_x2(t)",
+            "petab_c1_x3(t)",
+            "petab_c1_x4(t)",
+            "petab_c1_x6(t)"
+          ],
+          "model1_data2": [
+            "petab_c2_x1(t)",
+            "petab_c2_x2(t)",
+            "petab_c2_x3(t)",
+            "petab_c2_x4(t)",
+            "petab_c2_x5(t)"
+          ],
+          "model1_data3": [
+            "petab_c3_x1(t)",
+            "petab_c3_x2(t)",
+            "petab_c3_x3(t)",
+            "petab_c3_x4(t)"
+          ],
+          "model1_data4": [
+            "petab_c4_x2(t)",
+            "petab_c4_x4(t)",
+            "petab_c4_x6(t)"
+          ],
+          "model1_data5": [
+            "petab_c5_x1(t)",
+            "petab_c5_x2(t)",
+            "petab_c5_x4(t)",
+            "petab_c5_x5(t)",
+            "petab_c5_x6(t)",
+            "petab_c5_x7(t)"
+          ],
+          "model1_data6": [
+            "petab_c6_x2(t)",
+            "petab_c6_x4(t)",
+            "petab_c6_x5(t)",
+            "petab_c6_x6(t)",
+            "petab_c6_x7(t)"
+          ]
+        },
+        "raw_candidate_count": 12,
+        "seconds": 62.22337317466736,
+        "status": "algebraic_complete",
+        "trace": [
+          {
+            "derivative_order": 0,
+            "equation_count": 11,
+            "rank": 11,
+            "selected_equation_count": 0,
+            "variable_count": 21
+          },
+          {
+            "derivative_order": 1,
+            "equation_count": 22,
+            "rank": 21,
+            "selected_equation_count": 21,
+            "variable_count": 21
+          }
+        ]
+      }
+    ],
+    "notes": [
+      "Joint finite experiment design is constructed before identifiability analysis.",
+      "Algebraic initial states are relaxed; PEtab scoring enforces the original preparation.",
+      "Noise and observable transformations remain in the PEtab objective; interpolation uses raw signal units.",
+      "Algebraic state times use per-experiment offsets; original preparation is restored before IC parameter projection.",
+      "Candidate generation used bounded condition groups with joint numerical rank selection; no structural-identifiability certificate was computed.",
+      "Absent conditions' unestimated initial-only and kinetic parameters retain x0 until full PEtab refinement."
+    ],
+    "parameter_ids": [
+      "init_b10_1",
+      "init_bcar1",
+      "init_bcar2",
+      "init_bcry_1",
+      "init_ohb10_1",
+      "init_zea_1",
+      "k5",
+      "kb1",
+      "kb2",
+      "kc1",
+      "kc2",
+      "kc4",
+      "szea"
+    ],
+    "polish_error": null,
+    "polish_seconds": 45.04598307609558,
+    "raw_candidate_count": 12,
+    "refined": {
+      "nllh": -46.688179774217524,
+      "parent_index": 7,
+      "status": "FTOL",
+      "x": [
+        0.6255336234954523,
+        0.6474030499223081,
+        0.5187374508848239,
+        0.7174048137750249,
+        0.239817203528603,
+        0.4710146510608071,
+        -2.510503417525323,
+        -1.779147663278019,
+        -2.233329927715339,
+        -2.7750012521370864,
+        -2.156408354397614,
+        -2.215999571779097,
+        -0.28665115550416315
+      ]
+    },
+    "rejected": [],
+    "scoring_seconds": 21.441016912460327,
+    "status": "success",
+    "total_seconds": 131.86662101745605,
+    "unscored_candidate_count": 0,
+    "x0": [
+      0.8933687087193825,
+      -2.1566410476036815,
+      -3.41989402938254,
+      2.576762282327829,
+      -1.8435913709379612,
+      1.516570743392652,
+      1.1168660773279768,
+      -3.8957067274075943,
+      -2.7466428461219223,
+      -3.1738278715028283,
+      -4.649897370301073,
+      -1.4196143522324114,
+      1.5433819912570126
+    ]
+  },
+  "seconds_cap": 900,
+  "seed": 20260910,
+  "status": "success",
+  "thread_settings": {
+    "JULIA_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "total_seconds": 313.30917406082153,
+  "versions": {
+    "Fides": "1.2.1",
+    "GaussianProcesses": "0.12.6",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "OrdinaryDiffEq": "7.8.1",
+    "PEtab": "5.4.3",
+    "SBMLImporter": "4.1.1",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "worker_sha256": "e37b6e98ee26044ff5dbeb518694f66f49386bf57887b94cca9a3b6925079f64",
+  "x0": [
+    0.8933687087193825,
+    -2.1566410476036815,
+    -3.41989402938254,
+    2.576762282327829,
+    -1.8435913709379612,
+    1.516570743392652,
+    1.1168660773279768,
+    -3.8957067274075943,
+    -2.7466428461219223,
+    -3.1738278715028283,
+    -4.649897370301073,
+    -1.4196143522324114,
+    1.5433819912570126
+  ],
+  "worker_returncode": 0,
+  "worker_wall_seconds": 342.0784018389968
+}

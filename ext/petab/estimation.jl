@@ -33,31 +33,44 @@ end
 # retain their algebraic values. The preparation may be overdetermined because
 # the algebraic states were relaxed; the projection residual is reported.
 function _candidate_vector(problem::PEtabAlgebraicProblem, candidate, x0)
+    if hasproperty(candidate, :algebraic_validation_error) && !isnothing(candidate.algebraic_validation_error)
+        throw(ArgumentError(candidate.algebraic_validation_error))
+    end
     physical = _physical_parameters(problem, x0)
     merge!(physical, candidate.parameters)
     preparation_states = copy(candidate.states)
     for (cid, offset) in problem.condition_time_offsets
-        iszero(offset) && continue
-        states = problem.condition_states[cid]
+        states = filter(s -> haskey(preparation_states, s), problem.condition_states[cid])
+        isempty(states) && continue
+        epoch = hasproperty(candidate, :state_times) ? candidate.state_times[cid] : offset
+        iszero(epoch) && continue
         selected = Set(states)
         eqs = [eq for eq in equations(problem.algebraic.model.system)
             if Num(only(Symbolics.arguments(Symbolics.value(eq.lhs)))) in selected]
+        all_states = Set(problem.algebraic.model.original_states)
+        any(Num(v) in all_states && !(Num(v) in selected)
+            for eq in eqs for v in Symbolics.get_variables(eq.rhs)) &&
+            throw(ArgumentError("State block for $cid is not closed under its ODE dependencies"))
         params = problem.algebraic.model.original_parameters
         local_model, _ = create_ordered_ode_system("preparation_" * cid, states, params, eqs, Equation[])
         state_values = Dict(s => candidate.states[s] for s in states)
         param_values = Dict(p => physical[p] for p in params)
-        ode = ODEProblem(local_model.system, merge(state_values, param_values), (offset, 0.0))
+        ode = ODEProblem(local_model.system, merge(state_values, param_values), (epoch, 0.0))
         sol = solve(ode, problem.algebraic.solver; abstol=1e-10, reltol=1e-10)
         ODEPE.SciMLBase.successful_retcode(sol) || throw(ArgumentError("Initial preparation backsolve failed for $cid"))
         for s in states
             preparation_states[s] = Float64(sol(0.0; idxs=s))
         end
     end
+    # A small experiment group estimates only its local preparations. Leave
+    # absent conditions' initial-only parameters at the recorded start, then
+    # evaluate/refine the complete original PEtab objective below.
+    available_maps = OrderedDict(s=>expr for (s, expr) in problem.initial_maps if haskey(preparation_states, s))
     dynamic = Set(problem.algebraic.model.original_parameters)
-    initial_variables = Set(Num(v) for expr in values(problem.initial_maps) for v in Symbolics.get_variables(expr))
+    initial_variables = Set(Num(v) for expr in values(available_maps) for v in Symbolics.get_variables(expr))
     initial_only = [p for p in problem.parameter_symbols if !(p in dynamic) && p in initial_variables]
     if !isempty(initial_only)
-        expressions = collect(values(problem.initial_maps))
+        expressions = collect(values(available_maps))
         jac = Symbolics.jacobian(expressions, initial_only)
         for entry in jac, v in Symbolics.get_variables(entry)
             Num(v) in initial_only && throw(ArgumentError("Nonlinear initial-only parameter map is outside the pilot"))
@@ -66,13 +79,13 @@ function _candidate_vector(problem::PEtabAlgebraicProblem, candidate, x0)
         A = Float64[Symbolics.value(Symbolics.substitute(jac[i, j], physical))
             for i in axes(jac, 1), j in axes(jac, 2)]
         b = Float64[preparation_states[s] - Symbolics.value(Symbolics.substitute(expr, zero_map))
-            for (s, expr) in problem.initial_maps]
+            for (s, expr) in available_maps]
         rank(A) == length(initial_only) || throw(ArgumentError("Initial parameter map is rank deficient"))
         estimates = A \ b
         merge!(physical, Dict(zip(initial_only, estimates)))
     end
     preparation_residual = norm(Float64[preparation_states[s] -
-        Symbolics.value(Symbolics.substitute(expr, physical)) for (s, expr) in problem.initial_maps])
+        Symbolics.value(Symbolics.substitute(expr, physical)) for (s, expr) in available_maps])
     x = Float64[_scale(physical[p], scale) for (p, scale) in
         zip(problem.parameter_symbols, problem.parameter_scales)]
     return x, preparation_residual
@@ -83,6 +96,7 @@ function _rejected_candidate(problem::PEtabAlgebraicProblem, candidate, index, r
     return (; index, reason, x,
         algebraic_parameters=Dict(get(ids, p, string(p)) => value for (p, value) in candidate.parameters),
         algebraic_states=Dict(string(s) => value for (s, value) in candidate.states),
+        state_times=hasproperty(candidate, :state_times) ? candidate.state_times : problem.condition_time_offsets,
         provenance=provenance_metadata_dict(candidate.provenance))
 end
 
@@ -94,11 +108,17 @@ result has `xmin` and `fmin` fields (for example PEtab.calibrate with Fides).
 The original PEtab problem is passed unchanged, including every estimate=1
 parameter. An external worker is required for a hard wall-clock timeout during
 noninterruptible algebraic setup; `max_seconds` bounds admission of later stages.
+
+Pass explicit `experiment_groups` (each containing 1–6 condition IDs) to try
+bounded local jet pools with shared parameters and joint multipoint rank
+selection. `max_derivative_order` caps that opt-in construction (default 4).
+Conditions outside a group retain unestimated entries of `x0` until full-objective
+refinement. A deficient pool is reported, without independent representative fixes.
 """
 function estimate_petab_problem(problem::PEtabAlgebraicProblem;
         options::EstimationOptions=EstimationOptions(), x0=nothing, seed::Integer=20260910,
         polish::Union{Nothing, Function}=nothing, checkpoint::Union{Nothing, Function}=nothing,
-        max_seconds::Real=900.0)
+        max_seconds::Real=900.0, experiment_groups=nothing, max_derivative_order::Int=4)
     max_seconds > 0 || throw(ArgumentError("max_seconds must be positive"))
     options.compute_uncertainty && throw(ArgumentError("PEtab uncertainty quantification is outside the pilot"))
     options.flow == FlowStandard || throw(ArgumentError("The PEtab adapter generates algebraic candidates; pass a polish callback for PEtab numerical refinement"))
@@ -119,11 +139,18 @@ function estimate_petab_problem(problem::PEtabAlgebraicProblem;
     # multiplicity-based truncation, and score them using PEtab below.
     opts = merge_options(options; polish_solutions=false, terminal_fallback=:none,
         compute_uncertainty=false, synthesize_aggregate_candidates=false, save_system=false)
-    pep, scaling = options.auto_rescale ? rescale_pep(problem.algebraic) : (problem.algebraic, nothing)
-    !isnothing(scaling) && (opts = ODEPE.rescale_option_bounds(opts, scaling, problem.algebraic))
     stage = time()
-    raw, _, _, _ = optimized_multishot_parameter_estimation(pep, opts)
-    !isnothing(scaling) && unrescale_results(raw, scaling)
+    construction = NamedTuple[]
+    if isnothing(experiment_groups)
+        pep, scaling = options.auto_rescale ? rescale_pep(problem.algebraic) : (problem.algebraic, nothing)
+        !isnothing(scaling) && (opts = ODEPE.rescale_option_bounds(opts, scaling, problem.algebraic))
+        raw, _, _, _ = optimized_multishot_parameter_estimation(pep, opts)
+        !isnothing(scaling) && unrescale_results(raw, scaling)
+    else
+        progress = isnothing(checkpoint) ? identity : partial -> checkpoint((; construction_progress=partial))
+        raw, construction = _experiment_candidates(problem, opts, experiment_groups;
+            max_derivative_order, started, max_seconds, progress)
+    end
     algebraic_seconds = time() - stage
     scored = NamedTuple[]
     rejected = NamedTuple[]
@@ -141,8 +168,10 @@ function estimate_petab_problem(problem::PEtabAlgebraicProblem;
                 push!(rejected, _rejected_candidate(problem, candidate, index, "Nonfinite original PEtab objective", x))
                 continue
             end
+            detail = _rejected_candidate(problem, candidate, index, "", x)
             push!(scored, (; index, x, nllh=Float64(value), preparation_residual=prep_residual,
-                provenance=provenance_metadata_dict(candidate.provenance)))
+                algebraic_parameters=detail.algebraic_parameters, algebraic_states=detail.algebraic_states,
+                state_times=detail.state_times, provenance=detail.provenance))
         catch err
             ODEPE._rethrow_if_interrupt(err)
             push!(rejected, _rejected_candidate(problem, candidate, index, sprint(showerror, err), Float64[]))
@@ -153,7 +182,7 @@ function estimate_petab_problem(problem::PEtabAlgebraicProblem;
     sort!(scored; by=c -> c.nllh)
     if !isnothing(checkpoint)
         checkpoint((; parameter_ids=problem.parameter_ids, x0=start, candidates=scored,
-            rejected, raw_candidate_count=length(raw), unscored_candidate_count, algebraic_seconds, scoring_seconds))
+            rejected, raw_candidate_count=length(raw), unscored_candidate_count, algebraic_seconds, scoring_seconds, construction))
     end
     refined = nothing
     polish_seconds = 0.0
@@ -176,9 +205,16 @@ function estimate_petab_problem(problem::PEtabAlgebraicProblem;
         end
         polish_seconds = time() - stage
     end
-    status = isempty(scored) ? (time() - started >= max_seconds ? :budget_exhausted : :no_valid_candidates) : :success
+    status = isempty(scored) ? (time() - started >= max_seconds ? :budget_exhausted :
+        !isempty(construction) && all(r -> r.status == :rank_deficient_at_limit, construction) ?
+            :rank_deficient_at_limit : :no_valid_candidates) : :success
+    notes = copy(problem.notes)
+    if !isnothing(experiment_groups)
+        push!(notes, "Candidate generation used bounded condition groups with joint numerical rank selection; no structural-identifiability certificate was computed.")
+        push!(notes, "Absent conditions' unestimated initial-only and kinetic parameters retain x0 until full PEtab refinement.")
+    end
     return (; status,
         parameter_ids=problem.parameter_ids, x0=start, candidates=scored, rejected,
         raw_candidate_count=length(raw), unscored_candidate_count, refined, polish_error, algebraic_seconds, scoring_seconds,
-        polish_seconds, total_seconds=time() - started, notes=copy(problem.notes))
+        polish_seconds, total_seconds=time() - started, construction, notes)
 end

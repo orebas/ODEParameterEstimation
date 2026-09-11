@@ -6,7 +6,7 @@ using ODEParameterEstimation, PEtab, Fides, JSON, Random, TOML, OrdinaryDiffEq, 
 
 length(ARGS) == 4 || error("usage: run.jl MODEL METHOD MODEL_ROOT OUTPUT_PREFIX")
 name, method, root, prefix = ARGS
-method in ("odepe", "petab_julia") || error("Unknown Julia method: $method")
+method in ("odepe", "odepe_blocks2", "odepe_blocks4", "odepe_blocks6", "petab_julia") || error("Unknown Julia method: $method")
 config = TOML.parsefile(joinpath(@__DIR__, "targets.toml"))
 Random.seed!(config["seed"])
 started = time()
@@ -52,7 +52,7 @@ try
     path = joinpath(root, name, "$name.yaml")
     isfile(path) || (path = joinpath(root, name, "problem.yaml"))
     ode_options = name in config["julia_bdf_models"] ? (; odesolver=ODESolver(PEtab.QNDF())) : (;)
-    if method == "odepe"
+    if startswith(method, "odepe")
         adapter = load_petab_problem(path; ode_options=ode_options)
         prob = adapter.petab
     else
@@ -114,17 +114,33 @@ try
         return calibrate(p, named_start, Fides.BFGS();
             options=Fides.FidesOptions(; maxtime=Float64(seconds), maxiter=10000, verbose="warning"))
     end
-    if method == "odepe"
+    if startswith(method, "odepe")
         options = EstimationOptions(interpolators=[InterpolatorAGPRobust, InterpolatorAGPRobustRQ],
             shooting_points=6, multipoint_max_pairs=6, nooutput=true, diagnostics=false,
             save_system=false, compute_uncertainty=false)
         checkpoint = partial -> begin
             record["result"] = partial
-            record["status"] = "algebraic_complete"
+            record["status"] = hasproperty(partial, :construction_progress) ? "prepared" : "algebraic_complete"
+            write_result(record)
+            hasproperty(partial, :construction_progress) && println("BLOCK_PROGRESS ", partial.construction_progress)
+            flush(stdout)
+        end
+        block_options = (;)
+        if startswith(method, "odepe_blocks")
+            group_size = parse(Int, replace(method, "odepe_blocks"=>""))
+            conditions = collect(keys(adapter.condition_states))
+            group_size <= length(conditions) || error("Model has fewer than $group_size experiments")
+            group = conditions[1:group_size]
+            record["experiment_construction"] = (; groups=[group], max_derivative_order=4,
+                selection="first conditions in canonical measurement-row order",
+                rank_selector="multipoint noise frontier; up to 8 bases; no mixed-volume ranking",
+                initial_only_projection="available group states only; other entries retain recorded x0",
+                refinement="all conditions and all estimated parameters in original PEtab objective")
+            block_options = (; experiment_groups=[group], max_derivative_order=4)
             write_result(record)
         end
         result = estimate_petab_problem(adapter; options=options, x0=x0,
-            polish=refine, checkpoint=checkpoint, max_seconds=remaining)
+            polish=refine, checkpoint=checkpoint, max_seconds=remaining, block_options...)
         record["result"] = result
         record["status"] = string(result.status)
     else

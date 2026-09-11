@@ -15,11 +15,11 @@ function _classify_polynomial_variables(var_names::Vector{String}, pep::Paramete
 
     # Build lookup sets
     param_bases = Set{String}()
-    for p in keys(pep.p_true)
+    for p in pep.model.original_parameters
         push!(param_bases, replace(string(p), "(t)" => ""))
     end
     state_bases = Set{String}()
-    for s in keys(pep.ic)
+    for s in pep.model.original_states
         push!(state_bases, replace(string(s), "(t)" => ""))
     end
     obs_bases = Set{String}()
