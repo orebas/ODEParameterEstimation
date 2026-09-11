@@ -1,0 +1,875 @@
+{
+  "benchmark_differences": [
+    "Current default nine-method interpolator pool and ordinary noise filtering",
+    "120 seconds per trajectory polish",
+    "Terminal direct optimization disabled",
+    "UQ disabled",
+    "Phase timing enabled"
+  ],
+  "best_of_branch_parameter_error": 7.063928566665392e-11,
+  "data_sha256": "e31f95bd84a68d35c7392c4cf18670157947e3cc27f33d942fe478db95ea7456",
+  "data_vs_generating_trajectory_relative_rms": [
+    5.728088039003783e-14
+  ],
+  "effective_interpolators": [
+    "InterpolatorAGPRobust",
+    "InterpolatorAGPRobustRQ",
+    "InterpolatorS3AdaptSE",
+    "InterpolatorS3AdaptRQ",
+    "InterpolatorChebyshevBIC",
+    "InterpolatorChebyshevAICc",
+    "InterpolatorAAADGPR",
+    "InterpolatorAAAD",
+    "InterpolatorS2AAAMLE"
+  ],
+  "elapsed_seconds": 518.5639290809631,
+  "equations": [
+    "Differential(t, 1)(VV(t)) ~ (R(t) + VV(t) - (1//3)*(VV(t)^3))*g",
+    "Differential(t, 1)(R(t)) ~ (VV(t) - a + R(t)*b) / g"
+  ],
+  "estimation_seconds": 485.20174193382263,
+  "estimation_started_unix": 1789163322.093765,
+  "harness_sha256": "63ffb8a8649524f89d13274930de2d3f46b218f4c65c7229ece43c7952c4d570",
+  "julia_version": "1.13.0",
+  "manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "model": "fitzhugh_nagumo",
+  "model_sha256": "1762b5573aea0bf992f02f084c70d602311a1f626c2ef8090dff22b989f79172",
+  "nominal_data_noise": 0.0,
+  "observations": [
+    "y1(t) ~ VV(t)"
+  ],
+  "pid": 3790545,
+  "profile_ready": true,
+  "ranked_count": 1,
+  "samples_per_observable": 1001,
+  "seed": 20260911,
+  "selected_fit_error": 1.871163083141124e-23,
+  "selected_parameter_error": 7.063928566665392e-11,
+  "status": "complete",
+  "time_interval": [
+    -1.0,
+    1.0
+  ],
+  "generating_initial_states": {
+    "R(t)": 0.461,
+    "VV(t)": 0.896
+  },
+  "generating_parameters": {
+    "a": 0.66,
+    "b": 0.874,
+    "g": 0.701
+  },
+  "options": {
+    "abstol": 1e-12,
+    "algebraic_multiplicity": "nothing",
+    "auto_filter_interpolators": true,
+    "auto_handle_transcendentals": true,
+    "auto_rescale": true,
+    "backsolve_recovery": "algebraic_resolve",
+    "branch_cluster_eps": 0.001,
+    "branch_completion": true,
+    "branch_completion_max_anchors": 1,
+    "branch_completion_residual_tol": 1e-06,
+    "branch_detection": true,
+    "branch_diversity_eps": 0.01,
+    "branch_diversity_selection": true,
+    "branch_err_factor": 100.0,
+    "branch_top_k": 20,
+    "cluster_method": "identifiable_subspace",
+    "clustering_threshold": 1e-05,
+    "compute_uncertainty": false,
+    "construction_beam_width": 16,
+    "construction_candidate_limit": 64,
+    "construction_compute_mixed_volume": true,
+    "custom_interpolator": "nothing",
+    "custom_interpolators": [],
+    "datasize": 1001,
+    "debug_cas_diagnostics": false,
+    "debug_dimensional_analysis": false,
+    "debug_solver": false,
+    "diagnostics": true,
+    "dump_polished_path": "nothing",
+    "dump_raw_candidates_path": "nothing",
+    "flow": "FlowStandard",
+    "gamma_max_seeds": 5,
+    "gamma_seed": 0,
+    "gp_derivative_lengthscale_factor": 1.0,
+    "gp_s3_refinement": false,
+    "hc_compile_mode": "all",
+    "hc_real_tol": 1e-09,
+    "hc_show_progress": true,
+    "hc_threading": true,
+    "heartbeat": true,
+    "homotopy_tracking_mode": "generic_start",
+    "interpolator": "InterpolatorAAADGPR",
+    "interpolators": [
+      "InterpolatorAGPRobust",
+      "InterpolatorAGPRobustRQ",
+      "InterpolatorS3AdaptSE",
+      "InterpolatorS3AdaptRQ",
+      "InterpolatorChebyshevBIC",
+      "InterpolatorChebyshevAICc",
+      "InterpolatorAAADGPR",
+      "InterpolatorAAAD",
+      "InterpolatorS2AAAMLE"
+    ],
+    "multipoint_max_pairs": 15,
+    "multipoint_n_points": 2,
+    "multipoint_pair_strategy": "spread",
+    "noise_level": 0.0,
+    "noise_model": "additive",
+    "nooutput": false,
+    "ode_solver": "OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}}((OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03)), OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}(OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03), 10, 3, 9//10, 9//10, 2, false, 5))",
+    "opt_ad_backend": "forward",
+    "opt_lb": [
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05
+    ],
+    "opt_maxiters": 200000,
+    "opt_ub": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "point_hint": 0.5,
+    "polish_coordinate_policy": "auto",
+    "polish_divergence_factor": 10.0,
+    "polish_lso_delta": 10.0,
+    "polish_lso_f_tol": -1.0,
+    "polish_lso_g_tol": -1.0,
+    "polish_lso_x_tol": -1.0,
+    "polish_max_concurrency": 1,
+    "polish_maxiters": 5000,
+    "polish_maxtime": 120.0,
+    "polish_method": "PolishLSOBoundedLog",
+    "polish_ode_maxiters": 20000,
+    "polish_regularization_lambda": 0.0,
+    "polish_softwall_epsilon": 0.1,
+    "polish_softwall_lambda": 0.01,
+    "polish_solutions": true,
+    "polish_solver_solutions": true,
+    "polish_stagnation_window": 50,
+    "profile_phases": true,
+    "rank_strategy": "err_only",
+    "reltol": 1e-12,
+    "rough_cluster_eps": 1.0,
+    "s3_adapt_k": 10.0,
+    "save_filepath": "",
+    "save_system": true,
+    "sensitivity_seed_eigenvalue_threshold": 0.01,
+    "sensitivity_seed_mahalanobis_threshold": -1.0,
+    "sensitivity_seed_probe_scale": 1.0,
+    "sensitivity_sigma_d_kappa": 2.0,
+    "shade_global_eval_fraction": 0.7,
+    "shade_n_local_starts": 5,
+    "shade_population": 0,
+    "shade_seed": "nothing",
+    "shade_total_max_evals": 200000,
+    "shade_total_max_time": 600.0,
+    "shooting_points": 20,
+    "shooting_warp": true,
+    "shooting_warp_beta": 3.0,
+    "si_placeholder_fail_categories": [],
+    "si_probability": 0.99,
+    "subspace_cluster_eps": 0.05,
+    "synthesize_aggregate_candidates": true,
+    "system_construction_policy": "noise_frontier",
+    "system_solver": "SolverHC",
+    "t0_state_completion": "strict",
+    "terminal_fallback": "none",
+    "time_interval": [
+      -0.5,
+      0.5
+    ],
+    "uneven_sampling": false,
+    "uneven_sampling_times": [],
+    "uq_failure_policy": "return_failed",
+    "uq_noise_source": "learned_gp_homoscedastic",
+    "use_column_scaling": true,
+    "use_multipoint": true,
+    "use_parameter_homotopy": true,
+    "use_sensitivity_seeds": false,
+    "use_si_template": true
+  },
+  "ranked_results": [
+    {
+      "all_unidentifiable": [],
+      "fit_error": 1.871163083141124e-23,
+      "max_relative_parameter_error": 7.063928566665392e-11,
+      "report_time": -1.0,
+      "source_anchor_time": -1.0,
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          15
+        ],
+        "interpolator_source": "aaad",
+        "multipoint_combo_index": "nothing",
+        "multipoint_time_indices": "nothing",
+        "notes": [
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(1 => 4), Set{Num}(), Symbol[], nothing)",
+        "polish_applied": true,
+        "polish_source_hc_idx": 518,
+        "post_polish_error": 1.871163083141124e-23,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": 2.7145818642328802e-21,
+        "primary_method": "algebraic",
+        "rescue_path": "none",
+        "source_candidate_index": 519,
+        "source_shooting_index": 426,
+        "source_type": "single_point",
+        "template_status": "determined",
+        "representative_assignments": {},
+        "structural_fix_set": {}
+      },
+      "recovery": {
+        "R(t)": {
+          "absolute_error": 5.6418369975830274e-11,
+          "estimate": 0.46099999994358165,
+          "relative_error": 1.2238258129247347e-10,
+          "structurally_unidentifiable": false,
+          "truth": 0.461
+        },
+        "VV(t)": {
+          "absolute_error": 1.6888712650597881e-12,
+          "estimate": 0.8960000000016889,
+          "relative_error": 1.8849009654685137e-12,
+          "structurally_unidentifiable": false,
+          "truth": 0.896
+        },
+        "a": {
+          "absolute_error": 4.6621928539991586e-11,
+          "estimate": 0.6599999999533781,
+          "relative_error": 7.063928566665392e-11,
+          "structurally_unidentifiable": false,
+          "truth": 0.66
+        },
+        "b": {
+          "absolute_error": 4.612121795588564e-11,
+          "estimate": 0.8740000000461212,
+          "relative_error": 5.277027226073872e-11,
+          "structurally_unidentifiable": false,
+          "truth": 0.874
+        },
+        "g": {
+          "absolute_error": 2.5606405884559535e-11,
+          "estimate": 0.7010000000256064,
+          "relative_error": 3.6528396411639853e-11,
+          "structurally_unidentifiable": false,
+          "truth": 0.701
+        }
+      }
+    }
+  ],
+  "timing": {
+    "label": "optimized_multishot",
+    "total_seconds": 400.707948298,
+    "details": {
+      "mp_generic_start_cache_hits": 8,
+      "mp_generic_start_cache_misses": 1,
+      "n_interpolators": 9,
+      "n_shooting_points": 20,
+      "noise_frontier_mp_cache_hits": 8,
+      "noise_frontier_mp_cache_misses": 1,
+      "noise_frontier_sp_cache_hits": 8,
+      "noise_frontier_sp_cache_misses": 1,
+      "reusable_system_cache_entries": 315,
+      "sp_generic_start_cache_hits": 8,
+      "sp_generic_start_cache_misses": 1,
+      "used_multipoint": true,
+      "used_parameter_homotopy": true,
+      "detailed_timing_summary": {
+        "multipoint_combo_eval": {
+          "count": 135,
+          "max_seconds": 1.4417569637298584,
+          "total_seconds": 1.5715312957763672,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "evaluate_template": 0.401519775390625,
+            "noise_frontier_validation": 0.5735969543457031
+          }
+        },
+        "multipoint_template_evaluate": {
+          "count": 135,
+          "max_seconds": 0.017713069915771484,
+          "total_seconds": 0.10155844688415527,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "nth_deriv": 0.0769040584564209,
+            "observable_name_map": 0.0025708675384521484,
+            "other": 0.003171682357788086,
+            "parse_and_lookup": 0.0003914833068847656,
+            "transcendental_lookup": 0.018520355224609375
+          }
+        },
+        "noise_frontier_validation": {
+          "count": 315,
+          "max_seconds": 0.749086856842041,
+          "total_seconds": 1.3459224700927734,
+          "context_counts": {
+            "unspecified": 315
+          },
+          "stage_seconds": {
+            "cached_validation": 0.00012230873107910156,
+            "prepare_validation_cache": 1.3452496528625488,
+            "reuse_data_independent_rank": 0.0
+          }
+        },
+        "noise_rank_matrix": {
+          "count": 2,
+          "max_seconds": 0.9763989448547363,
+          "total_seconds": 1.5255229473114014,
+          "context_counts": {
+            "unspecified": 2
+          },
+          "stage_seconds": {
+            "compile_system_function": 0.026124954223632812,
+            "forwarddiff_jacobian": 0.9967479705810547,
+            "rank_eval": 0.5008296966552734
+          }
+        },
+        "polish_batch": {
+          "count": 1,
+          "max_seconds": 35.31575298309326,
+          "total_seconds": 35.31575298309326,
+          "context_counts": {
+            "polish": 1
+          },
+          "stage_seconds": {
+            "cluster_metadata": 0.10873603820800781,
+            "collect_results": 2.5987625122070312e-05,
+            "worker_polish": 35.06779098510742
+          }
+        },
+        "polish_context_build": {
+          "count": 2,
+          "max_seconds": 0.45218396186828613,
+          "total_seconds": 0.47057294845581055,
+          "context_counts": {
+            "polish": 1,
+            "synthesis": 1
+          },
+          "stage_seconds": {
+            "base_ode_problem": 0.016022920608520508,
+            "build_observable_functions": 0.09690594673156738,
+            "complete_model": 0.011658191680908203,
+            "materialize_data_targets": 1.0251998901367188e-05,
+            "optimization_function": 0.00012183189392089844
+          }
+        },
+        "polish_single_residual": {
+          "count": 1,
+          "max_seconds": 33.38981509208679,
+          "total_seconds": 33.38981509208679,
+          "context_counts": {
+            "polish": 1
+          },
+          "stage_seconds": {
+            "final_ode_solve": 0.02390599250793457,
+            "final_residual": 0.0010340213775634766,
+            "initial_residual": 5.0436320304870605,
+            "optimizer_solve": 26.716035842895508
+          }
+        },
+        "process_raw_solution": {
+          "count": 631,
+          "max_seconds": 0.7992010116577148,
+          "total_seconds": 4.612553834915161,
+          "context_counts": {
+            "algebraic_resolve_candidate": 1,
+            "result_processing": 630
+          },
+          "stage_seconds": {
+            "error_eval": 1.3353543281555176,
+            "ode_problem_build": 2.748339891433716,
+            "ode_solve": 0.36239171028137207
+          }
+        },
+        "raw_solver_polish": {
+          "count": 180,
+          "max_seconds": 6.508242130279541,
+          "total_seconds": 196.58251094818115,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "instantiate_system": 0.21115803718566895,
+            "robust_polish_solve": 192.97423028945923
+          }
+        },
+        "single_point_noise_frontier_validation": {
+          "count": 180,
+          "max_seconds": 0.9955649375915527,
+          "total_seconds": 1.0198924541473389,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "rank_validation": 1.0198924541473389
+          }
+        },
+        "single_point_param_eval": {
+          "count": 180,
+          "max_seconds": 6.793391942977905,
+          "total_seconds": 11.138788938522339,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "noise_frontier_data_vars": 11.066619873046875
+          }
+        },
+        "solve_with_robust": {
+          "count": 360,
+          "max_seconds": 4.173508882522583,
+          "total_seconds": 192.96780014038086,
+          "context_counts": {
+            "unspecified": 360
+          },
+          "stage_seconds": {
+            "build_residual_function": 0.31374192237854004,
+            "deduplicate_solutions": 0.0001323223114013672,
+            "final_residual": 0.02759552001953125,
+            "generate_starts": 8.392333984375e-05,
+            "initial_residual": 20.360960960388184,
+            "jacobian_setup": 0.0005087852478027344,
+            "materialize_solution_vectors": 0.028314828872680664,
+            "nonlinear_solve": 172.1788911819458
+          }
+        }
+      },
+      "interpolant_creation_seconds_by_source": {
+        "aaad": 0.001986980438232422,
+        "aaad_gpr": 5.348104953765869,
+        "agp_robust": 37.71476697921753,
+        "agp_robust_rq": 31.59549307823181,
+        "chebyshev_aicc": 2.3652758598327637,
+        "chebyshev_bic": 0.9878020286560059,
+        "s2_aaa_mle": 0.03841900825500488,
+        "s3_adapt_rq": 0.694868803024292,
+        "s3_adapt_se": 3.9222261905670166
+      },
+      "multipoint_eval_seconds_by_source": {
+        "aaad": 0.003570079803466797,
+        "aaad_gpr": 0.051702022552490234,
+        "agp_robust": 1.4563889503479004,
+        "agp_robust_rq": 0.02985095977783203,
+        "chebyshev_aicc": 0.006320953369140625,
+        "chebyshev_bic": 0.0049321651458740234,
+        "s2_aaa_mle": 0.004476785659790039,
+        "s3_adapt_rq": 0.010922908782958984,
+        "s3_adapt_se": 0.0041980743408203125
+      },
+      "multipoint_generic_start_seconds_by_source": {
+        "agp_robust": 9.527393817901611
+      },
+      "multipoint_solve_seconds_by_source": {
+        "aaad": 0.08331108093261719,
+        "aaad_gpr": 1.713076114654541,
+        "agp_robust": 8.604921102523804,
+        "agp_robust_rq": 1.7573010921478271,
+        "chebyshev_aicc": 0.1075899600982666,
+        "chebyshev_bic": 0.11027789115905762,
+        "s2_aaa_mle": 0.10621309280395508,
+        "s3_adapt_rq": 0.12897491455078125,
+        "s3_adapt_se": 0.08397388458251953
+      },
+      "multipoint_template_eval_seconds_by_source": {
+        "aaad": 0.0005977153778076172,
+        "aaad_gpr": 0.04484152793884277,
+        "agp_robust": 0.3279111385345459,
+        "agp_robust_rq": 0.023881912231445312,
+        "chebyshev_aicc": 0.001024484634399414,
+        "chebyshev_bic": 0.0009138584136962891,
+        "s2_aaa_mle": 0.0007255077362060547,
+        "s3_adapt_rq": 0.0008594989776611328,
+        "s3_adapt_se": 0.0007641315460205078
+      },
+      "multipoint_template_seconds_by_source": {
+        "aaad": 6.9141387939453125e-06,
+        "aaad_gpr": 4.291534423828125e-05,
+        "agp_robust": 1.4763200283050537,
+        "agp_robust_rq": 0.007127046585083008,
+        "chebyshev_aicc": 1.2159347534179688e-05,
+        "chebyshev_bic": 1.5974044799804688e-05,
+        "s2_aaa_mle": 1.0967254638671875e-05,
+        "s3_adapt_rq": 1.1205673217773438e-05,
+        "s3_adapt_se": 1.3113021850585938e-05
+      },
+      "multipoint_validation_seconds_by_source": {
+        "aaad": 0.0027244091033935547,
+        "aaad_gpr": 0.005136966705322266,
+        "agp_robust": 0.5421581268310547,
+        "agp_robust_rq": 0.005265712738037109,
+        "chebyshev_aicc": 0.004687786102294922,
+        "chebyshev_bic": 0.003612041473388672,
+        "s2_aaa_mle": 0.003467082977294922,
+        "s3_adapt_rq": 0.003381013870239258,
+        "s3_adapt_se": 0.0031638145446777344
+      },
+      "raw_solver_polish_instantiate_seconds_by_source": {
+        "aaad": 0.007252931594848633,
+        "aaad_gpr": 0.0980062484741211,
+        "agp_robust": 0.021669864654541016,
+        "agp_robust_rq": 0.04673647880554199,
+        "chebyshev_aicc": 0.008977890014648438,
+        "chebyshev_bic": 0.007397890090942383,
+        "s2_aaa_mle": 0.006512165069580078,
+        "s3_adapt_rq": 0.006685733795166016,
+        "s3_adapt_se": 0.007918834686279297
+      },
+      "raw_solver_polish_solve_seconds_by_source": {
+        "aaad": 23.345686197280884,
+        "aaad_gpr": 27.99722123146057,
+        "agp_robust": 22.805021047592163,
+        "agp_robust_rq": 27.562134504318237,
+        "chebyshev_aicc": 1.1093368530273438,
+        "chebyshev_bic": 22.47180414199829,
+        "s2_aaa_mle": 22.403337478637695,
+        "s3_adapt_rq": 22.760430335998535,
+        "s3_adapt_se": 22.519258499145508
+      },
+      "resolve_states_with_fixed_params_summary": {
+        "backsolve_recovery": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.0,
+          "count": 1,
+          "hc_solve_seconds": 7.496381044387817,
+          "hc_success_count": 1,
+          "instantiate_seconds": 1.2409138679504395,
+          "max_seconds": 10.199388980865479,
+          "sian_rerun_seconds": 1.2557520866394043,
+          "threw_count": 0,
+          "total_seconds": 10.199388980865479
+        },
+        "synthesis": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.0,
+          "count": 20,
+          "hc_solve_seconds": 0.05820202827453613,
+          "hc_success_count": 20,
+          "instantiate_seconds": 0.015612602233886719,
+          "max_seconds": 0.01843714714050293,
+          "sian_rerun_seconds": 0.18488526344299316,
+          "threw_count": 0,
+          "total_seconds": 0.27244067192077637
+        }
+      },
+      "si_template_algebraic_multiplicity_timing": {
+        "groebner_seconds": 5.998000712,
+        "multiplicity": 1,
+        "polynomial_count": 16,
+        "quotient_basis_seconds": 0.731382193,
+        "ring_variable_count": 15,
+        "setup_seconds": 0.000585321,
+        "skipped": false
+      },
+      "si_template_equation_builder_timing": {
+        "assess_identifiability": 0.024860858917236328,
+        "convert_to_si_ode": 0.0008449554443359375,
+        "ensure_dd_support": 0.004876136779785156,
+        "extract_unidentifiable": 5.9604644775390625e-06,
+        "find_identifiable_functions": 0.01077413558959961,
+        "get_polynomial_system_from_sian": 6.738315105438232,
+        "nemo_to_symbolics_conversion": 0.002156972885131836,
+        "prefixed_substitutions": 9.5367431640625e-07,
+        "variable_role_mapping": 0.0018091201782226562
+      },
+      "si_template_sian_timing": {
+        "algebraic_independence": 0.001432180404663086,
+        "degree_bound": 7.486343383789062e-05,
+        "derivative_mapping": 5.91278076171875e-05,
+        "evaluate_Et_base": 0.00020003318786621094,
+        "get_equations": 0.000286629,
+        "get_x_y_eq": 0.0007259845733642578,
+        "local_identifiability_jacobians": 0.001967906951904297,
+        "rank_construction": 0.0014088153839111328,
+        "reduce_system": 0.0001049041748046875,
+        "sample_point": 0.00026798248291015625,
+        "variable_filtering": 0.00018906593322753906,
+        "variable_setup": 5.9604644775390625e-06
+      },
+      "single_point_data_eval_seconds_by_source": {
+        "aaad": 0.018375873565673828,
+        "aaad_gpr": 6.833421945571899,
+        "agp_robust": 2.715632915496826,
+        "agp_robust_rq": 1.1716461181640625,
+        "chebyshev_aicc": 0.0005939006805419922,
+        "chebyshev_bic": 0.17516708374023438,
+        "s2_aaa_mle": 0.0005321502685546875,
+        "s3_adapt_rq": 0.0005450248718261719,
+        "s3_adapt_se": 0.22460508346557617
+      },
+      "single_point_frontier_seconds_by_source": {
+        "aaad": 3.0994415283203125e-06,
+        "aaad_gpr": 4.0531158447265625e-06,
+        "agp_robust": 1.2592260837554932,
+        "agp_robust_rq": 7.867813110351562e-06,
+        "chebyshev_aicc": 3.814697265625e-06,
+        "chebyshev_bic": 2.86102294921875e-06,
+        "s2_aaa_mle": 3.0994415283203125e-06,
+        "s3_adapt_rq": 4.0531158447265625e-06,
+        "s3_adapt_se": 3.0994415283203125e-06
+      },
+      "single_point_generic_start_seconds_by_source": {
+        "agp_robust": 13.152265071868896
+      },
+      "single_point_hc_seconds_by_source": {
+        "aaad": 5.018288850784302,
+        "aaad_gpr": 4.636251211166382,
+        "agp_robust": 14.83309292793274,
+        "agp_robust_rq": 4.948243141174316,
+        "chebyshev_aicc": 0.03960394859313965,
+        "chebyshev_bic": 4.389718055725098,
+        "s2_aaa_mle": 4.843721866607666,
+        "s3_adapt_rq": 4.601189136505127,
+        "s3_adapt_se": 4.353330850601196
+      },
+      "single_point_system_seconds_by_source": {},
+      "single_point_validation_seconds_by_source": {
+        "aaad": 0.0037164688110351562,
+        "aaad_gpr": 0.0024061203002929688,
+        "agp_robust": 0.9989838600158691,
+        "agp_robust_rq": 0.002293825149536133,
+        "chebyshev_aicc": 0.001974344253540039,
+        "chebyshev_bic": 0.0044193267822265625,
+        "s2_aaa_mle": 0.0017840862274169922,
+        "s3_adapt_rq": 0.0021238327026367188,
+        "s3_adapt_se": 0.0021905899047851562
+      }
+    },
+    "phases": [
+      {
+        "bytes": 106640008,
+        "gctime": 0.016560591,
+        "name": "Setup (identifiability)",
+        "seconds": 0.934606176
+      },
+      {
+        "bytes": 786629928,
+        "gctime": 0.169478156,
+        "name": "SI Template (SIAN analysis)",
+        "seconds": 9.997111333
+      },
+      {
+        "bytes": 24283588864,
+        "gctime": 11.91646564,
+        "name": "Equation construction + Solving",
+        "seconds": 335.663877311
+      },
+      {
+        "bytes": 1454578016,
+        "gctime": 0.602819022,
+        "name": "Result processing",
+        "seconds": 8.083431605
+      },
+      {
+        "bytes": 505125192,
+        "gctime": 0.123277595,
+        "name": "Synthesize aggregates",
+        "seconds": 10.665126971
+      },
+      {
+        "bytes": 3463996320,
+        "gctime": 2.339674357,
+        "name": "Polish (BFGS)",
+        "seconds": 35.148244247
+      },
+      {
+        "bytes": 3759912,
+        "gctime": 0.0,
+        "name": "Branch completion",
+        "seconds": 0.215550655
+      }
+    ]
+  },
+  "versions": {
+    "GaussianProcesses": "0.12.6",
+    "HomotopyContinuation": "2.22.4",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "preclustering_candidate_count": 711,
+  "retained_evidence": {
+    "worker_output": "/tmp/odepe-deferred-fhn",
+    "source_files": {
+      "result.toml": {
+        "bytes": 1653324,
+        "sha256": "85d37ca50b1cde03c256ee9eb107373c19a9b1920816eec355ad2e14777084be"
+      },
+      "supervisor.json": {
+        "bytes": 541,
+        "sha256": "c85fd6eac9d693deb22f7ddba175f5ad50cd7a51395414d50b7221728f59e840"
+      },
+      "worker.log": {
+        "bytes": 568051,
+        "sha256": "e47cd3b842a727894448af6198994f007aa5ebd0b8bce411086397918ef1f158"
+      },
+      "detailed_timing.toml": {
+        "bytes": 1130568,
+        "sha256": "73137bf08f2996bf71c743393c213f40bae3b6088998c9c74de8f5a2fb1fa280"
+      },
+      "resolve_timing.toml": {
+        "bytes": 11235,
+        "sha256": "b79837640f361b6b28f875c34db42436e718019c701feee85badf0bcdd2d88dd"
+      }
+    },
+    "omitted_fields": [
+      "timing.details.detailed_timing_records (2122 records)",
+      "timing.details.resolve_states_with_fixed_params_records (21 records)",
+      "ranked_results[0].provenance.estimator_identity"
+    ],
+    "renamed_fields": {
+      "raw_count": "preclustering_candidate_count"
+    }
+  },
+  "supervisor": {
+    "command": [
+      "julia",
+      "--startup-file=no",
+      "--compiled-modules=existing",
+      "/home/orebas/.julia/dev/ODEParameterEstimation/repro/deferred_denominators_2026_09_11/run_rational.jl",
+      "fitzhugh_nagumo",
+      "/tmp/odepe-deferred-fhn"
+    ],
+    "stage_seconds_cap": 3600.0,
+    "preparation_seconds_cap": 900,
+    "profile_signals": [
+      1789163396.7563105,
+      1789163525.641031,
+      1789163652.2753365,
+      1789163780.664871
+    ],
+    "pid": 3790545,
+    "returncode": 0,
+    "wall_seconds": 514.414222619991,
+    "status": "complete"
+  },
+  "progress_log": [
+    "[HB 17:48:44] \u25b6 run model=fitzhugh_nagumo_rescaled pid=3790545 julia=1.13.0 odepe=1.1.0-DEV hc=2.22.4 threads=1 gcthreads=1",
+    "[HB 17:49:00] \u25b6 Setup (identifiability)",
+    "[HB 17:49:01] \u2713 Setup (identifiability) (0.9s)",
+    "[HB 17:49:21] \u25b6 SI Template (SIAN analysis)",
+    "[HB 17:49:31] \u2713 SI Template (SIAN analysis) (10.0s)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 6.0s, quotient_basis 0.73s, ring: 15 vars \u00d7 16 polys)",
+    "[HB 17:49:32] \u25b6 Equation construction + Solving",
+    "[HB 17:49:32] \u25b6 interpolator 1/9 agp_robust",
+    "[HB 17:50:23] \u2713 HC solve (single-point) agp_robust 20 pts (14.8s)",
+    "[HB 17:51:10] \u2713 HC solve (multipoint) agp_robust (8.6s)",
+    "[HB 17:51:10] \u25b6 interpolator 2/9 agp_robust_rq",
+    "[HB 17:51:48] \u2713 HC solve (single-point) agp_robust_rq 20 pts (4.9s)",
+    "[HB 17:52:18] \u2713 HC solve (multipoint) agp_robust_rq (1.8s)",
+    "[HB 17:52:18] \u25b6 interpolator 3/9 s3_adapt_se",
+    "[HB 17:52:26] \u2713 HC solve (single-point) s3_adapt_se 20 pts (4.4s)",
+    "[HB 17:52:49] \u2713 HC solve (multipoint) s3_adapt_se (0.1s)",
+    "[HB 17:52:49] \u25b6 interpolator 4/9 s3_adapt_rq",
+    "[HB 17:52:54] \u2713 HC solve (single-point) s3_adapt_rq 20 pts (4.6s)",
+    "[HB 17:53:17] \u2713 HC solve (multipoint) s3_adapt_rq (0.1s)",
+    "[HB 17:53:17] \u25b6 interpolator 5/9 chebyshev_bic",
+    "[HB 17:53:22] \u2713 HC solve (single-point) chebyshev_bic 20 pts (4.4s)",
+    "[HB 17:53:45] \u2713 HC solve (multipoint) chebyshev_bic (0.1s)",
+    "[HB 17:53:45] \u25b6 interpolator 6/9 chebyshev_aicc",
+    "[HB 17:53:48] \u2713 HC solve (single-point) chebyshev_aicc 20 pts (0.0s)",
+    "[HB 17:53:49] \u2713 HC solve (multipoint) chebyshev_aicc (0.1s)",
+    "[HB 17:53:49] \u25b6 interpolator 7/9 aaad_gpr",
+    "[HB 17:54:06] \u2713 HC solve (single-point) aaad_gpr 20 pts (4.6s)",
+    "[HB 17:54:36] \u2713 HC solve (multipoint) aaad_gpr (1.7s)",
+    "[HB 17:54:36] \u25b6 interpolator 8/9 aaad",
+    "[HB 17:54:41] \u2713 HC solve (single-point) aaad 20 pts (5.0s)",
+    "[HB 17:55:04] \u2713 HC solve (multipoint) aaad (0.1s)",
+    "[HB 17:55:04] \u25b6 interpolator 9/9 s2_aaa_mle",
+    "[HB 17:55:09] \u2713 HC solve (single-point) s2_aaa_mle 20 pts (4.8s)",
+    "[HB 17:55:32] \u2713 HC solve (multipoint) s2_aaa_mle (0.1s)",
+    "[HB 17:55:32] \u2713 Equation construction + Solving (335.7s)",
+    "[HB 17:55:32] \u25b6 Result processing",
+    "[HB 17:55:40] \u2713 Result processing (8.1s)",
+    "[HB 17:55:40] \u25b6 Backsolve algebraic re-solve (1/630 blown)",
+    "Detected 1/630 blown backsolves, attempting algebraic re-solve at t=0",
+    "[HB 17:55:54] \u25b6 Synthesize aggregates",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[HB 17:56:06] \u2713 Synthesize aggregates (10.7s)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 6 vars \u00d7 7 polys)",
+    "[HB 17:56:06] \u25b6 Polish (BFGS)",
+    "[HB 17:56:43] \u2713 Polish (BFGS) (35.1s)",
+    "[HB 17:56:43] \u25b6 Branch completion",
+    "[HB 17:56:44] \u2713 Branch completion (0.2s)",
+    "[HB 17:56:45] \u25b6 Clustering + analysis",
+    "[HB 17:56:47] \u2713 Clustering + analysis",
+    "[HB 17:56:47] \u2713 run",
+    "FINISHED fitzhugh_nagumo complete"
+  ]
+}

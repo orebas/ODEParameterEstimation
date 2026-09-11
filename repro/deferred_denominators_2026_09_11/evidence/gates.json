@@ -1,0 +1,67 @@
+{
+  "julia_version": "1.13.0",
+  "dependency_resolution": "Pkg.test allow_reresolve=false; existing PEtab pilot environment",
+  "checks": [
+    {
+      "name": "derivative_contracts",
+      "command": "julia --startup-file=no test/current.jl test_deferred_derivatives.jl",
+      "status": "passed",
+      "passed": 22,
+      "failed": 0,
+      "errored": 0,
+      "test_seconds": 6.7,
+      "log": "/tmp/odepe-deferred-derivatives-tests.log",
+      "log_sha256": "160ea2419392929acca2c1d83dc79a7c7875100c5b220375c3caac102c031ef2"
+    },
+    {
+      "name": "unit",
+      "command": "julia --startup-file=no test/current.jl unit",
+      "status": "passed",
+      "passed": 412,
+      "failed": 0,
+      "errored": 0,
+      "test_seconds": 27.6,
+      "log": "/tmp/odepe-deferred-unit-tests.log",
+      "log_sha256": "1d03c16471f9db346e38d4f4fe625acdc06400561062ea41c769db6690eb36ba"
+    },
+    {
+      "name": "full",
+      "command": "julia --startup-file=no test/current.jl",
+      "status": "passed",
+      "passed": 1839,
+      "failed": 0,
+      "errored": 0,
+      "test_seconds": 1244.7,
+      "log": "/tmp/odepe-deferred-full-tests.log",
+      "log_sha256": "4df59d56bc87de0b44291fbdab0ee4f0c5d38e0cf4b148386e3fd8518916d144"
+    },
+    {
+      "name": "petab",
+      "command": "julia --startup-file=no --compiled-modules=existing repro/petab/test.jl",
+      "status": "passed",
+      "passed": 128,
+      "failed": 0,
+      "errored": 0,
+      "test_seconds": null,
+      "log": "/tmp/odepe-deferred-petab-tests.log",
+      "log_sha256": "3a80dbbe5323e0b271bf399f8ff802685ea06a4ca9c776dc261bb040d6ae56e7"
+    },
+    {
+      "name": "benchmark_smoke",
+      "command": "julia --startup-file=no test/current.jl benchmark",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "errored": 0,
+      "test_seconds": 1863.7,
+      "log": "/tmp/odepe-deferred-benchmark-smoke.log",
+      "log_sha256": "a51f4659e349fba00ecd2216371af2eeeb2c66aef26b000f3f639a201f162dec",
+      "best_of_branch_parameter_errors": [
+        5.62862445790957e-05,
+        6.350909659280646e-09,
+        1.0168680712278426e-10,
+        2.4963073830264193e-09
+      ]
+    }
+  ]
+}

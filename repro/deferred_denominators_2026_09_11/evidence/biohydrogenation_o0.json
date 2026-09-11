@@ -1,0 +1,1276 @@
+{
+  "benchmark_differences": [
+    "Current default nine-method interpolator pool and ordinary noise filtering",
+    "120 seconds per trajectory polish",
+    "Terminal direct optimization disabled",
+    "UQ disabled",
+    "Phase timing enabled"
+  ],
+  "best_of_branch_parameter_error": 5.763542077853873,
+  "data_sha256": "6c8ab5a9e201f7356b50a8d34ca6a14a931e800e3c2e4e85c2fb9f880e555fc6",
+  "data_vs_generating_trajectory_relative_rms": [
+    1.016980227820411e-06,
+    9.679645175404284e-07
+  ],
+  "effective_interpolators": [
+    "InterpolatorAGPRobust",
+    "InterpolatorAGPRobustRQ",
+    "InterpolatorS3AdaptSE",
+    "InterpolatorS3AdaptRQ",
+    "InterpolatorChebyshevBIC",
+    "InterpolatorChebyshevAICc",
+    "InterpolatorAAADGPR",
+    "InterpolatorAAAD",
+    "InterpolatorS2AAAMLE"
+  ],
+  "elapsed_seconds": 3180.010368824005,
+  "equations": [
+    "Differential(t, 1)(x4(t)) ~ (-8.0k5*x4(t)) / (8.0(4.0k6 + 8.0x4(t)))",
+    "Differential(t, 1)(x5(t)) ~ ((8.0k5*x4(t)) / (4.0k6 + 8.0x4(t)) + (-0.3k7*x5(t)) / (2.0k8 + 0.5x5(t) + 0.5x6(t))) / 0.5",
+    "Differential(t, 1)(x6(t)) ~ ((0.3k7*x5(t)) / (2.0k8 + 0.5x5(t) + 0.5x6(t)) + (-0.2(10.0k10 - 0.5x6(t))*k9*x6(t)) / (10.0k10)) / 0.5",
+    "Differential(t, 1)(x7(t)) ~ (0.2(10.0k10 - 0.5x6(t))*k9*x6(t)) / (5.0k10)"
+  ],
+  "estimation_seconds": 3165.0264930725098,
+  "estimation_started_unix": 1789166039.781096,
+  "harness_sha256": "63ffb8a8649524f89d13274930de2d3f46b218f4c65c7229ece43c7952c4d570",
+  "julia_version": "1.13.0",
+  "manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "model": "biohydrogenation",
+  "model_sha256": "7d34acddbac54196c67194690166e82f648281ab520f9e82215dba153fed9a35",
+  "nominal_data_noise": 1e-06,
+  "observations": [
+    "y1(t) ~ 8.0x4(t)",
+    "y2(t) ~ 0.5x5(t)"
+  ],
+  "pid": 3977963,
+  "profile_ready": true,
+  "ranked_count": 2,
+  "samples_per_observable": 750,
+  "seed": 20260911,
+  "selected_fit_error": 9.375884602835178e-10,
+  "selected_parameter_error": 5.763542077853873,
+  "status": "complete",
+  "time_interval": [
+    0.0,
+    10.0
+  ],
+  "generating_initial_states": {
+    "x4(t)": 0.835,
+    "x5(t)": 0.341,
+    "x6(t)": 0.368,
+    "x7(t)": 0.401
+  },
+  "generating_parameters": {
+    "k10": 0.741,
+    "k5": 0.471,
+    "k6": 0.287,
+    "k7": 0.126,
+    "k8": 0.806,
+    "k9": 0.893
+  },
+  "options": {
+    "abstol": 1e-12,
+    "algebraic_multiplicity": "nothing",
+    "auto_filter_interpolators": true,
+    "auto_handle_transcendentals": true,
+    "auto_rescale": true,
+    "backsolve_recovery": "algebraic_resolve",
+    "branch_cluster_eps": 0.001,
+    "branch_completion": true,
+    "branch_completion_max_anchors": 1,
+    "branch_completion_residual_tol": 1e-06,
+    "branch_detection": true,
+    "branch_diversity_eps": 0.01,
+    "branch_diversity_selection": true,
+    "branch_err_factor": 100.0,
+    "branch_top_k": 20,
+    "cluster_method": "identifiable_subspace",
+    "clustering_threshold": 1e-05,
+    "compute_uncertainty": false,
+    "construction_beam_width": 16,
+    "construction_candidate_limit": 64,
+    "construction_compute_mixed_volume": true,
+    "custom_interpolator": "nothing",
+    "custom_interpolators": [],
+    "datasize": 750,
+    "debug_cas_diagnostics": false,
+    "debug_dimensional_analysis": false,
+    "debug_solver": false,
+    "diagnostics": true,
+    "dump_polished_path": "nothing",
+    "dump_raw_candidates_path": "nothing",
+    "flow": "FlowStandard",
+    "gamma_max_seeds": 5,
+    "gamma_seed": 0,
+    "gp_derivative_lengthscale_factor": 1.0,
+    "gp_s3_refinement": false,
+    "hc_compile_mode": "all",
+    "hc_real_tol": 1e-09,
+    "hc_show_progress": true,
+    "hc_threading": true,
+    "heartbeat": true,
+    "homotopy_tracking_mode": "generic_start",
+    "interpolator": "InterpolatorAAADGPR",
+    "interpolators": [
+      "InterpolatorAGPRobust",
+      "InterpolatorAGPRobustRQ",
+      "InterpolatorS3AdaptSE",
+      "InterpolatorS3AdaptRQ",
+      "InterpolatorChebyshevBIC",
+      "InterpolatorChebyshevAICc",
+      "InterpolatorAAADGPR",
+      "InterpolatorAAAD",
+      "InterpolatorS2AAAMLE"
+    ],
+    "multipoint_max_pairs": 15,
+    "multipoint_n_points": 2,
+    "multipoint_pair_strategy": "spread",
+    "noise_level": 0.0,
+    "noise_model": "additive",
+    "nooutput": false,
+    "ode_solver": "OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}}((OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03)), OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}(OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03), 10, 3, 9//10, 9//10, 2, false, 5))",
+    "opt_ad_backend": "forward",
+    "opt_lb": [
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05
+    ],
+    "opt_maxiters": 200000,
+    "opt_ub": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "point_hint": 0.5,
+    "polish_coordinate_policy": "auto",
+    "polish_divergence_factor": 10.0,
+    "polish_lso_delta": 10.0,
+    "polish_lso_f_tol": -1.0,
+    "polish_lso_g_tol": -1.0,
+    "polish_lso_x_tol": -1.0,
+    "polish_max_concurrency": 1,
+    "polish_maxiters": 5000,
+    "polish_maxtime": 120.0,
+    "polish_method": "PolishLSOBoundedLog",
+    "polish_ode_maxiters": 20000,
+    "polish_regularization_lambda": 0.0,
+    "polish_softwall_epsilon": 0.1,
+    "polish_softwall_lambda": 0.01,
+    "polish_solutions": true,
+    "polish_solver_solutions": true,
+    "polish_stagnation_window": 50,
+    "profile_phases": true,
+    "rank_strategy": "err_only",
+    "reltol": 1e-12,
+    "rough_cluster_eps": 1.0,
+    "s3_adapt_k": 10.0,
+    "save_filepath": "",
+    "save_system": true,
+    "sensitivity_seed_eigenvalue_threshold": 0.01,
+    "sensitivity_seed_mahalanobis_threshold": -1.0,
+    "sensitivity_seed_probe_scale": 1.0,
+    "sensitivity_sigma_d_kappa": 2.0,
+    "shade_global_eval_fraction": 0.7,
+    "shade_n_local_starts": 5,
+    "shade_population": 0,
+    "shade_seed": "nothing",
+    "shade_total_max_evals": 200000,
+    "shade_total_max_time": 600.0,
+    "shooting_points": 20,
+    "shooting_warp": true,
+    "shooting_warp_beta": 3.0,
+    "si_placeholder_fail_categories": [],
+    "si_probability": 0.99,
+    "subspace_cluster_eps": 0.05,
+    "synthesize_aggregate_candidates": true,
+    "system_construction_policy": "noise_frontier",
+    "system_solver": "SolverHC",
+    "t0_state_completion": "strict",
+    "terminal_fallback": "none",
+    "time_interval": [
+      -0.5,
+      0.5
+    ],
+    "uneven_sampling": false,
+    "uneven_sampling_times": [],
+    "uq_failure_policy": "return_failed",
+    "uq_noise_source": "learned_gp_homoscedastic",
+    "use_column_scaling": true,
+    "use_multipoint": true,
+    "use_parameter_homotopy": true,
+    "use_sensitivity_seeds": false,
+    "use_si_template": true
+  },
+  "ranked_results": [
+    {
+      "all_unidentifiable": [
+        "x7(t)"
+      ],
+      "fit_error": 9.375884602835178e-10,
+      "max_relative_parameter_error": 5.763542077853873,
+      "report_time": 0.0,
+      "source_anchor_time": 0.0,
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          26,
+          27,
+          28,
+          29
+        ],
+        "interpolator_source": "branch_completion",
+        "multipoint_combo_index": "nothing",
+        "multipoint_time_indices": "nothing",
+        "notes": [
+          "branch_completion",
+          "branch_completion_replaced",
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(2 => 5, 1 => 2), Set(Num[x7(t)]), [:rank_deficient_at_probe], nothing)",
+        "polish_applied": false,
+        "polish_source_hc_idx": "nothing",
+        "post_polish_error": 9.375884602835178e-10,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": "nothing",
+        "primary_method": "algebraic",
+        "rescue_path": "none",
+        "source_candidate_index": 2,
+        "source_shooting_index": 1,
+        "source_type": "branch_completed",
+        "template_status": "determined",
+        "representative_assignments": {},
+        "structural_fix_set": {
+          "x7(t)": 1.0
+        }
+      },
+      "recovery": {
+        "k10": {
+          "absolute_error": 4.2707846796897195,
+          "estimate": 5.011784679689719,
+          "relative_error": 5.763542077853873,
+          "structurally_unidentifiable": false,
+          "truth": 0.741
+        },
+        "k5": {
+          "absolute_error": 4.1277170997888746e-07,
+          "estimate": 0.47099958722829,
+          "relative_error": 8.763730572800158e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.471
+        },
+        "k6": {
+          "absolute_error": 1.3294290009957521e-06,
+          "estimate": 0.286998670570999,
+          "relative_error": 4.632156797894607e-06,
+          "structurally_unidentifiable": false,
+          "truth": 0.287
+        },
+        "k7": {
+          "absolute_error": 3.24040841381823e-09,
+          "estimate": 0.1259999967595916,
+          "relative_error": 2.5717527093795476e-08,
+          "structurally_unidentifiable": false,
+          "truth": 0.126
+        },
+        "k8": {
+          "absolute_error": 0.0006179402016608382,
+          "estimate": 0.8053820597983392,
+          "relative_error": 0.0007666751881648116,
+          "structurally_unidentifiable": false,
+          "truth": 0.806
+        },
+        "k9": {
+          "absolute_error": 0.02112340361879117,
+          "estimate": 0.8718765963812088,
+          "relative_error": 0.023654427344670964,
+          "structurally_unidentifiable": false,
+          "truth": 0.893
+        },
+        "x4(t)": {
+          "absolute_error": 3.858226627073691e-09,
+          "estimate": 0.8349999961417733,
+          "relative_error": 4.620630691106217e-09,
+          "structurally_unidentifiable": false,
+          "truth": 0.835
+        },
+        "x5(t)": {
+          "absolute_error": 1.9385994237675064e-07,
+          "estimate": 0.34099980614005765,
+          "relative_error": 5.685042298438435e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.341
+        },
+        "x6(t)": {
+          "absolute_error": 0.0028232987312120095,
+          "estimate": 0.370823298731212,
+          "relative_error": 0.007672007421771765,
+          "structurally_unidentifiable": false,
+          "truth": 0.368
+        },
+        "x7(t)": {
+          "absolute_error": 3.599,
+          "estimate": 4.0,
+          "relative_error": 8.975062344139651,
+          "structurally_unidentifiable": true,
+          "truth": 0.401
+        }
+      }
+    },
+    {
+      "all_unidentifiable": [
+        "x7(t)"
+      ],
+      "fit_error": 0.008286504537219453,
+      "max_relative_parameter_error": 8.711808164067325,
+      "report_time": 0.0,
+      "source_anchor_time": 0.0,
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          26,
+          27,
+          28,
+          29
+        ],
+        "interpolator_source": "branch_completion",
+        "multipoint_combo_index": "nothing",
+        "multipoint_time_indices": "nothing",
+        "notes": [
+          "branch_completion",
+          "branch_completion_replaced",
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(2 => 5, 1 => 2), Set(Num[x7(t)]), [:rank_deficient_at_probe], nothing)",
+        "polish_applied": false,
+        "polish_source_hc_idx": "nothing",
+        "post_polish_error": 0.008286504537219453,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": "nothing",
+        "primary_method": "algebraic",
+        "rescue_path": "none",
+        "source_candidate_index": 1,
+        "source_shooting_index": 1,
+        "source_type": "branch_completed",
+        "template_status": "determined",
+        "representative_assignments": {},
+        "structural_fix_set": {
+          "x7(t)": 1.0
+        }
+      },
+      "recovery": {
+        "k10": {
+          "absolute_error": 2.108384741579321,
+          "estimate": 2.849384741579321,
+          "relative_error": 2.8453235378938206,
+          "structurally_unidentifiable": false,
+          "truth": 0.741
+        },
+        "k5": {
+          "absolute_error": 4.1277170997888746e-07,
+          "estimate": 0.47099958722829,
+          "relative_error": 8.763730572800158e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.471
+        },
+        "k6": {
+          "absolute_error": 1.3294290009957521e-06,
+          "estimate": 0.286998670570999,
+          "relative_error": 4.632156797894607e-06,
+          "structurally_unidentifiable": false,
+          "truth": 0.287
+        },
+        "k7": {
+          "absolute_error": 0.12787315252317788,
+          "estimate": -0.001873152523177865,
+          "relative_error": 1.014866289866491,
+          "structurally_unidentifiable": false,
+          "truth": 0.126
+        },
+        "k8": {
+          "absolute_error": 7.021717380238264,
+          "estimate": -6.215717380238264,
+          "relative_error": 8.711808164067325,
+          "structurally_unidentifiable": false,
+          "truth": 0.806
+        },
+        "k9": {
+          "absolute_error": 0.7472660285393208,
+          "estimate": 0.1457339714606792,
+          "relative_error": 0.836804063313909,
+          "structurally_unidentifiable": false,
+          "truth": 0.893
+        },
+        "x4(t)": {
+          "absolute_error": 3.858226627073691e-09,
+          "estimate": 0.8349999961417733,
+          "relative_error": 4.620630691106217e-09,
+          "structurally_unidentifiable": false,
+          "truth": 0.835
+        },
+        "x5(t)": {
+          "absolute_error": 1.9385994237675064e-07,
+          "estimate": 0.34099980614005765,
+          "relative_error": 5.685042298438435e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.341
+        },
+        "x6(t)": {
+          "absolute_error": 24.095395372081565,
+          "estimate": 24.463395372081564,
+          "relative_error": 65.4766178589173,
+          "structurally_unidentifiable": false,
+          "truth": 0.368
+        },
+        "x7(t)": {
+          "absolute_error": 3.599,
+          "estimate": 4.0,
+          "relative_error": 8.975062344139651,
+          "structurally_unidentifiable": true,
+          "truth": 0.401
+        }
+      }
+    }
+  ],
+  "timing": {
+    "label": "optimized_multishot",
+    "total_seconds": 2856.751478299,
+    "details": {
+      "mp_generic_start_cache_hits": 8,
+      "mp_generic_start_cache_misses": 1,
+      "n_interpolators": 9,
+      "n_shooting_points": 20,
+      "noise_frontier_mp_cache_hits": 8,
+      "noise_frontier_mp_cache_misses": 1,
+      "noise_frontier_sp_cache_hits": 8,
+      "noise_frontier_sp_cache_misses": 1,
+      "reusable_system_cache_entries": 315,
+      "sp_generic_start_cache_hits": 8,
+      "sp_generic_start_cache_misses": 1,
+      "used_multipoint": true,
+      "used_parameter_homotopy": true,
+      "detailed_timing_summary": {
+        "multipoint_combo_eval": {
+          "count": 135,
+          "max_seconds": 3.366076946258545,
+          "total_seconds": 3.8993825912475586,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "evaluate_template": 0.36182332038879395,
+            "noise_frontier_validation": 3.344782829284668
+          }
+        },
+        "multipoint_template_evaluate": {
+          "count": 135,
+          "max_seconds": 0.016949176788330078,
+          "total_seconds": 0.29613304138183594,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "nth_deriv": 0.277036190032959,
+            "observable_name_map": 0.003135204315185547,
+            "other": 0.00454401969909668,
+            "parse_and_lookup": 0.0005812644958496094,
+            "transcendental_lookup": 0.010836362838745117
+          }
+        },
+        "noise_frontier_validation": {
+          "count": 315,
+          "max_seconds": 3.105602979660034,
+          "total_seconds": 4.763817310333252,
+          "context_counts": {
+            "unspecified": 315
+          },
+          "stage_seconds": {
+            "cached_validation": 0.00014662742614746094,
+            "prepare_validation_cache": 4.762943506240845,
+            "reuse_data_independent_rank": 0.0
+          }
+        },
+        "noise_rank_matrix": {
+          "count": 2,
+          "max_seconds": 7.813191890716553,
+          "total_seconds": 9.222689867019653,
+          "context_counts": {
+            "unspecified": 2
+          },
+          "stage_seconds": {
+            "compile_system_function": 0.038308143615722656,
+            "forwarddiff_jacobian": 7.74209189414978,
+            "rank_eval": 1.4405782222747803
+          }
+        },
+        "polish_batch": {
+          "count": 1,
+          "max_seconds": 57.12113404273987,
+          "total_seconds": 57.12113404273987,
+          "context_counts": {
+            "polish": 1
+          },
+          "stage_seconds": {
+            "cluster_metadata": 0.03656291961669922,
+            "collect_results": 1.9788742065429688e-05,
+            "worker_polish": 57.05467391014099
+          }
+        },
+        "polish_context_build": {
+          "count": 2,
+          "max_seconds": 0.24614691734313965,
+          "total_seconds": 0.25296807289123535,
+          "context_counts": {
+            "polish": 1,
+            "synthesis": 1
+          },
+          "stage_seconds": {
+            "base_ode_problem": 0.01485896110534668,
+            "build_observable_functions": 0.03985095024108887,
+            "complete_model": 0.008115053176879883,
+            "materialize_data_targets": 1.0251998901367188e-05,
+            "optimization_function": 7.724761962890625e-05
+          }
+        },
+        "polish_single_residual": {
+          "count": 34,
+          "max_seconds": 16.919893980026245,
+          "total_seconds": 56.18730688095093,
+          "context_counts": {
+            "polish": 34
+          },
+          "stage_seconds": {
+            "final_ode_solve": 0.027060270309448242,
+            "final_residual": 0.03577280044555664,
+            "initial_residual": 2.0249836444854736,
+            "optimizer_solve": 53.54846262931824
+          }
+        },
+        "process_raw_solution": {
+          "count": 1221,
+          "max_seconds": 13.911876916885376,
+          "total_seconds": 78.99345850944519,
+          "context_counts": {
+            "algebraic_resolve_candidate": 201,
+            "result_processing": 1018,
+            "unspecified": 2
+          },
+          "stage_seconds": {
+            "error_eval": 0.3348698616027832,
+            "ode_problem_build": 22.188607215881348,
+            "ode_solve": 56.391828536987305
+          }
+        },
+        "raw_solver_polish": {
+          "count": 180,
+          "max_seconds": 9.14174199104309,
+          "total_seconds": 1018.791882276535,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "instantiate_system": 0.6696169376373291,
+            "robust_polish_solve": 1016.9382834434509
+          }
+        },
+        "single_point_noise_frontier_validation": {
+          "count": 180,
+          "max_seconds": 1.4145469665527344,
+          "total_seconds": 1.572021484375,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "rank_validation": 1.572021484375
+          }
+        },
+        "single_point_param_eval": {
+          "count": 180,
+          "max_seconds": 3.661745071411133,
+          "total_seconds": 6.113600492477417,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "noise_frontier_data_vars": 6.098252773284912
+          }
+        },
+        "solve_with_robust": {
+          "count": 585,
+          "max_seconds": 9.036029815673828,
+          "total_seconds": 1016.9279582500458,
+          "context_counts": {
+            "unspecified": 585
+          },
+          "stage_seconds": {
+            "build_residual_function": 2.259165048599243,
+            "deduplicate_solutions": 0.0003154277801513672,
+            "final_residual": 0.2936239242553711,
+            "generate_starts": 0.00022673606872558594,
+            "initial_residual": 82.2652542591095,
+            "jacobian_setup": 0.0008375644683837891,
+            "materialize_solution_vectors": 0.020856857299804688,
+            "nonlinear_solve": 932.0398941040039
+          }
+        }
+      },
+      "interpolant_creation_seconds_by_source": {
+        "aaad": 0.809175968170166,
+        "aaad_gpr": 3.4643471240997314,
+        "agp_robust": 22.018473863601685,
+        "agp_robust_rq": 36.276703119277954,
+        "chebyshev_aicc": 0.12034296989440918,
+        "chebyshev_bic": 0.31006813049316406,
+        "s2_aaa_mle": 5.2244040966033936,
+        "s3_adapt_rq": 0.4017469882965088,
+        "s3_adapt_se": 1.999358892440796
+      },
+      "multipoint_eval_seconds_by_source": {
+        "aaad": 0.02302384376525879,
+        "aaad_gpr": 0.26055407524108887,
+        "agp_robust": 3.4453279972076416,
+        "agp_robust_rq": 0.050994157791137695,
+        "chebyshev_aicc": 0.023080825805664062,
+        "chebyshev_bic": 0.023746967315673828,
+        "s2_aaa_mle": 0.02225494384765625,
+        "s3_adapt_rq": 0.024919986724853516,
+        "s3_adapt_se": 0.026369094848632812
+      },
+      "multipoint_generic_start_seconds_by_source": {
+        "agp_robust": 68.36989903450012
+      },
+      "multipoint_solve_seconds_by_source": {
+        "aaad": 173.38298892974854,
+        "aaad_gpr": 141.06938099861145,
+        "agp_robust": 174.85732913017273,
+        "agp_robust_rq": 162.9230329990387,
+        "chebyshev_aicc": 163.4633309841156,
+        "chebyshev_bic": 146.838721036911,
+        "s2_aaa_mle": 133.84083199501038,
+        "s3_adapt_rq": 139.92472314834595,
+        "s3_adapt_se": 141.20690488815308
+      },
+      "multipoint_template_eval_seconds_by_source": {
+        "aaad": 0.001079559326171875,
+        "aaad_gpr": 0.23258614540100098,
+        "agp_robust": 0.0972592830657959,
+        "agp_robust_rq": 0.025249242782592773,
+        "chebyshev_aicc": 0.0010428428649902344,
+        "chebyshev_bic": 0.0010676383972167969,
+        "s2_aaa_mle": 0.0009584426879882812,
+        "s3_adapt_rq": 0.0011680126190185547,
+        "s3_adapt_se": 0.0014121532440185547
+      },
+      "multipoint_template_seconds_by_source": {
+        "aaad": 6.9141387939453125e-06,
+        "aaad_gpr": 6.9141387939453125e-06,
+        "agp_robust": 56.20185899734497,
+        "agp_robust_rq": 0.0035431385040283203,
+        "chebyshev_aicc": 5.9604644775390625e-06,
+        "chebyshev_bic": 8.106231689453125e-06,
+        "s2_aaa_mle": 6.9141387939453125e-06,
+        "s3_adapt_rq": 9.059906005859375e-06,
+        "s3_adapt_se": 1.1920928955078125e-05
+      },
+      "multipoint_validation_seconds_by_source": {
+        "aaad": 0.02114129066467285,
+        "aaad_gpr": 0.027266979217529297,
+        "agp_robust": 3.158297538757324,
+        "agp_robust_rq": 0.025211095809936523,
+        "chebyshev_aicc": 0.021708011627197266,
+        "chebyshev_bic": 0.02226710319519043,
+        "s2_aaa_mle": 0.020992755889892578,
+        "s3_adapt_rq": 0.023403406143188477,
+        "s3_adapt_se": 0.024494647979736328
+      },
+      "raw_solver_polish_instantiate_seconds_by_source": {
+        "aaad": 0.020601272583007812,
+        "aaad_gpr": 0.4496190547943115,
+        "agp_robust": 0.04184460639953613,
+        "agp_robust_rq": 0.055467844009399414,
+        "chebyshev_aicc": 0.01752781867980957,
+        "chebyshev_bic": 0.027096271514892578,
+        "s2_aaa_mle": 0.01636528968811035,
+        "s3_adapt_rq": 0.018855810165405273,
+        "s3_adapt_se": 0.022238969802856445
+      },
+      "raw_solver_polish_solve_seconds_by_source": {
+        "aaad": 108.09113788604736,
+        "aaad_gpr": 111.36733531951904,
+        "agp_robust": 119.38069343566895,
+        "agp_robust_rq": 116.74668455123901,
+        "chebyshev_aicc": 112.04370832443237,
+        "chebyshev_bic": 115.09461116790771,
+        "s2_aaa_mle": 106.01191973686218,
+        "s3_adapt_rq": 114.7952573299408,
+        "s3_adapt_se": 113.4069356918335
+      },
+      "resolve_states_with_fixed_params_summary": {
+        "backsolve_recovery": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.2733800411224365,
+          "count": 201,
+          "hc_solve_seconds": 4.116202354431152,
+          "hc_success_count": 200,
+          "instantiate_seconds": 0.5334024429321289,
+          "max_seconds": 3.4417970180511475,
+          "sian_rerun_seconds": 12.020732402801514,
+          "threw_count": 0,
+          "total_seconds": 17.232327699661255
+        },
+        "synthesis": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.0019388198852539062,
+          "count": 20,
+          "hc_solve_seconds": 5.8462910652160645,
+          "hc_success_count": 18,
+          "instantiate_seconds": 0.017076730728149414,
+          "max_seconds": 3.272645950317383,
+          "sian_rerun_seconds": 0.9248950481414795,
+          "threw_count": 0,
+          "total_seconds": 6.805065393447876
+        }
+      },
+      "si_template_algebraic_multiplicity_timing": {
+        "groebner_seconds": 2.323176082,
+        "multiplicity": 2,
+        "polynomial_count": 30,
+        "quotient_basis_seconds": 0.30537381,
+        "ring_variable_count": 26,
+        "setup_seconds": 0.006078892,
+        "skipped": false
+      },
+      "si_template_equation_builder_timing": {
+        "assess_identifiability": 0.0755460262298584,
+        "convert_to_si_ode": 0.0012629032135009766,
+        "ensure_dd_support": 2.7418861389160156,
+        "extract_unidentifiable": 1.5974044799804688e-05,
+        "find_identifiable_functions": 0.047796010971069336,
+        "get_polynomial_system_from_sian": 2.8093760013580322,
+        "nemo_to_symbolics_conversion": 0.01848292350769043,
+        "prefixed_substitutions": 0.009274959564208984,
+        "variable_role_mapping": 0.0015819072723388672
+      },
+      "si_template_sian_timing": {
+        "algebraic_independence": 0.015622854232788086,
+        "degree_bound": 0.0002129077911376953,
+        "derivative_mapping": 0.0002281665802001953,
+        "evaluate_Et_base": 0.005953073501586914,
+        "get_equations": 0.001479595,
+        "get_x_y_eq": 0.019198179244995117,
+        "local_identifiability_jacobians": 0.0783541202545166,
+        "rank_construction": 0.03834986686706543,
+        "reduce_system": 0.0006361007690429688,
+        "sample_point": 0.010784149169921875,
+        "variable_filtering": 0.00074005126953125,
+        "variable_setup": 1.0013580322265625e-05
+      },
+      "single_point_data_eval_seconds_by_source": {
+        "aaad": 0.01444101333618164,
+        "aaad_gpr": 4.055869102478027,
+        "agp_robust": 1.013490915298462,
+        "agp_robust_rq": 0.5440099239349365,
+        "chebyshev_aicc": 0.0007500648498535156,
+        "chebyshev_bic": 0.09703207015991211,
+        "s2_aaa_mle": 0.0007798671722412109,
+        "s3_adapt_rq": 0.0007572174072265625,
+        "s3_adapt_se": 0.388261079788208
+      },
+      "single_point_frontier_seconds_by_source": {
+        "aaad": 1.1920928955078125e-06,
+        "aaad_gpr": 3.814697265625e-06,
+        "agp_robust": 9.441578149795532,
+        "agp_robust_rq": 9.059906005859375e-06,
+        "chebyshev_aicc": 3.0994415283203125e-06,
+        "chebyshev_bic": 2.86102294921875e-06,
+        "s2_aaa_mle": 5.9604644775390625e-06,
+        "s3_adapt_rq": 1.9073486328125e-06,
+        "s3_adapt_se": 6.9141387939453125e-06
+      },
+      "single_point_generic_start_seconds_by_source": {
+        "agp_robust": 10.106442928314209
+      },
+      "single_point_hc_seconds_by_source": {
+        "aaad": 37.16578793525696,
+        "aaad_gpr": 33.618196964263916,
+        "agp_robust": 38.00329518318176,
+        "agp_robust_rq": 33.125328063964844,
+        "chebyshev_aicc": 29.865726947784424,
+        "chebyshev_bic": 28.086027145385742,
+        "s2_aaa_mle": 35.22304391860962,
+        "s3_adapt_rq": 30.741436004638672,
+        "s3_adapt_se": 34.620177030563354
+      },
+      "single_point_system_seconds_by_source": {},
+      "single_point_validation_seconds_by_source": {
+        "aaad": 0.015074014663696289,
+        "aaad_gpr": 0.01580023765563965,
+        "agp_robust": 1.4287402629852295,
+        "agp_robust_rq": 0.01671457290649414,
+        "chebyshev_aicc": 0.016949892044067383,
+        "chebyshev_bic": 0.014782190322875977,
+        "s2_aaa_mle": 0.01483774185180664,
+        "s3_adapt_rq": 0.015196800231933594,
+        "s3_adapt_se": 0.033925771713256836
+      }
+    },
+    "phases": [
+      {
+        "bytes": 638874056,
+        "gctime": 0.146642092,
+        "name": "Setup (identifiability)",
+        "seconds": 2.829240412
+      },
+      {
+        "bytes": 3521228328,
+        "gctime": 1.261585159,
+        "name": "SI Template (SIAN analysis)",
+        "seconds": 20.07855018
+      },
+      {
+        "bytes": 92694550552,
+        "gctime": 43.865157777,
+        "name": "Equation construction + Solving",
+        "seconds": 2683.403279707
+      },
+      {
+        "bytes": 13910336992,
+        "gctime": 3.2974688,
+        "name": "Result processing",
+        "seconds": 54.386384848
+      },
+      {
+        "bytes": 1931440928,
+        "gctime": 0.984977917,
+        "name": "Synthesize aggregates",
+        "seconds": 9.087339691
+      },
+      {
+        "bytes": 35684784952,
+        "gctime": 6.877553558,
+        "name": "Polish (BFGS)",
+        "seconds": 51.509314024
+      },
+      {
+        "bytes": 6693379064,
+        "gctime": 2.011848775,
+        "name": "Branch completion",
+        "seconds": 35.457369437
+      }
+    ]
+  },
+  "versions": {
+    "GaussianProcesses": "0.12.6",
+    "HomotopyContinuation": "2.22.4",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "preclustering_candidate_count": 2,
+  "retained_evidence": {
+    "worker_output": "/tmp/odepe-deferred-biohydrogenation-o0",
+    "source_files": {
+      "result.toml": {
+        "bytes": 2487123,
+        "sha256": "5bf65cd7de7a45278c350d6a435b304d545fb2be39306419cf0b736992d85c79"
+      },
+      "supervisor.json": {
+        "bytes": 1060,
+        "sha256": "e3b6cd411bca3ea90a9d724af7b8268a04a4f7b620e201ff739e70ddbe1da24d"
+      },
+      "worker.log": {
+        "bytes": 5159728,
+        "sha256": "761c5bac5a193a6555c3f49cff55f18f59efcb778e1da227e1dcb43019885276"
+      },
+      "detailed_timing.toml": {
+        "bytes": 1618374,
+        "sha256": "c1cb9ed2a8fdc67301abbb7836de20a8b38dbe7960ce2142a0ed402be1fdee2f"
+      },
+      "resolve_timing.toml": {
+        "bytes": 119860,
+        "sha256": "25416ebe3c3f4d5706a5c4f3f706e35cfeaa0fc43e8926c82917ec13aac447c3"
+      }
+    },
+    "omitted_fields": [
+      "timing.details.detailed_timing_records (2970 records)",
+      "timing.details.resolve_states_with_fixed_params_records (221 records)",
+      "ranked_results[0].provenance.estimator_identity",
+      "ranked_results[1].provenance.estimator_identity"
+    ],
+    "renamed_fields": {
+      "raw_count": "preclustering_candidate_count"
+    }
+  },
+  "supervisor": {
+    "command": [
+      "julia",
+      "--startup-file=no",
+      "--compiled-modules=existing",
+      "--optimize=0",
+      "/home/orebas/.julia/dev/ODEParameterEstimation/repro/deferred_denominators_2026_09_11/run_rational.jl",
+      "biohydrogenation",
+      "/tmp/odepe-deferred-biohydrogenation-o0"
+    ],
+    "stage_seconds_cap": 3600.0,
+    "preparation_seconds_cap": 900,
+    "profile_signals": [
+      1789166141.4432175,
+      1789166270.0062113,
+      1789166401.5233994,
+      1789166532.4210613,
+      1789166663.4666889,
+      1789166792.0375228,
+      1789166923.1422765,
+      1789167054.3271205,
+      1789167182.7976725,
+      1789167314.2668755,
+      1789167445.9374993,
+      1789167576.74585,
+      1789167705.3761199,
+      1789167835.8657336,
+      1789167966.0414276,
+      1789168093.7549908,
+      1789168224.0812633,
+      1789168355.0423877,
+      1789168485.8045588,
+      1789168614.7390962,
+      1789168746.7984002,
+      1789168878.4068053,
+      1789169010.7379673,
+      1789169139.9805698
+    ],
+    "pid": 3977963,
+    "returncode": 0,
+    "wall_seconds": 2946.3006248739985,
+    "status": "complete"
+  },
+  "progress_log": [
+    "[HB 18:34:00] \u25b6 run model=biohydrogenation_rescaled pid=3977963 julia=1.13.0 odepe=1.1.0-DEV hc=2.22.4 threads=1 gcthreads=1",
+    "[HB 18:34:06] \u25b6 Setup (identifiability)",
+    "[HB 18:34:09] \u2713 Setup (identifiability) (2.8s)",
+    "[HB 18:34:20] \u25b6 SI Template (SIAN analysis)",
+    "[HB 18:34:43] \u2713 SI Template (SIAN analysis) (20.1s)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 2  (setup 0.01s, Groebner 2.32s, quotient_basis 0.31s, ring: 26 vars \u00d7 30 polys)",
+    "[HB 18:34:43] \u25b6 Equation construction + Solving",
+    "[HB 18:34:43] \u25b6 interpolator 1/9 agp_robust",
+    "[HB 18:35:54] \u2713 HC solve (single-point) agp_robust 20 pts (38.0s)",
+    "[HB 18:42:58] \u2713 HC solve (multipoint) agp_robust (174.9s)",
+    "[HB 18:42:58] \u25b6 interpolator 2/9 agp_robust_rq",
+    "[HB 18:44:08] \u2713 HC solve (single-point) agp_robust_rq 20 pts (33.1s)",
+    "[HB 18:48:48] \u2713 HC solve (multipoint) agp_robust_rq (162.9s)",
+    "[HB 18:48:48] \u25b6 interpolator 3/9 s3_adapt_se",
+    "[HB 18:49:25] \u2713 HC solve (single-point) s3_adapt_se 20 pts (34.6s)",
+    "[HB 18:53:39] \u2713 HC solve (multipoint) s3_adapt_se (141.2s)",
+    "[HB 18:53:39] \u25b6 interpolator 4/9 s3_adapt_rq",
+    "[HB 18:54:10] \u2713 HC solve (single-point) s3_adapt_rq 20 pts (30.7s)",
+    "[HB 18:58:25] \u2713 HC solve (multipoint) s3_adapt_rq (139.9s)",
+    "[HB 18:58:25] \u25b6 interpolator 5/9 chebyshev_bic",
+    "[HB 18:58:54] \u2713 HC solve (single-point) chebyshev_bic 20 pts (28.1s)",
+    "[HB 19:03:16] \u2713 HC solve (multipoint) chebyshev_bic (146.8s)",
+    "[HB 19:03:16] \u25b6 interpolator 6/9 chebyshev_aicc",
+    "[HB 19:03:46] \u2713 HC solve (single-point) chebyshev_aicc 20 pts (29.9s)",
+    "[HB 19:08:21] \u2713 HC solve (multipoint) chebyshev_aicc (163.5s)",
+    "[HB 19:08:21] \u25b6 interpolator 7/9 aaad_gpr",
+    "[HB 19:09:02] \u2713 HC solve (single-point) aaad_gpr 20 pts (33.6s)",
+    "[HB 19:13:16] \u2713 HC solve (multipoint) aaad_gpr (141.1s)",
+    "[HB 19:13:16] \u25b6 interpolator 8/9 aaad",
+    "[HB 19:13:54] \u2713 HC solve (single-point) aaad 20 pts (37.2s)",
+    "[HB 19:18:35] \u2713 HC solve (multipoint) aaad (173.4s)",
+    "[HB 19:18:35] \u25b6 interpolator 9/9 s2_aaa_mle",
+    "[HB 19:19:16] \u2713 HC solve (single-point) s2_aaa_mle 20 pts (35.2s)",
+    "[HB 19:23:16] \u2713 HC solve (multipoint) s2_aaa_mle (133.8s)",
+    "[HB 19:23:16] \u2713 Equation construction + Solving (2683.4s)",
+    "[HB 19:23:16] \u25b6 Result processing",
+    "[HB 19:24:16] \u2713 Result processing (54.4s)",
+    "[HB 19:24:16] \u25b6 Backsolve algebraic re-solve (205/1018 blown)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.19s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "Detected 205/1018 blown backsolves, attempting algebraic re-solve at t=0",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.1s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.13s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[HB 19:24:59] \u25b6 Synthesize aggregates",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[HB 19:25:08] \u2713 Synthesize aggregates (9.1s)",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 8 vars \u00d7 10 polys)",
+    "[HB 19:25:08] \u25b6 Polish (BFGS)",
+    "[HB 19:26:05] \u2713 Polish (BFGS) (51.5s)",
+    "[HB 19:26:05] \u25b6 Branch completion",
+    "[HB 19:26:44] \u2713 Branch completion (35.5s)",
+    "[HB 19:26:44] \u25b6 Clustering + analysis",
+    "[HB 19:26:44] \u2713 Clustering + analysis",
+    "[HB 19:26:44] \u2713 run",
+    "FINISHED biohydrogenation complete"
+  ]
+}

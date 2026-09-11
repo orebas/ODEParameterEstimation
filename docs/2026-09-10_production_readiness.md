@@ -16,6 +16,14 @@ instantiation (`5b485e0`). Its full Julia 1.13 gate passed **1,817/1,817** and i
 focused core contracts passed **448/448**. The dependency manifests were unchanged;
 this does not constitute another registry-only validation.
 
+The subsequent [deferred denominator construction change](2026-09-11_deferred_denominator_construction.md)
+passed **1,839/1,839** full-suite checks, **412/412** unit checks, **128/128**
+PEtab contracts, and **10/10** recovery benchmark checks on the same Julia 1.13
+dependency stack. Its separate full-data rational model checks and the bounded
+Sneyd construction result are recorded in that note. FitzHugh–Nagumo and
+repressilator recovered well. Biohydrogenation still has a default-compiler
+timeout and poor parameter recovery in the completed lower-optimization diagnostic.
+
 ## Current dependency baseline
 
 | Dependency | Local version/source |

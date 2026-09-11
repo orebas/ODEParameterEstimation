@@ -9,6 +9,9 @@ its line counts, open findings, and test classifications are obsolete.
 The [dense single-experiment record](2026-09-11_dense_single_experiments.md)
 contains current Bruno recovery evidence and focused Fujita/Sneyd performance
 profiles using the normal benchmark workflow and existing timing infrastructure.
+The [deferred denominator construction record](2026-09-11_deferred_denominator_construction.md)
+documents rational rank/support tables, delayed PEtab polynomial construction,
+and the rational benchmark validation.
 
 ## Start here
 
@@ -64,6 +67,7 @@ from running. The unit group is assembled in
 |---|---|
 | Public types/options/utilities | `test_core_types.jl`, `test_model_utils.jl`, `test_math_utils.jl`, `test_derivative_utils.jl`, `test_solution_distance.jl`, `test_options_contracts.jl` |
 | Dependency interoperability | `dependency_compat.jl`, `test_noise_rank_matrix.jl`, `test_gp_kernel_optimization.jl` |
+| Deferred denominator construction | `test_deferred_derivatives.jl`; optional eager/deferred rational basis and pole contracts in `test/petab/runtests.jl` |
 | Estimation and examples | `fast_core.jl`, `refactor_safety_net.jl`, `feature_regressions.jl`, `example_canaries.jl`, `examples_smoke.jl`, `identifiability_regressions.jl` |
 | Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_polish_maxtime.jl`, `test_shade_lm.jl` |
 | State and result contracts | `test_run_context.jl`, `test_interrupt_propagation.jl`, `result_processing_helpers.jl`, `test_label_parsers.jl` |

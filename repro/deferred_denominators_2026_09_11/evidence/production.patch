@@ -1,0 +1,273 @@
+diff --git a/ext/petab/experiment_blocks.jl b/ext/petab/experiment_blocks.jl
+index dd5414f..2eaf3ab 100644
+--- a/ext/petab/experiment_blocks.jl
++++ b/ext/petab/experiment_blocks.jl
+@@ -80,17 +80,32 @@ function _experiment_frontier(problem::PEtabAlgebraicProblem, pep::ParameterEsti
+     data_map = OrderedDict{Num, Tuple{Int, Int, Int}}()
+     trace = NamedTuple[]
+     frontier = nothing
++    cleared_equations = Num[]
++    cleared_metadata = ODEPE.NoiseEqMeta[]
++    function materialize_polynomials(pool)
++        progress((; stage=:experiment_polynomialization, conditions=cids,
++            derivative_order=last(pool.metadata).max_observed_order,
++            equation_count=length(jets), variable_count=length(variables), trace=copy(trace)))
++        data_variables = collect(keys(data_map))
++        # Keep the cleared prefix if a square candidate requires another order.
++        for i in (length(cleared_equations)+1):length(jets)
++            equation = ODEPE.clear_denoms(jets[i] ~ data_variables[i])
++            polynomial = Num(equation.lhs - equation.rhs)
++            push!(cleared_equations, polynomial)
++            push!(cleared_metadata, (; pool.metadata[i]...,
++                support_score=Float64(length(Symbolics.get_variables(polynomial))) +
++                    1e-3 * length(string(polynomial))))
++        end
++        return (; pool..., symbolic_equations=cleared_equations, metadata=cleared_metadata)
++    end
+     for order in 0:max_derivative_order
+         for (bi, block) in enumerate(blocks), (oi, jet) in enumerate(block.jets)
+             dv = Symbolics.variable(Symbol(_name(block.measured[oi].lhs) * "_$order"))
+-            equation = ODEPE.clear_denoms(jet ~ dv)
+-            polynomial = Num(equation.lhs - equation.rhs)
+-            push!(symbolic_equations, polynomial)
++            push!(symbolic_equations, jet - dv)
+             push!(jets, jet)
+             push!(metadata, (point=bi, source_index=length(metadata)+1,
+                 max_observed_order=order,
+-                support_score=Float64(length(Symbolics.get_variables(polynomial))) +
+-                    1e-3 * length(string(polynomial))))
++                support_score=0.0)) # Filled from polynomials only after rank is sufficient.
+             data_map[dv] = (bi, oi, order)
+         end
+         pool = (; symbolic_equations, instantiated_equations=jets,
+@@ -99,7 +114,7 @@ function _experiment_frontier(problem::PEtabAlgebraicProblem, pep::ParameterEsti
+         # Rank the rational observation map, not cleared polynomials with random
+         # data: off the solution set, denominator derivatives can add false rank.
+         frontier = ODEPE._noise_select_pool(pep, pool; compute_mixed_volume=false,
+-            candidate_limit=8, beam_width=4)
++            candidate_limit=8, beam_width=4, materialize_polynomials)
+         last_row = last(frontier.frontier)
+         row = (; derivative_order=order, equation_count=length(jets),
+             variable_count=length(variables), rank=last_row.allowed_rank,
+diff --git a/src/core/noise_frontier_construction.jl b/src/core/noise_frontier_construction.jl
+index 39c236f..37d3f34 100644
+--- a/src/core/noise_frontier_construction.jl
++++ b/src/core/noise_frontier_construction.jl
+@@ -1529,7 +1529,8 @@ end
+ function _noise_select_pool(pep::ParameterEstimationProblem, pool;
+ 	compute_mixed_volume::Bool = true, candidate_limit::Int = 64,
+ 	beam_width::Int = 16, rank_atol::Float64 = 1e-8,
+-	n_rank_probes::Int = 3, diagnostics::Bool = false)
++	n_rank_probes::Int = 3, diagnostics::Bool = false,
++	materialize_polynomials::F = identity) where {F}
+ 	candidate_limit > 0 || throw(ArgumentError("candidate_limit must be positive"))
+ 	beam_width > 0 || throw(ArgumentError("beam_width must be positive"))
+ 	n_points = pool.n_points
+@@ -1558,6 +1559,10 @@ function _noise_select_pool(pep::ParameterEstimationProblem, pool;
+ 		))
+ 		feasible || continue
+ 		selected_cap = cap
++		# Rational experiment jets can defer polynomial construction until rank
++		# permits a solve. Materialization must preserve row order and derivative
++		# metadata; support scores are computed from the resulting polynomials.
++		pool = materialize_polynomials(pool)
+ 
+ 		seeds = Vector{Vector{Int}}()
+ 		orders = Dict{Symbol, Vector{Int}}(
+diff --git a/src/core/parameter_estimation.jl b/src/core/parameter_estimation.jl
+index 667bacd..48d17fb 100644
+--- a/src/core/parameter_estimation.jl
++++ b/src/core/parameter_estimation.jl
+@@ -3,21 +3,25 @@
+ # - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
+ 
+ """
+-	populate_derivatives(model::ModelingToolkit.System, measured_quantities_in, max_deriv_level, unident_dict)
++	populate_derivatives(model, measured_quantities_in, max_deriv_level, unident_dict; include_cleared=true)
+ 
+ Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
+-diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
++Derivatives retain their Differential form so substitutions preserve symbolic identity.
++Rank and support calculations can skip the cleared tables, then request them later
++with `ensure_cleared_derivatives!` if polynomial equations are needed.
+ 
+ # Arguments
+ - `model::ModelingToolkit.System`: The ODE system
+ - `measured_quantities_in`: Input measured quantities
+ - `max_deriv_level`: Maximum derivative level
+ - `unident_dict`: Dictionary of unidentifiable variables
++- `include_cleared`: Also construct derivatives of the cleared base equations
+ 
+ # Returns
+ - DerivativeData object
+ """
+-function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict)
++function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict;
++	include_cleared::Bool = true)
+ 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
+ 	measured_quantities = deepcopy(measured_quantities_in)
+ 
+@@ -32,19 +36,11 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
+ 	#First, we fully substitute values we have chosen for an unidentifiable variables.
+ 	unident_subst!(model_eq, measured_quantities, unident_dict)
+ 
+-	model_eq_cleared = clear_denoms.(model_eq)
+-	measured_quantities_cleared = clear_denoms.(measured_quantities)
+-
+ 	DD.states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
+ 	DD.states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
+ 	DD.obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
+ 	DD.obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
+ 
+-	DD.states_lhs_cleared = [[eq.lhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.lhs for eq in model_eq_cleared]))]
+-	DD.states_rhs_cleared = [[eq.rhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.rhs for eq in model_eq_cleared]))]
+-	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
+-	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
+-
+ 	extra_levels = 0
+ 	for i in 1:(max_deriv_level-2)
+ 		new_states_lhs = expand_derivatives.(D.(DD.states_lhs[end]))
+@@ -63,8 +59,6 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
+ 
+ 		push!(DD.states_lhs, new_states_lhs)
+ 		push!(DD.states_rhs, temp4)
+-		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
+-		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
+ 		extra_levels += 1
+ 	end
+ 
+@@ -74,9 +68,8 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
+ 	for i in 1:extra_levels
+ 		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
+ 		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
+-		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
+-		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
+ 	end
++	include_cleared && ensure_cleared_derivatives!(DD)
+ 
+ 	# NOTE: We intentionally do NOT apply diff2term here.
+ 	# diff2term converts Differential(t)(x(t)) to xˍt(t), but it creates NEW symbol objects
+@@ -85,6 +78,44 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
+ 	return DD
+ end
+ 
++"""
++	ensure_cleared_derivatives!(DD, max_derivative_order=length(DD.obs_lhs)-1)
++
++Construct missing cleared derivative tables through the requested order. Clear each
++base equation once, then differentiate that polynomial equation, matching the eager
++construction. This is not clearing each differentiated rational equation separately.
++
++# Arguments
++- `DD::DerivativeData`: Rational derivative tables, with any existing cleared prefix
++- `max_derivative_order::Int`: Zero-based order within the available rational tables
++
++# Returns
++The same `DerivativeData`, retaining already constructed cleared derivatives.
++"""
++function ensure_cleared_derivatives!(DD::DerivativeData,
++	max_derivative_order::Int = length(DD.obs_lhs) - 1)::DerivativeData
++	available_order = minimum(length, (DD.states_lhs, DD.states_rhs, DD.obs_lhs, DD.obs_rhs)) - 1
++	0 <= max_derivative_order <= available_order || throw(ArgumentError(
++		"Cleared derivative order must be in 0:$available_order; got $max_derivative_order"))
++	for (raw_lhs, raw_rhs, cleared_lhs, cleared_rhs) in (
++		(DD.states_lhs, DD.states_rhs, DD.states_lhs_cleared, DD.states_rhs_cleared),
++		(DD.obs_lhs, DD.obs_rhs, DD.obs_lhs_cleared, DD.obs_rhs_cleared),
++	)
++		if isempty(cleared_lhs)
++			base = clear_denoms.([lhs ~ rhs for (lhs, rhs) in zip(first(raw_lhs), first(raw_rhs))])
++			push!(cleared_lhs, [eq.lhs for eq in base])
++			push!(cleared_rhs, [eq.rhs for eq in base])
++		end
++		while length(cleared_lhs) <= max_derivative_order
++			next_lhs = expand_derivatives.(D.(last(cleared_lhs)))
++			next_rhs = expand_derivatives.(D.(last(cleared_rhs)))
++			push!(cleared_lhs, next_lhs)
++			push!(cleared_rhs, next_rhs)
++		end
++	end
++	return DD
++end
++
+ 
+ """
+ 	convert_to_real_or_complex_array(values) -> Union{Array{Float64,1}, Array{ComplexF64,1}}
+@@ -838,7 +869,8 @@ function multipoint_numerical_jacobian(
+ 	num_real_states = length(keys(ic_dict_vector[1]))
+ 
+ 	if (DD == :nothing)
+-		DD = populate_derivatives(model, measured_quantities_local, max_deriv_level, unident_dict)
++		DD = populate_derivatives(model, measured_quantities_local, max_deriv_level, unident_dict;
++			include_cleared = false)
+ 	end
+ 
+ 	function f(param_and_ic_values_vec)
+diff --git a/src/core/parameter_estimation_helpers.jl b/src/core/parameter_estimation_helpers.jl
+index 4c56950..761c5d9 100644
+--- a/src/core/parameter_estimation_helpers.jl
++++ b/src/core/parameter_estimation_helpers.jl
+@@ -201,7 +201,8 @@ function default_numerical_advisory_heuristics(model, measured_quantities, max_n
+ 		model,
+ 		measured_quantities,
+ 		recommended_deriv_order + 1,
+-		OrderedDict{Num, Float64}(),
++		OrderedDict{Num, Float64}();
++		include_cleared = false,
+ 	)
+ 	good_DD.all_unidentifiable = Set{Num}()
+ 	return (
+@@ -223,7 +224,6 @@ function run_numerical_identifiability_advisory(
+ 	nooutput = false,
+ 	advisory_runner = determine_optimal_points_count,
+ )
+-	fallback = default_numerical_advisory_heuristics(model, measured_quantities, num_points_cap, t_vector, states, params)
+ 	full_varlist = Set{Num}(vcat(params, states))
+ 	try
+ 		good_num_points, good_deriv_level, _good_udict, advisory_varlist, _good_DD =
+@@ -232,7 +232,8 @@ function run_numerical_identifiability_advisory(
+ 			model,
+ 			measured_quantities,
+ 			isempty(good_deriv_level) ? 2 : maximum(values(good_deriv_level)) + 1,
+-			OrderedDict{Num, Float64}(),
++			OrderedDict{Num, Float64}();
++			include_cleared = false,
+ 		)
+ 		good_DD.all_unidentifiable = Set{Num}()
+ 		flagged_variables = setdiff(full_varlist, Set{Num}(advisory_varlist))
+@@ -254,6 +255,9 @@ function run_numerical_identifiability_advisory(
+ 	catch err
+ 		_rethrow_if_interrupt(err)
+ 		@warn "Numerical identifiability advisory failed; continuing with deterministic heuristics" exception = err
++		# The fallback may require deep symbolic derivatives. Build it only when
++		# the advisory actually fails, not before attempting the normal path.
++		fallback = default_numerical_advisory_heuristics(model, measured_quantities, num_points_cap, t_vector, states, params)
+ 		advisory = NumericalIdentifiabilityAdvisory(
+ 			status = :failed,
+ 			recommended_num_points = fallback.good_num_points,
+diff --git a/src/core/si_equation_builder.jl b/src/core/si_equation_builder.jl
+index 5b75d31..1d730f0 100644
+--- a/src/core/si_equation_builder.jl
++++ b/src/core/si_equation_builder.jl
+@@ -306,7 +306,8 @@ function ensure_si_template_dd_support(ode, measured_quantities, DD, derivative_
+ 	model = isa(ode, OrderedODESystem) ? ode.system : ode
+ 	target_deriv_level = max(required_order + 1, 2)
+ 	@info "[SI-MAP] Extending DerivativeData support for SI template" current_order = current_order required_order = required_order
+-	return populate_derivatives(model, measured_quantities, target_deriv_level, OrderedDict())
++	return populate_derivatives(model, measured_quantities, target_deriv_level, OrderedDict();
++		include_cleared = false)
+ end
+ 
+ function build_si_observable_index_map(measured_quantities)
+diff --git a/src/types/core_types.jl b/src/types/core_types.jl
+index b0d9768..e5242f1 100644
+--- a/src/types/core_types.jl
++++ b/src/types/core_types.jl
+@@ -501,6 +501,8 @@ Struct to store derivative data of state variable equations and measured quantit
+ No substitutions are made.
+ The "cleared" versions are produced from versions of the state equations and measured quantity equations
+ which have had their denominators cleared, i.e. they should be polynomial and never rational.
++Their tables may be empty or shorter than the rational tables when construction is
++deferred. Call `ensure_cleared_derivatives!` before reading a required cleared order.
+ 
+ # Fields
+ - `states_lhs_cleared::Vector{Vector{Num}}`: Left-hand side of cleared state equations (indexed by [derivative_order+1])
