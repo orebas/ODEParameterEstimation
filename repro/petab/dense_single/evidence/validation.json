@@ -1,0 +1,35 @@
+{
+  "revision": "5b485e0198488d79409fba04c4c26299df4a5de4",
+  "julia_version": "1.13.0",
+  "checks": [
+    {
+      "name": "focused_core",
+      "command": "julia --startup-file=no test/current.jl fast_core.jl",
+      "passed": 448,
+      "total": 448,
+      "test_time": "4m08.2s",
+      "log": "/tmp/odepe-dense-template-contract.log",
+      "log_sha256": "1b314ef04cb469613f80c29f0b3edb27c00b2f37f9d05ec29339dc64209a13be"
+    },
+    {
+      "name": "full_gate",
+      "command": "julia --startup-file=no test/current.jl",
+      "passed": 1817,
+      "total": 1817,
+      "test_time": "16m35.2s",
+      "log": "/tmp/odepe-dense-single-full-tests.log",
+      "log_sha256": "3bb1f74c3b69a6cc465d8d77e5d6edb06e17a0bfc4b4c5a2c564b9d67eb5f730"
+    }
+  ],
+  "manifest_sha256": {
+    "/home/orebas/.julia/environments/v1.13/Manifest.toml": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+    "/tmp/odepe-petab-pilot-env/Manifest.toml": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703"
+  },
+  "other_checks": [
+    "Julia harness syntax parsed with Meta.parseall",
+    "Python harness syntax via py_compile",
+    "Full/reduced dense simulation parity for both models",
+    "Bruno independent scipy.linalg.expm check",
+    "Sneyd fraction equivalence at five positive probes"
+  ]
+}

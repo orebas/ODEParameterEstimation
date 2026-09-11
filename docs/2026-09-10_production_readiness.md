@@ -10,6 +10,12 @@ active tests, dependency interoperability, documentation, and CI. A subsequent
 PEtab feasibility pilot is documented separately below; RS/RUR remains deferred. Research and uncertainty
 calibration claims retain the limits in the audited August notes.
 
+The [September 11 dense single-experiment study](2026-09-11_dense_single_experiments.md)
+subsequently found and fixed unused SIAN jets being evaluated during template
+instantiation (`5b485e0`). Its full Julia 1.13 gate passed **1,817/1,817** and its
+focused core contracts passed **448/448**. The dependency manifests were unchanged;
+this does not constitute another registry-only validation.
+
 ## Current dependency baseline
 
 | Dependency | Local version/source |

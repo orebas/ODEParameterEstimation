@@ -11,6 +11,11 @@ that its polynomial system can be solved within a useful time budget. The
 [pilot record](2026-09-10_petab_pilot.md) describes the canonical target set,
 dependency findings and actual outcomes.
 
+The [dense single-experiment study](2026-09-11_dense_single_experiments.md)
+separately tests synthetic recovery with the normal nine-interpolator benchmark
+workflow and profiles symbolic setup. It does not use the original noisy PEtab
+measurements or claim a likelihood comparison.
+
 ## Data and experiment semantics
 
 `ObservationSeries(id, experiment_id, expression, times, values)` owns and sorts

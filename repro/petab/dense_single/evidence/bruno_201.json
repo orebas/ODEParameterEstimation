@@ -1,0 +1,1033 @@
+{
+  "benchmark_differences": [
+    "201 clean synthetic samples per observable on original physical interval",
+    "Original PEtab parameter bounds; nonnegative free IC bounds",
+    "120 seconds per trajectory polish",
+    "Terminal direct optimization disabled so algebraic failure stays visible",
+    "Timing and HC progress enabled"
+  ],
+  "condition": "model1_data4",
+  "datasize_per_observable": 201,
+  "effective_interpolators": [
+    "InterpolatorAGPRobust",
+    "InterpolatorAGPRobustRQ",
+    "InterpolatorS3AdaptSE",
+    "InterpolatorS3AdaptRQ",
+    "InterpolatorChebyshevBIC",
+    "InterpolatorChebyshevAICc",
+    "InterpolatorAAADGPR",
+    "InterpolatorAAAD",
+    "InterpolatorS2AAAMLE"
+  ],
+  "elapsed_seconds": 469.76554107666016,
+  "estimation_seconds": 343.83465099334717,
+  "estimation_started_unix": 1789143013.751018,
+  "full_vs_reduced_max_relative_signal_errors": [
+    1.0487336396820081e-13,
+    5.994411421955904e-13,
+    6.377182406107973e-13
+  ],
+  "harness_sha256": "b227bb6acd626595644213ddfdc74da34e1dfb7fd7807fbf3e64964f723e667d",
+  "julia_version": "1.13.0",
+  "manifest_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "model": "Bruno_JExpBot2016",
+  "model_definition": {
+    "bounds_order": [
+      "ohb10(t)",
+      "bcry(t)",
+      "b10(t)",
+      "kb2",
+      "kc1",
+      "kc2",
+      "kc4"
+    ],
+    "condition": "model1_data4",
+    "equations": [
+      "Differential(t, 1)(ohb10(t)) ~ bcry(t)*kc2 - kc4*ohb10(t)",
+      "Differential(t, 1)(bcry(t)) ~ -bcry(t)*kc1 - bcry(t)*kc2",
+      "Differential(t, 1)(b10(t)) ~ -b10(t)*kb2 + bcry(t)*kc1"
+    ],
+    "full_states": [
+      "zea(t)",
+      "ohbio(t)",
+      "ohb10(t)",
+      "bio(t)",
+      "bcry(t)",
+      "bcar(t)",
+      "b10(t)"
+    ],
+    "generating_initial_states": {
+      "b10(t)": 0.0,
+      "bcry(t)": 5.21693865661801,
+      "ohb10(t)": 0.0
+    },
+    "generating_parameters": {
+      "kb2": 0.005843831819271,
+      "kc1": 0.001678825242274,
+      "kc2": 0.006975989070463,
+      "kc4": 0.006082700899195
+    },
+    "lower_bounds": [
+      0.0,
+      0.0,
+      0.0,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05
+    ],
+    "observations": [
+      "dense_y1(t) ~ bcry(t)",
+      "dense_y2(t) ~ b10(t)",
+      "dense_y3(t) ~ ohb10(t)"
+    ],
+    "original_initial_formulas": {
+      "b10(t)": "0",
+      "bcar(t)": "0",
+      "bcry(t)": "init_bcry_1",
+      "bio(t)": "0.0",
+      "ohb10(t)": "0",
+      "ohbio(t)": "0.0",
+      "zea(t)": "0"
+    },
+    "parameters": [
+      "kb2",
+      "kc1",
+      "kc2",
+      "kc4"
+    ],
+    "retained_states": [
+      "ohb10(t)",
+      "bcry(t)",
+      "b10(t)"
+    ],
+    "time_interval": [
+      0.0,
+      180.0
+    ],
+    "truth_use": "Published nominal values generate synthetic data only; retained ICs are estimated freely, including known zeros.",
+    "unobserved_states": [
+      "ohbio(t)",
+      "bio(t)"
+    ],
+    "upper_bounds": [
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0
+    ],
+    "zero_invariant_states": [
+      "zea(t)",
+      "bcar(t)"
+    ]
+  },
+  "noise_level": 0.0,
+  "options": {
+    "abstol": 1e-12,
+    "algebraic_multiplicity": null,
+    "auto_filter_interpolators": true,
+    "auto_handle_transcendentals": true,
+    "auto_rescale": true,
+    "backsolve_recovery": "algebraic_resolve",
+    "branch_cluster_eps": 0.001,
+    "branch_completion": true,
+    "branch_completion_max_anchors": 1,
+    "branch_completion_residual_tol": 1e-06,
+    "branch_detection": true,
+    "branch_diversity_eps": 0.01,
+    "branch_diversity_selection": true,
+    "branch_err_factor": 100.0,
+    "branch_top_k": 20,
+    "cluster_method": "identifiable_subspace",
+    "clustering_threshold": 1e-05,
+    "compute_uncertainty": false,
+    "construction_beam_width": 16,
+    "construction_candidate_limit": 64,
+    "construction_compute_mixed_volume": true,
+    "custom_interpolator": null,
+    "custom_interpolators": [],
+    "datasize": 201,
+    "debug_cas_diagnostics": false,
+    "debug_dimensional_analysis": false,
+    "debug_solver": false,
+    "diagnostics": true,
+    "dump_polished_path": null,
+    "dump_raw_candidates_path": null,
+    "flow": "FlowStandard",
+    "gamma_max_seeds": 5,
+    "gamma_seed": 0,
+    "gp_derivative_lengthscale_factor": 1.0,
+    "gp_s3_refinement": false,
+    "hc_compile_mode": "all",
+    "hc_real_tol": 1e-09,
+    "hc_show_progress": true,
+    "hc_threading": true,
+    "heartbeat": true,
+    "homotopy_tracking_mode": "generic_start",
+    "interpolator": "InterpolatorAAADGPR",
+    "interpolators": [
+      "InterpolatorAGPRobust",
+      "InterpolatorAGPRobustRQ",
+      "InterpolatorS3AdaptSE",
+      "InterpolatorS3AdaptRQ",
+      "InterpolatorChebyshevBIC",
+      "InterpolatorChebyshevAICc",
+      "InterpolatorAAADGPR",
+      "InterpolatorAAAD",
+      "InterpolatorS2AAAMLE"
+    ],
+    "multipoint_max_pairs": 15,
+    "multipoint_n_points": 2,
+    "multipoint_pair_strategy": "spread",
+    "noise_level": 0.0,
+    "noise_model": "additive",
+    "nooutput": false,
+    "ode_solver": "OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}}((OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03)), OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}(OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03), 10, 3, 9//10, 9//10, 2, false, 5))",
+    "opt_ad_backend": "forward",
+    "opt_lb": [
+      0.0,
+      0.0,
+      0.0,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05
+    ],
+    "opt_maxiters": 200000,
+    "opt_ub": [
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0,
+      1000.0
+    ],
+    "point_hint": 0.5,
+    "polish_coordinate_policy": "auto",
+    "polish_divergence_factor": 10.0,
+    "polish_lso_delta": 10.0,
+    "polish_lso_f_tol": -1.0,
+    "polish_lso_g_tol": -1.0,
+    "polish_lso_x_tol": -1.0,
+    "polish_max_concurrency": 7,
+    "polish_maxiters": 5000,
+    "polish_maxtime": 120.0,
+    "polish_method": "PolishLSOBoundedLog",
+    "polish_ode_maxiters": 20000,
+    "polish_regularization_lambda": 0.0,
+    "polish_softwall_epsilon": 0.1,
+    "polish_softwall_lambda": 0.01,
+    "polish_solutions": true,
+    "polish_solver_solutions": true,
+    "polish_stagnation_window": 50,
+    "profile_phases": true,
+    "rank_strategy": "err_only",
+    "reltol": 1e-12,
+    "rough_cluster_eps": 1.0,
+    "s3_adapt_k": 10.0,
+    "save_filepath": "",
+    "save_system": true,
+    "sensitivity_seed_eigenvalue_threshold": 0.01,
+    "sensitivity_seed_mahalanobis_threshold": -1.0,
+    "sensitivity_seed_probe_scale": 1.0,
+    "sensitivity_sigma_d_kappa": 2.0,
+    "shade_global_eval_fraction": 0.7,
+    "shade_n_local_starts": 5,
+    "shade_population": 0,
+    "shade_seed": null,
+    "shade_total_max_evals": 200000,
+    "shade_total_max_time": 600.0,
+    "shooting_points": 20,
+    "shooting_warp": true,
+    "shooting_warp_beta": 3.0,
+    "si_placeholder_fail_categories": [],
+    "si_probability": 0.99,
+    "subspace_cluster_eps": 0.05,
+    "synthesize_aggregate_candidates": true,
+    "system_construction_policy": "noise_frontier",
+    "system_solver": "SolverHC",
+    "t0_state_completion": "strict",
+    "terminal_fallback": "none",
+    "time_interval": [
+      0.0,
+      180.0
+    ],
+    "uneven_sampling": false,
+    "uneven_sampling_times": [],
+    "uq_failure_policy": "return_failed",
+    "uq_noise_source": "learned_gp_homoscedastic",
+    "use_column_scaling": true,
+    "use_multipoint": true,
+    "use_parameter_homotopy": true,
+    "use_sensitivity_seeds": false,
+    "use_si_template": true
+  },
+  "pid": 2348241,
+  "preparation_seconds": 123.76795697212219,
+  "ranked_results": [
+    {
+      "all_unidentifiable": [],
+      "at_time": 36.0,
+      "fit_error": 9.456374291017221e-23,
+      "parameters": {
+        "kb2": 0.005843831819290138,
+        "kc1": 0.0016788252422775896,
+        "kc2": 0.006975989070457764,
+        "kc4": 0.006082700899175135
+      },
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          15,
+          16,
+          17
+        ],
+        "estimator_identity": "EstimatorIdentity(256, :single_point_algebraic, :point_set, [41], [36.0], :aaad, Int64[])",
+        "interpolator_source": "aaad",
+        "multipoint_combo_index": null,
+        "multipoint_time_indices": null,
+        "notes": [
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(3 => 1, 2 => 2, 1 => 1), Set{Num}(), Symbol[], nothing)",
+        "polish_applied": false,
+        "polish_source_hc_idx": null,
+        "post_polish_error": 9.456374291017221e-23,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": null,
+        "primary_method": "algebraic",
+        "representative_assignments": {},
+        "rescue_path": "none",
+        "source_candidate_index": 256,
+        "source_shooting_index": 41,
+        "source_type": "single_point",
+        "structural_fix_set": {},
+        "template_status": "determined"
+      },
+      "recovery": {
+        "b10(t)": {
+          "absolute_error": 4.815445063548908e-13,
+          "estimate": -4.815445063548908e-13,
+          "relative_error": null,
+          "truth": 0.0
+        },
+        "bcry(t)": {
+          "absolute_error": 4.884981308350689e-13,
+          "estimate": 5.216938656617521,
+          "relative_error": 9.363693211446502e-14,
+          "truth": 5.21693865661801
+        },
+        "kb2": {
+          "absolute_error": 1.9138336748714124e-14,
+          "estimate": 0.005843831819290138,
+          "relative_error": 3.2749636438205324e-12,
+          "truth": 0.005843831819271
+        },
+        "kc1": {
+          "absolute_error": 3.589576552665008e-15,
+          "estimate": 0.0016788252422775896,
+          "relative_error": 2.1381478323514244e-12,
+          "truth": 0.001678825242274
+        },
+        "kc2": {
+          "absolute_error": 5.236262812235992e-15,
+          "estimate": 0.006975989070457764,
+          "relative_error": 7.506122442775643e-13,
+          "truth": 0.006975989070463
+        },
+        "kc4": {
+          "absolute_error": 1.9864318523410418e-14,
+          "estimate": 0.006082700899175135,
+          "relative_error": 3.265706937199446e-12,
+          "truth": 0.006082700899195
+        },
+        "ohb10(t)": {
+          "absolute_error": 6.998848282198361e-13,
+          "estimate": 6.998848282198361e-13,
+          "relative_error": null,
+          "truth": 0.0
+        }
+      },
+      "states": {
+        "b10(t)": -4.815445063548908e-13,
+        "bcry(t)": 5.216938656617521,
+        "ohb10(t)": 6.998848282198361e-13
+      }
+    }
+  ],
+  "raw_count": 429,
+  "seed": 20260911,
+  "status": "complete",
+  "timing": {
+    "details": {
+      "detailed_timing_summary": {
+        "multipoint_combo_eval": {
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "count": 135,
+          "max_seconds": 0.872032880783081,
+          "stage_seconds": {
+            "evaluate_template": 0.2893953323364258,
+            "noise_frontier_validation": 0.18571233749389648
+          },
+          "total_seconds": 0.9025864601135254
+        },
+        "multipoint_template_evaluate": {
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "count": 135,
+          "max_seconds": 0.01332998275756836,
+          "stage_seconds": {
+            "nth_deriv": 0.009821653366088867,
+            "observable_name_map": 0.0023174285888671875,
+            "other": 0.002168416976928711,
+            "parse_and_lookup": 0.0004363059997558594,
+            "transcendental_lookup": 0.014608144760131836
+          },
+          "total_seconds": 0.02935194969177246
+        },
+        "noise_frontier_validation": {
+          "context_counts": {
+            "unspecified": 315
+          },
+          "count": 315,
+          "max_seconds": 0.4407389163970947,
+          "stage_seconds": {
+            "cached_validation": 6.651878356933594e-05,
+            "prepare_validation_cache": 0.6346962451934814,
+            "reuse_data_independent_rank": 0.0
+          },
+          "total_seconds": 0.6350691318511963
+        },
+        "noise_rank_matrix": {
+          "context_counts": {
+            "unspecified": 2
+          },
+          "count": 2,
+          "max_seconds": 2.014214038848877,
+          "stage_seconds": {
+            "compile_system_function": 0.19233298301696777,
+            "forwarddiff_jacobian": 0.7633459568023682,
+            "rank_eval": 1.5946650505065918
+          },
+          "total_seconds": 2.6574559211730957
+        },
+        "polish_batch": {
+          "context_counts": {
+            "polish": 1
+          },
+          "count": 1,
+          "max_seconds": 15.253437042236328,
+          "stage_seconds": {
+            "cluster_metadata": 0.07902002334594727,
+            "collect_results": 3.695487976074219e-05,
+            "worker_polish": 15.06679391860962
+          },
+          "total_seconds": 15.253437042236328
+        },
+        "polish_context_build": {
+          "context_counts": {
+            "polish": 1,
+            "synthesis": 1
+          },
+          "count": 2,
+          "max_seconds": 0.3572399616241455,
+          "stage_seconds": {
+            "base_ode_problem": 0.020458221435546875,
+            "build_observable_functions": 0.07167410850524902,
+            "complete_model": 0.0173189640045166,
+            "materialize_data_targets": 8.106231689453125e-06,
+            "optimization_function": 0.00011801719665527344
+          },
+          "total_seconds": 0.38140106201171875
+        },
+        "polish_single_residual": {
+          "context_counts": {
+            "polish": 30
+          },
+          "count": 30,
+          "max_seconds": 13.927291870117188,
+          "stage_seconds": {
+            "final_ode_solve": 0.05420708656311035,
+            "final_residual": 0.0713644027709961,
+            "initial_residual": 7.861792325973511,
+            "optimizer_solve": 27.840534687042236
+          },
+          "total_seconds": 43.071386098861694
+        },
+        "process_raw_solution": {
+          "context_counts": {
+            "result_processing": 315
+          },
+          "count": 315,
+          "max_seconds": 6.415262937545776,
+          "stage_seconds": {
+            "error_eval": 0.5268688201904297,
+            "ode_problem_build": 1.08125638961792,
+            "ode_solve": 5.286428451538086
+          },
+          "total_seconds": 7.516558885574341
+        },
+        "raw_solver_polish": {
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "count": 180,
+          "max_seconds": 4.681915044784546,
+          "stage_seconds": {
+            "instantiate_system": 0.1661989688873291,
+            "robust_polish_solve": 46.211485624313354
+          },
+          "total_seconds": 49.198808670043945
+        },
+        "single_point_noise_frontier_validation": {
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "count": 180,
+          "max_seconds": 2.526998996734619,
+          "stage_seconds": {
+            "rank_validation": 2.536231517791748
+          },
+          "total_seconds": 2.536231517791748
+        },
+        "single_point_param_eval": {
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "count": 180,
+          "max_seconds": 2.8926429748535156,
+          "stage_seconds": {
+            "noise_frontier_data_vars": 5.9026312828063965
+          },
+          "total_seconds": 5.931258201599121
+        },
+        "solve_with_robust": {
+          "context_counts": {
+            "unspecified": 180
+          },
+          "count": 180,
+          "max_seconds": 2.1461000442504883,
+          "stage_seconds": {
+            "build_residual_function": 0.08205151557922363,
+            "deduplicate_solutions": 7.414817810058594e-05,
+            "final_residual": 0.012342453002929688,
+            "generate_starts": 3.0994415283203125e-05,
+            "initial_residual": 9.600882530212402,
+            "jacobian_setup": 0.0002777576446533203,
+            "materialize_solution_vectors": 0.023801088333129883,
+            "nonlinear_solve": 36.45145130157471
+          },
+          "total_seconds": 46.20869255065918
+        }
+      },
+      "interpolant_creation_seconds_by_source": {
+        "aaad": 0.04584002494812012,
+        "aaad_gpr": 1.258476972579956,
+        "agp_robust": 1.9049201011657715,
+        "agp_robust_rq": 3.1638240814208984,
+        "chebyshev_aicc": 0.18203306198120117,
+        "chebyshev_bic": 0.7564249038696289,
+        "s2_aaa_mle": 0.0337071418762207,
+        "s3_adapt_rq": 0.1278209686279297,
+        "s3_adapt_se": 6.101083040237427
+      },
+      "mp_generic_start_cache_hits": 8,
+      "mp_generic_start_cache_misses": 1,
+      "multipoint_eval_seconds_by_source": {
+        "aaad": 0.0024871826171875,
+        "aaad_gpr": 0.004575967788696289,
+        "agp_robust": 0.8770229816436768,
+        "agp_robust_rq": 0.007177829742431641,
+        "chebyshev_aicc": 0.002192974090576172,
+        "chebyshev_bic": 0.002685070037841797,
+        "s2_aaa_mle": 0.002254009246826172,
+        "s3_adapt_rq": 0.002462148666381836,
+        "s3_adapt_se": 0.0022220611572265625
+      },
+      "multipoint_generic_start_seconds_by_source": {
+        "agp_robust": 2.417935848236084
+      },
+      "multipoint_solve_seconds_by_source": {
+        "aaad": 0.03933405876159668,
+        "aaad_gpr": 0.03709983825683594,
+        "agp_robust": 2.0736241340637207,
+        "agp_robust_rq": 0.03595590591430664,
+        "chebyshev_aicc": 0.03538799285888672,
+        "chebyshev_bic": 0.03804802894592285,
+        "s2_aaa_mle": 0.039598941802978516,
+        "s3_adapt_rq": 0.037734031677246094,
+        "s3_adapt_se": 0.03191709518432617
+      },
+      "multipoint_template_eval_seconds_by_source": {
+        "aaad": 0.0008287429809570312,
+        "aaad_gpr": 0.002911090850830078,
+        "agp_robust": 0.2762465476989746,
+        "agp_robust_rq": 0.0054473876953125,
+        "chebyshev_aicc": 0.0007195472717285156,
+        "chebyshev_bic": 0.0008823871612548828,
+        "s2_aaa_mle": 0.0007953643798828125,
+        "s3_adapt_rq": 0.0008139610290527344,
+        "s3_adapt_se": 0.0007503032684326172
+      },
+      "multipoint_template_seconds_by_source": {
+        "aaad": 5.9604644775390625e-06,
+        "aaad_gpr": 6.9141387939453125e-06,
+        "agp_robust": 1.3088140487670898,
+        "agp_robust_rq": 0.0050318241119384766,
+        "chebyshev_aicc": 5.0067901611328125e-06,
+        "chebyshev_bic": 9.059906005859375e-06,
+        "s2_aaa_mle": 6.9141387939453125e-06,
+        "s3_adapt_rq": 1.1920928955078125e-05,
+        "s3_adapt_se": 9.059906005859375e-06
+      },
+      "multipoint_validation_seconds_by_source": {
+        "aaad": 0.0014264583587646484,
+        "aaad_gpr": 0.0014057159423828125,
+        "agp_robust": 0.17475676536560059,
+        "agp_robust_rq": 0.0014719963073730469,
+        "chebyshev_aicc": 0.0012621879577636719,
+        "chebyshev_bic": 0.0015003681182861328,
+        "s2_aaa_mle": 0.0012290477752685547,
+        "s3_adapt_rq": 0.0014111995697021484,
+        "s3_adapt_se": 0.0012485980987548828
+      },
+      "n_interpolators": 9,
+      "n_shooting_points": 20,
+      "noise_frontier_mp_cache_hits": 8,
+      "noise_frontier_mp_cache_misses": 1,
+      "noise_frontier_sp_cache_hits": 8,
+      "noise_frontier_sp_cache_misses": 1,
+      "raw_solver_polish_instantiate_seconds_by_source": {
+        "aaad": 0.0064280033111572266,
+        "aaad_gpr": 0.009889364242553711,
+        "agp_robust": 0.10969233512878418,
+        "agp_robust_rq": 0.01233816146850586,
+        "chebyshev_aicc": 0.0032935142517089844,
+        "chebyshev_bic": 0.006201505661010742,
+        "s2_aaa_mle": 0.0063703060150146484,
+        "s3_adapt_rq": 0.005945682525634766,
+        "s3_adapt_se": 0.006040096282958984
+      },
+      "raw_solver_polish_solve_seconds_by_source": {
+        "aaad": 6.9035303592681885,
+        "aaad_gpr": 5.537099123001099,
+        "agp_robust": 7.212274551391602,
+        "agp_robust_rq": 5.5082314014434814,
+        "chebyshev_aicc": 0.012050628662109375,
+        "chebyshev_bic": 5.3579511642456055,
+        "s2_aaa_mle": 5.179044246673584,
+        "s3_adapt_rq": 5.087668418884277,
+        "s3_adapt_se": 5.413635730743408
+      },
+      "resolve_states_with_fixed_params_summary": {
+        "synthesis": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.0,
+          "count": 20,
+          "hc_solve_seconds": 3.394918203353882,
+          "hc_success_count": 20,
+          "instantiate_seconds": 0.38878560066223145,
+          "max_seconds": 4.189312934875488,
+          "sian_rerun_seconds": 0.9545958042144775,
+          "threw_count": 0,
+          "total_seconds": 5.202309846878052
+        }
+      },
+      "reusable_system_cache_entries": 315,
+      "si_template_algebraic_multiplicity_timing": {
+        "groebner_seconds": 4.659102912,
+        "multiplicity": 1,
+        "polynomial_count": 18,
+        "quotient_basis_seconds": 0.833552823,
+        "ring_variable_count": 15,
+        "setup_seconds": 0.223721568,
+        "skipped": false
+      },
+      "si_template_equation_builder_timing": {
+        "assess_identifiability": 0.02092289924621582,
+        "convert_to_si_ode": 0.0007789134979248047,
+        "ensure_dd_support": 0.0068361759185791016,
+        "extract_unidentifiable": 6.9141387939453125e-06,
+        "find_identifiable_functions": 0.012990951538085938,
+        "get_polynomial_system_from_sian": 5.804236888885498,
+        "nemo_to_symbolics_conversion": 0.001055002212524414,
+        "prefixed_substitutions": 9.5367431640625e-07,
+        "variable_role_mapping": 0.0015871524810791016
+      },
+      "si_template_sian_timing": {
+        "algebraic_independence": 0.0016129016876220703,
+        "degree_bound": 7.510185241699219e-05,
+        "derivative_mapping": 0.00016498565673828125,
+        "evaluate_Et_base": 0.0022649765014648438,
+        "get_equations": 0.000620418,
+        "get_x_y_eq": 0.0051419734954833984,
+        "local_identifiability_jacobians": 0.008212089538574219,
+        "rank_construction": 0.009100198745727539,
+        "reduce_system": 8.606910705566406e-05,
+        "sample_point": 0.0006699562072753906,
+        "variable_filtering": 0.00016880035400390625,
+        "variable_setup": 5.0067901611328125e-06
+      },
+      "single_point_data_eval_seconds_by_source": {
+        "aaad": 0.02480602264404297,
+        "aaad_gpr": 2.895598888397217,
+        "agp_robust": 1.8573429584503174,
+        "agp_robust_rq": 0.8855781555175781,
+        "chebyshev_aicc": 0.0006830692291259766,
+        "chebyshev_bic": 0.10517191886901855,
+        "s2_aaa_mle": 0.0006260871887207031,
+        "s3_adapt_rq": 0.0006029605865478516,
+        "s3_adapt_se": 0.16170001029968262
+      },
+      "single_point_frontier_seconds_by_source": {
+        "aaad": 4.0531158447265625e-06,
+        "aaad_gpr": 4.0531158447265625e-06,
+        "agp_robust": 19.533867120742798,
+        "agp_robust_rq": 7.867813110351562e-06,
+        "chebyshev_aicc": 5.0067901611328125e-06,
+        "chebyshev_bic": 7.152557373046875e-06,
+        "s2_aaa_mle": 2.86102294921875e-06,
+        "s3_adapt_rq": 3.814697265625e-06,
+        "s3_adapt_se": 5.0067901611328125e-06
+      },
+      "single_point_generic_start_seconds_by_source": {
+        "agp_robust": 18.704195976257324
+      },
+      "single_point_hc_seconds_by_source": {
+        "aaad": 0.025331974029541016,
+        "aaad_gpr": 0.02508401870727539,
+        "agp_robust": 3.8840291500091553,
+        "agp_robust_rq": 0.023945093154907227,
+        "chebyshev_aicc": 0.02393507957458496,
+        "chebyshev_bic": 0.02359294891357422,
+        "s2_aaa_mle": 0.02304697036743164,
+        "s3_adapt_rq": 0.02181696891784668,
+        "s3_adapt_se": 0.02609395980834961
+      },
+      "single_point_system_seconds_by_source": {},
+      "single_point_validation_seconds_by_source": {
+        "aaad": 0.0014104843139648438,
+        "aaad_gpr": 0.0010528564453125,
+        "agp_robust": 2.5279738903045654,
+        "agp_robust_rq": 0.001027822494506836,
+        "chebyshev_aicc": 0.0009303092956542969,
+        "chebyshev_bic": 0.0010488033294677734,
+        "s2_aaa_mle": 0.0009479522705078125,
+        "s3_adapt_rq": 0.0007874965667724609,
+        "s3_adapt_se": 0.0010519027709960938
+      },
+      "sp_generic_start_cache_hits": 8,
+      "sp_generic_start_cache_misses": 1,
+      "used_multipoint": true,
+      "used_parameter_homotopy": true
+    },
+    "label": "optimized_multishot",
+    "phases": [
+      {
+        "bytes": 331010088,
+        "gctime": 0.0,
+        "name": "Setup (identifiability)",
+        "seconds": 4.146082341
+      },
+      {
+        "bytes": 4861088288,
+        "gctime": 0.822744681,
+        "name": "SI Template (SIAN analysis)",
+        "seconds": 67.2711269
+      },
+      {
+        "bytes": 11363840216,
+        "gctime": 1.445142437,
+        "name": "Equation construction + Solving",
+        "seconds": 113.788905141
+      },
+      {
+        "bytes": 2142651608,
+        "gctime": 0.268244267,
+        "name": "Result processing",
+        "seconds": 25.206833713
+      },
+      {
+        "bytes": 1434188232,
+        "gctime": 0.40681964,
+        "name": "Synthesize aggregates",
+        "seconds": 15.974415514
+      },
+      {
+        "bytes": 4113877760,
+        "gctime": 0.870861373,
+        "name": "Polish (BFGS)",
+        "seconds": 13.7264507
+      },
+      {
+        "bytes": 229474032,
+        "gctime": 0.041978965,
+        "name": "Branch completion",
+        "seconds": 21.563429343
+      }
+    ],
+    "total_seconds": 261.677243652
+  },
+  "estimator_revision": "7e926a78c7e2696d22579c201ea44c7ace4bc96d",
+  "revision_note": "Revision recorded at first evidence promotion; preserved on subsequent report refreshes.",
+  "artifact_sha256": {
+    "artifacts/diagnostics/Bruno_JExpBot2016_model1_data4_dense_rescaled/synthesis_log.csv": "e720c4c631ea54769f202d9b6a652a51bf3bbe9fa62af81dcdce59f2cd235efb",
+    "data.json": "9b12380252518dfd8f10a33c0f12c228ec075d8afebc4d0a6fdbd4ce337aeff3",
+    "detailed_timing.json": "b3757aad8307e019b5b62672f3571e5a16ec1c274430bd8e2bf2f3717c483533",
+    "resolve_timing.json": "87b7e9fdb1759b24b33ddf174f468891f33e85d01c0e27f2f96a9825fc20db53",
+    "result.json": "67d956914a6ebf9863b9e8bc2bb91767f3d72d87488ffc33fcb94b43e99994cd",
+    "saved_systems/si_template_2026-09-11T12:12:28.126.jl": "55df12d220c28d6875d9eabcb756be5486a7ea900b60f2e88b1da54936050708",
+    "source/common.jl": "6b9cf5dbc3d64c58e10df66bad363f9debb6dc8563893ee21099fbb55c3e3319",
+    "source/run.jl": "d73802dedb5a15a82c1a2be682aa4febb3f8dfbd21c78f006d201075d29babbb",
+    "worker.log": "b82bb96204096a0f831afe5ae9120046bf6a2ef7768107bcbb813c9b2d8d2906"
+  },
+  "profile_excerpts": {},
+  "executed_source_snapshot": "sources/bruno_201",
+  "selected_systems_from_log": [
+    {
+      "points": 1,
+      "max_observed_order": 2,
+      "mixed_volume": 1,
+      "solve_variables": 14,
+      "data_coefficients": 9
+    },
+    {
+      "points": 2,
+      "max_observed_order": 1,
+      "mixed_volume": 1,
+      "solve_variables": 24,
+      "data_coefficients": 12
+    }
+  ],
+  "heartbeats": [
+    "[HB 12:11:11] \u25b6 run model=Bruno_JExpBot2016_model1_data4_dense_rescaled pid=2348241 julia=1.13.0 odepe=1.1.0-DEV hc=2.22.4 threads=7 gcthreads=7",
+    "[HB 12:11:11] \u25b6 Setup (identifiability)",
+    "[HB 12:11:15] \u2713 Setup (identifiability) (4.1s)",
+    "[HB 12:11:17] \u25b6 SI Template (SIAN analysis)",
+    "[HB 12:12:27] \u2713 SI Template (SIAN analysis) (67.3s)",
+    "[HB 12:12:33] \u25b6 Equation construction + Solving",
+    "[HB 12:12:33] \u25b6 interpolator 1/9 agp_robust",
+    "[HB 12:13:21] \u2713 HC solve (single-point) agp_robust 20 pts (3.9s)",
+    "[HB 12:13:38] \u2713 HC solve (multipoint) agp_robust (2.1s)",
+    "[HB 12:13:38] \u25b6 interpolator 2/9 agp_robust_rq",
+    "[HB 12:13:42] \u2713 HC solve (single-point) agp_robust_rq 20 pts (0.0s)",
+    "[HB 12:13:47] \u2713 HC solve (multipoint) agp_robust_rq (0.0s)",
+    "[HB 12:13:47] \u25b6 interpolator 3/9 s3_adapt_se",
+    "[HB 12:13:54] \u2713 HC solve (single-point) s3_adapt_se 20 pts (0.0s)",
+    "[HB 12:13:59] \u2713 HC solve (multipoint) s3_adapt_se (0.0s)",
+    "[HB 12:13:59] \u25b6 interpolator 4/9 s3_adapt_rq",
+    "[HB 12:13:59] \u2713 HC solve (single-point) s3_adapt_rq 20 pts (0.0s)",
+    "[HB 12:14:05] \u2713 HC solve (multipoint) s3_adapt_rq (0.0s)",
+    "[HB 12:14:05] \u25b6 interpolator 5/9 chebyshev_bic",
+    "[HB 12:14:05] \u2713 HC solve (single-point) chebyshev_bic 20 pts (0.0s)",
+    "[HB 12:14:11] \u2713 HC solve (multipoint) chebyshev_bic (0.0s)",
+    "[HB 12:14:11] \u25b6 interpolator 6/9 chebyshev_aicc",
+    "[HB 12:14:11] \u2713 HC solve (single-point) chebyshev_aicc 20 pts (0.0s)",
+    "[HB 12:14:11] \u2713 HC solve (multipoint) chebyshev_aicc (0.0s)",
+    "[HB 12:14:11] \u25b6 interpolator 7/9 aaad_gpr",
+    "[HB 12:14:15] \u2713 HC solve (single-point) aaad_gpr 20 pts (0.0s)",
+    "[HB 12:14:21] \u2713 HC solve (multipoint) aaad_gpr (0.0s)",
+    "[HB 12:14:21] \u25b6 interpolator 8/9 aaad",
+    "[HB 12:14:21] \u2713 HC solve (single-point) aaad 20 pts (0.0s)",
+    "[HB 12:14:28] \u2713 HC solve (multipoint) aaad (0.0s)",
+    "[HB 12:14:28] \u25b6 interpolator 9/9 s2_aaa_mle",
+    "[HB 12:14:28] \u2713 HC solve (single-point) s2_aaa_mle 20 pts (0.0s)",
+    "[HB 12:14:34] \u2713 HC solve (multipoint) s2_aaa_mle (0.0s)",
+    "[HB 12:14:34] \u2713 Equation construction + Solving (113.8s)",
+    "[HB 12:14:34] \u25b6 Result processing",
+    "[HB 12:15:01] \u2713 Result processing (25.2s)",
+    "[HB 12:15:01] \u25b6 Synthesize aggregates",
+    "[HB 12:15:17] \u2713 Synthesize aggregates (16.0s)",
+    "[HB 12:15:17] \u25b6 Polish (BFGS)",
+    "[HB 12:15:32] \u2713 Polish (BFGS) (13.7s)",
+    "[HB 12:15:32] \u25b6 Branch completion",
+    "[HB 12:15:54] \u2713 Branch completion (21.6s)",
+    "[HB 12:15:55] \u25b6 Clustering + analysis",
+    "[HB 12:15:57] \u2713 Clustering + analysis",
+    "[HB 12:15:57] \u2713 run"
+  ],
+  "construction_messages": [
+    "[ Info: Built polynomial system with 17 equations",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 14",
+    "\u250c Info: [SI-TEMPLATE] Polynomial construction summary\n\u2502   raw_equations = 17\n\u2502   raw_ring_variables = 14\n\u2502   locally_identifiable_count = 7\n\u2502   filtered_ring_variables = 14\n\u2502   selected_equations = 14\n\u2514   dropped_equations = 3",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 8",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 14\n\u2502   derivative_symbol_count = 27\n\u2502   max_derivative_order = 8\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 4",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 8",
+    "[ Info: Built polynomial system with 17 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.22s, Groebner 4.66s, quotient_basis 0.83s, ring: 15 vars \u00d7 18 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 14",
+    "\u250c Info: [SI-TEMPLATE] Polynomial construction summary\n\u2502   raw_equations = 17\n\u2502   raw_ring_variables = 14\n\u2502   locally_identifiable_count = 7\n\u2502   filtered_ring_variables = 14\n\u2502   selected_equations = 14\n\u2514   dropped_equations = 3",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 8",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 14\n\u2502   derivative_symbol_count = 27\n\u2502   max_derivative_order = 8\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 4",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 8",
+    "[ Info: [TEMPLATE-STRUCTURE] System status: 14 equations, 14 unknowns (+ 27 data variables)",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.46s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "[ Info: Built polynomial system with 9 equations",
+    "[ Info: [SI-TEMPLATE] algebraic_multiplicity M = 1  (setup 0.0s, Groebner 0.0s, quotient_basis 0.0s, ring: 7 vars \u00d7 10 polys)",
+    "[ Info: [DEBUG-ALG-INDEP] Jacobian rank: 6",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4",
+    "\u250c Info: [SI-STRUCTURAL] SIAN/SI template summary\n\u2502   template_equation_count = 6\n\u2502   derivative_symbol_count = 15\n\u2502   max_derivative_order = 4\n\u2502   structural_unidentifiable_count = 0\n\u2514   identifiable_function_count = 0",
+    "\u250c Info: [SI-MAP] Extending DerivativeData support for SI template\n\u2502   current_order = 2\n\u2514   required_order = 4"
+  ]
+}

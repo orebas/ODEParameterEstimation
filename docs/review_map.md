@@ -6,6 +6,10 @@ release blockers live in [Production readiness](2026-09-10_production_readiness.
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
 its line counts, open findings, and test classifications are obsolete.
 
+The [dense single-experiment record](2026-09-11_dense_single_experiments.md)
+contains current Bruno recovery evidence and focused Fujita/Sneyd performance
+profiles using the normal benchmark workflow and existing timing infrastructure.
+
 ## Start here
 
 Read the canonical instructions in [`CLAUDE.md`](../CLAUDE.md). Use Julia with

@@ -1,0 +1,144 @@
+{
+  "condition": "Ca_dose_response__1",
+  "elapsed_seconds": 286.3970260620117,
+  "error": "InterruptException:\nStacktrace:\n   [1] Array\n     @ ./boot.jl:649 [inlined]\n   [2] vect\n     @ ./array.jl:161 [inlined]\n   [3] convert\n     @ ~/.julia/packages/DynamicPolynomials/pqurk/src/mono.jl:45 [inlined]\n   [4] convert\n     @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/default_term.jl:32 [inlined]\n   [5] setindex!\n     @ ./genericmemory.jl:269 [inlined]\n   [6] unsafe_copyto!(dest::Memory{MultivariatePolynomials.Term{Int64, DynamicPolynomials.Monomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}}, doffs::Int64, src::Memory{DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}, soffs::Int64, n::Int64)\n     @ Base ./genericmemory.jl:172\n   [7] unsafe_copyto!\n     @ ./genericmemory.jl:151 [inlined]\n   [8] _copyto_impl!\n     @ ./array.jl:300 [inlined]\n   [9] copyto!\n     @ ./array.jl:286 [inlined]\n  [10] _copyto2arg!\n     @ ./array.jl:311 [inlined]\n  [11] copyto!\n     @ ./array.jl:313 [inlined]\n  [12] copy!(dst::Vector{MultivariatePolynomials.Term{Int64, DynamicPolynomials.Monomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}}, src::Vector{DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}})\n     @ Base ./abstractarray.jl:930\n  [13] _subsmap\n     @ ~/.julia/packages/DynamicPolynomials/pqurk/src/subs.jl:104 [inlined]\n  [14] subsmap\n     @ ~/.julia/packages/DynamicPolynomials/pqurk/src/subs.jl:109 [inlined]\n  [15] substitute\n     @ ~/.julia/packages/DynamicPolynomials/pqurk/src/subs.jl:225 [inlined]\n  [16] subs\n     @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/substitution.jl:237 [inlined]\n  [17] #isolate_variable##0\n     @ ./none:-1 [inlined]\n  [18] iterate\n     @ ./generator.jl:48 [inlined]\n  [19] collect_to!(dest::Vector{MultivariatePolynomials.Term{Float64, DynamicPolynomials.Monomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}}, itr::Base.Generator{UnitRange{Int64}, MultivariatePolynomials.var\"#isolate_variable##0#isolate_variable##1\"{DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, Vector{MultivariatePolynomials.Term{Float64, DynamicPolynomials.Monomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}}}}, offs::Int64, st::Int64)\n     @ Base ./array.jl:886\n  [20] collect_to_with_first!\n     @ ./array.jl:864 [inlined]\n  [21] collect(itr::Base.Generator{UnitRange{Int64}, MultivariatePolynomials.var\"#isolate_variable##0#isolate_variable##1\"{DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, Vector{MultivariatePolynomials.Term{Float64, DynamicPolynomials.Monomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}}}}})\n     @ Base ./array.jl:838\n  [22] isolate_variable(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, mutability::MutableArithmetics.IsNotMutable)\n     @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:507\n  [23] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n     @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:349\n  [24] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n     @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n \u250c[25] gcd\n \u2502   @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n  [27] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64})\n     @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185\n  [28] safe_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number})\n     @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:281\n  [29] simplify_div(num::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}, den::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n     @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:290\n  [30] simplify_div(d::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n     @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:221\n  [31] call_composed(fs::Tuple{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n     @ Base ./operators.jl:1110\n  [32] (::ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n     @ Base ./operators.jl:1107\n  [33] ComposedFunction\n     @ ./operators.jl:1107 [inlined]\n  [34] macro expansion\n     @ ./some.jl:157 [inlined]\n  [35] (::SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n     @ SymbolicUtils.Rewriters ~/.julia/packages/SymbolicUtils/c9cTZ/src/rewriters.jl:0\n  [36] call_composed(fs::Tuple{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n     @ Base ./operators.jl:1110\n  [37] (::ComposedFunction{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n     @ Base ./operators.jl:1107\n  [38] simplify_fractions\n     @ ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:519 [inlined]\n  [39] clear_denoms(eq::Symbolics.Equation)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/math_utils.jl:32\n  [40] macro expansion\n     @ ./timing.jl:699 [inlined]\n  [41] top-level scope\n     @ ~/.julia/dev/ODEParameterEstimation/repro/petab/dense_single/profile_denominators.jl:61\n  [42] include(mod::Module, _path::String)\n     @ Base ./Base.jl:309\n  [43] exec_options(opts::Base.JLOptions)\n     @ Base ./client.jl:344\n  [44] _start()\n     @ Base ./client.jl:577",
+  "estimation_started_unix": 1789146720.574964,
+  "julia_version": "1.13.0",
+  "model": "Sneyd_PNAS2002",
+  "pid": 2660187,
+  "status": "interrupted",
+  "steps": [
+    {
+      "bytes": 321320,
+      "gc_seconds": 0.0,
+      "input_text_length": 53,
+      "max_relative_evaluation_difference": 0.0,
+      "operation": "flatten_without_polynomial_gcd",
+      "order": 0,
+      "output_text_length": 53,
+      "seconds": 0.016207038
+    },
+    {
+      "bytes": 14550976,
+      "gc_seconds": 0.0,
+      "operation": "differentiate",
+      "order": 1,
+      "seconds": 0.267038181
+    },
+    {
+      "bytes": 167464,
+      "gc_seconds": 0.0,
+      "input_text_length": 1245,
+      "max_relative_evaluation_difference": 3.9352146300393693e-16,
+      "operation": "flatten_without_polynomial_gcd",
+      "order": 1,
+      "output_text_length": 2965,
+      "seconds": 0.000954459
+    },
+    {
+      "bytes": 1490752,
+      "gc_seconds": 0.0,
+      "operation": "differentiate",
+      "order": 2,
+      "seconds": 0.043507701
+    },
+    {
+      "bytes": 757848,
+      "gc_seconds": 0.0,
+      "input_text_length": 5902,
+      "max_relative_evaluation_difference": 1.0188436964605146e-15,
+      "operation": "flatten_without_polynomial_gcd",
+      "order": 2,
+      "output_text_length": 13875,
+      "seconds": 0.023980094
+    }
+  ],
+  "supervisor": {
+    "command": [
+      "julia",
+      "--startup-file=no",
+      "--compiled-modules=existing",
+      "/home/orebas/.julia/dev/ODEParameterEstimation/repro/petab/dense_single/profile_denominators.jl",
+      "/home/orebas/.julia/dev/ODEParameterEstimation/repro/petab/dense_single/results/sneyd_denominators"
+    ],
+    "stage_seconds_cap": 180.0,
+    "load_and_preparation_seconds_cap": 600,
+    "profile_signals": [
+      1789146720.8307028,
+      1789146784.6008759,
+      1789146848.3106558
+    ],
+    "pid": 2660187,
+    "status": "timeout",
+    "last_checkpoint_status": "original_clear_denoms_order_2",
+    "measured_stage_seconds": 180.7817645072937,
+    "returncode": 0,
+    "wall_seconds": 305.2996040559956
+  },
+  "estimator_revision": "7e926a78c7e2696d22579c201ea44c7ace4bc96d",
+  "revision_note": "Revision recorded at first evidence promotion; preserved on subsequent report refreshes.",
+  "artifact_sha256": {
+    "final_profile.txt": "ed3e41cbb6c5343b04fa72761d01317bb2be1f5a318753c419bde3b4545047bf",
+    "result.json": "c8a14d51522f31ef6854f1ea361ed57836c2d40d2776a0ef9cd7250b140ad4b2",
+    "sampled_profile.txt": "ed3e41cbb6c5343b04fa72761d01317bb2be1f5a318753c419bde3b4545047bf",
+    "supervisor.json": "267cbce89ac7ed857925be57cc22de033fed99a0f2244da6a38e4c4d7f563152",
+    "worker.log": "c4483678ef5a1f178545f9329084324b22dfcb2f5622aaf993ebda02144dd5cc"
+  },
+  "profile_excerpts": {
+    "final_profile.txt": {
+      "note": "Inclusive stack counts overlap; these are not disjoint time percentages.",
+      "summary": "Total snapshots: 3044. Utilization: 100% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.",
+      "frames": [
+        "3044         0 @ODEParameterEstimation/src/core/math_utils.jl                                                              32 clear_denoms(eq::Symbolics.Equation)",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             519 simplify_fractions",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             221 simplify_div(d::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             290 simplify_div(num::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}, den::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{\u2026",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             281 safe_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{M\u2026",
+        "961         0 @MultivariatePolynomials/src/gcd.jl                                                                        185 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "961         0 @MultivariatePolynomials/src/gcd.jl                                                                        185 gcd",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        205 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        279 deflate(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Mul\u2026",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        309 operate",
+        "710         0 @MultivariatePolynomials/src/gcd.jl                                                                        312 #163",
+        "703         0 @MultivariatePolynomials/src/gcd.jl                                                                        294 operate",
+        "249         0 @MultivariatePolynomials/src/gcd.jl                                                                        261 deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{M\u2026",
+        "248         0 @MultivariatePolynomials/src/gcd.jl                                                                        197 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "120         0 @MultivariatePolynomials/src/gcd.jl                                                                        232 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "43         0 @MultivariatePolynomials/src/gcd.jl                                                                        252 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "26         0 @MultivariatePolynomials/src/gcd.jl                                                                        250 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "7         0 @MultivariatePolynomials/src/gcd.jl                                                                        295 operate",
+        "2         2 @MultivariatePolynomials/src/gcd.jl                                                                        235 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "1         0 @MultivariatePolynomials/src/gcd.jl                                                                        198 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026"
+      ]
+    },
+    "sampled_profile.txt": {
+      "note": "Inclusive stack counts overlap; these are not disjoint time percentages.",
+      "summary": "Total snapshots: 3044. Utilization: 100% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.",
+      "frames": [
+        "3044         0 @ODEParameterEstimation/src/core/math_utils.jl                                                              32 clear_denoms(eq::Symbolics.Equation)",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             519 simplify_fractions",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             221 simplify_div(d::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             290 simplify_div(num::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}, den::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{\u2026",
+        "3044         0 @SymbolicUtils/src/polyform.jl                                                                             281 safe_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{M\u2026",
+        "961         0 @MultivariatePolynomials/src/gcd.jl                                                                        185 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "961         0 @MultivariatePolynomials/src/gcd.jl                                                                        185 gcd",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        205 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        279 deflate(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Mul\u2026",
+        "712         0 @MultivariatePolynomials/src/gcd.jl                                                                        309 operate",
+        "710         0 @MultivariatePolynomials/src/gcd.jl                                                                        312 #163",
+        "703         0 @MultivariatePolynomials/src/gcd.jl                                                                        294 operate",
+        "249         0 @MultivariatePolynomials/src/gcd.jl                                                                        261 deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{M\u2026",
+        "248         0 @MultivariatePolynomials/src/gcd.jl                                                                        197 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026",
+        "120         0 @MultivariatePolynomials/src/gcd.jl                                                                        232 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "43         0 @MultivariatePolynomials/src/gcd.jl                                                                        252 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "26         0 @MultivariatePolynomials/src/gcd.jl                                                                        250 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "7         0 @MultivariatePolynomials/src/gcd.jl                                                                        295 operate",
+        "2         2 @MultivariatePolynomials/src/gcd.jl                                                                        235 shift_deflation(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Rev\u2026",
+        "1         0 @MultivariatePolynomials/src/gcd.jl                                                                        198 gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{Multiv\u2026"
+      ]
+    }
+  },
+  "selected_systems_from_log": [],
+  "heartbeats": [],
+  "construction_messages": []
+}
