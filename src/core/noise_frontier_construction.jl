@@ -1529,7 +1529,8 @@ end
 function _noise_select_pool(pep::ParameterEstimationProblem, pool;
 	compute_mixed_volume::Bool = true, candidate_limit::Int = 64,
 	beam_width::Int = 16, rank_atol::Float64 = 1e-8,
-	n_rank_probes::Int = 3, diagnostics::Bool = false)
+	n_rank_probes::Int = 3, diagnostics::Bool = false,
+	materialize_polynomials::F = identity) where {F}
 	candidate_limit > 0 || throw(ArgumentError("candidate_limit must be positive"))
 	beam_width > 0 || throw(ArgumentError("beam_width must be positive"))
 	n_points = pool.n_points
@@ -1558,6 +1559,10 @@ function _noise_select_pool(pep::ParameterEstimationProblem, pool;
 		))
 		feasible || continue
 		selected_cap = cap
+		# Rational experiment jets can defer polynomial construction until rank
+		# permits a solve. Materialization must preserve row order and derivative
+		# metadata; support scores are computed from the resulting polynomials.
+		pool = materialize_polynomials(pool)
 
 		seeds = Vector{Vector{Int}}()
 		orders = Dict{Symbol, Vector{Int}}(

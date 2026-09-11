@@ -201,7 +201,8 @@ function default_numerical_advisory_heuristics(model, measured_quantities, max_n
 		model,
 		measured_quantities,
 		recommended_deriv_order + 1,
-		OrderedDict{Num, Float64}(),
+		OrderedDict{Num, Float64}();
+		include_cleared = false,
 	)
 	good_DD.all_unidentifiable = Set{Num}()
 	return (
@@ -223,7 +224,6 @@ function run_numerical_identifiability_advisory(
 	nooutput = false,
 	advisory_runner = determine_optimal_points_count,
 )
-	fallback = default_numerical_advisory_heuristics(model, measured_quantities, num_points_cap, t_vector, states, params)
 	full_varlist = Set{Num}(vcat(params, states))
 	try
 		good_num_points, good_deriv_level, _good_udict, advisory_varlist, _good_DD =
@@ -232,7 +232,8 @@ function run_numerical_identifiability_advisory(
 			model,
 			measured_quantities,
 			isempty(good_deriv_level) ? 2 : maximum(values(good_deriv_level)) + 1,
-			OrderedDict{Num, Float64}(),
+			OrderedDict{Num, Float64}();
+			include_cleared = false,
 		)
 		good_DD.all_unidentifiable = Set{Num}()
 		flagged_variables = setdiff(full_varlist, Set{Num}(advisory_varlist))
@@ -254,6 +255,9 @@ function run_numerical_identifiability_advisory(
 	catch err
 		_rethrow_if_interrupt(err)
 		@warn "Numerical identifiability advisory failed; continuing with deterministic heuristics" exception = err
+		# The fallback may require deep symbolic derivatives. Build it only when
+		# the advisory actually fails, not before attempting the normal path.
+		fallback = default_numerical_advisory_heuristics(model, measured_quantities, num_points_cap, t_vector, states, params)
 		advisory = NumericalIdentifiabilityAdvisory(
 			status = :failed,
 			recommended_num_points = fallback.good_num_points,

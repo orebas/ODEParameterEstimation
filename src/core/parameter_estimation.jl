@@ -3,21 +3,25 @@
 # - Parameter estimation helper functions -> moved to parameter_estimation_helpers.jl
 
 """
-	populate_derivatives(model::ModelingToolkit.System, measured_quantities_in, max_deriv_level, unident_dict)
+	populate_derivatives(model, measured_quantities_in, max_deriv_level, unident_dict; include_cleared=true)
 
 Populate a DerivativeData object by taking derivatives of state variable and measured quantity equations.
-diff2term is applied everywhere, so we will be left with variables like x_tttt etc.
+Derivatives retain their Differential form so substitutions preserve symbolic identity.
+Rank and support calculations can skip the cleared tables, then request them later
+with `ensure_cleared_derivatives!` if polynomial equations are needed.
 
 # Arguments
 - `model::ModelingToolkit.System`: The ODE system
 - `measured_quantities_in`: Input measured quantities
 - `max_deriv_level`: Maximum derivative level
 - `unident_dict`: Dictionary of unidentifiable variables
+- `include_cleared`: Also construct derivatives of the cleared base equations
 
 # Returns
 - DerivativeData object
 """
-function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict)
+function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_quantities_in, max_deriv_level, unident_dict;
+	include_cleared::Bool = true)
 	(t, model_eq, model_states, model_ps) = unpack_ODE(model)
 	measured_quantities = deepcopy(measured_quantities_in)
 
@@ -32,18 +36,10 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 	#First, we fully substitute values we have chosen for an unidentifiable variables.
 	unident_subst!(model_eq, measured_quantities, unident_dict)
 
-	model_eq_cleared = clear_denoms.(model_eq)
-	measured_quantities_cleared = clear_denoms.(measured_quantities)
-
 	DD.states_lhs = [[eq.lhs for eq in model_eq], expand_derivatives.(D.([eq.lhs for eq in model_eq]))]
 	DD.states_rhs = [[eq.rhs for eq in model_eq], expand_derivatives.(D.([eq.rhs for eq in model_eq]))]
 	DD.obs_lhs = [[eq.lhs for eq in measured_quantities], expand_derivatives.(D.([eq.lhs for eq in measured_quantities]))]
 	DD.obs_rhs = [[eq.rhs for eq in measured_quantities], expand_derivatives.(D.([eq.rhs for eq in measured_quantities]))]
-
-	DD.states_lhs_cleared = [[eq.lhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.lhs for eq in model_eq_cleared]))]
-	DD.states_rhs_cleared = [[eq.rhs for eq in model_eq_cleared], expand_derivatives.(D.([eq.rhs for eq in model_eq_cleared]))]
-	DD.obs_lhs_cleared = [[eq.lhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.lhs for eq in measured_quantities_cleared]))]
-	DD.obs_rhs_cleared = [[eq.rhs for eq in measured_quantities_cleared], expand_derivatives.(D.([eq.rhs for eq in measured_quantities_cleared]))]
 
 	extra_levels = 0
 	for i in 1:(max_deriv_level-2)
@@ -63,8 +59,6 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 
 		push!(DD.states_lhs, new_states_lhs)
 		push!(DD.states_rhs, temp4)
-		push!(DD.states_lhs_cleared, expand_derivatives.(D.(DD.states_lhs_cleared[end])))
-		push!(DD.states_rhs_cleared, expand_derivatives.(D.(DD.states_rhs_cleared[end])))
 		extra_levels += 1
 	end
 
@@ -74,14 +68,51 @@ function populate_derivatives(model::ModelingToolkit.AbstractSystem, measured_qu
 	for i in 1:extra_levels
 		push!(DD.obs_lhs, expand_derivatives.(D.(DD.obs_lhs[end])))
 		push!(DD.obs_rhs, expand_derivatives.(D.(DD.obs_rhs[end])))
-		push!(DD.obs_lhs_cleared, expand_derivatives.(D.(DD.obs_lhs_cleared[end])))
-		push!(DD.obs_rhs_cleared, expand_derivatives.(D.(DD.obs_rhs_cleared[end])))
 	end
+	include_cleared && ensure_cleared_derivatives!(DD)
 
 	# NOTE: We intentionally do NOT apply diff2term here.
 	# diff2term converts Differential(t)(x(t)) to xˍt(t), but it creates NEW symbol objects
 	# each time, causing substitution failures (Symbolics.substitute uses object identity).
 	# By keeping everything in Differential form, structural equality ensures matching.
+	return DD
+end
+
+"""
+	ensure_cleared_derivatives!(DD, max_derivative_order=length(DD.obs_lhs)-1)
+
+Construct missing cleared derivative tables through the requested order. Clear each
+base equation once, then differentiate that polynomial equation, matching the eager
+construction. This is not clearing each differentiated rational equation separately.
+
+# Arguments
+- `DD::DerivativeData`: Rational derivative tables, with any existing cleared prefix
+- `max_derivative_order::Int`: Zero-based order within the available rational tables
+
+# Returns
+The same `DerivativeData`, retaining already constructed cleared derivatives.
+"""
+function ensure_cleared_derivatives!(DD::DerivativeData,
+	max_derivative_order::Int = length(DD.obs_lhs) - 1)::DerivativeData
+	available_order = minimum(length, (DD.states_lhs, DD.states_rhs, DD.obs_lhs, DD.obs_rhs)) - 1
+	0 <= max_derivative_order <= available_order || throw(ArgumentError(
+		"Cleared derivative order must be in 0:$available_order; got $max_derivative_order"))
+	for (raw_lhs, raw_rhs, cleared_lhs, cleared_rhs) in (
+		(DD.states_lhs, DD.states_rhs, DD.states_lhs_cleared, DD.states_rhs_cleared),
+		(DD.obs_lhs, DD.obs_rhs, DD.obs_lhs_cleared, DD.obs_rhs_cleared),
+	)
+		if isempty(cleared_lhs)
+			base = clear_denoms.([lhs ~ rhs for (lhs, rhs) in zip(first(raw_lhs), first(raw_rhs))])
+			push!(cleared_lhs, [eq.lhs for eq in base])
+			push!(cleared_rhs, [eq.rhs for eq in base])
+		end
+		while length(cleared_lhs) <= max_derivative_order
+			next_lhs = expand_derivatives.(D.(last(cleared_lhs)))
+			next_rhs = expand_derivatives.(D.(last(cleared_rhs)))
+			push!(cleared_lhs, next_lhs)
+			push!(cleared_rhs, next_rhs)
+		end
+	end
 	return DD
 end
 
@@ -838,7 +869,8 @@ function multipoint_numerical_jacobian(
 	num_real_states = length(keys(ic_dict_vector[1]))
 
 	if (DD == :nothing)
-		DD = populate_derivatives(model, measured_quantities_local, max_deriv_level, unident_dict)
+		DD = populate_derivatives(model, measured_quantities_local, max_deriv_level, unident_dict;
+			include_cleared = false)
 	end
 
 	function f(param_and_ic_values_vec)

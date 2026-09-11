@@ -70,10 +70,76 @@ end
         OrderedDict{Num, Float64}(), OrderedDict{Num, Float64}(), 0)
     rational_problem = Ext.PEtabAlgebraicProblem("", nothing, rational_pep, ["a"], [a], [:lin],
         OrderedDict(x=>Num(1)), OrderedDict("A"=>[x]), Num[], OrderedDict("A"=>0.0), String[])
-    deficient = Ext._experiment_frontier(rational_problem, rational_pep, ["A"]; max_derivative_order=1)
+    events = NamedTuple[]
+    deficient = Ext._experiment_frontier(rational_problem, rational_pep, ["A"];
+        max_derivative_order=1, progress=event -> push!(events, event))
     @test isnothing(deficient.frontier.selected)
     @test last(deficient.trace).rank == 1
     @test last(deficient.trace).variable_count == 2
+    @test all(event -> event.stage == :experiment_rank, events)
+    @test [event.trace[end].derivative_order for event in events] == [0, 1]
+end
+
+@testset "Rational experiment pools clear only at a feasible depth" begin
+    @parameters a
+    @variables x(t) y1(t) y2(t)
+    ratio = x/(1+x)
+    model, measured = create_ordered_ode_system("saturating_decay", [x], [a],
+        [D(x) ~ -a*x/(1+x)], [y1 ~ ratio, y2 ~ ratio^2])
+    data = ObservationData([
+        ObservationSeries("y1", "A", ratio, [0.0, 1.0], [2/3, 1/2]),
+        ObservationSeries("y2", "A", ratio^2, [0.0, 1.0], [4/9, 1/4])])
+    pep = ParameterEstimationProblem("saturating_decay", model, measured, data,
+        [0.0, 1.0], package_wide_default_ode_solver,
+        OrderedDict{Num, Float64}(), OrderedDict{Num, Float64}(), 0)
+    problem = Ext.PEtabAlgebraicProblem("", nothing, pep, ["a"], [a], [:lin],
+        OrderedDict(x=>Num(2)), OrderedDict("A"=>[x]), Num[], OrderedDict("A"=>0.0), String[])
+    events = NamedTuple[]
+    built = Ext._experiment_frontier(problem, pep, ["A"]; max_derivative_order=4,
+        progress=event -> push!(events, event))
+    @test [event.stage for event in events] ==
+        [:experiment_rank, :experiment_polynomialization, :experiment_rank]
+    @test events[2].derivative_order == 1
+    @test events[2].equation_count == 4
+    @test [row.rank for row in built.trace] == [1, 2]
+    @test last(built.trace).derivative_order == 1
+
+    # Compare with the old eager pool, including support-based basis choices.
+    ODEPE = ODEParameterEstimation
+    equations = Num[]
+    metadata = ODEPE.NoiseEqMeta[]
+    for (i, (dv, (bi, _, order))) in enumerate(built.data_map)
+        eq = ODEPE.clear_denoms(built.jets[i] ~ dv)
+        polynomial = Num(eq.lhs - eq.rhs)
+        push!(equations, polynomial)
+        push!(metadata, (point=bi, source_index=i, max_observed_order=order,
+            support_score=Float64(length(Symbolics.get_variables(polynomial))) + 1e-3*length(string(polynomial))))
+    end
+    variables = vcat(built.params, collect(values(only(built.blocks).flat)))
+    eager_pool = (; symbolic_equations=equations, instantiated_equations=built.jets,
+        instantiated_vars=variables, metadata, template_DD=nothing,
+        full_equation_count=length(equations), n_points=1)
+    eager = ODEPE._noise_select_pool(pep, eager_pool; compute_mixed_volume=false,
+        candidate_limit=8, beam_width=4)
+    @test built.frontier.frontier == eager.frontier
+    @test built.frontier.selected.selected_equation_indices == eager.selected.selected_equation_indices
+    @test built.frontier.selected.eq_metadata == eager.selected.eq_metadata
+    @test isequal(built.frontier.selected.equations, eager.selected.equations)
+    @test isequal(built.frontier.selected.solve_vars, eager.selected.solve_vars)
+    @test isequal(built.frontier.selected.data_vars, eager.selected.data_vars)
+
+    # Exact jets at x=2, a=3; the data fixtures above are not used for this check.
+    selected = built.frontier.selected
+    exact_jets = Dict((1,1,0)=>2/3, (1,2,0)=>4/9, (1,1,1)=>-2/9, (1,2,1)=>-8/27)
+    observed = [exact_jets[built.data_map[Num(dv)]] for dv in selected.data_vars]
+    x0 = only(values(only(built.blocks).flat))
+    truth = Dict(a=>3.0, x0=>2.0)
+    @test isnothing(Ext._experiment_root_error(built, selected, truth, observed))
+    @test !isnothing(Ext._experiment_root_error(built, selected, Dict(a=>3.0, x0=>-1.0), observed))
+    @test !isnothing(Ext._experiment_root_error(built, selected, Dict(a=>4.0, x0=>2.0), observed))
+    substituted = merge(truth, Dict(Num(dv)=>value for (dv,value) in zip(selected.data_vars, observed)))
+    @test all(eq -> abs(Float64(Symbolics.value(Symbolics.substitute(eq, substituted)))) < 1e-10,
+        selected.equations)
 end
 
 @testset "Experiment candidates retain the full PEtab objective" begin

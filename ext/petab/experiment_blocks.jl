@@ -80,17 +80,32 @@ function _experiment_frontier(problem::PEtabAlgebraicProblem, pep::ParameterEsti
     data_map = OrderedDict{Num, Tuple{Int, Int, Int}}()
     trace = NamedTuple[]
     frontier = nothing
+    cleared_equations = Num[]
+    cleared_metadata = ODEPE.NoiseEqMeta[]
+    function materialize_polynomials(pool)
+        progress((; stage=:experiment_polynomialization, conditions=cids,
+            derivative_order=last(pool.metadata).max_observed_order,
+            equation_count=length(jets), variable_count=length(variables), trace=copy(trace)))
+        data_variables = collect(keys(data_map))
+        # Keep the cleared prefix if a square candidate requires another order.
+        for i in (length(cleared_equations)+1):length(jets)
+            equation = ODEPE.clear_denoms(jets[i] ~ data_variables[i])
+            polynomial = Num(equation.lhs - equation.rhs)
+            push!(cleared_equations, polynomial)
+            push!(cleared_metadata, (; pool.metadata[i]...,
+                support_score=Float64(length(Symbolics.get_variables(polynomial))) +
+                    1e-3 * length(string(polynomial))))
+        end
+        return (; pool..., symbolic_equations=cleared_equations, metadata=cleared_metadata)
+    end
     for order in 0:max_derivative_order
         for (bi, block) in enumerate(blocks), (oi, jet) in enumerate(block.jets)
             dv = Symbolics.variable(Symbol(_name(block.measured[oi].lhs) * "_$order"))
-            equation = ODEPE.clear_denoms(jet ~ dv)
-            polynomial = Num(equation.lhs - equation.rhs)
-            push!(symbolic_equations, polynomial)
+            push!(symbolic_equations, jet - dv)
             push!(jets, jet)
             push!(metadata, (point=bi, source_index=length(metadata)+1,
                 max_observed_order=order,
-                support_score=Float64(length(Symbolics.get_variables(polynomial))) +
-                    1e-3 * length(string(polynomial))))
+                support_score=0.0)) # Filled from polynomials only after rank is sufficient.
             data_map[dv] = (bi, oi, order)
         end
         pool = (; symbolic_equations, instantiated_equations=jets,
@@ -99,7 +114,7 @@ function _experiment_frontier(problem::PEtabAlgebraicProblem, pep::ParameterEsti
         # Rank the rational observation map, not cleared polynomials with random
         # data: off the solution set, denominator derivatives can add false rank.
         frontier = ODEPE._noise_select_pool(pep, pool; compute_mixed_volume=false,
-            candidate_limit=8, beam_width=4)
+            candidate_limit=8, beam_width=4, materialize_polynomials)
         last_row = last(frontier.frontier)
         row = (; derivative_order=order, equation_count=length(jets),
             variable_count=length(variables), rank=last_row.allowed_rank,

@@ -501,6 +501,8 @@ Struct to store derivative data of state variable equations and measured quantit
 No substitutions are made.
 The "cleared" versions are produced from versions of the state equations and measured quantity equations
 which have had their denominators cleared, i.e. they should be polynomial and never rational.
+Their tables may be empty or shorter than the rational tables when construction is
+deferred. Call `ensure_cleared_derivatives!` before reading a required cleared order.
 
 # Fields
 - `states_lhs_cleared::Vector{Vector{Num}}`: Left-hand side of cleared state equations (indexed by [derivative_order+1])

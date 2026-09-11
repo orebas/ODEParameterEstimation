@@ -306,7 +306,8 @@ function ensure_si_template_dd_support(ode, measured_quantities, DD, derivative_
 	model = isa(ode, OrderedODESystem) ? ode.system : ode
 	target_deriv_level = max(required_order + 1, 2)
 	@info "[SI-MAP] Extending DerivativeData support for SI template" current_order = current_order required_order = required_order
-	return populate_derivatives(model, measured_quantities, target_deriv_level, OrderedDict())
+	return populate_derivatives(model, measured_quantities, target_deriv_level, OrderedDict();
+		include_cleared = false)
 end
 
 function build_si_observable_index_map(measured_quantities)
