@@ -1,0 +1,18 @@
+{
+  "julia_version": "1.13.0",
+  "nemo_version": "0.56.1",
+  "groebner_version": "0.10.9",
+  "julia_threads": 1,
+  "check_only_exit_code": 0,
+  "canonical_polynomial_hash_verified": true,
+  "bounded_run_exit_code": 124,
+  "external_process_time_limit_seconds": 120,
+  "groebner_monotonic_seconds": 117.566022177,
+  "status": "External timeout interrupted initial modular F4 (_groebner_guess_lucky_prime); no basis returned.",
+  "log_sha256": "788c5a552ad0ad7827ffef4ccb4f952db536d95189c155c15879ccb1c19cd50c",
+  "compressed_log_sha256": "6154e7ead5af05f81f30314c4032405ecf23ced0f9113ccfd5c370ab66c61f9f",
+  "temporary_environment_note": "Validation used this Project.toml with a copy of the existing global Manifest.toml in /tmp. No dependency resolution or package/global environment changes.",
+  "project_sha256": "24f72a8279d0089464e18a81a755195d7a0e9ed91685018ac16144683fa33716",
+  "manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "command": "timeout --signal=INT --kill-after=15s 120s julia --startup-file=no --compiled-modules=existing --threads=1 -e 'pushfirst!(LOAD_PATH, \"/tmp/odepe-sneyd-groebner-env-20260914\"); include(\"repro/sneyd_groebner_2026_09_14/mwe.jl\")'"
+}

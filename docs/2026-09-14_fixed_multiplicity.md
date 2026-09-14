@@ -152,3 +152,5 @@ timeout fallback or monodromy path in this correction.
 
 Artifacts and reproduction commands:
 [`repro/fixed_multiplicity_2026_09_14`](../repro/fixed_multiplicity_2026_09_14/README.md).
+The [standalone Gröbner script](../repro/sneyd_groebner_2026_09_14/README.md)
+embeds the frozen inspection input and needs only Nemo and Groebner.

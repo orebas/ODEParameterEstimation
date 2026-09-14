@@ -2,6 +2,10 @@
 
 See the [implementation and validation record](../../docs/2026-09-14_fixed_multiplicity.md).
 
+For a standalone Nemo/Groebner calculation with the complete fixed polynomial
+input embedded in one Julia file, use the
+[Sneyd Gröbner reproducer](../sneyd_groebner_2026_09_14/README.md).
+
 Start Julia from the global environment with the existing GaussianProcesses
 and SIAN development checkouts. Package gates preserve dependency versions
 with `Pkg.test(...; allow_reresolve=false)` via `test/current.jl`.
