@@ -14,9 +14,12 @@ def main():
     parser.add_argument("model", choices=("biohydrogenation", "repressilator", "fitzhugh_nagumo", "sneyd"))
     parser.add_argument("output", type=Path)
     parser.add_argument("--seconds", type=float, default=3600)
+    parser.add_argument("--si-fix-strategy", choices=("local_basis", "identifiable_functions"))
     parser.add_argument("--julia-optimize", type=int, choices=(0, 1, 2, 3),
                         help="Optional Julia LLVM optimization level for a separate compiler diagnostic")
     args = parser.parse_args()
+    if args.si_fix_strategy and args.model == "sneyd":
+        parser.error("--si-fix-strategy applies to estimation workers, not the Sneyd derivative-construction probe")
     out = args.output.resolve()
     out.mkdir(parents=True, exist_ok=False)
     here = Path(__file__).resolve().parent
@@ -28,6 +31,8 @@ def main():
     else:
         command += [str(here / "run_rational.jl"), args.model, str(out)]
     env = os.environ.copy()
+    if args.si_fix_strategy:
+        env["ODEPE_SI_FIX_STRATEGY"] = args.si_fix_strategy
     for key in ("JULIA_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
         env[key] = "1"
     report = {"command": command, "stage_seconds_cap": args.seconds,

@@ -18,6 +18,12 @@ The September 14 SI/mixed-volume investigation adds research probes and records;
 it makes **no further production algorithm or default changes**. See the
 [investigation and measured results](2026-09-14_identifiability_cost_and_mixed_volume.md).
 
+A subsequent implementation replaces global SI requests and function-Jacobian
+fixing with local classification and a coordinate basis, while retaining the
+old method as an option. Its behavior changes and separate validation record
+are in [Local SI classification and representative fixing](2026-09-14_local_si_basis.md).
+That implementation lies beyond the commit interval audited below.
+
 ## Commit and behavior map
 
 | Commit | Area | Resulting behavior | Scope |

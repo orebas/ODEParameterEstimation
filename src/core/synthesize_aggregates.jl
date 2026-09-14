@@ -328,6 +328,8 @@ function _synthesize_global_param_aggregate(
 				setup_data.good_DD,
 				known_param_dict,
 				setup_data.interpolants;
+				si_fix_strategy = opts.si_fix_strategy,
+				si_probability = opts.si_probability,
 				time_index = 1,
 				diagnostics = false,
 			)
@@ -425,6 +427,8 @@ function _aggregate_and_resolve_to_candidate(
 				setup_data.good_deriv_level, Dict{Num, Float64}(),
 				setup_data.good_varlist, setup_data.good_DD,
 				known_param_dict, setup_data.interpolants;
+				si_fix_strategy = opts.si_fix_strategy,
+				si_probability = opts.si_probability,
 				time_index = 1, diagnostics = false,
 			)
 		end

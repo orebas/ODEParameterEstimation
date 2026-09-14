@@ -47,6 +47,7 @@ try
     write_json(joinpath(out,"data.json"), (; times=pep.data_sample["t"],
         signals=[(; expression=string(eq.rhs), values=pep.data_sample[eq.rhs]) for eq in pep.measured_quantities]))
     opts = EstimationOptions(; datasize=n, time_interval=pep.recommended_time_interval,
+        si_fix_strategy=Symbol(get(ENV, "ODEPE_SI_FIX_STRATEGY", string(EstimationOptions().si_fix_strategy))),
         noise_level=0.0, shooting_points=20, shooting_warp=true, shooting_warp_beta=3.0,
         use_multipoint=true, multipoint_n_points=2, multipoint_max_pairs=15,
         polish_solver_solutions=true, polish_solutions=true, polish_maxiters=5000,

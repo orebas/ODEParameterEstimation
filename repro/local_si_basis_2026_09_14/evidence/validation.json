@@ -1,0 +1,110 @@
+{
+  "julia_version": "1.13.0",
+  "allow_reresolve": false,
+  "dependency_manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "dev_commits": {
+    "GaussianProcesses": "3e896e9dbd0c41341c723ab16dcf0c261fc7b95a",
+    "SIAN": "2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9"
+  },
+  "gates": {
+    "focused": {
+      "assertions_passed": 197,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite |  197    197  2m00.5s",
+      "log_path": "/tmp/odepe-local-si-contracts.log",
+      "log_sha256": "46bb2c765f7a99919630822dc074fd6a7b3d46da6fce5ff5e035854214c77303"
+    },
+    "identifiability_regressions": {
+      "assertions_passed": 50,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite |   50     50  2m43.6s",
+      "log_path": "/tmp/odepe-local-si-regressions.log",
+      "log_sha256": "ed47aa3788d38dc245b8eb4b9735af7249205ecae254c55b2a739fbcd3cdc834"
+    },
+    "benchmark": {
+      "assertions_passed": 10,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite |   10     10  10m55.9s",
+      "log_path": "/tmp/odepe-local-si-benchmark-tests.log",
+      "log_sha256": "25fbd08c5f7d9e766cfa9c0b61816a9d9448776ff7547856b18b1b396ec4c5e4"
+    },
+    "full": {
+      "assertions_passed": 2159,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite | 2159   2159  17m21.1s",
+      "log_path": "/tmp/odepe-local-si-full-tests.log",
+      "log_sha256": "06b181cbe7b4c17a459961c15fc79c77d1ccfdc81c3f4e9daef810b93f46c76f"
+    }
+  },
+  "benchmark_best_of_branch_errors": [
+    5.627635309276199e-05,
+    6.350909659280646e-09,
+    1.0169013779185813e-10,
+    3.41888762855902e-08
+  ],
+  "minimum_si_api_check": {
+    "version": "0.5.25",
+    "source_url": "https://raw.githubusercontent.com/SciML/StructuralIdentifiability.jl/v0.5.25/src/local_identifiability.jl",
+    "source_sha256": "bf89fceae9fba17a5cdacaeef670d890a71f28f88894f42010c85ada2e910bfc",
+    "findings": [
+      "public assess_local_identifiability accepts trbasis",
+      "state-first pivot ordering and parameter/state basis mappings present"
+    ],
+    "runtime_validation_version": "0.5.31"
+  },
+  "final_source_sha256": {
+    "src/core/optimized_multishot_estimation.jl": "b1abe964db0341b0878f3e60c578ff5e2619ed1689a285ad91ecb43e9a1480a5",
+    "src/core/parameter_estimation.jl": "5f43cc3c736559895b174d4ecb4b418ff855dcea89969032f514ed9b8b642584",
+    "src/core/si_equation_builder.jl": "9d90fded8ab956b3d9deae2a1bcdb273c081f87059e63bb05eceb77d7023e9bd",
+    "src/core/si_template_integration.jl": "8ff6da3d384133f0c83d0bec65e9d1f6f1aa56506d27b905b58acd6c4eb3d9a2",
+    "src/core/synthesize_aggregates.jl": "93d4eb983027ee4f2b589b33fac53fdb58a3d10ae64956577536ceca8d7f3e4a",
+    "src/research/consensus_estimation.jl": "14f40116b1895d82ee1ab03d7bd4240217dc4c63fdb4258a64ef792af41a5692",
+    "src/types/estimation_options.jl": "c4b2761e01225ddad0676a13255e2ef43c57aff36cbfd4a995df7c251e4791b4"
+  },
+  "dependency_files_unchanged": true,
+  "source_verified_after_gates": true,
+  "rational_runs": {
+    "fitzhugh_nagumo": {
+      "evidence_file": "fitzhugh_nagumo.json",
+      "status": "complete",
+      "worker_estimation_seconds": 543.1626799106598,
+      "selected_fit_error": 1.8449255937772275e-23,
+      "selected_max_relative_parameter_error": 7.060496968225641e-11,
+      "structural_analysis_timing": {
+        "assess_local_identifiability": 3.128959779
+      },
+      "coordinate_basis": []
+    },
+    "biohydrogenation": {
+      "evidence_file": "biohydrogenation.json",
+      "status": "complete",
+      "worker_estimation_seconds": 1666.1364347934723,
+      "selected_fit_error": 9.375884630960378e-10,
+      "selected_max_relative_parameter_error": 5.763422643653327,
+      "structural_analysis_timing": {
+        "assess_local_identifiability": 3.240143985
+      },
+      "coordinate_basis": [
+        "x7"
+      ]
+    },
+    "repressilator": {
+      "evidence_file": "repressilator.json",
+      "status": "complete",
+      "worker_estimation_seconds": 2240.439346075058,
+      "selected_fit_error": 6.451755824633075e-05,
+      "selected_max_relative_parameter_error": 0.000173145998515361,
+      "structural_analysis_timing": {
+        "assess_local_identifiability": 3.176007742
+      },
+      "coordinate_basis": []
+    }
+  },
+  "sneyd_run": {
+    "evidence_directory": "sneyd",
+    "status": "estimation_timeout",
+    "local_si_seconds": 3.54755,
+    "blocking_phase": "algebraic multiplicity Groebner calculation",
+    "hc_reached": false
+  }
+}

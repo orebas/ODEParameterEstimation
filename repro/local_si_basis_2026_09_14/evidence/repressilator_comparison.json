@@ -1,0 +1,31 @@
+{
+  "baseline": "repro/deferred_denominators_2026_09_11/evidence/repressilator.json",
+  "same_manifest": true,
+  "same_data": true,
+  "same_model": true,
+  "same_effective_interpolators": true,
+  "same_samples_per_observable": true,
+  "maximum_absolute_estimate_difference": 2.8701463428149054e-10,
+  "old_fit_error": 6.451755824627602e-05,
+  "new_fit_error": 6.451755824633075e-05,
+  "old_max_relative_parameter_error": 0.0001731462393326378,
+  "new_max_relative_parameter_error": 0.000173145998515361,
+  "new_max_relative_initial_state_error": 0.0004852074020260343,
+  "old_worker_estimation_seconds": 2431.3957262039185,
+  "new_worker_estimation_seconds": 2240.439346075058,
+  "option_differences": {
+    "polish_solver_chunk_size": {
+      "old": "absent",
+      "new": 1
+    },
+    "polish_solver_jacobian": {
+      "old": "absent",
+      "new": "forwarddiff"
+    },
+    "si_fix_strategy": {
+      "old": "absent",
+      "new": "local_basis"
+    }
+  },
+  "interpretation": "Recovery comparison. The baseline predates reusable polynomial polishing; these elapsed times do not isolate local SI and were not measured under controlled load."
+}

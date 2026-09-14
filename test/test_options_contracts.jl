@@ -16,6 +16,9 @@ using OrderedCollections
 	o = EstimationOptions()
 	@test o.clustering_threshold == 1.0e-5   # == the old CLUSTERING_THRESHOLD constant
 	@test o.si_probability == 0.99           # == SIAN's old hardcoded p
+	@test o.si_fix_strategy == :local_basis
+	@test validate_options(EstimationOptions(si_fix_strategy=:local_basis))
+	@test !validate_options(EstimationOptions(si_fix_strategy=:unknown))
 	@test o.point_hint == 0.5                # == pick_points' old kwarg default
 	@test o.save_filepath == ""              # empty = legacy "saved_systems/" base
 	@test o.hc_threading === true

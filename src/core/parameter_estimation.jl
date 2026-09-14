@@ -234,14 +234,6 @@ end
 
 
 
-"""
-	handle_unidentifiability(si_template, diagnostics)
-
-Apply substitutions to the SI template to handle unidentifiable parameters.
-The number of parameters to fix is determined by the difference between the
-number of unidentifiable parameters and the number of independent identifiable functions.
-"""
-
 function _state_base_name_set(states)
 	state_base_names = Set{String}()
 	if !isnothing(states)
@@ -371,9 +363,17 @@ function derive_structural_fix_set(si_template, diagnostics; states = nothing, p
 		structural_unidentifiable = Set{Num}(),
 	)
 
-	candidate_vars = _candidate_fix_variables(unidentifiable_params, Set(), states)
-	symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
-	selected = _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
+	analysis = hasproperty(si_template, :structural_analysis) ? si_template.structural_analysis : nothing
+	selected = if !isnothing(analysis) && analysis.strategy == :local_basis
+		# SI pivots the state columns before the parameter columns, preferring
+		# parameter fixes where possible. Nonpivots supply exactly the continuous
+		# freedoms, including any independent initial-state freedoms.
+		analysis.coordinate_basis
+	else
+		candidate_vars = _candidate_fix_variables(unidentifiable_params, Set(), states)
+		symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
+		_rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
+	end
 
 	pre_fixed = OrderedDict{Num, Float64}()
 	reported = OrderedDict{Num, Float64}()
@@ -504,6 +504,8 @@ function build_si_template_for_fixed_params(
 	base_DD;
 	infolevel = 0,
 	si_probability = 0.99,
+	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
+	structural_analysis::Union{Nothing, SIStructuralAnalysis} = nothing,
 	pre_fixed_params = OrderedDict{Num, Float64}(),
 	placeholder_fail_categories = Symbol[],
 	compute_multiplicity = true,
@@ -515,6 +517,8 @@ function build_si_template_for_fixed_params(
 		DD = base_DD,
 		infolevel = infolevel,
 		p = si_probability,
+		si_fix_strategy = si_fix_strategy,
+		structural_analysis = structural_analysis,
 		pre_fixed_params = pre_fixed_params,
 		placeholder_fail_categories = placeholder_fail_categories,
 		compute_multiplicity = compute_multiplicity,
@@ -527,12 +531,18 @@ function build_si_template_for_fixed_params(
 		template_DD = template_DD,
 		unidentifiable = unidentifiable,
 		identifiable_funcs = identifiable_funcs,
+		structural_analysis = si_template_metadata.structural_analysis,
 		si_variable_role_summary = si_variable_role_summary,
 		rank_trimming_metadata = si_template_metadata,
 	)
 end
 
 function select_one_legacy_template_fix_variable(si_template, already_fixed::Set, diagnostics; states = nothing)
+	if hasproperty(si_template, :structural_analysis) && si_template.structural_analysis.strategy == :local_basis
+		fixed_names = Set(string.(collect(already_fixed)))
+		remaining = filter(q -> !(q in fixed_names), si_template.structural_analysis.coordinate_basis)
+		return isempty(remaining) ? (nothing, nothing) : (Symbolics.variable(Symbol(first(remaining))), 1.0)
+	end
 	candidate_vars = _candidate_fix_variables(si_template.unidentifiable, already_fixed, states)
 	if isempty(candidate_vars)
 		diagnostics && println("[LEGACY-TEMPLATE-REPAIR] No unfixed structural candidates remain for legacy square repair")
@@ -557,6 +567,7 @@ function prepare_si_template_with_structural_fix(
 	params = nothing,
 	infolevel = diagnostics ? 1 : 0,
 	si_probability = 0.99,
+	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
 	placeholder_fail_categories = Symbol[],
 )
 	initial_template = build_si_template_for_fixed_params(
@@ -566,6 +577,7 @@ function prepare_si_template_with_structural_fix(
 		base_DD;
 		infolevel = infolevel,
 		si_probability = si_probability,
+		si_fix_strategy = si_fix_strategy,
 		pre_fixed_params = OrderedDict{Num, Float64}(),
 		placeholder_fail_categories = placeholder_fail_categories,
 		# Detection pass: discovers what is unidentifiable on the raw model, so a
@@ -585,6 +597,8 @@ function prepare_si_template_with_structural_fix(
 		base_DD;
 		infolevel = infolevel,
 		si_probability = si_probability,
+		si_fix_strategy = si_fix_strategy,
+		structural_analysis = initial_template.structural_analysis,
 		pre_fixed_params = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set),
 		placeholder_fail_categories = placeholder_fail_categories,
 	)
@@ -605,6 +619,7 @@ function prepare_si_template_with_structural_fix(
 		template_DD = final_template.template_DD,
 		unidentifiable = final_template.unidentifiable,
 		identifiable_funcs = final_template.identifiable_funcs,
+		structural_analysis = final_template.structural_analysis,
 		si_variable_role_summary = final_template.si_variable_role_summary,
 		rank_trimming_metadata = final_template.rank_trimming_metadata,
 		structural_unidentifiable = structural_unidentifiable,
@@ -617,6 +632,17 @@ function prepare_si_template_with_structural_fix(
 end
 
 
+"""
+	handle_unidentifiability(si_template, diagnostics; states, params)
+
+# Arguments
+- `si_template`: Template with structural analysis (or a legacy identifiable-function list).
+- `states`, `params`: Original symbols used to report representative assignments.
+
+# Returns
+The equations and template after applying the chosen representative assignments
+to jet-0 coordinates. Differential equations remain unchanged.
+"""
 function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
 	structural_fix_info = derive_structural_fix_set(si_template, diagnostics; states = states, params = params)
 	if isempty(structural_fix_info.pre_fixed)
@@ -627,15 +653,9 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
 		fix_dict[Symbolics.variable(Symbol(string(param) * "_0"))] = fix_value
 	end
 	template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
-	new_si_template = (
-		equations = template_equations,
-		all_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : template_equations,
-		deriv_dict = si_template.deriv_dict,
-		template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing,
-		unidentifiable = si_template.unidentifiable,
-		identifiable_funcs = si_template.identifiable_funcs,
-		si_variable_role_summary = si_template.si_variable_role_summary,
-	)
+	full_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : si_template.equations
+	new_si_template = (; si_template..., equations = template_equations,
+		all_equations = Symbolics.substitute.(full_equations, Ref(fix_dict)))
 	return template_equations, new_si_template
 end
 

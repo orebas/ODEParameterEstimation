@@ -13,6 +13,7 @@ const TEST_FILES = [
     "example_canaries.jl",
     "examples_smoke.jl",
     "identifiability_regressions.jl",
+    "test_si_local_basis.jl",
     "result_processing_helpers.jl",
     "feature_regressions.jl",
     "test_shade_lm.jl",

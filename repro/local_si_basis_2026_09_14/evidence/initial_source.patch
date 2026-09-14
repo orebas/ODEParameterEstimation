@@ -1,0 +1,519 @@
+diff --git a/src/core/optimized_multishot_estimation.jl b/src/core/optimized_multishot_estimation.jl
+index 95ff9e5..69784b9 100644
+--- a/src/core/optimized_multishot_estimation.jl
++++ b/src/core/optimized_multishot_estimation.jl
+@@ -800,6 +800,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
+ 			params = params,
+ 			infolevel = opts.diagnostics ? 1 : 0,
+ 			si_probability = opts.si_probability,
++			si_fix_strategy = opts.si_fix_strategy,
+ 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
+ 		)
+ 
+@@ -854,6 +855,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
+ 					"si_auxiliary_variables" => string(si_template.si_variable_role_summary.auxiliary_variables),
+ 					"suspicious_si_roles" => string(si_template.si_variable_role_summary.suspicious_categories),
+ 					"structural_fix_set" => string(si_template.structural_fix_set),
++					"si_fix_strategy" => string(si_template.structural_analysis.strategy),
+ 					"template_status" => string(si_template.template_status),
+ 					"rank_trim_dropped_equations" => string(si_template.rank_trimming_metadata.dropped_equation_indices),
+ 					"description" => "StructuralIdentifiability template polynomial system",
+@@ -2335,6 +2337,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
+ 		timing_details[:detailed_timing_records] = copy(detailed_timing_records)
+ 		if hasproperty(si_template, :rank_trimming_metadata)
+ 			rtm = si_template.rank_trimming_metadata
++			if hasproperty(rtm, :structural_analysis)
++				timing_details[:si_fix_strategy] = rtm.structural_analysis.strategy
++				timing_details[:si_structural_analysis_timing] = copy(rtm.structural_analysis.timing)
++				timing_details[:si_coordinate_basis] = copy(rtm.structural_analysis.coordinate_basis)
++				timing_details[:si_structural_analysis_reused] = rtm.structural_analysis_reused
++			end
+ 			if hasproperty(rtm, :equation_builder_timing)
+ 				timing_details[:si_template_equation_builder_timing] = rtm.equation_builder_timing
+ 			end
+@@ -2357,6 +2365,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
+ 			data_length = length(t_vector),
+ 			use_multipoint = use_multipoint,
+ 			multipoint_n_points = opts.multipoint_n_points,
++			si_fix_strategy = opts.si_fix_strategy,
++			si_probability = opts.si_probability,
+ 			interpolator_sources = Symbol[interpolator_method_to_symbol(method) for (method, _) in interpolator_list],
+ 			system_cache = copy(reusable_system_cache),
+ 			order_cache = copy(reusable_order_cache),
+diff --git a/src/core/parameter_estimation.jl b/src/core/parameter_estimation.jl
+index 48d17fb..5c9bf0d 100644
+--- a/src/core/parameter_estimation.jl
++++ b/src/core/parameter_estimation.jl
+@@ -234,14 +234,6 @@ end
+ 
+ 
+ 
+-"""
+-	handle_unidentifiability(si_template, diagnostics)
+-
+-Apply substitutions to the SI template to handle unidentifiable parameters.
+-The number of parameters to fix is determined by the difference between the
+-number of unidentifiable parameters and the number of independent identifiable functions.
+-"""
+-
+ function _state_base_name_set(states)
+ 	state_base_names = Set{String}()
+ 	if !isnothing(states)
+@@ -371,9 +363,17 @@ function derive_structural_fix_set(si_template, diagnostics; states = nothing, p
+ 		structural_unidentifiable = Set{Num}(),
+ 	)
+ 
+-	candidate_vars = _candidate_fix_variables(unidentifiable_params, Set(), states)
+-	symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
+-	selected = _rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
++	analysis = hasproperty(si_template, :structural_analysis) ? si_template.structural_analysis : nothing
++	selected = if !isnothing(analysis) && analysis.strategy == :local_basis
++		# SI pivots the state columns before the parameter columns, preferring
++		# parameter fixes where possible. Nonpivots supply exactly the continuous
++		# freedoms, including any independent initial-state freedoms.
++		analysis.coordinate_basis
++	else
++		candidate_vars = _candidate_fix_variables(unidentifiable_params, Set(), states)
++		symbolic_identifiable_funcs = _symbolic_identifiable_functions(si_template.identifiable_funcs)
++		_rank_based_fix_candidates(candidate_vars, symbolic_identifiable_funcs, diagnostics)
++	end
+ 
+ 	pre_fixed = OrderedDict{Num, Float64}()
+ 	reported = OrderedDict{Num, Float64}()
+@@ -504,6 +504,8 @@ function build_si_template_for_fixed_params(
+ 	base_DD;
+ 	infolevel = 0,
+ 	si_probability = 0.99,
++	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
++	structural_analysis::Union{Nothing, SIStructuralAnalysis} = nothing,
+ 	pre_fixed_params = OrderedDict{Num, Float64}(),
+ 	placeholder_fail_categories = Symbol[],
+ 	compute_multiplicity = true,
+@@ -515,6 +517,8 @@ function build_si_template_for_fixed_params(
+ 		DD = base_DD,
+ 		infolevel = infolevel,
+ 		p = si_probability,
++		si_fix_strategy = si_fix_strategy,
++		structural_analysis = structural_analysis,
+ 		pre_fixed_params = pre_fixed_params,
+ 		placeholder_fail_categories = placeholder_fail_categories,
+ 		compute_multiplicity = compute_multiplicity,
+@@ -527,12 +531,18 @@ function build_si_template_for_fixed_params(
+ 		template_DD = template_DD,
+ 		unidentifiable = unidentifiable,
+ 		identifiable_funcs = identifiable_funcs,
++		structural_analysis = si_template_metadata.structural_analysis,
+ 		si_variable_role_summary = si_variable_role_summary,
+ 		rank_trimming_metadata = si_template_metadata,
+ 	)
+ end
+ 
+ function select_one_legacy_template_fix_variable(si_template, already_fixed::Set, diagnostics; states = nothing)
++	if hasproperty(si_template, :structural_analysis) && si_template.structural_analysis.strategy == :local_basis
++		fixed_names = Set(string.(collect(already_fixed)))
++		remaining = filter(q -> !(q in fixed_names), si_template.structural_analysis.coordinate_basis)
++		return isempty(remaining) ? (nothing, nothing) : (Symbolics.variable(Symbol(first(remaining))), 1.0)
++	end
+ 	candidate_vars = _candidate_fix_variables(si_template.unidentifiable, already_fixed, states)
+ 	if isempty(candidate_vars)
+ 		diagnostics && println("[LEGACY-TEMPLATE-REPAIR] No unfixed structural candidates remain for legacy square repair")
+@@ -557,6 +567,7 @@ function prepare_si_template_with_structural_fix(
+ 	params = nothing,
+ 	infolevel = diagnostics ? 1 : 0,
+ 	si_probability = 0.99,
++	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
+ 	placeholder_fail_categories = Symbol[],
+ )
+ 	initial_template = build_si_template_for_fixed_params(
+@@ -566,6 +577,7 @@ function prepare_si_template_with_structural_fix(
+ 		base_DD;
+ 		infolevel = infolevel,
+ 		si_probability = si_probability,
++		si_fix_strategy = si_fix_strategy,
+ 		pre_fixed_params = OrderedDict{Num, Float64}(),
+ 		placeholder_fail_categories = placeholder_fail_categories,
+ 		# Detection pass: discovers what is unidentifiable on the raw model, so a
+@@ -585,6 +597,8 @@ function prepare_si_template_with_structural_fix(
+ 		base_DD;
+ 		infolevel = infolevel,
+ 		si_probability = si_probability,
++		si_fix_strategy = si_fix_strategy,
++		structural_analysis = initial_template.structural_analysis,
+ 		pre_fixed_params = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set),
+ 		placeholder_fail_categories = placeholder_fail_categories,
+ 	)
+@@ -605,6 +619,7 @@ function prepare_si_template_with_structural_fix(
+ 		template_DD = final_template.template_DD,
+ 		unidentifiable = final_template.unidentifiable,
+ 		identifiable_funcs = final_template.identifiable_funcs,
++		structural_analysis = final_template.structural_analysis,
+ 		si_variable_role_summary = final_template.si_variable_role_summary,
+ 		rank_trimming_metadata = final_template.rank_trimming_metadata,
+ 		structural_unidentifiable = structural_unidentifiable,
+@@ -617,6 +632,17 @@ function prepare_si_template_with_structural_fix(
+ end
+ 
+ 
++"""
++	handle_unidentifiability(si_template, diagnostics; states, params)
++
++# Arguments
++- `si_template`: Template with structural analysis (or a legacy identifiable-function list).
++- `states`, `params`: Original symbols used to report representative assignments.
++
++# Returns
++The equations and template after applying the chosen representative assignments
++to jet-0 coordinates. Differential equations remain unchanged.
++"""
+ function handle_unidentifiability(si_template, diagnostics; states = nothing, params = nothing)
+ 	structural_fix_info = derive_structural_fix_set(si_template, diagnostics; states = states, params = params)
+ 	if isempty(structural_fix_info.pre_fixed)
+@@ -627,15 +653,9 @@ function handle_unidentifiability(si_template, diagnostics; states = nothing, pa
+ 		fix_dict[Symbolics.variable(Symbol(string(param) * "_0"))] = fix_value
+ 	end
+ 	template_equations = Symbolics.substitute.(si_template.equations, Ref(fix_dict))
+-	new_si_template = (
+-		equations = template_equations,
+-		all_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : template_equations,
+-		deriv_dict = si_template.deriv_dict,
+-		template_DD = hasproperty(si_template, :template_DD) ? si_template.template_DD : nothing,
+-		unidentifiable = si_template.unidentifiable,
+-		identifiable_funcs = si_template.identifiable_funcs,
+-		si_variable_role_summary = si_template.si_variable_role_summary,
+-	)
++	full_equations = hasproperty(si_template, :all_equations) ? si_template.all_equations : si_template.equations
++	new_si_template = (; si_template..., equations = template_equations,
++		all_equations = Symbolics.substitute.(full_equations, Ref(fix_dict)))
+ 	return template_equations, new_si_template
+ end
+ 
+diff --git a/src/core/si_equation_builder.jl b/src/core/si_equation_builder.jl
+index 1d730f0..9d125e2 100644
+--- a/src/core/si_equation_builder.jl
++++ b/src/core/si_equation_builder.jl
+@@ -616,6 +616,81 @@ function eval_at_nemo(expr, subs_dict)
+ 	return StructuralIdentifiability.eval_at_nemo(expr, subs_dict)
+ end
+ 
++"""Run-local structural analysis, independent of data and polynomial representative substitutions.
++
++`coordinate_basis` contains free parameter or state-at-anchor coordinates. A
++locally identifiable quantity can still have finitely many branches; it must
++not be fixed merely because global identifiability has not been established.
++`identifiable_functions === nothing` means those functions were not computed.
++"""
++struct SIStructuralAnalysis{M, F}
++	model::M
++	observations::Vector{ModelingToolkit.Equation}
++	strategy::Symbol
++	probability::Float64
++	classification::OrderedDict{String, Symbol}
++	coordinate_basis::Vector{String}
++	identifiable_functions::F
++	timing::OrderedDict{Symbol, Float64}
++end
++
++"""
++	analyze_si_structure(ode, measured_quantities, si_ode; strategy, p, infolevel)
++
++# Arguments
++- `ode`, `measured_quantities`: Original model and observations, retained to guard reuse.
++- `si_ode`: Converted SI model; parameters and free initial states are assessed together.
++- `strategy`: `:local_basis` or the comparison method `:identifiable_functions`.
++- `p`: Requested SI probability. The local method preserves the full SI call's
++  local-stage budget, `1 - (1 - p)/10`.
++
++# Returns
++A `SIStructuralAnalysis` reusable for builds of this same model. State basis
++coordinates are substituted only as jet-0 values in the polynomial template,
++never as constant state trajectories in the ODE.
++"""
++function analyze_si_structure(ode, measured_quantities, si_ode;
++	strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
++	p::Float64 = 0.99, infolevel::Int = 0)
++	strategy in (:local_basis, :identifiable_functions) ||
++		throw(ArgumentError("Unknown si_fix_strategy: $strategy"))
++	quantities = vcat(si_ode.parameters, si_ode.x_vars)
++	classification = OrderedDict{String, Symbol}()
++	basis = Nemo.QQMPolyRingElem[]
++	timing = OrderedDict{Symbol, Float64}()
++	loglevel = infolevel > 0 ? Logging.Info : Logging.Warn
++	if strategy == :local_basis
++		timing[:assess_local_identifiability] = @elapsed result = StructuralIdentifiability.assess_local_identifiability(
++			si_ode; funcs_to_check = quantities, type = :SE, trbasis = basis,
++			prob_threshold = 1 - (1 - p) * 0.1, loglevel = loglevel,
++		)
++		for q in quantities
++			classification[string(q)] = result[q] ? :locally_identifiable : :nonidentifiable
++		end
++		all(q -> haskey(result, q) && !result[q], basis) ||
++			error("SI returned a coordinate basis outside the nonidentifiable quantities")
++		identifiable_functions = nothing
++	else
++		timing[:assess_identifiability] = @elapsed result = StructuralIdentifiability.assess_identifiability(
++			si_ode; funcs_to_check = quantities, prob_threshold = p, loglevel = loglevel,
++		)
++		for q in quantities
++			classification[string(q)] = result[q]
++		end
++		timing[:find_identifiable_functions] = @elapsed identifiable_functions =
++			isempty(si_ode.parameters) ? Any[] : find_identifiable_functions(si_ode)
++	end
++	return SIStructuralAnalysis(ode.system, copy(measured_quantities), strategy, p,
++		classification, string.(basis), identifiable_functions, timing)
++end
++
++function validate_si_analysis_reuse(analysis::SIStructuralAnalysis, ode, measured_quantities, strategy, p)
++	analysis.model === ode.system && isequal(analysis.observations, measured_quantities) &&
++		analysis.strategy == strategy && analysis.probability == p ||
++		throw(ArgumentError("Structural analysis can only be reused for the same model, observations, SI strategy, and probability"))
++	return analysis
++end
++
+ """
+ 	get_si_equation_system(ode, measured_quantities::Vector{ModelingToolkit.Equation}, data_sample::OrderedDict; DD=nothing, kwargs...)
+ 
+@@ -637,6 +712,8 @@ function get_si_equation_system(
+ 	infolevel = 0,
+ 	pre_fixed_params::OrderedDict = OrderedDict(),  # Parameters already fixed in previous iterations
+ 	compute_multiplicity = true,  # false on detection passes: skip the algebraic-multiplicity Groebner step
++	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
++	structural_analysis::Union{Nothing, SIStructuralAnalysis} = nothing,
+ 	kwargs...,
+ )
+ 	@info "Getting equation system from StructuralIdentifiability.jl"
+@@ -650,6 +727,11 @@ function get_si_equation_system(
+ 	si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
+ 	equation_builder_timing[:convert_to_si_ode] = time() - _t_convert_to_si_ode_start
+ 	placeholder_fail_categories = get(kwargs, :placeholder_fail_categories, Symbol[])
++	# Only the polynomial template changes between the detection and fixed
++	# passes. A parameter-fixed model used by state rescue needs fresh analysis.
++	if !isnothing(structural_analysis)
++		validate_si_analysis_reuse(structural_analysis, ode, measured_quantities, si_fix_strategy, p)
++	end
+ 
+ 	# Get parameters for identifiability analysis 
+ 	# Use the parameters field directly instead of SIAN.get_parameters to avoid dependency issues
+@@ -692,35 +774,17 @@ function get_si_equation_system(
+ 	DD = ensure_si_template_dd_support(ode, measured_quantities, DD, y_derivative_dict)
+ 	equation_builder_timing[:ensure_dd_support] = time() - _t_ensure_dd_support_start
+ 
+-	# Also run identifiability check
+-	@info "Checking identifiability"
+-	_t_assess_identifiability_start = time()
+-	id_result = StructuralIdentifiability.assess_identifiability(
+-		si_ode;
+-		funcs_to_check = params_to_assess,
+-		prob_threshold = p,
+-		loglevel = infolevel > 0 ? Logging.Info : Logging.Warn,
+-	)
+-	equation_builder_timing[:assess_identifiability] = time() - _t_assess_identifiability_start
+-
+-	# Extract non-identifiable parameters
+-	_t_extract_unidentifiable_start = time()
+-	unidentifiable_dict = Dict()
+-	for (param, status) in id_result
+-		if status == :nonidentifiable
+-			unidentifiable_dict[param] = status
+-		end
+-	end
+-	unidentifiable = Set(keys(unidentifiable_dict))
+-	equation_builder_timing[:extract_unidentifiable] = time() - _t_extract_unidentifiable_start
+-
+-	# Find identifiable combinations of unidentifiable parameters
+-	# The main ODE object must be passed, not the result dictionary.
+-	# This call finds combinations of all parameters, which is what we need.
+-	_t_find_identifiable_functions_start = time()
+-	identifiable_funcs = isempty(si_ode.parameters) ? Any[] : find_identifiable_functions(si_ode)
+-	equation_builder_timing[:find_identifiable_functions] = time() - _t_find_identifiable_functions_start
+-	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = length(identifiable_funcs)
++	analysis_reused = !isnothing(structural_analysis)
++	@info "Checking identifiability" strategy = si_fix_strategy reused = analysis_reused
++	equation_builder_timing[:structural_analysis] = @elapsed analysis = analysis_reused ? structural_analysis :
++		analyze_si_structure(ode, measured_quantities, si_ode; strategy = si_fix_strategy, p = p, infolevel = infolevel)
++	if !analysis_reused
++		merge!(equation_builder_timing, analysis.timing)
++	end
++	@info "[SI-STRUCTURAL] Analysis timing" reused = analysis_reused seconds = analysis.timing
++	unidentifiable = Set(q for q in params_to_assess if analysis.classification[string(q)] == :nonidentifiable)
++	identifiable_funcs = analysis.identifiable_functions
++	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = (isnothing(identifiable_funcs) ? nothing : length(identifiable_funcs)) coordinate_basis = analysis.coordinate_basis
+ 	if infolevel > 0
+ 		@info "[SI-STRUCTURAL] Structural unidentifiable variables from SI" variables = unidentifiable
+ 		@info "[SI-STRUCTURAL] Observable derivative support requested by SI template" derivative_orders = y_derivative_dict
+@@ -861,16 +925,9 @@ function get_si_equation_system(
+ 
+ 			# Also update the unidentifiable set to remove fixed parameters
+ 			# The unidentifiable set contains Nemo symbols, we need to match by name
+-			new_unidentifiable = Set()
+-			for u in unidentifiable
+-				u_str = string(u)
+-				if !haskey(pre_fixed_params, Symbol(u_str)) && !haskey(pre_fixed_params, Symbol(u_str * "_0"))
+-					push!(new_unidentifiable, u)
+-				else
+-					@info "[PRE-FIX] Removed $u from unidentifiable set (now fixed)"
+-				end
+-			end
+-			unidentifiable = new_unidentifiable
++			fixed_names = Set(string.(keys(pre_fixed_params)))
++			unidentifiable = Set(u for u in unidentifiable if
++				!(string(u) in fixed_names || string(u) * "_0" in fixed_names))
+ 		end
+ 	end
+ 	equation_builder_timing[:prefixed_substitutions] = time() - _t_prefixed_substitutions_start
+@@ -885,6 +942,8 @@ function get_si_equation_system(
+ 		sian_timing = get(result, "timing", OrderedDict{Symbol, Float64}()),
+ 		algebraic_multiplicity_timing = get(result, "algebraic_multiplicity_timing", OrderedDict{Symbol, Any}()),
+ 		template_var_map = template_var_map,
++		structural_analysis = analysis,
++		structural_analysis_reused = analysis_reused,
+ 	)
+ 
+ 	# Return identifiable_funcs as well
+diff --git a/src/core/si_template_integration.jl b/src/core/si_template_integration.jl
+index d7292d0..d3fc486 100644
+--- a/src/core/si_template_integration.jl
++++ b/src/core/si_template_integration.jl
+@@ -337,6 +337,8 @@ function construct_equation_system_from_si_template(
+ 	diagnostics = false,
+ 	si_template = nothing,  # Cache the template if provided
+ 	placeholder_fail_categories = Symbol[],
++	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
++	si_probability::Float64 = _OPT_STRUCT_DEFAULTS.si_probability,
+ 	kwargs...,
+ )
+ 	measured_quantities = deepcopy(measured_quantities_in)
+@@ -364,6 +366,8 @@ function construct_equation_system_from_si_template(
+ 			data_sample;
+ 			DD = DD,
+ 			infolevel = diagnostics ? 1 : 0,
++			si_fix_strategy = si_fix_strategy,
++			p = si_probability,
+ 			placeholder_fail_categories = placeholder_fail_categories,
+ 		)
+ 		template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, DD, derivative_dict)
+@@ -375,6 +379,7 @@ function construct_equation_system_from_si_template(
+ 			template_DD = template_DD,
+ 			unidentifiable = unidentifiable,
+ 			identifiable_funcs = identifiable_funcs,
++			structural_analysis = si_template_metadata.structural_analysis,
+ 			si_variable_role_summary = si_variable_role_summary,
+ 			rank_trimming_metadata = si_template_metadata,
+ 		)
+@@ -467,10 +472,14 @@ function resolve_states_with_fixed_params(
+ 	DD,
+ 	known_param_dict::OrderedDict,
+ 	interpolants;
+-	si_template = nothing,  # ignored — we generate a fresh template via SIAN re-run
++	si_template = nothing,  # only its analysis settings are reused, not its model-specific analysis
+ 	time_index::Int = 1,
+ 	diagnostics::Bool = false,
+ 	placeholder_fail_categories = Symbol[],
++	si_fix_strategy::Symbol = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
++		_OPT_STRUCT_DEFAULTS.si_fix_strategy : si_template.structural_analysis.strategy,
++	si_probability::Float64 = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
++		_OPT_STRUCT_DEFAULTS.si_probability : si_template.structural_analysis.probability,
+ )
+ 	resolve_t0 = time()
+ 	resolve_stages = OrderedDict{Symbol, Float64}()
+@@ -552,6 +561,8 @@ function resolve_states_with_fixed_params(
+ 		get_si_equation_system(
+ 			fixed_model, fixed_mq, data_sample;
+ 			DD = DD,
++			si_fix_strategy = si_fix_strategy,
++			p = si_probability,
+ 			infolevel = diagnostics ? 1 : 0,
+ 			placeholder_fail_categories = placeholder_fail_categories,
+ 		)
+@@ -574,6 +585,7 @@ function resolve_states_with_fixed_params(
+ 		template_DD = new_template_DD,
+ 		unidentifiable = new_unident,
+ 		identifiable_funcs = new_id_funcs,
++		structural_analysis = new_si_template_metadata.structural_analysis,
+ 		si_variable_role_summary = new_si_variable_role_summary,
+ 		rank_trimming_metadata = new_si_template_metadata,
+ 	)
+diff --git a/src/core/synthesize_aggregates.jl b/src/core/synthesize_aggregates.jl
+index e5d4888..94a1c78 100644
+--- a/src/core/synthesize_aggregates.jl
++++ b/src/core/synthesize_aggregates.jl
+@@ -328,6 +328,8 @@ function _synthesize_global_param_aggregate(
+ 				setup_data.good_DD,
+ 				known_param_dict,
+ 				setup_data.interpolants;
++				si_fix_strategy = opts.si_fix_strategy,
++				si_probability = opts.si_probability,
+ 				time_index = 1,
+ 				diagnostics = false,
+ 			)
+@@ -425,6 +427,8 @@ function _aggregate_and_resolve_to_candidate(
+ 				setup_data.good_deriv_level, Dict{Num, Float64}(),
+ 				setup_data.good_varlist, setup_data.good_DD,
+ 				known_param_dict, setup_data.interpolants;
++				si_fix_strategy = opts.si_fix_strategy,
++				si_probability = opts.si_probability,
+ 				time_index = 1, diagnostics = false,
+ 			)
+ 		end
+diff --git a/src/research/consensus_estimation.jl b/src/research/consensus_estimation.jl
+index bbf6784..7219115 100644
+--- a/src/research/consensus_estimation.jl
++++ b/src/research/consensus_estimation.jl
+@@ -179,6 +179,8 @@ function _reuse_bundle_compatible(
+     reuse_bundle.data_length == data_length || return false
+     reuse_bundle.use_multipoint == (opts.use_multipoint && opts.system_solver == SolverHC) || return false
+     reuse_bundle.multipoint_n_points == opts.multipoint_n_points || return false
++    hasproperty(reuse_bundle, :si_fix_strategy) && reuse_bundle.si_fix_strategy == opts.si_fix_strategy || return false
++    hasproperty(reuse_bundle, :si_probability) && reuse_bundle.si_probability == opts.si_probability || return false
+     return Set(reuse_bundle.interpolator_sources) == Set(interpolator_sources)
+ end
+ 
+@@ -199,6 +201,8 @@ function _build_consensus_context(
+         states = ident_data.states,
+         params = ident_data.params,
+         infolevel = 0,
++        si_fix_strategy = opts.si_fix_strategy,
++        si_probability = opts.si_probability,
+         placeholder_fail_categories = opts.si_placeholder_fail_categories,
+     )
+ 
+diff --git a/src/types/estimation_options.jl b/src/types/estimation_options.jl
+index 887f479..9e52611 100644
+--- a/src/types/estimation_options.jl
++++ b/src/types/estimation_options.jl
+@@ -224,6 +224,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
+ 
+ ## StructuralIdentifiability Parameters
+ - `si_probability::Float64`: Probability threshold for identifiability analysis (default: 0.99)
++- `si_fix_strategy::Symbol`: `:local_basis` uses local SI classification and its coordinate transcendence basis for representative fixing. `:identifiable_functions` retains global SI classification and the identifiable-function Jacobian method for comparison (default: `:identifiable_functions`). Neither choice certifies a unique or positive representative.
+ 
+ ## File I/O
+ - `save_filepath::String`: Path for saving polynomial systems (default: "")
+@@ -585,6 +586,7 @@ Base.@kwdef struct EstimationOptions
+ 
+ 	# StructuralIdentifiability Parameters
+ 	si_probability::Float64 = 0.99
++	si_fix_strategy::Symbol = :identifiable_functions
+ 
+ 	# File I/O
+ 	save_filepath::String = ""
+@@ -1392,6 +1394,10 @@ function validate_options(opts::EstimationOptions)
+ 	end
+ 
+ 	# Check SI parameters
++	if !(opts.si_fix_strategy in (:local_basis, :identifiable_functions))
++		@error "si_fix_strategy must be :local_basis or :identifiable_functions"
++		valid = false
++	end
+ 	if opts.si_probability <= 0 || opts.si_probability > 1
+ 		@error "si_probability must be in (0, 1]"
+ 		valid = false
+@@ -1508,7 +1514,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
+ 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
+ 			:construction_beam_width, :construction_compute_mixed_volume]),
+ 		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs, :multipoint_pair_strategy]),
+-		("StructuralIdentifiability", [:si_probability]),
++		("StructuralIdentifiability", [:si_probability, :si_fix_strategy]),
+ 		("File I/O", [:save_filepath]),
+ 	]
+ 

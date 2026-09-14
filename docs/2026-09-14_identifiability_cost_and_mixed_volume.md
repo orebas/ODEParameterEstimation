@@ -1,5 +1,9 @@
 # Asking SI for less, and giving Fujita mixed volume more time
 
+Subsequent implementation and validation:
+[Local SI classification and coordinate representative fixing](2026-09-14_local_si_basis.md).
+The requests described below refer to the investigated `62baa5d` baseline.
+
 The local identifiability calculation is sufficient for the classification
 ODEPE currently consumes, and it is fast on both retained dense models. However,
 ODEPE also uses identifiable functions to choose representative fixes. Skipping

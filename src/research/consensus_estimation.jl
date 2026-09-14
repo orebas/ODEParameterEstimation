@@ -179,6 +179,8 @@ function _reuse_bundle_compatible(
     reuse_bundle.data_length == data_length || return false
     reuse_bundle.use_multipoint == (opts.use_multipoint && opts.system_solver == SolverHC) || return false
     reuse_bundle.multipoint_n_points == opts.multipoint_n_points || return false
+    hasproperty(reuse_bundle, :si_fix_strategy) && reuse_bundle.si_fix_strategy == opts.si_fix_strategy || return false
+    hasproperty(reuse_bundle, :si_probability) && reuse_bundle.si_probability == opts.si_probability || return false
     return Set(reuse_bundle.interpolator_sources) == Set(interpolator_sources)
 end
 
@@ -199,6 +201,8 @@ function _build_consensus_context(
         states = ident_data.states,
         params = ident_data.params,
         infolevel = 0,
+        si_fix_strategy = opts.si_fix_strategy,
+        si_probability = opts.si_probability,
         placeholder_fail_categories = opts.si_placeholder_fail_categories,
     )
 

@@ -337,6 +337,8 @@ function construct_equation_system_from_si_template(
 	diagnostics = false,
 	si_template = nothing,  # Cache the template if provided
 	placeholder_fail_categories = Symbol[],
+	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
+	si_probability::Float64 = _OPT_STRUCT_DEFAULTS.si_probability,
 	kwargs...,
 )
 	measured_quantities = deepcopy(measured_quantities_in)
@@ -364,6 +366,8 @@ function construct_equation_system_from_si_template(
 			data_sample;
 			DD = DD,
 			infolevel = diagnostics ? 1 : 0,
+			si_fix_strategy = si_fix_strategy,
+			p = si_probability,
 			placeholder_fail_categories = placeholder_fail_categories,
 		)
 		template_DD = ensure_si_template_dd_support(ordered_model, measured_quantities, DD, derivative_dict)
@@ -375,6 +379,7 @@ function construct_equation_system_from_si_template(
 			template_DD = template_DD,
 			unidentifiable = unidentifiable,
 			identifiable_funcs = identifiable_funcs,
+			structural_analysis = si_template_metadata.structural_analysis,
 			si_variable_role_summary = si_variable_role_summary,
 			rank_trimming_metadata = si_template_metadata,
 		)
@@ -467,10 +472,14 @@ function resolve_states_with_fixed_params(
 	DD,
 	known_param_dict::OrderedDict,
 	interpolants;
-	si_template = nothing,  # ignored — we generate a fresh template via SIAN re-run
+	si_template = nothing,  # only its analysis settings are reused, not its model-specific analysis
 	time_index::Int = 1,
 	diagnostics::Bool = false,
 	placeholder_fail_categories = Symbol[],
+	si_fix_strategy::Symbol = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
+		_OPT_STRUCT_DEFAULTS.si_fix_strategy : si_template.structural_analysis.strategy,
+	si_probability::Float64 = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
+		_OPT_STRUCT_DEFAULTS.si_probability : si_template.structural_analysis.probability,
 )
 	resolve_t0 = time()
 	resolve_stages = OrderedDict{Symbol, Float64}()
@@ -552,6 +561,8 @@ function resolve_states_with_fixed_params(
 		get_si_equation_system(
 			fixed_model, fixed_mq, data_sample;
 			DD = DD,
+			si_fix_strategy = si_fix_strategy,
+			p = si_probability,
 			infolevel = diagnostics ? 1 : 0,
 			placeholder_fail_categories = placeholder_fail_categories,
 		)
@@ -574,6 +585,7 @@ function resolve_states_with_fixed_params(
 		template_DD = new_template_DD,
 		unidentifiable = new_unident,
 		identifiable_funcs = new_id_funcs,
+		structural_analysis = new_si_template_metadata.structural_analysis,
 		si_variable_role_summary = new_si_variable_role_summary,
 		rank_trimming_metadata = new_si_template_metadata,
 	)

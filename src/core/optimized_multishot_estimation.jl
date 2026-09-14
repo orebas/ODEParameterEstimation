@@ -800,6 +800,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			params = params,
 			infolevel = opts.diagnostics ? 1 : 0,
 			si_probability = opts.si_probability,
+			si_fix_strategy = opts.si_fix_strategy,
 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
 		)
 
@@ -854,6 +855,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 					"si_auxiliary_variables" => string(si_template.si_variable_role_summary.auxiliary_variables),
 					"suspicious_si_roles" => string(si_template.si_variable_role_summary.suspicious_categories),
 					"structural_fix_set" => string(si_template.structural_fix_set),
+					"si_fix_strategy" => string(si_template.structural_analysis.strategy),
 					"template_status" => string(si_template.template_status),
 					"rank_trim_dropped_equations" => string(si_template.rank_trimming_metadata.dropped_equation_indices),
 					"description" => "StructuralIdentifiability template polynomial system",
@@ -2335,6 +2337,12 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		timing_details[:detailed_timing_records] = copy(detailed_timing_records)
 		if hasproperty(si_template, :rank_trimming_metadata)
 			rtm = si_template.rank_trimming_metadata
+			if hasproperty(rtm, :structural_analysis)
+				timing_details[:si_fix_strategy] = rtm.structural_analysis.strategy
+				timing_details[:si_structural_analysis_timing] = copy(rtm.structural_analysis.timing)
+				timing_details[:si_coordinate_basis] = copy(rtm.structural_analysis.coordinate_basis)
+				timing_details[:si_structural_analysis_reused] = rtm.structural_analysis_reused
+			end
 			if hasproperty(rtm, :equation_builder_timing)
 				timing_details[:si_template_equation_builder_timing] = rtm.equation_builder_timing
 			end
@@ -2357,6 +2365,8 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			data_length = length(t_vector),
 			use_multipoint = use_multipoint,
 			multipoint_n_points = opts.multipoint_n_points,
+			si_fix_strategy = opts.si_fix_strategy,
+			si_probability = opts.si_probability,
 			interpolator_sources = Symbol[interpolator_method_to_symbol(method) for (method, _) in interpolator_list],
 			system_cache = copy(reusable_system_cache),
 			order_cache = copy(reusable_order_cache),

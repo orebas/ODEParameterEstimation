@@ -224,6 +224,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 
 ## StructuralIdentifiability Parameters
 - `si_probability::Float64`: Probability threshold for identifiability analysis (default: 0.99)
+- `si_fix_strategy::Symbol`: `:local_basis` (default) uses local SI classification and its coordinate transcendence basis for representative fixing. `:identifiable_functions` retains global SI classification and the identifiable-function Jacobian method for comparison. Neither choice certifies a unique or positive representative.
 
 ## File I/O
 - `save_filepath::String`: Path for saving polynomial systems (default: "")
@@ -585,6 +586,7 @@ Base.@kwdef struct EstimationOptions
 
 	# StructuralIdentifiability Parameters
 	si_probability::Float64 = 0.99
+	si_fix_strategy::Symbol = :local_basis
 
 	# File I/O
 	save_filepath::String = ""
@@ -1392,6 +1394,10 @@ function validate_options(opts::EstimationOptions)
 	end
 
 	# Check SI parameters
+	if !(opts.si_fix_strategy in (:local_basis, :identifiable_functions))
+		@error "si_fix_strategy must be :local_basis or :identifiable_functions"
+		valid = false
+	end
 	if opts.si_probability <= 0 || opts.si_probability > 1
 		@error "si_probability must be in (0, 1]"
 		valid = false
@@ -1508,7 +1514,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("System Construction", [:system_construction_policy, :construction_candidate_limit,
 			:construction_beam_width, :construction_compute_mixed_volume]),
 		("HomotopyContinuation", [:use_parameter_homotopy, :hc_real_tol, :hc_show_progress, :homotopy_tracking_mode, :gamma_max_seeds, :gamma_seed, :use_multipoint, :multipoint_n_points, :multipoint_max_pairs, :multipoint_pair_strategy]),
-		("StructuralIdentifiability", [:si_probability]),
+		("StructuralIdentifiability", [:si_probability, :si_fix_strategy]),
 		("File I/O", [:save_filepath]),
 	]
 

@@ -14,9 +14,12 @@ def main():
     parser.add_argument("model", choices=("bruno", "fujita", "sneyd", "sneyd_profile", "fujita_tracking", "fujita_discovery", "si_sneyd", "si_fujita"))
     parser.add_argument("output", type=Path)
     parser.add_argument("--seconds", type=float, default=1200)
+    parser.add_argument("--si-fix-strategy", choices=("local_basis", "identifiable_functions"))
     parser.add_argument("--input", type=Path, help="Exact start pairs for Fujita tracking/discovery")
     parser.add_argument("--si-mode", choices=("local", "local_fixed", "global", "functions_absent", "functions_standard"))
     args = parser.parse_args()
+    if args.si_fix_strategy and args.model not in ("bruno", "fujita", "sneyd"):
+        parser.error("--si-fix-strategy applies only to dense estimation runs")
     tracking = args.model in ("fujita_tracking", "fujita_discovery")
     if tracking != (args.input is not None):
         parser.error("--input is required only for Fujita tracking/discovery")
@@ -63,6 +66,8 @@ def main():
                             "sneyd": ("Sneyd_PNAS2002", "Ca_dose_response__1")}[args.model]
         command += [str(here / "run.jl"), model, condition, str(out)]
     env = os.environ.copy()
+    if args.si_fix_strategy:
+        env["ODEPE_SI_FIX_STRATEGY"] = args.si_fix_strategy
     for key in ("JULIA_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
         env[key] = "1"
     started = time.monotonic()

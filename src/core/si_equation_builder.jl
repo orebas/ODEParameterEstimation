@@ -616,6 +616,81 @@ function eval_at_nemo(expr, subs_dict)
 	return StructuralIdentifiability.eval_at_nemo(expr, subs_dict)
 end
 
+"""Run-local structural analysis, independent of data and polynomial representative substitutions.
+
+`coordinate_basis` contains free parameter or state-at-anchor coordinates. A
+locally identifiable quantity can still have finitely many branches; it must
+not be fixed merely because global identifiability has not been established.
+`identifiable_functions === nothing` means those functions were not computed.
+"""
+struct SIStructuralAnalysis{M, F}
+	model::M
+	observations::Vector{ModelingToolkit.Equation}
+	strategy::Symbol
+	probability::Float64
+	classification::OrderedDict{String, Symbol}
+	coordinate_basis::Vector{String}
+	identifiable_functions::F
+	timing::OrderedDict{Symbol, Float64}
+end
+
+"""
+	analyze_si_structure(ode, measured_quantities, si_ode; strategy, p, infolevel)
+
+# Arguments
+- `ode`, `measured_quantities`: Original model and observations, retained to guard reuse.
+- `si_ode`: Converted SI model; parameters and free initial states are assessed together.
+- `strategy`: `:local_basis` or the comparison method `:identifiable_functions`.
+- `p`: Requested SI probability. The local method preserves the full SI call's
+  local-stage budget, `1 - (1 - p)/10`.
+
+# Returns
+A `SIStructuralAnalysis` reusable for builds of this same model. State basis
+coordinates are substituted only as jet-0 values in the polynomial template,
+never as constant state trajectories in the ODE.
+"""
+function analyze_si_structure(ode, measured_quantities, si_ode;
+	strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
+	p::Float64 = 0.99, infolevel::Int = 0)
+	strategy in (:local_basis, :identifiable_functions) ||
+		throw(ArgumentError("Unknown si_fix_strategy: $strategy"))
+	quantities = vcat(si_ode.parameters, si_ode.x_vars)
+	classification = OrderedDict{String, Symbol}()
+	basis = Nemo.QQMPolyRingElem[]
+	timing = OrderedDict{Symbol, Float64}()
+	loglevel = infolevel > 0 ? Logging.Info : Logging.Warn
+	if strategy == :local_basis
+		timing[:assess_local_identifiability] = @elapsed result = StructuralIdentifiability.assess_local_identifiability(
+			si_ode; funcs_to_check = quantities, type = :SE, trbasis = basis,
+			prob_threshold = 1 - (1 - p) * 0.1, loglevel = loglevel,
+		)
+		for q in quantities
+			classification[string(q)] = result[q] ? :locally_identifiable : :nonidentifiable
+		end
+		all(q -> haskey(result, q) && !result[q], basis) ||
+			error("SI returned a coordinate basis outside the nonidentifiable quantities")
+		identifiable_functions = nothing
+	else
+		timing[:assess_identifiability] = @elapsed result = StructuralIdentifiability.assess_identifiability(
+			si_ode; funcs_to_check = quantities, prob_threshold = p, loglevel = loglevel,
+		)
+		for q in quantities
+			classification[string(q)] = result[q]
+		end
+		timing[:find_identifiable_functions] = @elapsed identifiable_functions =
+			isempty(si_ode.parameters) ? Any[] : find_identifiable_functions(si_ode)
+	end
+	return SIStructuralAnalysis(ode.system, copy(measured_quantities), strategy, p,
+		classification, string.(basis), identifiable_functions, timing)
+end
+
+function validate_si_analysis_reuse(analysis::SIStructuralAnalysis, ode, measured_quantities, strategy, p)
+	analysis.model === ode.system && isequal(analysis.observations, measured_quantities) &&
+		analysis.strategy == strategy && analysis.probability == p ||
+		throw(ArgumentError("Structural analysis can only be reused for the same model, observations, SI strategy, and probability"))
+	return analysis
+end
+
 """
 	get_si_equation_system(ode, measured_quantities::Vector{ModelingToolkit.Equation}, data_sample::OrderedDict; DD=nothing, kwargs...)
 
@@ -637,6 +712,8 @@ function get_si_equation_system(
 	infolevel = 0,
 	pre_fixed_params::OrderedDict = OrderedDict(),  # Parameters already fixed in previous iterations
 	compute_multiplicity = true,  # false on detection passes: skip the algebraic-multiplicity Groebner step
+	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
+	structural_analysis::Union{Nothing, SIStructuralAnalysis} = nothing,
 	kwargs...,
 )
 	@info "Getting equation system from StructuralIdentifiability.jl"
@@ -650,6 +727,11 @@ function get_si_equation_system(
 	si_ode, symbol_map, gens = convert_to_si_ode(ode, measured_quantities)
 	equation_builder_timing[:convert_to_si_ode] = time() - _t_convert_to_si_ode_start
 	placeholder_fail_categories = get(kwargs, :placeholder_fail_categories, Symbol[])
+	# Only the polynomial template changes between the detection and fixed
+	# passes. A parameter-fixed model used by state rescue needs fresh analysis.
+	if !isnothing(structural_analysis)
+		validate_si_analysis_reuse(structural_analysis, ode, measured_quantities, si_fix_strategy, p)
+	end
 
 	# Get parameters for identifiability analysis 
 	# Use the parameters field directly instead of SIAN.get_parameters to avoid dependency issues
@@ -692,35 +774,17 @@ function get_si_equation_system(
 	DD = ensure_si_template_dd_support(ode, measured_quantities, DD, y_derivative_dict)
 	equation_builder_timing[:ensure_dd_support] = time() - _t_ensure_dd_support_start
 
-	# Also run identifiability check
-	@info "Checking identifiability"
-	_t_assess_identifiability_start = time()
-	id_result = StructuralIdentifiability.assess_identifiability(
-		si_ode;
-		funcs_to_check = params_to_assess,
-		prob_threshold = p,
-		loglevel = infolevel > 0 ? Logging.Info : Logging.Warn,
-	)
-	equation_builder_timing[:assess_identifiability] = time() - _t_assess_identifiability_start
-
-	# Extract non-identifiable parameters
-	_t_extract_unidentifiable_start = time()
-	unidentifiable_dict = Dict()
-	for (param, status) in id_result
-		if status == :nonidentifiable
-			unidentifiable_dict[param] = status
-		end
+	analysis_reused = !isnothing(structural_analysis)
+	@info "Checking identifiability" strategy = si_fix_strategy reused = analysis_reused
+	equation_builder_timing[:structural_analysis] = @elapsed analysis = analysis_reused ? structural_analysis :
+		analyze_si_structure(ode, measured_quantities, si_ode; strategy = si_fix_strategy, p = p, infolevel = infolevel)
+	if !analysis_reused
+		merge!(equation_builder_timing, analysis.timing)
 	end
-	unidentifiable = Set(keys(unidentifiable_dict))
-	equation_builder_timing[:extract_unidentifiable] = time() - _t_extract_unidentifiable_start
-
-	# Find identifiable combinations of unidentifiable parameters
-	# The main ODE object must be passed, not the result dictionary.
-	# This call finds combinations of all parameters, which is what we need.
-	_t_find_identifiable_functions_start = time()
-	identifiable_funcs = isempty(si_ode.parameters) ? Any[] : find_identifiable_functions(si_ode)
-	equation_builder_timing[:find_identifiable_functions] = time() - _t_find_identifiable_functions_start
-	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = length(identifiable_funcs)
+	@info "[SI-STRUCTURAL] Analysis timing" reused = analysis_reused seconds = analysis.timing
+	unidentifiable = Set(q for q in params_to_assess if analysis.classification[string(q)] == :nonidentifiable)
+	identifiable_funcs = analysis.identifiable_functions
+	@info "[SI-STRUCTURAL] SIAN/SI template summary" template_equation_count = length(poly_system) derivative_symbol_count = length(y_derivative_dict) max_derivative_order = (isempty(y_derivative_dict) ? 0 : maximum(values(y_derivative_dict))) structural_unidentifiable_count = length(unidentifiable) identifiable_function_count = (isnothing(identifiable_funcs) ? nothing : length(identifiable_funcs)) coordinate_basis = analysis.coordinate_basis
 	if infolevel > 0
 		@info "[SI-STRUCTURAL] Structural unidentifiable variables from SI" variables = unidentifiable
 		@info "[SI-STRUCTURAL] Observable derivative support requested by SI template" derivative_orders = y_derivative_dict
@@ -861,16 +925,9 @@ function get_si_equation_system(
 
 			# Also update the unidentifiable set to remove fixed parameters
 			# The unidentifiable set contains Nemo symbols, we need to match by name
-			new_unidentifiable = Set()
-			for u in unidentifiable
-				u_str = string(u)
-				if !haskey(pre_fixed_params, Symbol(u_str)) && !haskey(pre_fixed_params, Symbol(u_str * "_0"))
-					push!(new_unidentifiable, u)
-				else
-					@info "[PRE-FIX] Removed $u from unidentifiable set (now fixed)"
-				end
-			end
-			unidentifiable = new_unidentifiable
+			fixed_names = Set(string.(keys(pre_fixed_params)))
+			unidentifiable = Set(u for u in unidentifiable if
+				!(string(u) in fixed_names || string(u) * "_0" in fixed_names))
 		end
 	end
 	equation_builder_timing[:prefixed_substitutions] = time() - _t_prefixed_substitutions_start
@@ -885,6 +942,8 @@ function get_si_equation_system(
 		sian_timing = get(result, "timing", OrderedDict{Symbol, Float64}()),
 		algebraic_multiplicity_timing = get(result, "algebraic_multiplicity_timing", OrderedDict{Symbol, Any}()),
 		template_var_map = template_var_map,
+		structural_analysis = analysis,
+		structural_analysis_reused = analysis_reused,
 	)
 
 	# Return identifiable_funcs as well

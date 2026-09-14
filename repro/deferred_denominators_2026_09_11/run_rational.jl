@@ -69,6 +69,7 @@ try
         error("Retained data disagree with the extracted generating model")
     nvar = length(pep.p_true) + length(pep.ic)
     opts = EstimationOptions(; datasize=length(rows), noise_level=0.0,
+        si_fix_strategy=Symbol(get(ENV, "ODEPE_SI_FIX_STRATEGY", string(EstimationOptions().si_fix_strategy))),
         shooting_points=20, shooting_warp=true, shooting_warp_beta=3.0,
         use_multipoint=true, multipoint_n_points=2, multipoint_max_pairs=15,
         polish_solver_solutions=true, polish_solutions=true, polish_maxiters=5000,
