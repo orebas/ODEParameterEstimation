@@ -1,0 +1,123 @@
+{
+  "source": "/tmp/odepe-sneyd-dense-20260914/result.json",
+  "source_sha256": "ff124ec40bb16bca3dc92f5233902dab1a0eeacfe343e6aa12d1bf04122f353e",
+  "condition": "Ca_dose_response__1",
+  "parameters": [
+    "k1",
+    "k2",
+    "k3",
+    "k4",
+    "k_1",
+    "k_2",
+    "k_3",
+    "k_4",
+    "l2",
+    "l4",
+    "l6",
+    "l_2",
+    "l_4",
+    "l_6"
+  ],
+  "states": [
+    "IPR_S",
+    "IPR_R",
+    "IPR_O",
+    "IPR_I2",
+    "IPR_I1",
+    "IPR_A"
+  ],
+  "state_equations_linear": true,
+  "state_sum_conserved": true,
+  "effective_rate_count": 9,
+  "effective_rates": [
+    "10*k3*k_4*l6/(k4*l_6 + 10*k_4*l6)",
+    "(10*k_2*k_4*l6 + k_4*l6*l_4)/(k4*l_6 + 10*k_4*l6)",
+    "k_1 + l_2",
+    "k_3",
+    "(100*k2*k_1*k_2*l2*l4 + 10*k2*k_1*l2*l4*l_4)/(k1*k_2*l4*l_2 + k2*k_1*l2*l_4 + 10*k_1*k_2*l2*l4)",
+    "(10*k_1*k_4*l2 + 10*k_1*l2*l_6)/(k1*l_2 + 10*k_1*l2)",
+    "(k1*k_1*l2 + k1*l2*l_2)/(k1*l_2 + 10*k_1*l2)",
+    "(k1*k_1*k_2*l2*l4 + k1*k_2*l2*l4*l_2)/(k1*k_2*l4*l_2 + k2*k_1*l2*l_4 + 10*k_1*k_2*l2*l4)",
+    "(k4*k_4*l6 + k4*l6*l_6)/(k4*l_6 + 10*k_4*l6)"
+  ],
+  "edges": [
+    {
+      "from": "IPR_O",
+      "to": "IPR_S",
+      "rate_index": 1
+    },
+    {
+      "from": "IPR_O",
+      "to": "IPR_R",
+      "rate_index": 2
+    },
+    {
+      "from": "IPR_I1",
+      "to": "IPR_R",
+      "rate_index": 3
+    },
+    {
+      "from": "IPR_S",
+      "to": "IPR_O",
+      "rate_index": 4
+    },
+    {
+      "from": "IPR_R",
+      "to": "IPR_O",
+      "rate_index": 5
+    },
+    {
+      "from": "IPR_A",
+      "to": "IPR_O",
+      "rate_index": 6
+    },
+    {
+      "from": "IPR_A",
+      "to": "IPR_I2",
+      "rate_index": 7
+    },
+    {
+      "from": "IPR_R",
+      "to": "IPR_I1",
+      "rate_index": 8
+    },
+    {
+      "from": "IPR_O",
+      "to": "IPR_A",
+      "rate_index": 9
+    },
+    {
+      "from": "IPR_I2",
+      "to": "IPR_A",
+      "rate_index": 3
+    }
+  ],
+  "effective_rate_jacobian_rank_at_exact_rational_probes": [
+    9,
+    9,
+    9
+  ],
+  "parameter_nullity_lower_bound": 5,
+  "scope": "Single fixed input condition. Effective-rate rank is not an output-identifiability certificate.",
+  "generating_effective_rates": [
+    15.745340181342375,
+    0.0023905150094508296,
+    1.271589187300275,
+    1.91463005974811,
+    49.22717093550442,
+    2679.4561001183893,
+    0.4463769736619225,
+    1.0589847223427756e-05,
+    9993.828684057258
+  ],
+  "data_sha256": "058b43c482d0bcb63b3ef221ba3f7bc6089f5d5bdab3ded18087ab190add9e7c",
+  "matrix_exponential_max_relative_signal_error": 6.414945999559892e-13,
+  "generator_eigenvalues": [
+    -12685.802387863949,
+    -49.2277213292031,
+    -5.537756750435781,
+    1.0224340273851351e-13,
+    -1.3244269552734436,
+    -1.2715889065001047
+  ]
+}

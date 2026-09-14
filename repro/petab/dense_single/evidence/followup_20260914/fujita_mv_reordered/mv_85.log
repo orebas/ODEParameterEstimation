@@ -1,0 +1,96 @@
+MIXED_VOLUME_START equations=85 unknowns=85
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 4147607 running 1 of 1
+
+signal (10): User defined signal 1
+== at ./promotion.jl:641 [inlined]
+iterate at ./range.jl:928 [inlined]
+circuit_less at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:690 [inlined]
+first_violated_inequality at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:609
+next_cell! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1056
+next_cell! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1206
+unknown function (ip: 0x7ef87e576132) at (unknown file)
+macro expansion at /tmp/odepe-fujita-mv-reordered-20260914/source/measure_polynomial_system.jl:49 [inlined]
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-fujita-mv-reordered-20260914/source/measure_polynomial_system.jl:45
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7ef8a4c2a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 4147607 running 1 of 1
+
+signal (10): User defined signal 1
+>> at ./int.jl:573 [inlined]
+shift! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:44 [inlined]
+table_update! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:863 [inlined]
+exchange_column! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:775
+exchange_column! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:981 [inlined]
+next_cell! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1054
+next_cell! at /home/orebas/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1206
+unknown function (ip: 0x7ef87e576132) at (unknown file)
+macro expansion at /tmp/odepe-fujita-mv-reordered-20260914/source/measure_polynomial_system.jl:49 [inlined]
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-fujita-mv-reordered-20260914/source/measure_polynomial_system.jl:45
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7ef8a4c2a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+FINISHED interrupted
+  Activating project at `/tmp/odepe-petab-pilot-env`

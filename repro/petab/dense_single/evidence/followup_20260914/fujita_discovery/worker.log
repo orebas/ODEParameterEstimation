@@ -1,0 +1,262 @@
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 20766 running 1 of 1
+
+signal (10): User defined signal 1
+_ZNK4llvm8CallBase26getArgOperandWithAttributeENS_9Attribute8AttrKindE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm36getArgumentAliasingToReturnedPointerEPKNS_8CallBaseEb at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm19getUnderlyingObjectEPKNS_5ValueEj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult10aliasCheckEPKNS_5ValueENS_12LocationSizeES3_S4_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult5aliasERKNS_14MemoryLocationES3_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm9AAResults5aliasERKNS_14MemoryLocationES3_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult8aliasGEPEPKNS_11GEPOperatorENS_12LocationSizeEPKNS_5ValueES4_S7_S7_RNS_11AAQueryInfoE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult19aliasCheckRecursiveEPKNS_5ValueENS_12LocationSizeES3_S4_RNS_11AAQueryInfoES3_S3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult10aliasCheckEPKNS_5ValueENS_12LocationSizeES3_S4_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult5aliasERKNS_14MemoryLocationES3_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm9AAResults5aliasERKNS_14MemoryLocationES3_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN12_GLOBAL__N_18DSEState11isOverwriteEPKN4llvm11InstructionES4_RKNS1_14MemoryLocationES7_RlS8_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN12_GLOBAL__N_18DSEState17eliminateDeadDefsERKNS_21MemoryLocationWrapperE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN12_GLOBAL__N_1L19eliminateDeadStoresERN4llvm8FunctionERNS0_9AAResultsERNS0_9MemorySSAERNS0_13DominatorTreeERNS0_17PostDominatorTreeERKNS0_17TargetLibraryInfoERKNS0_8LoopInfoE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7DSEPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x4260
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x42c0
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_8FunctionENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/src/pipeline.cpp:792
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1512
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1473 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1648 [inlined]
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2117
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+#monodromy_solve#340 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:795
+monodromy_solve at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:719
+unknown function (ip: 0x7ab8099df8da) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-fujita-root-discovery-20260914/source/track_fujita_known_starts.jl:57
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7ab83002a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#= 21600.9 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:show_progress, :progress, :threading, :catch_interrupt, :warning), Tuple{Bool, Nothing, Bool, Bool, Bool}}, typeof(HomotopyContinuation.monodromy_solve), HomotopyContinuation.MonodromySolver{HomotopyContinuation.EndgameTracker{HomotopyContinuation.ParameterHomotopy{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}}, StructArrays.StructArray{Base.Complex{Float64}, 2, NamedTuple{(:re, :im), Tuple{Array{Float64, 2}, Array{Float64, 2}}}, Int64}}, Array{Base.Complex{Float64}, 1}, HomotopyContinuation.UniquePoints{Base.Complex{Float64}, Int64, HomotopyContinuation.EuclideanNorm, Nothing}, Nothing, HomotopyContinuation.MonodromyOptions{HomotopyContinuation.EuclideanNorm, Nothing}}, Array{Array{Base.Complex{Float64}, 1}, 1}, Array{Base.Complex{Float64}, 1}, UInt32})
+#=    9.4 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{2, Base.Complex{Float64}}}, Int32})
+#=    8.8 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{2, Base.Complex{Float64}}}, Float64})
+#=   10.6 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{3, Base.Complex{Float64}}}, Int32})
+#=    3.8 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{3, Base.Complex{Float64}}}, Float64})
+#=    5.8 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{4, Base.Complex{Float64}}}, Int32})
+#=    9.2 ms =# precompile(Tuple{typeof(Base.convert), Type{HomotopyContinuation.ModelKit.TruncatedTaylorSeries{4, Base.Complex{Float64}}}, Float64})
+#=    8.8 ms =# precompile(Tuple{Main.var"#22#23", Array{HomotopyContinuation.PathResult, 1}})
+#=    3.4 ms =# precompile(Tuple{typeof(HomotopyContinuation.independent_normal), Array{Base.Complex{Float64}, 1}})
+#=    3.1 ms =# precompile(Tuple{typeof(Base.convert), Type{Array{Base.Complex{Float64}, 1}}, Array{Base.Complex{Float64}, 1}})
+#=    5.4 ms =# precompile(Tuple{typeof(Base.Broadcast.broadcasted), typeof(Base.:(-)), Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}})
+#=    6.3 ms =# precompile(Tuple{typeof(Base.Broadcast.broadcasted), typeof(Base.:(*)), Float64, Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.:(-)), Tuple{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}}})
+#=  119.4 ms =# precompile(Tuple{typeof(Base.Broadcast.materialize), Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.:(*)), Tuple{Float64, Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.:(-)), Tuple{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}}}}})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 20766 running 1 of 1
+
+signal (10): User defined signal 1
+lu! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:177
+factorize! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:257 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:395
+#ldiv!#36 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:860 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:846 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:107
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#348 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1583
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1514 [inlined]
+serial_monodromy_solve! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1176
+#monodromy_solve#345 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:963
+monodromy_solve at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:916
+unknown function (ip: 0x7ab7ed1ee9f1) at (unknown file)
+#monodromy_solve#340 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:795
+monodromy_solve at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:719
+unknown function (ip: 0x7ab8099df8da) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-fujita-root-discovery-20260914/source/track_fujita_known_starts.jl:57
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7ab83002a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 20766 running 1 of 1
+
+signal (10): User defined signal 1
+_setindex! at ./array.jl:1025 [inlined]
+setindex! at ./array.jl:1020 [inlined]
+#8 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/utils.jl:186 [inlined]
+macro expansion at /home/orebas/.julia/packages/StructArrays/fvsNe/src/utils.jl:81 [inlined]
+foreachfield_gen at /home/orebas/.julia/packages/StructArrays/fvsNe/src/utils.jl:81 [inlined]
+foreachfield at /home/orebas/.julia/packages/StructArrays/fvsNe/src/utils.jl:84 [inlined]
+setindex! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/utils.jl:185 [inlined]
+_setindex! at ./abstractarray.jl:1487 [inlined]
+setindex! at ./abstractarray.jl:1464 [inlined]
+lu! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:178
+factorize! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:257 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:395
+#ldiv!#35 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:843 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:833 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:833 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:151
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+#track!#143 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:964 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:937 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:937 [inlined]
+#track#348 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1556
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1514 [inlined]
+serial_monodromy_solve! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:1176
+#monodromy_solve#345 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:963
+monodromy_solve at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:916
+unknown function (ip: 0x7ab7ed1ee9f1) at (unknown file)
+#monodromy_solve#340 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:795
+monodromy_solve at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/monodromy.jl:719
+unknown function (ip: 0x7ab8099df8da) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-fujita-root-discovery-20260914/source/track_fujita_known_starts.jl:57
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7ab83002a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#=   18.4 ms =# precompile(Tuple{Type{NamedTuple{(:value, :time, :bytes, :gctime, :gcstats, :lock_conflicts, :compile_time, :recompile_time), T} where T<:Tuple}, Tuple{HomotopyContinuation.MonodromyResult{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}, Float64, Int64, Float64, Base.GC_Diff, Int64, Float64, Float64}})
+#=   14.8 ms =# precompile(Tuple{typeof(Base.getproperty), NamedTuple{(:value, :time, :bytes, :gctime, :gcstats, :lock_conflicts, :compile_time, :recompile_time), Tuple{HomotopyContinuation.MonodromyResult{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}, Float64, Int64, Float64, Base.GC_Diff, Int64, Float64, Float64}}, Symbol})
+#=   10.0 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##0#IteratorSize##1"{Tuple{Base.Iterators.Filter{HomotopyContinuation.var"#266#267"{Bool, Float64, Bool, Bool, Bool, Array{HomotopyContinuation.PathResult, 1}}, Array{HomotopyContinuation.PathResult, 1}}}}, Int64})
+#=   11.9 ms =# precompile(Tuple{Type{NamedTuple{(:only_nonsingular,), T} where T<:Tuple}, Tuple{Bool}})
+#=    4.2 ms =# precompile(Tuple{typeof(Base.merge), NamedTuple{(:only_nonsingular,), Tuple{Bool}}, Base.Pairs{Symbol, Union{}, Nothing, NamedTuple{(), Tuple{}}}})
+#=  337.1 ms =# precompile(Tuple{typeof(HomotopyContinuation.solutions), HomotopyContinuation.MonodromyResult{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}})
+#=   18.8 ms =# precompile(Tuple{typeof(Base.getproperty), HomotopyContinuation.MonodromyResult{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}}, Symbol})
+#=    5.9 ms =# precompile(Tuple{typeof(Base.length), Array{Array{Base.Complex{Float64}, 1}, 1}})
+#=    4.5 ms =# precompile(Tuple{typeof(Base.length), Array{HomotopyContinuation.MonodromyLoop{Array{Base.Complex{Float64}, 1}}, 1}})
+#=    6.0 ms =# precompile(Tuple{typeof(Base.getproperty), HomotopyContinuation.MonodromyStatistics, Symbol})
+#=    6.3 ms =# precompile(Tuple{typeof(Base.Broadcast.broadcasted), typeof(Base.real), Array{Array{Base.Complex{Float64}, 1}, 1}})
+#=  111.3 ms =# precompile(Tuple{typeof(Base.Broadcast.materialize), Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.real), Tuple{Array{Array{Base.Complex{Float64}, 1}, 1}}}})
+#=    6.7 ms =# precompile(Tuple{Type{Pair{A, B} where B where A}, String, Array{Array{Float64, 1}, 1}})
+#=    6.6 ms =# precompile(Tuple{typeof(Base.Broadcast.broadcasted), typeof(Base.imag), Array{Array{Base.Complex{Float64}, 1}, 1}})
+#=  117.8 ms =# precompile(Tuple{typeof(Base.Broadcast.materialize), Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.imag), Tuple{Array{Array{Base.Complex{Float64}, 1}, 1}}}})
+[33m#=   32.7 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Pair{String, String}, Vararg{Pair{A, B} where B where A}}) # recompile[0m
+#=   55.0 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Tuple{Pair{String, String}, Pair{String, Float64}, Pair{String, Float64}, Pair{String, Int64}, Pair{String, Int64}, Pair{String, Int64}, Pair{String, Array{Array{Float64, 1}, 1}}, Pair{String, Array{Array{Float64, 1}, 1}}}})
+#=    7.0 ms =# precompile(Tuple{typeof(Base.empty), Base.Dict{String, String}, Type{String}, Type{Any}})
+#=   18.7 ms =# precompile(Tuple{typeof(Base.grow_to!), Base.Dict{String, Any}, Tuple{Pair{String, String}, Pair{String, Float64}, Pair{String, Float64}, Pair{String, Int64}, Pair{String, Int64}, Pair{String, Int64}, Pair{String, Array{Array{Float64, 1}, 1}}, Pair{String, Array{Array{Float64, 1}, 1}}}, Int64})
+#=    5.7 ms =# precompile(Tuple{typeof(StructUtils.lower), JSON.JSONWriteStyle, Array{Array{Float64, 1}, 1}})
+#=  279.6 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, false, Base.Dict{String, Any}, Base.IOStream}, String, Array{Array{Float64, 1}, 1}})
+#=   10.2 ms =# precompile(Tuple{typeof(Base.flush), Base.IOContext{Base.IOStream}})
+MONODROMY_END roots=180 return_code=timeout
+#=    8.8 ms =# precompile(Tuple{typeof(Base.rand), Random.MersenneTwister})
+#=    5.4 ms =# precompile(Tuple{typeof(Base.cis), Float64})
+#=   45.3 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, true, Array{Any, 1}, Base.IOStream}, String, Base.Dict{String, Any}})
+#=    4.0 ms =# precompile(Tuple{typeof(StructUtils.lower), JSON.JSONWriteStyle, Array{Float64, 1}})
+#=   85.2 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, false, Base.Dict{String, Any}, Base.IOStream}, String, Array{Float64, 1}})
+TRACK_START mode=gamma_straight target=nearby
+#=   12.4 ms =# precompile(Tuple{Type{NamedTuple{(:start_parameters, :target_parameters, :gamma, :show_progress), T} where T<:Tuple}, Tuple{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}, Base.Complex{Float64}, Bool}})
+#=  115.1 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:start_parameters, :target_parameters, :gamma, :show_progress), Tuple{Array{Base.Complex{Float64}, 1}, Array{Base.Complex{Float64}, 1}, Base.Complex{Float64}, Bool}}, typeof(HomotopyContinuation.solve), HomotopyContinuation.ModelKit.System, HomotopyContinuation.ModelKit.System, Array{Array{Base.Complex{Float64}, 1}, 1}})
+#=  136.0 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:target_parameters, :show_progress, :start_parameters, :gamma), Tuple{Array{Base.Complex{Float64}, 1}, Bool, Array{Base.Complex{Float64}, 1}, Base.Complex{Float64}}}, typeof(HomotopyContinuation.solver_startsolutions), HomotopyContinuation.ModelKit.System, HomotopyContinuation.ModelKit.System, Array{Array{Base.Complex{Float64}, 1}, 1}})
+#=   11.2 ms =# precompile(Tuple{Type{HomotopyContinuation.FixedParameterSystem{S, T} where T where S<:HomotopyContinuation.ModelKit.AbstractSystem}, HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Array{Base.Complex{Float64}, 1}})
+#=   83.1 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:gamma,), Tuple{Base.Complex{Float64}}}, Type{HomotopyContinuation.StraightLineHomotopy{S, T} where T<:HomotopyContinuation.ModelKit.AbstractSystem where S<:HomotopyContinuation.ModelKit.AbstractSystem}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}})
+#=  257.6 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:tracker_options, :options), Tuple{HomotopyContinuation.TrackerOptions, HomotopyContinuation.EndgameOptions}}, Type{HomotopyContinuation.EndgameTracker{H, M} where M<:AbstractArray{Base.Complex{Float64}, 2} where H<:HomotopyContinuation.ModelKit.AbstractHomotopy}, HomotopyContinuation.StraightLineHomotopy{HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}}})
+#=   33.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:seed,), Tuple{UInt32}}, Type{HomotopyContinuation.Solver{T} where T<:HomotopyContinuation.AbstractPathTracker}, HomotopyContinuation.EndgameTracker{HomotopyContinuation.StraightLineHomotopy{HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}}, StructArrays.StructArray{Base.Complex{Float64}, 2, NamedTuple{(:re, :im), Tuple{Array{Float64, 2}, Array{Float64, 2}}}, Int64}}})
+#=    8.6 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{HomotopyContinuation.Solver{HomotopyContinuation.EndgameTracker{HomotopyContinuation.StraightLineHomotopy{HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}}, StructArrays.StructArray{Base.Complex{Float64}, 2, NamedTuple{(:re, :im), Tuple{Array{Float64, 2}, Array{Float64, 2}}}, Int64}}}, Array{Array{Base.Complex{Float64}, 1}, 1}}, Int64})
+#=    8.1 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{HomotopyContinuation.Solver{HomotopyContinuation.EndgameTracker{HomotopyContinuation.StraightLineHomotopy{HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}}, StructArrays.StructArray{Base.Complex{Float64}, 2, NamedTuple{(:re, :im), Tuple{Array{Float64, 2}, Array{Float64, 2}}}, Int64}}}, Array{Array{Base.Complex{Float64}, 1}, 1}}, Int64, Int64})
+#=   10.6 ms =# precompile(Tuple{Type{NamedTuple{(:delay,), T} where T<:Tuple}, Tuple{Float64}})
+#= 1817.3 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:stop_early_cb, :show_progress, :threading, :catch_interrupt), Tuple{typeof(HomotopyContinuation.always_false), Bool, Bool, Bool}}, typeof(HomotopyContinuation.solve), HomotopyContinuation.Solver{HomotopyContinuation.EndgameTracker{HomotopyContinuation.StraightLineHomotopy{HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}, HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.MixedSystem{(0x7a41c4a0b57970c3, 1)}, Base.Complex{Float64}}}, StructArrays.StructArray{Base.Complex{Float64}, 2, NamedTuple{(:re, :im), Tuple{Array{Float64, 2}, Array{Float64, 2}}}, Int64}}}, Array{Array{Base.Complex{Float64}, 1}, 1}})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+TRACK_END mode=gamma_straight target=nearby finite=180 seconds=11.75518097
+TRACK_START mode=gamma_straight target=distant
+TRACK_END mode=gamma_straight target=distant finite=180 seconds=31.95469099
+FINISHED complete
+  Activating project at `/tmp/odepe-petab-pilot-env`

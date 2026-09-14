@@ -11,21 +11,20 @@ import time
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("model", choices=("bruno", "fujita", "sneyd", "sneyd_profile", "fujita_tracking", "fujita_discovery"))
+    parser.add_argument("model", choices=("bruno", "fujita", "sneyd", "sneyd_profile", "fujita_tracking"))
     parser.add_argument("output", type=Path)
     parser.add_argument("--seconds", type=float, default=1200)
-    parser.add_argument("--input", type=Path, help="Exact start pairs for Fujita tracking/discovery")
+    parser.add_argument("--input", type=Path, help="Exact start pairs for fujita_tracking")
     args = parser.parse_args()
-    tracking = args.model in ("fujita_tracking", "fujita_discovery")
-    if tracking != (args.input is not None):
-        parser.error("--input is required only for Fujita tracking/discovery")
+    if (args.model == "fujita_tracking") != (args.input is not None):
+        parser.error("--input is required only for fujita_tracking")
     here = Path(__file__).resolve().parent
     out = args.output.resolve()
     if out.exists():
         raise SystemExit("Use a fresh output directory")
     out.mkdir(parents=True)
     command = ["julia", "--startup-file=no", "--compiled-modules=existing"]
-    if tracking:
+    if args.model == "fujita_tracking":
         source = out / "source"
         source.mkdir()
         worker = source / "track_fujita_known_starts.jl"
@@ -33,8 +32,6 @@ def main():
         shutil.copyfile(__file__, source / Path(__file__).name)
         shutil.copyfile(args.input, out / "input.json")
         command += [str(worker), str(out / "input.json"), str(out)]
-        if args.model == "fujita_discovery":
-            command += ["monodromy"]
     elif args.model == "sneyd_profile":
         command += [str(here / "profile_denominators.jl"), str(out)]
     else:

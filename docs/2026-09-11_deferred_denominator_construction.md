@@ -140,8 +140,9 @@ completed under normal optimization in 25.0 minutes; raw polishing totaled
 
 The `--optimize=0` run completed all nine interpolators, the 20 single-point
 anchors, and the configured two-point solves. Estimation took **3,165.0 s**
-(52.8 minutes). This tests recovery under a different compiler configuration;
-the default-runtime limitation above remains open.
+(52.8 minutes). This tests recovery under a different compiler configuration.
+The later reusable-polisher change resolves the default-runtime limitation
+described above; its normal-compiler recovery evidence is recorded separately.
 
 There were 1,018 candidates entering result processing. Initial processing took
 54.4 s; 205 backsolves were flagged, invoking the existing algebraic recovery path.
@@ -179,9 +180,9 @@ controlled before/after comparison: the stack and configuration were not matched
 and the old run retained 100 output rows. The exact producer/Jacobian
 comparison above is the direct mathematical compatibility check for this patch.
 
-The remaining biohydrogenation work is to investigate default compilation latency
-and parameter/branch recovery. This patch does not change the root-polishing or
-branch-completion algorithms.
+The remaining biohydrogenation work is to investigate parameter/branch recovery.
+This deferred-construction patch itself does not change root polishing or branch
+completion; the later compilation fix is linked above.
 
 ### Sneyd: construction reaches order 3
 
