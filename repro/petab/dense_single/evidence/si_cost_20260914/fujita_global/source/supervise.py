@@ -15,7 +15,7 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--seconds", type=float, default=1200)
     parser.add_argument("--input", type=Path, help="Exact start pairs for Fujita tracking/discovery")
-    parser.add_argument("--si-mode", choices=("local", "local_fixed", "global", "functions_absent", "functions_standard"))
+    parser.add_argument("--si-mode", choices=("local", "global", "functions_absent", "functions_standard"))
     args = parser.parse_args()
     tracking = args.model in ("fujita_tracking", "fujita_discovery")
     if tracking != (args.input is not None):

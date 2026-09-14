@@ -1,0 +1,910 @@
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+_ZN4llvm12DenseMapBaseINS_13SmallDenseMapISt4pairINS_10AACacheLocES3_ENS_11AAQueryInfo10CacheEntryELj8ENS_12DenseMapInfoIS4_vEENS_6detail12DenseMapPairIS4_S6_EEEES4_S6_S8_SB_E4findERKS4_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult10aliasCheckEPKNS_5ValueENS_12LocationSizeES3_S4_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13BasicAAResult5aliasERKNS_14MemoryLocationES3_RNS_11AAQueryInfoEPKNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm9AAResults13getModRefInfoEPKNS_11InstructionERKSt8optionalINS_14MemoryLocationEERNS_11AAQueryInfoE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm23MemoryDependenceResults30getSimplePointerDependencyFromERKNS_14MemoryLocationEbNS_21ilist_iterator_w_bitsINS_12ilist_detail12node_optionsINS_11InstructionELb0ELb0EvLb1ENS_10BasicBlockEEELb0ELb0EEEPS8_PS7_PjRNS_14BatchAAResultsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm23MemoryDependenceResults24getPointerDependencyFromERKNS_14MemoryLocationEbNS_21ilist_iterator_w_bitsINS_12ilist_detail12node_optionsINS_11InstructionELb0ELb0EvLb1ENS_10BasicBlockEEELb0ELb0EEEPS8_PS7_PjRNS_14BatchAAResultsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm23MemoryDependenceResults23getNonLocalInfoForBlockEPNS_11InstructionERKNS_14MemoryLocationEbPNS_10BasicBlockEPSt6vectorINS_16NonLocalDepEntryESaIS9_EEjRNS_14BatchAAResultsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm23MemoryDependenceResults27getNonLocalPointerDepFromBBEPNS_11InstructionERKNS_12PHITransAddrERKNS_14MemoryLocationEbPNS_10BasicBlockERNS_15SmallVectorImplINS_17NonLocalDepResultEEERNS_13SmallDenseMapISA_PNS_5ValueELj16ENS_12DenseMapInfoISA_vEENS_6detail12DenseMapPairISA_SH_EEEEbb at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm23MemoryDependenceResults28getNonLocalPointerDependencyEPNS_11InstructionERNS_15SmallVectorImplINS_17NonLocalDepResultEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7GVNPass19processNonLocalLoadEPNS_8LoadInstE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7GVNPass18processInstructionEPNS_11InstructionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7GVNPass12processBlockEPNS_10BasicBlockE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7GVNPass7runImplERNS_8FunctionERNS_15AssumptionCacheERNS_13DominatorTreeERKNS_17TargetLibraryInfoERNS_9AAResultsEPNS_23MemoryDependenceResultsERNS_8LoopInfoEPNS_25OptimizationRemarkEmitterEPNS_9MemorySSAE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm7GVNPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x4260
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x42c0
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_8FunctionENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/src/pipeline.cpp:792
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1512
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1473 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1648 [inlined]
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2117
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:23
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#= 30080.2 ms =# precompile(Tuple{typeof(Main.single_condition), String, String})
+#= 1184.7 ms =# precompile(Tuple{typeof(YAML.parse_stream_start), YAML.EventStream})
+#=    7.9 ms =# precompile(Tuple{typeof(Base.keys), Base.Dict{String, String}})
+#=    3.8 ms =# precompile(Tuple{typeof(Base.getproperty), Base.KeySet{String, Base.Dict{String, String}}, Symbol})
+#=  142.4 ms =# precompile(Tuple{typeof(YAML.parse_implicit_document_start), YAML.EventStream})
+#=   33.8 ms =# precompile(Tuple{typeof(YAML.parse_block_node), YAML.EventStream})
+#=   15.7 ms =# precompile(Tuple{typeof(YAML._parse_node), YAML.BlockMappingStartToken, YAML.EventStream, Bool, Bool})
+#=   50.5 ms =# precompile(Tuple{typeof(YAML.handle_event), YAML.MappingStartEvent, YAML.Composer})
+#=   39.2 ms =# precompile(Tuple{typeof(YAML.parse_block_mapping_first_key), YAML.EventStream})
+#=   13.9 ms =# precompile(Tuple{typeof(YAML._parse_node), YAML.ScalarToken, YAML.EventStream, Bool, Bool})
+#=   21.1 ms =# precompile(Tuple{typeof(YAML.__parse_node), YAML.ScalarToken, YAML.EventStream, Bool, YAML.Mark, YAML.Mark, Nothing, Nothing, Bool})
+#=   10.1 ms =# precompile(Tuple{typeof(YAML.__compose_mapping_node), YAML.ScalarEvent, YAML.Composer, YAML.MappingNode})
+#=   19.5 ms =# precompile(Tuple{typeof(YAML.parse_block_mapping_value), YAML.EventStream})
+#=   10.4 ms =# precompile(Tuple{typeof(YAML._parse_node), YAML.BlockEntryToken, YAML.EventStream, Bool, Bool})
+#=   50.3 ms =# precompile(Tuple{typeof(YAML.handle_event), YAML.SequenceStartEvent, YAML.Composer})
+#=   33.5 ms =# precompile(Tuple{typeof(YAML.parse_indentless_sequence_entry), YAML.EventStream})
+#=    9.4 ms =# precompile(Tuple{typeof(YAML.__compose_sequence_node), YAML.MappingStartEvent, YAML.Composer, YAML.SequenceNode})
+#=   10.5 ms =# precompile(Tuple{typeof(YAML.__compose_sequence_node), YAML.ScalarEvent, YAML.Composer, YAML.SequenceNode})
+#=   15.8 ms =# precompile(Tuple{typeof(YAML.parse_document_end), YAML.EventStream})
+#=  125.6 ms =# precompile(Tuple{YAML.var"#custom_mapping##0#custom_mapping##1"{Type{Base.Dict{Any, Any}}}, YAML.Constructor, YAML.MappingNode})
+#=   10.1 ms =# precompile(Tuple{typeof(Base._array_for_inner), Type{String}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+[33m#=   20.8 ms =# precompile(Tuple{typeof(PEtab._get_version), Base.Dict{Any, Any}}) # recompile[0m
+#=    3.1 ms =# precompile(Tuple{typeof(Base.string), Int64})
+#=    9.7 ms =# precompile(Tuple{typeof(Base.in), String, Array{String, 1}})
+[33m#=   41.5 ms =# precompile(Tuple{typeof(PEtab._get_path), Base.Dict{Any, Any}, String, String}) # recompile[0m
+#=    6.4 ms =# precompile(Tuple{typeof(Base.getindex), Array{Base.Dict{Any, Any}, 1}, Int64})
+#= 1560.1 ms =# precompile(Tuple{CSV.var"##File#18", Int64, Bool, Int64, Int64, Int64, Bool, Nothing, Bool, Nothing, Nothing, Nothing, Nothing, Bool, Nothing, Nothing, Nothing, Int64, Nothing, Array{String, 1}, String, Nothing, Bool, Bool, Char, Nothing, Nothing, Char, Nothing, Nothing, UInt8, Nothing, Array{String, 1}, Array{String, 1}, Bool, Nothing, Nothing, Base.IdDict{Type, Type}, Tuple{Float64, Int64}, Bool, Bool, Type{String}, Bool, Bool, Int64, Bool, Bool, Bool, Type{CSV.File}, String})
+#=   15.0 ms =# precompile(Tuple{typeof(CSV.getbytebuffer), String, Bool})
+[33m#=  121.3 ms =# precompile(Tuple{typeof(CSV.detectheaderdatapos), Array{UInt8, 1}, Int64, Int64, UInt8, UInt8, UInt8, Any, Bool, Any, Int64}) # recompile[0m
+#=    3.7 ms =# precompile(Tuple{typeof(Base.getindex), Array{UInt8, 1}, Int64})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+gc_sweep_page at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:932
+gc_sweep_pool_page at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:998 [inlined]
+gc_sweep_pool_parallel at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:1290
+gc_sweep_pool at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:1410 [inlined]
+_jl_gc_collect at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:3266
+ijl_gc_collect at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:3574
+maybe_collect at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:355 [inlined]
+jl_gc_small_alloc_inner at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:731 [inlined]
+jl_gc_small_alloc_noinline at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:789 [inlined]
+jl_gc_alloc_ at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:803
+jl_alloc_genericmemory_unchecked at /cache/build/builder-amdci4-4/julialang/julia-ci/src/genericmemory.c:41
+GenericMemory at ./boot.jl:588 [inlined]
+array_new_memory at ./array.jl:1101 [inlined]
+_growend_internal! at ./array.jl:1181
+_growend! at ./array.jl:1205 [inlined]
+resize! at ./array.jl:1540
+resize! at ./../usr/share/julia/Compiler/src/ssair/ir.jl:295
+resize! at ./../usr/share/julia/Compiler/src/ssair/ir.jl:1753 [inlined]
+batch_inline! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:646
+ssa_inlining_pass! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:79 [inlined]
+run_passes_ipo_safe at ./../usr/share/julia/Compiler/src/optimize.jl:1049
+run_passes_ipo_safe at ./../usr/share/julia/Compiler/src/optimize.jl:1062 [inlined]
+optimize at ./../usr/share/julia/Compiler/src/optimize.jl:1035
+jfptr_optimize_87185.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+finish_nocycle at ./../usr/share/julia/Compiler/src/typeinfer.jl:231
+jfptr_finish_nocycle_88086.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4570
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1404
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1601 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1610
+jfptr_typeinf_ext_toplevel_87105.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+jl_type_infer at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:478
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3697
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+#__process_SciMLProblem#797 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2333
+__process_SciMLProblem at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2179
+unknown function (ip: 0x73868b959117) at (unknown file)
+#process_SciMLProblem#796 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2176
+process_SciMLProblem at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2164
+unknown function (ip: 0x73868b94a6c7) at (unknown file)
+#process_SciMLProblem#795 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2146
+unknown function (ip: 0x73868b944826) at (unknown file)
+process_SciMLProblem at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/problem_utils.jl:2114
+unknown function (ip: 0x73868b943ba2) at (unknown file)
+#_ode_problem#829 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/problems/odeproblem.jl:145
+_ode_problem at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/problems/odeproblem.jl:134
+unknown function (ip: 0x73868b9411a4) at (unknown file)
+#_#832 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/problems/odeproblem.jl:174
+ODEProblem at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/problems/odeproblem.jl:168
+unknown function (ip: 0x73868b93fd66) at (unknown file)
+_get_odeproblem at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_odeproblem/problem_info.jl:144
+unknown function (ip: 0x73868b93e91d) at (unknown file)
+macro expansion at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_odeproblem/problem_info.jl:57 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+PEtabODEProblemInfo at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_odeproblem/problem_info.jl:56
+#PEtabODEProblem#238 at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_odeproblem/create.jl:25
+PEtabODEProblem at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_odeproblem/create.jl:1 [inlined]
+#load_petab_problem#30 at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:298
+load_petab_problem at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:281 [inlined]
+single_condition at /tmp/odepe-si-sneyd-absent-20260914/source/common.jl:40
+unknown function (ip: 0x73869174aae6) at (unknown file)
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:23
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#= 1791.9 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:u0, :p, :t, :eval_expression, :eval_module, :compiler_options, :expression, :check_compatibility, :jac, :sparse), Tuple{Array{Float64, 1}, ModelingToolkitBase.MTKParameters{Array{Float64, 1}, Array{Float64, 1}, Tuple{}, Tuple{}, Tuple{}, Tuple{}}, Float64, Bool, Module, ModelingToolkitBase.CompilerOptions, typeof(DataType), Bool, Bool, Bool}}, Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, F, TMM, Ta, Tt, TJ, JVP, VJP, JP, SP, TW, TWt, WP, TPJ, VJP_P, O, TCV, SYS, ID, NLP} where NLP<:Union{Nothing, SciMLBase.ODENLStepData{NLProb, SetU0, SetGammaC, SetOuterTmp, SetInnerTmp, NLProbMap} where NLProbMap where SetInnerTmp where SetOuterTmp where SetGammaC where SetU0 where NLProb} where ID<:Union{Nothing, SciMLBase.OverrideInitData{IProb, UIProb, IProbMap, IProbPmap, M, OOP} where OOP<:Union{Base.Val{true}, Base.Val{false}} where M where IProbPmap where IProbMap where UIProb where IProb} where SYS where TCV where O where VJP_P where TPJ where WP where TWt where TW where SP where JP where VJP where JVP where TJ where Tt where Ta where TMM where F}, ModelingToolkitBase.System})
+#= 5343.0 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:steady_state, :nlstep, :nlstep_compile, :nlstep_scc), NTuple{4, Bool}}, Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, F, TMM, Ta, Tt, TJ, JVP, VJP, JP, SP, TW, TWt, WP, TPJ, VJP_P, O, TCV, SYS, ID, NLP} where NLP<:Union{Nothing, SciMLBase.ODENLStepData{NLProb, SetU0, SetGammaC, SetOuterTmp, SetInnerTmp, NLProbMap} where NLProbMap where SetInnerTmp where SetOuterTmp where SetGammaC where SetU0 where NLProb} where ID<:Union{Nothing, SciMLBase.OverrideInitData{IProb, UIProb, IProbMap, IProbPmap, M, OOP} where OOP<:Union{Base.Val{true}, Base.Val{false}} where M where IProbPmap where IProbMap where UIProb where IProb} where SYS where TCV where O where VJP_P where TPJ where WP where TWt where TW where SP where JP where VJP where JVP where TJ where Tt where Ta where TMM where F}, ModelingToolkitBase.System, ModelingToolkitBase.SciMLFunctionOptions{false}})
+[33m#=   93.0 ms =# precompile(Tuple{typeof(Base.mapfoldl_impl), ModelingToolkitBase.var"#assertions##0#assertions##1", typeof(Base.merge!), Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{T} where T, String}, Array{ModelingToolkitBase.System, 1}}) # recompile[0m
+[33m#=   67.5 ms =# precompile(Tuple{SymbolicUtils.IRSubstituter{false, SymbolicUtils.SymReal, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, typeof(SymbolicUtils.default_substitute_filter)}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+[33m#=   18.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic,), Tuple{Base.Returns{Bool}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+[33m#=   24.0 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic, :recurse), Tuple{typeof(ModelingToolkitBase.find_arrvars_is_atomic), Base.ComposedFunction{typeof(Base.:(!)), typeof(SymbolicUtils.default_is_atomic)}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+[33m#=   18.4 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:ignore_vars, :filter_vars, :argument_name, :ignore_arg_idxs), Tuple{Base.KeySet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ModelingToolkitBase.var"#build_function_wrapper##0#build_function_wrapper##1", Base.UnitRange{Int64}}}, typeof(ModelingToolkitBase.array_variable_assignments), Any, Vararg{Any}}) # recompile[0m
+[33m#=  262.3 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:argument_name, :buffer_offset, :filter_vars), Tuple{ModelingToolkitBase.var"#build_function_wrapper##0#build_function_wrapper##1", Int64, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, typeof(ModelingToolkitBase.array_variable_buffer_idxs_to_assignments), Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}) # recompile[0m
+[33m#=  109.6 ms =# precompile(Tuple{typeof(Symbolics.codegen_function), SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{Any, 1}, Symbolics.CodegenFunctionOptions}) # recompile[0m
+#=    4.7 ms =# precompile(Tuple{typeof(Base.size), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+[33m#=   78.5 ms =# precompile(Tuple{SymbolicUtils.Code.CodegenState{SymbolicUtils.SymReal}, SymbolicUtils.Code.SetArray}) # recompile[0m
+[33m#=   27.6 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:compiler_options, :eval_expression, :eval_module), Tuple{ModelingToolkitBase.CompilerOptions, Bool, Module}}, Type{ModelingToolkitBase.GeneratedFunctionWrapper{(2, 3, true), O, I} where I where O}, Type{Base.Val{false}}, Expr, Expr}) # recompile[0m
+#=   21.4 ms =# precompile(Tuple{typeof(Base.isequal), Symbolics.Differential, Symbolics.Differential})
+#=   32.0 ms =# precompile(Tuple{typeof(Base.:(var"==")), Symbolics.Differential, Symbolics.Differential})
+#=   49.4 ms =# precompile(Tuple{typeof(SymbolicUtils._scalarize_add), Any, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Val{false}})
+#=   41.7 ms =# precompile(Tuple{typeof(SymbolicUtils._scalarize_rdiv), Any, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Val{false}})
+#=   80.8 ms =# precompile(Tuple{typeof(SymbolicUtils._scalarize_mul), Any, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Val{false}})
+#=   36.4 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}, Int64})
+[33m#=    7.7 ms =# precompile(Tuple{typeof(Base.:(/)), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+#=   49.4 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.ComposedFunction{typeof(SymbolicUtils.unwrap_const), Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}}, Int64})
+#=   52.1 ms =# precompile(Tuple{typeof(Base._mapreduce), typeof(Base.identity), typeof(Base.:(+)), Base.IndexLinear, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+#=   11.1 ms =# precompile(Tuple{Type{Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}, UndefInitializer, Tuple{Int64}})
+#=   27.3 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Generator{Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}, Int64})
+#=   19.6 ms =# precompile(Tuple{typeof(Base._similar_for), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Type{Int64}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.ComposedFunction{typeof(SymbolicUtils.unwrap_const), Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+#=   38.3 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{Int64, 1}, Int64, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.ComposedFunction{typeof(SymbolicUtils.unwrap_const), Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}}, Int64})
+#=   36.1 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Int64, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64})
+#=   31.9 ms =# precompile(Tuple{typeof(Base.collect_to!), Array{Any, 1}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.ComposedFunction{typeof(SymbolicUtils.unwrap_const), Base.Fix{2, typeof(SymbolicUtils.scalarize), Base.Val{false}}}}, Int64, Int64})
+#=   26.7 ms =# precompile(Tuple{typeof(Base.reduce), Function, Array{Any, 1}})
+#=   76.5 ms =# precompile(Tuple{typeof(Base._mapreduce), typeof(Base.identity), typeof(Base.:(+)), Base.IndexLinear, Array{Any, 1}})
+[33m#=    7.4 ms =# precompile(Tuple{typeof(Base.:(+)), Int64, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   92.3 ms =# precompile(Tuple{typeof(Base.collect_similar), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Base.Generator{Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Symbolics.var"#106#107"}}) # recompile[0m
+[33m#=   32.5 ms =# precompile(Tuple{typeof(Base._any), Symbolics.var"#__predicate#_occursin_info##1"{Bool, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.Colon}) # recompile[0m
+#=    3.9 ms =# precompile(Tuple{typeof(Base.:(^)), Int64, Int64})
+#=    7.0 ms =# precompile(Tuple{Base.Fix{1, typeof(Base.:(*)), Int64}, Int64})
+#=   74.9 ms =# precompile(Tuple{SymbolicUtils.IRSubstituter{false, SymbolicUtils.SymReal, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, typeof(SymbolicUtils.default_substitute_filter)}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}})
+[33m#=   25.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic,), Tuple{Base.Returns{Bool}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}}) # recompile[0m
+[33m#=   15.5 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic, :recurse), Tuple{typeof(ModelingToolkitBase.find_arrvars_is_atomic), Base.ComposedFunction{typeof(Base.:(!)), typeof(SymbolicUtils.default_is_atomic)}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}}) # recompile[0m
+#=   96.6 ms =# precompile(Tuple{typeof(Symbolics.codegen_function), SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}, Array{Any, 1}, Symbolics.CodegenFunctionOptions})
+#=   14.9 ms =# precompile(Tuple{typeof(Base.hashindex), Tuple{Symbol, UInt64, UInt64}, Int64})
+#=   15.6 ms =# precompile(Tuple{typeof(Base.size), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}})
+#=   14.5 ms =# precompile(Tuple{typeof(Base.iterate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}})
+#=   15.2 ms =# precompile(Tuple{typeof(Base.iterate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 2}, Int64})
+#=   13.5 ms =# precompile(Tuple{typeof(Base.setindex!), Array{Float64, 2}, Int64, Int64, Int64})
+[33m#=   89.0 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:u0, :sparse), Tuple{Array{Float64, 1}, Bool}}, typeof(ModelingToolkitBase.calculate_W_prototype), SparseArrays.SparseMatrixCSC{Bool, Int64}}) # recompile[0m
+#=   32.1 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:sys, :jac, :tgrad, :paramjac, :mass_matrix, :jac_prototype, :observed, :sparsity, :analytic, :initialization_data, :nlstep_data), Tuple{ModelingToolkitBase.System, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, LinearAlgebra.UniformScaling{Bool}, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Vararg{Nothing, 4}}}, typeof(ModelingToolkitBase.maybe_codegen_scimlfn), Type{Base.Val{false}}, Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, F, TMM, Ta, Tt, TJ, JVP, VJP, JP, SP, TW, TWt, WP, TPJ, VJP_P, O, TCV, SYS, ID, NLP} where NLP<:Union{Nothing, SciMLBase.ODENLStepData{NLProb, SetU0, SetGammaC, SetOuterTmp, SetInnerTmp, NLProbMap} where NLProbMap where SetInnerTmp where SetOuterTmp where SetGammaC where SetU0 where NLProb} where ID<:Union{Nothing, SciMLBase.OverrideInitData{IProb, UIProb, IProbMap, IProbPmap, M, OOP} where OOP<:Union{Base.Val{true}, Base.Val{false}} where M where IProbPmap where IProbMap where UIProb where IProb} where SYS where TCV where O where VJP_P where TPJ where WP where TWt where TW where SP where JP where VJP where JVP where TJ where Tt where Ta where TMM where F}, NamedTuple{names, T} where T<:Tuple where names})
+#=   95.8 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:sys, :jac, :tgrad, :paramjac, :mass_matrix, :jac_prototype, :observed, :sparsity, :analytic, :initialization_data, :nlstep_data), Tuple{ModelingToolkitBase.System, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, LinearAlgebra.UniformScaling{Bool}, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Vararg{Nothing, 4}}}, Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, F, TMM, Ta, Tt, TJ, JVP, VJP, JP, SP, TW, TWt, WP, TPJ, VJP_P, O, TCV, SYS, ID, NLP} where NLP<:Union{Nothing, SciMLBase.ODENLStepData{NLProb, SetU0, SetGammaC, SetOuterTmp, SetInnerTmp, NLProbMap} where NLProbMap where SetInnerTmp where SetOuterTmp where SetGammaC where SetU0 where NLProb} where ID<:Union{Nothing, SciMLBase.OverrideInitData{IProb, UIProb, IProbMap, IProbPmap, M, OOP} where OOP<:Union{Base.Val{true}, Base.Val{false}} where M where IProbPmap where IProbMap where UIProb where IProb} where SYS where TCV where O where VJP_P where TPJ where WP where TWt where TW where SP where JP where VJP where JVP where TJ where Tt where Ta where TMM where F}, Function})
+#=   37.0 ms =# precompile(Tuple{SciMLBase.var"##_#45", LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Function, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, F, TMM, Ta, Tt, TJ, JVP, VJP, JP, SP, TW, TWt, WP, TPJ, VJP_P, O, TCV, SYS, ID, NLP} where NLP<:Union{Nothing, SciMLBase.ODENLStepData{NLProb, SetU0, SetGammaC, SetOuterTmp, SetInnerTmp, NLProbMap} where NLProbMap where SetInnerTmp where SetOuterTmp where SetGammaC where SetU0 where NLProb} where ID<:Union{Nothing, SciMLBase.OverrideInitData{IProb, UIProb, IProbMap, IProbPmap, M, OOP} where OOP<:Union{Base.Val{true}, Base.Val{false}} where M where IProbPmap where IProbMap where UIProb where IProb} where SYS where TCV where O where VJP_P where TPJ where WP where TWt where TW where SP where JP where VJP where JVP where TJ where Tt where Ta where TMM where F}, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}})
+#=   17.4 ms =# precompile(Tuple{Type{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}}, Function, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Function, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing})
+#=   48.3 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:expression, :callback, :eval_expression, :eval_module, :op, :_skip_events, :tspan, :jac, :sparse, :build_initializeprob), Tuple{typeof(DataType), Nothing, Bool, Module, Base.Dict{Symbolics.Num, Float64}, Bool, Array{Float64, 1}, Bool, Bool, Bool}}, typeof(ModelingToolkitBase.process_kwargs), ModelingToolkitBase.System})
+[33m#=   62.4 ms =# precompile(Tuple{Type{ModelingToolkitBase.SymbolicTstops{F} where F}, ModelingToolkitBase.System, ModelingToolkitBase.GeneratedFunctionOptions{false, false}}) # recompile[0m
+#=   18.6 ms =# precompile(Tuple{Type{SciMLBase.ODEProblem{true, tType, isinplace, P, F, K, PT} where PT where K where F where P where isinplace where tType}, SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}, Array{Float64, 1}, Array{Float64, 1}, ModelingToolkitBase.MTKParameters{Array{Float64, 1}, Array{Float64, 1}, Tuple{}, Tuple{}, Tuple{}, Tuple{}}, SciMLBase.StandardODEProblem})
+#=   83.9 ms =# precompile(Tuple{typeof(SciMLBase.remake), SciMLBase.ODEProblem{Array{Float64, 1}, Tuple{Float64, Float64}, true, ModelingToolkitBase.MTKParameters{Array{Float64, 1}, Array{Float64, 1}, Tuple{}, Tuple{}, Tuple{}, Tuple{}}, SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Nothing, NamedTuple{(), Tuple{}}}, SciMLBase.StandardODEProblem}})
+#=  587.7 ms =# precompile(Tuple{Type{PEtab.PEtabODEProblemCache{T1, T2, T3, T4, T5, T6, T7, T8} where T8<:(Union{Array{var"#s35", 1} where var"#s35"<:AbstractFloat, var"#s36"} where var"#s36"<:(ComponentArrays.ComponentArray{T, 1, A, Axes} where Axes where A where T)) where T7<:(Base.Dict{Symbol, var"#s37"} where var"#s37"<:(PreallocationTools.DiffCache{T, S} where S<:(AbstractArray{T, N} where N where T) where T<:(AbstractArray{T, N} where N where T))) where T6<:(Base.Dict{K, V} where V where K) where T5<:(Base.Dict{K, V} where V where K) where T4<:(Array{var"#s39", 2} where var"#s39"<:AbstractFloat) where T3<:(Array{var"#s40", 1} where var"#s40"<:AbstractFloat) where T2<:(PreallocationTools.DiffCache{T, S} where S<:(AbstractArray{T, N} where N where T) where T<:(AbstractArray{T, N} where N where T)) where T1<:(Array{var"#s41", 1} where var"#s41"<:AbstractFloat)}, Symbol, Symbol, Symbol, Nothing, PEtab.ModelInfo, PEtab.MLModels, Bool, SciMLBase.ODEProblem{Array{Float64, 1}, Tuple{Float64, Float64}, true, ModelingToolkitBase.MTKParameters{Array{Float64, 1}, Array{Float64, 1}, Tuple{}, Tuple{}, Tuple{}, Tuple{}}, SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Nothing, NamedTuple{(), Tuple{}}}, SciMLBase.StandardODEProblem}})
+[33m#=    7.6 ms =# precompile(Tuple{typeof(PEtab._get_n_parameters_sys), ModelingToolkitBase.System}) # recompile[0m
+#=  298.3 ms =# precompile(Tuple{Type{PEtab.SteadyStateSolver{T1, T2, T3, CA, T4} where T4<:Union{Nothing, Integer} where CA<:Union{Nothing, SciMLBase.DECallback} where T3<:Union{Nothing, SciMLBase.NonlinearProblem{uType, isinplace, P, F, K, PT, LB, UB} where UB where LB where PT where K where F where P where isinplace where uType} where T2<:Union{Nothing, AbstractFloat} where T1<:Union{Nothing, NonlinearSolveBase.AbstractNonlinearSolveAlgorithm}}, PEtab.SteadyStateSolver{Nothing, Nothing, Nothing, Nothing, Nothing}, SciMLBase.ODEProblem{Array{Float64, 1}, Tuple{Float64, Float64}, true, ModelingToolkitBase.MTKParameters{Array{Float64, 1}, Array{Float64, 1}, Tuple{}, Tuple{}, Tuple{}, Tuple{}}, SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}, Base.Pairs{Symbol, Union{}, Nothing, NamedTuple{(), Tuple{}}}, SciMLBase.StandardODEProblem}, PEtab.ODESolver, PEtab.ModelInfo})
+#=   12.1 ms =# precompile(Tuple{typeof(Base.Broadcast.materialize), Base.Broadcast.Broadcasted{Base.Broadcast.Style{Tuple}, Nothing, typeof(Base.:(!=)), Tuple{Tuple{Bool, Bool, Bool}, Bool}}})
+#=   20.9 ms =# precompile(Tuple{Type{SciMLBase.NonlinearFunction{true, SciMLBase.FullSpecialize, SciMLBase.var"#92#93"{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, SciMLBase.var"#98#99"{SciMLBase.ODEFunction{true, SciMLBase.FullSpecialize, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2a9784ce, 0xdc43671b, 0x57f1b72f, 0x19d48b1c, 0xe160baab), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x2e8d463e, 0x53bcb8d8, 0x22340638, 0x4575482b, 0xfa4578cb), Nothing}}, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, ModelingToolkitBase.GeneratedFunctionWrapper{Tuple{2, 3, true}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x62a8cbf7, 0xa00bbcd1, 0x5fcbd335, 0x7b7d566e, 0x10d0f8bd), Nothing}, RuntimeGeneratedFunctions.RuntimeGeneratedFunction{(:__argₛᵧₘ1187374493630987813, :___mtkunknowns___, :___mtkparameters___, :__argₛᵧₘ17084892960309023392), ModelingToolkitBase.var"#_RGF_ModTag", ModelingToolkitBase.var"#_RGF_ModTag", (0x1ca9a7de, 0x7085a0b2, 0xf3308cfe, 0xa58d6d89, 0x40364d62), Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}}, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing}}, Function, LinearAlgebra.UniformScaling{Bool}, Nothing, Nothing, Function, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.ObservedFunctionCache{ModelingToolkitBase.System, Nothing}, Nothing, ModelingToolkitBase.System, Nothing, Nothing})
+[33m#=  190.9 ms =# precompile(Tuple{typeof(PEtab._get_ml_models_pre_ode), PEtab.ModelInfo, PEtab.PEtabODEProblemCache{Array{Float64, 1}, PreallocationTools.DiffCache{Array{Float64, 1}, Array{Float64, 1}}, Array{Float64, 1}, Array{Float64, 2}, Base.Dict{Symbol, PreallocationTools.DiffCache{T, S} where S<:(AbstractArray{T, N} where N where T) where T<:(AbstractArray{T, N} where N where T)}, Base.Dict{Symbol, PreallocationTools.DiffCache{T, S} where S<:(AbstractArray{T, N} where N where T) where T<:(AbstractArray{T, N} where N where T)}, Base.Dict{Symbol, PreallocationTools.DiffCache{T, S} where S<:(AbstractArray{T, N} where N where T) where T<:(AbstractArray{T, N} where N where T)}, Array{Float64, 1}}}) # recompile[0m
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+_ZNK4llvm17MachineBasicBlock18getSuccProbabilityEPKPS0_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm22BlockFrequencyInfoImplINS_17MachineBasicBlockEE25propagateMassToSuccessorsEPNS_26BlockFrequencyInfoImplBase8LoopDataERKNS3_9BlockNodeE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm22BlockFrequencyInfoImplINS_17MachineBasicBlockEE17computeMassInLoopERNS_26BlockFrequencyInfoImplBase8LoopDataE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm22BlockFrequencyInfoImplINS_17MachineBasicBlockEE9calculateERKNS_15MachineFunctionERKNS_28MachineBranchProbabilityInfoERKNS_15MachineLoopInfoE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm25MachineBlockFrequencyInfo9calculateERKNS_15MachineFunctionERKNS_28MachineBranchProbabilityInfoERKNS_15MachineLoopInfoE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm36MachineBlockFrequencyInfoWrapperPass20runOnMachineFunctionERNS_15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1627
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2130
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+__gmpz_add at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libgmp.so.10 (unknown line)
+flint_mpz_add_signed_uiui at /workspace/srcdir/flint-3.6.0/src/gmpcompat.h:43 [inlined]
+fmpz_addmul at /workspace/srcdir/flint-3.6.0/src/fmpz/addmul.c:197
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:378
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+__gmpz_add at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libgmp.so.10 (unknown line)
+flint_mpz_add_signed_uiui at /workspace/srcdir/flint-3.6.0/src/gmpcompat.h:43 [inlined]
+fmpz_addmul at /workspace/srcdir/flint-3.6.0/src/fmpz/addmul.c:197
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:378
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+fmpz_addmul at /workspace/srcdir/flint-3.6.0/src/fmpz/addmul.c:171
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:378
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+fmpz_addmul at /workspace/srcdir/flint-3.6.0/src/fmpz/addmul.c:171
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:378
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+mpoly_monomial_add at /workspace/srcdir/flint-3.6.0/src/mpoly.h:239 [inlined]
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:434
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+_fmpz_new_mpz at /workspace/srcdir/flint-3.6.0/src/fmpz/fmpz.c:120
+_fmpz_promote at /workspace/srcdir/flint-3.6.0/src/fmpz/fmpz.c:228
+_fmpz_promote_set_uiui at /workspace/srcdir/flint-3.6.0/src/fmpz/inlines.c:59
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:363
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+mpoly_monomial_equal at /workspace/srcdir/flint-3.6.0/src/mpoly.h:601 [inlined]
+_mpoly_heap_insert at /workspace/srcdir/flint-3.6.0/src/mpoly/heap_insert.c:45
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:412
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2892143 running 1 of 1
+
+signal (10): User defined signal 1
+__gmpz_add at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libgmp.so.10 (unknown line)
+flint_mpz_add_signed_uiui at /workspace/srcdir/flint-3.6.0/src/gmpcompat.h:43 [inlined]
+fmpz_addmul at /workspace/srcdir/flint-3.6.0/src/fmpz/addmul.c:197
+_fmpz_mpoly_mul_johnson at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:378
+_fmpz_mpoly_mul_johnson_maxfields at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul_johnson.c:543
+fmpz_mpoly_mul at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/mul.c:358
+mul! at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:654 [inlined]
+* at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:268
+* at ./operators.jl:653 [inlined]
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863fe562) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863bb682) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+unknown function (ip: 0x7386863b9ad2) at (unknown file)
+det_minor_expansion_inner at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:24
+det_minor_expansion at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:43
+eliminate_var at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:392
+find_ioprojections at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190
+#_find_ioequations#229 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375
+_find_ioequations at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+#initial_identifiable_functions#259 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97
+initial_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]
+#_find_identifiable_functions#319 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112
+_find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]
+#317 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64
+with_logstate at ./logging/logging.jl:542
+with_logger at ./logging/logging.jl:653 [inlined]
+#find_identifiable_functions#315 at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]
+find_identifiable_functions at /home/orebas/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49
+unknown function (ip: 0x7386863788cc) at (unknown file)
+macro expansion at ./timing.jl:699 [inlined]
+top-level scope at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:74
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+FINISHED interrupted
+
+[2892143] signal 11 (128): Segmentation fault
+in expression starting at /tmp/odepe-si-sneyd-absent-20260914/source/probe_si_cost.jl:89
+_fmpz_clear_mpz at /workspace/srcdir/flint-3.6.0/src/fmpz/fmpz.c:153
+_fmpz_demote at /workspace/srcdir/flint-3.6.0/src/fmpz.h:52 [inlined]
+fmpz_mpoly_clear at /workspace/srcdir/flint-3.6.0/src/fmpz_mpoly/clear.c:20
+fmpq_mpoly_clear at /workspace/srcdir/flint-3.6.0/src/fmpq_mpoly.h:145
+_fmpq_mpoly_clear_fn at /home/orebas/.julia/packages/Nemo/1ce8i/src/flint/FlintTypes.jl:5222
+unknown function (ip: 0x7386869e17f2) at (unknown file)
+run_finalizer at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-common.c:180
+jl_gc_run_finalizers_in_list at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-common.c:270
+run_finalizers at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-common.c:316
+ijl_atexit_hook at /cache/build/builder-amdci4-4/julialang/julia-ci/src/init.c:295
+ijl_exit at /cache/build/builder-amdci4-4/julialang/julia-ci/src/init.c:199
+jlplt_ijl_exit_35731.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+exit at ./initdefs.jl:28
+jfptr_exit_35729.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+do_call at /cache/build/builder-amdci4-4/julialang/julia-ci/src/interpreter.c:123
+eval_value at /cache/build/builder-amdci4-4/julialang/julia-ci/src/interpreter.c:243
+eval_stmt_value at /cache/build/builder-amdci4-4/julialang/julia-ci/src/interpreter.c:194 [inlined]
+eval_body at /cache/build/builder-amdci4-4/julialang/julia-ci/src/interpreter.c:679
+jl_interpret_toplevel_thunk at /cache/build/builder-amdci4-4/julialang/julia-ci/src/interpreter.c:884
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:742
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x73872722a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+Allocations: 305967337 (Pool: 305963192; Big: 4145); GC: 176

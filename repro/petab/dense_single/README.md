@@ -128,3 +128,42 @@ including the original direct `HC.mixed_volume` worker. The reordered measuremen
 snapshot preceded a counter-scope correction; it never returned a mixed cell
 and thus never executed that counter increment. The corrected counter loop is
 validated by the volume-2 canary.
+
+## SI request audit and longer mixed-volume run
+
+The [SI cost report](../../../docs/2026-09-14_identifiability_cost_and_mixed_volume.md)
+supersedes the earlier monodromy recommendation. That diagnostic remains
+reproducible, but its two successful exact targets do not establish robust
+runtime or root completeness.
+
+`probe_si_cost.jl` reimports a retained single-condition model, verifies its
+physical equations and observable definitions against the saved report, uses
+the retained data for ordinary rescaling, and calls SI directly. It bypasses
+SIAN, multiplicity computation, interpolation, and HC, so it measures only the
+selected SI request after loading/preparation. `--seconds` limits the complete
+SI operation (including repeated local trials), not each trial independently.
+
+```sh
+python3 repro/petab/dense_single/supervise.py si_sneyd /tmp/si-sneyd-local --si-mode local --seconds 600
+python3 repro/petab/dense_single/supervise.py si_fujita /tmp/si-fujita-local --si-mode local --seconds 600
+python3 repro/petab/dense_single/supervise.py si_fujita /tmp/si-fujita-global --si-mode global --seconds 600
+python3 repro/petab/dense_single/supervise.py si_sneyd /tmp/si-sneyd-absent --si-mode functions_absent --seconds 600
+python3 repro/petab/dense_single/supervise.py si_sneyd /tmp/si-sneyd-fixed --si-mode local_fixed --seconds 600
+python3 repro/petab/dense_single/supervise.py si_fujita /tmp/si-fujita-fixed --si-mode local_fixed --seconds 600
+python3 repro/petab/dense_single/compare_mixed_volume.py repro/petab/dense_single/evidence/followup_20260914/fujita_reduction /tmp/fujita-mv-long --sizes 85 --ordering original --seconds 1800
+```
+
+`local` uses single-experiment probability 0.999 and three seeds, retaining both
+individual identifiability and SI's coordinate transcendence basis. `global`
+uses the original probability 0.99. `functions_absent` disables only final
+generator simplification; `functions_standard` is available for comparison.
+`local_fixed` additionally substitutes the returned parameter basis at ones
+and distinct positive rationals, then repeats local analysis of the remaining
+parameters and states at three seeds. That mode asserts the basis contains
+only parameters; it is not a general state-fixing implementation.
+
+The mixed-volume rerun uses the same 85-equation SIAN basis and original order,
+with ten times the earlier stage budget. Source snapshots and input hashes are
+retained with each run under
+[`evidence/si_cost_20260914/`](evidence/si_cost_20260914/). The baseline algorithm
+itself is unchanged by these probes.

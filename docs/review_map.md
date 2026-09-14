@@ -18,6 +18,11 @@ biohydrogenation run with normal compiler settings.
 The [September 14 dense follow-up](2026-09-14_dense_single_followup.md)
 records Sneyd's completed rank construction and later global-SI bottleneck,
 plus exact Fujita elimination and bounded mixed-volume/path-tracking probes.
+The [SI cost and longer mixed-volume investigation](2026-09-14_identifiability_cost_and_mixed_volume.md)
+supersedes its solver recommendation, measures the cheaper local SI request,
+and separates classification from representative selection. The
+[baseline algorithm audit](2026-09-14_baseline_algorithm_changes.md) records all
+core and optional-extension behavior changes since the prior August baseline.
 
 ## Start here
 

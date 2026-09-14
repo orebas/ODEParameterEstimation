@@ -171,7 +171,7 @@ supplied root does not provide adequate branch coverage. A subsystem root must
 also be checked against the omitted equations. This diagnostic does not turn a
 single supplied seed into a complete generic start set.
 
-### Monodromy finds enough branches for both independent targets
+### Historical monodromy diagnostic: coverage of two exact targets
 
 A bounded follow-up uses HC's existing `monodromy_solve` to discover more roots
 from the same starting root by loops through complex data-coefficient space.
@@ -195,14 +195,14 @@ separation of all 180 endpoints at each target. The minimum pairwise relative
 coordinate distance is 0.84 for the nearby set and 0.60 for the distant set;
 the count is not explained by near-duplicate roots.
 
-This is a promising route around mixed-volume enumeration using an existing
-dependency capability. It is **not** a completeness certificate: the monodromy
-run times out, uses heuristic deduplication, and has no applicable trace-test
-certificate for this parameter family. Nor does it demonstrate recovery from
-interpolated observations. An estimator integration would need start-pair
-construction, explicit root-coverage limits, and full-equation/trajectory
-validation appropriate to interpolation error. The 10⁻⁷ check above is only a
-clean synthetic diagnostic, not a proposed cutoff for noisy data.
+This result is **not** a completeness certificate: the monodromy run times out,
+uses heuristic deduplication, and has no applicable trace-test certificate for
+this parameter family. Nor does it demonstrate recovery from interpolated
+observations. The repository owner reports a long history of unreliable
+monodromy runtime and root coverage. This narrow result does not overturn that
+experience, and the earlier recommendation to pursue it as the estimator path
+is withdrawn. The 10⁻⁷ check above is only a clean synthetic diagnostic, not a
+proposed cutoff for noisy data. No monodromy production default was added.
 
 ## Validation and scope
 
@@ -214,6 +214,10 @@ Fujita target-root/residual and numerical-distinctness comparisons. Package gate
 were not repeated for these research-only changes. The passing production baseline remains the
 [reusable-polisher validation](2026-09-13_reusable_polynomial_polishing.md).
 
-The next estimator work should focus on bounded root discovery/basis selection
-for Fujita, and a manageable identifiability representation plus early-time
-sampling for Sneyd. Public multi-experiment benchmark scores remain a later step.
+The [SI cost and longer mixed-volume investigation](2026-09-14_identifiability_cost_and_mixed_volume.md)
+supersedes the next-step recommendation: give Fujita's original retained basis
+a longer mixed-volume budget, and ask SI only for information the estimator
+needs, with explicit validation of any replacement representative-selection
+policy. The [baseline audit](2026-09-14_baseline_algorithm_changes.md) distinguishes
+actual estimator changes from these research diagnostics. Public multi-experiment
+benchmark scores remain a later step.

@@ -1,0 +1,456 @@
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2897442 running 1 of 1
+
+signal (10): User defined signal 1
+maybe_record_alloc_to_profile at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-alloc-profiler.h:42 [inlined]
+ijl_gc_small_alloc at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gc-stock.c:781
+RTEffects at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3115 [inlined]
+RTEffects at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3115 [inlined]
+abstract_eval_partition_load at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3702 [inlined]
+scan_specified_partitions at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3743
+scan_leaf_partitions at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3764 [inlined]
+abstract_load_all_consistent_leaf_partitions at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3779 [inlined]
+abstract_eval_globalref_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3650 [inlined]
+argextype at ./../usr/share/julia/Compiler/src/optimize.jl:532
+argextype at ./../usr/share/julia/Compiler/src/optimize.jl:493 [inlined]
+argextype at ./../usr/share/julia/Compiler/src/optimize.jl:493 [inlined]
+stmt_effect_flags at ./../usr/share/julia/Compiler/src/optimize.jl:406
+recompute_effects_flags at ./../usr/share/julia/Compiler/src/optimize.jl:465 [inlined]
+add_inst_flag! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:1242 [inlined]
+add_inst_flag! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:1239 [inlined]
+process_simple! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:1288
+assemble_inline_todo! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:1641
+ssa_inlining_pass! at ./../usr/share/julia/Compiler/src/ssair/inlining.jl:76 [inlined]
+run_passes_ipo_safe at ./../usr/share/julia/Compiler/src/optimize.jl:1049
+run_passes_ipo_safe at ./../usr/share/julia/Compiler/src/optimize.jl:1062 [inlined]
+optimize at ./../usr/share/julia/Compiler/src/optimize.jl:1035
+jfptr_optimize_87185.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+finish_nocycle at ./../usr/share/julia/Compiler/src/typeinfer.jl:231
+jfptr_finish_nocycle_88086.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4570
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1404
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1601 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1610
+jfptr_typeinf_ext_toplevel_87105.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+jl_type_infer at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:478
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3697
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+top-level scope at /tmp/odepe-si-sneyd-fixed-20260914/source/probe_si_cost.jl:23
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7a61ac82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#=    6.2 ms =# precompile(Tuple{Type{NamedTuple{(:name,), T} where T<:Tuple}, Tuple{String}})
+#=   10.9 ms =# precompile(Tuple{Type{Bool}, Int64})
+[33m#=   46.8 ms =# precompile(Tuple{typeof(Base.Compiler.instanceof_tfunc), Any, Bool, Core.PartialStruct}) # recompile[0m
+#=    7.5 ms =# precompile(Tuple{Type{NamedTuple{(:grad_adjoint,), T} where T<:Tuple}, Tuple{Bool}})
+[33m#=   14.2 ms =# precompile(Tuple{Base.Compiler.var"#78#79"{Base.Compiler.var"#abstract_call##2#abstract_call##3", Base.Compiler.Future{Any}, Base.RefValue{Base.Compiler.CallMeta}}, Base.Compiler.NativeInterpreter, Base.Compiler.IRInterpretationState}) # recompile[0m
+[33m#=    7.4 ms =# precompile(Tuple{Base.Compiler.var"#78#79"{Base.Compiler.var"#abstract_eval_call##0#abstract_eval_call##1", Base.Compiler.Future{Base.Compiler.RTEffects}, Base.RefValue{Base.Compiler.CallMeta}}, Base.Compiler.NativeInterpreter, Base.Compiler.IRInterpretationState}) # recompile[0m
+#=    9.0 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##0#IteratorSize##1"{Tuple{Array{String, 1}, Array{Symbolics.Num, 1}}}, Int64})
+#=    9.8 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Symbolics.Num, Float64}, Int64})
+#=    6.6 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Symbolics.Num, Float64}, Int64, Int64})
+#=   28.4 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:unknowns,), Tuple{Array{Any, 1}}}}}, NTuple{50, Symbol}})
+#=   29.6 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:unknowns,), Tuple{Array{Float64, 1}}}}}, NTuple{50, Symbol}})
+#=   29.6 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:ps,), Tuple{Array{Any, 1}}}}}, NTuple{50, Symbol}})
+#=   31.0 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:ps,), Tuple{Array{Float64, 1}}}}}, NTuple{50, Symbol}})
+#=   15.2 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.first), Base.BottomRF{typeof(Base.min)}}, Symbol})
+#=   10.0 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.first), Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=   11.6 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.last), Base.BottomRF{typeof(Base.min)}}, Symbol})
+#=   10.2 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##0#IteratorSize##1"{Tuple{Array{Symbolics.Num, 1}, Array{String, 1}}}, Int64})
+#=   12.2 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Main.var"#single_condition##18#single_condition##19", Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=   17.9 ms =# precompile(Tuple{typeof(Base.getproperty), Base.FilteringRF{Main.var"#single_condition##61#single_condition##62", Base.MappingRF{Main.var"#single_condition##59#single_condition##60", Base.BottomRF{typeof(Base.max)}}}, Symbol})
+#=   12.8 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Main.var"#single_condition##59#single_condition##60", Base.BottomRF{typeof(Base.max)}}, Symbol})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2897442 running 1 of 1
+
+signal (10): User defined signal 1
+unknown function (ip: 0x7a61ac8b2bc8) at /usr/lib/x86_64-linux-gnu/libc.so.6
+unknown function (ip: 0x7a61ac8b3cec) at /usr/lib/x86_64-linux-gnu/libc.so.6
+_ZN4llvm19SmallPtrSetImplBase4GrowEj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm17IDFCalculatorBaseINS_17MachineBasicBlockELb0EE9calculateERNS_15SmallVectorImplIPS1_EE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN15LiveDebugValues16InstrRefBasedLDV13placeMLocPHIsERN4llvm15MachineFunctionERNS1_15SmallPtrSetImplIPNS1_17MachineBasicBlockEEERNS_14FuncValueTableERNS1_15SmallVectorImplINS1_13SmallDenseMapINS_6LocIdxENS_10ValueIDNumELj4ENS1_12DenseMapInfoISD_vEENS1_6detail12DenseMapPairISD_SE_EEEEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN15LiveDebugValues16InstrRefBasedLDV17buildMLocValueMapERN4llvm15MachineFunctionERNS_14FuncValueTableES5_RNS1_15SmallVectorImplINS1_13SmallDenseMapINS_6LocIdxENS_10ValueIDNumELj4ENS1_12DenseMapInfoIS8_vEENS1_6detail12DenseMapPairIS8_S9_EEEEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN15LiveDebugValues16InstrRefBasedLDV12ExtendRangesERN4llvm15MachineFunctionEPNS1_20MachineDominatorTreeEPNS1_16TargetPassConfigEjj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x4260
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x42c0
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1627
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2130
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4186
+__mtkcompile at /home/orebas/.julia/packages/ModelingToolkit/zh12i/src/systems/systems.jl:1 [inlined]
+#_mtkcompile#1245 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/systems.jl:214
+unknown function (ip: 0x7a61117bc686) at (unknown file)
+_mtkcompile at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/systems.jl:187 [inlined]
+#mtkcompile#1244 at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/systems.jl:154
+mtkcompile at /home/orebas/.julia/packages/ModelingToolkitBase/OIqzi/src/systems/systems.jl:135 [inlined]
+macro expansion at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:287 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+_get_odesys at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:278
+macro expansion at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:98 [inlined]
+macro expansion at ./timing.jl:463 [inlined]
+_PEtabModel at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:83
+#PEtabModel#116 at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:51
+PEtabModel at /home/orebas/.julia/packages/PEtab/o08Zn/src/petab_files/petab_model.jl:15 [inlined]
+#_load_petab_model#1 at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:31
+_load_petab_model at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:24 [inlined]
+#load_petab_problem#30 at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:284
+load_petab_problem at /home/orebas/.julia/dev/ODEParameterEstimation/ext/petab/adapter.jl:281 [inlined]
+single_condition at /tmp/odepe-si-sneyd-fixed-20260914/source/common.jl:40
+unknown function (ip: 0x7a617d7bab26) at (unknown file)
+top-level scope at /tmp/odepe-si-sneyd-fixed-20260914/source/probe_si_cost.jl:23
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7a61ac82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+[33m#= 19793.5 ms =# precompile(Tuple{ModelingToolkit.var"##__mtkcompile#153", OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Bool, Base.Pairs{Symbol, Tuple{}, Nothing, NamedTuple{(:additional_passes,), Tuple{Tuple{}}}}, typeof(ModelingToolkitBase.__mtkcompile), ModelingToolkitBase.System}) # recompile[0m
+[33m#=   18.4 ms =# precompile(Tuple{typeof(Base.collect_similar), Array{ModelingToolkitBase.System, 1}, Base.Generator{Array{ModelingToolkitBase.System, 1}, typeof(ModelingToolkitBase.remove_analysis_points)}}) # recompile[0m
+[33m#= 1406.9 ms =# precompile(Tuple{ModelingToolkitBase.var"##expand_instream#417", Float64, Array{Symbolics.Equation, 1}, typeof(ModelingToolkitBase.expand_instream), Array{Array{ModelingToolkitBase.ConnectionVertex, 1}, 1}, ModelingToolkitBase.System}) # recompile[0m
+[33m#=   98.8 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Nothing, Bool, Bool, Nothing, Nothing, Nothing, Nothing, Nothing, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=  425.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ReadOnlyDicts.ReadOnlyDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Nothing, Bool, Bool, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+#=    6.3 ms =# precompile(Tuple{typeof(Base.getindex), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Int64})
+[33m#=   38.5 ms =# precompile(Tuple{ModelingToolkitTearing.var"#ckey#sort_fullvars##0"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Any}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+#=   39.2 ms =# precompile(Tuple{typeof(Base.getindex), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{Int64, 1}})
+#=    8.1 ms =# precompile(Tuple{typeof(Base.Iterators.zip), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+[33m#=   24.9 ms =# precompile(Tuple{Type{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Base.Iterators.Zip{Tuple{Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}}) # recompile[0m
+[33m#=  255.7 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:by,), Tuple{ModelingToolkitTearing.var"#ckey#sort_fullvars##0"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Any}}}}, typeof(Base.sort), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+#=   10.0 ms =# precompile(Tuple{typeof(Base.iterate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+#=    5.7 ms =# precompile(Tuple{typeof(Base.in), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}})
+#=   12.3 ms =# precompile(Tuple{typeof(Base.iterate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Int64})
+[33m#=    4.1 ms =# precompile(Tuple{typeof(Base.push!), OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   56.2 ms =# precompile(Tuple{typeof(Base.indexin), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+#=    4.2 ms =# precompile(Tuple{typeof(Base.eachindex), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+[33m#=  349.3 ms =# precompile(Tuple{typeof(Base.Sort._sort!), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Base.Sort.DefaultStable, Base.Order.Lt{typeof(SymbolicUtils.:(<ₑ))}, NamedTuple{(:scratch,), Tuple{Nothing}}}) # recompile[0m
+#=    5.0 ms =# precompile(Tuple{typeof(Base.isequal), Int64, Int64})
+#=    4.5 ms =# precompile(Tuple{typeof(Base.length), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}})
+#=    5.7 ms =# precompile(Tuple{typeof(Base.delete!), Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}})
+[33m#=   97.5 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Nothing, Bool, Bool, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=  112.5 ms =# precompile(Tuple{typeof(Base.setindex!), Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SciMLBase.AbstractClock}, SciMLBase.ContinuousClock, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   29.6 ms =# precompile(Tuple{typeof(Base.getindex), TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}}) # recompile[0m
+[33m#=   35.7 ms =# precompile(Tuple{typeof(Base._any), Base.Fix{1, typeof(Symbolics._linear_expansion_occursin), Symbolics.LinearExpander}, ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.Colon}) # recompile[0m
+[33m#=   11.9 ms =# precompile(Tuple{typeof(Base.:(*)), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}) # recompile[0m
+[33m#=   48.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:mm,), Tuple{StateSelection.CLIL.SparseMatrixCLIL{Int64, Int64}}}, typeof(StateSelection.dummy_derivative_graph!), ModelingToolkitTearing.SystemStructure, BipartiteGraphs.Matching{BipartiteGraphs.Unassigned, Array{Union{BipartiteGraphs.Unassigned, Int64}, 1}}, Function, Function, Base.Val{false}}) # recompile[0m
+#=   10.1 ms =# precompile(Tuple{typeof(Base.:(var"==")), Core.CodeInstance, Core.MethodInstance})
+[33m#= 3566.2 ms =# precompile(Tuple{StateSelection.var"##dummy_derivative_graph!#115", StateSelection.DummyDerivativeTearing{StateSelection.CarpanzanoTearing{F, F2, F3} where F3 where F2 where F}, StateSelection.CLIL.SparseMatrixCLIL{Int64, Int64}, Base.Pairs{Symbol, Union{}, Nothing, NamedTuple{(), Tuple{}}}, typeof(StateSelection.dummy_derivative_graph!), ModelingToolkitTearing.SystemStructure, BipartiteGraphs.Matching{BipartiteGraphs.Unassigned, Array{Union{BipartiteGraphs.Unassigned, Int64}, 1}}, ModelingToolkit.StructuralTransformations.var"#26#27"{ModelingToolkitTearing.TearingState}, Function, Base.Val{false}}) # recompile[0m
+[33m#=  180.4 ms =# precompile(Tuple{typeof(Base.:(\)), Int64, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=  192.6 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:type, :shape), Tuple{typeof(DataType), SymbolicUtils.SmallVec{Base.UnitRange{Int64}, Array{Base.UnitRange{Int64}, 1}}}}, Type{SymbolicUtils.Div{SymbolicUtils.SymReal}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64, Bool}) # recompile[0m
+[33m#=   97.6 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ReadOnlyDicts.ReadOnlyDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Nothing, Bool, Bool, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, ModelingToolkitBase.Schedule, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=   98.5 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ReadOnlyDicts.ReadOnlyDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ModelingToolkitTearing.TearingState, Bool, Bool, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, ModelingToolkitBase.Schedule, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=   87.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ModelingToolkitTearing.TearingState, Bool, Bool, Nothing, Nothing, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, ModelingToolkitBase.Schedule, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+#=    4.4 ms =# precompile(Tuple{typeof(Base.getindex), Base.RefValue{Function}})
+#=    7.8 ms =# precompile(Tuple{Type{NamedTuple{(:format, :C, :sortedby), T} where T<:Tuple}, Tuple{Symbol, Bool, Symbol}})
+#=   20.4 ms =# precompile(Tuple{Main.var"#40#41"})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2897442 running 1 of 1
+
+signal (10): User defined signal 1
+_ZL16simplifyICmpInstN4llvm12CmpPredicateEPNS_5ValueES2_RKNS_13SimplifyQueryEj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm16InstCombinerImpl13visitICmpInstERNS_8ICmpInstE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm16InstCombinerImpl3runEv at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZL31combineInstructionsOverFunctionRN4llvm8FunctionERNS_19InstructionWorklistEPNS_9AAResultsERNS_15AssumptionCacheERNS_17TargetLibraryInfoERNS_19TargetTransformInfoERNS_13DominatorTreeERNS_25OptimizationRemarkEmitterEPNS_18BlockFrequencyInfoEPNS_21BranchProbabilityInfoEPNS_18ProfileSummaryInfoERKNS_18InstCombineOptionsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm15InstCombinePass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_8FunctionENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/src/pipeline.cpp:792
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1512
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1473 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1648 [inlined]
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2117
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+convert_to_si_ode at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:148
+convert_to_si_ode at /home/orebas/.julia/dev/ODEParameterEstimation/src/core/si_equation_builder.jl:108
+unknown function (ip: 0x7a610bf8dd26) at (unknown file)
+top-level scope at /tmp/odepe-si-sneyd-fixed-20260914/source/probe_si_cost.jl:38
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x7a61ac82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#=  136.7 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Array{Pair{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}, 1}})
+#=    5.0 ms =# precompile(Tuple{typeof(Base.eachindex), Array{Symbolics.Equation, 1}})
+#=  227.0 ms =# precompile(Tuple{typeof(ODEParameterEstimation.eval_at_nemo), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}})
+#=   15.3 ms =# precompile(Tuple{typeof(Base.getindex), Array{Symbolics.Equation, 1}, Int64})
+#=   26.5 ms =# precompile(Tuple{typeof(Base.map), Function, ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}})
+#=    5.1 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}, ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}})
+#=   31.7 ms =# precompile(Tuple{typeof(Base.collect_similar), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}})
+#=  157.1 ms =# precompile(Tuple{typeof(StructuralIdentifiability.eval_at_nemo), Float64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}})
+#=   34.8 ms =# precompile(Tuple{typeof(Base.string), Module})
+#=    9.8 ms =# precompile(Tuple{typeof(Base.Filesystem.contractuser), String})
+#=    9.5 ms =# precompile(Tuple{typeof(Base._similar_for), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Type{Base.Rational{Int64}}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+#=   50.4 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{Base.Rational{Int64}, 1}, Base.Rational{Int64}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64})
+#=   87.3 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Base.Rational{Int64}, 1}, Nemo.QQMPolyRingElem, Int64})
+#=   29.5 ms =# precompile(Tuple{typeof(Base.collect_to!), Array{Any, 1}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64, Int64})
+#=    9.3 ms =# precompile(Tuple{typeof(Base.in), Function, Tuple{typeof(Base.:(+)), typeof(Base.:(-)), typeof(Base.:(*))}})
+#=   56.7 ms =# precompile(Tuple{typeof(Base.:(*)), Base.Rational{Int64}, Nemo.QQMPolyRingElem, Nemo.QQMPolyRingElem})
+#=   20.9 ms =# precompile(Tuple{typeof(Base._similar_for), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Type{Nemo.QQMPolyRingElem}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+#=   19.3 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{Nemo.QQMPolyRingElem, 1}, Nemo.QQMPolyRingElem, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64})
+#=   13.0 ms =# precompile(Tuple{typeof(Base._similar_for), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Type{Int64}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+#=   35.0 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{Int64, 1}, Int64, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64})
+#=   35.8 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Int64, 1}, Nemo.QQMPolyRingElem, Int64})
+#=   22.9 ms =# precompile(Tuple{typeof(Base.:(*)), Int64, Vararg{Nemo.QQMPolyRingElem, 4}})
+#=  319.2 ms =# precompile(Tuple{typeof(Base.:(//)), Nemo.QQMPolyRingElem, Nemo.QQMPolyRingElem})
+#=   45.4 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Base.Rational{Int64}, 1}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Int64})
+#=  185.8 ms =# precompile(Tuple{typeof(Base.:(+)), Base.Rational{Int64}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   14.7 ms =# precompile(Tuple{typeof(Base._similar_for), ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Type{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Base.HasShape{1}, Tuple{Base.OneTo{Int64}}})
+#=   56.0 ms =# precompile(Tuple{typeof(Base.collect_to_with_first!), Array{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, 1}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64})
+#=   96.8 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, 1}, Nemo.QQMPolyRingElem, Int64})
+#=   38.2 ms =# precompile(Tuple{typeof(Base.collect_to!), Array{AbstractAlgebra.RingElem, 1}, Base.Generator{ReadOnlyArrays.ReadOnlyArray{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, ModelingToolkitSIExt.var"#2#3"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}, Int64, Int64})
+#=   43.3 ms =# precompile(Tuple{typeof(Base.:(*)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem, Nemo.QQMPolyRingElem})
+#=   65.6 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Nemo.QQMPolyRingElem, 1}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Int64})
+#=  136.0 ms =# precompile(Tuple{typeof(Base.:(//)), Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   22.8 ms =# precompile(Tuple{typeof(Base.:(+)), Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   54.9 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, 1}, Int64, Int64})
+#=   13.2 ms =# precompile(Tuple{typeof(Base.:(//)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Int64})
+#=    6.6 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:context,), Tuple{String}}, typeof(ODEParameterEstimation.coerce_nemo_ring_value), Nemo.QQMPolyRing, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=  115.0 ms =# precompile(Tuple{typeof(Base.setindex!), Base.Dict{Nemo.QQMPolyRingElem, Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem})
+#=   18.1 ms =# precompile(Tuple{typeof(Base.:(+)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem})
+#=   61.5 ms =# precompile(Tuple{typeof(Base.:(*)), Base.Rational{Int64}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem})
+#=    4.4 ms =# precompile(Tuple{typeof(StructuralIdentifiability.eval_at_nemo), Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}})
+#=   12.4 ms =# precompile(Tuple{typeof(Base.:(*)), Vararg{Nemo.QQMPolyRingElem, 4}})
+#=   21.5 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Int64, 1}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Int64})
+#=   33.8 ms =# precompile(Tuple{typeof(Base.:(+)), Int64, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=    4.1 ms =# precompile(Tuple{typeof(Base.:(//)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   14.0 ms =# precompile(Tuple{typeof(Base.:(*)), Base.Rational{Int64}, Nemo.QQMPolyRingElem})
+#=   14.9 ms =# precompile(Tuple{typeof(Base.:(*)), Int64, Nemo.QQMPolyRingElem, Nemo.QQMPolyRingElem})
+#=   25.6 ms =# precompile(Tuple{typeof(Base.:(+)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   18.9 ms =# precompile(Tuple{typeof(Base.:(*)), Base.Rational{Int64}, Vararg{Nemo.QQMPolyRingElem, 4}})
+#=   34.2 ms =# precompile(Tuple{typeof(Base.:(*)), Base.Rational{Int64}, Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   16.1 ms =# precompile(Tuple{typeof(Base.:(*)), Nemo.QQMPolyRingElem, Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   45.9 ms =# precompile(Tuple{typeof(Base.:(*)), Int64, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem})
+#=   24.7 ms =# precompile(Tuple{typeof(Base.:(+)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+#=   25.5 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, 1}, Base.Rational{Int64}, Int64})
+#=   19.7 ms =# precompile(Tuple{typeof(Base.:(//)), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Base.Rational{Int64}})
+#=   73.3 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Nemo.QQMPolyRingElem, 1}, Int64, Int64})
+#=   31.4 ms =# precompile(Tuple{typeof(Base.:(^)), Nemo.QQMPolyRingElem, Int64})
+#=   25.0 ms =# precompile(Tuple{typeof(Base.setindex_widen_up_to), Array{Nemo.QQMPolyRingElem, 1}, Base.Rational{Int64}, Int64})
+#=   58.0 ms =# precompile(Tuple{typeof(Base.:(//)), Nemo.QQMPolyRingElem, Base.Rational{Int64}})
+#=    4.1 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, ODEParameterEstimation.var"#convert_to_si_ode##6#convert_to_si_ode##7"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}, Array{Any, 1}})
+#=   32.5 ms =# precompile(Tuple{typeof(Base.collect), Base.Generator{Array{Any, 1}, ODEParameterEstimation.var"#convert_to_si_ode##6#convert_to_si_ode##7"{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nemo.QQMPolyRingElem}}}})
+#=   11.3 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}, Array{Any, 1}, Array{Nemo.QQMPolyRingElem, 1}}, Int64})
+#=    7.9 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}, Array{Any, 1}, Array{Nemo.QQMPolyRingElem, 1}}, Int64, Int64})
+#=   13.1 ms =# precompile(Tuple{typeof(Base.getproperty), StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}, Symbol})
+#=    8.8 ms =# precompile(Tuple{typeof(Base.Broadcast.broadcasted), typeof(Base.string), Array{Nemo.QQMPolyRingElem, 1}})
+#=   90.4 ms =# precompile(Tuple{typeof(Base.Broadcast.materialize), Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{1}, Nothing, typeof(Base.string), Tuple{Array{Nemo.QQMPolyRingElem, 1}}}})
+#=  218.5 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:context,), Tuple{Nothing}}, typeof(AbstractAlgebra.PrettyPrinting.expressify), Nemo.QQMPolyRingElem})
+#=   23.9 ms =# precompile(Tuple{typeof(AbstractAlgebra.PrettyPrinting.show_obj), Base.GenericIOBuffer{Memory{UInt8}}, Base.Multimedia.MIME{:var"text/plain"}, Symbol})
+#=    5.4 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, Main.var"#46#47", Base.Dict{Nemo.QQMPolyRingElem, Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}})
+#=   95.2 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Base.Generator{Base.Dict{Nemo.QQMPolyRingElem, Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}, Main.var"#46#47"}})
+#=   87.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:context,), Tuple{Nothing}}, typeof(AbstractAlgebra.PrettyPrinting.expressify), AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}})
+[33m#=   64.7 ms =# precompile(Tuple{typeof(AbstractAlgebra.PrettyPrinting.get_syntactic_sign_abs), Expr}) # recompile[0m
+#=   25.9 ms =# precompile(Tuple{typeof(AbstractAlgebra.PrettyPrinting.get_syntactic_sign_abs), Nemo.ZZRingElem})
+#=   14.7 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{Int64, Nemo.ZZRingElem}, Int64})
+#=    9.4 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Tuple{Int64, Nemo.ZZRingElem}, Int64, Int64})
+#=   35.0 ms =# precompile(Tuple{typeof(AbstractAlgebra.PrettyPrinting.print_obj), AbstractAlgebra.PrettyPrinting.printer{Base.GenericIOBuffer{Memory{UInt8}}}, Base.Multimedia.MIME{:var"text/plain"}, Nemo.ZZRingElem, Int64, Int64})
+#=    5.8 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, Main.var"#48#49", Base.Dict{Nemo.QQMPolyRingElem, Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}})
+#=   94.9 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Base.Generator{Base.Dict{Nemo.QQMPolyRingElem, Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}, Main.var"#48#49"}})
+#=    8.5 ms =# precompile(Tuple{Type{Pair{A, B} where B where A}, String, Array{String, 1}})
+#=   55.6 ms =# precompile(Tuple{typeof(Main.json_safe), Base.Dict{String, String}})
+#=    4.4 ms =# precompile(Tuple{Type{Pair{A, B} where B where A}, String, Base.Dict{String, String}})
+#=    7.4 ms =# precompile(Tuple{typeof(Main.json_safe), Float64})
+#=    3.0 ms =# precompile(Tuple{Type{Pair{A, B} where B where A}, String, Float64})
+#=    9.3 ms =# precompile(Tuple{typeof(StructUtils.lower), JSON.JSONWriteStyle, Float64})
+#=  149.5 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, false, Base.Dict{String, Any}, Base.IOStream}, String, Float64})
+#=    3.8 ms =# precompile(Tuple{typeof(StructUtils.lower), JSON.JSONWriteStyle, Array{String, 1}})
+#=  233.3 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, false, Base.Dict{String, Any}, Base.IOStream}, String, Array{String, 1}})
+#=    4.1 ms =# precompile(Tuple{typeof(StructUtils.lower), JSON.JSONWriteStyle, Base.Dict{String, String}})
+#=  264.0 ms =# precompile(Tuple{JSON.WriteClosure{JSON.WriteOptions{JSON.JSONWriteStyle}, false, Base.Dict{String, Any}, Base.IOStream}, String, Base.Dict{String, String}})
+#=    7.5 ms =# precompile(Tuple{typeof(Base.in), String, Tuple{String, String}})
+#=   17.5 ms =# precompile(Tuple{typeof(Random.seed!), Int64})
+#=    7.3 ms =# precompile(Tuple{typeof(Base.getindex), Type{Nemo.QQMPolyRingElem}})
+#=    8.1 ms =# precompile(Tuple{Type{NamedTuple{(:funcs_to_check, :prob_threshold, :type, :trbasis, :loglevel), T} where T<:Tuple}, Tuple{Array{Nemo.QQMPolyRingElem, 1}, Float64, Symbol, Array{Nemo.QQMPolyRingElem, 1}, Base.CoreLogging.LogLevel}})
+#=    8.6 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##2#IteratorSize##3"{Tuple{Array{Nemo.fpMPolyRingElem, 1}, Array{Nemo.fpMPolyRingElem, 1}}}, Int64})
+#=   13.5 ms =# precompile(Tuple{Type{NamedTuple{(:model,), T} where T<:Tuple}, Tuple{Symbol}})
+#=    8.9 ms =# precompile(Tuple{typeof(Base.cconvert), Type{Ref{Nothing}}, Ptr{Nothing}})
+#=    5.2 ms =# precompile(Tuple{typeof(Base.unsafe_convert), Type{Ref{Nothing}}, Ptr{Nothing}})
+#=   18.7 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(AbstractAlgebra.number_of_rows), Base.BottomRF{typeof(Base.add_sum)}}, Symbol})
+#=    9.7 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(AbstractAlgebra.number_of_columns), Base.BottomRF{typeof(Base.add_sum)}}, Symbol})
+#=   41.7 ms =# precompile(Tuple{typeof(Nemo._fmpq_mpoly_clear_fn), Nemo.QQMPolyRingElem})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+FINISHED complete
+  Activating project at `/tmp/odepe-petab-pilot-env`
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -2.0 will be converted to -2//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 2.0 will be converted to 2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 2.0 will be converted to 2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -0.1 will be converted to -1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -10.0 will be converted to -10//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 2.0 will be converted to 2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -2.0 will be converted to -2//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -2.0 will be converted to -2//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 2.0 will be converted to 2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -0.2 will be converted to -1//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.5 will be converted to 1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 10.0 will be converted to 10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 2.0 will be converted to 2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -0.5 will be converted to -1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.05 will be converted to 1//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.5 will be converted to 1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -0.05 will be converted to -1//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.5 will be converted to 1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -0.5 will be converted to -1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.2 will be converted to 1//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.1 will be converted to 1//10.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.5 will be converted to 1//2.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.2 will be converted to 1//5.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.45 will be converted to 9//20.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 0.015625 will be converted to 1//64.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97

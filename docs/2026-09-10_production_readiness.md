@@ -34,6 +34,12 @@ selectable, with unchanged dependencies. Final Julia 1.13 validation passed
 **1,934/1,934** full-suite assertions and **10/10** recovery-benchmark assertions;
 source and log hashes are retained in that record's reproduction directory.
 
+The [September 14 baseline audit](2026-09-14_baseline_algorithm_changes.md)
+lists the actual algorithm changes since `7636659`. The accompanying
+[SI cost and mixed-volume investigation](2026-09-14_identifiability_cost_and_mixed_volume.md)
+records proposed simplifications and measured diagnostics without changing
+the production source or dependency baseline.
+
 ## Current dependency baseline
 
 | Dependency | Local version/source |

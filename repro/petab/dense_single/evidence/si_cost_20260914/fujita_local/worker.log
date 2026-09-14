@@ -1,0 +1,302 @@
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2868268 running 1 of 1
+
+signal (10): User defined signal 1
+ml_matches at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4971
+ml_matches at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4914 [inlined]
+ijl_matching_methods at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3295 [inlined]
+ijl_matching_methods at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3282
+_methods_by_ftype at ./runtime_internals.jl:1607 [inlined]
+_findall at ./../usr/share/julia/Compiler/src/methodtable.jl:105 [inlined]
+#findall#5 at ./../usr/share/julia/Compiler/src/methodtable.jl:70 [inlined]
+findall at ./../usr/share/julia/Compiler/src/methodtable.jl:70 [inlined]
+#findall#13 at ./../usr/share/julia/Compiler/src/methodtable.jl:113
+findall at ./../usr/share/julia/Compiler/src/methodtable.jl:110 [inlined]
+find_simple_method_matches at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:397
+jfptr_find_simple_method_matches_4376.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+tojlinvoke88512.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+j_find_simple_method_matches_82179.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+#find_method_matches#137 at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:359 [inlined]
+find_method_matches at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:353 [inlined]
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:120
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2869
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2975
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2968 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3128
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3146 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3502
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3896 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3853 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4402
+jfptr_typeinf_local_86421.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4563
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1404
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1601 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1610
+jfptr_typeinf_ext_toplevel_87105.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+jl_type_infer at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:478
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3697
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+top-level scope at /tmp/odepe-si-fujita-local-20260914/source/probe_si_cost.jl:23
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71f54182a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+[33m#=   47.0 ms =# precompile(Tuple{typeof(Base.Compiler.instanceof_tfunc), Any, Bool, Core.PartialStruct}) # recompile[0m
+#=    5.5 ms =# precompile(Tuple{Type{NamedTuple{(:grad_adjoint,), T} where T<:Tuple}, Tuple{Bool}})
+[33m#=   11.1 ms =# precompile(Tuple{Base.Compiler.var"#78#79"{Base.Compiler.var"#abstract_call##2#abstract_call##3", Base.Compiler.Future{Any}, Base.RefValue{Base.Compiler.CallMeta}}, Base.Compiler.NativeInterpreter, Base.Compiler.IRInterpretationState}) # recompile[0m
+[33m#=    6.2 ms =# precompile(Tuple{Base.Compiler.var"#78#79"{Base.Compiler.var"#abstract_eval_call##0#abstract_eval_call##1", Base.Compiler.Future{Base.Compiler.RTEffects}, Base.RefValue{Base.Compiler.CallMeta}}, Base.Compiler.NativeInterpreter, Base.Compiler.IRInterpretationState}) # recompile[0m
+#=    6.3 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##0#IteratorSize##1"{Tuple{Array{String, 1}, Array{Symbolics.Num, 1}}}, Int64})
+#=    7.6 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Symbolics.Num, Float64}, Int64})
+#=    8.2 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Symbolics.Num, Float64}, Int64, Int64})
+#=   22.8 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:unknowns,), Tuple{Array{Any, 1}}}}}, NTuple{50, Symbol}})
+#=   27.8 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:unknowns,), Tuple{Array{Float64, 1}}}}}, NTuple{50, Symbol}})
+#=   23.7 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:ps,), Tuple{Array{Any, 1}}}}}, NTuple{50, Symbol}})
+#=   19.9 ms =# precompile(Tuple{typeof(Base.map), ModelingToolkitBase.var"#256#257"{Type{NamedTuple{(:ps,), Tuple{Array{Float64, 1}}}}}, NTuple{50, Symbol}})
+#=    8.1 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.first), Base.BottomRF{typeof(Base.min)}}, Symbol})
+#=    7.0 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.first), Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=    6.4 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.last), Base.BottomRF{typeof(Base.min)}}, Symbol})
+#=    5.9 ms =# precompile(Tuple{Base.Iterators.var"#IteratorSize##0#IteratorSize##1"{Tuple{Array{Symbolics.Num, 1}, Array{String, 1}}}, Int64})
+#=    8.4 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Main.var"#single_condition##18#single_condition##19", Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=    7.0 ms =# precompile(Tuple{typeof(Base.getproperty), Base.FilteringRF{Main.var"#single_condition##61#single_condition##62", Base.MappingRF{Main.var"#single_condition##59#single_condition##60", Base.BottomRF{typeof(Base.max)}}}, Symbol})
+#=    5.1 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Main.var"#single_condition##59#single_condition##60", Base.BottomRF{typeof(Base.max)}}, Symbol})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 10.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 2868268 running 1 of 1
+
+signal (10): User defined signal 1
+_ZN12_GLOBAL__N_117PeepholeOptimizer3runERN4llvm15MachineFunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN12_GLOBAL__N_123PeepholeOptimizerLegacy20runOnMachineFunctionERN4llvm15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x4260
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x42c0
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1627
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2130
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+#40 at /tmp/odepe-si-fujita-local-20260914/source/probe_si_cost.jl:18
+unknown function (ip: 0x71f4a5f82f8f) at (unknown file)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+jl_f_invokelatest at /cache/build/builder-amdci4-4/julialang/julia-ci/src/builtins.c:889
+profile_printing_listener at ./Base.jl:337
+#start_profile_listener##0 at ./Base.jl:355
+jfptr_YY.start_profile_listenerYY.YY.0_13562.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+start_task at /cache/build/builder-amdci4-4/julialang/julia-ci/src/task.c:1285
+unknown function (ip: (nil)) at (unknown file)
+
+#= 2375.8 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:format, :C, :sortedby), Tuple{Symbol, Bool, Symbol}}, typeof(Profile.print), String})
+[33m#=   93.8 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ReadOnlyDicts.ReadOnlyDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ModelingToolkitTearing.TearingState, Bool, Bool, Nothing, ModelingToolkitBase.ParameterBindingsGraph, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, ModelingToolkitBase.Schedule, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=   57.7 ms =# precompile(Tuple{typeof(ModelingToolkitBase.reverse_transformation), ModelingToolkitBase.System, ModelingToolkitBase.ScalarizedArrayObserved}) # recompile[0m
+#=    6.5 ms =# precompile(Tuple{Type{SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, Tuple{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}})
+[33m#=  125.0 ms =# precompile(Tuple{typeof(Base.setindex!), Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Set{Union{SymbolicIndexingInterface.ContinuousTimeseries, Int64}}}, Base.Set{Union{SymbolicIndexingInterface.ContinuousTimeseries, Int64}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=  108.1 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:checks,), Tuple{Bool}}, Type{ModelingToolkitBase.System}, UInt64, Array{Symbolics.Equation, 1}, Nothing, Array{Union{JumpProcesses.ConstantRateJump{F1, F2} where F2 where F1, JumpProcesses.MassActionJump{T, S, U, V} where V where U where S where T, JumpProcesses.VariableRateJump{R, F, R2, R3, R4, I, T, T2} where T2 where T where I where R4 where R3 where R2 where F where R}, 1}, Array{Union{Symbolics.Equation, Symbolics.Inequality}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, typeof(ModelingToolkitBase.default_consolidate), Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Symbolics.Equation, 1}, Base.Dict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Symbol, String, ReadOnlyDicts.ReadOnlyDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, ModelingToolkitBase.AtomicArrayDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, Array{ModelingToolkitBase.System, 1}, Array{Symbolics.Equation, 1}, Array{ModelingToolkitBase.SymbolicContinuousCallback, 1}, Array{ModelingToolkitBase.SymbolicDiscreteCallback, 1}, Nothing, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, String}, Base.ImmutableDict{typeof(DataType), Any}, Nothing, Bool, Array{Any, 1}, Nothing, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, OrderedCollections.OrderedSet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, ModelingToolkitTearing.TearingState, Bool, Bool, ModelingToolkitBase.IndexCache, ModelingToolkitBase.ParameterBindingsGraph, Nothing, Nothing, ModelingToolkitBase.System, Nothing, Bool, Bool, ModelingToolkitBase.AtomicArrayDict{Int64, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Int64}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, TaskLocalValues.TaskLocalValue{SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, typeof(ModelingToolkitBase.__new_irstructure)}, Bool, ModelingToolkitBase.Schedule, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+#=  174.5 ms =# precompile(Tuple{typeof(PEtab._reorder_speciemap), Array{Pair{Symbolics.Num, Symbolics.Num}, 1}, ModelingToolkitBase.System})
+[33m#=  102.0 ms =# precompile(Tuple{typeof(SymbolicUtils.show_call), Base.GenericIOBuffer{Memory{UInt8}}, Any, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   35.7 ms =# precompile(Tuple{typeof(PEtab._get_sys_observables), ModelingToolkitBase.System}) # recompile[0m
+#= 1825.0 ms =# precompile(Tuple{typeof(ModelingToolkitBase.build_explicit_observed_function), ModelingToolkitBase.System, Any, ModelingToolkitBase.GeneratedFunctionOptions{false, false}})
+#=   17.5 ms =# precompile(Tuple{typeof(SymbolicIndexingInterface.symbolic_type), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}})
+[33m#=   67.0 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:allsyms,), Tuple{Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}, typeof(ModelingToolkitBase.symbol_to_symbolic), ModelingToolkitBase.System, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   24.0 ms =# precompile(Tuple{typeof(Base.foreach), Base.Fix{1, typeof(ModelingToolkitBase.push_as_atomic_array!), ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}}, ModelingToolkitBase.AtomicArraySet{OrderedCollections.OrderedDict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}}) # recompile[0m
+[33m#=   22.5 ms =# precompile(Tuple{typeof(Base.union!), ModelingToolkitBase.AtomicArraySet{Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Nothing}}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}) # recompile[0m
+[33m#=    6.3 ms =# precompile(Tuple{typeof(Base.push!), Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=  190.5 ms =# precompile(Tuple{typeof(SymbolicUtils.query), ModelingToolkitBase.CheckInvalidAndTrackNamespaced, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}) # recompile[0m
+[33m#=   10.8 ms =# precompile(Tuple{typeof(SymbolicUtils.substitute), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}) # recompile[0m
+[33m#=  383.0 ms =# precompile(Tuple{SymbolicUtils.MulWorkerBuffer{SymbolicUtils.SymReal}, SymbolicUtils.SmallVec{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, 1}}}) # recompile[0m
+#=   12.6 ms =# precompile(Tuple{SymbolicUtils.IRSubstituter{false, SymbolicUtils.SymReal, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, typeof(SymbolicUtils.default_substitute_filter)}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}})
+#=  197.9 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic,), Tuple{Base.Returns{Bool}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}})
+#=  249.5 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:is_atomic, :recurse), Tuple{typeof(ModelingToolkitBase.find_arrvars_is_atomic), Base.ComposedFunction{typeof(Base.:(!)), typeof(SymbolicUtils.default_is_atomic)}}}, typeof(SymbolicUtils.search_variables!), SymbolicUtils.IRStructureSearchBuffer{SymbolicUtils.SymReal, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}})
+[33m#=   13.3 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:ignore_vars, :filter_vars, :argument_name, :ignore_arg_idxs), Tuple{Base.KeySet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, typeof(ModelingToolkitBase.generated_argument_name), Base.UnitRange{Int64}}}, typeof(ModelingToolkitBase.array_variable_assignments), Any, Vararg{Any}}) # recompile[0m
+[33m#=   35.1 ms =# precompile(Tuple{ModelingToolkitBase.var"##array_variable_assignments#385", Base.KeySet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}, Function, Int64, Base.UnitRange{Int64}, typeof(ModelingToolkitBase.array_variable_assignments), Any, Vararg{Any}}) # recompile[0m
+[33m#=  105.6 ms =# precompile(Tuple{typeof(ModelingToolkitBase._compute_array_variable_buffer_idxs), Array{Any, 1}, Base.KeySet{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}, Base.UnitRange{Int64}}) # recompile[0m
+[33m#=    5.4 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:argument_name, :buffer_offset, :filter_vars), Tuple{typeof(ModelingToolkitBase.generated_argument_name), Int64, Base.Set{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}}}}, typeof(ModelingToolkitBase.array_variable_buffer_idxs_to_assignments), Base.Dict{SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Tuple{Int64, Int64}, 1}}}) # recompile[0m
+#=   15.0 ms =# precompile(Tuple{typeof(Base._cshp), Int64, Tuple{Bool}, Tuple{}, Tuple{Int64}})
+[33m#=  136.6 ms =# precompile(Tuple{typeof(Symbolics.codegen_function), SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, Array{Any, 1}, Symbolics.CodegenFunctionOptions}) # recompile[0m
+#=   10.1 ms =# precompile(Tuple{typeof(Base.pairs), NamedTuple{(:type, :shape), Tuple{typeof(DataType), SymbolicUtils.Unknown}}})
+#=   12.6 ms =# precompile(Tuple{typeof(Base.merge), NamedTuple{(), Tuple{}}, Base.Pairs{Symbol, Any, Nothing, NamedTuple{(:type, :shape), Tuple{typeof(DataType), SymbolicUtils.Unknown}}}})
+[33m#= 2217.2 ms =# precompile(Tuple{typeof(SymbolicUtils.Code.fast_toexpr), SymbolicUtils.Code.Func, SymbolicUtils.IRStructure{SymbolicUtils.SymReal}, Base.Dict{Any, Any}}) # recompile[0m
+#=    6.5 ms =# precompile(Tuple{typeof(Base.getindex), Base.OneTo{Int64}, Int64})
+#=    8.3 ms =# precompile(Tuple{typeof(Base.hashindex), Symbol, Int64})
+#=   12.1 ms =# precompile(Tuple{typeof(Base.hashindex), Tuple{Symbol, Tuple{Symbol, UInt64, UInt64}}, Int64})
+[33m#=  894.4 ms =# precompile(Tuple{typeof(SymbolicUtils.Code.toexpr), SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymbolicUtils.SymReal}, SymbolicUtils.Code.CodegenState{SymbolicUtils.SymReal}}) # recompile[0m
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+FINISHED complete
+  Activating project at `/tmp/odepe-petab-pilot-env`
+┌ Warning: Simulation condition id condition_pulse_00_1 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_00_3 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_01_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_03_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_10_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_30_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative06 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative05 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative04 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative03 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_00_1 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_00_3 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_01_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_03_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_10_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_pulse_30_0 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative06 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative05 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative04 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+┌ Warning: Simulation condition id condition_ramp_8_3Enegative03 does not appear in the measurements table. Therefore no measurement corresponds to this id.
+└ @ PEtab ~/.julia/packages/PEtab/o08Zn/src/petab_files/conditions/check_input.jl:13
+[ Info: Converting ODESystem to SI.jl format
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 68190.0 will be converted to 68190.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value -65536.0 will be converted to -65536//1.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 1.52587890625e-5 will be converted to 1//65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 1.52587890625e-5 will be converted to 1//65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97
+┌ Warning: Floating point value 65536.0 will be converted to 65536.
+└ @ ModelingToolkitSIExt ~/.julia/packages/StructuralIdentifiability/S5eMo/ext/ModelingToolkitSIExt.jl:97

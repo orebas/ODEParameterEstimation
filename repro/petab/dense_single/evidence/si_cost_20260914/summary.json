@@ -1,0 +1,153 @@
+{
+  "checks": {
+    "both_fixed_slices_locally_identifiable_at_all_three_seeds": true,
+    "fujita_global_nonidentifiable_set_matches_local": true,
+    "local_seeds_agree": true,
+    "physical_and_rescaled_models_match_between_modes": true
+  },
+  "core_revision": "62baa5dfc724f6bddb9dc00838e05936b9bc6cd3",
+  "ext_tree": "5c6f3bb5d2cd3ac21cd4ef5b87972c7b938f0d53",
+  "functions_absent_sneyd": {
+    "exit_note": "Interrupted result was written before a process-exit FLINT polynomial finalizer segfault; completed SI workers exited 0.",
+    "operation_elapsed_seconds": 601.0662260055542,
+    "returncode": -11,
+    "simplify": "absent",
+    "stage_seconds_cap": 600.0,
+    "stall": "initial_identifiable_functions -> IO elimination -> det_minor_expansion -> Nemo polynomial multiplication",
+    "status": "interrupted",
+    "supervisor_status": "timeout",
+    "with_states": false
+  },
+  "global_fujita": {
+    "classification": {
+      "Akt": "nonidentifiable",
+      "EGFR": "nonidentifiable",
+      "EGFR_turnover": "nonidentifiable",
+      "EGF_EGFR": "nonidentifiable",
+      "S6": "nonidentifiable",
+      "pAkt": "nonidentifiable",
+      "pAkt_S6": "nonidentifiable",
+      "pEGFR": "nonidentifiable",
+      "pEGFR_Akt": "nonidentifiable",
+      "pS6": "nonidentifiable",
+      "reaction_1_k1": "nonidentifiable",
+      "reaction_1_k2": "nonidentifiable",
+      "reaction_2_k1": "nonidentifiable",
+      "reaction_2_k2": "globally",
+      "reaction_3_k1": "globally",
+      "reaction_4_k1": "globally",
+      "reaction_5_k1": "nonidentifiable",
+      "reaction_5_k2": "globally",
+      "reaction_6_k1": "globally",
+      "reaction_7_k1": "globally",
+      "reaction_8_k1": "globally",
+      "reaction_9_k1": "nonidentifiable",
+      "scaling_pAkt_tot": "nonidentifiable",
+      "scaling_pEGFR_tot": "nonidentifiable",
+      "scaling_pS6_tot": "nonidentifiable"
+    },
+    "compile_seconds": 55.892597173,
+    "seconds": 59.285605439
+  },
+  "installed_si_source_sha256": {
+    "ODE.jl": "f08f87293a6e80a44597655af6f78819ad806168ac1ffde7d1309ce5c079e913",
+    "StructuralIdentifiability.jl": "6fdf9e922432452badf82bef89e197aa006a31f339eef827582009d7ce9ad169",
+    "global_identifiability.jl": "3e4e76a5809c446719844c73a7e81491de08b1b0349caac026f2fe7c5c93027b",
+    "identifiable_functions.jl": "3bea96144d2d9aa31c4c0b137bf720754e088720d5bacec817960fb5583474af",
+    "local_identifiability.jl": "bf89fceae9fba17a5cdacaeef670d890a71f28f88894f42010c85ada2e910bfc"
+  },
+  "local": {
+    "fujita": {
+      "compile_seconds": [
+        7.499546128,
+        0.005962048,
+        0.0
+      ],
+      "model": "Fujita_SciSignal2010",
+      "n_locally_identifiable": 7,
+      "n_parameters": 16,
+      "n_states": 9,
+      "seconds": [
+        8.187921103,
+        1.33040749,
+        0.486159431
+      ],
+      "transcendence_basis": [
+        "reaction_1_k1",
+        "EGFR_turnover"
+      ]
+    },
+    "sneyd": {
+      "compile_seconds": [
+        7.351835002,
+        0.0,
+        0.0
+      ],
+      "model": "Sneyd_PNAS2002",
+      "n_locally_identifiable": 0,
+      "n_parameters": 14,
+      "n_states": 6,
+      "seconds": [
+        7.575692635,
+        0.619866941,
+        0.139493383
+      ],
+      "transcendence_basis": [
+        "l2",
+        "k_4",
+        "k_3",
+        "k_2",
+        "k_1",
+        "k4",
+        "k3",
+        "k2",
+        "k1"
+      ]
+    }
+  },
+  "manifest_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "mixed_volume_fujita": {
+    "clock_note": "Worker Unix-clock stage duration and supervisor monotonic-clock total duration disagree; retain both, not a controlled timing measurement.",
+    "completed_mixed_cells": 0,
+    "data_variables": 23,
+    "equations": 85,
+    "input_sha256": "acd86fb5eef6ab9eaacbbe6ffb00efaee1cf45ea3c70241837581073c4e7289c",
+    "mixed_volume": null,
+    "operation_elapsed_seconds": 1801.2775490283966,
+    "ordering": "original",
+    "regeneration_stage_at_exit": 49,
+    "requested_stage_seconds": 1800.0,
+    "returncode": 1,
+    "status": "interrupted",
+    "supervisor_status": "timeout",
+    "supervisor_wall_seconds": 1655.609282232006,
+    "unknowns": 85
+  },
+  "slices": {
+    "fujita": {
+      "checks": 6,
+      "remaining_quantities": 23,
+      "seconds": [
+        0.538049096,
+        0.488710895,
+        0.718604216,
+        0.302202294,
+        0.366820138,
+        0.718306735
+      ]
+    },
+    "sneyd": {
+      "checks": 6,
+      "remaining_quantities": 11,
+      "seconds": [
+        0.020031399,
+        0.018301566,
+        0.018115646,
+        0.108576903,
+        0.019633594,
+        0.018651184
+      ]
+    }
+  },
+  "src_tree": "2cbb5f231ba859db5fb542a3f580408be3d790ec"
+}
