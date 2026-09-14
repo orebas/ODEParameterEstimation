@@ -13,9 +13,13 @@ This is a plug-in replacement for `solve_with_nlopt` with improved robustness.
 # Keywords
 - `start_point=nothing`: Initial guess. If nothing, uses random or multistart
 - `polish_only=false`: If true, only does quick local refinement
+- `prepared_system=nothing`: Optional reusable kernel from `prepare_robust_system`.
+- `data_values=Float64[]`: Numerical data in the prepared kernel's declared order.
 - `options=Dict()`: Additional options including:
   - `:debug => true/false`: Print debug information
-  - `:jacobian => :forwarddiff/:symbolic/:finitediff/:none`: Jacobian method (default :forwarddiff)
+  - `:jacobian => :forwarddiff/:symbolic/:finitediff/:none`: Jacobian method (default
+    :forwarddiff for an unprepared call; otherwise the prepared kernel's method)
+  - `:forwarddiff_chunk_size => 1`: AD directions per chunk; zero selects automatically
   - `:abstol => 1e-8`: Absolute tolerance
   - `:reltol => 1e-6`: Relative tolerance
   - `:maxiters => 1000`: Maximum iterations
@@ -33,7 +37,9 @@ where solutions is a vector of solution dictionaries.
 function solve_with_robust(poly_system, varlist;
 	start_point = nothing,
 	polish_only = false,
-	options = Dict())
+	options = Dict(),
+	prepared_system::Union{Nothing, PreparedRobustSystem} = nothing,
+	data_values::AbstractVector = Float64[])
 
 
 	robust_t0 = time()
@@ -51,13 +57,8 @@ function solve_with_robust(poly_system, varlist;
 
 	# Extract options
 	debug = get(options, :debug, false)
-	# Default to :forwarddiff: avoids per-call Symbolics.jacobian + 2x build_function
-	# (each build_function leaves a fresh RuntimeGeneratedFunction in the JIT code
-	# cache that never reclaims, so the :symbolic path grew ~1 MB/iter peak RSS
-	# in the candidate loop -- see repro/memory_audit_2026_05_19/mwe_run.txt).
-	# ForwardDiff propagates duals through the already-compiled native residual at
-	# lines ~60-66, returns the exact Jacobian, and grows ~0 MB/iter.
-	jac_mode = get(options, :jacobian, :forwarddiff)
+	jac_mode = get(options, :jacobian,
+		isnothing(prepared_system) ? :forwarddiff : prepared_system.jacobian_mode)
 	abstol = get(options, :abstol, polish_only ? 1e-6 : 1e-8)
 	reltol = get(options, :reltol, polish_only ? 1e-4 : 1e-6)
 	maxiters = get(options, :maxiters, polish_only ? 100 : 1000)
@@ -76,149 +77,88 @@ function solve_with_robust(poly_system, varlist;
 		println("[ROBUST] Jacobian: $jac_mode")
 	end
 
-	# Try to compile the system into a fast native function; fall back to substitute/value
-	compiled_residual_robust! = nothing
+	# A supplied kernel is shared by all roots/points with the same symbolic
+	# structure. Only numerical data and solve-local buffers change.
 	_build_residual_t0 = time()
-	try
-		_f_oop, _f_ip = Symbolics.build_function(poly_system, varlist;
-			expression = Val(false))
-		compiled_residual_robust! = (res, u, p) -> (_f_ip(res, u); nothing)
-	catch err
-		_rethrow_if_interrupt(err)
-		@warn "build_function failed in solve_with_robust; falling back to substitute/value" err
-	finally
-		robust_stages[:build_residual_function] = get(robust_stages, :build_residual_function, 0.0) + (time() - _build_residual_t0)
+	using_prepared = !isnothing(prepared_system)
+	system = if using_prepared
+		prepared_system.equation_count == m || throw(DimensionMismatch("Prepared polynomial equation count does not match"))
+		isequal(prepared_system.variables, Num.(varlist)) ||
+			throw(ArgumentError("Prepared polynomial unknown order does not match varlist"))
+		jac_mode == prepared_system.jacobian_mode ||
+			throw(ArgumentError("Jacobian option conflicts with the prepared polynomial kernel"))
+		if haskey(options, :forwarddiff_chunk_size)
+			options[:forwarddiff_chunk_size] == prepared_system.forwarddiff_chunk_size ||
+				throw(ArgumentError("ForwardDiff chunk option conflicts with the prepared polynomial kernel"))
+		end
+		prepared_system
+	else
+		prepare_robust_system(poly_system, varlist; jacobian = jac_mode,
+			forwarddiff_chunk_size = get(options, :forwarddiff_chunk_size, 1))
 	end
+	length(data_values) == length(system.data_variables) ||
+		throw(DimensionMismatch("Expected $(length(system.data_variables)) polynomial data values, got $(length(data_values))"))
+	# Bind a private copy; simultaneous solves using one prepared kernel cannot
+	# overwrite one another's data or derivative workspace.
+	bound_data = Float64.(data_values)
+	jac_mode = system.jacobian_mode
+	robust_stages[:build_residual_function] = time() - _build_residual_t0
 
-	# Create residual function
 	function residual!(res, u, p = nothing)
 		if timing_enabled
 			_residual_t0 = time()
 			try
-				if compiled_residual_robust! !== nothing
-					compiled_residual_robust!(res, u, p)
-				else
-					d = Dict{Num, eltype(u)}(zip(varlist, u))
-					for (i, eq) in enumerate(poly_system)
-						val = Symbolics.value(Symbolics.substitute(eq, d))
-						res[i] = convert(eltype(res), val)
-					end
-				end
+				system.residual!(res, u, bound_data)
 			finally
 				residual_call_count += 1
 				residual_seconds += time() - _residual_t0
 			end
-		elseif compiled_residual_robust! !== nothing
-			compiled_residual_robust!(res, u, p)
 		else
-			d = Dict{Num, eltype(u)}(zip(varlist, u))
-			for (i, eq) in enumerate(poly_system)
-				val = Symbolics.value(Symbolics.substitute(eq, d))
-				res[i] = convert(eltype(res), val)
-			end
+			system.residual!(res, u, bound_data)
 		end
 		return nothing
 	end
 
-	# Create objective function for optimization methods
 	function objective(u)
-		res = zeros(m)
+		res = similar(u, m)
 		residual!(res, u)
-		return 0.5 * sum(res .^ 2)
+		return 0.5 * sum(abs2, res)
 	end
-
-	# Build Jacobian if requested
-	jac_func = nothing
-	grad_func = nothing
 
 	_jacobian_setup_t0 = time()
-	if jac_mode == :symbolic
-		try
-			if debug
-				println("[ROBUST] Building symbolic Jacobian...")
+	raw_jacobian! = _bind_robust_jacobian(system, residual!, bound_data)
+	jac_func = if isnothing(raw_jacobian!)
+		nothing
+	else
+		(J, u) -> begin
+			if timing_enabled
+				_jac_t0 = time()
+				try
+					raw_jacobian!(J, u)
+				finally
+					jacobian_call_count += 1
+					jacobian_seconds += time() - _jac_t0
+				end
+			else
+				raw_jacobian!(J, u)
 			end
-			J_expr = Symbolics.jacobian(poly_system, varlist)
-			jac_func = Symbolics.build_function(J_expr, varlist, expression = Val(false))[2]
-
-			# Also build gradient for optimization methods
-			grad_expr = J_expr' * poly_system
-			grad_func = Symbolics.build_function(grad_expr, varlist, expression = Val(false))[2]
-
-			if debug
-				println("[ROBUST] ✓ Symbolic Jacobian built successfully")
-			end
-		catch e
-			_rethrow_if_interrupt(e)
-			@error "[ROBUST] Symbolic Jacobian failed" exception=(e, catch_backtrace())
-			println("SOLVER_ERROR: solve_with_robust Jacobian build threw exception:")
-			println("  Type: ", typeof(e))
-			println("  Message: ", e)
-			println("[ROBUST] Falling back to ForwardDiff")
-			jac_mode = :forwarddiff
+			nothing
 		end
 	end
-
-	if jac_mode == :forwarddiff
-		jac_func = function (J, u)
-			if timing_enabled
-				_jac_t0 = time()
-				try
-					ForwardDiff.jacobian!(J,
-						u_ -> (r = similar(u_, m); residual!(r, u_); r), u)
-				finally
-					jacobian_call_count += 1
-					jacobian_seconds += time() - _jac_t0
-				end
-			else
-				ForwardDiff.jacobian!(J,
-					u_ -> (r = similar(u_, m); residual!(r, u_); r), u)
-			end
-		end
-		grad_func = function (g, u)
-			if timing_enabled
-				_jac_t0 = time()
-				try
-					ForwardDiff.gradient!(g, objective, u)
-				finally
-					jacobian_call_count += 1
-					jacobian_seconds += time() - _jac_t0
-				end
-			else
-				ForwardDiff.gradient!(g, objective, u)
-			end
-		end
-	elseif jac_mode == :finitediff
-		cache = FiniteDiff.JacobianCache(zeros(m), zeros(n))
-		jac_func = function (J, u)
-			if timing_enabled
-				_jac_t0 = time()
-				try
-					FiniteDiff.finite_difference_jacobian!(J,
-						(r, u_) -> residual!(r, u_), u, cache)
-				finally
-					jacobian_call_count += 1
-					jacobian_seconds += time() - _jac_t0
-				end
-			else
-				FiniteDiff.finite_difference_jacobian!(J,
-					(r, u_) -> residual!(r, u_), u, cache)
-			end
-		end
-		grad_func = function (g, u)
-			if timing_enabled
-				_jac_t0 = time()
-				try
-					FiniteDiff.finite_difference_gradient!(g, objective, u)
-				finally
-					jacobian_call_count += 1
-					jacobian_seconds += time() - _jac_t0
-				end
-			else
-				FiniteDiff.finite_difference_gradient!(g, objective, u)
-			end
+	# The least-squares gradient is JᵀF. Reuse the Jacobian kernel instead of
+	# generating and compiling a separate expanded symbolic gradient.
+	grad_func = if isnothing(jac_func)
+		nothing
+	else
+		r_grad, J_grad = zeros(m), zeros(m, n)
+		(g, u) -> begin
+			residual!(r_grad, u)
+			jac_func(J_grad, u)
+			LinearAlgebra.mul!(g, transpose(J_grad), r_grad)
+			nothing
 		end
 	end
-	robust_stages[:jacobian_setup] = get(robust_stages, :jacobian_setup, 0.0) + (time() - _jacobian_setup_t0)
+	robust_stages[:jacobian_setup] = time() - _jacobian_setup_t0
 
 	# Generate starting points
 	_generate_starts_t0 = time()
@@ -305,9 +245,10 @@ function solve_with_robust(poly_system, varlist;
 			if selected_algo == :trustregion
 				# Use NonlinearSolve.TrustRegion (most robust)
 				if jac_func !== nothing
-					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u))
+					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u),
+						resid_prototype = zeros(m), jac_prototype = zeros(m, n))
 				else
-					nf = NonlinearFunction(residual!)
+					nf = NonlinearFunction(residual!; resid_prototype = zeros(m))
 				end
 
 				prob = if m == n
@@ -364,9 +305,10 @@ function solve_with_robust(poly_system, varlist;
 			elseif selected_algo == :levenberg
 				# Use NonlinearSolve.LevenbergMarquardt
 				if jac_func !== nothing
-					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u))
+					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u),
+						resid_prototype = zeros(m), jac_prototype = zeros(m, n))
 				else
-					nf = NonlinearFunction(residual!)
+					nf = NonlinearFunction(residual!; resid_prototype = zeros(m))
 				end
 
 				prob = NonlinearLeastSquaresProblem(nf, x0)
@@ -384,9 +326,10 @@ function solve_with_robust(poly_system, varlist;
 			else
 				# Fallback: NonlinearSolve.TrustRegion
 				if jac_func !== nothing
-					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u))
+					nf = NonlinearFunction(residual!; jac = (J, u, p) -> jac_func(J, u),
+						resid_prototype = zeros(m), jac_prototype = zeros(m, n))
 				else
-					nf = NonlinearFunction(residual!)
+					nf = NonlinearFunction(residual!; resid_prototype = zeros(m))
 				end
 
 				prob = if m == n
@@ -482,7 +425,10 @@ function solve_with_robust(poly_system, varlist;
 			raw_solution_count = length(all_solutions),
 			unique_solution_count = unique_count,
 			best_residual = isfinite(best_residual) ? best_residual : nothing,
-			used_compiled_residual = compiled_residual_robust! !== nothing,
+			used_compiled_residual = system.compiled_residual,
+			used_prepared_system = using_prepared,
+			data_value_count = length(bound_data),
+			forwarddiff_chunk_size = system.forwarddiff_chunk_size,
 		))
 		return nothing
 	end

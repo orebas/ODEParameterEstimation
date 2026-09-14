@@ -21,8 +21,18 @@ passed **1,839/1,839** full-suite checks, **412/412** unit checks, **128/128**
 PEtab contracts, and **10/10** recovery benchmark checks on the same Julia 1.13
 dependency stack. Its separate full-data rational model checks and the bounded
 Sneyd construction result are recorded in that note. FitzHugh–Nagumo and
-repressilator recovered well. Biohydrogenation still has a default-compiler
-timeout and poor parameter recovery in the completed lower-optimization diagnostic.
+repressilator recovered well. Biohydrogenation timed out with the default compiler
+in that validation and had poor parameter recovery in its completed
+lower-optimization diagnostic.
+
+The [September 13 reusable-polisher change](2026-09-13_reusable_polynomial_polishing.md)
+subsequently completed the same biohydrogenation fixture with normal compiler
+settings in 25.0 minutes. All 585 raw polishing calls reused one prepared system
+and totaled 24.66 seconds. Its k₁₀ recovery problem persists. The current
+ForwardDiff default uses chunk 1; symbolic and finite-difference Jacobians are
+selectable, with unchanged dependencies. Final Julia 1.13 validation passed
+**1,934/1,934** full-suite assertions and **10/10** recovery-benchmark assertions;
+source and log hashes are retained in that record's reproduction directory.
 
 ## Current dependency baseline
 

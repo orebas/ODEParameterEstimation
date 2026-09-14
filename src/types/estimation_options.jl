@@ -160,6 +160,8 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 ## Optimization Parameters
 - `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
 - `polish_solver_solutions::Bool`: Polish raw solver solutions with fast NLLS (default: true)
+- `polish_solver_jacobian::Symbol`: Raw algebraic-polish Jacobian: `:forwarddiff` (default), `:symbolic`, or `:finitediff`. Kernels are reused across roots and shooting points.
+- `polish_solver_chunk_size::Int`: ForwardDiff directions per chunk (default: 1; zero selects automatically).
 - `polish_method::PolishMethod`: Optimization method for polishing (default: `PolishLSOBoundedLog` — bounded LSO LevenbergMarquardt in per-variable log-space, recommended after the 2026-05 polish bake-off; pass `PolishNewtonTrust` to restore the legacy scalar polish)
 - `polish_maxiters::Int`: Maximum iterations for solution polishing (default: 100)
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
@@ -418,6 +420,8 @@ Base.@kwdef struct EstimationOptions
 	# Optimization Parameters
 	polish_solutions::Bool = false
 	polish_solver_solutions::Bool = true
+	polish_solver_jacobian::Symbol = :forwarddiff
+	polish_solver_chunk_size::Int = 1
 	# Default chosen 2026-05 after the polish bake-off
 	# (see temp_plans/2026-05-01_local_polish_default_recommendation.md): bounded
 	# LeastSquaresOptim Levenberg-Marquardt in per-variable transformed coordinates.
@@ -1405,6 +1409,15 @@ function validate_options(opts::EstimationOptions)
 		@info "backsolve_recovery is ignored outside FlowStandard"
 	end
 
+	if !(opts.polish_solver_jacobian in (:symbolic, :forwarddiff, :finitediff))
+		@error "polish_solver_jacobian must be :symbolic, :forwarddiff, or :finitediff"
+		valid = false
+	end
+	if opts.polish_solver_chunk_size < 0
+		@error "polish_solver_chunk_size must be nonnegative"
+		valid = false
+	end
+
 	if opts.t0_state_completion != :strict && opts.flow != FlowStandard
 		@info "t0_state_completion is ignored outside FlowStandard"
 	end
@@ -1479,7 +1492,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Tolerances", [:abstol, :reltol]),
 		("Solution Validation", [:clustering_threshold]),
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
-		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_method, :polish_maxiters, :opt_maxiters,
+		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_solver_jacobian, :polish_solver_chunk_size, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :opt_ad_backend, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
 		("SHADE+LM Baseline", [:shade_total_max_evals, :shade_total_max_time, :shade_global_eval_fraction,
 			:shade_n_local_starts, :shade_population, :shade_seed]),

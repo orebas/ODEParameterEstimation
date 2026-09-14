@@ -25,6 +25,7 @@ const TEST_FILES = [
     "test_model_utils.jl",    # ordered model construction; also in the unit group
     "column_scaling.jl",      # re-homed 2026-07-21 (was orphaned; green)
     "test_noise_rank_matrix.jl", # Jacobian values and rank under bounded AD compilation
+    "test_robust_system.jl", # reusable polynomial kernels, Jacobians, and root polishing
     "test_deferred_derivatives.jl", # rational rank support and on-demand polynomial derivatives
     "test_interrupt_propagation.jl",  # Ctrl-C class fix 2026-07-24 (_rethrow_if_interrupt)
     "test_run_context.jl",            # scoped RunContext contracts 2026-07-24

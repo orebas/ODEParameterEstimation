@@ -94,6 +94,7 @@ include("core/transcendental_utils.jl")  # Transcendental function handling (sin
 include("core/problem_rescaling.jl")  # Opt-in power-of-2 problem rescaling (states/params/observables/data → O(1))
 include("core/si_template_integration.jl")  # Template-based SI.jl integration
 include("core/homotopy_continuation.jl")
+include("core/robust_system.jl")  # Reusable polynomial residual/Jacobian kernels
 include("core/solve_with_robust.jl")  # Robust solver with multiple fallbacks
 include("core/pointpicker.jl")
 

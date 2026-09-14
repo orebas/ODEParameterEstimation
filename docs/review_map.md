@@ -1,6 +1,6 @@
 # ODEParameterEstimation review map
 
-Updated 2026-09-11. This is the entry point for reviewing the current source
+Updated 2026-09-14. This is the entry point for reviewing the current source
 layout and test coverage. Dependency versions, measured gate results, and
 release blockers live in [Production readiness](2026-09-10_production_readiness.md).
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
@@ -12,6 +12,9 @@ profiles using the normal benchmark workflow and existing timing infrastructure.
 The [deferred denominator construction record](2026-09-11_deferred_denominator_construction.md)
 documents rational rank/support tables, delayed PEtab polynomial construction,
 and the rational benchmark validation.
+The [reusable polynomial polishing record](2026-09-13_reusable_polynomial_polishing.md)
+documents compilation reuse, the Jacobian comparison, and the completed
+biohydrogenation run with normal compiler settings.
 
 ## Start here
 
@@ -46,7 +49,7 @@ Paths below are relative to `src/`.
 | Package/API | `ODEParameterEstimation.jl`, `types/core_types.jl`, `types/estimation_options.jl` | Constructors, exported names, option validation, precompilation, dependency bridges. |
 | Estimation | `core/analysis_utils.jl`, `core/optimized_multishot_estimation.jl`, `core/parameter_estimation.jl`, `core/parameter_estimation_helpers.jl` | Candidate generation, fit-based ranking, clustering, returned result/provenance contract. |
 | Symbolic construction | `core/si_equation_builder.jl`, `core/si_template_integration.jl`, `core/noise_frontier_construction.jl`, `core/transcendental_utils.jl` | Structural identifiability, symbolic substitutions, equation/variable order, supported model classes. |
-| Polynomial solves | `core/homotopy_continuation.jl`, `core/multipoint_template.jl`, `core/solve_with_robust.jl` | Root completeness, parameter homotopy, scaling, direct/parameterized agreement. Read the multiplicity note before changing root retention. |
+| Polynomial solves | `core/homotopy_continuation.jl`, `core/multipoint_template.jl`, `core/robust_system.jl`, `core/solve_with_robust.jl` | Root completeness, parameter homotopy, scaling, direct/parameterized agreement, reusable residual/Jacobian kernels. Read the multiplicity note before changing root retention. |
 | Sampling/interpolation | `core/sampling.jl`, `core/derivatives.jl`, `core/pointpicker.jl`, `core/derivative_utils.jl` | Observable identity, noise semantics, derivative accuracy and order limits, point selection. |
 | Rescaling/polish | `core/problem_rescaling.jl`, `core/polish_residual.jl`, `core/branch_completion.jl`, `core/sensitivity_seeds.jl` | Units and inverse mapping, timeouts, branch lineage, bounded optimization. |
 | Diagnostics/UQ | `core/diagnostics/*.jl`, `core/uncertainty_quantification.jl`, `core/sigma_d.jl`, `core/svg_plots.jl` | Exact returned estimator, covariance propagation, reliability axes, report/artifact correctness. Read the current UQ notes linked by `CLAUDE.md` first. |
@@ -69,7 +72,7 @@ from running. The unit group is assembled in
 | Dependency interoperability | `dependency_compat.jl`, `test_noise_rank_matrix.jl`, `test_gp_kernel_optimization.jl` |
 | Deferred denominator construction | `test_deferred_derivatives.jl`; optional eager/deferred rational basis and pole contracts in `test/petab/runtests.jl` |
 | Estimation and examples | `fast_core.jl`, `refactor_safety_net.jl`, `feature_regressions.jl`, `example_canaries.jl`, `examples_smoke.jl`, `identifiability_regressions.jl` |
-| Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_polish_maxtime.jl`, `test_shade_lm.jl` |
+| Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_robust_system.jl`, `test_polish_maxtime.jl`, `test_shade_lm.jl` |
 | State and result contracts | `test_run_context.jl`, `test_interrupt_propagation.jl`, `result_processing_helpers.jl`, `test_label_parsers.jl` |
 | Independent grids and preparation | `test_observation_data.jl`; optional joint PEtab mapping and likelihood contracts in `test/petab/runtests.jl` |
 | Multipoint/UQ/campaigns | `test_multipoint_pipeline.jl`, `test_multipoint_sensitivity.jl`, `test_estimator_aware_uq.jl`, `test_polish_uq_pipeline.jl`, `test_branch_uq_pipeline.jl`, covariance/IFT/campaign contract files in the runner |

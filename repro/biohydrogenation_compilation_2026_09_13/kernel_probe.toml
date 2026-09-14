@@ -1,0 +1,53 @@
+automatic_chunk_size = 9
+data_variables = 9
+equations = 25
+julia_version = "1.13.0"
+max_jacobian_difference = 0.0
+source = "/home/orebas/.julia/dev/ODEParameterEstimation/repro/deferred_denominators_2026_09_11/evidence/biohydrogenation_si_template.jl"
+status = "passed"
+synthetic_data1 = [0.427, 0.44399999999999995, 0.46099999999999997, 0.478, 0.495, 0.512, 0.529, 0.546, 0.563]
+synthetic_evaluation_point = [0.263, 0.276, 0.289, 0.302, 0.315, 0.328, 0.34099999999999997, 0.354, 0.367, 0.38, 0.393, 0.406, 0.419, 0.432, 0.44499999999999995, 0.45799999999999996, 0.471, 0.484, 0.497, 0.51, 0.5229999999999999, 0.536, 0.5489999999999999, 0.562, 0.575]
+variables = 25
+
+[[rows]]
+chunk_size = 1
+first_compile_seconds = 0.520107753
+first_seconds = 0.520154312
+jacobian_norm = 89.31126236643034
+label = "numeric_chunk1"
+second_seconds = 2.1967e-5
+[[rows]]
+chunk_size = 9
+first_compile_seconds = 1.963803205
+first_seconds = 1.963835526
+jacobian_norm = 89.31126236643034
+label = "numeric_automatic"
+second_seconds = 1.0743e-5
+[[rows]]
+chunk_size = 9
+first_compile_seconds = 2.206040227
+first_seconds = 2.206070787
+jacobian_norm = 89.31126236643034
+label = "numeric_automatic_changed_data"
+second_seconds = 1.1604e-5
+[[rows]]
+build_seconds = 0.355317383
+first_compile_seconds = 0.574230018
+first_seconds = 0.574251481
+label = "symbolic"
+max_difference_from_chunk1 = 0.0
+second_seconds = 7.656e-6
+[[rows]]
+chunk_size = 9
+first_compile_seconds = 2.142169813
+first_seconds = 2.142225214
+jacobian_norm = 89.31126236643034
+label = "parameterized_automatic"
+second_seconds = 1.3576e-5
+[[rows]]
+chunk_size = 9
+first_compile_seconds = 0.0
+first_seconds = 1.2294e-5
+jacobian_norm = 89.31126236643034
+label = "parameterized_automatic_changed_data"
+second_seconds = 8.913e-6

@@ -1,0 +1,76 @@
+{
+  "date_utc": "2026-09-14",
+  "julia_version": "1.13.0",
+  "base_revision": "cc0c973dffeb26f380db25b3ccd6875d9a0d1e18",
+  "source_note": "These hashes identify the final working-tree code tested before committing. The full biohydrogenation worker predates the final unused BFGS mul! qualification; see full_polish_summary.json.",
+  "source_sha256": {
+    "src/ODEParameterEstimation.jl": "0bee3ce816792fd2f592826515dd6d70c6de02234dd0a606ec89bd13b7d36a71",
+    "src/core/robust_system.jl": "a92088c95d9fd8b7d3f49162f0c2f77eae08fb9d14762b4b64465281db24353e",
+    "src/core/solve_with_robust.jl": "8b376c1abfe7c4cd036d400afa505246dd4940600c13ade14dcaf3494441df99",
+    "src/core/optimized_multishot_estimation.jl": "186f53a1fe9b8f8dc8d9c6c7b145d7c5b5487bff71921dd7249ace321e47af57",
+    "src/types/estimation_options.jl": "0ebd9baf8e922c59f9dc1709b2624ffcfd4d586dc72952cd54ab878087b11eb8",
+    "test/runtests.jl": "36d35981881ad01ba4f7e23c2cc1582a49d56f211a2d651207caeaa192593492",
+    "test/test_robust_system.jl": "a09b0396d15de2df69f384236de9c74dac5944869ac71ae17127a8ab6251e0b1",
+    "test/test_options_contracts.jl": "2b62136073e3087b19b08e595adec2ffbd2ce3aae8ddfe9327991c72cc9f24ed"
+  },
+  "active_manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "version_reresolution": false,
+  "gates": {
+    "full": {
+      "command": "julia --startup-file=no test/current.jl",
+      "status": "passed",
+      "passed": 1934,
+      "total": 1934,
+      "testset_time": "15m03.8s",
+      "log_path": "/tmp/odepe-reusable-full-tests.log",
+      "log_sha256": "01c11e4d8673808f51201345a93ae1c1e4006867a5c83c0b22df94de5d8c032b",
+      "log_bytes": 220379,
+      "exit_code": 0
+    },
+    "benchmark": {
+      "command": "julia --startup-file=no test/current.jl benchmark",
+      "status": "passed",
+      "passed": 10,
+      "total": 10,
+      "testset_time": "10m42.2s",
+      "log_path": "/tmp/odepe-reusable-benchmark-tests.log",
+      "log_sha256": "34574d9bd413f61a48e9ec396e706e1bd44fd90bc101f74b23800a06d3f3d780",
+      "log_bytes": 592094,
+      "exit_code": 0
+    }
+  },
+  "benchmark_recovery": [
+    {
+      "model": "lotka_volterra",
+      "best_of_branch_max_relative_parameter_error": 5.62862445790957e-05,
+      "clusters": 1,
+      "analysis_selected_error": 3.7242794505010224e-05
+    },
+    {
+      "model": "simple",
+      "best_of_branch_max_relative_parameter_error": 6.350909659280646e-09,
+      "clusters": 1,
+      "analysis_selected_error": 2.826800928933371e-09
+    },
+    {
+      "model": "lotka_volterra",
+      "best_of_branch_max_relative_parameter_error": 1.0168680712278426e-10,
+      "clusters": 1,
+      "analysis_selected_error": 1.0168680712278426e-10
+    },
+    {
+      "model": "hiv",
+      "best_of_branch_max_relative_parameter_error": 2.4963073830264193e-09,
+      "clusters": 1,
+      "analysis_selected_error": 1.4140973548376623e-08
+    }
+  ],
+  "final_replay": {
+    "file": "replay_forwarddiff_final.toml",
+    "sha256": "78604295514db68cac83d12d5701e7e37b26833106e0e835a0662b9b1544440a",
+    "roots": 75,
+    "accepted": 75,
+    "remaining_74_calls_compile_seconds": 0.0
+  },
+  "active_manifest_matches_full_biohydrogenation": true
+}

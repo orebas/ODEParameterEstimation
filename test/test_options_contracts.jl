@@ -23,6 +23,10 @@ using OrderedCollections
 	@test o.uq_noise_source === :learned_gp_homoscedastic
 	@test o.gp_derivative_lengthscale_factor == 1.0
 	@test o.multipoint_pair_strategy == :spread
+	@test o.polish_solver_jacobian == :forwarddiff
+	@test o.polish_solver_chunk_size == 1
+	@test !validate_options(EstimationOptions(polish_solver_jacobian = :unknown))
+	@test !validate_options(EstimationOptions(polish_solver_chunk_size = -1))
 	@test !validate_options(EstimationOptions(gp_derivative_lengthscale_factor = 0.0))
 	@test !validate_options(EstimationOptions(gp_derivative_lengthscale_factor = Inf))
 	@test !validate_options(EstimationOptions(multipoint_pair_strategy = :unknown))

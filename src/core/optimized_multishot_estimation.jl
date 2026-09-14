@@ -727,6 +727,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 		raw_solver_polish_instantiate_seconds_by_source = OrderedDict{Symbol, Float64}()
 		raw_solver_polish_solve_seconds_by_source = OrderedDict{Symbol, Float64}()
 		reusable_system_cache = Dict{Any, Any}()
+		raw_polish_kernel_cache = Dict{Tuple, PreparedRobustSystem}()
 		reusable_order_cache = Dict{Any, Any}()
 		resolve_timing_records = NamedTuple[]
 		detailed_timing_records = NamedTuple[]
@@ -1329,6 +1330,16 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						end
 					end
 						reusable_system_cache[(:sp_kept, interp_sym, point_idx)] = (target_k, varlist_k)
+						# Noise-frontier instantiation preserves this exact template/order.
+						# Legacy construction can rename/reorder unknowns; its concrete
+						# system is shared by the roots at that point.
+						parameterized_polish = !isnothing(frontier_sp_candidate)
+						polish_data = parameterized_polish ? valid_param_values_list[i] : Float64[]
+						polish_kernel = _timed_detail_stage!(_raw_polish_stages, :prepare_kernel) do
+							_cached_robust_system!(raw_polish_kernel_cache,
+								parameterized_polish ? local_template_equations : target_k,
+								varlist_k, parameterized_polish ? local_extended_data_vars : Num[], opts)
+						end
 
 						polished_point = Vector{Vector{Float64}}()
 					for sol in point_solutions
@@ -1336,6 +1347,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 						p_solutions, _, _, _ = _timed_detail_stage!(_raw_polish_stages, :robust_polish_solve) do
 							solve_with_robust(target_k, varlist_k;
 								start_point = start_pt, polish_only = true,
+								prepared_system = polish_kernel, data_values = polish_data,
 								options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => false))
 						end
 						if !isempty(p_solutions)
@@ -1480,10 +1492,17 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 
 				# Optional: polish each raw solver solution using fast NLLS if requested
 				if opts.polish_solver_solutions && !isempty(solutions)
+					parameterized_polish = !isnothing(frontier_sp_candidate)
+					polish_data = parameterized_polish ? evaluate_noise_frontier_data_vars_at_point(
+						interpolants, frontier_sp_candidate.data_vars, PEP.measured_quantities,
+						t_vector[point_idx]) : Float64[]
+					polish_kernel = _cached_robust_system!(raw_polish_kernel_cache,
+						parameterized_polish ? frontier_sp_candidate.equations : final_target,
+						final_varlist_point, parameterized_polish ? frontier_sp_candidate.data_vars : Num[], opts)
 					polished_point = Vector{Vector{Float64}}()
 					for sol in solutions
 						start_pt = real.(sol)
-						p_solutions, _, _, _ = solve_with_robust(final_target, final_varlist_point; start_point = start_pt, polish_only = true, options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => opts.diagnostics))
+						p_solutions, _, _, _ = solve_with_robust(final_target, final_varlist_point; start_point = start_pt, polish_only = true, prepared_system = polish_kernel, data_values = polish_data, options = Dict(:abstol => 1e-12, :reltol => 1e-12, :debug => opts.diagnostics))
 						if !isempty(p_solutions)
 							push!(polished_point, p_solutions[1])
 						else
@@ -2327,6 +2346,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			end
 		end
 		timing_details[:reusable_system_cache_entries] = length(reusable_system_cache)
+		timing_details[:raw_polish_kernel_cache_entries] = length(raw_polish_kernel_cache)
 		_run_ctx_set_timing!(_phase_stats_to_breakdown(
 			phase_stats,
 			:optimized_multishot;

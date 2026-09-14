@@ -108,8 +108,12 @@ probe and its result are `run_compatibility.jl` and `evidence/compatibility.toml
 
 The full 750-sample, noise-10⁻⁶ benchmark run did **not** finish within its
 3,600-second estimation-stage budget. It completed three of nine interpolators
-and the fourth's single-point solves, then stopped during multipoint algebraic
-polish. No final ranked estimates were returned, so this is not a recovery pass.
+and the fourth's single-point HC solves, then stopped while compiling the
+single-point algebraic root polisher. The stack enters the single-point candidate
+loop at `optimized_multishot_estimation.jl:1337`; the earlier attribution to
+multipoint polish was incorrect. No final ranked estimates were returned, so
+this is not a recovery pass. The hour limit applied to the whole estimation
+stage, not to one compilation.
 
 Repeated sampling stacks were in LLVM optimization while compiling ForwardDiff
 through the residual in `solve_with_robust.jl:99,166`. These lines are unchanged
@@ -124,6 +128,13 @@ options, and log hashes. A sampled stack and the saved SI template are also
 retained. A separate `--optimize=0` diagnostic uses the same estimator settings;
 its SI polynomial template matches the default run exactly except for timestamps,
 as recorded in `evidence/biohydrogenation_template_comparison.json`.
+
+The [September 13 compilation follow-up](../repro/biohydrogenation_compilation_2026_09_13/README.md)
+finds repeated compilation across numeric shooting-point systems. It includes
+a bounded kernel probe, an exact selected-system replay, and the subsequent
+reusable-polisher implementation. With that later change, the same full fixture
+completed under normal optimization in 25.0 minutes; raw polishing totaled
+24.66 seconds. The parameter-recovery limitation below persists.
 
 ### Biohydrogenation: completed compiler diagnostic, poor parameter recovery
 

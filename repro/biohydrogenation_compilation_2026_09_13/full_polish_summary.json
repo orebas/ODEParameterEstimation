@@ -1,0 +1,20 @@
+{
+  "source_detailed_timing_sha256": "ad96e2234df17fa405e820a9fcabd81e45b77d9c436dab6af71f05d1ad9cb974",
+  "kernel_lookups": 180,
+  "kernel_misses": 1,
+  "kernel_hits": 179,
+  "kernel_preparation_seconds": 0.612450122833252,
+  "root_polish_calls": 585,
+  "root_polish_seconds": 24.664630651474,
+  "max_root_polish_seconds": 5.926738023757935,
+  "all_used_prepared_system": true,
+  "all_forwarddiff_chunk_1": true,
+  "dimensions": [
+    [
+      25,
+      25,
+      12
+    ]
+  ],
+  "source_note": "Full worker loaded the implementation before the final qualification of mul! as LinearAlgebra.mul!. Its raw-polish algorithm is TrustRegion, which does not use that BFGS gradient branch. Final source is checked by the full Pkg.test gate and benchmark smoke; this run is not claimed to have used the final file bytes."
+}
