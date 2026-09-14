@@ -6,6 +6,11 @@ checked 2026-09-10; the source-change inventory below remains historical.
 
 ## What's in production now (committed to `main`)
 
+The [September 14 representative-fixing correction](docs/2026-09-14_fixed_multiplicity.md)
+documents how the multiplicity input now uses the chosen representative
+assignments and a matching exact synthetic jet. It also corrects the
+coordinate-rank criterion for systems with dependent rows.
+
 `analyze_parameter_estimation_problem(pep, opts)` auto-computes the algebraic
 multiplicity **M** during the SI template build, populates
 `opts.algebraic_multiplicity` if the caller left it unset, and truncates the

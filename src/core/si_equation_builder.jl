@@ -719,7 +719,7 @@ function get_si_equation_system(
 	@info "Getting equation system from StructuralIdentifiability.jl"
 	equation_builder_timing = OrderedDict{Symbol, Float64}()
 	if !isempty(pre_fixed_params)
-		@info "[PRE-FIX] Will apply $(length(pre_fixed_params)) pre-fixed parameters after SIAN analysis"
+		@info "[PRE-FIX] Will apply $(length(pre_fixed_params)) representative assignments to multiplicity and template equations"
 	end
 
 	# Convert to SI.jl format (pre-fixed params are applied after SIAN, at the polynomial level)
@@ -763,6 +763,7 @@ function get_si_equation_system(
 		p = p,
 		infolevel = infolevel,
 		compute_multiplicity = compute_multiplicity,
+		pre_fixed_params = pre_fixed_params,
 	)
 	equation_builder_timing[:get_polynomial_system_from_sian] = time() - _t_get_polynomial_system_start
 
@@ -975,21 +976,15 @@ end
 """
 	_multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
 
-Compute the algebraic multiplicity `M` for a POSITIVE-dimensional identifiability
-ideal `⟨gb_input⟩` (a continuous gauge symmetry) by projecting its variety onto the
-GLOBALLY-identifiable coordinates and counting.
+Count algebraic solutions after projecting a positive-dimensional ideal onto
+the finite-valued order-0 coordinates in `theta_l`. Local identifiability allows
+multiple finite branches; global identifiability would require a unique value.
+A coordinate varying along a continuous symmetry is not locally identifiable.
 
-`theta_l` are the SIAN *locally*-identifiable order-0 coordinates — a SUPERSET of the
-globally-identifiable ones, because a gauge variable can be locally but not globally
-identifiable (e.g. `sum_test`'s scaling `(x1,x2,c)→(λx1,λx2,c/λ)` makes `c,x1,x2`
-each locally identifiable yet jointly a 1-D gauge). Since the observations are
-already substituted into `gb_input`, a coordinate `v` is GLOBALLY identifiable iff it
-is finite-valued in the ideal, i.e. the univariate ideal `I ∩ k[v]` is nonzero. We
-therefore (1) project onto `theta_l`; if that is already zero-dimensional we count
-it, otherwise (2) retain only the finite-valued coordinates (dropping the gauge) and
-count that. `M = length(quotient_basis(...))` = number of distinct
-identifiable-coordinate tuples = number of branch-conjugates. Returns `nothing` if no
-well-defined zero-dimensional count is obtained.
+First project onto `theta_l`. If the projected ideal still has positive
+dimension, retain only coordinates with a nonzero univariate elimination
+ideal. Return their quotient-space dimension (counting multiplicity), or
+`nothing` if no zero-dimensional count is obtained.
 """
 function _multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
 	ring_gens = Nemo.gens(Rjet_gb)
@@ -1004,8 +999,8 @@ function _multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
 		return length(Groebner.quotient_basis(gens_id))  # theta_l already finite-valued
 	end
 
-	# Stage 2: a continuous gauge survives among the theta_l coordinates. Keep only the
-	# finite-valued (globally identifiable) ones — v is finite-valued iff its univariate
+	# Stage 2: a positive-dimensional component survives projection. Keep only the
+	# finite-valued coordinates — v is finite-valued iff its univariate
 	# elimination ideal I ∩ k[v] is nonzero — working in the small ring Rid.
 	small_gens = Nemo.gens(Rid)
 	keep = eltype(small_gens)[]
@@ -1024,17 +1019,123 @@ function _multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
 end
 
 """
+	_sian_local_coordinates(polynomials, coordinates, quantities, sample_values)
+
+# Arguments
+- `polynomials`, `coordinates`: Equations with output jets substituted, and their unknowns.
+- `quantities`: Parameter/state-at-anchor coordinates to classify.
+- `sample_values`: Exact values in the original jet ring, ordered by its generators.
+
+# Returns
+Locally identifiable coordinates and the full Jacobian rank at the sample.
+Removing a locally identifiable coordinate lowers rank. The comparison is with
+the full rank, not the equation count: dependent rows must not imply identifiability.
+"""
+function _sian_local_coordinates(polynomials, coordinates, quantities, sample_values)
+	jacobian = SIAN.jacobi_matrix(polynomials, coordinates, sample_values)
+	full_rank = LinearAlgebra.rank(jacobian)
+	locally_identifiable = eltype(coordinates)[]
+	for q in quantities
+		idx = findfirst(isequal(q), coordinates)
+		isnothing(idx) && continue
+		other_columns = [j for j in eachindex(coordinates) if j != idx]
+		if LinearAlgebra.rank(jacobian[:, other_columns]) < full_rank
+			push!(locally_identifiable, q)
+		end
+	end
+	return (; locally_identifiable, jacobian_rank = full_rank)
+end
+
+"""
+	_prepare_sian_multiplicity_system(si_ode, Et, Q, X_eq, Y_eq, all_params, sample, sample_bound; pre_fixed_params)
+
+# Arguments
+- `Et`, `Q`: Full polynomial constraints and the common ODE denominator.
+- `X_eq`, `Y_eq`, `all_params`: SIAN's exact jet recurrence and order-0 coordinates.
+- `sample`, `sample_bound`: Generic sample and sampling bound from template construction.
+- `pre_fixed_params`: Representative assignments, keyed by SI coordinate names.
+
+# Returns
+The saturated polynomial system, its smaller ring, an exact satisfying point,
+and local-rank metadata. A new sample respecting the assignments is used when
+fixes are present. State assignments affect only order 0; higher state jets
+are generated by the original ODE. All polynomial constraints are retained.
+"""
+function _prepare_sian_multiplicity_system(si_ode, Et, Q, X_eq, Y_eq, all_params, sample, sample_bound;
+	pre_fixed_params::OrderedDict = OrderedDict())
+	Rjet = parent(Q)
+	gens_Rjet = Nemo.gens(Rjet)
+	n, m, u = length(si_ode.x_vars), length(si_ode.y_vars), length(si_ode.u_vars)
+	s = length(all_params)
+	parameter_count = length(si_ode.parameters)
+	parameter_jets = all_params[1:parameter_count]
+	# Production fixes use base SI names, including names with underscores/digits.
+	# Remove exactly the final `_0` jet suffix from SIAN's order-0 names.
+	by_base_name = Dict(chop(string(q); tail = 2) => q for q in all_params)
+	fixed = OrderedDict{Nemo.QQMPolyRingElem, Nemo.QQFieldElem}()
+	for (key, value) in pre_fixed_params
+		name = string(key)
+		haskey(by_base_name, name) || throw(ArgumentError("Unknown SI representative coordinate: $name"))
+		# Nemo has no QQ(Float64) constructor. Preserve the exact assignment value.
+		exact_value = value isa AbstractFloat ? Rational{BigInt}(value) : value
+		fixed[by_base_name[name]] = Nemo.QQ(exact_value)
+	end
+	fixed_vars, fixed_values = collect(keys(fixed)), collect(values(fixed))
+	substitute_fixed(poly) = isempty(fixed) ? poly : Nemo.evaluate(poly, fixed_vars, fixed_values)
+	Q_fixed = substitute_fixed(Q)
+	iszero(Q_fixed) && throw(ArgumentError("Structural representative assignments make the ODE denominator identically zero"))
+	m_sample = if isempty(fixed)
+		sample
+	else
+		SIAN.sample_point(sample_bound, si_ode.x_vars, si_ode.y_vars, Nemo.QQMPolyRingElem[],
+			all_params, X_eq, Y_eq, Q; known_states_jet_form = fixed_vars, known_values = fixed_values)
+	end
+	u_hat, y_hat = m_sample[2], m_sample[1]
+	data_vars, data_values = vcat(u_hat[1], y_hat[1]), vcat(u_hat[2], y_hat[2])
+	Et_hat = [substitute_fixed(Nemo.evaluate(e, data_vars, data_values)) for e in Et]
+	Q_hat = isempty(u_hat[1]) ? Q_fixed : Nemo.evaluate(Q_fixed, u_hat[1], u_hat[2])
+	sample_values = SIAN.insert_zeros_to_vals(m_sample[4][1], m_sample[4][2])
+	# Detect a mismatched synthetic jet before spending time on an inconsistent ideal.
+	all(e -> iszero(Nemo.evaluate(e, sample_values)), Et_hat) ||
+		error("Multiplicity sample does not satisfy the representative-fixed polynomial equations")
+
+	remaining_parameters = filter(q -> !haskey(fixed, q), parameter_jets)
+	used = Set{Nemo.QQMPolyRingElem}(Nemo.vars(Q_hat))
+	for e in Et_hat
+		union!(used, Nemo.vars(e))
+	end
+	setdiff!(used, parameter_jets)
+	all_indets = Nemo.gens(si_ode.poly_ring)
+	state_jets = sort(collect(used), lt = (x, y) -> SIAN.compare_diff_var(x, y, all_indets, n + m + u, s))
+	coordinates = vcat(state_jets, remaining_parameters)
+	quantities = filter(q -> !haskey(fixed, q), all_params)
+	local_info = _sian_local_coordinates(Et_hat, coordinates, quantities, sample_values)
+	z_aux = gens_Rjet[end - parameter_count]
+	ordered_vars = vcat(state_jets, z_aux, sort(remaining_parameters, rev = true))
+	ring, _ = Nemo.polynomial_ring(Nemo.QQ, string.(ordered_vars); internal_ordering = :degrevlex)
+	polynomials = [SIAN.parent_ring_change(e, ring) for e in Et_hat]
+	push!(polynomials, SIAN.parent_ring_change(z_aux * Q_hat, ring) - 1)
+	q_at_sample = Nemo.evaluate(Q_hat, sample_values)
+	iszero(q_at_sample) && error("Multiplicity sample lies on an excluded ODE denominator")
+	point = [v == z_aux ? inv(q_at_sample) : sample_values[Nemo.var_index(v)] for v in ordered_vars]
+	return (; polynomials, ring, point, fixed_coordinates = fixed,
+		locally_identifiable = local_info.locally_identifiable, jacobian_rank = local_info.jacobian_rank)
+end
+
+"""
 	get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true)
 
 Get polynomial system using SIAN functions, adapted from PE.jl's implementation.
 This now properly builds the system Et through the iterative rank-checking process.
 
 `compute_multiplicity = false` skips the algebraic-multiplicity (M) Groebner step.
-Detection/intermediate passes of the structural-fix flow pass `false`: they run SIAN
-on the not-yet-fixed model, where partially identifiable systems are
-positive-dimensional by design and M is ill-defined.
+Detection/intermediate passes of the structural-fix flow pass `false`. With
+`pre_fixed_params`, the final pass computes M on a separate representative-fixed
+system with a consistent exact sample. Template construction and its original
+structural classification still use the unfixed model.
 """
-function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true)
+function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, infolevel = 0, compute_multiplicity = true,
+	pre_fixed_params::OrderedDict = OrderedDict())
 	sian_timing = OrderedDict{Symbol, Float64}()
 	algebraic_multiplicity_timing = OrderedDict{Symbol, Any}()
 	# Get equations using SIAN
@@ -1171,8 +1272,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 		end
 	end
 
-	# Assess local identifiability to find transcendence basis
-	theta_l = Array{Nemo.QQMPolyRingElem}(undef, 0)
+	# Classify coordinates using rank loss, even when Et has dependent rows.
 	params_to_assess_ = [SIAN.add_to_var(param, Rjet, 0) for param in params_to_assess]
 	_t_evaluate_Et_base_start = time()
 	Et_eval_base = [Nemo.evaluate(e, vcat(u_hat[1], y_hat[1]),
@@ -1180,100 +1280,74 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 					for e in Et]
 	sian_timing[:evaluate_Et_base] = time() - _t_evaluate_Et_base_start
 	_t_local_identifiability_start = time()
-	for param_0 in params_to_assess_
-		other_params = [v for v in x_theta_vars if v != param_0]
-		Et_subs = [Nemo.evaluate(e, [param_0],
-			[Nemo.evaluate(param_0, all_x_theta_vars_subs)])
-				   for e in Et_eval_base]
-		JacX = SIAN.jacobi_matrix(Et_subs, other_params, all_x_theta_vars_subs)
-		if LinearAlgebra.rank(JacX) != length(Et)
-			theta_l = vcat(theta_l, param_0)
-		end
-	end
+	local_info = _sian_local_coordinates(Et_eval_base, x_theta_vars, params_to_assess_, all_x_theta_vars_subs)
+	theta_l = local_info.locally_identifiable
 	sian_timing[:local_identifiability_jacobians] = time() - _t_local_identifiability_start
 	x_theta_vars_reorder = vcat(theta_l,
 		reverse([x for x in x_theta_vars if !(x in theta_l)]))
 
-	# Compute algebraic multiplicity M = dim of the zero-dim ideal
-	# <Et_hat, z_aux*Q_hat - 1> in the (state, parameter) ring with Rabinowitsch
-	# saturation. Reuses `Et_eval_base` (= Et_hat), `Q`, `u_hat`, `gens_Rjet`,
-	# `mu`, `not_int_cond_params`, `all_indets`, `n`, `m`, `u`, `s` — all in
-	# scope. This is the same Groebner step SIAN-Julia computes internally at
-	# SIAN.jl:267 (and which our local SIAN patch exposes); replicating it here
-	# avoids a second SIAN.identifiability_ode call.
-	#
-	# Skipped when `compute_multiplicity` is false — the detection pass of
-	# prepare_si_template_with_structural_fix runs SIAN on the not-yet-fixed
-	# model, where partially identifiable systems are positive-dimensional BY
-	# DESIGN and M is ill-defined; only the final fixed pass computes M (its
-	# value is the only one consumed downstream). Also skipped when theta_l is
-	# empty (no locally identifiable variables → M ill-defined; system is fully
-	# non-identifiable). Genuine Groebner FAILURES (e.g. BoundsError-class bugs)
-	# still propagate — no broad fallback; the right fix for those is upstream.
-	# The one narrow exception: quotient_basis documents raising DomainError iff
-	# the ideal is not zero-dimensional — a legitimate semantic outcome when
-	# unidentifiable directions survive fixing — which we treat as "M undefined"
-	# (nothing), not as a failure.
-	# Timing is logged unconditionally so we can spot pathological cases.
+	# Count solutions of the representative-fixed ideal <Et_hat, z_aux*Q_hat-1>.
+	# The synthetic output jet must come from the same representative slice.
+	# Keep every equation: local row dependence does not prove ideal redundancy.
+	# Detection passes skip M; the original classification/template remain unfixed.
+	# Genuine Groebner failures propagate. A positive-dimensional result can still
+	# be projected onto finite-valued coordinates by the existing counting path.
 	algebraic_multiplicity = if !compute_multiplicity
 		algebraic_multiplicity_timing[:skipped] = true
 		algebraic_multiplicity_timing[:gated_detection_pass] = true
 		nothing
-	elseif isempty(theta_l)
+	elseif isempty(theta_l) && isempty(pre_fixed_params)
 		@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (theta_l empty → fully non-identifiable)"
 		algebraic_multiplicity_timing[:skipped] = true
 		nothing
 	else
 		_M_setup_t = @elapsed begin
-			Et_x_vars_gb = Set{Nemo.QQMPolyRingElem}()
-			for poly in Et_eval_base
-				union!(Et_x_vars_gb, Set(Nemo.vars(poly)))
-			end
-			Et_x_vars_gb = setdiff(Et_x_vars_gb, not_int_cond_params)
-			z_aux_var = gens_Rjet[end - length(mu)]
-			Q_hat_eval = isempty(u_hat[1]) ? Q : Nemo.evaluate(Q, u_hat[1], u_hat[2])
-			vrs_sorted_gb = vcat(
-				sort(collect(Et_x_vars_gb), lt = (x, y) -> SIAN.compare_diff_var(x, y, all_indets, n + m + u, s)),
-				z_aux_var,
-				sort(not_int_cond_params, rev = true),
-			)
-			Rjet_gb, _ = Nemo.polynomial_ring(Nemo.QQ, [string(v) for v in vrs_sorted_gb], internal_ordering = :degrevlex)
-			Et_hat_gb = [SIAN.parent_ring_change(e, Rjet_gb) for e in Et_eval_base]
-			gb_input = vcat(Et_hat_gb, SIAN.parent_ring_change(z_aux_var * Q_hat_eval, Rjet_gb) - 1)
+			m_system = _prepare_sian_multiplicity_system(si_ode, Et, Q, X_eq, Y_eq, all_params, sample, D1;
+				pre_fixed_params = pre_fixed_params)
+			gb_input, Rjet_gb = m_system.polynomials, m_system.ring
 		end
-		_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
-		_M_qb_t = @elapsed begin
-			M_value = try
-				d = Groebner.dimension(gb)
-				if d == 0
-					length(Groebner.quotient_basis(gb))  # zero-dim: M = dim_QQ(R/I) (unchanged path)
-				elseif d >= 1
-					# Positive-dimensional: a continuous gauge symmetry entangles variables
-					# that appear in the observation. Count M in the identifiable subspace
-					# by eliminating the gauge directions (see the helper above), instead of
-					# giving up. Leaf-state unidentifiability never reaches here (those axes
-					# are absent from Et → the ideal is already zero-dimensional).
-					algebraic_multiplicity_timing[:positive_dimensional] = true
-					algebraic_multiplicity_timing[:gauge_dimension] = d
-					_multiplicity_via_identifiable_projection(gb_input, Rjet_gb, theta_l)
-				else
-					nothing  # d == -1: empty variety / whole ring (should not occur)
+		algebraic_multiplicity_timing[:setup_seconds] = _M_setup_t
+		algebraic_multiplicity_timing[:ring_variable_count] = Nemo.ngens(Rjet_gb)
+		algebraic_multiplicity_timing[:polynomial_count] = length(gb_input)
+		algebraic_multiplicity_timing[:total_terms] = sum(length, gb_input)
+		algebraic_multiplicity_timing[:max_total_degree] = maximum(Nemo.total_degree, gb_input)
+		algebraic_multiplicity_timing[:fixed_coordinates] = Dict(string(k) => string(v) for (k, v) in m_system.fixed_coordinates)
+		algebraic_multiplicity_timing[:jacobian_rank] = m_system.jacobian_rank
+		algebraic_multiplicity_timing[:linearized_dimension] = Nemo.ngens(Rjet_gb) - 1 - m_system.jacobian_rank
+		algebraic_multiplicity_timing[:sample_verified] = true
+		@info "[SI-TEMPLATE] Multiplicity input" variables = Nemo.ngens(Rjet_gb) polynomials = length(gb_input) terms = sum(length, gb_input) max_degree = maximum(Nemo.total_degree, gb_input) fixed_coordinates = algebraic_multiplicity_timing[:fixed_coordinates] linearized_dimension = algebraic_multiplicity_timing[:linearized_dimension]
+		M_value = if isempty(m_system.locally_identifiable)
+			@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (no finite-valued coordinates after fixing)"
+			nothing
+		else
+			_M_gb_t = @elapsed gb = Groebner.groebner(gb_input)
+			_M_qb_t = @elapsed begin
+				M_result = try
+					d = Groebner.dimension(gb)
+					algebraic_multiplicity_timing[:dimension] = d
+					if d == 0
+						length(Groebner.quotient_basis(gb))
+					elseif d >= 1
+						algebraic_multiplicity_timing[:positive_dimensional] = true
+						algebraic_multiplicity_timing[:gauge_dimension] = d
+						_multiplicity_via_identifiable_projection(gb_input, Rjet_gb, m_system.locally_identifiable)
+					else
+						nothing
+					end
+				catch e
+					(e isa DomainError || e isa Groebner.MonomialDegreeOverflow) || rethrow()
+					algebraic_multiplicity_timing[:multiplicity_error] = string(nameof(typeof(e)))
+					nothing
 				end
-			catch e
-				(e isa DomainError || e isa Groebner.MonomialDegreeOverflow) || rethrow()
-				algebraic_multiplicity_timing[:multiplicity_error] = string(nameof(typeof(e)))
-				nothing
 			end
+			algebraic_multiplicity_timing[:groebner_seconds] = _M_gb_t
+			algebraic_multiplicity_timing[:quotient_basis_seconds] = _M_qb_t
+			M_result
 		end
 		algebraic_multiplicity_timing[:skipped] = isnothing(M_value)
-		algebraic_multiplicity_timing[:setup_seconds] = _M_setup_t
-		algebraic_multiplicity_timing[:groebner_seconds] = _M_gb_t
-		algebraic_multiplicity_timing[:quotient_basis_seconds] = _M_qb_t
-		algebraic_multiplicity_timing[:ring_variable_count] = length(vrs_sorted_gb)
-		algebraic_multiplicity_timing[:polynomial_count] = length(gb_input)
 		if !isnothing(M_value)
 			algebraic_multiplicity_timing[:multiplicity] = M_value
-			@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value  (setup $(round(_M_setup_t, digits=2))s, Groebner $(round(_M_gb_t, digits=2))s, quotient_basis $(round(_M_qb_t, digits=2))s, ring: $(length(vrs_sorted_gb)) vars × $(length(gb_input)) polys)"
+			@info "[SI-TEMPLATE] algebraic_multiplicity M = $M_value" timing = algebraic_multiplicity_timing
 		end
 		M_value
 	end

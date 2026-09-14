@@ -1,0 +1,116 @@
+{
+  "julia_version": "1.13.0",
+  "allow_reresolve": false,
+  "gates": {
+    "focused": {
+      "assertions_passed": 71,
+      "exit_code": 0,
+      "testset_seconds": 5.7,
+      "log_path": "/tmp/odepe-fixed-multiplicity-contracts.log",
+      "log_sha256": "4fcffeea6c65a788fc7874eceba0a790291610a464b6d7f10ca9c7f7e8b429b9"
+    },
+    "benchmark": {
+      "assertions_passed": 10,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite |   10     10  15m26.0s",
+      "log_path": "/tmp/odepe-fixed-multiplicity-benchmark-tests.log",
+      "log_sha256": "4cff6255e586bffe87f56def469298e5b340126fa4210751c23277bd8d439cf9"
+    },
+    "full": {
+      "assertions_passed": 2230,
+      "exit_code": 0,
+      "summary": "ODEParameterEstimation suite | 2230   2230  23m18.5s",
+      "log_path": "/tmp/odepe-fixed-multiplicity-full-tests.log",
+      "log_sha256": "262dfd9553e974909cd3451fd4818c6f6d3bd717bf720521bdcc7f288c363681"
+    }
+  },
+  "rational_runs": {
+    "fitzhugh_nagumo": {
+      "evidence_file": "fitzhugh_nagumo.json",
+      "status": "complete",
+      "worker_estimation_seconds": 549.9660561084747,
+      "selected_fit_error": 1.8449255937772275e-23,
+      "selected_max_relative_parameter_error": 7.060496968225641e-11,
+      "multiplicity": {
+        "dimension": 0,
+        "groebner_seconds": 13.080364526,
+        "jacobian_rank": 14,
+        "linearized_dimension": 0,
+        "max_total_degree": 4,
+        "multiplicity": 1,
+        "polynomial_count": 16,
+        "quotient_basis_seconds": 1.11080358,
+        "ring_variable_count": 15,
+        "sample_verified": true,
+        "setup_seconds": 0.976128191,
+        "skipped": false,
+        "total_terms": 53,
+        "fixed_coordinates": {}
+      },
+      "previous_comparison": "recovery_comparison.json"
+    },
+    "biohydrogenation": {
+      "evidence_file": "biohydrogenation.json",
+      "status": "complete",
+      "worker_estimation_seconds": 1836.4022059440613,
+      "selected_fit_error": 9.375884630960378e-10,
+      "selected_max_relative_parameter_error": 5.763422643653327,
+      "multiplicity": {
+        "dimension": 0,
+        "groebner_seconds": 10.93700157,
+        "jacobian_rank": 25,
+        "linearized_dimension": 0,
+        "max_total_degree": 4,
+        "multiplicity": 2,
+        "polynomial_count": 30,
+        "quotient_basis_seconds": 1.227099114,
+        "ring_variable_count": 26,
+        "sample_verified": true,
+        "setup_seconds": 1.032521992,
+        "skipped": false,
+        "total_terms": 398,
+        "fixed_coordinates": {
+          "x7_0": "1"
+        }
+      },
+      "previous_comparison": "recovery_comparison.json"
+    }
+  },
+  "benchmark_best_of_branch_errors": [
+    5.627635309276199e-05,
+    6.350909659280646e-09,
+    1.0169013779185813e-10,
+    3.41888762855902e-08
+  ],
+  "benchmark_best_of_branch_errors_match_previous": true,
+  "sneyd_run": {
+    "evidence_directory": "sneyd",
+    "status": "timeout",
+    "requested_stage_seconds_cap": 2400.0,
+    "supervisor_wall_clock_stage_seconds": 2404.057115316391,
+    "worker_monotonic_estimation_seconds": 2162.17598054,
+    "worker_monotonic_preparation_seconds": 193.908339608,
+    "supervisor_monotonic_total_seconds": 2396.8183800919796,
+    "timing_note": "The existing supervisor uses wall time for its stage deadline. It disagreed with monotonic worker time; use the worker duration for measured estimation effort.",
+    "blocking_phase": "Groebner initial modular F4 (_groebner_guess_lucky_prime)",
+    "hc_reached": false,
+    "multiplicity_obtained": false,
+    "estimates_obtained": false,
+    "local_si_seconds": 3.91229,
+    "actual_input_log": {
+      "ring_variables_including_z": 73,
+      "polynomials_including_saturation": 74,
+      "terms": 2706,
+      "maximum_total_degree": 6,
+      "fixed_coordinates_count": 9,
+      "linearized_dimension_excluding_z": 0
+    }
+  },
+  "final_source_sha256": {
+    "src/core/si_equation_builder.jl": "6ea9d20ffaf0faeeb62366ce8f39b2e922ca8c2f7127d57182a8f7dfdfed075e",
+    "test/test_si_multiplicity_fixing.jl": "34c51d0fe5707e0bea84fdf340ef56adb735c12ae2436d6057f577e87a84f6d8",
+    "test/runtests.jl": "143878812b63040bb79a89799329015a50c4d7070d883b8fdcf0f1c913ce4022"
+  },
+  "source_verified_after_gates": true,
+  "dependency_files_unchanged": true
+}

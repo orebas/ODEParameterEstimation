@@ -14,6 +14,7 @@ const TEST_FILES = [
     "examples_smoke.jl",
     "identifiability_regressions.jl",
     "test_si_local_basis.jl",
+    "test_si_multiplicity_fixing.jl",
     "result_processing_helpers.jl",
     "feature_regressions.jl",
     "test_shade_lm.jl",

@@ -23,6 +23,10 @@ supersedes its solver recommendation, measures the cheaper local SI request,
 and separates classification from representative selection. The
 [baseline algorithm audit](2026-09-14_baseline_algorithm_changes.md) records all
 core and optional-extension behavior changes since the prior August baseline.
+The [local-SI implementation record](2026-09-14_local_si_basis.md) documents
+the new default structural-fixing request and its validation. Its
+[multiplicity correction follow-up](2026-09-14_fixed_multiplicity.md) applies
+representative assignments before Gröbner and checks the resulting input.
 
 ## Start here
 

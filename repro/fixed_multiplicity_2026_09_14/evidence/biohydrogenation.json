@@ -1,0 +1,1294 @@
+{
+  "benchmark_differences": [
+    "Current default nine-method interpolator pool and ordinary noise filtering",
+    "120 seconds per trajectory polish",
+    "Terminal direct optimization disabled",
+    "UQ disabled",
+    "Phase timing enabled"
+  ],
+  "best_of_branch_parameter_error": 5.763422643653327,
+  "data_sha256": "6c8ab5a9e201f7356b50a8d34ca6a14a931e800e3c2e4e85c2fb9f880e555fc6",
+  "data_vs_generating_trajectory_relative_rms": [
+    1.016980227820411e-06,
+    9.679645175404284e-07
+  ],
+  "effective_interpolators": [
+    "InterpolatorAGPRobust",
+    "InterpolatorAGPRobustRQ",
+    "InterpolatorS3AdaptSE",
+    "InterpolatorS3AdaptRQ",
+    "InterpolatorChebyshevBIC",
+    "InterpolatorChebyshevAICc",
+    "InterpolatorAAADGPR",
+    "InterpolatorAAAD",
+    "InterpolatorS2AAAMLE"
+  ],
+  "elapsed_seconds": 1952.041188955307,
+  "equations": [
+    "Differential(t, 1)(x4(t)) ~ (-8.0k5*x4(t)) / (8.0(4.0k6 + 8.0x4(t)))",
+    "Differential(t, 1)(x5(t)) ~ ((8.0k5*x4(t)) / (4.0k6 + 8.0x4(t)) + (-0.3k7*x5(t)) / (2.0k8 + 0.5x5(t) + 0.5x6(t))) / 0.5",
+    "Differential(t, 1)(x6(t)) ~ ((0.3k7*x5(t)) / (2.0k8 + 0.5x5(t) + 0.5x6(t)) + (-0.2(10.0k10 - 0.5x6(t))*k9*x6(t)) / (10.0k10)) / 0.5",
+    "Differential(t, 1)(x7(t)) ~ (0.2(10.0k10 - 0.5x6(t))*k9*x6(t)) / (5.0k10)"
+  ],
+  "estimation_seconds": 1836.4022059440613,
+  "estimation_started_unix": 1789425360.888935,
+  "harness_sha256": "ed8c6e4d25e5154cef266a3bf807ab332799f1593913e652d5cbf0aa5ba04ddd",
+  "julia_version": "1.13.0",
+  "manifest_sha256": "590c9644bf866ad691f3a5b154c1be0016903989405352aabbd4107bd3e0c1d4",
+  "model": "biohydrogenation",
+  "model_sha256": "7d34acddbac54196c67194690166e82f648281ab520f9e82215dba153fed9a35",
+  "nominal_data_noise": 1e-06,
+  "observations": [
+    "y1(t) ~ 8.0x4(t)",
+    "y2(t) ~ 0.5x5(t)"
+  ],
+  "pid": 3934233,
+  "profile_ready": true,
+  "ranked_count": 2,
+  "samples_per_observable": 750,
+  "seed": 20260911,
+  "selected_fit_error": 9.375884630960378e-10,
+  "selected_parameter_error": 5.763422643653327,
+  "status": "complete",
+  "time_interval": [
+    0.0,
+    10.0
+  ],
+  "generating_initial_states": {
+    "x4(t)": 0.835,
+    "x5(t)": 0.341,
+    "x6(t)": 0.368,
+    "x7(t)": 0.401
+  },
+  "generating_parameters": {
+    "k10": 0.741,
+    "k5": 0.471,
+    "k6": 0.287,
+    "k7": 0.126,
+    "k8": 0.806,
+    "k9": 0.893
+  },
+  "options": {
+    "abstol": 1e-12,
+    "algebraic_multiplicity": "nothing",
+    "auto_filter_interpolators": true,
+    "auto_handle_transcendentals": true,
+    "auto_rescale": true,
+    "backsolve_recovery": "algebraic_resolve",
+    "branch_cluster_eps": 0.001,
+    "branch_completion": true,
+    "branch_completion_max_anchors": 1,
+    "branch_completion_residual_tol": 1e-06,
+    "branch_detection": true,
+    "branch_diversity_eps": 0.01,
+    "branch_diversity_selection": true,
+    "branch_err_factor": 100.0,
+    "branch_top_k": 20,
+    "cluster_method": "identifiable_subspace",
+    "clustering_threshold": 1e-05,
+    "compute_uncertainty": false,
+    "construction_beam_width": 16,
+    "construction_candidate_limit": 64,
+    "construction_compute_mixed_volume": true,
+    "custom_interpolator": "nothing",
+    "custom_interpolators": [],
+    "datasize": 750,
+    "debug_cas_diagnostics": false,
+    "debug_dimensional_analysis": false,
+    "debug_solver": false,
+    "diagnostics": true,
+    "dump_polished_path": "nothing",
+    "dump_raw_candidates_path": "nothing",
+    "flow": "FlowStandard",
+    "gamma_max_seeds": 5,
+    "gamma_seed": 0,
+    "gp_derivative_lengthscale_factor": 1.0,
+    "gp_s3_refinement": false,
+    "hc_compile_mode": "all",
+    "hc_real_tol": 1e-09,
+    "hc_show_progress": true,
+    "hc_threading": true,
+    "heartbeat": true,
+    "homotopy_tracking_mode": "generic_start",
+    "interpolator": "InterpolatorAAADGPR",
+    "interpolators": [
+      "InterpolatorAGPRobust",
+      "InterpolatorAGPRobustRQ",
+      "InterpolatorS3AdaptSE",
+      "InterpolatorS3AdaptRQ",
+      "InterpolatorChebyshevBIC",
+      "InterpolatorChebyshevAICc",
+      "InterpolatorAAADGPR",
+      "InterpolatorAAAD",
+      "InterpolatorS2AAAMLE"
+    ],
+    "multipoint_max_pairs": 15,
+    "multipoint_n_points": 2,
+    "multipoint_pair_strategy": "spread",
+    "noise_level": 0.0,
+    "noise_model": "additive",
+    "nooutput": false,
+    "ode_solver": "OrdinaryDiffEqCore.CompositeAlgorithm{0, Tuple{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}}, OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}}((OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03)), OrdinaryDiffEqCore.AutoSwitch{OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}, OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}, Rational{Int64}, Int64}(OrdinaryDiffEqVerner.Vern9{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), FastBroadcast.Serial, Val{true}}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, FastBroadcast.Serial(), Val{true}()), OrdinaryDiffEqRosenbrock.Rodas5P{ADTypes.AutoForwardDiff{nothing, Nothing}, Nothing, typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Nothing}(nothing, OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, ADTypes.AutoForwardDiff(), nothing, 20, 0.03), 10, 3, 9//10, 9//10, 2, false, 5))",
+    "opt_ad_backend": "forward",
+    "opt_lb": [
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05,
+      1e-05
+    ],
+    "opt_maxiters": 200000,
+    "opt_ub": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ],
+    "point_hint": 0.5,
+    "polish_coordinate_policy": "auto",
+    "polish_divergence_factor": 10.0,
+    "polish_lso_delta": 10.0,
+    "polish_lso_f_tol": -1.0,
+    "polish_lso_g_tol": -1.0,
+    "polish_lso_x_tol": -1.0,
+    "polish_max_concurrency": 1,
+    "polish_maxiters": 5000,
+    "polish_maxtime": 120.0,
+    "polish_method": "PolishLSOBoundedLog",
+    "polish_ode_maxiters": 20000,
+    "polish_regularization_lambda": 0.0,
+    "polish_softwall_epsilon": 0.1,
+    "polish_softwall_lambda": 0.01,
+    "polish_solutions": true,
+    "polish_solver_chunk_size": 1,
+    "polish_solver_jacobian": "forwarddiff",
+    "polish_solver_solutions": true,
+    "polish_stagnation_window": 50,
+    "profile_phases": true,
+    "rank_strategy": "err_only",
+    "reltol": 1e-12,
+    "rough_cluster_eps": 1.0,
+    "s3_adapt_k": 10.0,
+    "save_filepath": "",
+    "save_system": true,
+    "sensitivity_seed_eigenvalue_threshold": 0.01,
+    "sensitivity_seed_mahalanobis_threshold": -1.0,
+    "sensitivity_seed_probe_scale": 1.0,
+    "sensitivity_sigma_d_kappa": 2.0,
+    "shade_global_eval_fraction": 0.7,
+    "shade_n_local_starts": 5,
+    "shade_population": 0,
+    "shade_seed": "nothing",
+    "shade_total_max_evals": 200000,
+    "shade_total_max_time": 600.0,
+    "shooting_points": 20,
+    "shooting_warp": true,
+    "shooting_warp_beta": 3.0,
+    "si_fix_strategy": "local_basis",
+    "si_placeholder_fail_categories": [],
+    "si_probability": 0.99,
+    "subspace_cluster_eps": 0.05,
+    "synthesize_aggregate_candidates": true,
+    "system_construction_policy": "noise_frontier",
+    "system_solver": "SolverHC",
+    "t0_state_completion": "strict",
+    "terminal_fallback": "none",
+    "time_interval": [
+      -0.5,
+      0.5
+    ],
+    "uneven_sampling": false,
+    "uneven_sampling_times": [],
+    "uq_failure_policy": "return_failed",
+    "uq_noise_source": "learned_gp_homoscedastic",
+    "use_column_scaling": true,
+    "use_multipoint": true,
+    "use_parameter_homotopy": true,
+    "use_sensitivity_seeds": false,
+    "use_si_template": true
+  },
+  "ranked_results": [
+    {
+      "all_unidentifiable": [
+        "x7(t)"
+      ],
+      "fit_error": 9.375884630960378e-10,
+      "max_relative_parameter_error": 5.763422643653327,
+      "report_time": 0.0,
+      "source_anchor_time": 0.0,
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          26,
+          27,
+          28,
+          29
+        ],
+        "interpolator_source": "branch_completion",
+        "multipoint_combo_index": "nothing",
+        "multipoint_time_indices": "nothing",
+        "notes": [
+          "branch_completion",
+          "branch_completion_replaced",
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(2 => 5, 1 => 2), Set(Num[x7(t)]), [:rank_deficient_at_probe], nothing)",
+        "polish_applied": false,
+        "polish_source_hc_idx": "nothing",
+        "post_polish_error": 9.375884630960378e-10,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": "nothing",
+        "primary_method": "algebraic",
+        "rescue_path": "none",
+        "source_candidate_index": 3,
+        "source_shooting_index": 1,
+        "source_type": "branch_completed",
+        "template_status": "determined",
+        "representative_assignments": {},
+        "structural_fix_set": {
+          "x7(t)": 1.0
+        }
+      },
+      "recovery": {
+        "k10": {
+          "absolute_error": 4.270696178947116,
+          "estimate": 5.0116961789471155,
+          "relative_error": 5.763422643653327,
+          "structurally_unidentifiable": false,
+          "truth": 0.741
+        },
+        "k5": {
+          "absolute_error": 4.1277082080126704e-07,
+          "estimate": 0.4709995872291792,
+          "relative_error": 8.763711694294417e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.471
+        },
+        "k6": {
+          "absolute_error": 1.329426377594256e-06,
+          "estimate": 0.2869986705736224,
+          "relative_error": 4.632147657122844e-06,
+          "structurally_unidentifiable": false,
+          "truth": 0.287
+        },
+        "k7": {
+          "absolute_error": 3.238269097316504e-09,
+          "estimate": 0.1259999967617309,
+          "relative_error": 2.5700548391400827e-08,
+          "structurally_unidentifiable": false,
+          "truth": 0.126
+        },
+        "k8": {
+          "absolute_error": 0.0006179379503291615,
+          "estimate": 0.8053820620496709,
+          "relative_error": 0.0007666723949493318,
+          "structurally_unidentifiable": false,
+          "truth": 0.806
+        },
+        "k9": {
+          "absolute_error": 0.02112333437652747,
+          "estimate": 0.8718766656234725,
+          "relative_error": 0.023654349805741846,
+          "structurally_unidentifiable": false,
+          "truth": 0.893
+        },
+        "x4(t)": {
+          "absolute_error": 3.858166119918849e-09,
+          "estimate": 0.8349999961418338,
+          "relative_error": 4.620558227447723e-09,
+          "structurally_unidentifiable": false,
+          "truth": 0.835
+        },
+        "x5(t)": {
+          "absolute_error": 1.9385903965440932e-07,
+          "estimate": 0.34099980614096037,
+          "relative_error": 5.685015825642501e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.341
+        },
+        "x6(t)": {
+          "absolute_error": 0.0028232890058686455,
+          "estimate": 0.37082328900586864,
+          "relative_error": 0.007671980994208276,
+          "structurally_unidentifiable": false,
+          "truth": 0.368
+        },
+        "x7(t)": {
+          "absolute_error": 3.599,
+          "estimate": 4.0,
+          "relative_error": 8.975062344139651,
+          "structurally_unidentifiable": true,
+          "truth": 0.401
+        }
+      }
+    },
+    {
+      "all_unidentifiable": [
+        "x7(t)"
+      ],
+      "fit_error": 0.008286494735581688,
+      "max_relative_parameter_error": 8.964275377884876,
+      "report_time": 0.0,
+      "source_anchor_time": 0.0,
+      "provenance": {
+        "aggregation_source_indices": [],
+        "aggregation_strategy": "none",
+        "equations_dropped_by_rank_trimming": [
+          26,
+          27,
+          28,
+          29
+        ],
+        "interpolator_source": "branch_completion",
+        "multipoint_combo_index": "nothing",
+        "multipoint_time_indices": "nothing",
+        "notes": [
+          "branch_completion",
+          "branch_completion_replaced",
+          "rescaled"
+        ],
+        "numerical_advisory": "NumericalIdentifiabilityAdvisory(:available, 1, Dict(2 => 5, 1 => 2), Set(Num[x7(t)]), [:rank_deficient_at_probe], nothing)",
+        "polish_applied": false,
+        "polish_source_hc_idx": "nothing",
+        "post_polish_error": 0.008286494735581688,
+        "practical_identifiability_status": "advisory_available",
+        "pre_polish_error": "nothing",
+        "primary_method": "algebraic",
+        "rescue_path": "none",
+        "source_candidate_index": 1,
+        "source_shooting_index": 1,
+        "source_type": "branch_completed",
+        "template_status": "determined",
+        "representative_assignments": {},
+        "structural_fix_set": {
+          "x7(t)": 1.0
+        }
+      },
+      "recovery": {
+        "k10": {
+          "absolute_error": 3.5903846405853153,
+          "estimate": -2.849384640585315,
+          "relative_error": 4.845323401599615,
+          "structurally_unidentifiable": false,
+          "truth": 0.741
+        },
+        "k5": {
+          "absolute_error": 4.1277082080126704e-07,
+          "estimate": 0.4709995872291792,
+          "relative_error": 8.763711694294417e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.471
+        },
+        "k6": {
+          "absolute_error": 1.329426377594256e-06,
+          "estimate": 0.2869986705736224,
+          "relative_error": 4.632147657122844e-06,
+          "structurally_unidentifiable": false,
+          "truth": 0.287
+        },
+        "k7": {
+          "absolute_error": 0.12787315347658607,
+          "estimate": -0.0018731534765860699,
+          "relative_error": 1.0148662974332228,
+          "structurally_unidentifiable": false,
+          "truth": 0.126
+        },
+        "k8": {
+          "absolute_error": 7.22520595457521,
+          "estimate": 8.03120595457521,
+          "relative_error": 8.964275377884876,
+          "structurally_unidentifiable": false,
+          "truth": 0.806
+        },
+        "k9": {
+          "absolute_error": 1.0387339770875372,
+          "estimate": -0.1457339770875373,
+          "relative_error": 1.1631959429871637,
+          "structurally_unidentifiable": false,
+          "truth": 0.893
+        },
+        "x4(t)": {
+          "absolute_error": 3.858166119918849e-09,
+          "estimate": 0.8349999961418338,
+          "relative_error": 4.620558227447723e-09,
+          "structurally_unidentifiable": false,
+          "truth": 0.835
+        },
+        "x5(t)": {
+          "absolute_error": 1.9385903965440932e-07,
+          "estimate": 0.34099980614096037,
+          "relative_error": 5.685015825642501e-07,
+          "structurally_unidentifiable": false,
+          "truth": 0.341
+        },
+        "x6(t)": {
+          "absolute_error": 32.89229799692417,
+          "estimate": -32.52429799692417,
+          "relative_error": 89.38124455685916,
+          "structurally_unidentifiable": false,
+          "truth": 0.368
+        },
+        "x7(t)": {
+          "absolute_error": 3.599,
+          "estimate": 4.0,
+          "relative_error": 8.975062344139651,
+          "structurally_unidentifiable": true,
+          "truth": 0.401
+        }
+      }
+    }
+  ],
+  "timing": {
+    "label": "optimized_multishot",
+    "total_seconds": 1462.1672668839997,
+    "details": {
+      "mp_generic_start_cache_hits": 8,
+      "mp_generic_start_cache_misses": 1,
+      "n_interpolators": 9,
+      "n_shooting_points": 20,
+      "noise_frontier_mp_cache_hits": 8,
+      "noise_frontier_mp_cache_misses": 1,
+      "noise_frontier_sp_cache_hits": 8,
+      "noise_frontier_sp_cache_misses": 1,
+      "raw_polish_kernel_cache_entries": 1,
+      "reusable_system_cache_entries": 315,
+      "si_coordinate_basis": [
+        "x7"
+      ],
+      "si_fix_strategy": "local_basis",
+      "si_structural_analysis_reused": true,
+      "sp_generic_start_cache_hits": 8,
+      "sp_generic_start_cache_misses": 1,
+      "used_multipoint": true,
+      "used_parameter_homotopy": true,
+      "detailed_timing_summary": {
+        "multipoint_combo_eval": {
+          "count": 135,
+          "max_seconds": 13.450695991516113,
+          "total_seconds": 13.805198431015015,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "evaluate_template": 0.396481990814209,
+            "noise_frontier_validation": 12.897696733474731
+          }
+        },
+        "multipoint_template_evaluate": {
+          "count": 135,
+          "max_seconds": 0.018878936767578125,
+          "total_seconds": 0.10730648040771484,
+          "context_counts": {
+            "aaad": 15,
+            "aaad_gpr": 15,
+            "agp_robust": 15,
+            "agp_robust_rq": 15,
+            "chebyshev_aicc": 15,
+            "chebyshev_bic": 15,
+            "s2_aaa_mle": 15,
+            "s3_adapt_rq": 15,
+            "s3_adapt_se": 15
+          },
+          "stage_seconds": {
+            "nth_deriv": 0.07882094383239746,
+            "observable_name_map": 0.0037789344787597656,
+            "other": 0.004565000534057617,
+            "parse_and_lookup": 0.0006184577941894531,
+            "transcendental_lookup": 0.019523143768310547
+          }
+        },
+        "noise_frontier_validation": {
+          "count": 315,
+          "max_seconds": 12.637686014175415,
+          "total_seconds": 17.910977125167847,
+          "context_counts": {
+            "unspecified": 315
+          },
+          "stage_seconds": {
+            "cached_validation": 0.00013017654418945312,
+            "prepare_validation_cache": 17.910040140151978,
+            "reuse_data_independent_rank": 0.0
+          }
+        },
+        "noise_rank_matrix": {
+          "count": 2,
+          "max_seconds": 9.409691095352173,
+          "total_seconds": 14.93207311630249,
+          "context_counts": {
+            "unspecified": 2
+          },
+          "stage_seconds": {
+            "compile_system_function": 0.2659790515899658,
+            "forwarddiff_jacobian": 12.11794900894165,
+            "rank_eval": 2.46286678314209
+          }
+        },
+        "polish_batch": {
+          "count": 1,
+          "max_seconds": 90.94162106513977,
+          "total_seconds": 90.94162106513977,
+          "context_counts": {
+            "polish": 1
+          },
+          "stage_seconds": {
+            "cluster_metadata": 0.8727309703826904,
+            "collect_results": 2.288818359375e-05,
+            "worker_polish": 89.68641996383667
+          }
+        },
+        "polish_context_build": {
+          "count": 2,
+          "max_seconds": 0.38331103324890137,
+          "total_seconds": 0.39432311058044434,
+          "context_counts": {
+            "polish": 1,
+            "synthesis": 1
+          },
+          "stage_seconds": {
+            "base_ode_problem": 0.020561933517456055,
+            "build_observable_functions": 0.08355903625488281,
+            "complete_model": 0.014477252960205078,
+            "materialize_data_targets": 3.1948089599609375e-05,
+            "optimization_function": 0.00013303756713867188
+          }
+        },
+        "polish_single_residual": {
+          "count": 37,
+          "max_seconds": 40.24569487571716,
+          "total_seconds": 87.603590965271,
+          "context_counts": {
+            "polish": 37
+          },
+          "stage_seconds": {
+            "final_ode_solve": 0.04878807067871094,
+            "final_residual": 0.03780388832092285,
+            "initial_residual": 5.540066480636597,
+            "optimizer_solve": 80.08879375457764
+          }
+        },
+        "prepare_robust_system": {
+          "count": 180,
+          "max_seconds": 0.7002120018005371,
+          "total_seconds": 0.7024266719818115,
+          "context_counts": {
+            "unspecified": 180
+          },
+          "stage_seconds": {}
+        },
+        "process_raw_solution": {
+          "count": 1221,
+          "max_seconds": 18.81712794303894,
+          "total_seconds": 104.96761846542358,
+          "context_counts": {
+            "algebraic_resolve_candidate": 201,
+            "result_processing": 1017,
+            "unspecified": 3
+          },
+          "stage_seconds": {
+            "error_eval": 0.6853699684143066,
+            "ode_problem_build": 30.26612401008606,
+            "ode_solve": 73.17626571655273
+          }
+        },
+        "raw_solver_polish": {
+          "count": 180,
+          "max_seconds": 14.629839897155762,
+          "total_seconds": 40.210848808288574,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "instantiate_system": 0.5982019901275635,
+            "prepare_kernel": 0.8498260974884033,
+            "robust_polish_solve": 32.127371072769165
+          }
+        },
+        "single_point_noise_frontier_validation": {
+          "count": 180,
+          "max_seconds": 5.635123014450073,
+          "total_seconds": 5.830532550811768,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "rank_validation": 5.830532550811768
+          }
+        },
+        "single_point_param_eval": {
+          "count": 180,
+          "max_seconds": 8.33294415473938,
+          "total_seconds": 13.243855476379395,
+          "context_counts": {
+            "aaad": 20,
+            "aaad_gpr": 20,
+            "agp_robust": 20,
+            "agp_robust_rq": 20,
+            "chebyshev_aicc": 20,
+            "chebyshev_bic": 20,
+            "s2_aaa_mle": 20,
+            "s3_adapt_rq": 20,
+            "s3_adapt_se": 20
+          },
+          "stage_seconds": {
+            "noise_frontier_data_vars": 13.214669227600098
+          }
+        },
+        "solve_with_robust": {
+          "count": 585,
+          "max_seconds": 7.621706008911133,
+          "total_seconds": 32.09444451332092,
+          "context_counts": {
+            "unspecified": 585
+          },
+          "stage_seconds": {
+            "build_residual_function": 0.006085395812988281,
+            "deduplicate_solutions": 0.0003609657287597656,
+            "final_residual": 0.41930460929870605,
+            "generate_starts": 0.00017309188842773438,
+            "initial_residual": 1.241175651550293,
+            "jacobian_setup": 0.08580422401428223,
+            "materialize_solution_vectors": 0.03737950325012207,
+            "nonlinear_solve": 30.207727193832397
+          }
+        }
+      },
+      "interpolant_creation_seconds_by_source": {
+        "aaad": 1.2239160537719727,
+        "aaad_gpr": 3.2226951122283936,
+        "agp_robust": 24.639859914779663,
+        "agp_robust_rq": 12.154710054397583,
+        "chebyshev_aicc": 0.2986130714416504,
+        "chebyshev_bic": 0.7971022129058838,
+        "s2_aaa_mle": 4.323379993438721,
+        "s3_adapt_rq": 0.6216120719909668,
+        "s3_adapt_se": 5.4449379444122314
+      },
+      "multipoint_eval_seconds_by_source": {
+        "aaad": 0.03318905830383301,
+        "aaad_gpr": 0.08379483222961426,
+        "agp_robust": 13.484760046005249,
+        "agp_robust_rq": 0.048480987548828125,
+        "chebyshev_aicc": 0.022967815399169922,
+        "chebyshev_bic": 0.027714967727661133,
+        "s2_aaa_mle": 0.04992318153381348,
+        "s3_adapt_rq": 0.027754783630371094,
+        "s3_adapt_se": 0.02763509750366211
+      },
+      "multipoint_generic_start_seconds_by_source": {
+        "agp_robust": 66.3495090007782
+      },
+      "multipoint_solve_seconds_by_source": {
+        "aaad": 114.13330006599426,
+        "aaad_gpr": 47.31515097618103,
+        "agp_robust": 103.83827900886536,
+        "agp_robust_rq": 50.93003797531128,
+        "chebyshev_aicc": 52.12666201591492,
+        "chebyshev_bic": 46.874682903289795,
+        "s2_aaa_mle": 46.648823976516724,
+        "s3_adapt_rq": 46.850369930267334,
+        "s3_adapt_se": 49.13979911804199
+      },
+      "multipoint_template_eval_seconds_by_source": {
+        "aaad": 0.0015583038330078125,
+        "aaad_gpr": 0.04464149475097656,
+        "agp_robust": 0.3212449550628662,
+        "agp_robust_rq": 0.022180795669555664,
+        "chebyshev_aicc": 0.0009319782257080078,
+        "chebyshev_bic": 0.0012140274047851562,
+        "s2_aaa_mle": 0.0023190975189208984,
+        "s3_adapt_rq": 0.0012018680572509766,
+        "s3_adapt_se": 0.0011894702911376953
+      },
+      "multipoint_template_seconds_by_source": {
+        "aaad": 1.0013580322265625e-05,
+        "aaad_gpr": 9.059906005859375e-06,
+        "agp_robust": 67.44609189033508,
+        "agp_robust_rq": 0.008355855941772461,
+        "chebyshev_aicc": 5.9604644775390625e-06,
+        "chebyshev_bic": 7.867813110351562e-06,
+        "s2_aaa_mle": 1.0013580322265625e-05,
+        "s3_adapt_rq": 6.9141387939453125e-06,
+        "s3_adapt_se": 1.1920928955078125e-05
+      },
+      "multipoint_validation_seconds_by_source": {
+        "aaad": 0.03024768829345703,
+        "aaad_gpr": 0.03818869590759277,
+        "agp_robust": 12.65703558921814,
+        "agp_robust_rq": 0.025866031646728516,
+        "chebyshev_aicc": 0.021769046783447266,
+        "chebyshev_bic": 0.025987625122070312,
+        "s2_aaa_mle": 0.04650378227233887,
+        "s3_adapt_rq": 0.02608513832092285,
+        "s3_adapt_se": 0.02601313591003418
+      },
+      "raw_solver_polish_instantiate_seconds_by_source": {
+        "aaad": 0.020420551300048828,
+        "aaad_gpr": 0.0840294361114502,
+        "agp_robust": 0.1107792854309082,
+        "agp_robust_rq": 0.13733291625976562,
+        "chebyshev_aicc": 0.019580364227294922,
+        "chebyshev_bic": 0.020624160766601562,
+        "s2_aaa_mle": 0.16392230987548828,
+        "s3_adapt_rq": 0.02110433578491211,
+        "s3_adapt_se": 0.02040863037109375
+      },
+      "raw_solver_polish_solve_seconds_by_source": {
+        "aaad": 2.002443313598633,
+        "aaad_gpr": 2.043966054916382,
+        "agp_robust": 10.185076475143433,
+        "agp_robust_rq": 4.833036422729492,
+        "chebyshev_aicc": 2.0820024013519287,
+        "chebyshev_bic": 1.978708267211914,
+        "s2_aaa_mle": 6.125852346420288,
+        "s3_adapt_rq": 1.393251895904541,
+        "s3_adapt_se": 1.4830338954925537
+      },
+      "resolve_states_with_fixed_params_summary": {
+        "backsolve_recovery": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.0,
+          "count": 201,
+          "hc_solve_seconds": 12.037275552749634,
+          "hc_success_count": 201,
+          "instantiate_seconds": 4.791095495223999,
+          "max_seconds": 21.632461071014404,
+          "sian_rerun_seconds": 13.733622312545776,
+          "threw_count": 0,
+          "total_seconds": 31.08057951927185
+        },
+        "synthesis": {
+          "cascade_hc_solve_seconds": 0.0,
+          "cascading_seconds": 0.6280608177185059,
+          "count": 20,
+          "hc_solve_seconds": 18.6446213722229,
+          "hc_success_count": 18,
+          "instantiate_seconds": 0.024980545043945312,
+          "max_seconds": 11.16980791091919,
+          "sian_rerun_seconds": 0.5859074592590332,
+          "threw_count": 0,
+          "total_seconds": 19.90644097328186
+        }
+      },
+      "si_structural_analysis_timing": {
+        "assess_local_identifiability": 3.544457266
+      },
+      "si_template_algebraic_multiplicity_timing": {
+        "dimension": 0,
+        "groebner_seconds": 10.93700157,
+        "jacobian_rank": 25,
+        "linearized_dimension": 0,
+        "max_total_degree": 4,
+        "multiplicity": 2,
+        "polynomial_count": 30,
+        "quotient_basis_seconds": 1.227099114,
+        "ring_variable_count": 26,
+        "sample_verified": true,
+        "setup_seconds": 1.032521992,
+        "skipped": false,
+        "total_terms": 398,
+        "fixed_coordinates": {
+          "x7_0": "1"
+        }
+      },
+      "si_template_equation_builder_timing": {
+        "convert_to_si_ode": 0.0012409687042236328,
+        "ensure_dd_support": 2.5248560905456543,
+        "get_polynomial_system_from_sian": 17.72629690170288,
+        "nemo_to_symbolics_conversion": 0.022372007369995117,
+        "prefixed_substitutions": 0.23019695281982422,
+        "structural_analysis": 4.5e-08,
+        "variable_role_mapping": 0.0016510486602783203
+      },
+      "si_template_sian_timing": {
+        "algebraic_independence": 0.022637128829956055,
+        "degree_bound": 0.0002570152282714844,
+        "derivative_mapping": 0.00035190582275390625,
+        "evaluate_Et_base": 0.0058438777923583984,
+        "get_equations": 0.001106375,
+        "get_x_y_eq": 0.2601511478424072,
+        "local_identifiability_jacobians": 0.010404109954833984,
+        "rank_construction": 0.03706002235412598,
+        "reduce_system": 0.00049591064453125,
+        "sample_point": 0.0117340087890625,
+        "variable_filtering": 0.0006079673767089844,
+        "variable_setup": 7.867813110351562e-06
+      },
+      "single_point_data_eval_seconds_by_source": {
+        "aaad": 0.05123400688171387,
+        "aaad_gpr": 8.383273839950562,
+        "agp_robust": 3.0030698776245117,
+        "agp_robust_rq": 1.252640962600708,
+        "chebyshev_aicc": 0.0007088184356689453,
+        "chebyshev_bic": 0.18099188804626465,
+        "s2_aaa_mle": 0.0008280277252197266,
+        "s3_adapt_rq": 0.0021049976348876953,
+        "s3_adapt_se": 0.37082409858703613
+      },
+      "single_point_frontier_seconds_by_source": {
+        "aaad": 2.86102294921875e-06,
+        "aaad_gpr": 3.0994415283203125e-06,
+        "agp_robust": 34.050599813461304,
+        "agp_robust_rq": 1.0967254638671875e-05,
+        "chebyshev_aicc": 3.814697265625e-06,
+        "chebyshev_bic": 3.814697265625e-06,
+        "s2_aaa_mle": 4.1961669921875e-05,
+        "s3_adapt_rq": 3.695487976074219e-05,
+        "s3_adapt_se": 3.0994415283203125e-06
+      },
+      "single_point_generic_start_seconds_by_source": {
+        "agp_robust": 54.173462867736816
+      },
+      "single_point_hc_seconds_by_source": {
+        "aaad": 41.36640191078186,
+        "aaad_gpr": 30.815322875976562,
+        "agp_robust": 46.00394415855408,
+        "agp_robust_rq": 25.898569107055664,
+        "chebyshev_aicc": 22.63325810432434,
+        "chebyshev_bic": 22.784677028656006,
+        "s2_aaa_mle": 48.93370008468628,
+        "s3_adapt_rq": 28.28694200515747,
+        "s3_adapt_se": 21.545963048934937
+      },
+      "single_point_system_seconds_by_source": {},
+      "single_point_validation_seconds_by_source": {
+        "aaad": 0.017843008041381836,
+        "aaad_gpr": 0.018444061279296875,
+        "agp_robust": 5.651813983917236,
+        "agp_robust_rq": 0.017851829528808594,
+        "chebyshev_aicc": 0.017383098602294922,
+        "chebyshev_bic": 0.0160982608795166,
+        "s2_aaa_mle": 0.019655942916870117,
+        "s3_adapt_rq": 0.054764509201049805,
+        "s3_adapt_se": 0.0166778564453125
+      }
+    },
+    "phases": [
+      {
+        "bytes": 921502768,
+        "gctime": 0.099357587,
+        "name": "Setup (identifiability)",
+        "seconds": 9.210131316
+      },
+      {
+        "bytes": 4086450976,
+        "gctime": 0.704821142,
+        "name": "SI Template (SIAN analysis)",
+        "seconds": 55.905912198
+      },
+      {
+        "bytes": 51735849808,
+        "gctime": 20.096653579,
+        "name": "Equation construction + Solving",
+        "seconds": 1063.088146524
+      },
+      {
+        "bytes": 14266201744,
+        "gctime": 5.01494185,
+        "name": "Result processing",
+        "seconds": 98.344037253
+      },
+      {
+        "bytes": 2068414656,
+        "gctime": 0.429226057,
+        "name": "Synthesize aggregates",
+        "seconds": 28.121246667
+      },
+      {
+        "bytes": 37327758192,
+        "gctime": 10.246447399,
+        "name": "Polish (BFGS)",
+        "seconds": 89.118081704
+      },
+      {
+        "bytes": 3885287416,
+        "gctime": 2.788658981,
+        "name": "Branch completion",
+        "seconds": 118.379711222
+      }
+    ]
+  },
+  "versions": {
+    "GaussianProcesses": "0.12.6",
+    "HomotopyContinuation": "2.22.4",
+    "ModelingToolkit": "11.42.0",
+    "ODEParameterEstimation": "1.1.0-DEV",
+    "SIAN": "1.8.0",
+    "StructuralIdentifiability": "0.5.31",
+    "Symbolics": "7.39.0"
+  },
+  "preclustering_candidate_count": 2,
+  "retained_evidence": {
+    "worker_output": "/tmp/odepe-fixed-multiplicity-bioh-20260914",
+    "source_files": {
+      "result.toml": {
+        "bytes": 2619593,
+        "sha256": "724b06485aeadb389f7c2ed269d1d84fe6a3834cb1d471e3c1b9b8ca72f0b3d4"
+      },
+      "supervisor.json": {
+        "bytes": 803,
+        "sha256": "224ad82e280d6bfa4e45504631c758a855e467f3a461d63bfc3ecda856890e97"
+      },
+      "worker.log": {
+        "bytes": 4318707,
+        "sha256": "4f9dd67b3e9d7a9ab3fcf98686f63d98a62f42f89fb403112ba0cf4ca1921cae"
+      },
+      "detailed_timing.toml": {
+        "bytes": 1714561,
+        "sha256": "626bc31302b684ff523889674b6dd1a1e51efd427450b56b49035f2e0f806cc3"
+      },
+      "resolve_timing.toml": {
+        "bytes": 119811,
+        "sha256": "c38e8f5abeaaa78d07bb0c32c8d15c30914481fabb42a24d35ae7551e4f7e6c4"
+      }
+    },
+    "omitted_fields": [
+      "timing.details.detailed_timing_records (3153 records)",
+      "timing.details.resolve_states_with_fixed_params_records (221 records)",
+      "ranked_results[0].provenance.estimator_identity",
+      "ranked_results[1].provenance.estimator_identity"
+    ],
+    "renamed_fields": {
+      "raw_count": "preclustering_candidate_count"
+    }
+  },
+  "supervisor": {
+    "command": [
+      "julia",
+      "--startup-file=no",
+      "--compiled-modules=existing",
+      "/home/orebas/.julia/dev/ODEParameterEstimation/repro/deferred_denominators_2026_09_11/run_rational.jl",
+      "biohydrogenation",
+      "/tmp/odepe-fixed-multiplicity-bioh-20260914"
+    ],
+    "stage_seconds_cap": 3600.0,
+    "preparation_seconds_cap": 900,
+    "profile_signals": [
+      1789425362.2110946,
+      1789425496.8023303,
+      1789425631.2783997,
+      1789425762.1694443,
+      1789425896.6452494,
+      1789426031.1227684,
+      1789426165.3093143,
+      1789426296.0959725,
+      1789426430.513423,
+      1789426564.738966,
+      1789426695.6734326,
+      1789426830.268516,
+      1789426964.8283975,
+      1789427099.4435515
+    ],
+    "pid": 3934233,
+    "returncode": 0,
+    "wall_seconds": 1784.8453790899948,
+    "status": "complete"
+  },
+  "progress_log": [
+    "[HB 18:37:51] \u25b6 run model=biohydrogenation_rescaled pid=3934233 julia=1.13.0 odepe=1.1.0-DEV hc=2.22.4 threads=1 gcthreads=1",
+    "[HB 18:37:58] \u25b6 Setup (identifiability)",
+    "[HB 18:38:11] \u2713 Setup (identifiability) (9.2s)",
+    "[HB 18:38:26] \u25b6 SI Template (SIAN analysis)",
+    "[HB 18:39:29] \u2713 SI Template (SIAN analysis) (55.9s)",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 2",
+    "[HB 18:39:36] \u25b6 Equation construction + Solving",
+    "[HB 18:39:36] \u25b6 interpolator 1/9 agp_robust",
+    "[HB 18:42:09] \u2713 HC solve (single-point) agp_robust 20 pts (46.0s)",
+    "[HB 18:46:38] \u2713 HC solve (multipoint) agp_robust (103.8s)",
+    "[HB 18:46:38] \u25b6 interpolator 2/9 agp_robust_rq",
+    "[HB 18:47:17] \u2713 HC solve (single-point) agp_robust_rq 20 pts (25.9s)",
+    "[HB 18:48:13] \u2713 HC solve (multipoint) agp_robust_rq (50.9s)",
+    "[HB 18:48:13] \u25b6 interpolator 3/9 s3_adapt_se",
+    "[HB 18:48:41] \u2713 HC solve (single-point) s3_adapt_se 20 pts (21.5s)",
+    "[HB 18:49:31] \u2713 HC solve (multipoint) s3_adapt_se (49.1s)",
+    "[HB 18:49:31] \u25b6 interpolator 4/9 s3_adapt_rq",
+    "[HB 18:50:00] \u2713 HC solve (single-point) s3_adapt_rq 20 pts (28.3s)",
+    "[HB 18:50:49] \u2713 HC solve (multipoint) s3_adapt_rq (46.9s)",
+    "[HB 18:50:49] \u25b6 interpolator 5/9 chebyshev_bic",
+    "[HB 18:51:13] \u2713 HC solve (single-point) chebyshev_bic 20 pts (22.8s)",
+    "[HB 18:52:02] \u2713 HC solve (multipoint) chebyshev_bic (46.9s)",
+    "[HB 18:52:02] \u25b6 interpolator 6/9 chebyshev_aicc",
+    "[HB 18:52:24] \u2713 HC solve (single-point) chebyshev_aicc 20 pts (22.6s)",
+    "[HB 18:53:19] \u2713 HC solve (multipoint) chebyshev_aicc (52.1s)",
+    "[HB 18:53:19] \u25b6 interpolator 7/9 aaad_gpr",
+    "[HB 18:54:01] \u2713 HC solve (single-point) aaad_gpr 20 pts (30.8s)",
+    "[HB 18:54:51] \u2713 HC solve (multipoint) aaad_gpr (47.3s)",
+    "[HB 18:54:51] \u25b6 interpolator 8/9 aaad",
+    "[HB 18:55:34] \u2713 HC solve (single-point) aaad 20 pts (41.4s)",
+    "[HB 18:57:30] \u2713 HC solve (multipoint) aaad (114.1s)",
+    "[HB 18:57:30] \u25b6 interpolator 9/9 s2_aaa_mle",
+    "[HB 18:58:23] \u2713 HC solve (single-point) s2_aaa_mle 20 pts (48.9s)",
+    "[HB 18:59:16] \u2713 HC solve (multipoint) s2_aaa_mle (46.6s)",
+    "[HB 18:59:16] \u2713 Equation construction + Solving (1063.1s)",
+    "[HB 18:59:17] \u25b6 Result processing",
+    "[HB 19:01:06] \u2713 Result processing (98.3s)",
+    "[HB 19:01:06] \u25b6 Backsolve algebraic re-solve (204/1017 blown)",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "Detected 204/1017 blown backsolves, attempting algebraic re-solve at t=0",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "[HB 19:02:13] \u25b6 Synthesize aggregates",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "[HB 19:02:44] \u2713 Synthesize aggregates (28.1s)",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "\u250c Info: [SI-TEMPLATE] algebraic_multiplicity M = 1",
+    "[HB 19:02:44] \u25b6 Polish (BFGS)",
+    "[HB 19:04:24] \u2713 Polish (BFGS) (89.1s)",
+    "[HB 19:04:24] \u25b6 Branch completion",
+    "[HB 19:06:33] \u2713 Branch completion (118.4s)",
+    "[HB 19:06:35] \u25b6 Clustering + analysis",
+    "[HB 19:06:36] \u2713 Clustering + analysis",
+    "[HB 19:06:37] \u2713 run",
+    "FINISHED biohydrogenation complete"
+  ]
+}

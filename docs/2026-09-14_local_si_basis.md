@@ -1,5 +1,9 @@
 # Local SI classification and coordinate representative fixing
 
+Follow-up: the [representative-fixed multiplicity correction](2026-09-14_fixed_multiplicity.md)
+addresses the separate ordering/rank defects found below. This document
+records the earlier local-SI implementation and its validation.
+
 ## Change and scope
 
 `EstimationOptions(si_fix_strategy=:local_basis)` uses
