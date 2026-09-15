@@ -43,6 +43,11 @@ The [independent-rate Sneyd trial](2026-09-15_sneyd_free_coefficients.md) define
 a separate native coefficient-estimation problem, records its smaller polynomial
 support, and distinguishes continuous ambiguity and positivity of structural
 representatives from HC tractability.
+The [Sneyd fourth-root comparison](2026-09-15_sneyd_fourth_root.md) changes
+only the clean observation/data within each dynamical model, verifies the
+captured systems in physical units, and revisits the earlier algebraic
+bottlenecks with explicit budgets. Its scripts do not change production
+estimation or dependencies.
 
 ## Start here
 

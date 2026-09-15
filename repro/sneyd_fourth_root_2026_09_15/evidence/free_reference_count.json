@@ -1,0 +1,63 @@
+{
+  "status": "complete",
+  "fixed_rates": {
+    "phi1": "1",
+    "phi2": "1",
+    "phi3": "1",
+    "phi4": "1"
+  },
+  "source_sha256": "7e6300eb550d39c5ef95412260cbf69401406b2b3b4170daf9cb4d3a3862ed8d",
+  "spec_sha256": "276e014f773b653c8b0259d1e3cd84e0ce8fa815e69f31b7dfd65075da55f718",
+  "reference_rates": {
+    "phi5": "2",
+    "phi6": "3",
+    "phi7": "5",
+    "phi8": "7",
+    "phi9": "11"
+  },
+  "unknowns": [
+    "phi5",
+    "phi6",
+    "phi7",
+    "phi8",
+    "phi9"
+  ],
+  "equations": [
+    "phi5 + phi6 + phi7 + phi8 + phi9 - 28",
+    "phi5*phi7 + phi5*phi9 + 4*phi5 + phi6*phi8 + phi6*phi9 + 5*phi6 + phi7*phi8 + phi7*phi9 + 4*phi7 + 4*phi8 + 5*phi9 - 302",
+    "phi5*phi7*phi9 + 3*phi5*phi7 + 4*phi5*phi9 + 4*phi5 + 4*phi6*phi8 + 5*phi6*phi9 + 7*phi6 + 3*phi7*phi8 + 4*phi7*phi9 + 3*phi7 + 4*phi8 + 7*phi9 - 951",
+    "3*phi5*phi7*phi9 + phi5*phi7 + 4*phi5*phi9 + phi5 + 4*phi6*phi8 + 7*phi6*phi9 + 3*phi6 + phi7*phi8 + 3*phi7*phi9 + phi8 + 3*phi9 - 994",
+    "phi5*phi7*phi9 + phi5*phi9 + phi6*phi8 + 3*phi6*phi9 - 252"
+  ],
+  "monomials": 48,
+  "scope": "Consistent characteristic-coefficient reference fibre; no estimator substitution or generic-HC stopping rule",
+  "basis": [
+    "Poly(-12274/315*phi6 - 20542/315*phi7 + phi8*phi9**2 + 339/35*phi8*phi9 + 227/105*phi8 - 7519/105*phi9**2 + 86899/105*phi9 - 505237/315, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(2516/63*phi6 + 20992/315*phi7 - 344/35*phi8*phi9 - 218/105*phi8 + phi9**3 + 4534/105*phi9**2 - 74632/105*phi9 + 498019/315, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(phi6**2 - 22338/175*phi6 - 2524/35*phi7 - 2493/35*phi8*phi9 + 759/175*phi8 - 513/7*phi9**2 + 334167/175*phi9 - 1040981/175, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(phi6*phi7 + 16491/175*phi6 + 1403/35*phi7 + 1581/35*phi8*phi9 - 438/175*phi8 + 327/7*phi9**2 - 209544/175*phi9 + 623017/175, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(-11272/175*phi6 + phi7**2 - 596/35*phi7 - 912/35*phi8*phi9 + 321/175*phi8 - 186/7*phi9**2 + 124623/175*phi9 - 414989/175, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(phi6*phi8 + 5219/175*phi6 + 1717/35*phi7 + 634/35*phi8*phi9 - 117/175*phi8 + 134/7*phi9**2 - 80021/175*phi9 + 169353/175, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(-1683/175*phi6 + phi7*phi8 - 544/35*phi7 - 178/35*phi8*phi9 + 2669/175*phi8 - 41/7*phi9**2 + 20772/175*phi9 - 42096/175, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(47595929/60025*phi6 + 15712912/12005*phi7 + phi8**2 + 6234364/12005*phi8*phi9 - 89149066/180075*phi8 + 1340737/2401*phi9**2 - 2341040158/180075*phi9 + 1797317023/60025, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(phi6*phi9 - phi6 - phi7 - phi9 - 14, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(-phi6 + phi7*phi9 - 2*phi7 - phi9 - 31, phi5, phi6, phi7, phi8, phi9, domain='QQ')",
+    "Poly(phi5 + phi6 + phi7 + phi8 + phi9 - 28, phi5, phi6, phi7, phi8, phi9, domain='QQ')"
+  ],
+  "zero_dimensional": true,
+  "quotient_dimension": 7,
+  "all_kinetic_roots_simple": true,
+  "all_kinetic_roots_observable": true,
+  "reference_initial_states": [
+    "2",
+    "3",
+    "5",
+    "7",
+    "11",
+    "13"
+  ],
+  "reference_hankel_determinant": "2078183061216018439137/20000",
+  "rooted_reference_fibre_count": 7,
+  "quartic_reference_fibre_count": 28,
+  "seconds": 1.183902307995595
+}

@@ -1,0 +1,1260 @@
+{
+  "runs": [
+    {
+      "model_kind": "free",
+      "observation_kind": "quartic",
+      "phase": "estimate",
+      "seed": 20260915,
+      "status": "generic_start_failed",
+      "preparation_seconds": 134.731628633,
+      "estimation_seconds": 1455.609264091,
+      "generic_start_seconds": 1225.566819314,
+      "generic_start_count": 0,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 7.496753165295002e-13,
+        "root_z_max_abs_error": 3.5005331966431186e-13
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 3.2877123795494487,
+          "max_const_before": 0.0,
+          "n_nontrivial": 9,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "((9//10)*IPR_A(t) + (1//10)*IPR_O(t))^4": 0.015625
+        },
+        "param_scales": {
+          "phi1": 1.0,
+          "phi2": 1.0,
+          "phi3": 1.0,
+          "phi4": 1.0,
+          "phi5": 0.5,
+          "phi6": 2.0,
+          "phi7": 1.0,
+          "phi8": 1.0,
+          "phi9": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 0.25,
+          "IPR_I1(t)": 2.0,
+          "IPR_I2(t)": 0.25,
+          "IPR_O(t)": 2.0,
+          "IPR_R(t)": 2.0,
+          "IPR_S(t)": 2.0
+        }
+      },
+      "output_directory": "/tmp/odepe-fourth-root-free-quartic-v3",
+      "supervisor_status": "generic_start_failed",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 1800.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 1639.8647277299897,
+      "supervisor_measured_stage_seconds": null,
+      "worker_finalization_complete": true,
+      "result_sha256": "9a34e5dca24f45f72e2dd089aaa425c29cb1084473f6664308b2af8a7d1d8afa",
+      "hc_systems": [
+        {
+          "file": "generic_system_1.json",
+          "equations": 72,
+          "unknowns": 72,
+          "data_parameters": 11,
+          "monomials": 1306,
+          "degree_histogram": {
+            "1": 19,
+            "2": 42,
+            "4": 11
+          },
+          "observation_rows": 11,
+          "observation_terms": 1047,
+          "unknown_names": [
+            "IPR_A_0",
+            "IPR_O_0",
+            "phi8_0",
+            "IPR_R_0",
+            "phi5_0",
+            "IPR_O_1",
+            "phi9_0",
+            "IPR_S_0",
+            "phi6_0",
+            "phi7_0",
+            "IPR_I2_0",
+            "IPR_A_1",
+            "IPR_A_2",
+            "IPR_I2_1",
+            "IPR_O_2",
+            "IPR_S_1",
+            "IPR_R_1",
+            "IPR_I1_0",
+            "IPR_S_2",
+            "IPR_O_3",
+            "IPR_R_2",
+            "IPR_I2_2",
+            "IPR_A_3",
+            "IPR_I1_1",
+            "IPR_A_4",
+            "IPR_I2_3",
+            "IPR_R_3",
+            "IPR_S_3",
+            "IPR_O_4",
+            "IPR_I1_2",
+            "IPR_I2_4",
+            "IPR_A_5",
+            "IPR_R_4",
+            "IPR_O_5",
+            "IPR_S_4",
+            "IPR_I1_3",
+            "IPR_O_6",
+            "IPR_S_5",
+            "IPR_R_5",
+            "IPR_I2_5",
+            "IPR_A_6",
+            "IPR_I1_4",
+            "IPR_I2_6",
+            "IPR_A_7",
+            "IPR_O_7",
+            "IPR_R_6",
+            "IPR_S_6",
+            "IPR_I1_5",
+            "IPR_A_8",
+            "IPR_I2_7",
+            "IPR_O_8",
+            "IPR_R_7",
+            "IPR_S_7",
+            "IPR_I1_6",
+            "IPR_S_8",
+            "IPR_R_8",
+            "IPR_O_9",
+            "IPR_A_9",
+            "IPR_I2_8",
+            "IPR_I1_7",
+            "IPR_I2_9",
+            "IPR_A_10",
+            "IPR_O_10",
+            "IPR_R_9",
+            "IPR_S_9",
+            "IPR_I1_8",
+            "IPR_R_10",
+            "IPR_O_11",
+            "IPR_S_10",
+            "IPR_A_11",
+            "IPR_I2_10",
+            "IPR_I1_9"
+          ],
+          "data_names": [
+            "dense_y1_0",
+            "dense_y1_1",
+            "dense_y1_2",
+            "dense_y1_3",
+            "dense_y1_4",
+            "dense_y1_5",
+            "dense_y1_6",
+            "dense_y1_7",
+            "dense_y1_8",
+            "dense_y1_9",
+            "dense_y1_10"
+          ]
+        }
+      ],
+      "first_generic_progress": {
+        "tracking_path_count": [],
+        "paths_tracked": [],
+        "nonsingular_solutions": [],
+        "total_solutions": [],
+        "last_partial_mixed_volume_counter": [
+          "2389278"
+        ]
+      },
+      "parameter_homotopy_events": [
+        "[HC-PARAM] Generic-start (hoisted): generic solve threw (OverflowError(\"-4798045382528 * -11403264 overflowed for type Int64\"))"
+      ],
+      "fresh_data_solves": [],
+      "generic_error_messages": [
+        "[HC-PARAM] Generic-start (hoisted): generic solve threw (OverflowError(\"-4798045382528 * -11403264 overflowed for type Int64\"))"
+      ]
+    },
+    {
+      "model_kind": "free",
+      "observation_kind": "root",
+      "phase": "estimate",
+      "seed": 20260915,
+      "status": "estimating",
+      "preparation_seconds": 112.999419832,
+      "generic_start_seconds": 2756.276141535,
+      "generic_start_count": 7,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 7.496753165295002e-13,
+        "root_z_max_abs_error": 3.5005331966431186e-13
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 1.3219280948873622,
+          "max_const_before": 0.0,
+          "n_nontrivial": 7,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "(9//10)*IPR_A(t) + (1//10)*IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "phi1": 1.0,
+          "phi2": 1.0,
+          "phi3": 1.0,
+          "phi4": 1.0,
+          "phi5": 0.5,
+          "phi6": 2.0,
+          "phi7": 1.0,
+          "phi8": 1.0,
+          "phi9": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 2.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 2.0,
+          "IPR_R(t)": 2.0,
+          "IPR_S(t)": 2.0
+        }
+      },
+      "output_directory": "/tmp/odepe-fourth-root-free-root-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": -15,
+      "stage_cap": 5400.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 5579.59494579403,
+      "supervisor_measured_stage_seconds": 5427.880552070972,
+      "worker_finalization_complete": false,
+      "result_sha256": "0ceefef3c04f466f2b532d7ff7b5839b188d73783f7f460c1dc657a2499c8cfe",
+      "hc_systems": [
+        {
+          "file": "generic_system_1.json",
+          "equations": 72,
+          "unknowns": 72,
+          "data_parameters": 11,
+          "monomials": 292,
+          "degree_histogram": {
+            "1": 30,
+            "2": 42
+          },
+          "observation_rows": 11,
+          "observation_terms": 33,
+          "unknown_names": [
+            "IPR_A_0",
+            "IPR_O_0",
+            "phi8_0",
+            "IPR_R_0",
+            "phi5_0",
+            "IPR_O_1",
+            "phi9_0",
+            "IPR_S_0",
+            "phi6_0",
+            "phi7_0",
+            "IPR_I2_0",
+            "IPR_A_1",
+            "IPR_A_2",
+            "IPR_I2_1",
+            "IPR_O_2",
+            "IPR_S_1",
+            "IPR_R_1",
+            "IPR_I1_0",
+            "IPR_S_2",
+            "IPR_O_3",
+            "IPR_R_2",
+            "IPR_I2_2",
+            "IPR_A_3",
+            "IPR_I1_1",
+            "IPR_A_4",
+            "IPR_I2_3",
+            "IPR_R_3",
+            "IPR_S_3",
+            "IPR_O_4",
+            "IPR_I1_2",
+            "IPR_I2_4",
+            "IPR_A_5",
+            "IPR_R_4",
+            "IPR_O_5",
+            "IPR_S_4",
+            "IPR_I1_3",
+            "IPR_O_6",
+            "IPR_S_5",
+            "IPR_R_5",
+            "IPR_I2_5",
+            "IPR_A_6",
+            "IPR_I1_4",
+            "IPR_I2_6",
+            "IPR_A_7",
+            "IPR_O_7",
+            "IPR_R_6",
+            "IPR_S_6",
+            "IPR_I1_5",
+            "IPR_A_8",
+            "IPR_I2_7",
+            "IPR_O_8",
+            "IPR_R_7",
+            "IPR_S_7",
+            "IPR_I1_6",
+            "IPR_S_8",
+            "IPR_R_8",
+            "IPR_O_9",
+            "IPR_A_9",
+            "IPR_I2_8",
+            "IPR_I1_7",
+            "IPR_I2_9",
+            "IPR_A_10",
+            "IPR_O_10",
+            "IPR_R_9",
+            "IPR_S_9",
+            "IPR_I1_8",
+            "IPR_R_10",
+            "IPR_O_11",
+            "IPR_S_10",
+            "IPR_A_11",
+            "IPR_I2_10",
+            "IPR_I1_9"
+          ],
+          "data_names": [
+            "dense_y1_0",
+            "dense_y1_1",
+            "dense_y1_2",
+            "dense_y1_3",
+            "dense_y1_4",
+            "dense_y1_5",
+            "dense_y1_6",
+            "dense_y1_7",
+            "dense_y1_8",
+            "dense_y1_9",
+            "dense_y1_10"
+          ]
+        }
+      ],
+      "first_generic_progress": {
+        "tracking_path_count": [
+          "5491"
+        ],
+        "paths_tracked": [
+          "5491"
+        ],
+        "nonsingular_solutions": [
+          "7 (0)"
+        ],
+        "total_solutions": [
+          "7 (0)"
+        ],
+        "last_partial_mixed_volume_counter": [
+          "5491"
+        ]
+      },
+      "parameter_homotopy_events": [
+        "[HC-PARAM] Generic-start (hoisted): UNSCALED generic p0 \u2192 N=7 solutions (solved ONCE for all interpolators)",
+        "[HC-PARAM] Column scaling ON: scale range (1.0, 3.1647071096714147e20), nontrivial 59/72",
+        "[HC-PARAM] Generic-start: N=7 generic solutions (scaled coords) [precomputed once]",
+        "[HC-PARAM] Point 1: generic-start fan-out \u2014 tracking N=7 generic solutions to this real point",
+        "[HC-PARAM] Point 1: fan-out no finite endpoints (7 accounted; finite-kept=0) \u2192 fresh solve",
+        "[HC-PARAM] Point 2: generic-start fan-out \u2014 tracking N=7 generic solutions to this real point",
+        "\u250c Error: [HC-PARAM] Point 1 failed",
+        "[HC-PARAM] Point 2: fan-out no finite endpoints (7 accounted; finite-kept=0) \u2192 fresh solve"
+      ],
+      "fresh_data_solves": [
+        {
+          "trigger": "[HC-PARAM] Point 1: fan-out no finite endpoints (7 accounted; finite-kept=0) \u2192 fresh solve",
+          "tracking_path_count": [
+            "5491"
+          ],
+          "paths_tracked": [
+            "730"
+          ],
+          "nonsingular_solutions": [
+            "0 (0)"
+          ],
+          "total_solutions": [
+            "0 (0)"
+          ],
+          "last_partial_mixed_volume_counter": []
+        },
+        {
+          "trigger": "[HC-PARAM] Point 2: fan-out no finite endpoints (7 accounted; finite-kept=0) \u2192 fresh solve",
+          "tracking_path_count": [],
+          "paths_tracked": [],
+          "nonsingular_solutions": [],
+          "total_solutions": [],
+          "last_partial_mixed_volume_counter": []
+        }
+      ],
+      "generic_error_messages": [],
+      "original_budget_checkpoint": {
+        "measured_estimation_seconds": 1800.3817797019728,
+        "tracking_total": [
+          "5491"
+        ],
+        "paths_tracked": [
+          "2719"
+        ],
+        "nonsingular_solutions": [
+          "2 (0)"
+        ],
+        "total_solutions": [
+          "2 (0)"
+        ]
+      },
+      "budget_extension": {
+        "status": "timeout",
+        "reason": "The rooted free-rate model completed mixed-volume setup and found a nonsingular generic solution. Preserve the 1800-second comparison checkpoint, then allow its finite 5491-path solve and downstream estimation to continue without restarting.",
+        "original_estimation_seconds_cap": 1800.0,
+        "estimation_seconds_cap": 5400.0,
+        "measured_stage_seconds": 5400.4279238059535
+      }
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "quartic",
+      "phase": "estimate",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 195.583725464,
+      "estimation_seconds": 1803.559749759,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 3.2877123795494487,
+          "max_const_before": 0.0,
+          "n_nontrivial": 5,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "(0.9IPR_A(t) + 0.1IPR_O(t))^4": 0.015625
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 0.5,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 0.5,
+          "IPR_O(t)": 2.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 2.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n   [1] ==\n     @ ./promotion.jl:641 [inlined]\n   [2] mapreduce_impl(f::typeof(identity), op::typeof(max), A::Vector{Int32}, ifirst::Int64, ilast::Int64, blksize::Int64)\n     @ Base ./reduce.jl:254\n   [3] mapreduce_impl\n     @ ./reduce.jl:276 [inlined]\n   [4] _mapreduce\n     @ ./reduce.jl:447 [inlined]\n   [5] _mapreduce_dim\n     @ ./reducedim.jl:338 [inlined]\n   [6] mapreduce\n     @ ./reducedim.jl:330 [inlined]\n   [7] _maximum\n     @ ./reducedim.jl:994 [inlined]\n   [8] _maximum\n     @ ./reducedim.jl:993 [inlined]\n   [9] maximum\n     @ ./reducedim.jl:989 [inlined]\n  [10] compute_dot_bound!\n     @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1347 [inlined]\n  [11] exchange_column!(cell::MixedSubdivisions.MixedCellTable, exchange::MixedSubdivisions.Exchange, ineq::MixedSubdivisions.CayleyIndex, \u03c4_bound::Int32)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:806\n  [12] exchange_column!\n     @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:981 [inlined]\n  [13] next_cell!(traverser::MixedSubdivisions.MixedCellTableTraverser{MixedSubdivisions.LexicographicOrdering})\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1054\n  [14] next_cell!(T::MixedSubdivisions.RegenerationTraverser)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1206\n  [15] iterate\n     @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1611 [inlined]\n  [16] iterate\n     @ ./iterators.jl:203 [inlined]\n  [17] fine_mixed_cells(support::Vector{Matrix{Int32}}, lifting_sampler::typeof(MixedSubdivisions.uniform_lifting_sampler); show_progress::Bool, max_tries::Int64)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1834\n \u250c[18] fine_mixed_cells\n \u2502   @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1793 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n  [20] _\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:24 [inlined]\n  [21] PolyhedralStartSolutionsIterator\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:15 [inlined]\n  [22] PolyhedralStartSolutionsIterator\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:34 [inlined]\n  [23] polyhedral(support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector{ComplexF64}}, target_coeffs::Vector{Vector}; endgame_options::HomotopyContinuation.EndgameOptions, tracker_options::HomotopyContinuation.TrackerOptions, only_torus::Bool, only_non_zero::Bool, compile::Symbol, show_progress::Bool, kwargs::@Kwargs{})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:420\n  [24] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector{ComplexF64}}, target_coeffs::Vector{Vector})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:369\n  [25] polyhedral(support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector}; kwargs::@Kwargs{compile::Symbol, show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:356\n  [26] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:350\n  [27] polyhedral(f::HomotopyContinuation.ModelKit.System; compile::Symbol, target_parameters::Nothing, kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:289\n  [28] polyhedral\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [29] polyhedral(F::HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.ModelKit.CompiledSystem{(0x893a66c0800083c6, 1)}, ComplexF64}; kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:254\n  [30] kwcall(::@NamedTuple{show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), F::HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.ModelKit.CompiledSystem{(0x893a66c0800083c6, 1)}, ComplexF64})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:251\n  [31] polyhedral(f::HomotopyContinuation.ModelKit.System; compile::Symbol, target_parameters::Vector{ComplexF64}, kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:263\n  [32] polyhedral\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [33] solver_startsolutions(F::HomotopyContinuation.ModelKit.System, starts::Nothing; seed::UInt32, start_system::Symbol, generic_parameters::Nothing, p\u2081::Nothing, start_parameters::Nothing, p\u2080::Nothing, target_parameters::Vector{ComplexF64}, compile::Symbol, start_subspace::Nothing, target_subspace::Nothing, intrinsic::Nothing, show_progress::Bool, kwargs::@Kwargs{})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:164\n \u250c[34] solver_startsolutions\n \u2502   @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n  [36] solve(args::HomotopyContinuation.ModelKit.System; show_progress::Bool, threading::Bool, catch_interrupt::Bool, target_parameters::Vector{ComplexF64}, stop_early_cb::Function, transform_result::Nothing, transform_parameters::typeof(identity), flatten::Nothing, target_subspaces::Nothing, iterator_only::Bool, bitmask::Nothing, kwargs::@Kwargs{compile::Symbol})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:489\n  [37] solve\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:451 [inlined]\n  [38] _hc_solve(args::HomotopyContinuation.ModelKit.System; kwargs::@Kwargs{target_parameters::Vector{ComplexF64}, show_progress::Bool})\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:28\n  [39] kwcall(::@NamedTuple{target_parameters::Vector{ComplexF64}, show_progress::Bool}, ::typeof(ODEParameterEstimation._hc_solve), args::HomotopyContinuation.ModelKit.System)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:28\n  [40] compute_generic_start_solutions(poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any}; gamma_seed::Int64, show_progress::Bool, debug::Bool)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:854\n  [41] compute_generic_start_solutions\n     @ ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:848 [inlined]\n  [42] invoke\n     @ ./Base_compiler.jl:218 [inlined]\n  [43] compute_generic_start_solutions(poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any}; gamma_seed::Int64, show_progress::Bool, debug::Bool)\n     @ Main /tmp/odepe-fourth-root-rational-quartic-v3/source/capture_and_solve.jl:42\n  [44] kwcall(::@NamedTuple{gamma_seed::Int64, show_progress::Bool, debug::Bool}, ::typeof(compute_generic_start_solutions), poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any})\n     @ Main /tmp/odepe-fourth-root-rational-quartic-v3/source/capture_and_solve.jl:5\n  [45] (::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}})()\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:1109\n  [46] macro expansion\n     @ ./timing.jl:699 [inlined]\n  [47] _record_phase!(f::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}}, stats::OrderedCollections.OrderedDict{String, NamedTuple}, opts::EstimationOptions, name::String)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:262\n  [48] optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:952\n  [49] _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:1019\n  [50] analyze_parameter_estimation_problem\n     @ ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:968 [inlined]\n  [51] #91\n     @ /tmp/odepe-fourth-root-rational-quartic-v3/source/run.jl:105 [inlined]\n  [52] with(::var\"#91#92\"{EstimationOptions, ParameterEstimationProblem}, ::Pair{Base.ScopedValues.ScopedValue{Union{Nothing, ODEParameterEstimation.RunContext}}, ODEParameterEstimation.RunContext})\n     @ Base.ScopedValues ./scopedvalues.jl:324\n  [53] (::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem})()\n     @ Main /tmp/odepe-fourth-root-rational-quartic-v3/source/run.jl:104\n  [54] cd(f::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem}, dir::String)\n     @ Base.Filesystem ./file.jl:112\n  [55] top-level scope\n     @ /tmp/odepe-fourth-root-rational-quartic-v3/source/run.jl:103\n  [56] include(mod::Module, _path::String)\n     @ Base ./Base.jl:309\n  [57] exec_options(opts::Base.JLOptions)\n     @ Base ./client.jl:344\n  [58] _start()\n     @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-quartic-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 1800.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 2048.138211005018,
+      "supervisor_measured_stage_seconds": 1800.9586925810436,
+      "worker_finalization_complete": true,
+      "result_sha256": "3f6b88d8264f70bea11ddf20fd6e646d3f50307115e8315b76998227095aeb7d",
+      "hc_systems": [
+        {
+          "file": "generic_system_1.json",
+          "equations": 72,
+          "unknowns": 72,
+          "data_parameters": 11,
+          "monomials": 2362,
+          "degree_histogram": {
+            "2": 10,
+            "3": 10,
+            "4": 31,
+            "5": 10,
+            "6": 11
+          },
+          "observation_rows": 11,
+          "observation_terms": 1047,
+          "unknown_names": [
+            "IPR_A_0",
+            "IPR_O_0",
+            "l_6_0",
+            "l_2_0",
+            "IPR_I2_0",
+            "l6_0",
+            "IPR_A_1",
+            "l_4_0",
+            "l4_0",
+            "IPR_S_0",
+            "IPR_O_1",
+            "IPR_R_0",
+            "IPR_I2_1",
+            "IPR_A_2",
+            "IPR_R_1",
+            "IPR_O_2",
+            "IPR_S_1",
+            "IPR_I1_0",
+            "IPR_O_3",
+            "IPR_S_2",
+            "IPR_R_2",
+            "IPR_I2_2",
+            "IPR_A_3",
+            "IPR_I1_1",
+            "IPR_I2_3",
+            "IPR_A_4",
+            "IPR_O_4",
+            "IPR_R_3",
+            "IPR_S_3",
+            "IPR_I1_2",
+            "IPR_I2_4",
+            "IPR_A_5",
+            "IPR_S_4",
+            "IPR_R_4",
+            "IPR_O_5",
+            "IPR_I1_3",
+            "IPR_R_5",
+            "IPR_S_5",
+            "IPR_O_6",
+            "IPR_A_6",
+            "IPR_I2_5",
+            "IPR_I1_4",
+            "IPR_A_7",
+            "IPR_I2_6",
+            "IPR_O_7",
+            "IPR_R_6",
+            "IPR_S_6",
+            "IPR_I1_5",
+            "IPR_I2_7",
+            "IPR_A_8",
+            "IPR_R_7",
+            "IPR_O_8",
+            "IPR_S_7",
+            "IPR_I1_6",
+            "IPR_A_9",
+            "IPR_I2_8",
+            "IPR_O_9",
+            "IPR_R_8",
+            "IPR_S_8",
+            "IPR_I1_7",
+            "IPR_A_10",
+            "IPR_I2_9",
+            "IPR_S_9",
+            "IPR_R_9",
+            "IPR_O_10",
+            "IPR_I1_8",
+            "IPR_I2_10",
+            "IPR_A_11",
+            "IPR_S_10",
+            "IPR_R_10",
+            "IPR_O_11",
+            "IPR_I1_9"
+          ],
+          "data_names": [
+            "dense_y1_0",
+            "dense_y1_1",
+            "dense_y1_2",
+            "dense_y1_3",
+            "dense_y1_4",
+            "dense_y1_5",
+            "dense_y1_6",
+            "dense_y1_7",
+            "dense_y1_8",
+            "dense_y1_9",
+            "dense_y1_10"
+          ]
+        }
+      ],
+      "first_generic_progress": {
+        "tracking_path_count": [],
+        "paths_tracked": [],
+        "nonsingular_solutions": [],
+        "total_solutions": [],
+        "last_partial_mixed_volume_counter": [
+          "647032"
+        ]
+      },
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": []
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "root",
+      "phase": "estimate",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 200.083862859,
+      "estimation_seconds": 1802.812159832,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 2.321928094887362,
+          "max_const_before": 0.0,
+          "n_nontrivial": 1,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "0.9IPR_A(t) + 0.1IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 1.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 1.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n   [1] compute_bounds!(M::MixedSubdivisions.MixedCellTable, target_bound::Int32)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1351\n   [2] regeneration_stage_carry_over!(T_B::MixedSubdivisions.MixedCellTableTraverser{MixedSubdivisions.LexicographicOrdering}, T_A::MixedSubdivisions.MixedCellTableTraverser{MixedSubdivisions.LexicographicOrdering}, stage::Int64)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1327\n   [3] next_cell!(T::MixedSubdivisions.RegenerationTraverser)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1223\n   [4] iterate\n     @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1611 [inlined]\n   [5] iterate\n     @ ./iterators.jl:203 [inlined]\n   [6] fine_mixed_cells(support::Vector{Matrix{Int32}}, lifting_sampler::typeof(MixedSubdivisions.uniform_lifting_sampler); show_progress::Bool, max_tries::Int64)\n     @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1834\n \u250c [7] fine_mixed_cells\n \u2502   @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1793 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n   [9] _\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:24 [inlined]\n  [10] PolyhedralStartSolutionsIterator\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:15 [inlined]\n  [11] PolyhedralStartSolutionsIterator\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:34 [inlined]\n  [12] polyhedral(support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector{ComplexF64}}, target_coeffs::Vector{Vector}; endgame_options::HomotopyContinuation.EndgameOptions, tracker_options::HomotopyContinuation.TrackerOptions, only_torus::Bool, only_non_zero::Bool, compile::Symbol, show_progress::Bool, kwargs::@Kwargs{})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:420\n  [13] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector{ComplexF64}}, target_coeffs::Vector{Vector})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:369\n  [14] polyhedral(support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector}; kwargs::@Kwargs{compile::Symbol, show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:356\n  [15] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:350\n  [16] polyhedral(f::HomotopyContinuation.ModelKit.System; compile::Symbol, target_parameters::Nothing, kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:289\n  [17] polyhedral\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [18] polyhedral(F::HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.ModelKit.CompiledSystem{(0x6318516d1a57467c, 1)}, ComplexF64}; kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:254\n  [19] kwcall(::@NamedTuple{show_progress::Bool}, ::typeof(HomotopyContinuation.polyhedral), F::HomotopyContinuation.FixedParameterSystem{HomotopyContinuation.ModelKit.CompiledSystem{(0x6318516d1a57467c, 1)}, ComplexF64})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:251\n  [20] polyhedral(f::HomotopyContinuation.ModelKit.System; compile::Symbol, target_parameters::Vector{ComplexF64}, kwargs::@Kwargs{show_progress::Bool})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:263\n  [21] polyhedral\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [22] solver_startsolutions(F::HomotopyContinuation.ModelKit.System, starts::Nothing; seed::UInt32, start_system::Symbol, generic_parameters::Nothing, p\u2081::Nothing, start_parameters::Nothing, p\u2080::Nothing, target_parameters::Vector{ComplexF64}, compile::Symbol, start_subspace::Nothing, target_subspace::Nothing, intrinsic::Nothing, show_progress::Bool, kwargs::@Kwargs{})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:164\n \u250c[23] solver_startsolutions\n \u2502   @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n  [25] solve(args::HomotopyContinuation.ModelKit.System; show_progress::Bool, threading::Bool, catch_interrupt::Bool, target_parameters::Vector{ComplexF64}, stop_early_cb::Function, transform_result::Nothing, transform_parameters::typeof(identity), flatten::Nothing, target_subspaces::Nothing, iterator_only::Bool, bitmask::Nothing, kwargs::@Kwargs{compile::Symbol})\n     @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:489\n  [26] solve\n     @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:451 [inlined]\n  [27] _hc_solve(args::HomotopyContinuation.ModelKit.System; kwargs::@Kwargs{target_parameters::Vector{ComplexF64}, show_progress::Bool})\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:28\n  [28] kwcall(::@NamedTuple{target_parameters::Vector{ComplexF64}, show_progress::Bool}, ::typeof(ODEParameterEstimation._hc_solve), args::HomotopyContinuation.ModelKit.System)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:28\n  [29] compute_generic_start_solutions(poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any}; gamma_seed::Int64, show_progress::Bool, debug::Bool)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:854\n  [30] compute_generic_start_solutions\n     @ ~/.julia/dev/ODEParameterEstimation/src/core/homotopy_continuation.jl:848 [inlined]\n  [31] invoke\n     @ ./Base_compiler.jl:218 [inlined]\n  [32] compute_generic_start_solutions(poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any}; gamma_seed::Int64, show_progress::Bool, debug::Bool)\n     @ Main /tmp/odepe-fourth-root-rational-root-v3/source/capture_and_solve.jl:42\n  [33] kwcall(::@NamedTuple{gamma_seed::Int64, show_progress::Bool, debug::Bool}, ::typeof(compute_generic_start_solutions), poly_system::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any})\n     @ Main /tmp/odepe-fourth-root-rational-root-v3/source/capture_and_solve.jl:5\n  [34] (::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}})()\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:1109\n  [35] macro expansion\n     @ ./timing.jl:699 [inlined]\n  [36] _record_phase!(f::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}}, stats::OrderedCollections.OrderedDict{String, NamedTuple}, opts::EstimationOptions, name::String)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:262\n  [37] optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:952\n  [38] _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n     @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:1019\n  [39] analyze_parameter_estimation_problem\n     @ ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:968 [inlined]\n  [40] #91\n     @ /tmp/odepe-fourth-root-rational-root-v3/source/run.jl:105 [inlined]\n  [41] with(::var\"#91#92\"{EstimationOptions, ParameterEstimationProblem}, ::Pair{Base.ScopedValues.ScopedValue{Union{Nothing, ODEParameterEstimation.RunContext}}, ODEParameterEstimation.RunContext})\n     @ Base.ScopedValues ./scopedvalues.jl:324\n  [42] (::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem})()\n     @ Main /tmp/odepe-fourth-root-rational-root-v3/source/run.jl:104\n  [43] cd(f::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem}, dir::String)\n     @ Base.Filesystem ./file.jl:112\n  [44] top-level scope\n     @ /tmp/odepe-fourth-root-rational-root-v3/source/run.jl:103\n  [45] include(mod::Module, _path::String)\n     @ Base ./Base.jl:309\n  [46] exec_options(opts::Base.JLOptions)\n     @ Base ./client.jl:344\n  [47] _start()\n     @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-root-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 1800.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 2051.743010803999,
+      "supervisor_measured_stage_seconds": 1800.3685768870055,
+      "worker_finalization_complete": true,
+      "result_sha256": "9c8c4e9d17342e597407e7060297d24c10a3613405bb456c79e989fbe57284e6",
+      "hc_systems": [
+        {
+          "file": "generic_system_1.json",
+          "equations": 72,
+          "unknowns": 72,
+          "data_parameters": 11,
+          "monomials": 1348,
+          "degree_histogram": {
+            "1": 11,
+            "2": 10,
+            "3": 10,
+            "4": 20,
+            "5": 10,
+            "6": 11
+          },
+          "observation_rows": 11,
+          "observation_terms": 33,
+          "unknown_names": [
+            "IPR_A_0",
+            "IPR_O_0",
+            "l_6_0",
+            "l_2_0",
+            "IPR_I2_0",
+            "l6_0",
+            "IPR_A_1",
+            "l_4_0",
+            "l4_0",
+            "IPR_S_0",
+            "IPR_O_1",
+            "IPR_R_0",
+            "IPR_I2_1",
+            "IPR_A_2",
+            "IPR_R_1",
+            "IPR_O_2",
+            "IPR_S_1",
+            "IPR_I1_0",
+            "IPR_O_3",
+            "IPR_S_2",
+            "IPR_R_2",
+            "IPR_I2_2",
+            "IPR_A_3",
+            "IPR_I1_1",
+            "IPR_I2_3",
+            "IPR_A_4",
+            "IPR_O_4",
+            "IPR_R_3",
+            "IPR_S_3",
+            "IPR_I1_2",
+            "IPR_I2_4",
+            "IPR_A_5",
+            "IPR_S_4",
+            "IPR_R_4",
+            "IPR_O_5",
+            "IPR_I1_3",
+            "IPR_R_5",
+            "IPR_S_5",
+            "IPR_O_6",
+            "IPR_A_6",
+            "IPR_I2_5",
+            "IPR_I1_4",
+            "IPR_A_7",
+            "IPR_I2_6",
+            "IPR_O_7",
+            "IPR_R_6",
+            "IPR_S_6",
+            "IPR_I1_5",
+            "IPR_I2_7",
+            "IPR_A_8",
+            "IPR_R_7",
+            "IPR_O_8",
+            "IPR_S_7",
+            "IPR_I1_6",
+            "IPR_A_9",
+            "IPR_I2_8",
+            "IPR_O_9",
+            "IPR_R_8",
+            "IPR_S_8",
+            "IPR_I1_7",
+            "IPR_A_10",
+            "IPR_I2_9",
+            "IPR_S_9",
+            "IPR_R_9",
+            "IPR_O_10",
+            "IPR_I1_8",
+            "IPR_I2_10",
+            "IPR_A_11",
+            "IPR_S_10",
+            "IPR_R_10",
+            "IPR_O_11",
+            "IPR_I1_9"
+          ],
+          "data_names": [
+            "dense_y1_0",
+            "dense_y1_1",
+            "dense_y1_2",
+            "dense_y1_3",
+            "dense_y1_4",
+            "dense_y1_5",
+            "dense_y1_6",
+            "dense_y1_7",
+            "dense_y1_8",
+            "dense_y1_9",
+            "dense_y1_10"
+          ]
+        }
+      ],
+      "first_generic_progress": {
+        "tracking_path_count": [],
+        "paths_tracked": [],
+        "nonsingular_solutions": [],
+        "total_solutions": [],
+        "last_partial_mixed_volume_counter": [
+          "65036"
+        ]
+      },
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": []
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "root",
+      "phase": "functions",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 198.629766478,
+      "estimation_seconds": 600.756429129,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 2.321928094887362,
+          "max_const_before": 0.0,
+          "n_nontrivial": 1,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "0.9IPR_A(t) + 0.1IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 1.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 1.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n  [1] gcd(a::Nemo.QQMPolyRingElem, b::Nemo.QQMPolyRingElem)\n    @ Nemo ~/.julia/packages/Nemo/1ce8i/src/flint/fmpq_mpoly.jl:321\n  [2] uncertain_factorization(f::Nemo.QQMPolyRingElem)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/util.jl:128\n  [3] fast_factor(poly::Nemo.QQMPolyRingElem)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/util.jl:160\n  [4] eliminate_var(f::Nemo.QQMPolyRingElem, g::Nemo.QQMPolyRingElem, var_elim::Nemo.QQMPolyRingElem, generic_point_generator::StructuralIdentifiability.ODEPointGenerator{Nemo.QQMPolyRingElem})\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/elimination.jl:398\n  [5] find_ioprojections(ode::StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}, auto_var_change::Bool, extra_projection::Nothing)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:190\n  [6] _find_ioequations(ode::StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}; var_change_policy::Symbol)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:375\n  [7] _find_ioequations\n    @ ~/.julia/packages/StructuralIdentifiability/S5eMo/src/io_equation.jl:359 [inlined]\n  [8] macro expansion\n    @ ./timing.jl:463 [inlined]\n  [9] initial_identifiable_functions(ode::StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}; prob_threshold::Float64, known::Vector{Nemo.QQMPolyRingElem}, with_states::Bool, var_change_policy::Symbol, rational_interpolator::Symbol, cmp::Function)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:97\n [10] initial_identifiable_functions\n    @ ~/.julia/packages/StructuralIdentifiability/S5eMo/src/global_identifiability.jl:87 [inlined]\n [11] _find_identifiable_functions(ode::StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}; prob_threshold::Float64, seed::Int64, with_states::Bool, simplify::Symbol, rational_interpolator::Symbol, cmp::Function)\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:112\n [12] _find_identifiable_functions\n    @ ~/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:89 [inlined]\n [13] (::StructuralIdentifiability.var\"#317#318\"{Vector{Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}, Float64, Int64, Bool, Symbol, Symbol, StructuralIdentifiability.var\"#cmp_prefer_params##0#cmp_prefer_params##1\"{typeof(RationalFunctionFields.rational_function_cmp)}, StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}})()\n    @ StructuralIdentifiability ~/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:64\n [14] with_logstate(f::StructuralIdentifiability.var\"#317#318\"{Vector{Union{AbstractAlgebra.Generic.FracFieldElem{Nemo.QQMPolyRingElem}, Nemo.QQMPolyRingElem}}, Float64, Int64, Bool, Symbol, Symbol, StructuralIdentifiability.var\"#cmp_prefer_params##0#cmp_prefer_params##1\"{typeof(RationalFunctionFields.rational_function_cmp)}, StructuralIdentifiability.ODE{Nemo.QQMPolyRingElem}}, logstate::Base.CoreLogging.LogState)\n    @ Base.CoreLogging ./logging/logging.jl:542\n [15] with_logger\n    @ ./logging/logging.jl:653 [inlined]\n [16] #find_identifiable_functions#315\n    @ ~/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:62 [inlined]\n [17] find_identifiable_functions\n    @ ~/.julia/packages/StructuralIdentifiability/S5eMo/src/identifiable_functions.jl:49 [inlined]\n [18] macro expansion\n    @ ./timing.jl:699 [inlined]\n [19] run_probe(pep::ParameterEstimationProblem, phase::String)\n    @ Main /tmp/odepe-fourth-root-rational-root-functions-v3/source/probes.jl:49\n [20] top-level scope\n    @ /tmp/odepe-fourth-root-rational-root-functions-v3/source/run.jl:126\n [21] include(mod::Module, _path::String)\n    @ Base ./Base.jl:309\n [22] exec_options(opts::Base.JLOptions)\n    @ Base ./client.jl:344\n [23] _start()\n    @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-root-functions-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 600.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 870.5545294150361,
+      "supervisor_measured_stage_seconds": 600.1133736980264,
+      "worker_finalization_complete": true,
+      "result_sha256": "3436613f2b96fd82ff81aefda7a6318e8e8691af6f6398f3da7ffc82877cafbb",
+      "hc_systems": [],
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": [],
+      "probe_active_seconds": 559.2776399940001
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "root",
+      "phase": "multiplicity",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 201.445410121,
+      "estimation_seconds": 2402.674978574,
+      "multiplicity_input": {
+        "compile_seconds": 6.750272909,
+        "construction_seconds": 21.575157896,
+        "equations": 74,
+        "fixed_coordinates": {
+          "k1_0": "1",
+          "k2_0": "1",
+          "k3_0": "1",
+          "k4_0": "1",
+          "k_1_0": "1",
+          "k_2_0": "1",
+          "k_3_0": "1",
+          "k_4_0": "1",
+          "l2_0": "1"
+        },
+        "jacobian_rank": 72,
+        "linearized_dimension": 0,
+        "max_degree": 6,
+        "monomials": 1362,
+        "sample_verified": true,
+        "unknowns": 73
+      },
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 2.321928094887362,
+          "max_const_before": 0.0,
+          "n_nontrivial": 1,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "0.9IPR_A(t) + 0.1IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 1.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 1.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n   [1] resize!(a::Vector{Int32}, nl_::Int64)\n     @ Base ./array.jl:1533\n   [2] linalg_reduce_dense_row_by_pivots_sparse!(new_sparse_row_support::Vector{Int32}, new_sparse_row_coeffs::Vector{UInt64}, row::Vector{UInt64}, matrix::Groebner.MacaulayMatrix{UInt64}, basis::Groebner.Basis{UInt64}, pivots::Vector{Vector{Int32}}, start_column::Int64, end_column::Int64, arithmetic::Groebner.SpecializedArithmeticZp{UInt64, UInt64, false}, active_reducers::Nothing; ignore_column::Int64)\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/backend.jl:422\n \u250c [3] linalg_reduce_dense_row_by_pivots_sparse!\n \u2502   @ ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/backend.jl:365 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n   [5] linalg_randomized_reduce_matrix_lower_part!(matrix::Groebner.MacaulayMatrix{UInt64}, basis::Groebner.Basis{UInt64}, arithmetic::Groebner.SpecializedArithmeticZp{UInt64, UInt64, false}, rng::Xoshiro)\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/backend_randomized.jl:106\n   [6] linalg_randomized_sparse!\n     @ ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/backend_randomized.jl:22 [inlined]\n   [7] _linalg_main!(matrix::Groebner.MacaulayMatrix{UInt64}, basis::Groebner.Basis{UInt64}, linalg::Groebner.LinearAlgebra, tasks::Int64, changematrix::Bool, arithmetic::Groebner.SpecializedArithmeticZp{UInt64, UInt64, false}, rng::Xoshiro)\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/linalg.jl:165\n   [8] #linalg_main!#101\n     @ ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/linalg.jl:42 [inlined]\n \u250c [9] linalg_main!\n \u2502   @ ~/.julia/packages/Groebner/d0Ueg/src/f4/linalg/linalg.jl:23 [inlined]\n \u2570\u2500\u2500\u2500\u2500 repeated 2 times\n  [11] f4_reduction!(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, basis::Groebner.Basis{UInt64}, matrix::Groebner.MacaulayMatrix{UInt64}, ht::Groebner.MonomialHashtable{Groebner.NibbleMonom{64}, Groebner.DegRevLex{true, Union{}}, SmallCollections.FixedVector{64, UInt32}}, symbol_ht::Groebner.MonomialHashtable{Groebner.NibbleMonom{64}, Groebner.DegRevLex{true, Union{}}, SmallCollections.FixedVector{64, UInt32}}, params::Groebner.AlgorithmParameters{Groebner.SpecializedArithmeticZp{UInt64, UInt64, false}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/f4/f4.jl:55\n  [12] f4!(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, basis::Groebner.Basis{UInt64}, pairset::Groebner.Pairset{UInt8}, hashtable::Groebner.MonomialHashtable{Groebner.NibbleMonom{64}, Groebner.DegRevLex{true, Union{}}, SmallCollections.FixedVector{64, UInt32}}, params::Groebner.AlgorithmParameters{Groebner.SpecializedArithmeticZp{UInt64, UInt64, false}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/f4/f4.jl:436\n  [13] _groebner_guess_lucky_prime(state::Groebner.ModularState{BigInt, Rational{BigInt}, Int32}, ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, basis_zz::Groebner.Basis{BigInt}, pairset::Groebner.Pairset{UInt8}, hashtable::Groebner.MonomialHashtable{Groebner.NibbleMonom{64}, Groebner.DegRevLex{true, Union{}}, SmallCollections.FixedVector{64, UInt32}}, params::Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:181\n  [14] _groebner_learn_and_apply(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, monoms::Vector{Vector{Groebner.NibbleMonom{64}}}, coeffs::Vector{Vector{Rational{BigInt}}}, params::Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:251\n  [15] _groebner2\n     @ ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:147 [inlined]\n  [16] groebner2(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, monoms::Vector{Vector{Groebner.NibbleMonom{64}}}, coeffs::Vector{Vector{Rational{BigInt}}}, params::Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:84\n  [17] __groebner1(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, monoms::Vector{Vector{Vector{Int64}}}, coeffs::Vector{Vector{Rational{BigInt}}}, params::Groebner.AlgorithmParameters{Groebner.ArithmeticQQ{Rational{BigInt}, Rational{BigInt}}})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:61\n  [18] _groebner1(ring::Groebner.PolyRing{Groebner.DegRevLex{true, Union{}}, UInt64}, monoms::Vector{Vector{Vector{Int64}}}, coeffs::Vector{Vector{Rational{BigInt}}}, options::Groebner.KeywordArguments)\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:40\n  [19] groebner0(polynomials::Vector{Nemo.QQMPolyRingElem}, options::Groebner.KeywordArguments)\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/groebner/groebner.jl:10\n  [20] #groebner#229\n     @ ~/.julia/packages/Groebner/d0Ueg/src/interface.jl:113 [inlined]\n  [21] groebner(polynomials::Vector{Nemo.QQMPolyRingElem})\n     @ Groebner ~/.julia/packages/Groebner/d0Ueg/src/interface.jl:111\n  [22] macro expansion\n     @ ./timing.jl:699 [inlined]\n  [23] run_probe(pep::ParameterEstimationProblem, phase::String)\n     @ Main /tmp/odepe-fourth-root-rational-root-multiplicity-v3/source/probes.jl:92\n  [24] top-level scope\n     @ /tmp/odepe-fourth-root-rational-root-multiplicity-v3/source/run.jl:126\n  [25] include(mod::Module, _path::String)\n     @ Base ./Base.jl:309\n  [26] exec_options(opts::Base.JLOptions)\n     @ Base ./client.jl:344\n  [27] _start()\n     @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-root-multiplicity-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 2400.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 2662.2659211910213,
+      "supervisor_measured_stage_seconds": 2400.1678159880103,
+      "worker_finalization_complete": true,
+      "result_sha256": "60faf752a2bb86b4b35175738663c62dc19702772b2df9df4d0bd3e5de381087",
+      "hc_systems": [],
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": [],
+      "probe_active_seconds": 2360.649820913,
+      "groebner_active_seconds": 2337.939317803
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "root",
+      "phase": "selection",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 222.84968155,
+      "estimation_seconds": 1200.916965674,
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 2.321928094887362,
+          "max_const_before": 0.0,
+          "n_nontrivial": 1,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "0.9IPR_A(t) + 0.1IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 1.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 1.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n  [1] ==\n    @ ./promotion.jl:641 [inlined]\n  [2] mapreduce_impl(f::typeof(identity), op::typeof(max), A::Vector{Int32}, ifirst::Int64, ilast::Int64, blksize::Int64)\n    @ Base ./reduce.jl:254\n  [3] mapreduce_impl\n    @ ./reduce.jl:276 [inlined]\n  [4] _mapreduce\n    @ ./reduce.jl:447 [inlined]\n  [5] _mapreduce_dim\n    @ ./reducedim.jl:338 [inlined]\n  [6] mapreduce\n    @ ./reducedim.jl:330 [inlined]\n  [7] _maximum\n    @ ./reducedim.jl:994 [inlined]\n  [8] _maximum\n    @ ./reducedim.jl:993 [inlined]\n  [9] maximum\n    @ ./reducedim.jl:989 [inlined]\n [10] compute_dot_bound!\n    @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1347 [inlined]\n [11] exchange_column!(cell::MixedSubdivisions.MixedCellTable, exchange::MixedSubdivisions.Exchange, ineq::MixedSubdivisions.CayleyIndex, \u03c4_bound::Int32)\n    @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:806\n [12] reverse_exchange_column!\n    @ ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:985 [inlined]\n [13] next_cell!(traverser::MixedSubdivisions.MixedCellTableTraverser{MixedSubdivisions.LexicographicOrdering})\n    @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1043\n [14] next_cell!(T::MixedSubdivisions.RegenerationTraverser)\n    @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1206\n [15] mixed_volume(args::Vector{Matrix{Int32}}; show_progress::Bool, kwargs::@Kwargs{})\n    @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1441\n [16] mixed_volume(args::Vector{Matrix{Int32}})\n    @ MixedSubdivisions ~/.julia/packages/MixedSubdivisions/Er7IW/src/MixedSubdivisions.jl:1430\n [17] paths_to_track(f::HomotopyContinuation.ModelKit.System, ::Val{:polyhedral}; only_torus::Bool, only_non_zero::Bool)\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:0\n [18] paths_to_track\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:311 [inlined]\n [19] #paths_to_track#316\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:748 [inlined]\n [20] paths_to_track\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:743 [inlined]\n [21] mixed_volume(f::HomotopyContinuation.ModelKit.System)\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:347\n [22] _noise_mixed_volume(equations::Vector{Any}, solve_vars::Vector{Any}, data_vars::Vector{Any})\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1025\n [23] _noise_candidate_from_indices(indices::Vector{Int64}, strategy::Symbol, cap::Int64, pool::@NamedTuple{symbolic_equations::Vector{Any}, instantiated_equations::Vector{Num}, instantiated_vars::Vector{Any}, metadata::Vector{@NamedTuple{point::Int64, source_index::Int64, max_observed_order::Int64, support_score::Float64}}, template_DD::DerivativeData, full_equation_count::Int64, probe_indices::Vector{Int64}, n_points::Int64}, J::Matrix{Float64}, pep::ParameterEstimationProblem, dd_order_by_obj::Dict{Any, Int64}, dd_order_by_string::Dict{String, Int64}, obs_bases::Set{String}; compute_mixed_volume::Bool, rank_atol::Float64)\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1053\n [24] kwcall(::@NamedTuple{compute_mixed_volume::Bool, rank_atol::Float64}, ::typeof(ODEParameterEstimation._noise_candidate_from_indices), indices::Vector{Int64}, strategy::Symbol, cap::Int64, pool::@NamedTuple{symbolic_equations::Vector{Any}, instantiated_equations::Vector{Num}, instantiated_vars::Vector{Any}, metadata::Vector{@NamedTuple{point::Int64, source_index::Int64, max_observed_order::Int64, support_score::Float64}}, template_DD::DerivativeData, full_equation_count::Int64, probe_indices::Vector{Int64}, n_points::Int64}, J::Matrix{Float64}, pep::ParameterEstimationProblem, dd_order_by_obj::Dict{Any, Int64}, dd_order_by_string::Dict{String, Int64}, obs_bases::Set{String})\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1033\n [25] _noise_select_pool(pep::ParameterEstimationProblem, pool::@NamedTuple{symbolic_equations::Vector{Any}, instantiated_equations::Vector{Num}, instantiated_vars::Vector{Any}, metadata::Vector{@NamedTuple{point::Int64, source_index::Int64, max_observed_order::Int64, support_score::Float64}}, template_DD::DerivativeData, full_equation_count::Int64, probe_indices::Vector{Int64}, n_points::Int64}; compute_mixed_volume::Bool, candidate_limit::Int64, beam_width::Int64, rank_atol::Float64, n_rank_probes::Int64, diagnostics::Bool, materialize_polynomials::typeof(identity))\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1594\n [26] kwcall(::@NamedTuple{compute_mixed_volume::Bool, candidate_limit::Int64, beam_width::Int64, rank_atol::Float64, n_rank_probes::Int64, diagnostics::Bool}, ::typeof(ODEParameterEstimation._noise_select_pool), pep::ParameterEstimationProblem, pool::@NamedTuple{symbolic_equations::Vector{Any}, instantiated_equations::Vector{Num}, instantiated_vars::Vector{Any}, metadata::Vector{@NamedTuple{point::Int64, source_index::Int64, max_observed_order::Int64, support_score::Float64}}, template_DD::DerivativeData, full_equation_count::Int64, probe_indices::Vector{Int64}, n_points::Int64})\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1529\n [27] build_noise_frontier_system(pep::ParameterEstimationProblem, setup::@NamedTuple{good_deriv_level::Dict{Int64, Int64}, good_udict::OrderedCollections.OrderedDict{Num, Float64}, good_varlist::Vector{Num}, good_DD::DerivativeData, interpolants::Dict{Num, AbstractInterpolator}}, si_template::@NamedTuple{equations::Vector{Any}, all_equations::Vector{Any}, deriv_dict::Dict{Any, Any}, template_DD::DerivativeData, unidentifiable::Set{Nemo.QQMPolyRingElem}, identifiable_funcs::Nothing, structural_analysis::ODEParameterEstimation.SIStructuralAnalysis{ModelingToolkitBase.System, Nothing}, si_variable_role_summary::@NamedTuple{counts::Dict{Symbol, Int64}, samples::Dict{Symbol, Vector{String}}, suspicious_categories::Dict{Symbol, Int64}, auxiliary_variables::Vector{String}}, rank_trimming_metadata::@NamedTuple{selected_equation_indices::Vector{Int64}, dropped_equation_indices::Vector{Int64}, zero_equation_indices::Vector{Int64}, original_equation_count::Int64, full_equations::Vector{Any}, algebraic_multiplicity::Nothing, equation_builder_timing::OrderedCollections.OrderedDict{Symbol, Float64}, sian_timing::OrderedCollections.OrderedDict{Symbol, Float64}, algebraic_multiplicity_timing::OrderedCollections.OrderedDict{Symbol, Any}, template_var_map::OrderedCollections.OrderedDict{Num, Num}, structural_analysis::ODEParameterEstimation.SIStructuralAnalysis{ModelingToolkitBase.System, Nothing}, structural_analysis_reused::Bool}, structural_unidentifiable::Set{Num}, structural_fix_set::OrderedCollections.OrderedDict{Num, Float64}, template_status::Symbol, practical_identifiability_status::Symbol, numerical_advisory::NumericalIdentifiabilityAdvisory}; n_points::Int64, compute_mixed_volume::Bool, candidate_limit::Int64, beam_width::Int64, rank_atol::Float64, n_rank_probes::Int64, diagnostics::Bool, probe_indices::Nothing, selection_mode::Symbol)\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1522\n [28] kwcall(::@NamedTuple{n_points::Int64, compute_mixed_volume::Bool, candidate_limit::Int64, beam_width::Int64, diagnostics::Bool, selection_mode::Symbol}, ::typeof(build_noise_frontier_system), pep::ParameterEstimationProblem, setup::@NamedTuple{good_deriv_level::Dict{Int64, Int64}, good_udict::OrderedCollections.OrderedDict{Num, Float64}, good_varlist::Vector{Num}, good_DD::DerivativeData, interpolants::Dict{Num, AbstractInterpolator}}, si_template::@NamedTuple{equations::Vector{Any}, all_equations::Vector{Any}, deriv_dict::Dict{Any, Any}, template_DD::DerivativeData, unidentifiable::Set{Nemo.QQMPolyRingElem}, identifiable_funcs::Nothing, structural_analysis::ODEParameterEstimation.SIStructuralAnalysis{ModelingToolkitBase.System, Nothing}, si_variable_role_summary::@NamedTuple{counts::Dict{Symbol, Int64}, samples::Dict{Symbol, Vector{String}}, suspicious_categories::Dict{Symbol, Int64}, auxiliary_variables::Vector{String}}, rank_trimming_metadata::@NamedTuple{selected_equation_indices::Vector{Int64}, dropped_equation_indices::Vector{Int64}, zero_equation_indices::Vector{Int64}, original_equation_count::Int64, full_equations::Vector{Any}, algebraic_multiplicity::Nothing, equation_builder_timing::OrderedCollections.OrderedDict{Symbol, Float64}, sian_timing::OrderedCollections.OrderedDict{Symbol, Float64}, algebraic_multiplicity_timing::OrderedCollections.OrderedDict{Symbol, Any}, template_var_map::OrderedCollections.OrderedDict{Num, Num}, structural_analysis::ODEParameterEstimation.SIStructuralAnalysis{ModelingToolkitBase.System, Nothing}, structural_analysis_reused::Bool}, structural_unidentifiable::Set{Num}, structural_fix_set::OrderedCollections.OrderedDict{Num, Float64}, template_status::Symbol, practical_identifiability_status::Symbol, numerical_advisory::NumericalIdentifiabilityAdvisory})\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/noise_frontier_construction.jl:1502\n [29] (::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}})()\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:1032\n [30] macro expansion\n    @ ./timing.jl:699 [inlined]\n [31] _record_phase!(f::ODEParameterEstimation.var\"#optimized_multishot_parameter_estimation##12#optimized_multishot_parameter_estimation##13\"{EstimationOptions, Dict{Tuple, ODEParameterEstimation.PreparedRobustSystem}, Dict{Any, Any}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, OrderedCollections.OrderedDict{Symbol, Float64}, Nothing, typeof(solve_with_hc), Bool, Bool, Dict{Symbol, AbstractDict}, Vector{Union{Nothing, ODEParameterEstimation.AbstractEstimatorArtifact}}, Vector{Symbol}, Vector{Union{Nothing, Int64}}, Vector{Union{Nothing, Vector{Int64}}}, Vector{Symbol}, Vector{Int64}, Vector{Any}, Vector{Any}, Vector{Any}, Vector{Any}, Int64, DerivativeData, Vector{Num}, Dict{Int64, Int64}, Vector{Float64}}, stats::OrderedCollections.OrderedDict{String, NamedTuple}, opts::EstimationOptions, name::String)\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:262\n [32] optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/optimized_multishot_estimation.jl:952\n [33] _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)\n    @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:1019\n [34] analyze_parameter_estimation_problem\n    @ ~/.julia/dev/ODEParameterEstimation/src/core/analysis_utils.jl:968 [inlined]\n [35] #91\n    @ /tmp/odepe-fourth-root-rational-root-selection-v3/source/run.jl:105 [inlined]\n [36] with(::var\"#91#92\"{EstimationOptions, ParameterEstimationProblem}, ::Pair{Base.ScopedValues.ScopedValue{Union{Nothing, ODEParameterEstimation.RunContext}}, ODEParameterEstimation.RunContext})\n    @ Base.ScopedValues ./scopedvalues.jl:324\n [37] (::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem})()\n    @ Main /tmp/odepe-fourth-root-rational-root-selection-v3/source/run.jl:104\n [38] cd(f::var\"#89#90\"{EstimationOptions, ParameterEstimationProblem}, dir::String)\n    @ Base.Filesystem ./file.jl:112\n [39] top-level scope\n    @ /tmp/odepe-fourth-root-rational-root-selection-v3/source/run.jl:103\n [40] include(mod::Module, _path::String)\n    @ Base ./Base.jl:309\n [41] exec_options(opts::Base.JLOptions)\n    @ Base ./client.jl:344\n [42] _start()\n    @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-root-selection-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 1200.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 1571.4052848849678,
+      "supervisor_measured_stage_seconds": 1200.4429849029984,
+      "worker_finalization_complete": true,
+      "result_sha256": "7b0b972c33ca689c143ead2447f87688fa6764c4bf2eae62ef7f326c4d37f208",
+      "hc_systems": [],
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": []
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "root",
+      "phase": "denominators",
+      "seed": 20260915,
+      "status": "failed",
+      "preparation_seconds": 225.300778839,
+      "estimation_seconds": 63.238008241,
+      "derivative_steps": [
+        {
+          "bytes": 10137576,
+          "compile_seconds": 0.305953872,
+          "order": 1,
+          "seconds": 0.307015476,
+          "text_length": 629
+        },
+        {
+          "bytes": 164000,
+          "compile_seconds": 0.0,
+          "order": 2,
+          "seconds": 0.001248379,
+          "text_length": 1658
+        }
+      ],
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 2.321928094887362,
+          "max_const_before": 0.0,
+          "n_nontrivial": 1,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "0.9IPR_A(t) + 0.1IPR_O(t)": 0.5
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 1.0,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 1.0,
+          "IPR_O(t)": 1.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 1.0
+        }
+      },
+      "error": "BoundsError: attempt to access 0-element Vector{Float64} at index [1]\nStacktrace:\n    [1] throw_boundserror(A::Vector{Float64}, I::Tuple{Int64})\n      @ Base ./essentials.jl:14\n    [2] checkbounds\n      @ ./essentials.jl:389 [inlined]\n    [3] getindex\n      @ ./essentials.jl:969 [inlined]\n    [4] getindex\n      @ ~/.julia/packages/DynamicPolynomials/pqurk/src/poly.jl:156 [inlined]\n    [5] termwise_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:851\n    [6] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:891\n \u250c  [7] primitive_part_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:982\n \u251c  [8] primitive_part(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:947\n \u251c  [9] primitive_univariate_gcd!(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, q::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:622\n \u251c [10] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:773\n \u251c [11] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n \u251c [12] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsNotMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n \u251c [13] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsNotMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n \u251c [14] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsNotMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n \u251c [15] _simplifier(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsMutable, mb::MutableArithmetics.IsNotMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:834\n \u251c [16] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:916\n \u2570\u2500\u2500\u2500\u2500\u2500 repeated 2 times\n   [27] primitive_part_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:982\n   [28] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:771\n   [29] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n   [30] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n   [31] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n \u250c [32] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n \u251c [33] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsMutable, mb::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n \u251c [34] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n \u251c [35] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n \u2502    @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:350\n \u2570\u2500\u2500\u2500\u2500\u2500 repeated 6 times\n   [56] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n \u250c [57] gcd\n \u2502    @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185 [inlined]\n \u2570\u2500\u2500\u2500\u2500\u2500 repeated 2 times\n   [59] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64})\n      @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185\n   [60] safe_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number})\n      @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:281\n   [61] simplify_div(num::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}, den::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n      @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:290\n   [62] simplify_div(d::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n      @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:221\n   [63] call_composed(fs::Tuple{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n      @ Base ./operators.jl:1110\n   [64] (::ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n      @ Base ./operators.jl:1107\n   [65] ComposedFunction\n      @ ./operators.jl:1107 [inlined]\n   [66] macro expansion\n      @ ./some.jl:157 [inlined]\n   [67] (::SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n      @ SymbolicUtils.Rewriters ~/.julia/packages/SymbolicUtils/c9cTZ/src/rewriters.jl:0\n   [68] call_composed(fs::Tuple{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n      @ Base ./operators.jl:1110\n   [69] (::ComposedFunction{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n      @ Base ./operators.jl:1107\n   [70] simplify_fractions\n      @ ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:519 [inlined]\n   [71] clear_denoms(eq::Symbolics.Equation)\n      @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/math_utils.jl:32\n   [72] macro expansion\n      @ ./timing.jl:699 [inlined]\n   [73] run_probe(pep::ParameterEstimationProblem, phase::String)\n      @ Main /tmp/odepe-fourth-root-rational-root-denominators-v3/source/probes.jl:27\n   [74] top-level scope\n      @ /tmp/odepe-fourth-root-rational-root-denominators-v3/source/run.jl:126\n   [75] include(mod::Module, _path::String)\n      @ Base ./Base.jl:309\n   [76] exec_options(opts::Base.JLOptions)\n      @ Base ./client.jl:344\n   [77] _start()\n      @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-root-denominators-v3",
+      "supervisor_status": "failed",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 600.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 345.2189798600157,
+      "supervisor_measured_stage_seconds": null,
+      "worker_finalization_complete": true,
+      "result_sha256": "3027aebecde62b0598ca4aacd8ffe07887bd78c98aa3c967ab9f7d227f4f9c1a",
+      "hc_systems": [],
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": [],
+      "clear_denoms_active_seconds": 11.606999547000001
+    },
+    {
+      "model_kind": "rational",
+      "observation_kind": "quartic",
+      "phase": "denominators",
+      "seed": 20260915,
+      "status": "interrupted",
+      "preparation_seconds": 218.417216914,
+      "estimation_seconds": 600.912706063,
+      "derivative_steps": [
+        {
+          "bytes": 10717424,
+          "compile_seconds": 0.332081649,
+          "order": 1,
+          "seconds": 0.333944382,
+          "text_length": 717
+        },
+        {
+          "bytes": 1490672,
+          "compile_seconds": 0.059398434,
+          "order": 2,
+          "seconds": 0.062116889,
+          "text_length": 3420
+        }
+      ],
+      "generating_validation": {
+        "generated_linear_min": 0.0,
+        "original_y_max_relative_error": 0.0,
+        "root_z_max_abs_error": 0.0
+      },
+      "scale_info": {
+        "metadata": {
+          "max_const_after": 3.2877123795494487,
+          "max_const_before": 0.0,
+          "n_nontrivial": 5,
+          "objective": "ls"
+        },
+        "observable_scales": {
+          "(0.9IPR_A(t) + 0.1IPR_O(t))^4": 0.015625
+        },
+        "param_scales": {
+          "k1": 1.0,
+          "k2": 1.0,
+          "k3": 1.0,
+          "k4": 1.0,
+          "k_1": 1.0,
+          "k_2": 1.0,
+          "k_3": 1.0,
+          "k_4": 1.0,
+          "l2": 1.0,
+          "l4": 1.0,
+          "l6": 1.0,
+          "l_2": 1.0,
+          "l_4": 1.0,
+          "l_6": 1.0
+        },
+        "state_scales": {
+          "IPR_A(t)": 0.5,
+          "IPR_I1(t)": 1.0,
+          "IPR_I2(t)": 0.5,
+          "IPR_O(t)": 2.0,
+          "IPR_R(t)": 1.0,
+          "IPR_S(t)": 2.0
+        }
+      },
+      "error": "InterruptException:\nStacktrace:\n     [1] cmp(::MultivariatePolynomials.InverseLexOrder, exp1::Vector{Int64}, exp2::Vector{Int64})\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/comparison.jl:264\n     [2] cmp\n       @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/comparison.jl:316 [inlined]\n     [3] cmp(ordering::MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, a::Vector{Int64}, b::Vector{Int64})\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/comparison.jl:286\n     [4] _exponents_compare\n       @ ~/.julia/packages/DynamicPolynomials/pqurk/src/operators.jl:180 [inlined]\n     [5] compare_monomials_impl\n       @ ~/.julia/packages/DynamicPolynomials/pqurk/src/operators.jl:219 [inlined]\n     [6] compare_monomials\n       @ ~/.julia/packages/DynamicPolynomials/pqurk/src/operators.jl:220 [inlined]\n     [7] polynomial_merge!(n1::Int64, n2::Int64, get1::DynamicPolynomials.var\"#get1#get1##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, get2::DynamicPolynomials.var\"#get2#get2##0\"{typeof(-), DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, set::DynamicPolynomials.var\"#set#set##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, push::DynamicPolynomials.var\"#push#push##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, compare_monomials::DynamicPolynomials.var\"#compare_monomials#compare_monomials##0\"{DynamicPolynomials.var\"#compare_monomials_impl#compare_monomials_impl##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, DynamicPolynomials.var\"#get1#get1##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}}, combine::DynamicPolynomials.var\"#combine#combine##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, typeof(-), DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, keep::DynamicPolynomials.var\"#keep#keep##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, resize::DynamicPolynomials.var\"#resize#resize##0\"{DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, ::Type{Tuple{Float64, Vector{Int64}}})\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/operators.jl:149\n     [8] operate!(op::typeof(-), p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, q::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64})\n       @ DynamicPolynomials ~/.julia/packages/DynamicPolynomials/pqurk/src/operators.jl:231\n     [9] operate!\n       @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/operators.jl:499 [inlined]\n    [10] operate_fallback!!\n       @ ~/.julia/packages/MutableArithmetics/xwKH0/src/interface.jl:663 [inlined]\n    [11] operate!!\n       @ ~/.julia/packages/MutableArithmetics/xwKH0/src/rewrite.jl:125 [inlined]\n    [12] div_multiple(f::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, g::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, mf::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/division.jl:187\n    [13] #right_constant_div_multiple##0\n       @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/division.jl:143 [inlined]\n    [14] map!\n       @ ./abstractarray.jl:3389 [inlined]\n    [15] #map_coefficients!#50\n       @ ~/.julia/packages/DynamicPolynomials/pqurk/src/poly.jl:354 [inlined]\n    [16] map_coefficients!\n       @ ~/.julia/packages/DynamicPolynomials/pqurk/src/poly.jl:353 [inlined]\n    [17] #map_coefficients#9\n       @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/polynomial.jl:615 [inlined]\n    [18] map_coefficients\n       @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/polynomial.jl:609 [inlined]\n    [19] right_constant_div_multiple(f::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, g::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, mf::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/division.jl:142\n    [20] primitive_univariate_gcd!(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, q::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:656\n    [21] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:773\n    [22] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n    [23] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n    [24] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n    [25] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [26] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsNotMutable, mb::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [27] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [28] primitive_part_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:982\n    [29] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:771\n    [30] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n    [31] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n    [32] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n    [33] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [34] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsMutable, mb::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [35] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [36] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:337\n    [37] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [38] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsNotMutable, mb::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [39] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [40] primitive_part_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:982\n    [41] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:772\n    [42] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n    [43] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n    [44] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n    [45] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [46] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsMutable, mb::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [47] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [48] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:350\n    [49] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [50] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:338\n    [51] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [52] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsNotMutable, mb::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [53] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [54] primitive_part_content(p::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:982\n    [55] univariate_gcd(::MultivariatePolynomials.UniqueFactorizationDomain, p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:771\n    [56] univariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:754\n    [57] multivariate_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, var::DynamicPolynomials.Variable{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:464\n    [58] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:356\n    [59] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsMutable, m2::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n    [60] _gcd(a::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, b::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, ma::MutableArithmetics.IsMutable, mb::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:829\n    [61] content(poly::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}}, algo::MultivariatePolynomials.SubresultantAlgorithm, mutability::MutableArithmetics.IsMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:914\n    [62] deflated_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:350\n    [63] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, algo::MultivariatePolynomials.SubresultantAlgorithm, m1::MutableArithmetics.IsNotMutable, m2::MutableArithmetics.IsNotMutable)\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:207\n \u250c  [64] gcd\n \u2502     @ ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185 [inlined]\n \u2570\u2500\u2500\u2500\u2500\u2500\u2500 repeated 2 times\n    [66] gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Float64})\n       @ MultivariatePolynomials ~/.julia/packages/MultivariatePolynomials/h8EF8/src/gcd.jl:185\n    [67] safe_gcd(p1::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number}, p2::DynamicPolynomials.Polynomial{DynamicPolynomials.Commutative{DynamicPolynomials.CreationOrder}, MultivariatePolynomials.Graded{MultivariatePolynomials.Reverse{MultivariatePolynomials.InverseLexOrder}}, Number})\n       @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:281\n    [68] simplify_div(num::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}, den::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n       @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:290\n    [69] simplify_div(d::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n       @ SymbolicUtils ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:221\n    [70] call_composed(fs::Tuple{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n       @ Base ./operators.jl:1110\n    [71] (::ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n       @ Base ./operators.jl:1107\n    [72] ComposedFunction\n       @ ./operators.jl:1107 [inlined]\n    [73] macro expansion\n       @ ./some.jl:157 [inlined]\n    [74] (::SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal})\n       @ SymbolicUtils.Rewriters ~/.julia/packages/SymbolicUtils/c9cTZ/src/rewriters.jl:0\n    [75] call_composed(fs::Tuple{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}}, x::Tuple{SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}}, kw::@Kwargs{})\n       @ Base ./operators.jl:1110\n    [76] (::ComposedFunction{SymbolicUtils.Rewriters.Walk{:post, ComposedFunction{typeof(SymbolicUtils.simplify_div), typeof(SymbolicUtils.quick_cancel)}, Returns{Bool}, typeof(TermInterface.maketerm), false}, SymbolicUtils.Rewriters.Walk{:post, typeof(SymbolicUtils.add_with_div), Returns{Bool}, typeof(TermInterface.maketerm), false}})(x::SymbolicUtils.BasicSymbolicImpl.var\"typeof(BasicSymbolicImpl)\"{SymbolicUtils.SymReal}; kw::@Kwargs{})\n       @ Base ./operators.jl:1107\n    [77] simplify_fractions\n       @ ~/.julia/packages/SymbolicUtils/c9cTZ/src/polyform.jl:519 [inlined]\n    [78] clear_denoms(eq::Symbolics.Equation)\n       @ ODEParameterEstimation ~/.julia/dev/ODEParameterEstimation/src/core/math_utils.jl:32\n    [79] macro expansion\n       @ ./timing.jl:699 [inlined]\n    [80] run_probe(pep::ParameterEstimationProblem, phase::String)\n       @ Main /tmp/odepe-fourth-root-rational-quartic-denominators-v3/source/probes.jl:27\n    [81] top-level scope\n       @ /tmp/odepe-fourth-root-rational-quartic-denominators-v3/source/run.jl:126\n    [82] include(mod::Module, _path::String)\n       @ Base ./Base.jl:309\n    [83] exec_options(opts::Base.JLOptions)\n       @ Base ./client.jl:344\n    [84] _start()\n       @ Base ./client.jl:577",
+      "output_directory": "/tmp/odepe-fourth-root-rational-quartic-denominators-v3",
+      "supervisor_status": "timeout",
+      "source_revision": "de79d87527551600c027e924ab48d6ba50c0fcf2",
+      "julia_version": "1.13.0",
+      "returncode": 1,
+      "stage_cap": 600.0,
+      "loading_and_preparation_cap": 600,
+      "supervisor_elapsed_seconds": 870.255446280993,
+      "supervisor_measured_stage_seconds": 600.4586109719821,
+      "worker_finalization_complete": true,
+      "result_sha256": "b5ac1d0906d3dad4403c0275c914f4d7670e5702dad2ba301b4f7049b7de1cff",
+      "hc_systems": [],
+      "parameter_homotopy_events": [],
+      "fresh_data_solves": [],
+      "generic_error_messages": [],
+      "clear_denoms_active_seconds": 550.7922494339999
+    }
+  ],
+  "pair_checks": [
+    {
+      "model": "free",
+      "phase": "estimate",
+      "same_model_except_observation": true,
+      "same_original_data": true,
+      "same_options_except_output_paths": true,
+      "same_harness_sources": true,
+      "effective_interpolators_before_rescaling": {
+        "quartic": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorAAAD",
+          "InterpolatorS2AAAMLE"
+        ],
+        "root": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorS2AAAMLE"
+        ]
+      },
+      "same_state_and_parameter_scales": false,
+      "quartic_roundtrip_error": 0.0,
+      "root_roundtrip_error": 0.0
+    },
+    {
+      "model": "rational",
+      "phase": "denominators",
+      "same_model_except_observation": true,
+      "same_original_data": true,
+      "same_options_except_output_paths": true,
+      "same_harness_sources": true,
+      "effective_interpolators_before_rescaling": {
+        "quartic": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorAAAD",
+          "InterpolatorS2AAAMLE"
+        ],
+        "root": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorS2AAAMLE"
+        ]
+      },
+      "same_state_and_parameter_scales": false,
+      "quartic_roundtrip_error": 0.0,
+      "root_roundtrip_error": 0.0
+    },
+    {
+      "model": "rational",
+      "phase": "estimate",
+      "same_model_except_observation": true,
+      "same_original_data": true,
+      "same_options_except_output_paths": true,
+      "same_harness_sources": true,
+      "effective_interpolators_before_rescaling": {
+        "quartic": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorAAAD",
+          "InterpolatorS2AAAMLE"
+        ],
+        "root": [
+          "InterpolatorAGPRobust",
+          "InterpolatorAGPRobustRQ",
+          "InterpolatorS3AdaptSE",
+          "InterpolatorS3AdaptRQ",
+          "InterpolatorChebyshevBIC",
+          "InterpolatorChebyshevAICc",
+          "InterpolatorAAADGPR",
+          "InterpolatorS2AAAMLE"
+        ]
+      },
+      "same_state_and_parameter_scales": false,
+      "quartic_roundtrip_error": 0.0,
+      "root_roundtrip_error": 0.0
+    }
+  ],
+  "summary_source_sha256": "c5096c1f7ce9f7a45132577173ae5f54958d294281fadecfc8d0b702997726af"
+}
