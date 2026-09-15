@@ -1,5 +1,7 @@
 # julia --startup-file=no --compiled-modules=existing run.jl MODEL CONDITION OUTPUT_DIR [POINTS]
 include("common.jl")
+capture_generic = get(ENV, "ODEPE_DENSE_CAPTURE_GENERIC", "false") == "true"
+capture_generic && include("capture_generic_system.jl")
 length(ARGS) in (3,4) || error("Expected MODEL CONDITION OUTPUT_DIR [POINTS]")
 name, cid, outarg = ARGS[1:3]
 out = abspath(outarg)
@@ -52,6 +54,7 @@ try
         signals=[(; expression=string(eq.rhs), values=pep.data_sample[eq.rhs]) for eq in pep.measured_quantities]))
     opts = EstimationOptions(; datasize=n, time_interval=pep.recommended_time_interval,
         algebraic_multiplicity=supplied_m, compute_algebraic_multiplicity=m_request != "skip",
+        construction_compute_mixed_volume=parse(Bool, get(ENV, "ODEPE_DENSE_SELECTION_MV", "true")),
         si_fix_strategy=Symbol(get(ENV, "ODEPE_SI_FIX_STRATEGY", string(EstimationOptions().si_fix_strategy))),
         noise_level=0.0, shooting_points=20, shooting_warp=true, shooting_warp_beta=3.0,
         use_multipoint=true, multipoint_n_points=2, multipoint_max_pairs=15,
@@ -99,8 +102,9 @@ try
     record["raw_count"] = length(first(raw))
     record["status"] = isempty(ranked) ? "no_candidates" : "complete"
 catch err
-    record["status"] = err isa InterruptException ? "interrupted" : "failed"
-    record["error"] = sprint(showerror, err, catch_backtrace())
+    captured = capture_generic && err isa InterruptException && isfile(joinpath(out, "generic_system.json"))
+    record["status"] = captured ? "captured_generic_system" : err isa InterruptException ? "interrupted" : "failed"
+    captured || (record["error"] = sprint(showerror, err, catch_backtrace()))
 finally
     haskey(record,"estimation_started_ns") && !haskey(record,"estimation_seconds") &&
         (record["estimation_seconds"] = (time_ns()-record["estimation_started_ns"])/1e9)

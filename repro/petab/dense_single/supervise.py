@@ -16,6 +16,8 @@ def main():
     parser.add_argument("--seconds", type=float, default=1200)
     parser.add_argument("--si-fix-strategy", choices=("local_basis", "identifiable_functions"))
     parser.add_argument("--multiplicity", default="auto", help="auto, skip (M unknown), or a positive externally supplied M")
+    parser.add_argument("--skip-selection-mv", action="store_true", help="Disable MV scoring when choosing a subsystem")
+    parser.add_argument("--capture-generic-system", action="store_true", help="Save the first chosen HC family and stop before solving")
     parser.add_argument("--input", type=Path, help="Exact start pairs for Fujita tracking/discovery")
     parser.add_argument("--si-mode", choices=("local", "local_fixed", "global", "functions_absent", "functions_standard"))
     args = parser.parse_args()
@@ -25,6 +27,8 @@ def main():
         parser.error("--multiplicity applies only to dense estimation runs")
     if args.si_fix_strategy and args.model not in ("bruno", "fujita", "sneyd"):
         parser.error("--si-fix-strategy applies only to dense estimation runs")
+    if (args.skip_selection_mv or args.capture_generic_system) and args.model not in ("bruno", "fujita", "sneyd"):
+        parser.error("Selection/capture options apply only to dense estimation runs")
     tracking = args.model in ("fujita_tracking", "fujita_discovery")
     if tracking != (args.input is not None):
         parser.error("--input is required only for Fujita tracking/discovery")
@@ -72,6 +76,8 @@ def main():
         command += [str(here / "run.jl"), model, condition, str(out)]
     env = os.environ.copy()
     env["ODEPE_DENSE_MULTIPLICITY"] = args.multiplicity
+    env["ODEPE_DENSE_SELECTION_MV"] = str(not args.skip_selection_mv).lower()
+    env["ODEPE_DENSE_CAPTURE_GENERIC"] = str(args.capture_generic_system).lower()
     if args.si_fix_strategy:
         env["ODEPE_SI_FIX_STRATEGY"] = args.si_fix_strategy
     for key in ("JULIA_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):

@@ -36,6 +36,9 @@ records the smaller Sneyd side counter and downstream estimation bottleneck.
 The [polynomial zero-detection follow-up](2026-09-15_polynomial_zero_detection.md)
 moves representative substitution into Nemo, retains an isolated SymbolicUtils
 performance reproducer, and checks the resulting Sneyd template exactly.
+The [Sneyd HC-boundary study](2026-09-15_sneyd_hc_boundary.md) disables candidate
+MV scoring in a research run, captures the actual selected system, and separates
+polyhedral setup, monodromy start search, and supplied-root tracking diagnostics.
 
 ## Start here
 

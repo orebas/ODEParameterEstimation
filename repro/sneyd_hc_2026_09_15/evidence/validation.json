@@ -1,0 +1,118 @@
+{
+  "production_commit": "4dc6fedbf9bf5438dc28d3a4c116b5fa17d4bf26",
+  "production_files_changed": false,
+  "no_parameter_estimates_returned": true,
+  "no_upstream_report_submitted": true,
+  "options_difference_from_previous_run": {
+    "construction_compute_mixed_volume": [
+      true,
+      false
+    ]
+  },
+  "models_identical": true,
+  "data_byte_identical": true,
+  "selected_and_prior_si_template_exactly_equal": true,
+  "manifest_sha256": {
+    "/home/orebas/.julia/environments/v1.13/Manifest.toml": "28ac420b8ae0df1e5585fd5f2fc9c59718f9d03d84c0cd7a6008fea901cb8350",
+    "/tmp/odepe-petab-pilot-env/Manifest.toml": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703"
+  },
+  "checks": {
+    "exact_system_roundtrip_all_arms": true,
+    "known_start_all_72_equations_over_rationals": true,
+    "normalization_all_coefficients_and_root_over_rationals": true,
+    "extraneous_pole_family_exact": true,
+    "polyhedral_canary_paths_and_roots": 2,
+    "monodromy_canary_certified_distinct_roots": 2,
+    "julia_final_harness_syntax": "passed",
+    "python_final_harness_syntax": "passed",
+    "full_production_gate": "not rerun; no production changes"
+  },
+  "outcomes": {
+    "polyhedral": {
+      "status": "failed",
+      "operation_seconds": 946.773870606
+    },
+    "auto_monodromy": {
+      "status": "failed",
+      "operation_seconds": 148.803658835,
+      "find_start_pair_seconds": 147.854890183,
+      "find_start_pair_compile_seconds": 147.494390175
+    },
+    "known_monodromy": {
+      "status": "complete",
+      "operation_seconds": 240.621382914,
+      "monodromy_seconds": 201.665116523,
+      "roots_found": 0,
+      "return_code": "invalid_startvalue",
+      "certified_distinct_roots": 0
+    },
+    "normalized_monodromy": {
+      "status": "complete",
+      "operation_seconds": 339.681854481,
+      "monodromy_seconds": 299.948128078,
+      "roots_found": 0,
+      "return_code": "invalid_startvalue",
+      "certified_distinct_roots": 0
+    }
+  },
+  "artifact_sha256": {
+    "README.md": "72365415e4befafcbdd46e7e56af2c93eb6915bcf6cf59d2f9b9cae857e23a0b",
+    "evidence/auto_monodromy/probe.jl.gz": "1a582ca290dd4cc5a3fac8be4dc8d5e06a1fc35e6bc24587d032d2ef57240e89",
+    "evidence/auto_monodromy/result.json.gz": "c5cebeb2f5c718239a55e6e60b69e79c58bfc5355a49c12943653b02bd63dfb0",
+    "evidence/auto_monodromy/supervise.py.gz": "ad3e2e20d47ba0d34bc7ce78ac5b49b64f7f4c6d6ad0dfb6c804b5cb19da8847",
+    "evidence/auto_monodromy/supervisor.json.gz": "eb56f3b60c7ac005d03e392497f915812f09f946619076ea0a59e10da8cc795b",
+    "evidence/auto_monodromy/system.json.gz": "d2fe3cfd7dacd05403cb2ac0777977fbd2688246b3631e824b8ebe80374f47f7",
+    "evidence/auto_monodromy/worker.log.gz": "94b031b8f3d7576619c7d531fc2e797f8090e73595b67c801d2ce48fa673b5d9",
+    "evidence/canary_monodromy/probe.jl.gz": "62104112d9a9284bec25534c4a69e7457549f9d7198356579c118df290c90975",
+    "evidence/canary_monodromy/result.json.gz": "503e728d9551116ec9290f547cc83916ecee20b4c9a6aeebf22e05fbb087df0d",
+    "evidence/canary_monodromy/supervise.py.gz": "ad3e2e20d47ba0d34bc7ce78ac5b49b64f7f4c6d6ad0dfb6c804b5cb19da8847",
+    "evidence/canary_monodromy/supervisor.json.gz": "16b0398244f231e1d93415368946cae5b03e02e553d9034c6b7d70b9da8fc116",
+    "evidence/canary_monodromy/system.json.gz": "3d14a949d4344d56c4390f5434231ffb67006af429b5cebecb421f460a1e69f1",
+    "evidence/canary_monodromy/worker.log.gz": "a83b486ecc85e14380ca9d5b75dbcd28d1e27cd298b3a562cfe42eeedca131c5",
+    "evidence/canary_polyhedral/probe.jl.gz": "62104112d9a9284bec25534c4a69e7457549f9d7198356579c118df290c90975",
+    "evidence/canary_polyhedral/result.json.gz": "b576bd124633b267ec898652fdc7ee8e62f1026202577135dd280f174e4aa2b3",
+    "evidence/canary_polyhedral/supervise.py.gz": "ad3e2e20d47ba0d34bc7ce78ac5b49b64f7f4c6d6ad0dfb6c804b5cb19da8847",
+    "evidence/canary_polyhedral/supervisor.json.gz": "cce50143d29bc0efe0f77d944eea2f5dddd672e16b33b3e5f22089a584ba5628",
+    "evidence/canary_polyhedral/system.json.gz": "3d14a949d4344d56c4390f5434231ffb67006af429b5cebecb421f460a1e69f1",
+    "evidence/canary_polyhedral/worker.log.gz": "14f6ef2728c3a913e7c85d823591ed65d092eb73c9a241f98274e94a6f5e238f",
+    "evidence/capture/capture_generic_system.jl.gz": "8d6a325650a011395624dd509397d23e0c50d5011207bd76cc19b6f2f7aa0c60",
+    "evidence/capture/common.jl.gz": "13774d883574c26ffe2d5e94f60f0715dd54803f213e3f6afd95b47d0dfa6563",
+    "evidence/capture/data.json.gz": "5edd459891ecdc09c24103177f3e0aae1f2607a971ceefc9d62e478991b97ee4",
+    "evidence/capture/detailed_timing.json.gz": "3225bf4838ce387fb8ec2241975db8508d80c0a922a5400d4e62a0498c0c742b",
+    "evidence/capture/generic_system.json.gz": "d2fe3cfd7dacd05403cb2ac0777977fbd2688246b3631e824b8ebe80374f47f7",
+    "evidence/capture/resolve_timing.json.gz": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+    "evidence/capture/result.json.gz": "cdbbf8fc9c23f97f99d8c72f0e584e216b2971d08e01e4a7bd3d80b36a7225b1",
+    "evidence/capture/run.jl.gz": "1bc8123d19d521bce0bb58945ea6540925ed6225757e700d7dfd2fc2e8172375",
+    "evidence/capture/si_template.jl.gz": "76df4146b9ae6933c57e5b197d9444e7af8efab8d8f88c6f97ad3ac3f97e5d25",
+    "evidence/capture/supervise.py.gz": "98ce1c99f0073523c56e7272941e7b48c38f1a3f6c20faf5e3d1939d9bc62455",
+    "evidence/capture/supervisor.json.gz": "3d2f2a78a6554cc3a0e2df31243f9d760cc55d9590f3d2a22e6b8b9bc57f9284",
+    "evidence/capture/worker.log.gz": "9718724f25effe13ef5608a3f653665c6abe6ee826797cc8881bb30a35d48aa1",
+    "evidence/known_monodromy/known_start.json.gz": "7ff1a1a6d36e514b58f93c0d7631c1879b8a91db4500403a6c4225da0750529e",
+    "evidence/known_monodromy/probe.jl.gz": "7e91ca5dadbe395ffb13df5b67a118698636584de240b44c2eb22c11b78c9537",
+    "evidence/known_monodromy/result.json.gz": "cdb1cea3afba40867aa999ff17735d6cdec77af1177fc3566ebb053c695edc30",
+    "evidence/known_monodromy/supervise.py.gz": "7e7a666141de0a667e3aa4f972157c502b7bd2b3995cfbfe9c2e328bb55671d6",
+    "evidence/known_monodromy/supervisor.json.gz": "4c60dfe62f7eb6ca32d71fc49f1b70466f975a0a3b4fe7b01070ca09e1fbeb42",
+    "evidence/known_monodromy/system.json.gz": "d2fe3cfd7dacd05403cb2ac0777977fbd2688246b3631e824b8ebe80374f47f7",
+    "evidence/known_monodromy/worker.log.gz": "e8fc9238b3c13d54fe1fd0959f842212d8290fe68969156e263526e6b0f5fd60",
+    "evidence/known_start.json.gz": "7ff1a1a6d36e514b58f93c0d7631c1879b8a91db4500403a6c4225da0750529e",
+    "evidence/normalized_monodromy/known_start.json.gz": "f039219b4906f8f805a28d13806905cedb30975aa183f888bf06fa173f6105f6",
+    "evidence/normalized_monodromy/probe.jl.gz": "936179f5494492e999576151b3bddd846e79098436b9d7ded1c374d5eb133556",
+    "evidence/normalized_monodromy/result.json.gz": "15e230dffad10a9d1859d701be8062cd1f930854952d2bd2b0a561b4d2bf3bde",
+    "evidence/normalized_monodromy/supervise.py.gz": "7e7a666141de0a667e3aa4f972157c502b7bd2b3995cfbfe9c2e328bb55671d6",
+    "evidence/normalized_monodromy/supervisor.json.gz": "6dee914a7327cf5b43eb18cb36b5086eb7789e510edc33f75bd6556efb71aa5f",
+    "evidence/normalized_monodromy/system.json.gz": "2e7c2689d53b47a3a40bd8cc69816e953607d465c4a4847df9ef91e9306261dd",
+    "evidence/normalized_monodromy/worker.log.gz": "f0909ad5fa5888dabcdcfac88da93c1ace0cf33e01b91a31123df5c0518cf156",
+    "evidence/polyhedral/probe.jl.gz": "1a582ca290dd4cc5a3fac8be4dc8d5e06a1fc35e6bc24587d032d2ef57240e89",
+    "evidence/polyhedral/result.json.gz": "d1bb37dca1e3cd5d5000346034143975cf62ba37e5be229c674902e7e52cabcd",
+    "evidence/polyhedral/supervise.py.gz": "ad3e2e20d47ba0d34bc7ce78ac5b49b64f7f4c6d6ad0dfb6c804b5cb19da8847",
+    "evidence/polyhedral/supervisor.json.gz": "f0ac409a887afdb9184b7b8ad45a572dfd95fb1e71a9f4d32ff21d2a976cfd55",
+    "evidence/polyhedral/system.json.gz": "d2fe3cfd7dacd05403cb2ac0777977fbd2688246b3631e824b8ebe80374f47f7",
+    "evidence/polyhedral/worker.log.gz": "c2a90fefb43baa97f4feb1bdcd8b905d8217939f1bfd8626c5f7bcef52f2c29d",
+    "evidence/structure.json": "faa3dcd5a231b9ba844e5a1fdbf33d86cbac0a871dcde28e2aa3b8b440350450",
+    "inspect_selected.py": "2877f2c30748847afa03dcfe05b0fb804bfd321524c82486dc62dd6d9d158155",
+    "make_known_start.py": "af3529c90d674947fede255406ac9e974c56f80f96433d1456ab8acdf4de7622",
+    "normalize_known_start.py": "06e905a88424837b8971e9937a3f4429f86898c63955dc10d8b8e2a75076232e",
+    "probe.jl": "d051d53dd244f0103a09f38c601aac1277ef8b74d0675a7e1226e65dc2c8e4d8",
+    "supervise.py": "090be2ca96d6310c2a2a0f1613db58b82e3ee204a681e00e3bb4eefbc5bef22a"
+  }
+}

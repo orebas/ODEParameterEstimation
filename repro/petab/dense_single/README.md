@@ -47,6 +47,12 @@ the requested estimation limit starts immediately before the normal estimator,
 including its compilation and structural analysis. For `sneyd_profile` it starts
 just before the isolated original `clear_denoms` call. This is not an HC-only limit.
 
+`--skip-selection-mv` disables the existing subsystem-selection MV score for a
+dense run. `--capture-generic-system` explicitly loads a process-local diagnostic
+method, saves the first selected HC family, and stops before solving. The
+[captured-system study](../../sneyd_hc_2026_09_15/README.md) explains the resulting
+artifact and separate polyhedral/monodromy drivers. Both flags are off by default.
+
 `profile_denominators.jl` separately measures construction of the first two
 observation derivatives and fraction flattening without polynomial GCD, checks
 the flattened expressions numerically, then profiles the existing denominator
