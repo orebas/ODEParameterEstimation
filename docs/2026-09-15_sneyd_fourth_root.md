@@ -105,10 +105,16 @@ separately; the Julia worker was not restarted or changed. This is not
 presented as a success within the original budget.
 
 The subsequent parameter homotopy transfers those seven roots to the first
-real-data anchor, using AGPRobust's estimated derivatives. The existing
-tracker accounts for all seven paths but returns **zero finite endpoints**.
-This is not a report of lost paths or a proof that a finite solution does not
-exist. The existing empty-finite-result fallback in
+real-data anchor at t = 0, using AGPRobust's estimated derivatives. The log
+reports `7 accounted; finite-kept=0`: **zero successful finite endpoints**.
+The phrase "accounted" needs care. In the installed HC 2.22.4,
+`solutions(...; only_nonsingular=false, only_finite=false)` also includes failed
+path records; the filter in HC's `src/result.jl` does not exclude them.
+Consequently this count does not distinguish failed tracking from an endpoint
+classified at infinity. The individual return codes were not retained, and
+the cause of the transfer failure is not established. This is not a proof
+that the real-data polynomial system has no finite solutions.
+The existing empty-finite-result fallback in
 `solve_with_hc_parameterized` then starts a fresh 5,491-path polyhedral solve
 at that anchor. Thus generic setup is completed once, but the present fallback
 can still repeat the expensive polyhedral work on real data. Column scaling
@@ -204,10 +210,11 @@ trajectory polishing, and no terminal optimizer fallback are retained.
 
 The unchanged noise heuristic filters AAAD from the rooted signal, leaving
 eight effective interpolators. The quartic signal retains nine. Both begin
-with AGPRobust at the first real-data solve. The generic complex-data solve is
-hoisted before interpolation and does not depend on this filtering. The
-original and rescaled signal checks and runtime logs retain this behavior
-explicitly.
+with AGPRobust at the first real-data solve. In this run the first interpolant
+is constructed before the generic solve, but the generic solve uses random
+complex data values rather than interpolated values; its pool is intended for
+reuse across interpolators. The original and rescaled signal checks and
+runtime logs retain the filtering behavior explicitly.
 
 The configured list is AGPRobust, AGPRobustRQ, S3AdaptSE, S3AdaptRQ,
 ChebyshevBIC, ChebyshevAICc, AAADGPR, AAAD, and S2AAAMLE. Root polishing and
