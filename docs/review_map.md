@@ -48,6 +48,11 @@ only the clean observation/data within each dynamical model, verifies the
 captured systems in physical units, and revisits the earlier algebraic
 bottlenecks with explicit budgets. Its scripts do not change production
 estimation or dependencies.
+The [Sneyd interior-anchor comparison](2026-09-15_sneyd_interior_anchors.md)
+retains reusable generic roots and actual path codes. Excluding t = 0 does
+not repair fan-out: an identity-homotopy control isolates a numerical failure
+at the existing column-scaled generic-root handoff. It also quantifies the
+first interpolator's derivative errors, with production defaults unchanged.
 
 ## Start here
 
