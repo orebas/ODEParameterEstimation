@@ -1,0 +1,32 @@
+{
+  "status": "timeout",
+  "external_exit_code": 124,
+  "external_timeout_seconds": 1200,
+  "signal": "SIGINT",
+  "kill_after_seconds": 20,
+  "worker_sha256": "dbb51527c22a5cac78cf6e1324a5062baf22beccf2efd093c624e0e0e46d4b69",
+  "input_sha256": "3b8f692e5f769a24d7ffacdb80de15061c9c6fd4a6fcd54a1245dd30cff58f66",
+  "equations": 83,
+  "variables": 82,
+  "terms": 1694,
+  "max_degree": 5,
+  "basis_returned": false,
+  "multiplicity": null,
+  "interrupted_phase": "F4 symbolic preprocessing in _groebner_guess_lucky_prime",
+  "elapsed_groebner_seconds": null,
+  "worker_status_note": "Julia exited on SIGINT before the worker catch/finally ran. The raw worker status remains running; the external timeout result and interrupt trace establish termination. A later worker edit disables exit_on_sigint to allow saving interruption metadata.",
+  "runtime_comparison_note": "Other Julia validation processes were running concurrently. This is a bounded completion test, not a controlled runtime comparison.",
+  "command": [
+    "timeout",
+    "--signal=INT",
+    "--kill-after=20s",
+    "1200s",
+    "julia",
+    "--startup-file=no",
+    "--compiled-modules=existing",
+    "--threads=1",
+    "repro/coefficient_lifting_2026_09_14/count.jl",
+    "/tmp/odepe-coefficient-lifted-20260914/lifted.json",
+    "/tmp/odepe-coefficient-lifted-20260914/count_lifted.json"
+  ]
+}

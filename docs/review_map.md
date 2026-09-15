@@ -27,6 +27,9 @@ The [local-SI implementation record](2026-09-14_local_si_basis.md) documents
 the new default structural-fixing request and its validation. Its
 [multiplicity correction follow-up](2026-09-14_fixed_multiplicity.md) applies
 representative assignments before Gröbner and checks the resulting input.
+The [coefficient-lifting trial](2026-09-15_coefficient_lifting.md) adds an
+opt-in PEtab source extractor and an equivalent frozen-input experiment;
+it is not a change to the default estimator or multiplicity algorithm.
 
 ## Start here
 

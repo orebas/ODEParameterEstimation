@@ -3,6 +3,8 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 const Ext = Base.get_extension(ODEParameterEstimation, :ODEParameterEstimationPEtabExt)
 const fixture = joinpath(@__DIR__, "fixtures", "decay", "problem.yaml")
 
+include("coefficient_structure.jl")
+
 # A controlled curve family isolates block/anchor/scoring plumbing from GP
 # hyperparameter fitting. Fit its two coefficients to actual endpoint data.
 struct FixtureExponential <: ODEParameterEstimation.AbstractInterpolator

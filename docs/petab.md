@@ -128,6 +128,26 @@ records explicit cap-10 trials, polynomial degrees and term counts, and a detail
 Bruno example showing the distinction between a relaxed algebraic root and its
 prepared parameter seed.
 
+### Experimental coefficient extraction
+
+For models with rational parameter assignments and linear reaction fluxes,
+the optional extension can preserve the parameter-to-rate definitions:
+
+```julia
+extension = Base.get_extension(ODEParameterEstimation, :ODEParameterEstimationPEtabExt)
+structure = extension.petab_coefficient_structure(problem, condition_id)
+structure.assignments           # named SBML assignment rules
+structure.coefficients          # reaction rates retaining those names
+structure.expanded_coefficients # rational functions of estimated parameters
+structure.dynamics              # ODEs using constrained coefficient variables
+structure.denominator_guards    # source exclusions, retained before cancellation
+```
+
+Extraction checks the expanded equations against the loaded adapter. It is an
+inspection helper; the definitions are not yet consumed by estimation. The
+[Sneyd trial](2026-09-15_coefficient_lifting.md) records exact branch-preserving
+polynomial lifting and its 20-minute Gröbner timeout.
+
 ## Current boundaries
 
 - The joint ODE and observation formulas must be rational in states and

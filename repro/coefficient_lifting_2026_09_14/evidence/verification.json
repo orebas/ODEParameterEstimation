@@ -1,0 +1,517 @@
+{
+  "input_hashes": {
+    "/tmp/odepe-coefficient-structure-verified.json": "bf5c394496a012c616dd6f8c82420bf1c00985eafdcb92505c5e71bbff366a9f",
+    "repro/fixed_multiplicity_2026_09_14/sneyd_si_model.toml": "289f11e84bef08241231f8568e7073e058af23ee57b41514ee28ad9952486604",
+    "repro/fixed_multiplicity_2026_09_14/evidence/input/fixed.toml": "3c1ee6752df6ecba4376d3867c9ad363bff4208ba63f8a882a0fe2b2ef7074fa",
+    "repro/fixed_multiplicity_2026_09_14/evidence/input/fixed_polynomials.txt": "e8cfdb036d81d5ab36e30f6fea131f7fbfca0abbc01691bbd899a60ed66a8669"
+  },
+  "sizes": {
+    "original": {
+      "equations": 74,
+      "variables": 73,
+      "terms": 2706,
+      "max_degree": 6
+    },
+    "lifted": {
+      "equations": 83,
+      "variables": 82,
+      "terms": 1694,
+      "max_degree": 5
+    }
+  },
+  "definitions": {
+    "__odepe_coefficient_1": "(l6_0*l_4_0 + 10*l6_0)/(10*l6_0 + l_6_0)",
+    "__odepe_coefficient_10": "1",
+    "__odepe_coefficient_2": "(10*l4_0*l_4_0 + 100*l4_0)/(l4_0*l_2_0 + 10*l4_0 + l_4_0)",
+    "__odepe_coefficient_3": "(l4_0*l_2_0 + l4_0)/(l4_0*l_2_0 + 10*l4_0 + l_4_0)",
+    "__odepe_coefficient_4": "l_2_0 + 1",
+    "__odepe_coefficient_5": "(l6_0*l_6_0 + l6_0)/(10*l6_0 + l_6_0)",
+    "__odepe_coefficient_6": "(10*l_6_0 + 10)/(l_2_0 + 10)",
+    "__odepe_coefficient_7": "(l_2_0 + 1)/(l_2_0 + 10)",
+    "__odepe_coefficient_9": "10*l6_0/(10*l6_0 + l_6_0)"
+  },
+  "row_certificates": [
+    {
+      "index": 0,
+      "kind": "unchanged"
+    },
+    {
+      "index": 1,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_1",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 2,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_1",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 3,
+      "kind": "unchanged"
+    },
+    {
+      "index": 4,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_2",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 5,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_2",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 6,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_1",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 7,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_1",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 8,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_1",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 9,
+      "kind": "unchanged"
+    },
+    {
+      "index": 10,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_3",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 11,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_3",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 12,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_2",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 13,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_2",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 14,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_2",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 15,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_1",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 16,
+      "kind": "unchanged"
+    },
+    {
+      "index": 17,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_4",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 18,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_4",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 19,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_3",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 20,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_3",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 21,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_3",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 22,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_2",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 23,
+      "kind": "unchanged"
+    },
+    {
+      "index": 24,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_5",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 25,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_5",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 26,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_4",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 27,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_4",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 28,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_4",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 29,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_3",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 30,
+      "kind": "unchanged"
+    },
+    {
+      "index": 31,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_6",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 32,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_6",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 33,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_5",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 34,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_5",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 35,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_5",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 36,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_4",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 37,
+      "kind": "unchanged"
+    },
+    {
+      "index": 38,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_7",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 39,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_7",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 40,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_6",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 41,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_6",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 42,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_6",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 43,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_5",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 44,
+      "kind": "unchanged"
+    },
+    {
+      "index": 45,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_8",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 46,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_8",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 47,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_7",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 48,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_7",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 49,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_7",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 50,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_6",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 51,
+      "kind": "unchanged"
+    },
+    {
+      "index": 52,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_9",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 53,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_9",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 54,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_8",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 55,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_8",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 56,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_8",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 57,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_7",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 58,
+      "kind": "unchanged"
+    },
+    {
+      "index": 59,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_10",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 60,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_10",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 61,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_9",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 62,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_9",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 63,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_9",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 64,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_8",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 65,
+      "kind": "unchanged"
+    },
+    {
+      "index": 66,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_A_11",
+      "unit_factor": "10*l6_0*l_2_0 + 100*l6_0 + l_2_0*l_6_0 + 10*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 67,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_O_11",
+      "unit_factor": "10*l4_0*l6_0*l_2_0**2 + 200*l4_0*l6_0*l_2_0 + 1000*l4_0*l6_0 + l4_0*l_2_0**2*l_6_0 + 20*l4_0*l_2_0*l_6_0 + 100*l4_0*l_6_0 + 10*l6_0*l_2_0*l_4_0 + 100*l6_0*l_4_0 + l_2_0*l_4_0*l_6_0 + 10*l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 68,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_S_10",
+      "unit_factor": "10*l6_0 + l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 69,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_R_10",
+      "unit_factor": "10*l4_0*l6_0*l_2_0 + 100*l4_0*l6_0 + l4_0*l_2_0*l_6_0 + 10*l4_0*l_6_0 + 10*l6_0*l_4_0 + l_4_0*l_6_0",
+      "identity_verified": true
+    },
+    {
+      "index": 70,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I2_10",
+      "unit_factor": "l_2_0 + 10",
+      "identity_verified": true
+    },
+    {
+      "index": 71,
+      "kind": "ODE recurrence",
+      "derivative": "IPR_I1_9",
+      "unit_factor": "l4_0*l_2_0 + 10*l4_0 + l_4_0",
+      "identity_verified": true
+    },
+    {
+      "index": 72,
+      "kind": "unchanged"
+    },
+    {
+      "index": 73,
+      "kind": "unchanged"
+    }
+  ],
+  "elapsed_seconds": 6.818715177010745,
+  "equivalence": "Exact substitution identities; every recurrence multiplier and coefficient denominator is a unit on original Q != 0. All original observations and saturation retained.",
+  "scope": "Rate coefficients are lifted after expanding named assignments ONCE. The original frozen SI domain is preserved; source-SBML exclusions are a separate domain."
+}

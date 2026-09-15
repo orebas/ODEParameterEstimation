@@ -9,6 +9,7 @@ const t = ModelingToolkit.t_nounits
 const D = ModelingToolkit.D_nounits
 
 include("petab/adapter.jl")
+include("petab/coefficient_structure.jl")
 include("petab/experiment_blocks.jl")
 include("petab/estimation.jl")
 

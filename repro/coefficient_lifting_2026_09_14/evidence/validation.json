@@ -1,0 +1,68 @@
+{
+  "date_utc": "2026-09-15",
+  "baseline_commit": "2d058cb2fdf9b3641f11bbbbe3c536ccf85c6b50",
+  "julia_version": "1.13.0",
+  "core_gate": {
+    "command": "julia --startup-file=no test/current.jl",
+    "exit_code": 0,
+    "passed": 2230,
+    "total": 2230,
+    "log": "full_gate.log.gz",
+    "pkg_test_allow_reresolve": false
+  },
+  "optional_contracts": {
+    "command": "julia --startup-file=no --compiled-modules=existing repro/petab/test.jl",
+    "exit_code": 0,
+    "passed": 157,
+    "total": 157,
+    "new_coefficient_contracts": 29,
+    "log": "contracts.log.gz"
+  },
+  "exact_lifting_checks": {
+    "status": "passed",
+    "recurrences_verified": 61,
+    "final_capture_inputs_equal_trial_inputs": true,
+    "report": "verification.json"
+  },
+  "worker_checks": {
+    "two_roots_status": "complete",
+    "two_roots_M": 2,
+    "interrupt_status": "interrupted",
+    "interrupt_exit_code": 1,
+    "interrupt_note": "Deliberate Ctrl-C after GROEBNER_READY verifies final status is saved; this is not a timing trial."
+  },
+  "bounded_sneyd_count": {
+    "status": "timeout",
+    "external_exit_code": 124,
+    "report": "count_execution.json"
+  },
+  "source_sha256": {
+    "ext/ODEParameterEstimationPEtabExt.jl": "ee5417d71dded88b4a44b3415bad303024158a3e4f8deaafeb4c626c9a391c66",
+    "ext/petab/coefficient_structure.jl": "a568d4a136a92956a6b8fec1f146842631fcc40de75f72b32ebb3ecbf6d63a70",
+    "test/petab/runtests.jl": "2a3ae953fef29d008991d10c616c90a09890194f78e87522c5db52dd9cb1e181",
+    "test/petab/coefficient_structure.jl": "107613504002129a435152b4e94f5bcb118957c51bed319c42c0fa99b8f86aa5",
+    "repro/coefficient_lifting_2026_09_14/build_sneyd.py": "9b91feb1432f53aea3ef941b715f5d8a88fa0b42ed07bcb74f8b16026c5ba5f1",
+    "repro/coefficient_lifting_2026_09_14/capture.jl": "c184838b6ae95992a09a397b06d66780518ff70eb7566820810f5c626ce7f889",
+    "repro/coefficient_lifting_2026_09_14/count.jl": "b5cf0288943f6b893af646e193971d1d3d2c42a5f92d3cdccbf3d7b454d3270a",
+    "Project.toml": "a81aec0e83d16a1fbae69603def9b8d2949c8b639e41d17c34c645499bcb4f29",
+    "test/Project.toml": "4ef68d71097d27c78181d563ccf2388ab0e9a4ae172ac84e85dc20ad99b4b707"
+  },
+  "artifact_sha256": {
+    "contracts.log.gz": "c5457a94f5c2fc12041312421917d1433cd9c89d9a27bd52da52a5cc84efdd64",
+    "contracts_before_import_check.log.gz": "3a59f3b6b43b941731cf15ad663a2dfe6f9216d9980470abbf0b04c651928b6b",
+    "count_execution.json": "ababa8f5c11376bbf8f6bf24723c68b0732143cc796e3b055b18d85d84612517",
+    "count_lifted.log.gz": "39a609f42eaa7fdbad3854403ff1b3b76d67b307c16ead41fdd5d5c48a351852",
+    "count_worker_at_run.jl.gz": "b0a9258118e9e371e054ac12496465f4d05e59de973d7a60fc41917ca9e3c9db",
+    "count_worker_status.json": "d19d1677aca56b9205a8a58ac3d83b06eeae222882382f095d60a869a93ebfdd",
+    "environments.json": "2c74b5adc06e51351250625ee4942852e17a89c68e0b09204721dde58ac07366",
+    "full_gate.log.gz": "665607931022d08d197aa6011849aece51acdef03ef3606deaf521c08040eee2",
+    "lifted.json.gz": "506e2b758a1137687f5225615536a22064e8c56ae59f09aa5f62a77d1c4f1583",
+    "original.json.gz": "f3fa0490fea1f79c93b20c7036134771504f5380939a0aa076e880090000d0a4",
+    "structure.json": "bf5c394496a012c616dd6f8c82420bf1c00985eafdcb92505c5e71bbff366a9f",
+    "verification.json": "4ba5cef31cfd42ba3eb08426a882294310ec2bb179175473568386f6899bc53d",
+    "worker_interrupt.json.gz": "c6b7b8a01aa5ed25a97aba45d9e12ab9e5333e30957e871a5c9424be8ed300de",
+    "worker_two_roots.json": "5739b8b6c45d66a3efb5d2818dfe5fcb8068dc558565138b24de1303a00d4379",
+    "worker_two_roots_input.json": "053d360ac069cf57ef8a283a63ec7b2a15f67882b831cdf7ede64c2b0a08b652"
+  },
+  "environment_note": "Existing global and optional PEtab environments with unchanged manifests and retained GP/SIAN development overrides. No registry resolution, benchmark smoke, or registered-only gate was performed for this change."
+}
