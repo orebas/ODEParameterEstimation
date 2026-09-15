@@ -76,6 +76,11 @@ the catalog as a fallback or sanity reference is fine, but the
 
 The explicit-value path still works: any user who sets
 `opts.algebraic_multiplicity` explicitly overrides the auto value.
+Since the [September 15 correction](docs/2026-09-15_external_multiplicity.md),
+it also skips the automatic computation, including state-rescue re-runs.
+`compute_algebraic_multiplicity=false` leaves M unknown for an exploratory
+run and retains ordinary `branch_top_k` output filtering. The default is
+unchanged when neither override is supplied.
 
 ## Source code changes (May 2026 history)
 

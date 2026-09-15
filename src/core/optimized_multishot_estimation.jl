@@ -802,6 +802,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 			si_probability = opts.si_probability,
 			si_fix_strategy = opts.si_fix_strategy,
 			placeholder_fail_categories = opts.si_placeholder_fail_categories,
+			compute_multiplicity = opts.compute_algebraic_multiplicity && isnothing(opts.algebraic_multiplicity),
 		)
 
 		@info "[DEBUG-EQ-COUNT] Final SI template: $(length(si_template.equations)) equations after structural fixing"
@@ -1957,6 +1958,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 								time_index = 1,
 								diagnostics = opts.diagnostics,
 								placeholder_fail_categories = opts.si_placeholder_fail_categories,
+								compute_multiplicity = opts.compute_algebraic_multiplicity && isnothing(opts.algebraic_multiplicity),
 							)
 						end
 					catch err
@@ -1989,6 +1991,7 @@ function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProble
 										time_index = source_shoot_idx,
 										diagnostics = opts.diagnostics,
 										placeholder_fail_categories = opts.si_placeholder_fail_categories,
+										compute_multiplicity = opts.compute_algebraic_multiplicity && isnothing(opts.algebraic_multiplicity),
 									)
 								end
 								if !isempty(shoot_resolve_result.solutions) &&

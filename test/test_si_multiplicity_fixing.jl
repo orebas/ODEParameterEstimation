@@ -18,6 +18,34 @@ const SIAN = ODEPE.SIAN
     @test finite.locally_identifiable == [a]
 end
 
+@testset "Supplied or disabled M bypasses counting in estimation" begin
+    base = (; (k => getfield(FAST_STANDARD_OPTS, k) for k in fieldnames(EstimationOptions))...)
+    for (compute, supplied, expected) in ((false, nothing, nothing), (true, 7, 7), (true, nothing, 1))
+        opts = EstimationOptions(; merge(base, (compute_algebraic_multiplicity=compute,
+            algebraic_multiplicity=supplied, compute_uncertainty=false))...)
+        sampled = ODEPE.sample_problem_data(ODEPE.simple(), opts)
+        context = ODEPE.RunContext(; capture_timing=true)
+        Random.seed!(20260915)
+        _, analysis, _ = quiet_call() do
+            Base.ScopedValues.with(ODEPE.RUN_CONTEXT => context) do
+                ODEPE.analyze_parameter_estimation_problem(sampled, opts)
+            end
+        end
+        @test !isempty(first(analysis))
+        @test first(first(analysis)).err < 1e-8
+        @test analysis.algebraic_multiplicity === expected
+        timing = context.timing.details[:si_template_algebraic_multiplicity_timing]
+        if compute && isnothing(supplied)
+            @test haskey(timing, :groebner_seconds)
+            @test timing[:multiplicity] == 1
+        else
+            @test timing[:skipped]
+            @test timing[:disabled_by_caller]
+            @test !haskey(timing, :groebner_seconds)
+        end
+    end
+end
+
 function multiplicity_fixture(model, measured, fixes)
     ode, _, _ = ODEPE.convert_to_si_ode(model, measured)
     _, Q, x_eqs, y_eqs, xs, ys, us, mu, _, gens = SIAN.get_equations(ode)

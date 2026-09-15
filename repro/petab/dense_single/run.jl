@@ -6,6 +6,9 @@ out = abspath(outarg)
 mkpath(out)
 isfile(joinpath(out, "result.json")) && error("Use a fresh output directory; retained attempts are immutable")
 n = length(ARGS) == 4 ? parse(Int, ARGS[4]) : 201
+m_request = get(ENV, "ODEPE_DENSE_MULTIPLICITY", "auto")
+supplied_m = m_request in ("auto", "skip") ? nothing : parse(Int, m_request)
+isnothing(supplied_m) || supplied_m > 0 || error("Supplied M must be positive")
 Base.exit_on_sigint(false)
 Random.seed!(20260911)
 started = time()
@@ -30,6 +33,7 @@ Profile.peek_report[] = () -> begin
     println("PROFILE_SAVED ", path); flush(stdout)
 end
 record["profile_ready"] = true
+record["multiplicity_request"] = m_request
 checkpoint()
 context = ODEPE.RunContext(; capture_timing=true)
 try
@@ -47,6 +51,7 @@ try
     write_json(joinpath(out,"data.json"), (; times=pep.data_sample["t"],
         signals=[(; expression=string(eq.rhs), values=pep.data_sample[eq.rhs]) for eq in pep.measured_quantities]))
     opts = EstimationOptions(; datasize=n, time_interval=pep.recommended_time_interval,
+        algebraic_multiplicity=supplied_m, compute_algebraic_multiplicity=m_request != "skip",
         si_fix_strategy=Symbol(get(ENV, "ODEPE_SI_FIX_STRATEGY", string(EstimationOptions().si_fix_strategy))),
         noise_level=0.0, shooting_points=20, shooting_warp=true, shooting_warp_beta=3.0,
         use_multipoint=true, multipoint_n_points=2, multipoint_max_pairs=15,

@@ -30,6 +30,9 @@ representative assignments before Gröbner and checks the resulting input.
 The [coefficient-lifting trial](2026-09-15_coefficient_lifting.md) adds an
 opt-in PEtab source extractor and an equivalent frozen-input experiment;
 it is not a change to the default estimator or multiplicity algorithm.
+The [separate-M experiment](2026-09-15_external_multiplicity.md) makes a
+supplied M skip automatic counting, adds an explicit unknown-M mode, and
+records the smaller Sneyd side counter and downstream estimation bottleneck.
 
 ## Start here
 

@@ -301,9 +301,8 @@ Base.@kwdef struct EstimationOptions
 	branch_err_factor::Float64 = 100.0
 	branch_top_k::Int = 20                         # Maximum cluster reps to return at the output stage. Sorted by `rank_strategy` (default `:err_only`; the retired S2 = (saturation_count, is_neg1, err) remains selectable) before slicing. **Dropped 100→20 on 2026-05-17** after probe4c K-recall analysis on the full 2026-05-14 numbat benchmark (1136 cells): under S2 sort, K=20 already saturates the candidate-set ceiling at the ≤10% threshold (83.5% K-recall at K=20 = 83.5% set ceiling); K=100 buys nothing further. K=10 catches 99.4% of the ceiling; K=5 catches 98.8%. Earlier 2026-05-14 setting of 100 was based on the legacy "within 2× of 06" recovery metric (74% at K=20, 77% at K=100) which is more conservative than absolute K-recall. Set to 0 to disable (return all reps). **Acts as a safety cap** when `algebraic_multiplicity` is set: actual output is `min(algebraic_multiplicity, branch_top_k, length(cluster_reps))`.
 
-	# Algebraic multiplicity of the parameter-estimation problem — the number of
-	# distinct (params, IC) tuples in the identifiable subspace that produce
-	# identical observations. When set, the output is truncated to this many rows
+	# Algebraic solution count, including multiplicities, on the chosen
+	# representative slice. When set, the output is truncated to this many rows
 	# (capped above by `branch_top_k` as a safety net). When `nothing`, output is
 	# the full top-K candidate list (length up to `branch_top_k`).
 	#
@@ -313,14 +312,17 @@ Base.@kwdef struct EstimationOptions
 	# systems via projection to finite-valued coordinates) and hands it off
 	# through the scoped RunContext (`_run_ctx_take_auto_m!`, consumed once in
 	# `analyze_parameter_estimation_problem`). A caller-supplied value always
-	# overrides auto-detection — PEB's per-cell template may still inject the
+	# skips the automatic computation — PEB's per-cell template may still inject the
 	# hand-curated `config/systems.json[*].algebraic_multiplicity` (derived via
 	# HC root-counting, `repro/multiplicity_complete_2026_05_19/`). Detection
 	# failure leaves the field `nothing`: no truncation, no M≥2 full-space
 	# clustering protection.
 	#
-	# Type: positive Int (the multiplicity), or `nothing` (use full top-K).
+	# Type: positive Int, or `nothing` (compute automatically unless disabled).
 	algebraic_multiplicity::Union{Int, Nothing} = nothing
+	# Compute M only when it was not supplied. Disable for exploratory runs that
+	# leave M unknown; ordinary branch_top_k filtering then remains in effect.
+	compute_algebraic_multiplicity::Bool = true
 
 	# Ranking strategy for the top-K cluster reps returned in result.csv.
 	#

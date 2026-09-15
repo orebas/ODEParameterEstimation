@@ -330,6 +330,7 @@ function _synthesize_global_param_aggregate(
 				setup_data.interpolants;
 				si_fix_strategy = opts.si_fix_strategy,
 				si_probability = opts.si_probability,
+				compute_multiplicity = opts.compute_algebraic_multiplicity && isnothing(opts.algebraic_multiplicity),
 				time_index = 1,
 				diagnostics = false,
 			)
@@ -429,6 +430,7 @@ function _aggregate_and_resolve_to_candidate(
 				known_param_dict, setup_data.interpolants;
 				si_fix_strategy = opts.si_fix_strategy,
 				si_probability = opts.si_probability,
+				compute_multiplicity = opts.compute_algebraic_multiplicity && isnothing(opts.algebraic_multiplicity),
 				time_index = 1, diagnostics = false,
 			)
 		end

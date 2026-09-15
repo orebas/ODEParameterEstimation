@@ -15,9 +15,14 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--seconds", type=float, default=1200)
     parser.add_argument("--si-fix-strategy", choices=("local_basis", "identifiable_functions"))
+    parser.add_argument("--multiplicity", default="auto", help="auto, skip (M unknown), or a positive externally supplied M")
     parser.add_argument("--input", type=Path, help="Exact start pairs for Fujita tracking/discovery")
     parser.add_argument("--si-mode", choices=("local", "local_fixed", "global", "functions_absent", "functions_standard"))
     args = parser.parse_args()
+    if args.multiplicity not in ("auto", "skip") and (not args.multiplicity.isdecimal() or int(args.multiplicity) < 1):
+        parser.error("--multiplicity must be auto, skip, or a positive integer")
+    if args.multiplicity != "auto" and args.model not in ("bruno", "fujita", "sneyd"):
+        parser.error("--multiplicity applies only to dense estimation runs")
     if args.si_fix_strategy and args.model not in ("bruno", "fujita", "sneyd"):
         parser.error("--si-fix-strategy applies only to dense estimation runs")
     tracking = args.model in ("fujita_tracking", "fujita_discovery")
@@ -66,6 +71,7 @@ def main():
                             "sneyd": ("Sneyd_PNAS2002", "Ca_dose_response__1")}[args.model]
         command += [str(here / "run.jl"), model, condition, str(out)]
     env = os.environ.copy()
+    env["ODEPE_DENSE_MULTIPLICITY"] = args.multiplicity
     if args.si_fix_strategy:
         env["ODEPE_SI_FIX_STRATEGY"] = args.si_fix_strategy
     for key in ("JULIA_NUM_THREADS", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):

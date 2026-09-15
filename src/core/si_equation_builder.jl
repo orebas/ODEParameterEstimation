@@ -1294,7 +1294,8 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# be projected onto finite-valued coordinates by the existing counting path.
 	algebraic_multiplicity = if !compute_multiplicity
 		algebraic_multiplicity_timing[:skipped] = true
-		algebraic_multiplicity_timing[:gated_detection_pass] = true
+		algebraic_multiplicity_timing[:disabled_by_caller] = true
+		@info "[SI-TEMPLATE] algebraic_multiplicity: skipped by caller"
 		nothing
 	elseif isempty(theta_l) && isempty(pre_fixed_params)
 		@info "[SI-TEMPLATE] algebraic_multiplicity: skipping (theta_l empty → fully non-identifiable)"

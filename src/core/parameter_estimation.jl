@@ -569,6 +569,7 @@ function prepare_si_template_with_structural_fix(
 	si_probability = 0.99,
 	si_fix_strategy::Symbol = _OPT_STRUCT_DEFAULTS.si_fix_strategy,
 	placeholder_fail_categories = Symbol[],
+	compute_multiplicity::Bool = true,
 )
 	initial_template = build_si_template_for_fixed_params(
 		ordered_model,
@@ -601,6 +602,7 @@ function prepare_si_template_with_structural_fix(
 		structural_analysis = initial_template.structural_analysis,
 		pre_fixed_params = OrderedDict{Num, Float64}(k => v for (k, v) in structural_fix_set),
 		placeholder_fail_categories = placeholder_fail_categories,
+		compute_multiplicity = compute_multiplicity,
 	)
 	structure = analyze_si_template_structure(final_template)
 

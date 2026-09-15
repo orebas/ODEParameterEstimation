@@ -1,0 +1,101 @@
+{
+  "date": "2026-09-15",
+  "base_commit": "0f60dcccf9fbf6220d5c82445e84591d1b42e18f",
+  "julia_version": "1.13.0",
+  "focused_gate": {
+    "command": "julia --startup-file=no test/current.jl test_si_multiplicity_fixing.jl",
+    "passed": 88,
+    "total": 88,
+    "exit_code": 0
+  },
+  "full_gate": {
+    "command": "julia --startup-file=no test/current.jl",
+    "passed": 2247,
+    "total": 2247,
+    "exit_code": 0,
+    "allow_reresolve": false
+  },
+  "side_count": {
+    "kinetic_length": 136,
+    "simple": true,
+    "observable": true,
+    "full_M_at_reference_fibre": 544,
+    "monodromy_found": 109,
+    "monodromy_certified_distinct": 109,
+    "high_precision_reconstructions": 109,
+    "groebner_algorithm": "production defaults, probabilistic with exact arithmetic"
+  },
+  "dense_runs": {
+    "data_byte_identical": true,
+    "model_records_equal": true,
+    "option_differences": {
+      "algebraic_multiplicity": [
+        null,
+        544
+      ],
+      "compute_algebraic_multiplicity": [
+        false,
+        true
+      ]
+    },
+    "unknown_M": {
+      "status": "timeout",
+      "stage_cap_seconds": 1200,
+      "phase": "mixed-volume candidate-basis scoring"
+    },
+    "supplied_M544": {
+      "status": "timeout",
+      "stage_cap_seconds": 600,
+      "phase": "symbolic simplification after representative substitutions",
+      "worker_status": "failed",
+      "worker_error": "RuleRewriteError wrapping the interrupted matcher"
+    }
+  },
+  "source_sha256": {
+    "repro/petab/dense_single/run.jl": "050a05e9ec2ffad95302f818aa6da752f1c87de342de2f13c6a2f45ba95ebf6f",
+    "repro/petab/dense_single/supervise.py": "dc93a1eccc346c2657101b8c2d30498c2caf56dfac81ed874e17e574fbeaabae",
+    "repro/separate_m_2026_09_15/build_counter.py": "58c87c316a1aedf50914147ce01a6ec830d24e1d5063dcc93a4b3513e91617c2",
+    "repro/separate_m_2026_09_15/check_fibre.jl": "69e0b7fce09bad0dba0788c2a82f543a3efaf4190ae52d5014dcca266e571568",
+    "repro/separate_m_2026_09_15/count_hc.jl": "d223875dda716a70c70eb9bc225d2974ebf581f425e3c731a0516593b03c18f5",
+    "repro/separate_m_2026_09_15/refine_counter.py": "f450d499691aba5b6c730520cf4400add75284d5fc15b91f247b8ecde7f61cea",
+    "src/core/optimized_multishot_estimation.jl": "e859b89919b56136459bc0b0388bc7d99c9ee21ab15ae53eddb8205813f520cc",
+    "src/core/parameter_estimation.jl": "67e6405de95d06ab27b329586d6340f906077750b4c03c0233917a56ede050dd",
+    "src/core/si_equation_builder.jl": "44789d9fc213fad72a7c33818a763bfed2c7ea21d1880f84c09fdd07f7fd96dd",
+    "src/core/si_template_integration.jl": "07bf36fe2c70c89c727b98d60ce9494648da5c0f5ace5154d5b5fa7b0c9aae25",
+    "src/core/synthesize_aggregates.jl": "1f17b64bcf92f43e1c3ab8e3ab420f8cf8e0c0b800957253f531f5d0a48a10d1",
+    "src/types/estimation_options.jl": "3d79bd6aae65f3584e6321be270eb846a425b509b079e8a0fcd5010935c097f7",
+    "test/test_si_multiplicity_fixing.jl": "a9074e00b9f181b36d765fbbd1d2a31d8cab8bf5216fa5282baf3a20febe50df"
+  },
+  "artifact_sha256": {
+    "M_supplied_544/data.json.gz": "5edd459891ecdc09c24103177f3e0aae1f2607a971ceefc9d62e478991b97ee4",
+    "M_supplied_544/detailed_timing.json.gz": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+    "M_supplied_544/resolve_timing.json.gz": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+    "M_supplied_544/result.json.gz": "67e755e786a7ddc1776b6bce224b23b4414f2eab0c80f0b97e6bd453cb96fe87",
+    "M_supplied_544/supervisor.json.gz": "3a8ecd28db4a5651fe1ed2572dc02a903238af000faa8fb95135b344879fbbf1",
+    "M_supplied_544/worker.log.gz": "a5f27a7b539ea2daf180ede897c4eb487a65f581a7b2059c376578a3fa2d2ec6",
+    "M_unknown/data.json.gz": "5edd459891ecdc09c24103177f3e0aae1f2607a971ceefc9d62e478991b97ee4",
+    "M_unknown/detailed_timing.json.gz": "90be6c5020c948db2a77c35578155e59fc5e4d4e422e4e1ff481427b35e230b5",
+    "M_unknown/resolve_timing.json.gz": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+    "M_unknown/result.json.gz": "6efdbbf0be4272f4ee0a387dfa8253c24fa94749e70b29d425fbceea550ff05f",
+    "M_unknown/si_template.jl.gz": "9e95e80e0b432869ce94bfc66862ee8e6dbe938efe413dd58b9e6ca48d50752c",
+    "M_unknown/supervisor.json.gz": "8416e7bec7f15ca8d7964dfd375ac49e7fcb27ece1143913b202d84b40580ad8",
+    "M_unknown/worker.log.gz": "649e483dbbd00826a13541e46e9a04721f16205d08eb6f9e341100969bb94ee2",
+    "contracts.log.gz": "b87544da0a483591ad6782a85799775c0f0d12d5cbb104506d73fe76f728ed38",
+    "counter.json.gz": "8c0f2b7232e28b1d526d54d89eca31f8e4d674ff5adbf899b3863c6193618af8",
+    "counter_fixed.json.gz": "0c867476340dc6c2764481a2c8eed380d7066feed73fdb28fc1bbc053045dd8b",
+    "environments.json": "197f58416317e5a0da5be7940ef3441f37cd28584595f33e5bf25f76c68a317f",
+    "exact_count.json": "ed9210a039c6893ffc542c2b6ce969dc8210292db71133eebc0990dd1749b0b2",
+    "exact_count.log.gz": "4c8e54fa94ba12b988f7c892c767cb156aa1b13c4bd5afd43e2916c39aca86ee",
+    "fibre_check.json": "830ccacbeed587b1c1eaccfaeee6b7af5dca024546ade0e65c43c76f6d08ef87",
+    "fibre_check.log.gz": "cf950b1940ff9aa9405d688277e1f3de52cde29a2d798e697f89464e410a6180",
+    "full_gate.log.gz": "65d0070143b9006e736b678b34f7d5a3e739f976c329628fd8d1b1741adc04ca",
+    "monodromy.json.gz": "79014abc2e5637e4cc5c5807e754c58ef100e2da80003164cc896872728467fe",
+    "monodromy.log.gz": "cc24483e866659d4c353b50d2def2189e59fc2fae2b1ffba934d0286152918b8",
+    "refined_roots.json.gz": "44e6809931333493c61610e5ef4c86042a3d1f537114619ab0df9f80d3f28b37"
+  },
+  "limits": [
+    "Reference M is for the fixed-condition, representative-fixed model with free initial states; it is not the original prepared multi-condition PEtab problem.",
+    "No parameter estimates were obtained by either bounded dense run.",
+    "No dependency resolution, registry-only test, or recovery benchmark was run."
+  ]
+}

@@ -476,6 +476,7 @@ function resolve_states_with_fixed_params(
 	time_index::Int = 1,
 	diagnostics::Bool = false,
 	placeholder_fail_categories = Symbol[],
+	compute_multiplicity::Bool = true,
 	si_fix_strategy::Symbol = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
 		_OPT_STRUCT_DEFAULTS.si_fix_strategy : si_template.structural_analysis.strategy,
 	si_probability::Float64 = isnothing(si_template) || !hasproperty(si_template, :structural_analysis) ?
@@ -565,6 +566,7 @@ function resolve_states_with_fixed_params(
 			p = si_probability,
 			infolevel = diagnostics ? 1 : 0,
 			placeholder_fail_categories = placeholder_fail_categories,
+			compute_multiplicity = compute_multiplicity,
 		)
 	end
 	resolve_template_eq_count = length(new_template_eqs)
