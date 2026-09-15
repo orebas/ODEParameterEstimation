@@ -39,6 +39,10 @@ performance reproducer, and checks the resulting Sneyd template exactly.
 The [Sneyd HC-boundary study](2026-09-15_sneyd_hc_boundary.md) disables candidate
 MV scoring in a research run, captures the actual selected system, and separates
 polyhedral setup, monodromy start search, and supplied-root tracking diagnostics.
+The [independent-rate Sneyd trial](2026-09-15_sneyd_free_coefficients.md) defines
+a separate native coefficient-estimation problem, records its smaller polynomial
+support, and distinguishes continuous ambiguity and positivity of structural
+representatives from HC tractability.
 
 ## Start here
 
