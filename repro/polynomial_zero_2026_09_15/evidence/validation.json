@@ -1,0 +1,73 @@
+{
+  "tested_parent_commit": "fcc9a6ffd68f426c39ea58887284ffa4669bd1c8",
+  "core_source_sha256": "605b34eb015e02f65540c6aa3eaaadd8f0b3adf0e9eaf5a5884b747a33bcab3b",
+  "test_source_sha256": "0779b0050fe2c0209249cceec959bd077756669b836ee9095460ecc453d509e9",
+  "full_gate": {
+    "command": "julia --startup-file=no test/current.jl",
+    "passed": 2281,
+    "total": 2281,
+    "time": "18m28.2s",
+    "allow_reresolve": false
+  },
+  "focused_gate": {
+    "command": "julia --startup-file=no test/current.jl test_si_multiplicity_fixing.jl",
+    "passed": 122,
+    "total": 122
+  },
+  "not_rerun": [
+    "registry-only gate",
+    "separate recovery benchmark"
+  ],
+  "sneyd": {
+    "command": "python3 repro/petab/dense_single/supervise.py sneyd /tmp/odepe-sneyd-polynomial-zero-20260915 --seconds 600 --multiplicity 544",
+    "status": "timeout",
+    "worker_status": "interrupted",
+    "parameter_estimates_returned": false,
+    "preparation_seconds": 147.348062587,
+    "worker_estimation_monotonic_seconds": 575.713474398,
+    "supervisor_estimation_wall_seconds": 600.9215891361237,
+    "supervisor_total_monotonic_seconds": 760.6102626710199,
+    "stop_stage": "MixedSubdivisions.mixed_volume via _noise_mixed_volume, during candidate-basis scoring",
+    "old_supplied_M_options_identical": true,
+    "old_supplied_M_model_identical": true,
+    "old_supplied_M_data_byte_identical": true,
+    "data_sha256": "058b43c482d0bcb63b3ef221ba3f7bc6089f5d5bdab3ded18087ab190add9e7c",
+    "template_comparison": {
+      "equations_before": 72,
+      "equations_after": 72,
+      "ordered_exact_equality": true,
+      "different_rows": [],
+      "terms": 2362,
+      "max_terms_per_equation": 272,
+      "max_degree": 6
+    },
+    "no_per_equation_timings_in_dense_run": true
+  },
+  "upstream_report": {
+    "path": "upstream_issue.md",
+    "submitted": false,
+    "wrong_symbolic_result_demonstrated": false
+  },
+  "manifests_identical_to_previous_run": true,
+  "artifact_sha256": {
+    "README.md": "312293cbc51f18e85e90975e4a76ab0ea32a258b85f70399b883c0ca07df64ba",
+    "compare_templates.py": "47512567e241b4ffe78e1d348595c8be1313c8403799c0caf0f0380aaa64ed90",
+    "evidence/contracts.log.gz": "872fe802a100a5f1467bcc4b87aacda1d0b7a9519bc23f91fce19b07b5c341ac",
+    "evidence/environments.json": "5cad940fa84e062a672e181e01ae3906b58b53c48fde63c2de0d02f1d966d609",
+    "evidence/expand_equation.log": "a30bcb21555eb235ec4da6c650eca33e0b270a4dbe18c46c59c4f365843c1fbf",
+    "evidence/full_gate.log.gz": "cf059fe81fee282ea524433881e3cc4eb2b9c151219ae8bebafb93084e4459e0",
+    "evidence/simplify_equation.log": "e68ff4bdbb99acc5c3f9995f6bb68528ce13308a546f1a26a875bf289b8a82dc",
+    "evidence/simplify_fragment.log": "b74b42bd601d6766e063926d47e9e05e910a0b3385b87a5bdf371eccbe05985a",
+    "evidence/sneyd/data.json.gz": "5edd459891ecdc09c24103177f3e0aae1f2607a971ceefc9d62e478991b97ee4",
+    "evidence/sneyd/detailed_timing.json.gz": "11c3db437058208b3b9e715a2634ad198a9d029dfa46fdbbc606a692cfcd2b42",
+    "evidence/sneyd/resolve_timing.json.gz": "64406e753d82e11c6bd63d1d04bb6aa083eefa0a46949bbfce994d556b989f0f",
+    "evidence/sneyd/result.json.gz": "e7d62356e6536d94fa25deb0e0329221c895a824e65a9c3bb35f2e93efc3a41f",
+    "evidence/sneyd/si_template.jl.gz": "ffbda88e11e809cc26b16dd3483bb19019a3017c18f72b33fcd6c4c1d983b3e2",
+    "evidence/sneyd/supervisor.json.gz": "80b739a6987ab860476eacda5614a9b863c36dcd01295b1864820d361c28f924",
+    "evidence/sneyd/worker.log.gz": "b0aff7218e39eabf47c49a2ca0dd762b32f3ce6fb5ee58eec577d45bba4fbe3b",
+    "evidence/template_comparison.json": "2afdb72e8ffe3ff3231effcdedbea011c2ce241ece2f3f73294b29f7a9c28e7c",
+    "simplify.jl": "c6422771f07154dbde843fbba069973832a92a7910b5e981626e2892f0242575",
+    "sneyd_equation.jl": "9d0e01149e4db5b6f107f58001d46d3482c5472dd77bdefb1aec601133d5ad19",
+    "upstream_issue.md": "e8981e0ffd3cc672b79c6bd2c3645bebbc883bed6549d654853243607a028ee3"
+  }
+}

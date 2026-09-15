@@ -1,6 +1,6 @@
 # ODEParameterEstimation review map
 
-Updated 2026-09-14. This is the entry point for reviewing the current source
+Updated 2026-09-15. This is the entry point for reviewing the current source
 layout and test coverage. Dependency versions, measured gate results, and
 release blockers live in [Production readiness](2026-09-10_production_readiness.md).
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
@@ -33,6 +33,9 @@ it is not a change to the default estimator or multiplicity algorithm.
 The [separate-M experiment](2026-09-15_external_multiplicity.md) makes a
 supplied M skip automatic counting, adds an explicit unknown-M mode, and
 records the smaller Sneyd side counter and downstream estimation bottleneck.
+The [polynomial zero-detection follow-up](2026-09-15_polynomial_zero_detection.md)
+moves representative substitution into Nemo, retains an isolated SymbolicUtils
+performance reproducer, and checks the resulting Sneyd template exactly.
 
 ## Start here
 

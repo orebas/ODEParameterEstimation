@@ -692,6 +692,44 @@ function validate_si_analysis_reuse(analysis::SIStructuralAnalysis, ode, measure
 end
 
 """
+	_substitute_si_template_polynomials(polynomials, pre_fixed_params)
+
+Apply structural representative assignments in the exact polynomial ring.
+
+# Arguments
+- `polynomials`: SIAN template polynomials, all in the same rational ring.
+- `pre_fixed_params`: Fixed parameter or anchor-state values. Names match
+  exactly first, then with the `_0` suffix; higher state jets remain free.
+
+# Returns
+Polynomials in the original order, including any resulting zeros. Inputs are
+not mutated. Floating-point assignments retain their exact binary value,
+matching the multiplicity calculation's conversion to rational coefficients.
+"""
+function _substitute_si_template_polynomials(
+	polynomials::AbstractVector{Nemo.QQMPolyRingElem},
+	pre_fixed_params::OrderedDict,
+)
+	(isempty(polynomials) || isempty(pre_fixed_params)) && return polynomials
+	by_name = Dict(string(v) => v for v in collect_used_nemo_variables(polynomials))
+	fixed = OrderedDict{Nemo.QQMPolyRingElem, Nemo.QQFieldElem}()
+	for (name, value) in pre_fixed_params
+		key = string(name)
+		variable = get(by_name, key, get(by_name, key * "_0", nothing))
+		if isnothing(variable)
+			@warn "[PRE-FIX] Variable '$key' (or '$(key)_0') not found in template polynomials"
+			continue
+		end
+		exact_value = value isa AbstractFloat ? Rational{BigInt}(value) : value
+		fixed[variable] = Nemo.QQ(exact_value)
+		@info "[PRE-FIX] Will substitute $variable => $value in Nemo"
+	end
+	isempty(fixed) && return polynomials
+	fixed_vars, fixed_values = collect(keys(fixed)), collect(values(fixed))
+	return [Nemo.evaluate(poly, fixed_vars, fixed_values) for poly in polynomials]
+end
+
+"""
 	get_si_equation_system(ode, measured_quantities::Vector{ModelingToolkit.Equation}, data_sample::OrderedDict; DD=nothing, kwargs...)
 
 Get polynomial equation system from StructuralIdentifiability.jl.
@@ -792,6 +830,28 @@ function get_si_equation_system(
 		@info "[SI-STRUCTURAL] Identifiable functions returned by SI" functions = identifiable_funcs
 	end
 
+	# Specialize before converting to Symbolics: collecting polynomial
+	# coefficients suffices to detect zero, without general-purpose rewriting.
+	# Work on the full list once, then take the already selected rows in order.
+	selected_equation_indices = get(result, "selected_equation_indices", collect(1:length(poly_system)))
+	dropped_equation_indices = get(result, "dropped_equation_indices", Int[])
+	zero_equation_indices = Int[]
+	_t_prefixed_substitutions_start = time()
+	if !isempty(pre_fixed_params)
+		full_poly_system = _substitute_si_template_polynomials(full_poly_system, pre_fixed_params)
+		zero_equation_indices = findall(iszero, full_poly_system)
+		selected_equation_indices = filter(i -> !iszero(full_poly_system[i]), selected_equation_indices)
+		poly_system = full_poly_system[selected_equation_indices]
+		full_poly_system = filter(!iszero, full_poly_system)
+		dropped_equation_indices = sort!(union(dropped_equation_indices, zero_equation_indices))
+		@info "[PRE-FIX] Exact polynomial substitution complete" selected_equations = length(poly_system) removed_zero_equations = zero_equation_indices
+
+		fixed_names = Set(string.(keys(pre_fixed_params)))
+		unidentifiable = Set(u for u in unidentifiable if
+			!(string(u) in fixed_names || string(u) * "_0" in fixed_names))
+	end
+	equation_builder_timing[:prefixed_substitutions] = time() - _t_prefixed_substitutions_start
+
 	# Build comprehensive variable mapping including derivatives
 	# SIAN uses variables like y1_0, y1_1, y1_2 for derivatives
 	# We need to map these to our DD structure when available
@@ -858,84 +918,10 @@ function get_si_equation_system(
 		@debug "Final template_equations[1] type: $(typeof(template_equations[1]))"
 	end
 
-	# Apply pre-fixed structural representative substitutions at the polynomial
-	# equation level. This handles both parameters and initial conditions
-	# (e.g., C_0, dH_rhoCP_0) without rebuilding separate MTK systems here.
-	_t_prefixed_substitutions_start = time()
-	if !isempty(pre_fixed_params)
-		@info "[PRE-FIX] Substituting $(length(pre_fixed_params)) fixed parameters in polynomial equations"
-
-		# Build substitution dictionary
-		# The keys in pre_fixed_params should match variable names in template_equations
-		# e.g., :C_0 => 1.0 will substitute for variables named C_0
-
-		# First, collect all variables actually present in template_equations
-		all_vars_in_eqs = Set()
-		for eq in template_equations
-			union!(all_vars_in_eqs, Set(Symbolics.get_variables(eq)))
-		end
-
-		# Build a name-to-variable mapping
-		var_name_map = Dict{String, Any}()
-		for v in all_vars_in_eqs
-			v_name = string(v)
-			var_name_map[v_name] = v
-		end
-		@info "[PRE-FIX] Variables in equations: $(keys(var_name_map))"
-
-		# Build substitution dict using actual variable objects from equations
-		# Note: Parameters from select_one_parameter_to_fix come as base names (e.g., dH_rhoCP)
-		# but polynomial equations use _0 suffixed names (e.g., dH_rhoCP_0)
-		subst_dict = Dict()
-		for (param_name, fix_value) in pre_fixed_params
-			param_str = string(param_name)
-			# Try exact match first
-			if haskey(var_name_map, param_str)
-				actual_var = var_name_map[param_str]
-				subst_dict[actual_var] = fix_value
-				@info "[PRE-FIX] Will substitute $actual_var => $fix_value"
-			# Try with _0 suffix (initial condition naming convention)
-			elseif haskey(var_name_map, param_str * "_0")
-				actual_var = var_name_map[param_str * "_0"]
-				subst_dict[actual_var] = fix_value
-				@info "[PRE-FIX] Will substitute $actual_var => $fix_value (matched via _0 suffix)"
-			else
-				@warn "[PRE-FIX] Variable '$param_str' (or '$(param_str)_0') not found in equations. Available: $(keys(var_name_map))"
-			end
-		end
-
-		# Apply substitutions to all template equations
-		if !isempty(subst_dict)
-			function _apply_prefixed_substitutions(equations)
-				new_equations = eltype(equations)[]
-				for eq in equations
-					new_eq = Symbolics.substitute(eq, subst_dict)
-					# Only keep non-trivial equations (not 0 = 0)
-					if !isequal(Symbolics.simplify(new_eq), 0)
-						push!(new_equations, new_eq)
-					else
-						@info "[PRE-FIX] Removed trivial equation after substitution"
-					end
-				end
-				return new_equations
-			end
-
-			full_template_equations = _apply_prefixed_substitutions(full_template_equations)
-			template_equations = _apply_prefixed_substitutions(template_equations)
-			@info "[PRE-FIX] After substitution: $(length(template_equations)) equations"
-
-			# Also update the unidentifiable set to remove fixed parameters
-			# The unidentifiable set contains Nemo symbols, we need to match by name
-			fixed_names = Set(string.(keys(pre_fixed_params)))
-			unidentifiable = Set(u for u in unidentifiable if
-				!(string(u) in fixed_names || string(u) * "_0" in fixed_names))
-		end
-	end
-	equation_builder_timing[:prefixed_substitutions] = time() - _t_prefixed_substitutions_start
-
 	si_template_metadata = (
-		selected_equation_indices = get(result, "selected_equation_indices", collect(1:length(poly_system))),
-		dropped_equation_indices = get(result, "dropped_equation_indices", Int[]),
+		selected_equation_indices = selected_equation_indices,
+		dropped_equation_indices = dropped_equation_indices,
+		zero_equation_indices = zero_equation_indices,
 		original_equation_count = get(result, "original_equation_count", length(poly_system)),
 		full_equations = full_template_equations,
 		algebraic_multiplicity = get(result, "algebraic_multiplicity", nothing),

@@ -5,6 +5,43 @@ const ODEPE = ODEParameterEstimation
 const N = ODEPE.Nemo
 const SIAN = ODEPE.SIAN
 
+@testset "Exact template representative substitution" begin
+    R, (k_1, k_10, x0, x1, y0) = N.polynomial_ring(N.QQ,
+        ["k_1_0", "k_10_0", "x_0", "x_1", "y_0"])
+    # The first row becomes exactly zero by cancellation after specialization.
+    # A nonzero constant row must survive, and fixing x_0 must not fix x_1.
+    original = [k_1*x0 - 2*x0, x1-k_1*x0, y0-k_10*x0, k_1-3]
+    snapshot = deepcopy(original)
+    fixes = OrderedDict(:k_1 => 2, :x_0 => 3//2)
+    result = quiet_call() do
+        ODEPE._substitute_si_template_polynomials(original, fixes)
+    end
+    @test result == [R(0), x1-3, y0-(3//2)*k_10, R(-1)]
+    @test original == snapshot
+    @test all(p -> parent(p) === R, result)
+    @test findall(iszero, result) == [1]
+    @test x1 in N.vars(result[2])
+    @test k_10 in N.vars(result[3])
+
+    # Preserve Float64's exact value; do not silently round 0.1 to 1//10.
+    float_result = quiet_call() do
+        ODEPE._substitute_si_template_polynomials([k_1*x0, k_1-1//10],
+            OrderedDict(:k_1 => 0.1))
+    end
+    exact_tenth = N.QQ(Rational{BigInt}(0.1))
+    @test float_result == [exact_tenth*x0, R(exact_tenth-1//10)]
+    @test !iszero(float_result[2])
+
+    # Check polynomial identities at independent points, including a zero state.
+    for point in ([7,5,0,11,13], [17,19,23,29,31])
+        unfixed_point = N.QQ.(point)
+        fixed_point = copy(unfixed_point)
+        fixed_point[1], fixed_point[3] = N.QQ(2), N.QQ(3//2)
+        @test [N.evaluate(p, unfixed_point) for p in result] ==
+            [N.evaluate(p, fixed_point) for p in original]
+    end
+end
+
 @testset "Dependent rows do not imply coordinate identifiability" begin
     _, (a,b) = N.polynomial_ring(N.QQ, ["a", "b"])
     sample = N.QQ.([1,2])
@@ -108,6 +145,13 @@ end
                 ODEPE.build_si_template_for_fixed_params(model,mq,data,nothing;pre_fixed_params=fixes)
             end
             @test template.rank_trimming_metadata.algebraic_multiplicity == expected_M
+            metadata = template.rank_trimming_metadata
+            @test length(metadata.selected_equation_indices) == length(template.equations)
+            @test isempty(intersect(metadata.selected_equation_indices, metadata.dropped_equation_indices))
+            @test sort(vcat(metadata.selected_equation_indices, metadata.dropped_equation_indices)) ==
+                collect(1:metadata.original_equation_count)
+            @test all(k -> all(eq -> !(string(k)*"_0" in string.(Symbolics.get_variables(eq))),
+                template.all_equations), keys(fixes))
             timing = template.rank_trimming_metadata.algebraic_multiplicity_timing
             @test timing[:sample_verified]
             @test timing[:linearized_dimension] == 0
