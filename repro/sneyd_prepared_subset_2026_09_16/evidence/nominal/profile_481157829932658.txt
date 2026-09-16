@@ -1,0 +1,492 @@
+ Count  Overhead File                                                                      Line Function
+ =====  ======== ====                                                                      ==== ========
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               162 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     1         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    148 coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     1         0 @Base/complex.jl                                                          148 isreal
+     1         0 @Base/number.jl                                                            42 iszero
+     1         1 @Base/float.jl                                                            621 ==
+     1         0 @Base/abstractarray.jl                                                     44 size
+     1         0 @VectorizationBase/src/special/exp.jl                                     782 vexp_generic_core
+     1         0 @VectorizationBase/src/special/exp.jl                                     410 target_trunc
+     1         0 @VectorizationBase/src/special/exp.jl                                     409 target_trunc
+     1         0 @VectorizationBase/src/base_defs.jl                                       210 rem
+     1         0 @VectorizationBase/src/vecunroll/fmap.jl                                  331 vrem
+     1         0 @VectorizationBase/src/vecunroll/fmap.jl                                    9 fmap
+     1         0 @VectorizationBase/src/llvm_intrin/conversion.jl                          455 vrem
+     1         0 @VectorizationBase/src/llvm_intrin/conversion.jl                          130 vconvert
+     1         1 @VectorizationBase/src/llvm_intrin/conversion.jl                           18 macro expansion
+     1         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    257 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     1         1 @Base/complex.jl                                                          404 /(z::ComplexF64, w::ComplexF64)
+     1         0 @HomotopyContinuation/src/endgame_tracker.jl                              358 step!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @Base/complex.jl                                                          153 iszero
+     1         1 @Base/bool.jl                                                              40 &
+     1         0 @HomotopyContinuation/src/newton_corrector.jl                             104 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @Base/genericmemory.jl                                                    172 unsafe_copyto!(dest::Memory{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, doffs::Int64, src::Memory{ComplexF64}, soffs::Int64, n::Int64)
+     1         0 @Base/genericmemory.jl                                                    269 setindex!
+     1         0 @Base/number.jl                                                             7 convert
+     1         0 @Base/complex.jl                                                           43 Complex
+     1         0 @HomotopyContinuation/src/DoubleDouble.jl                                 125 convert
+     1         1 @HomotopyContinuation/src/DoubleDouble.jl                                  79 DoubleF64
+     1         0 @HomotopyContinuation/src/predictor.jl                                    261 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @Base/operators.jl                                                        653 max
+     1         1 @Base/math.jl                                                             857 max
+     1         0 @VectorizationBase/src/special/exp.jl                                     784 vexp_generic_core
+     1         0 @HomotopyContinuation/src/predictor.jl                                    183 update!(predictor::HomotopyContinuation.Predictor, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/model_kit/taylor.jl                             104 getindex
+     1         0 @Base/array.jl                                                            962 getindex
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               505 residual!(r::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, A::Matrix{ComplexF64}, x::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, b::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               677 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     1         0 @LinearAlgebra/src/generic.jl                                             697 norm(itr::Vector{Float64}, p::Float64)
+     1         0 @Base/abstractarray.jl                                                   1259 isempty
+     1         0 @Base/essentials.jl                                                        11 length
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               644 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               305 ldiv_unit_lower!
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               650 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               350 lu_ldiv_adj!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{Float64}; check::Bool)
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               330 ldiv_adj_upper!
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               341 ldiv_adj_upper!(A::Matrix{ComplexF64}, b::Vector{ComplexF64}, x::Vector{ComplexF64}; singular_exception::Bool)
+     1         0 @HomotopyContinuation/src/endgame_tracker.jl                              483 check_at_infinity!(state::HomotopyContinuation.EndgameTrackerState, tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, options::EndgameOptions; debug::Bool)
+     1         0 @Base/special/pow.jl                                                       29 ^
+     1         1 @Base/special/pow.jl                                                       92 pow_body(x::Float64, y::Float64)
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               614 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               349 lu_ldiv_adj!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{Float64}; check::Bool)
+     1         1 @Base/genericmemory.jl                                                    162 unsafe_copyto!(dest::Memory{ComplexF64}, doffs::Int64, src::Memory{Float64}, soffs::Int64, n::Int64)
+     1         0 @HomotopyContinuation/src/predictor.jl                                    256 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @Base/broadcast.jl                                                        899 materialize
+     1         0 @Base/broadcast.jl                                                       1129 copy
+     1         0 @Base/ntuple.jl                                                            65 ntuple
+     1         0 @Base/ntuple.jl                                                            68 macro expansion
+     1         0 @Base/broadcast.jl                                                       1129 #copy##0
+     1         0 @Base/broadcast.jl                                                        677 _broadcast_getindex
+     1         0 @Base/broadcast.jl                                                        704 _broadcast_getindex_evalf
+     1         0 @HomotopyContinuation/src/utils.jl                                        207 fast_abs
+     1         1 @Base/math.jl                                                             646 sqrt
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               152 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     1         1 @Base/essentials.jl                                                       849 ifelse
+     1         0 @HomotopyContinuation/src/predictor.jl                                    247 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @Base/simdloop.jl                                                          72 macro expansion
+     1         1 @Base/int.jl                                                               83 <
+     1         0 @juliasrc/gf.c                                                           4380 ijl_apply_generic
+     1         0 @juliasrc/gf.c                                                           4161 _jl_invoke
+     1         1 @juliasrc/gf.c                                                           3352 jl_method_compiled_callptr
+     1         0 @HomotopyContinuation/src/model_kit/taylor.jl                             863 taylor_op_muladd
+     1         0 @HomotopyContinuation/src/model_kit/taylor.jl                             197 macro expansion
+     1         1 @HomotopyContinuation/src/newton_corrector.jl                             201 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         1 @HomotopyContinuation/src/newton_corrector.jl                             188 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               398 ldiv!(x::Vector{ComplexF64}, WS::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64})
+     1         0 @Base/broadcast.jl                                                        996 copyto!
+     1         0 @Base/broadcast.jl                                                        979 preprocess
+     1         0 @Base/broadcast.jl                                                        982 preprocess_args
+     1         0 @Base/broadcast.jl                                                        980 preprocess
+     1         0 @Base/broadcast.jl                                                        973 broadcast_unalias
+     1         0 @Base/abstractarray.jl                                                   1551 unalias
+     1         0 @Base/abstractarray.jl                                                   1588 mightalias
+     1         0 @Base/abstractarray.jl                                                   1613 dataids
+     1         0 @Base/abstractarray.jl                                                   1612 dataids
+     1         1 @Base/boot.jl                                                            1021 UInt64
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               142 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     1         0 @Base/complex.jl                                                          278 abs2
+     1         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           218 macro expansion
+     1         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    255 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               163 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     1         0 @Base/abstractarray.jl                                                   3090 _sub2ind
+     1         0 @Base/abstractarray.jl                                                   3106 _sub2ind_recurse
+     1         1 @Base/int.jl                                                               87 +
+     1         0 @HomotopyContinuation/src/tracker.jl                                      748 init!(tracker::Tracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x₁::Vector{ComplexF64}, t₁::Float64, t₀::Float64; ω::Float64, μ::Float64, τ::Float64, max_initial_step_size::Float64, keep_steps::Bool, extended_precision::Bool)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      528 initial_step_size(state::HomotopyContinuation.TrackerState{Matrix{ComplexF64}}, predictor::HomotopyContinuation.Predictor, options::TrackerOptions)
+     1         0 @HomotopyContinuation/src/predictor.jl                                    136 local_error
+     1         1 @Base/Base_compiler.jl                                                     57 getproperty
+     1         0 @Base/complex.jl                                                          336 *
+     1         0 @ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl    83 top-level scope
+     1         1 @julialib/julia/sys.so                                                      ? jfptr_getindex_8601.1
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               853 #ldiv!#36
+     1         0 @Base/special/log.jl                                                      261 log(x::Float64)
+     1         0 @Base/special/log.jl                                                      289 _log
+     1         0 @Base/special/log.jl                                                      162 log_proc1
+     1         1 @Base/tuple.jl                                                             33 getindex
+     1         1 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                      ? newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      866 step!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @HomotopyContinuation/src/norm.jl                                         123 update!(w::WeightedNorm{InfNorm}, x::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/norm.jl                                         217 norm(x::Vector{ComplexF64}, w::WeightedNorm{InfNorm})
+     1         0 @Base/complex.jl                                                          348 /
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                                 ? ldiv_unit_lower!
+     1         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    250 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               161 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     1         0 @VectorizationBase/src/special/exp.jl                                     805 vexp_generic
+     1         0 @VectorizationBase/src/llvm_intrin/masks.jl                               901 isnan
+     1         0 @VectorizationBase/src/base_defs.jl                                        91 !=
+     1         0 @VectorizationBase/src/vecunroll/fmap.jl                                  111 vne
+     1         0 @VectorizationBase/src/llvm_intrin/masks.jl                               749 vne
+     1         0 @VectorizationBase/src/special/exp.jl                                     803 vexp_generic
+     1         0 @VectorizationBase/src/base_defs.jl                                        99 >=
+     1         0 @VectorizationBase/src/vecunroll/fmap.jl                                  113 vge
+     1         0 @VectorizationBase/src/llvm_intrin/masks.jl                               813 vge
+     1         0 @VectorizationBase/src/llvm_intrin/masks.jl                               749 vge
+     1         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           240 macro expansion
+     1         0 @Base/complex.jl                                                          393 /(z::ComplexF64, w::ComplexF64)
+     1         0 @Base/operators.jl                                                        481 >=
+     1         1 @Base/float.jl                                                            623 <=
+     1         0 @HomotopyContinuation/src/predictor.jl                                    218 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/norm.jl                                         220 norm(x::Vector{ComplexF64}, w::WeightedNorm{InfNorm})
+     1         1 @Base/fastmath.jl                                                         171 max_fast
+     1         0 @HomotopyContinuation/src/predictor.jl                                    158 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/predictor.jl                                    202 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     1         1 @Base/abstractarray.jl                                                   1073 copyto!(dest::SubArray{ComplexF64, 1, Matrix{ComplexF64}, Tuple{Int64, Base.Slice{Base.OneTo{Int64}}}, true}, src::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           215 macro expansion
+     1         0 @HomotopyContinuation/src/newton_corrector.jl                             126 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @Base/simdloop.jl                                                          77 macro expansion
+     1         0 @Base/broadcast.jl                                                       1000 macro expansion
+     1         0 @Base/broadcast.jl                                                        617 getindex
+     1         0 @Base/broadcast.jl                                                        621 _getindex
+     1         0 @Base/broadcast.jl                                                        676 _broadcast_getindex
+     1         0 @Base/broadcast.jl                                                        700 _getindex
+     1         0 @Base/broadcast.jl                                                        670 _broadcast_getindex
+     1         0 @VectorizationBase/src/special/exp.jl                                     785 vexp_generic_core
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               312 lu_ldiv!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{ComplexF64})
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               268 _ipiv!
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               273 apply_ipiv!
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               854 #ldiv!#36
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               462 skeel_row_scaling!
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               432 skeel_row_scaling!
+     1         1 @HomotopyContinuation/src/linear_algebra.jl                               432 skeel_row_scaling!(d::Vector{Float64}, A::Matrix{ComplexF64}, c::Vector{Float64}; scaling_threshold::Float64)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      853 step!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @UnPack/src/UnPack.jl                                                     101 macro expansion
+     1         0 @UnPack/src/UnPack.jl                                                      34 unpack
+     1         0 @HomotopyContinuation/src/tracker.jl                                      399 getproperty
+     1         0 @HomotopyContinuation/src/utils.jl                                        358 getproperty
+     1         1 @HomotopyContinuation/src/utils.jl                                        386 _t_helper
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                                90 updated!
+     1         0 @Base/refvalue.jl                                                          60 setindex!
+     1         1 @Base/Base_compiler.jl                                                     61 setproperty!
+     1         0 @HomotopyContinuation/src/valuation.jl                                    111 update!(val::HomotopyContinuation.Valuation, pred::HomotopyContinuation.Predictor, t::Float64)
+     1         1 @Base/array.jl                                                           1024 _setindex!
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               311 lu_ldiv!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{ComplexF64})
+     1         0 @VectorizationBase/src/special/exp.jl                                     295 expm1b_kernel
+     1         0 @VectorizationBase/src/base_defs.jl                                       349 muladd
+     1         0 @HomotopyContinuation/src/endgame_tracker.jl                              349 step!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @Base/broadcast.jl                                                        315 instantiate
+     1         0 @Base/broadcast.jl                                                        561 check_broadcast_axes
+     1         0 @Base/broadcast.jl                                                        558 check_broadcast_shape
+     1         0 @Base/broadcast.jl                                                        536 _bcsm
+     1         0 @Base/range.jl                                                           1145 ==
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               670 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     1         1 @HomotopyContinuation/src/newton_corrector.jl                               ? newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      899 step!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      782 update_precision!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, μ_low::Float64)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      800 use_extended_precision!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}})
+     1         0 @HomotopyContinuation/src/newton_corrector.jl                              55 extended_prec_refinement_step!
+     1         0 @HomotopyContinuation/src/newton_corrector.jl                              66 extended_prec_refinement_step!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; simple_newton_step::Bool)
+     1         0 @HomotopyContinuation/src/tracker.jl                                      890 step!(tracker::Tracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     1         0 @HomotopyContinuation/src/newton_corrector.jl                              33 is_converged
+     1         1 @Base/Base_compiler.jl                                                      ? ==
+     1         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    241 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     1         1 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl                ? newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     1         0 @VectorizationBase/src/llvm_intrin/intrin_funcs.jl                        484 vfmadd
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               855 #ldiv!#36
+     1         0 @HomotopyContinuation/src/linear_algebra.jl                               493 apply_row_scaling!(W::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}})
+     2         0 @HomotopyContinuation/src/tracker.jl                                      865 step!(tracker::Tracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     2         0 @HomotopyContinuation/src/predictor.jl                                    287 predict!
+     2         0 @HomotopyContinuation/src/predictor.jl                                    304 predict!(x̂::Vector{ComplexF64}, pred::HomotopyContinuation.Predictor, method::HomotopyContinuation.PredictionMethod.methods, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, Δt::ComplexF64)
+     2         0 @Base/complex.jl                                                          416 cdiv
+     2         0 @VectorizationBase/src/vecunroll/fmap.jl                                   16 fmap
+     2         0 @HomotopyContinuation/src/DoubleDouble.jl                                  40 two_diff
+     2         0 @Base/broadcast.jl                                                        993 copyto!
+     2         0 @Base/array.jl                                                            313 copyto!
+     2         0 @Base/array.jl                                                            286 copyto!
+     2         0 @Base/genericmemory.jl                                                    151 unsafe_copyto!
+     2         2 @HomotopyContinuation/src/linear_algebra.jl                               291 ldiv_upper!
+     2         0 @HomotopyContinuation/src/DoubleDouble.jl                                  39 two_diff
+     2         0 @VectorizationBase/src/special/exp.jl                                     396 fast_fma
+     2         0 @VectorizationBase/src/base_defs.jl                                       353 fma
+     2         0 @VectorizationBase/src/vecunroll/fmap.jl                                  233 vfma
+     2         0 @VectorizationBase/src/llvm_intrin/intrin_funcs.jl                        437 vfma
+     2         2 @HomotopyContinuation/src/model_kit/taylor.jl                             854 taylor_op_mul3(V::Val{2}, x::TruncatedTaylorSeries{3, ComplexF64}, y::TruncatedTaylorSeries{2, ComplexF64}, z::TruncatedTaylorSeries{2, ComplexF64})
+     2         0 @HomotopyContinuation/src/linear_algebra.jl                               629 inverse_inf_norm_est(lu::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, d_l::Vector{Float64}, d_r::Vector{Float64}, row_scaling::Nothing, work::Vector{ComplexF64}, rwork::Vector{Float64})
+     2         0 @HomotopyContinuation/src/linear_algebra.jl                               348 lu_ldiv_adj!
+     2         2 @HomotopyContinuation/src/linear_algebra.jl                               553 fixed_precision_iterative_refinement!(x::Vector{ComplexF64}, M::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64}, norm::WeightedNorm{InfNorm})
+     2         0 @HomotopyContinuation/src/model_kit/operations.jl                         240 op_add3
+     2         2 @HomotopyContinuation/src/linear_algebra.jl                               172 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     2         0 @Base/broadcast.jl                                                        999 copyto!
+     2         0 @VectorizationBase/src/base_defs.jl                                        99 mul_fast
+     2         0 @VectorizationBase/src/vecunroll/fmap.jl                                  111 vmul_fast
+     2         0 @VectorizationBase/src/llvm_intrin/binary_ops.jl                          115 vmul_fast
+     2         2 @VectorizationBase/src/llvm_intrin/binary_ops.jl                          115 macro expansion
+     2         2 @Base/intfuncs.jl                                                         394 power_by_squaring(x_::ComplexF64, p::Int32; mul::typeof(*))
+     2         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    169 coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     2         0 @VectorizationBase/src/special/exp.jl                                     795 vexp_generic_core
+     2         0 @VectorizationBase/src/base_defs.jl                                        91 +
+     2         0 @VectorizationBase/src/vecunroll/fmap.jl                                  111 vadd
+     2         0 @VectorizationBase/src/llvm_intrin/binary_ops.jl                           24 vadd
+     2         0 @VectorizationBase/src/llvm_intrin/binary_ops.jl                           30 vadd_fast
+     2         2 @VectorizationBase/src/llvm_intrin/binary_ops.jl                           30 macro expansion
+     2         0 @HomotopyContinuation/src/tracker.jl                                      675 init!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x₁::Vector{ComplexF64}, t₁::Float64, t₀::Float64; ω::Float64, μ::Float64, τ::Float64, max_initial_step_size::Float64, keep_steps::Bool, extended_precision::Bool)
+     2         0 @HomotopyContinuation/src/newton_corrector.jl                             207 init_newton!
+     2         0 @HomotopyContinuation/src/newton_corrector.jl                             234 init_newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; a::Float64, extended_precision::Bool)
+     2         2 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl               90 coeffs!(H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     2         1 @HomotopyContinuation/src/linear_algebra.jl                               179 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     2         0 @HomotopyContinuation/src/newton_corrector.jl                             146 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     2         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    163 coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     2         0 @HomotopyContinuation/src/linear_algebra.jl                               513 residual!(r::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, A::Matrix{ComplexF64}, x::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, b::Vector{ComplexF64})
+     2         0 @HomotopyContinuation/src/valuation.jl                                     94 update!(val::HomotopyContinuation.Valuation, pred::HomotopyContinuation.Predictor, t::Float64)
+     2         1 @HomotopyContinuation/src/valuation.jl                                     80 logabs
+     2         0 @HomotopyContinuation/src/model_kit/taylor.jl                             673 taylor_op_sqr
+     2         0 @HomotopyContinuation/src/model_kit/taylor.jl                             156 macro expansion
+     2         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    254 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     2         0 @HomotopyContinuation/src/norm.jl                                          29 AbstractNorm
+     2         0 @HomotopyContinuation/src/predictor.jl                                    248 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     2         2 @VectorizationBase/src/llvm_intrin/masks.jl                               689 macro expansion
+     2         0 @Base/complex.jl                                                          392 /(z::ComplexF64, w::ComplexF64)
+     2         2 @Base/float.jl                                                            698 abs
+     2         0 @Base/intfuncs.jl                                                         426 power_by_squaring(x_::Complex{HomotopyContinuation.DoubleDouble.DoubleF64}, p::Int32; mul::typeof(*))
+     2         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           223 macro expansion
+     2         0 @HomotopyContinuation/src/model_kit/instruction_interpreter.jl            117 zero!
+     2         0 @Base/array.jl                                                            359 fill!
+     2         0 @Base/array.jl                                                            363 _fill!
+     2         0 @VectorizationBase/src/special/exp.jl                                     792 vexp_generic_core
+     2         0 @VectorizationBase/src/vecunroll/fmap.jl                                  233 vmuladd
+     2         0 @VectorizationBase/src/llvm_intrin/intrin_funcs.jl                        437 vmuladd
+     2         0 @HomotopyContinuation/src/predictor.jl                                    250 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     2         2 @HomotopyContinuation/src/linear_algebra.jl                               164 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     3         0 @HomotopyContinuation/src/DoubleDouble.jl                                 254 *
+     3         0 @HomotopyContinuation/src/linear_algebra.jl                               304 ldiv_unit_lower!
+     3         0 @HomotopyContinuation/src/tracker.jl                                      745 init!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x₁::Vector{ComplexF64}, t₁::Float64, t₀::Float64; ω::Float64, μ::Float64, τ::Float64, max_initial_step_size::Float64, keep_steps::Bool, extended_precision::Bool)
+     3         0 @HomotopyContinuation/src/tracker.jl                                      622 update_predictor!
+     3         0 @Base/number.jl                                                           269 adjoint
+     3         0 @Base/complex.jl                                                          276 conj
+     3         3 @Base/float.jl                                                            490 -
+     3         0 @HomotopyContinuation/src/endgame_tracker.jl                              389 step!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     3         0 @HomotopyContinuation/src/newton_corrector.jl                             144 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     3         1 @HomotopyContinuation/src/linear_algebra.jl                                 ? updated!
+     3         0 @Base/array.jl                                                            318 copyto!
+     3         0 @Base/array.jl                                                            291 copyto!
+     3         0 @Base/genericmemory.jl                                                    139 unsafe_copyto!
+     3         0 @Base/cmem.jl                                                              28 memmove
+     3         0 @HomotopyContinuation/src/DoubleDouble.jl                                 225 -
+     4         0 @Base/range.jl                                                            928 iterate
+     4         4 @Base/complex.jl                                                            ? /(z::ComplexF64, w::ComplexF64)
+     4         0 @VectorizationBase/src/special/exp.jl                                     804 vexp_generic
+     4         0 @VectorizationBase/src/base_defs.jl                                       261 ifelse
+     4         0 @VectorizationBase/src/base_defs.jl                                       282 ifelse
+     4         0 @VectorizationBase/src/llvm_intrin/masks.jl                               827 vifelse
+     4         4 @VectorizationBase/src/llvm_intrin/masks.jl                               844 macro expansion
+     4         2 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    252 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     4         4 @VectorizationBase/src/llvm_intrin/intrin_funcs.jl                        437 macro expansion
+     4         0 @Base/abstractarray.jl                                                    757 checkindex
+     4         4 @Base/int.jl                                                              559 <
+     4         0 @VectorizationBase/src/vecunroll/fmap.jl                                    7 fmap
+     4         0 @HomotopyContinuation/src/model_kit/operations.jl                         235 op_pow_int
+     4         0 @Base/intfuncs.jl                                                         394 power_by_squaring
+     4         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    207 evaluate!
+     4         0 @HomotopyContinuation/src/DoubleDouble.jl                                 226 -
+     4         0 @HomotopyContinuation/src/linear_algebra.jl                               817 updated!
+     4         0 @HomotopyContinuation/src/linear_algebra.jl                               560 fixed_precision_iterative_refinement!(x::Vector{ComplexF64}, M::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64}, norm::WeightedNorm{InfNorm})
+     4         0 @HomotopyContinuation/src/DoubleDouble.jl                                  41 two_diff
+     5         5 @HomotopyContinuation/src/model_kit/taylor.jl                             175 macro expansion
+     5         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    193 dt_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     5         5 @Base/float.jl                                                            495 /
+     5         5 @Base/promotion.jl                                                        641 ==
+     5         0 @HomotopyContinuation/src/newton_corrector.jl                             176 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     5         0 @HomotopyContinuation/src/predictor.jl                                    211 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     5         0 @HomotopyContinuation/src/DoubleDouble.jl                                 261 *
+     5         0 @HomotopyContinuation/src/DoubleDouble.jl                                  53 two_prod
+     5         5 @Base/floatfuncs.jl                                                       360 fma
+     5         0 @Base/broadcast.jl                                                        952 copyto!
+     5         0 @Base/array.jl                                                            311 _copyto2arg!
+     5         0 @Base/array.jl                                                            300 _copyto_impl!
+     5         0 @Base/complex.jl                                                          418 cdiv
+     5         0 @Base/abstractarray.jl                                                   1398 _to_linear_index
+     5         0 @Base/abstractarray.jl                                                   3074 _sub2ind
+     5         0 @HomotopyContinuation/src/DoubleDouble.jl                                  27 two_sum
+     5         0 @HomotopyContinuation/src/tracker.jl                                      742 init!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x₁::Vector{ComplexF64}, t₁::Float64, t₀::Float64; ω::Float64, μ::Float64, τ::Float64, max_initial_step_size::Float64, keep_steps::Bool, extended_precision::Bool)
+     5         0 @VectorizationBase/src/vecunroll/fmap.jl                                   11 fmap
+     5         0 @HomotopyContinuation/src/predictor.jl                                    240 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     5         0 @HomotopyContinuation/src/tracker.jl                                      950 #track!#143
+     6         0 @HomotopyContinuation/src/linear_algebra.jl                               178 lu!(A::Matrix{ComplexF64}, ipiv::Vector{Int64})
+     6         0 @HomotopyContinuation/src/linear_algebra.jl                               313 lu_ldiv!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{ComplexF64})
+     6         0 @HomotopyContinuation/src/linear_algebra.jl                               300 ldiv_unit_lower!
+     6         0 @Base/broadcast.jl                                                        907 materialize!
+     6         0 @Base/broadcast.jl                                                        910 materialize!
+     6         0 @HomotopyContinuation/src/DoubleDouble.jl                                 263 *
+     6         0 @Base/abstractarray.jl                                                    102 axes
+     6         0 @HomotopyContinuation/src/predictor.jl                                    213 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     6         0 @HomotopyContinuation/src/endgame_tracker.jl                              306 #track!#166
+     6         0 @HomotopyContinuation/src/endgame_tracker.jl                              260 init!
+     6         0 @HomotopyContinuation/src/endgame_tracker.jl                              271 init!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x::Vector{ComplexF64}, t₁::Float64; ω::Float64, μ::Float64, extended_precision::Bool)
+     7         7 @HomotopyContinuation/src/model_kit/taylor.jl                             942 taylor_op_mulmuladd(V::Val{2}, x::TruncatedTaylorSeries{3, ComplexF64}, y::TruncatedTaylorSeries{2, ComplexF64}, z::TruncatedTaylorSeries{3, ComplexF64}, w::TruncatedTaylorSeries{2, ComplexF64})
+     7         0 @Base/complex.jl                                                          407 /(z::ComplexF64, w::ComplexF64)
+     7         0 @Base/complex.jl                                                          452 robust_cdiv1
+     7         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl               96 coeffs!(H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     7         0 @HomotopyContinuation/src/DoubleDouble.jl                                 262 *
+     7         0 @HomotopyContinuation/src/newton_corrector.jl                             153 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+     7         0 @HomotopyContinuation/src/DoubleDouble.jl                                  26 two_sum
+     7         0 @HomotopyContinuation/src/model_kit/taylor.jl                             860 taylor_op_mul3(V::Val{3}, x::TruncatedTaylorSeries{4, ComplexF64}, y::TruncatedTaylorSeries{3, ComplexF64}, z::TruncatedTaylorSeries{3, ComplexF64})
+     7         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    256 taylor_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::Float64)
+     7         0 @HomotopyContinuation/src/endgame_tracker.jl                              460 check_at_infinity!(state::HomotopyContinuation.EndgameTrackerState, tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, options::EndgameOptions; debug::Bool)
+     7         0 @HomotopyContinuation/src/linear_algebra.jl                               904 cond
+     7         0 @HomotopyContinuation/src/linear_algebra.jl                               772 cond(WS::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, d_l::Vector{Float64}, d_r::Vector{Float64})
+     7         0 @HomotopyContinuation/src/linear_algebra.jl                               593 inverse_inf_norm_est
+     7         0 @HomotopyContinuation/src/DoubleDouble.jl                                 248 *
+     7         0 @HomotopyContinuation/src/DoubleDouble.jl                                 249 *
+     7         0 @HomotopyContinuation/src/DoubleDouble.jl                                  52 two_prod
+     8         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              130 taylor_coeffs!(H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     8         0 @VectorizationBase/src/special/exp.jl                                     787 vexp_generic_core
+     8         0 @VectorizationBase/src/llvm_intrin/memory_addr.jl                        1265 vload
+     8         0 @VectorizationBase/src/strided_pointers/stridedpointers.jl                 94 _vload
+     8         0 @VectorizationBase/src/vecunroll/memory.jl                               3491 __vload
+     8         0 @VectorizationBase/src/vecunroll/memory.jl                               3491 macro expansion
+     8         0 @VectorizationBase/src/llvm_intrin/memory_addr.jl                        1184 __vload
+     8         8 @VectorizationBase/src/llvm_intrin/memory_addr.jl                        1184 macro expansion
+     8         8 @Base/essentials.jl                                                        10 size
+     8         0 @HomotopyContinuation/src/linear_algebra.jl                               399 ldiv!(x::Vector{ComplexF64}, WS::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64})
+     8         0 @VectorizationBase/src/vecunroll/fmap.jl                                   25 fmap
+     8         0 @VectorizationBase/src/vecunroll/fmap.jl                                   25 macro expansion
+     8         0 @HomotopyContinuation/src/predictor.jl                                    217 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     8         0 @HomotopyContinuation/src/DoubleDouble.jl                                 224 -
+     8         8 @Base/essentials.jl                                                       385 checkbounds
+     8         0 @HomotopyContinuation/src/endgame_tracker.jl                              394 step!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+     8         0 @HomotopyContinuation/src/endgame_tracker.jl                              424 check_at_infinity!
+     8         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              131 taylor_coeffs!(H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     8         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    171 coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+     9         0 @Base/complex.jl                                                          335 *
+     9         0 @Base/promotion.jl                                                        434 *
+     9         0 @HomotopyContinuation/src/predictor.jl                                    242 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+     9         0 @HomotopyContinuation/src/linear_algebra.jl                               537 mixed_precision_iterative_refinement!(x::Vector{ComplexF64}, M::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64}, norm::WeightedNorm{InfNorm})
+     9         0 @Base/essentials.jl                                                       969 getindex
+     9         1 @Base/essentials.jl                                                       389 checkbounds
+    10         6 @Base/abstractarray.jl                                                    728 checkbounds_indices
+    10         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    188 dt_coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+    10         0 @Base/complex.jl                                                          394 /(z::ComplexF64, w::ComplexF64)
+    10        10 @Base/float.jl                                                            723 isinf
+    10         0 @HomotopyContinuation/src/model_kit/operations.jl                         241 op_mul3
+    10         0 @HomotopyContinuation/src/newton_corrector.jl                             109 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+    10         0 @HomotopyContinuation/src/DoubleDouble.jl                                 227 -
+    11         0 @Base/array.jl                                                           1036 _setindex!
+    11         0 @HomotopyContinuation/src/newton_corrector.jl                             151 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+    11         0 @Base/operators.jl                                                        653 *
+    11         0 @HomotopyContinuation/src/linear_algebra.jl                               873 #iterative_refinement!#37
+    11         0 @HomotopyContinuation/src/tracker.jl                                      639 init!
+    12         0 @Base/abstractarray.jl                                                    702 checkbounds
+    12         0 @Base/abstractarray.jl                                                    684 checkbounds
+    12         0 @HomotopyContinuation/src/model_kit/taylor.jl                             929 taylor_op_add4
+    13        12 @Base/array.jl                                                           1037 _setindex!
+    14         0 @HomotopyContinuation/src/newton_corrector.jl                             181 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+    15         0 @HomotopyContinuation/src/linear_algebra.jl                               860 #ldiv!#36
+    15         0 @VectorizationBase/src/special/exp.jl                                     802 vexp_generic
+    17         0 @HomotopyContinuation/src/linear_algebra.jl                               395 ldiv!(x::Vector{ComplexF64}, WS::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64})
+    17         0 @HomotopyContinuation/src/linear_algebra.jl                               257 factorize!
+    17         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    268 taylor!
+    17         0 @HomotopyContinuation/src/DoubleDouble.jl                                 250 *
+    18         0 @HomotopyContinuation/src/linear_algebra.jl                               846 ldiv!
+    18         0 @HomotopyContinuation/src/DoubleDouble.jl                                  28 two_sum
+    19         0 @HomotopyContinuation/src/model_kit/taylor.jl                             121 setindex!
+    19         0 @HomotopyContinuation/src/newton_corrector.jl                             107 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+    20        19 @Base/complex.jl                                                           14 Complex
+    21         0 @HomotopyContinuation/src/model_kit/taylor.jl                             714 taylor_op_add
+    21         0 @VectorizationBase/src/special/exp.jl                                     749 exp
+    21         0 @VectorizationBase/src/special/exp.jl                                     754 vexp
+    21         0 @VectorizationBase/src/special/exp.jl                                     836 vexp
+    22         0 @HomotopyContinuation/src/model_kit/operations.jl                         230 op_add
+    23         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    167 coeffs!(H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, t::ComplexF64)
+    23        22 @Base/array.jl                                                           1025 _setindex!
+    23         0 @HomotopyContinuation/src/DoubleDouble.jl                                 187 +
+    24         0 @Base/array.jl                                                           1031 setindex!
+    24         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    117 evaluate_weights!(u::Vector{Float64}, weights::Vector{Float64}, t::Float64)
+    24         0 @LoopVectorization/src/condense_loopset.jl                               1179 macro expansion
+    24         0 @LoopVectorization/src/reconstruct_loopset.jl                            1107 _turbo_!
+    24         1 @LoopVectorization/src/reconstruct_loopset.jl                            1107 macro expansion
+    24         0 @Base/array.jl                                                           1020 setindex!
+    24         0 @HomotopyContinuation/src/DoubleDouble.jl                                 188 +
+    24         0 @HomotopyContinuation/src/DoubleDouble.jl                                  15 quick_two_sum
+    24         1 @HomotopyContinuation/src/linear_algebra.jl                               512 residual!(r::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, A::Matrix{ComplexF64}, x::Vector{Complex{HomotopyContinuation.DoubleDouble.DoubleF64}}, b::Vector{ComplexF64})
+    25         0 @HomotopyContinuation/src/linear_algebra.jl                               833 ldiv!
+    25         0 @HomotopyContinuation/src/linear_algebra.jl                               843 #ldiv!#35
+    25         0 @HomotopyContinuation/src/linear_algebra.jl                               876 #iterative_refinement!#37
+    27         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              118 taylor!
+    27         0 @HomotopyContinuation/src/linear_algebra.jl                               401 ldiv!(x::Vector{ComplexF64}, WS::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64})
+    27         0 @Base/operators.jl                                                        691 \
+    27         0 @HomotopyContinuation/src/linear_algebra.jl                               535 mixed_precision_iterative_refinement!(x::Vector{ComplexF64}, M::HomotopyContinuation.MatrixWorkspace{Matrix{ComplexF64}}, b::Vector{ComplexF64}, norm::WeightedNorm{InfNorm})
+    28         0 @HomotopyContinuation/src/linear_algebra.jl                               288 ldiv_upper!
+    29         1 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    217 taylor!
+    30         0 @HomotopyContinuation/src/linear_algebra.jl                               314 lu_ldiv!(x::Vector{ComplexF64}, LU::LU{ComplexF64, Matrix{ComplexF64}, Vector{Int64}}, b::Vector{ComplexF64})
+    30         0 @HomotopyContinuation/src/linear_algebra.jl                               285 ldiv_upper!
+    30         0 @HomotopyContinuation/src/DoubleDouble.jl                                 186 +
+    33         0 @HomotopyContinuation/src/DoubleDouble.jl                                  16 quick_two_sum
+    36         0 @HomotopyContinuation/src/linear_algebra.jl                               864 iterative_refinement!
+    49         0 @HomotopyContinuation/src/newton_corrector.jl                             149 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+    56         0 @HomotopyContinuation/src/predictor.jl                                    209 update!(predictor::HomotopyContinuation.Predictor, H::HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+    65         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    269 taylor!
+    75         0 @HomotopyContinuation/src/model_kit/taylor.jl                              97 getindex
+    75         0 @HomotopyContinuation/src/model_kit/taylor.jl                             101 macro expansion
+    80         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    273 taylor!
+    81         0 @Base/array.jl                                                            963 getindex
+    88         0 @Base/operators.jl                                                        610 afoldl
+    93         4 @Base/complex.jl                                                          290 *(z::Complex{HomotopyContinuation.DoubleDouble.DoubleF64}, w::Complex{HomotopyContinuation.DoubleDouble.DoubleF64})
+   101         0 @HomotopyContinuation/src/newton_corrector.jl                             105 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+   136         0 @HomotopyContinuation/src/model_kit/operations.jl                         243 op_muladd
+   163       163 @Base/essentials.jl                                                       970 getindex
+   165         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              110 evaluate!
+   192         0 @HomotopyContinuation/src/model_kit/taylor.jl                             949 taylor_op_mulmuladd(V::Val{3}, x::TruncatedTaylorSeries{4, ComplexF64}, y::TruncatedTaylorSeries{2, ComplexF64}, z::TruncatedTaylorSeries{4, ComplexF64}, w::TruncatedTaylorSeries{2, ComplexF64})
+   207         1 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           269 evaluate!(u::Vector{ComplexF64}, T::CompiledSystem{(0x606e10ec245c80ec, 1)}, x::Vector{ComplexF64}, p::Vector{ComplexF64})
+   217         0 @HomotopyContinuation/src/predictor.jl                                    238 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+   224         0 @HomotopyContinuation/src/predictor.jl                                    246 update!(predictor::HomotopyContinuation.Predictor, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}, x̂::Vector{ComplexF64})
+   244       243 @Base/float.jl                                                            493 -
+   264         0 @HomotopyContinuation/src/model_kit/operations.jl                         250 op_add4
+   266         0 @Base/operators.jl                                                        653 +
+   279         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              140 taylor!
+   294         0 @HomotopyContinuation/src/model_kit/taylor.jl                             742 taylor_op_mul
+   298         0 @HomotopyContinuation/src/polyhedral.jl                                   472 track(PT::PolyhedralTracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, start_solution::Tuple{MixedSubdivisions.MixedCell, Vector{ComplexF64}}; path_number::Nothing, debug::Bool)
+   310         0 @HomotopyContinuation/src/model_kit/taylor.jl                             174 macro expansion
+   313         0 @HomotopyContinuation/src/model_kit/intermediate_representation.jl        553 macro expansion
+   374         0 @HomotopyContinuation/src/model_kit/operations.jl                         232 op_mul
+   397         0 @HomotopyContinuation/src/polyhedral.jl                                   492 track(PT::PolyhedralTracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, start_solution::Tuple{MixedSubdivisions.MixedCell, Vector{ComplexF64}}; path_number::Nothing, debug::Bool)
+   408         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           342 taylor!
+   408         3 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           342 taylor!(u::Vector{ComplexF64}, Order::Val{3}, T::CompiledSystem{(0x606e10ec245c80ec, 1)}, x::TaylorVector{3, ComplexF64}, p::TaylorVector{2, ComplexF64}; assign_highest_order_only::Bool)
+   441         0 @HomotopyContinuation/src/homotopies.jl                                    41 taylor!
+   452         0 @HomotopyContinuation/src/newton_corrector.jl                             143 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+   485         0 @HomotopyContinuation/src/homotopies/toric_homotopy.jl                    211 evaluate_and_jacobian!
+   538         0 @HomotopyContinuation/src/tracker.jl                                      907 step!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+   541         0 @HomotopyContinuation/src/tracker.jl                                      623 update_predictor!
+   593         0 @Base/complex.jl                                                          288 +
+   690         0 @HomotopyContinuation/src/tracker.jl                                      964 #track!#143
+   695         0 @HomotopyContinuation/src/tracker.jl                                      937 track!
+   737       737 @Base/float.jl                                                            492 +
+   857       857 @Base/float.jl                                                            494 *
+   951         0 @HomotopyContinuation/src/homotopies/coefficient_homotopy.jl              114 evaluate_and_jacobian!
+   976         0 @HomotopyContinuation/src/newton_corrector.jl                             102 newton!(x̄::Vector{ComplexF64}, NC::HomotopyContinuation.NewtonCorrector, H::CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, x₀::Vector{ComplexF64}, t::ComplexF64, J::HomotopyContinuation.Jacobian{Matrix{ComplexF64}}, norm::WeightedNorm{InfNorm}; μ::Float64, ω::Float64, extended_precision::Bool, accurate_μ::Bool, first_correction::Bool)
+  1025         2 @HomotopyContinuation/src/model_kit/operations.jl                         252 op_mulmuladd
+  1165         0 @Base/complex.jl                                                          290 *
+  1403         2 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           293 evaluate_and_jacobian!(u::Vector{ComplexF64}, U::Matrix{ComplexF64}, T::CompiledSystem{(0x606e10ec245c80ec, 1)}, x::Vector{ComplexF64}, p::Vector{ComplexF64})
+  1510         0 @HomotopyContinuation/src/endgame_tracker.jl                              361 step!(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+  1524         1 @HomotopyContinuation/src/endgame_tracker.jl                              309 #track!#166
+  1530         0 @HomotopyContinuation/src/polyhedral.jl                                   531 track(PT::PolyhedralTracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, start_solution::Tuple{MixedSubdivisions.MixedCell, Vector{ComplexF64}}; path_number::Nothing, debug::Bool)
+  1530         0 @HomotopyContinuation/src/endgame_tracker.jl                              902 track
+  1530         0 @HomotopyContinuation/src/endgame_tracker.jl                              909 track(endgame_tracker::EndgameTracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, x::Vector{ComplexF64}, t₁::Float64; path_number::Nothing, kwargs::Base.Pairs{Symbol, Real, Nothing, @NamedTuple{μ::Float64, debug::Bool}})
+  1530         0 @HomotopyContinuation/src/endgame_tracker.jl                              297 track!
+  1656         0 @HomotopyContinuation/src/tracker.jl                                      870 step!(tracker::Tracker{CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, debug::Bool)
+  1656         0 @HomotopyContinuation/src/newton_corrector.jl                              80 newton!
+  2007         0 @HomotopyContinuation/src/model_kit/compiled_system_homotopy.jl           254 macro expansion
+  2007         1 @HomotopyContinuation/src/model_kit/instruction_sequence.jl                92 macro expansion
+  2225         0 [any unknown stackframes]
+  2225         0 @HomotopyContinuation/src/result.jl                                         ? iterate(ri::ResultIterator{PolyhedralStartSolutionsIterator{Vector{MixedSubdivisions.MixedCell}}}, state::Tuple{Int64, Tuple{HomotopyContinuation.PolyhedralStartSolutionsWorkspace, Tuple{MixedSubdivisions.MixedCell, Int64, Int64}}})
+  2225         0 @HomotopyContinuation/src/polyhedral.jl                                   430 track(PT::PolyhedralTracker{HomotopyContinuation.ToricHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, CoefficientHomotopy{CompiledSystem{(0x606e10ec245c80ec, 1)}}, Matrix{ComplexF64}}, start_solution::Tuple{MixedSubdivisions.MixedCell, Vector{ComplexF64}})
+  2226         0 @ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl    95 top-level scope
+  2227         0 /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S                123 [unknown function]
+  2227         0 /usr/lib/x86_64-linux-gnu/libc.so.6                                         ? __libc_start_main
+  2227         5 /usr/lib/x86_64-linux-gnu/libc.so.6                                         ? [unknown function]
+  2227         0 /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c          58 main
+  2227         0 @juliasrc/jlapi.c                                                        1152 jl_repl_entrypoint
+  2227         0 @juliasrc/jlapi.c                                                         985 true_main
+  2227         0 @juliasrc/julia.h                                                        2318 jl_apply
+  2227         0 @julialib/julia/sys.so                                                      ? jfptr__start_59126.1
+  2227         0 @Base/client.jl                                                           577 _start()
+  2227         0 @Base/client.jl                                                           344 exec_options(opts::Base.JLOptions)
+  2227         0 @Base/Base.jl                                                             309 include(mod::Module, _path::String)
+  2227         0 @Base/loading.jl                                                         3076 _include(mapexpr::Function, mod::Module, _path::String)
+  2227         0 @Base/loading.jl                                                         3016 include_string(mapexpr::typeof(identity), mod::Module, code::String, filename::String)
+  2227         0 @Base/boot.jl                                                             489 eval(m::Module, e::Any)
+  2227         0 @juliasrc/toplevel.c                                                      799 ijl_toplevel_eval_in
+  2227         0 @juliasrc/toplevel.c                                                      754 ijl_toplevel_eval
+  2227         0 @juliasrc/toplevel.c                                                      683 jl_toplevel_eval_flex
+  2227         0 @juliasrc/toplevel.c                                                      585 jl_eval_toplevel_stmts
+  2227         0 @juliasrc/toplevel.c                                                      731 jl_toplevel_eval_flex
+Total snapshots: 2227. Utilization: 100% across all threads and tasks. Use the `groupby` kwarg to break down by thread and/or task.

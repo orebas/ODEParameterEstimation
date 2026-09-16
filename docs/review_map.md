@@ -60,6 +60,11 @@ ceiling, and finds third-order rooted derivative sufficiency. Its
 from exact oracle derivatives after data-dependent elimination, with all
 condition equations retained for validation. These are independent research
 probes, not changes to the production estimator.
+The [prepared-system subset trial](2026-09-16_sneyd_prepared_subset.md) instead
+uses the existing rank/support selector on all 27 equations in 12 unknowns,
+without the manual parameter elimination, and sends its selected original
+rows to HC. Both HC backends recover the moderate vector; the nominal vector
+fails recovery and has extreme local conditioning despite exact rank 12.
 
 ## Start here
 

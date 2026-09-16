@@ -1,0 +1,828 @@
+WARNING: Imported binding StyledStrings.@styled_str was undeclared at import time during import to Markdown.
+WARNING: Imported binding StyledStrings.styled was undeclared at import time during import to Markdown.
+WARNING: Imported binding OpenSpecFun_jll.libopenspecfun was undeclared at import time during import to SpecialFunctions.
+WARNING: Imported binding HostCPUFeatures.prevpow2 was undeclared at import time during import to VectorizationBase.
+WARNING: Imported binding HostCPUFeatures.intlog2 was undeclared at import time during import to VectorizationBase.
+WARNING: Imported binding HostCPUFeatures.nextpow2 was undeclared at import time during import to VectorizationBase.
+WARNING: Imported binding StaticArrays.SVector was undeclared at import time during import to MixedSubdivisions.
+WARNING: Imported binding SymEngine_jll.libsymengine was undeclared at import time during import to ModelKit.
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+_ZN12_GLOBAL__N_114SimplifyCFGOpt29hoistCommonCodeFromSuccessorsEPN4llvm11InstructionEb at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm11simplifyCFGEPNS_10BasicBlockERKNS_19TargetTransformInfoEPNS_14DomTreeUpdaterERKNS_18SimplifyCFGOptionsENS_8ArrayRefINS_6WeakVHEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZL22iterativelySimplifyCFGRN4llvm8FunctionERKNS_19TargetTransformInfoEPNS_14DomTreeUpdaterERKNS_18SimplifyCFGOptionsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZL23simplifyFunctionCFGImplRN4llvm8FunctionERKNS_19TargetTransformInfoEPNS_13DominatorTreeERKNS_18SimplifyCFGOptionsE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm15SimplifyCFGPass3runERNS_8FunctionERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x4260
+warning: address range table at offset 0x3900 has a premature terminator entry at offset 0x42c0
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_8FunctionENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm27ModuleToFunctionPassAdaptor3runERNS_6ModuleERNS_15AnalysisManagerIS1_JEEE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/IR/PassManagerInternal.h:91
+_ZN4llvm11PassManagerINS_6ModuleENS_15AnalysisManagerIS1_JEEEJEE3runERS1_RS3_ at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+run at /cache/build/builder-amdci4-4/julialang/julia-ci/src/pipeline.cpp:792
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1512
+withModuleDo<(anonymous namespace)::sizedOptimizerT<N>::operator()(llvm::orc::ThreadSafeModule) [with long unsigned int N = 4]::<lambda(llvm::Module&)> > at /cache/build/builder-amdci4-4/julialang/julia-ci/usr/include/llvm/ExecutionEngine/Orc/ThreadSafeModule.h:136 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1473 [inlined]
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1648 [inlined]
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2117
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+collect at ./array.jl:838
+unknown function (ip: 0x71e090d12772) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:47
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#=   47.3 ms =# precompile(Tuple{typeof(Base.filter!), Main.var"#14#15", Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=    6.9 ms =# precompile(Tuple{typeof(Base.values), Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=   44.8 ms =# precompile(Tuple{typeof(Base.maximum), Function, Base.ValueIterator{Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}}})
+#=   18.1 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.abs), Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=  149.5 ms =# precompile(Tuple{typeof(Base.mapfoldl_impl), typeof(Base.abs), typeof(Base.max), Base._InitialValue, Base.ValueIterator{Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}}})
+#=    8.5 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, Main.var"#16#17"{Base.Rational{Base.GMP.BigInt}}, Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=  101.3 ms =# precompile(Tuple{Type{Base.Dict{K, V} where V where K}, Base.Generator{Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, Main.var"#16#17"{Base.Rational{Base.GMP.BigInt}}}})
+#=   11.9 ms =# precompile(Tuple{typeof(Base.first), Array{HomotopyContinuation.ModelKit.Variable, 1}})
+#=   14.3 ms =# precompile(Tuple{typeof(Base.zero), HomotopyContinuation.ModelKit.Variable})
+#=   84.6 ms =# precompile(Tuple{typeof(Base.collect), Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=  442.2 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:by,), Tuple{typeof(Base.first)}}, typeof(Base.sort!), Array{Pair{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, 1}})
+#=   17.0 ms =# precompile(Tuple{typeof(Base.iterate), Array{Pair{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, 1}})
+#=    9.5 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, Int64})
+#=   11.3 ms =# precompile(Tuple{typeof(Base.indexed_iterate), Pair{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, Int64, Int64})
+#=   15.2 ms =# precompile(Tuple{Type{Float64}, Base.Rational{Base.GMP.BigInt}})
+#=    6.5 ms =# precompile(Tuple{typeof(Base.Iterators.zip), Array{HomotopyContinuation.ModelKit.Variable, 1}, Array{Int64, 1}})
+#=    7.4 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, Main.var"#18#19", Base.Iterators.Zip{Tuple{Array{HomotopyContinuation.ModelKit.Variable, 1}, Array{Int64, 1}}}})
+#=   15.9 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Main.var"#18#19", Base.BottomRF{typeof(Base.mul_prod)}}, Symbol})
+#=  115.4 ms =# precompile(Tuple{typeof(Core.kwcall), NamedTuple{(:init,), Tuple{Int64}}, typeof(Base.prod), Base.Generator{Base.Iterators.Zip{Tuple{Array{HomotopyContinuation.ModelKit.Variable, 1}, Array{Int64, 1}}}, Main.var"#18#19"}})
+#=   22.1 ms =# precompile(Tuple{typeof(Base.:(*)), Float64, HomotopyContinuation.ModelKit.Expression})
+#=   10.8 ms =# precompile(Tuple{typeof(Base.:(+)), HomotopyContinuation.ModelKit.Expression, HomotopyContinuation.ModelKit.Expression})
+#=   10.2 ms =# precompile(Tuple{typeof(Base.iterate), Array{Pair{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, 1}, Int64})
+#=   14.1 ms =# precompile(Tuple{typeof(HomotopyContinuation.ModelKit.expand), HomotopyContinuation.ModelKit.Expression})
+#=  683.5 ms =# precompile(Tuple{typeof(HomotopyContinuation.ModelKit.to_dict), HomotopyContinuation.ModelKit.Expression, Array{HomotopyContinuation.ModelKit.Variable, 1}})
+#=    9.2 ms =# precompile(Tuple{typeof(Base.keys), Base.Dict{Array{Int64, 1}, HomotopyContinuation.ModelKit.Expression}})
+#=    8.4 ms =# precompile(Tuple{typeof(Base.keys), Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=   61.3 ms =# precompile(Tuple{typeof(Base.:(var"==")), Base.KeySet{Array{Int64, 1}, Base.Dict{Array{Int64, 1}, HomotopyContinuation.ModelKit.Expression}}, Base.KeySet{Array{Int64, 1}, Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}}})
+#=    9.6 ms =# precompile(Tuple{Type{Base.Generator{I, F} where F where I}, Main.var"#20#21"{Base.Dict{Array{Int64, 1}, HomotopyContinuation.ModelKit.Expression}}, Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}})
+#=   10.7 ms =# precompile(Tuple{typeof(Base.cconvert), Type{Int64}, Int32})
+#=    8.9 ms =# precompile(Tuple{typeof(Base.:(<=)), Int64, Int128})
+#=    5.4 ms =# precompile(Tuple{typeof(Base.:(var"==")), Int128, Int64})
+#=    5.7 ms =# precompile(Tuple{typeof(Base.abs), Int128})
+#=    5.8 ms =# precompile(Tuple{typeof(Base.top_set_bit), UInt128})
+#=    4.8 ms =# precompile(Tuple{typeof(Base.:(<)), Int128, Int64})
+#=   18.0 ms =# precompile(Tuple{typeof(Base.:(-)), Int128})
+#=    7.3 ms =# precompile(Tuple{typeof(Base.:(<=)), Int128, Int64})
+#=  446.6 ms =# precompile(Tuple{typeof(Base.all), Base.Generator{Base.Dict{Array{Int64, 1}, Base.Rational{Base.GMP.BigInt}}, Main.var"#20#21"{Base.Dict{Array{Int64, 1}, HomotopyContinuation.ModelKit.Expression}}}})
+#=   60.8 ms =# precompile(Tuple{typeof(Base.push!), Array{HomotopyContinuation.ModelKit.Expression, 1}, HomotopyContinuation.ModelKit.Expression})
+#=   16.7 ms =# precompile(Tuple{Type{NamedTuple{(:variables,), T} where T<:Tuple}, Tuple{Array{HomotopyContinuation.ModelKit.Variable, 1}}})
+#=   40.5 ms =# precompile(Tuple{typeof(HomotopyContinuation.ModelKit.free!), HomotopyContinuation.ModelKit.ExprVec})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+STAGE polyhedral_setup
+  Activating project at `/tmp/odepe-petab-pilot-env`
+
+Computing mixed cells... 2    Time: 0:00:00
+   mixed_volume: 2
+
+
+Computing mixed cells... 137    Time: 0:00:01
+   mixed_volume: 460
+
+
+Computing mixed cells... 621    Time: 0:00:02
+   mixed_volume: 1859
+
+
+Computing mixed cells... 625    Time: 0:00:02
+   mixed_volume: 1864
+STAGE polyhedral_tracking
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+_ZN4llvm13LiveVariables16HandlePhysRegDefENS_8RegisterEPNS_12MachineInstrERNS_15SmallVectorImplIS1_EE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13LiveVariables10runOnInstrERNS_12MachineInstrERNS_15SmallVectorImplINS_8RegisterEEEj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13LiveVariables10runOnBlockEPNS_17MachineBasicBlockEj at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13LiveVariables7analyzeERNS_15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm24LiveVariablesWrapperPass20runOnMachineFunctionERNS_15MachineFunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm19MachineFunctionPass13runOnFunctionERNS_8FunctionE.part.0 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/../lib/julia/libLLVM.so.20.1jl (unknown line)
+operator() at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:1627
+addModule at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:2130
+jl_compile_codeinst_now at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:681
+jl_compile_codeinst_impl at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jitlayers.cpp:875
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3709
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+GeneratedFunctionStub at ./expr.jl:1834
+jl_call_staged at /cache/build/builder-amdci4-4/julialang/julia-ci/src/method.c:729
+ijl_code_for_staged at /cache/build/builder-amdci4-4/julialang/julia-ci/src/method.c:802
+call_get_staged at ./../usr/share/julia/Compiler/src/utilities.jl:0 [inlined]
+get_staged at ./../usr/share/julia/Compiler/src/utilities.jl:88
+retrieve_code_info at ./../usr/share/julia/Compiler/src/utilities.jl:121
+InferenceState at ./../usr/share/julia/Compiler/src/inferencestate.jl:603 [inlined]
+typeinf_edge at ./../usr/share/julia/Compiler/src/typeinfer.jl:1104
+abstract_call_method at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:746
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:178
+abstract_call_gf_by_type at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:349
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2869
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2975
+infercalls at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:1925
+abstract_apply at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:1945
+abstract_call_known at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2721
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2975
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:2968 [inlined]
+abstract_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3128
+abstract_eval_call at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3146 [inlined]
+abstract_eval_statement_expr at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3502
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3896 [inlined]
+abstract_eval_basic_statement at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:3853 [inlined]
+typeinf_local at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4402
+jfptr_typeinf_local_86421.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+typeinf at ./../usr/share/julia/Compiler/src/abstractinterpretation.jl:4563
+typeinf_ext at ./../usr/share/julia/Compiler/src/typeinfer.jl:1404
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1601 [inlined]
+typeinf_ext_toplevel at ./../usr/share/julia/Compiler/src/typeinfer.jl:1610
+jfptr_typeinf_ext_toplevel_87105.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+jl_type_infer at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:478
+jl_compile_method_internal at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:3697
+_jl_invoke at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4171 [inlined]
+ijl_apply_generic at /cache/build/builder-amdci4-4/julialang/julia-ci/src/gf.c:4380
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:85
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+#= 11937.5 ms =# precompile(Tuple{LoopVectorization.var"##76#77", Vararg{Any, 16}})
+#=   48.9 ms =# precompile(Tuple{typeof(Base._array_for), Type{LoopVectorization.Instruction}, Base.UnitRange{Int64}, Base.HasShape{1}})
+#=   17.7 ms =# precompile(Tuple{Type{Base.LinearIndices{N, R} where R<:Tuple{Vararg{Base.AbstractUnitRange{Int64}, N}} where N}, Array{LoopVectorization.Instruction, 1}})
+#=   23.5 ms =# precompile(Tuple{typeof(Base.setindex!), Array{LoopVectorization.Instruction, 1}, LoopVectorization.Instruction, Int64})
+#=   23.4 ms =# precompile(Tuple{typeof(Base._array_for), Type{LoopVectorization.OperationStruct}, Base.UnitRange{Int64}, Base.HasShape{1}})
+#=   11.6 ms =# precompile(Tuple{Type{Base.LinearIndices{N, R} where R<:Tuple{Vararg{Base.AbstractUnitRange{Int64}, N}} where N}, Array{LoopVectorization.OperationStruct, 1}})
+#=   29.4 ms =# precompile(Tuple{typeof(Base.setindex!), Array{LoopVectorization.OperationStruct, 1}, LoopVectorization.OperationStruct, Int64})
+#=   10.6 ms =# precompile(Tuple{Type{Array{LoopVectorization.ArrayRefStruct{array, ptr} where ptr where array, 1}}, UndefInitializer, Int64})
+#=   15.1 ms =# precompile(Tuple{typeof(Base.eachindex), Array{LoopVectorization.ArrayRefStruct{array, ptr} where ptr where array, 1}})
+#=   34.8 ms =# precompile(Tuple{typeof(Base.setindex!), Array{LoopVectorization.ArrayRefStruct{array, ptr} where ptr where array, 1}, LoopVectorization.ArrayRefStruct{:weights, :var"##vptr##_weights"}, Int64})
+#=   10.8 ms =# precompile(Tuple{typeof(Base.setindex!), Array{LoopVectorization.ArrayRefStruct{array, ptr} where ptr where array, 1}, LoopVectorization.ArrayRefStruct{:u, :var"##vptr##_u"}, Int64})
+#=   26.1 ms =# precompile(Tuple{typeof(Base.setindex!), Array{LoopVectorization.ArrayRefStruct{array, ptr} where ptr where array, 1}, LoopVectorization.ArrayRefStruct{:v, :var"##vptr##_v"}, Int64})
+#=  158.9 ms =# precompile(Tuple{Type{LoopVectorization.Loop}, LoopVectorization.LoopSet, Expr, Symbol, Type{CloseOpenIntervals.CloseOpen{Static.StaticInt{0}, Int64}}})
+#=   18.4 ms =# precompile(Tuple{typeof(Base.ntuple), LoopVectorization.var"#stabilize_grouped_stridedpointer_type##0#stabilize_grouped_stridedpointer_type##1"{Tuple{Int64}, Int64}, Base.Val{8}})
+#=    9.7 ms =# precompile(Tuple{Type{UInt8}, LoopVectorization.IndexType})
+#=   22.3 ms =# precompile(Tuple{typeof(Base.:(>=)), Int8, Int64})
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+getindex at ./essentials.jl:970 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:182 [inlined]
+execute_instructions! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:252 [inlined]
+execute! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:306 [inlined]
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:74
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:114 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:102
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+== at ./promotion.jl:641 [inlined]
+iterate at ./range.jl:928 [inlined]
+iterate at ./iterators.jl:203 [inlined]
+#execute_taylor!#347 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:464 [inlined]
+execute_taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:446 [inlined]
+#taylor!#353 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:110
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:101 [inlined]
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:269 [inlined]
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies.jl:41 [inlined]
+update! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/predictor.jl:238
+update_predictor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:623 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:907
+#track!#143 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:964 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:937 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:472
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+getproperty at ./Base_compiler.jl (unknown line) [inlined]
+execute! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:286 [inlined]
+evaluate! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:69
+evaluate! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:110 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:149
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+getindex at ./essentials.jl:970 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:182 [inlined]
+execute_instructions! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:252 [inlined]
+execute! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:306 [inlined]
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:74
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:211 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:143
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+#track!#143 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:964 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:937 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:492
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+_setindex! at ./array.jl:1037 [inlined]
+setindex! at ./array.jl:1031 [inlined]
+setindex! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/taylor.jl:121 [inlined]
+taylor_coeffs! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:131
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:140 [inlined]
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies.jl:41 [inlined]
+update! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/predictor.jl:238
+update_predictor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:623 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:907
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
++ at ./int.jl:87 [inlined]
+_sub2ind_recurse at ./abstractarray.jl:3106 [inlined]
+_sub2ind_recurse at ./abstractarray.jl:3106 [inlined]
+_sub2ind at ./abstractarray.jl:3090 [inlined]
+_sub2ind at ./abstractarray.jl:3074 [inlined]
+_to_linear_index at ./abstractarray.jl:1398 [inlined]
+_setindex! at ./array.jl:1037 [inlined]
+setindex! at ./array.jl:1031 [inlined]
+lu! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:163
+factorize! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:257 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:395
+#ldiv!#36 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:860 [inlined]
+ldiv! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/linear_algebra.jl:846 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:107
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+_setindex! at ./array.jl:1025 [inlined]
+setindex! at ./array.jl:1020 [inlined]
+coeffs! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:96
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:114 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:102
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+_setindex! at ./array.jl:1025 [inlined]
+setindex! at ./array.jl:1020 [inlined]
+setindex! at ./multidimensional.jl:774 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:166 [inlined]
+execute_instructions! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:252 [inlined]
+execute! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:306 [inlined]
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:74
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:114 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:102
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+* at ./float.jl:494 [inlined]
+* at ./complex.jl:290 [inlined]
+op_mul at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/operations.jl:232 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:151 [inlined]
+execute_instructions! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:252 [inlined]
+execute! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:306 [inlined]
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:74
+evaluate_and_jacobian! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:211 [inlined]
+#newton!#130 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:102
+newton! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/newton_corrector.jl:80 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:870
+#track!#143 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:964 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:937 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:472
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
+
+
+======================================================================================
+Information request received. A stacktrace will print followed by a 5.0 second profile.
+--trace-compile is enabled during profile collection.
+======================================================================================
+
+cmd: /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/bin/julia 3 running 1 of 1
+
+signal (10): User defined signal 1
+* at ./float.jl:494 [inlined]
+* at ./complex.jl:290 [inlined]
+op_mul at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/operations.jl:232 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/intermediate_representation.jl:553 [inlined]
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/taylor.jl:174 [inlined]
+taylor_op_mul at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/taylor.jl:742 [inlined]
+taylor_op_mulmuladd at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/taylor.jl:949
+macro expansion at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:398 [inlined]
+execute_taylor_instructions! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:440 [inlined]
+#execute_taylor!#347 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:477 [inlined]
+execute_taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/instruction_interpreter.jl:446 [inlined]
+#taylor!#353 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:110
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/model_kit/interpreted_system.jl:101 [inlined]
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/coefficient_homotopy.jl:140 [inlined]
+taylor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies.jl:41 [inlined]
+update! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/predictor.jl:238
+update_predictor! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:623 [inlined]
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/tracker.jl:907
+step! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:361
+#track!#166 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:309 [inlined]
+track! at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:297 [inlined]
+#track#169 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:909
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/endgame_tracker.jl:902 [inlined]
+#track#254 at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:531
+track at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:430
+unknown function (ip: 0x71e0905a55ef) at (unknown file)
+iterate at /home/orebas/.julia/packages/HomotopyContinuation/RlZQL/src/result.jl:0
+unknown function (ip: 0x71e090170a80) at (unknown file)
+top-level scope at /home/orebas/.julia/dev/ODEParameterEstimation/repro/sneyd_prepared_subset_2026_09_16/solve.jl:98
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:731
+jl_eval_toplevel_stmts at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:585
+jl_toplevel_eval_flex at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:683
+ijl_toplevel_eval at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:754
+ijl_toplevel_eval_in at /cache/build/builder-amdci4-4/julialang/julia-ci/src/toplevel.c:799
+eval at ./boot.jl:489
+include_string at ./loading.jl:3016
+_include at ./loading.jl:3076
+include at ./Base.jl:309
+exec_options at ./client.jl:344
+_start at ./client.jl:577
+jfptr__start_59126.1 at /home/orebas/.julia/juliaup/julia-1.13.0+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci4-4/julialang/julia-ci/src/julia.h:2318 [inlined]
+true_main at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:985
+jl_repl_entrypoint at /cache/build/builder-amdci4-4/julialang/julia-ci/src/jlapi.c:1152
+main at /cache/build/builder-amdci4-4/julialang/julia-ci/cli/loader_exe.c:58
+unknown function (ip: 0x71e0df82a600) at /usr/lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /usr/lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+
+FINISHED complete
+#=  182.1 ms =# precompile(Tuple{typeof(Base._atexit), Int32}) # recompile
+#=  151.5 ms =# precompile(Tuple{Downloads.Curl.var"#__init__##2#__init__##3"})
+#=   21.1 ms =# precompile(Tuple{typeof(Base.getproperty), Base.GenericCondition{Base.ReentrantLock}, Symbol})
+#=   65.4 ms =# precompile(Tuple{Distributed.var"#start_gc_msgs_task##0#start_gc_msgs_task##1"})
+WARNING: Detected access to binding `Profile.peek_report` in a world prior to its definition world.
+  Julia 1.12 has introduced more strict world age semantics for global bindings.
+  !!! This code may malfunction under Revise.
+  !!! This code will error in future versions of Julia.
+Hint: Add an appropriate `invokelatest` around the access to this binding.
+To make this warning an error, and hence obtain a stack trace, use `julia --depwarn=error`.
+#=   10.1 ms =# precompile(Tuple{typeof(Base.getindex), Base.RefValue{Function}})
+#=   20.5 ms =# precompile(Tuple{Type{NamedTuple{(:format, :C, :sortedby), T} where T<:Tuple}, Tuple{Symbol, Bool, Symbol}})
+#=   14.6 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{Profile.var"#tree_format##0#tree_format##1", Base.BottomRF{typeof(Base.max)}}, Symbol})
+#=   10.7 ms =# precompile(Tuple{typeof(Base.getproperty), Base.Order.Lt{Profile.var"#lt#liperm##0"}, Symbol})
+#=   23.1 ms =# precompile(Tuple{typeof(Base.getproperty), Base.MappingRF{typeof(Base.Unicode.textwidth), Base.BottomRF{typeof(Base.add_sum)}}, Symbol})
+#=   13.5 ms =# precompile(Tuple{Type{NamedTuple{(:summary,), T} where T<:Tuple}, Tuple{Bool}})
+#=   19.6 ms =# precompile(Tuple{typeof(Base.pairs), NamedTuple{(:format, :C, :sortedby), Tuple{Symbol, Bool, Symbol}}})
+#=   76.6 ms =# precompile(Tuple{Type{Pair{Symbol, Any}}, Any, Any}) # recompile
+
+==============================================================
+Profile collected. A report will print at the next yield point.
+Disabling --trace-compile
+==============================================================
