@@ -1,0 +1,100 @@
+{
+  "exact_recovery": [
+    "21714010102734189668048882535/32395469538237562919124012398",
+    "1271589187300277/1000000000000000",
+    "38490104060987500001/12500000000000000",
+    "191463005974811/100000000000000"
+  ],
+  "exact_recovery_trace": [
+    {
+      "variable": "L1",
+      "linear_equation": "L1 - 21714010102734189668048882535/32395469538237562919124012398",
+      "value": "21714010102734189668048882535/32395469538237562919124012398"
+    },
+    {
+      "variable": "V1",
+      "linear_equation": "1000000000000000*V1/1271589187300277 - 1",
+      "value": "1271589187300277/1000000000000000"
+    },
+    {
+      "variable": "k_minus_3",
+      "linear_equation": "100000000000000*k_minus_3/191463005974811 - 1",
+      "value": "191463005974811/100000000000000"
+    },
+    {
+      "variable": "V5",
+      "linear_equation": "522036550895071998570917983046702103343148070656776973704257684375000000000000*V5/1607459264040184529125539448130859108431727230125445430872836719111891322044875771 - 6429837173628901907429671874136554657385017420053004507265752726028197599847862459/6429837056160738116502157792523436433726908920501781723491346876447565288179503084",
+      "value": "38490104060987500001/12500000000000000"
+    }
+  ],
+  "all_12_combinations_exact": true,
+  "all_27_rooted_constraints_exact": true,
+  "quartic_positive_branch_equivalent": true,
+  "hc_sha256": "d3c00492847ab1a3e6a400af48d117beeed096e15fd834ff46bb2730d4c986d5",
+  "runs": [
+    {
+      "variant": "raw_selected",
+      "start_system": "polyhedral",
+      "roots": [
+        {
+          "hc_max_relative_parameter_error": "144.79072993846044004",
+          "hc_full_reduced_residual_inf": "2.2842647411831151713e-16",
+          "hc_max_imaginary_part": "3.136065605763168e-38",
+          "hc_relative_truth_error_below_1e_minus_8": false,
+          "refinement_scope": "Newton on the full-data row-reduced equations, not necessarily the original square subsystem",
+          "hc_all_12_max_relative_error": "144.79072993846044004",
+          "hc_12_combinations_positive_and_real_at_1e_minus_8": false,
+          "refined_max_relative_parameter_error": "4.2615642447109196865e-102",
+          "refined_full_reduced_residual_inf": "2.8574684782056874555e-101",
+          "refined_values_real": [
+            "0.670279221515969872328923124417895420450485985688395941688974",
+            "1.271589187300277",
+            "3079.20832487900000008",
+            "1.91463005974811"
+          ],
+          "refined_values_imag": [
+            "2.342405332e-219",
+            "3.30990057e-162",
+            "-1.368024019e-162",
+            "2.520960185e-166"
+          ],
+          "refined_all_12_max_relative_error": "9.9968210729243092393e-102",
+          "refined_all_condition_generator_max_relative_error": "3.0879084749242159604e-101",
+          "refined_all_27_rooted_jets_max_relative_error": "4.4010082507502459351e-101"
+        }
+      ]
+    },
+    {
+      "variant": "row_reduced_selected",
+      "start_system": "polyhedral",
+      "roots": [
+        {
+          "hc_max_relative_parameter_error": "1.2987753922616300482e-16",
+          "hc_full_reduced_residual_inf": "2.5780887322062272748e-16",
+          "hc_max_imaginary_part": "1.9657596268712698e-48",
+          "hc_relative_truth_error_below_1e_minus_8": true,
+          "refinement_scope": "Newton on the full-data row-reduced equations, not necessarily the original square subsystem",
+          "hc_all_12_max_relative_error": "1.2987753922616300482e-16",
+          "hc_12_combinations_positive_and_real_at_1e_minus_8": true,
+          "refined_max_relative_parameter_error": "7.5911737410069532467e-85",
+          "refined_full_reduced_residual_inf": "1.2655661357316671385e-84",
+          "refined_values_real": [
+            "0.670279221515969872328923124417895420450485985688395941688974",
+            "1.271589187300277",
+            "3079.20832487900000008",
+            "1.91463005974811"
+          ],
+          "refined_values_imag": [
+            "-9.807231385e-161",
+            "1.033085147e-121",
+            "2.37318107e-116",
+            "7.298364542e-121"
+          ],
+          "refined_all_12_max_relative_error": "7.5911737410069532467e-85",
+          "refined_all_condition_generator_max_relative_error": "7.5911737410069533909e-85",
+          "refined_all_27_rooted_jets_max_relative_error": "1.5969707240324964958e-85"
+        }
+      ]
+    }
+  ]
+}

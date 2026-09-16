@@ -1,0 +1,261 @@
+{
+  "hc_version": "2.22.4",
+  "julia_version": "1.13.0",
+  "manifest_sha256": "f91fa73d79af6800ce40f05b0a91de92c9632e2023209d0f8e168298eb420703",
+  "runs": [
+    {
+      "equations": 4,
+      "error": "MethodError: no method matching HomotopyContinuation.ToricHomotopy(::CompiledSystem{(0x93053b05361e5cdd, 1)}, ::Vector{Vector{Complex{BigFloat}}})\nThe type `HomotopyContinuation.ToricHomotopy` exists, but no method is defined for this combination of argument types when trying to construct it.\n\nClosest candidates are:\n  HomotopyContinuation.ToricHomotopy(::AbstractSystem, !Matched::Vector{Vector{ComplexF64}})\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:37\n  HomotopyContinuation.ToricHomotopy(::S, !Matched::Vector{ComplexF64}, !Matched::Vector{Float64}, !Matched::Vector{Float64}, !Matched::StructArrays.StructVector{ComplexF64, @NamedTuple{re::Vector{Float64}, im::Vector{Float64}}, Int64}, !Matched::Vector{ComplexF64}, !Matched::Vector{ComplexF64}, !Matched::Vector{ComplexF64}, !Matched::Base.RefValue{ComplexF64}, !Matched::Base.RefValue{ComplexF64}, !Matched::TaylorVector{5, ComplexF64}, !Matched::TaylorVector{4, ComplexF64}, !Matched::TaylorVector{3, ComplexF64}) where S<:AbstractSystem\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:16\n  HomotopyContinuation.ToricHomotopy(; system, system_coeffs, weights, t_weights, complex_t_weights, coeffs, dt_coeffs, x, t_coeffs, t_taylor_coeffs, taylor_coeffs, tc3, tc2)\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:15\n\nStacktrace:\n  [1] polyhedral(support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector{Complex{BigFloat}}}, target_coeffs::Vector{Vector{Rational{BigInt}}}; endgame_options::EndgameOptions, tracker_options::TrackerOptions, only_torus::Bool, only_non_zero::Bool, compile::Symbol, show_progress::Bool, kwargs::@Kwargs{})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:409\n  [2] polyhedral\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:369 [inlined]\n  [3] #polyhedral#245\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:356 [inlined]\n  [4] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(polyhedral), support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector{Rational{BigInt}}})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:350\n  [5] polyhedral(f::System; compile::Symbol, target_parameters::Nothing, kwargs::@Kwargs{show_progress::Bool})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:289\n  [6] polyhedral\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [7] solver_startsolutions(F::System, starts::Nothing; seed::UInt32, start_system::Symbol, generic_parameters::Nothing, p₁::Nothing, start_parameters::Nothing, p₀::Nothing, target_parameters::Nothing, compile::Symbol, start_subspace::Nothing, target_subspace::Nothing, intrinsic::Nothing, show_progress::Bool, kwargs::@Kwargs{})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:164\n  [8] solver_startsolutions\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117 [inlined]\n  [9] kwcall(::@NamedTuple{start_system::Symbol, compile::Symbol, seed::UInt32, show_progress::Bool}, ::typeof(solver_startsolutions), F::System)\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117\n [10] macro expansion\n    @ ./timing.jl:699 [inlined]\n [11] main(input_path::String, output_path::String)\n    @ Main ~/.julia/dev/ODEParameterEstimation/repro/sneyd_manual_hc_2026_09_16/solve.jl:61\n [12] top-level scope\n    @ ~/.julia/dev/ODEParameterEstimation/repro/sneyd_manual_hc_2026_09_16/solve.jl:103\n [13] include(mod::Module, _path::String)\n    @ Base ./Base.jl:309\n [14] exec_options(opts::Base.JLOptions)\n    @ Base ./client.jl:344\n [15] _start()\n    @ Base ./client.jl:577",
+      "start_system": "polyhedral",
+      "status": "failed",
+      "unknowns": 4,
+      "variant": "raw_selected"
+    },
+    {
+      "certification_seconds": 0.139872326,
+      "certified_distinct_roots": 1,
+      "equations": 4,
+      "full_reduced_residuals_inf": [
+        2.1982696738975907e-16
+      ],
+      "path_codes": {
+        "at_infinity": 15,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          6.815125865944679e-50,
+          -1.3298207723620827e-31,
+          -3.4839621634287275e-46,
+          8.943844621530489e-38
+        ]
+      ],
+      "roots_real": [
+        [
+          0.6702792215159699,
+          1.271589187300259,
+          3079.208324879,
+          1.91463005974811
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        2.669501390595336e19
+      ],
+      "setup_compile_seconds": 0.259823063,
+      "setup_seconds": 0.260869602,
+      "start_paths": 16,
+      "start_system": "total_degree",
+      "status": "complete",
+      "tracking_compile_seconds": 3.790254857,
+      "tracking_seconds": 4.376807499,
+      "unknowns": 4,
+      "variant": "raw_selected"
+    },
+    {
+      "equations": 9,
+      "full_reduced_residuals_inf": [
+        7.948100630541047e-16
+      ],
+      "path_codes": {
+        "at_infinity": 2,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          -7.764305657937262e-16,
+          2682.6875943541036,
+          4.818758306680857e-12,
+          -0.001804279102469698
+        ]
+      ],
+      "roots_real": [
+        [
+          0.6702792215159702,
+          1996.1900792018926,
+          3079.2083248790004,
+          1.9132883271668608
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        2.933084978871674e19
+      ],
+      "setup_compile_seconds": 0.148341075,
+      "setup_seconds": 0.14962694,
+      "start_paths": 3,
+      "start_system": "polyhedral",
+      "status": "complete",
+      "tracking_compile_seconds": 0.538033117,
+      "tracking_seconds": 0.539262478,
+      "unknowns": 4,
+      "variant": "raw_all"
+    },
+    {
+      "equations": 9,
+      "full_reduced_residuals_inf": [
+        2.1982696738983756e-16
+      ],
+      "path_codes": {
+        "at_infinity": 15,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          3.365001594172368e-32,
+          -1.3610971056180036e-13,
+          -2.5304916451082023e-28,
+          9.154219871071857e-20
+        ]
+      ],
+      "roots_real": [
+        [
+          0.6702792215159699,
+          1.2715891873003038,
+          3079.208324879,
+          1.91463005974811
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        2.933084979629283e19
+      ],
+      "setup_compile_seconds": 0.369403667,
+      "setup_seconds": 0.371228972,
+      "start_paths": 16,
+      "start_system": "total_degree",
+      "status": "complete",
+      "tracking_compile_seconds": 2.999517396,
+      "tracking_seconds": 4.055885105,
+      "unknowns": 4,
+      "variant": "raw_all"
+    },
+    {
+      "equations": 4,
+      "error": "MethodError: no method matching HomotopyContinuation.ToricHomotopy(::CompiledSystem{(0xea310c5529f8df02, 1)}, ::Vector{Vector})\nThe type `HomotopyContinuation.ToricHomotopy` exists, but no method is defined for this combination of argument types when trying to construct it.\n\nClosest candidates are:\n  HomotopyContinuation.ToricHomotopy(::AbstractSystem, !Matched::Vector{Vector{ComplexF64}})\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:37\n  HomotopyContinuation.ToricHomotopy(::S, !Matched::Vector{ComplexF64}, !Matched::Vector{Float64}, !Matched::Vector{Float64}, !Matched::StructArrays.StructVector{ComplexF64, @NamedTuple{re::Vector{Float64}, im::Vector{Float64}}, Int64}, !Matched::Vector{ComplexF64}, !Matched::Vector{ComplexF64}, !Matched::Vector{ComplexF64}, !Matched::Base.RefValue{ComplexF64}, !Matched::Base.RefValue{ComplexF64}, !Matched::TaylorVector{5, ComplexF64}, !Matched::TaylorVector{4, ComplexF64}, !Matched::TaylorVector{3, ComplexF64}) where S<:AbstractSystem\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:16\n  HomotopyContinuation.ToricHomotopy(; system, system_coeffs, weights, t_weights, complex_t_weights, coeffs, dt_coeffs, x, t_coeffs, t_taylor_coeffs, taylor_coeffs, tc3, tc2)\n   @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/homotopies/toric_homotopy.jl:15\n\nStacktrace:\n  [1] polyhedral(support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector}, target_coeffs::Vector{Vector}; endgame_options::EndgameOptions, tracker_options::TrackerOptions, only_torus::Bool, only_non_zero::Bool, compile::Symbol, show_progress::Bool, kwargs::@Kwargs{})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:409\n  [2] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(polyhedral), support::Vector{Matrix{Int32}}, start_coeffs::Vector{Vector}, target_coeffs::Vector{Vector})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:369\n  [3] polyhedral(support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector}; kwargs::@Kwargs{compile::Symbol, show_progress::Bool})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:356\n  [4] kwcall(::@NamedTuple{compile::Symbol, show_progress::Bool}, ::typeof(polyhedral), support::Vector{Matrix{Int32}}, target_coeffs::Vector{Vector})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:350\n  [5] polyhedral(f::System; compile::Symbol, target_parameters::Nothing, kwargs::@Kwargs{show_progress::Bool})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:289\n  [6] polyhedral\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/polyhedral.jl:256 [inlined]\n  [7] solver_startsolutions(F::System, starts::Nothing; seed::UInt32, start_system::Symbol, generic_parameters::Nothing, p₁::Nothing, start_parameters::Nothing, p₀::Nothing, target_parameters::Nothing, compile::Symbol, start_subspace::Nothing, target_subspace::Nothing, intrinsic::Nothing, show_progress::Bool, kwargs::@Kwargs{})\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:164\n  [8] solver_startsolutions\n    @ ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117 [inlined]\n  [9] kwcall(::@NamedTuple{start_system::Symbol, compile::Symbol, seed::UInt32, show_progress::Bool}, ::typeof(solver_startsolutions), F::System)\n    @ HomotopyContinuation ~/.julia/packages/HomotopyContinuation/RlZQL/src/solve.jl:117\n [10] macro expansion\n    @ ./timing.jl:699 [inlined]\n [11] main(input_path::String, output_path::String)\n    @ Main ~/.julia/dev/ODEParameterEstimation/repro/sneyd_manual_hc_2026_09_16/solve.jl:61\n [12] top-level scope\n    @ ~/.julia/dev/ODEParameterEstimation/repro/sneyd_manual_hc_2026_09_16/solve.jl:103\n [13] include(mod::Module, _path::String)\n    @ Base ./Base.jl:309\n [14] exec_options(opts::Base.JLOptions)\n    @ Base ./client.jl:344\n [15] _start()\n    @ Base ./client.jl:577",
+      "start_system": "polyhedral",
+      "status": "failed",
+      "unknowns": 4,
+      "variant": "row_reduced_selected"
+    },
+    {
+      "certification_seconds": 0.060819579,
+      "certified_distinct_roots": 1,
+      "equations": 4,
+      "full_reduced_residuals_inf": [
+        2.1982696738979102e-16
+      ],
+      "path_codes": {
+        "at_infinity": 7,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          1.6704779438076223e-52,
+          -5.011433831422867e-52,
+          -5.076852188838811e-49,
+          -3.3409558876152446e-52
+        ]
+      ],
+      "roots_real": [
+        [
+          0.67027922151597,
+          1.271589187300277,
+          3079.2083248789995,
+          1.9146300597481096
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        14903.517604169909
+      ],
+      "setup_compile_seconds": 0.406687149,
+      "setup_seconds": 0.407908841,
+      "start_paths": 8,
+      "start_system": "total_degree",
+      "status": "complete",
+      "tracking_compile_seconds": 2.867774799,
+      "tracking_seconds": 2.925432626,
+      "unknowns": 4,
+      "variant": "row_reduced_selected"
+    },
+    {
+      "equations": 5,
+      "full_reduced_residuals_inf": [
+        4.872914900716096e-16
+      ],
+      "path_codes": {
+        "excess_solution": 1,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          -8.764452619027815e-18,
+          -2.456801043957752e-17,
+          5.046595474335333e-13,
+          5.4652834129753997e-17
+        ]
+      ],
+      "roots_real": [
+        [
+          0.6702792215159699,
+          1.2715891873002771,
+          3079.2083248790004,
+          1.914630059748111
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        12173.966064120827
+      ],
+      "setup_compile_seconds": 0.168348366,
+      "setup_seconds": 0.169345757,
+      "start_paths": 2,
+      "start_system": "polyhedral",
+      "status": "complete",
+      "tracking_compile_seconds": 0.36554218,
+      "tracking_seconds": 0.366037824,
+      "unknowns": 4,
+      "variant": "row_reduced_all"
+    },
+    {
+      "equations": 5,
+      "full_reduced_residuals_inf": [
+        2.3507779073710835e-16
+      ],
+      "path_codes": {
+        "at_infinity": 6,
+        "excess_solution": 1,
+        "success": 1
+      },
+      "roots_imag": [
+        [
+          -2.5094412766066537e-17,
+          5.944193921008237e-17,
+          -2.7010674848000435e-15,
+          6.86680706432281e-17
+        ]
+      ],
+      "roots_real": [
+        [
+          0.67027922151597,
+          1.271589187300277,
+          3079.208324879,
+          1.9146300597481098
+        ]
+      ],
+      "selected_jacobian_conditions": [
+        12173.966064119859
+      ],
+      "setup_compile_seconds": 0.422877019,
+      "setup_seconds": 0.424210478,
+      "start_paths": 8,
+      "start_system": "total_degree",
+      "status": "complete",
+      "tracking_compile_seconds": 2.918179201,
+      "tracking_seconds": 2.95295948,
+      "unknowns": 4,
+      "variant": "row_reduced_all"
+    }
+  ],
+  "seed": 20260916,
+  "status": "complete",
+  "system_sha256": "80be06ac4df34a7164721cb5948adb999c264da6d41fdbf6e3944f90650b4a96",
+  "truth_root_supplied": false,
+  "worker_sha256": "bbd3f4e98d360f002886d50b9b57cbd3def01c6198e566746fdac78f924b6a5b"
+}

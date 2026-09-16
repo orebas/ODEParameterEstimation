@@ -1,6 +1,6 @@
 # ODEParameterEstimation review map
 
-Updated 2026-09-15. This is the entry point for reviewing the current source
+Updated 2026-09-16. This is the entry point for reviewing the current source
 layout and test coverage. Dependency versions, measured gate results, and
 release blockers live in [Production readiness](2026-09-10_production_readiness.md).
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
@@ -53,6 +53,13 @@ retains reusable generic roots and actual path codes. Excluding t = 0 does
 not repair fan-out: an identity-homotopy control isolates a numerical failure
 at the existing column-scaled generic-root handoff. It also quantifies the
 first interpolator's derivative errors, with production defaults unchanged.
+The [prepared Sneyd jet study](2026-09-16_sneyd_prepared_jets.md) imposes the
+actual initial state and all conditions, establishes the 12-combination
+ceiling, and finds third-order rooted derivative sufficiency. Its
+[manual HC follow-up](2026-09-16_sneyd_manual_hc.md) recovers those combinations
+from exact oracle derivatives after data-dependent elimination, with all
+condition equations retained for validation. These are independent research
+probes, not changes to the production estimator.
 
 ## Start here
 
