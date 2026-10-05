@@ -21,6 +21,7 @@ jobs:
       JULIA_NUM_PRECOMPILE_TASKS: '4'
       ODEPE_TEST_GROUP: ${{ matrix.group }}
       ODEPE_TEST_COVERAGE: ${{ matrix.group == 'all' }}
+      ODEPE_VALIDATION_DIR: ${{ runner.temp }}/odepe-validation
     permissions: # needed to allow julia-actions/cache to proactively delete old caches that it has created
       actions: write
       contents: read
@@ -59,3 +60,10 @@ jobs:
       - uses: julia-actions/cache@v2
       - name: Test registered dependencies
         run: julia --startup-file=no test/registered.jl "$ODEPE_TEST_GROUP" "${{ matrix.dependencies == 'modern' && 'modern' || 'default' }}"
+      - name: Preserve resolved dependency versions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: environment-${{ matrix.version }}-${{ matrix.dependencies }}-${{ matrix.group }}
+          path: ${{ env.ODEPE_VALIDATION_DIR }}
+          if-no-files-found: warn
