@@ -337,7 +337,18 @@ explains the Julia 1.12 clean-GP test correction. Required CI jobs are:
 Nightly remains advisory. Each job uploads its resolved Project/Manifest and
 validation metadata, and test output records CPU/BLAS/coverage details. Local
 full and benchmark gates use `test/current.jl` without dependency re-resolution.
-Documentation is built separately with Documenter 1.19 and the local package.
+The Documenter 1.19.0 build passed on Julia 1.13.1 after splitting the exported
+API reference into pages. The functions page emits a 146 KiB size advisory
+(below the 200 KiB limit); no docstring or rendering errors remain. Private
+GP/SIAN modules are excluded from the public manual. Build locally with:
+
+```sh
+julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(path=pwd()); Pkg.instantiate(); include("docs/make.jl")'
+```
+
+The three workflows pass actionlint 1.7.12. The first candidate's CI syntax
+failure was corrected by moving `runner.temp` to step scope before actual
+matrix testing.
 A fresh temporary environment must install the final SHA from the renamed
 repository and run the README example. Inspect checks for that SHA, not merely
 the most recent workflow listed for the branch.

@@ -5,6 +5,7 @@ DocMeta.setdocmeta!(ODEParameterEstimation, :DocTestSetup, :(using ODEParameterE
 
 makedocs(;
     modules=[ODEParameterEstimation],
+    checkdocs=:exports,
     # These replace external dependencies behind private adapters. Their
     # contracts and attribution live beside the source, outside the public API.
     checkdocs_ignored_modules=[ODEParameterEstimation.GPBackend, ODEParameterEstimation.SIANBackend],
@@ -16,5 +17,8 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "API types" => "api_types.md",
+        "API functions" => "api_functions.md",
+        "API constants and macros" => "api_other.md",
     ],
 )

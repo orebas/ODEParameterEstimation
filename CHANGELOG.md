@@ -12,6 +12,7 @@ are separate from preparing this candidate.
   generating curve, with measured BLAS portability budgets. Retain strict
   fixed-parameter upstream contracts and noisy-fit comparisons.
 - Record numerical-runtime metadata and preserve resolved CI manifests.
+- Build a split reference for the exported API with Documenter 1.19.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
