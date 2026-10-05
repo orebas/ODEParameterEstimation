@@ -45,7 +45,7 @@ and [RegistryCI AutoMerge guidelines](https://juliaregistries.github.io/Registry
 | Release version | `Project.toml` says `1.1.0-DEV`; AutoMerge rejects prerelease data. | Choose a public version and set it only for the release commit. Decide whether its version number accurately describes the intended API commitment. |
 | Repository URL | The configured remote and [README](../README.md) use `https://github.com/orebas/ODEParameterEstimation.git`. AutoMerge expects a URL ending in `/ODEParameterEstimation.jl.git`. | Rename the GitHub repository, update the local remote and links, and verify redirects, or plan for manual registry review. |
 | Compatibility | The core dependency list has bounded `[compat]` entries. The deferred PEtab and RS/RUR weak dependencies have been removed from `main`. | Recheck all bounds against the chosen registered stack after the SIAN/GP decisions. |
-| Installation and loading | Historical CI runs exercised registered dependencies, but there is no fresh registered-only pass for this release candidate. | From a clean, networked environment, resolve registered dependencies, install the release commit, and import the package on every supported Julia version. |
+| Installation and loading | The October 4 split passed a fresh registered-only full suite on Julia 1.13.1 (2,058 assertions). | Repeat on the final release commit and every supported Julia version; the newer local dependency stack is a separate gate. |
 
 The local General snapshot did not contain `RS` or
 `RationalUnivariateRepresentation` on 2026-10-02. General
@@ -111,10 +111,12 @@ research commit; the PEtab guide explicitly applies to `research`.
   reproducibility instructions and source attribution intact, and document how
   future core changes reach ongoing studies. Cherry-pick selected core commits
   into `research`; do not merge the `main` deletion commit into it.
-- [ ] Check the resulting `main` with the normal package gates and a fresh
-  install. Confirm that research retained elsewhere can still be reproduced
-  against an identified ODEPE commit. Do not infer a smaller Git clone from a
-  smaller release tree: retained history still contributes to clone size.
+- [x] Check the resulting `main` with the normal package gates and a fresh
+  registered environment. Retain the research source, provenance, and
+  reproduction instructions against identified commits. The research branch's
+  full experimental suite was not rerun as part of the core split validation.
+  Do not infer a smaller Git clone from a smaller release tree: retained
+  history still contributes to clone size.
 
 ## Study whether to bring dependency functionality into ODEPE
 
@@ -215,10 +217,17 @@ clean LV, and rescaled HIV cases. These durations exclude dependency
 precompilation. The canary fix is commit `b2a7e2d` and has also been cherry-picked
 onto `research` as `e39230e`.
 
-The fresh registered-dependency full gate is being recorded separately. Its
-resolver selected GP 0.12.6, SIAN 1.8.1, SI 0.5.25, Nemo 0.54.2, Optim 1.13.3,
-and OrderedCollections 1.8.2; this is distinct from the modern local development
-stack.
+The fresh registered-dependency full gate also passed **2,058/2,058** in
+11m22.1s after precompilation. Its resolver selected GP 0.12.6, SIAN 1.8.1,
+SI 0.5.25, Nemo 0.54.2, Optim 1.13.3, and OrderedCollections 1.8.2; this is
+distinct from the modern local development stack.
+
+The validated core code is commit `02ff196`. Exact dependency versions,
+commands, compressed logs, and hashes are in the
+[validation record on `research`](https://github.com/orebas/ODEParameterEstimation/tree/aab64fc/repro/registry_dependency_study_2026_10_04).
+These results establish the split's Julia 1.13.1 baseline. Supported-Julia CI,
+the registered-stack recovery benchmark, the final release version, repository
+naming, and attribution review remain release work.
 
 ## Repository and documentation review
 

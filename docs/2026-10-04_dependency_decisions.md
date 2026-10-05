@@ -121,9 +121,11 @@ versions; it does not prove the newer stack or this split commit.
 The fresh environment resolved during this split selects registered SIAN
 1.8.1, GaussianProcesses 0.12.6, StructuralIdentifiability 0.5.25, Nemo 0.54.2,
 Optim 1.13.3, and OrderedCollections 1.8.2. This confirms that a registered
-solution exists, at the cost of selecting older dependency families. Test
-outcomes for that environment are recorded in the registry checklist; a
-successful resolution alone is not a passing package gate.
+solution exists, at the cost of selecting older dependency families. That
+environment's full suite subsequently passed 2,058/2,058 assertions on Julia
+1.13.1; the [registry checklist](registry_preparation.md) links the exact source
+commit, versions, and logs. The supported-Julia matrix and registered recovery
+benchmark remain release gates.
 
 **Decision rationale:** Do not internalize SIAN for the first release. The
 local patch is a two-line compatibility expansion, while a faithful internal
