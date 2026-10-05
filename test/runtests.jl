@@ -7,6 +7,7 @@ using Test
 const TEST_FILES = [
     "package_contracts.jl",
     "dependency_compat.jl",
+    "test_internal_backends.jl",
     "fast_core.jl",
     "refactor_safety_net.jl",
     "test_label_parsers.jl",
@@ -80,5 +81,9 @@ end
                 end
             end
         end
+        # Pkg.test can buffer stdout separately from the progress messages on
+        # stderr. Surface assertion failures before the next long test file.
+        flush(stdout)
+        flush(stderr)
     end
 end

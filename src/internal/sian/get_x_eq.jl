@@ -1,0 +1,28 @@
+# Adapted from SIAN-Julia 2f78ca8; see LICENSE and README.md in this directory.
+"""
+    get_x_eq(args...)
+
+# Arguments
+State/output equations, variable counts and ordered jet generators.
+
+# Returns
+Exact equations and recurrence metadata, retaining upstream ordering.
+"""
+function get_x_eq(x_eqs::Vector{Vector{Nemo.AbstractAlgebra.RingElem}}, y_eqs::Vector{Vector{Nemo.AbstractAlgebra.RingElem}}, n::Int, m::Int, s::Int, u::Int, gens_Rjet)
+    X = Array{Nemo.QQPolyRingElem}(undef, 0)
+    X_eq = Array{Nemo.QQPolyRingElem}(undef, 0)
+    for i in 1:n
+        X = vcat(X, [Array{Nemo.QQPolyRingElem}(undef, 0)])
+        poly_d = unpack_fraction(x_eqs[i][1] - x_eqs[i][2])[1]
+        for j in 0:s+1
+            if j > 0
+                poly_d = differentiate_all(poly_d, gens_Rjet, n + m + u, j)
+            end
+            leader = gens_Rjet[i+(n+m+u)*(j+1)]
+            separant = derivative(poly_d, leader)
+            X[i] = vcat(X[i], poly_d)
+            X_eq = vcat(X_eq, [[leader, -(poly_d - separant * leader) // separant]])
+        end
+    end
+    return X, X_eq
+end

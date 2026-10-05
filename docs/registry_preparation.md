@@ -22,8 +22,10 @@ needed to turn that history into a release decision.
 4. Map SIAN's equation-construction calls and decide whether an internal
    prototype is justified. Keep StructuralIdentifiability.jl's classification
    role separate.
-5. Apply the resulting dependency decisions and complete release checks in a
-   later milestone. No registry submission is part of this first milestone.
+5. Apply the resulting dependency decisions and complete release checks.
+   The follow-up now implements private SIAN and GP backends; see the
+   [internalization record](2026-10-04_internal_backends.md). No registry
+   submission is part of this work.
 
 The research line receives selected core fixes by cherry-pick. Merging the
 `main` cleanup commit into `research` would remove the files that branch exists
@@ -45,7 +47,7 @@ and [RegistryCI AutoMerge guidelines](https://juliaregistries.github.io/Registry
 | Release version | `Project.toml` says `1.1.0-DEV`; AutoMerge rejects prerelease data. | Choose a public version and set it only for the release commit. Decide whether its version number accurately describes the intended API commitment. |
 | Repository URL | The configured remote and [README](../README.md) use `https://github.com/orebas/ODEParameterEstimation.git`. AutoMerge expects a URL ending in `/ODEParameterEstimation.jl.git`. | Rename the GitHub repository, update the local remote and links, and verify redirects, or plan for manual registry review. |
 | Compatibility | The core dependency list has bounded `[compat]` entries. The deferred PEtab and RS/RUR weak dependencies have been removed from `main`. | Recheck all bounds against the chosen registered stack after the SIAN/GP decisions. |
-| Installation and loading | The October 4 split passed a fresh registered-only full suite on Julia 1.13.1 (2,058 assertions). | Repeat on the final release commit and every supported Julia version; the newer local dependency stack is a separate gate. |
+| Installation and loading | After internalization, fresh registered-only full suites passed on Julia 1.12.7 and 1.13.1 (2,176 assertions each). | Repeat on the final release commit and every supported Julia version. See the [validation record](2026-10-04_internal_backends.md). |
 
 The local General snapshot did not contain `RS` or
 `RationalUnivariateRepresentation` on 2026-10-02. General
@@ -120,17 +122,13 @@ research commit; the PEtab guide explicitly applies to `research`.
 
 ## Study whether to bring dependency functionality into ODEPE
 
-The current development baseline and patched CI profile use prepared
-[GaussianProcesses.jl and SIAN checkouts](2026-09-10_production_readiness.md#current-dependency-baseline).
-This has created recurring compatibility work. Study the narrow functionality
-ODEPE needs before deciding whether to maintain it internally, keep an upstream
-dependency, or use another maintained implementation. Record the current
-registered releases, dependency conflicts, required local patches, upstream
-prospects, maintenance cost, and license obligations as part of that decision.
-The [first dependency decision record](2026-10-04_dependency_decisions.md)
-maps both call surfaces and records a frozen interpolation checkpoint. It keeps
-both dependencies for the first release candidate; the end-to-end and
-registered-stack gates below remain open.
+The initial dependency study is preserved in
+[the decision record](2026-10-04_dependency_decisions.md). The user subsequently
+chose to own the required functionality. Private `SIANBackend` and `GPBackend`
+modules now replace the external packages; GP's fitting policy remains distinct
+from AGP. See [implementation and validation](2026-10-04_internal_backends.md).
+The release gates apply to these replacements, including fresh registered-only
+installation and recovery checks.
 
 - [x] **SIAN scope and first decision:** Map the calls in
   [SI equation construction](../src/core/si_equation_builder.jl), including
@@ -138,8 +136,8 @@ registered-stack gates below remain open.
   polynomial template construction. Keep this distinct from
   `StructuralIdentifiability.jl`'s identifiability classification. Compare a
   narrow internal implementation, upstream repair, and a maintained fork. The
-  call surface and two-line local compatibility patch favor upstream repair
-  over an internal prototype for now. Any future replacement must agree on
+  initial preference for upstream repair was superseded by internalization.
+  The internal backend must agree on
   representative models' equations, variable roles, structural fixes,
   multiplicity, and candidate recovery, with acceptable construction time.
 - [x] **GaussianProcesses.jl scope and first decision:** Map the
@@ -149,13 +147,11 @@ registered-stack gates below remain open.
   internal GP fit, and improvements to the existing AGP path. The old
   [interpolator comparison script on `research`](https://github.com/orebas/ODEParameterEstimation/blob/research/src/examples/compare_interpolators.jl)
   is exploratory. The new paired checkpoint found a small GP.jl win on a
-  clean smooth curve, so the first decision is to retain it.
-- [ ] Before removing GP.jl, compare the GP and AGP/AGPUQ paths on frozen ODE
-  data with equal fitting budgets. Record prediction fit, derivative-jet error
-  at actual shooting points, selected parameter recovery, solver availability,
-  time, and UQ behavior where applicable. Include both winning and losing
-  regimes. The first checkpoint uses each fitter's defaults and first
-  derivatives of synthetic curves; it does not complete this end-to-end gate.
+  clean smooth curve; internalization preserves that fitting policy.
+- [x] Validate the internal GP against its original implementation at fixed
+  parameters, after optimization, and on frozen ODE recovery data. Preserve
+  higher derivatives and GP-only/default-pool recovery. This replacement does
+  not consolidate AGP policies or change the UQ fitting path.
 - [x] Write a [first decision record](2026-10-04_dependency_decisions.md) with
   measured tradeoffs and the APIs to retain. If code is later adapted from
   upstream, review its license and preserve required attribution. Remove a
@@ -174,16 +170,17 @@ registered-stack gates below remain open.
   the release documentation and CI. Currently `julia = "1.12"` admits Julia
   1.12 and later 1.x releases, while CI has required jobs for 1.12 and 1.13. A
   [September 11 CI follow-up](2026-09-10_production_readiness.md#september-11-follow-up)
-  records a Julia 1.12.7 UQ test failure after earlier green runs. Reproduce
-  and fix it, or raise the supported Julia floor after checking the resulting
-  compatibility and CI policy. Julia nightly is advisory in the current
+  records a Julia 1.12.7 UQ test failure after earlier green runs. The October
+  internalization worktree passes the full Julia 1.12.7 suite after the test
+  portability and compilation-budget corrections documented below. Recheck
+  the eventual release commit. Julia nightly is advisory in the current
   [CI matrix](../.github/workflows/CI.yml); its recorded GPUCompiler
   precompilation crash is a separate dependency issue.
 - [ ] Run the seeded recovery benchmark with registered dependencies on the
   selected release stack. The full and benchmark commands are documented in
   [CLAUDE.md](../CLAUDE.md). A passing unit group alone is insufficient for an
   estimation change; recovery accuracy does not certify UQ coverage.
-- [ ] If SIAN or GaussianProcesses.jl functionality moves inside ODEPE, run
+- [x] If SIAN or GaussianProcesses.jl functionality moves inside ODEPE, run
   paired behavior and performance comparisons before and after the change on
   frozen inputs. Keep both winning and losing cases in the decision record;
   preserve the existing GP route until a replacement earns its removal.
@@ -228,6 +225,34 @@ commands, compressed logs, and hashes are in the
 These results establish the split's Julia 1.13.1 baseline. Supported-Julia CI,
 the registered-stack recovery benchmark, the final release version, repository
 naming, and attribution review remain release work.
+
+### October 4 internalization follow-up
+
+The [internalization record](2026-10-04_internal_backends.md) supersedes the
+GP/SIAN dependency graph and patched CI setup above. Both used backends now
+live in private modules with MIT notices and documented replacement boundaries.
+The public GP candidate remains in the pool. Normal installation and testing
+use neither external package, and CI now resolves both dependency profiles
+entirely from registered packages.
+
+The Julia 1.13.1 registered modern full suite and Julia 1.12.7 registered full
+suite each passed **2,176/2,176**. The Julia 1.13.1 registered recovery benchmark
+passed **10/10**. The local unit/full/benchmark
+gates passed **419/419**, **2,176/2,176** and **10/10**, respectively. The first
+registered full run exposed a compilation-sensitive wall-clock limit in the
+direct-UQ convergence canary; a forced-timeout reproduction and the test-only
+budget correction are documented in the implementation record.
+The initial Julia 1.12 run also exposed five new fixture portability failures;
+explicit symbolic input ordering and a measured high-derivative tolerance
+resolved them. Independent upstream/internal comparisons match exactly on
+both Julia versions. Production numerical code was unchanged by these fixes.
+
+All eight frozen GP-only/default-pool recovery comparisons preserve the measured
+errors and candidate counts exactly, including the unsuccessful biohydrogenation
+parameter-recovery cases. SIAN fixture costs are comparable; the compact GP fit
+allocates more and takes about 25% more time on the measured 201-point workload
+(38 ms versus 30 ms). The record retains the full paired performance panel.
+These worktree results still require validation of the eventual release commit.
 
 ## Repository and documentation review
 

@@ -1,12 +1,11 @@
 # GP and SIAN dependency decisions — 2026-10-04
 
-This record supports the first registry-preparation milestone. It decides what
-to keep in the installable `main` package now; it does not claim that the
-registered dependency stack or a proposed replacement has passed a release
-gate. Read it with [registry preparation](registry_preparation.md) and the
-[September dependency baseline](2026-09-10_production_readiness.md).
+The user subsequently chose to internalize both dependencies. The implementation
+and validation are recorded in [Internal backends](2026-10-04_internal_backends.md).
+The initial retain-for-release decision below is preserved as historical context;
+it no longer describes the package dependency graph.
 
-## Decision
+## Initial decision (superseded)
 
 Keep both GaussianProcesses.jl and SIAN as direct dependencies for the first
 release candidate. Do not copy their implementations into ODEPE in this

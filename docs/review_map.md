@@ -86,8 +86,9 @@ These commands use `Pkg.test(...; allow_reresolve=false)`: test dependencies
 are isolated, while the active dependency versions and development checkouts
 are retained. A dependency conflict fails visibly. The full suite is the gate
 for estimation changes; the benchmark is also required before a cluster handoff.
-`test/registered.jl` separately resolves a fresh registry environment and may
-select older versions until upstream compatibility releases are available.
+`test/registered.jl` separately resolves a fresh registry environment; its
+`modern` profile constrains the newer supported dependency families. GP and
+SIAN functionality lives in isolated private modules under `src/internal`.
 
 Preserve unrelated files and diagnostic artifacts. Do not run generators or
 large research campaigns merely to refresh this map. Reproduce dated review
@@ -105,6 +106,7 @@ Paths below are relative to `src/`.
 | Symbolic construction | `core/si_equation_builder.jl`, `core/si_template_integration.jl`, `core/noise_frontier_construction.jl`, `core/transcendental_utils.jl` | Structural identifiability, symbolic substitutions, equation/variable order, supported model classes. |
 | Polynomial solves | `core/homotopy_continuation.jl`, `core/multipoint_template.jl`, `core/robust_system.jl`, `core/solve_with_robust.jl` | Root completeness, parameter homotopy, scaling, direct/parameterized agreement, reusable residual/Jacobian kernels. Read the multiplicity note before changing root retention. |
 | Sampling/interpolation | `core/sampling.jl`, `core/derivatives.jl`, `core/pointpicker.jl`, `core/derivative_utils.jl` | Observable identity, noise semantics, derivative accuracy and order limits, point selection. |
+| Internal backends | `internal/sian/`, `internal/gp/` | Narrow SIAN helper and GP fit boundaries, upstream licenses/provenance, frozen equivalence fixtures; see [implementation record](2026-10-04_internal_backends.md). |
 | Rescaling/polish | `core/problem_rescaling.jl`, `core/polish_residual.jl`, `core/branch_completion.jl`, `core/sensitivity_seeds.jl` | Units and inverse mapping, timeouts, branch lineage, bounded optimization. |
 | Diagnostics/UQ | `core/diagnostics/*.jl`, `core/uncertainty_quantification.jl`, `core/sigma_d.jl`, `core/svg_plots.jl` | Exact returned estimator, covariance propagation, reliability axes, report/artifact correctness. Read the current UQ notes linked by `CLAUDE.md` first. |
 | Research | [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/src/research) | Consensus/sweeps, model-assisted correction, SHADE+LM, and their experiments are maintained outside `main`'s package API. |

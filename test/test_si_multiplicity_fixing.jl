@@ -3,7 +3,7 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 include("estimation_helpers.jl")
 const ODEPE = ODEParameterEstimation
 const N = ODEPE.Nemo
-const SIAN = ODEPE.SIAN
+const SIAN = ODEPE.SIANBackend
 
 @testset "Exact template representative substitution" begin
     R, (k_1, k_10, x0, x1, y0) = N.polynomial_ring(N.QQ,

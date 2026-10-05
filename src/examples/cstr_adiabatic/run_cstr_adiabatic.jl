@@ -8,7 +8,6 @@ resolves the identifiability issues seen in cstr_reparametrized.
 # Load the package and dependencies
 using ODEParameterEstimation
 using Logging
-using GaussianProcesses
 using LineSearches
 using Optim
 using Statistics

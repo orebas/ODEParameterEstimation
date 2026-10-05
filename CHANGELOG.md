@@ -1,6 +1,23 @@
 # Changelog
 
-## Unreleased (1.1.0-DEV line) — 2026-08/09
+## Unreleased (1.1.0-DEV line) — 2026-08/10
+
+### Internal dependency backends — 2026-10-04
+
+- Replace the used SIAN-Julia helpers and GaussianProcesses.jl dense SE fit
+  with private modules under `src/internal`, retaining upstream MIT notices
+  and documented replacement boundaries.
+- Preserve the GP interpolator option, fitting policy and higher derivatives;
+  retain AGP/AGPUQ as separate implementations. Remove GP, SIAN and the direct
+  PDMats dependency, including the GP-specific global method bridge.
+- Replace CI's dependency fork checkouts with registered default and modern
+  dependency profiles. Add frozen upstream contracts and optional paired
+  recovery/performance tools outside the standard test dependency graph.
+- Remove the wall-clock cap from the direct-optimizer UQ convergence canary;
+  retain its iteration limit and numerical assertions. Production timeouts and
+  their dedicated tests are unchanged.
+- Record equivalence results, performance costs and remaining release work in
+  [the internalization record](docs/2026-10-04_internal_backends.md).
 
 ### Julia 1.13 stabilization
 
@@ -14,8 +31,9 @@
 - Bridge the autonomous-model SI dispatch issue only on affected versions that
   lack the upstream method; patched SI checkouts receive no redundant bridge.
 - Run isolated test files through `Pkg.test`, preserve active development
-  versions, declare test imports, and contain diagnostic sidecars. CI checks
-  both registered dependencies and reproducible modern GP/SIAN/SI patches.
+  versions, declare test imports, and contain diagnostic sidecars. CI initially
+  checked registered dependencies and reproducible modern GP/SIAN/SI patches;
+  the October internalization supersedes that patched setup.
 - Update the quickstart, result contract, and review map. Verified environments,
   gate results, and remaining release work are recorded in
   [production readiness](docs/2026-09-10_production_readiness.md).

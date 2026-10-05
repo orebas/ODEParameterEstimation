@@ -569,7 +569,7 @@ function algebraic_independence(Et::Vector{Nemo.QQMPolyRingElem},
 	@info "[DEBUG-ALG-INDEP] Input: $(length(Et)) equations, $(length(indets)) indeterminates"
 
 	pivots = Vector{Nemo.QQMPolyRingElem}()
-	Jacobian = SIAN.jacobi_matrix(Et, indets, vals)
+	Jacobian = SIANBackend.jacobi_matrix(Et, indets, vals)
 
 	@info "[DEBUG-ALG-INDEP] Jacobian size: $(size(Jacobian))"
 	@info "[DEBUG-ALG-INDEP] Jacobian rank: $(Nemo.rank(Jacobian))"
@@ -772,7 +772,7 @@ function get_si_equation_system(
 	end
 
 	# Get parameters for identifiability analysis 
-	# Use the parameters field directly instead of SIAN.get_parameters to avoid dependency issues
+	# Use the parameters field directly instead of SIANBackend.get_parameters to avoid dependency issues
 	params_to_assess = vcat(si_ode.parameters, si_ode.x_vars)
 
 	# Create mapping from Nemo to MTK types
@@ -952,11 +952,11 @@ function _eliminate_to(gb_input, ring_gens, keep_vars)
 	keepset = Set(keep_vars)
 	Rid, _ = Nemo.polynomial_ring(Nemo.QQ, [string(v) for v in keep_vars]; internal_ordering = :degrevlex)
 	elim_vars = [g for g in ring_gens if !(g in keepset)]
-	isempty(elim_vars) && return (Rid, [SIAN.parent_ring_change(g, Rid) for g in gb_input])
+	isempty(elim_vars) && return (Rid, [SIANBackend.parent_ring_change(g, Rid) for g in gb_input])
 	block = Groebner.ProductOrdering(Groebner.DegRevLex(elim_vars...), Groebner.DegRevLex(keep_vars...))
 	gb_elim = Groebner.groebner(gb_input; ordering = block)
 	elim_gens = [g for g in gb_elim if issubset(Set(Nemo.vars(g)), keepset)]
-	return (Rid, [SIAN.parent_ring_change(g, Rid) for g in elim_gens])
+	return (Rid, [SIANBackend.parent_ring_change(g, Rid) for g in elim_gens])
 end
 
 """
@@ -1018,7 +1018,7 @@ Removing a locally identifiable coordinate lowers rank. The comparison is with
 the full rank, not the equation count: dependent rows must not imply identifiability.
 """
 function _sian_local_coordinates(polynomials, coordinates, quantities, sample_values)
-	jacobian = SIAN.jacobi_matrix(polynomials, coordinates, sample_values)
+	jacobian = SIANBackend.jacobi_matrix(polynomials, coordinates, sample_values)
 	full_rank = LinearAlgebra.rank(jacobian)
 	locally_identifiable = eltype(coordinates)[]
 	for q in quantities
@@ -1073,14 +1073,14 @@ function _prepare_sian_multiplicity_system(si_ode, Et, Q, X_eq, Y_eq, all_params
 	m_sample = if isempty(fixed)
 		sample
 	else
-		SIAN.sample_point(sample_bound, si_ode.x_vars, si_ode.y_vars, Nemo.QQMPolyRingElem[],
+		SIANBackend.sample_point(sample_bound, si_ode.x_vars, si_ode.y_vars, Nemo.QQMPolyRingElem[],
 			all_params, X_eq, Y_eq, Q; known_states_jet_form = fixed_vars, known_values = fixed_values)
 	end
 	u_hat, y_hat = m_sample[2], m_sample[1]
 	data_vars, data_values = vcat(u_hat[1], y_hat[1]), vcat(u_hat[2], y_hat[2])
 	Et_hat = [substitute_fixed(Nemo.evaluate(e, data_vars, data_values)) for e in Et]
 	Q_hat = isempty(u_hat[1]) ? Q_fixed : Nemo.evaluate(Q_fixed, u_hat[1], u_hat[2])
-	sample_values = SIAN.insert_zeros_to_vals(m_sample[4][1], m_sample[4][2])
+	sample_values = SIANBackend.insert_zeros_to_vals(m_sample[4][1], m_sample[4][2])
 	# Detect a mismatched synthetic jet before spending time on an inconsistent ideal.
 	all(e -> iszero(Nemo.evaluate(e, sample_values)), Et_hat) ||
 		error("Multiplicity sample does not satisfy the representative-fixed polynomial equations")
@@ -1092,15 +1092,15 @@ function _prepare_sian_multiplicity_system(si_ode, Et, Q, X_eq, Y_eq, all_params
 	end
 	setdiff!(used, parameter_jets)
 	all_indets = Nemo.gens(si_ode.poly_ring)
-	state_jets = sort(collect(used), lt = (x, y) -> SIAN.compare_diff_var(x, y, all_indets, n + m + u, s))
+	state_jets = sort(collect(used), lt = (x, y) -> SIANBackend.compare_diff_var(x, y, all_indets, n + m + u, s))
 	coordinates = vcat(state_jets, remaining_parameters)
 	quantities = filter(q -> !haskey(fixed, q), all_params)
 	local_info = _sian_local_coordinates(Et_hat, coordinates, quantities, sample_values)
 	z_aux = gens_Rjet[end - parameter_count]
 	ordered_vars = vcat(state_jets, z_aux, sort(remaining_parameters, rev = true))
 	ring, _ = Nemo.polynomial_ring(Nemo.QQ, string.(ordered_vars); internal_ordering = :degrevlex)
-	polynomials = [SIAN.parent_ring_change(e, ring) for e in Et_hat]
-	push!(polynomials, SIAN.parent_ring_change(z_aux * Q_hat, ring) - 1)
+	polynomials = [SIANBackend.parent_ring_change(e, ring) for e in Et_hat]
+	push!(polynomials, SIANBackend.parent_ring_change(z_aux * Q_hat, ring) - 1)
 	q_at_sample = Nemo.evaluate(Q_hat, sample_values)
 	iszero(q_at_sample) && error("Multiplicity sample lies on an excluded ODE denominator")
 	point = [v == z_aux ? inv(q_at_sample) : sample_values[Nemo.var_index(v)] for v in ordered_vars]
@@ -1126,7 +1126,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	algebraic_multiplicity_timing = OrderedDict{Symbol, Any}()
 	# Get equations using SIAN
 	_t_get_equations = @elapsed begin
-		eqs, Q, x_eqs, y_eqs, x_vars, y_vars, u_vars, mu, all_indets, gens_Rjet = SIAN.get_equations(si_ode)
+		eqs, Q, x_eqs, y_eqs, x_vars, y_vars, u_vars, mu, all_indets, gens_Rjet = SIANBackend.get_equations(si_ode)
 	end
 	sian_timing[:get_equations] = _t_get_equations
 
@@ -1140,8 +1140,8 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 
 	# Get X and Y equations
 	_t_get_x_y_eq_start = time()
-	X, X_eq = SIAN.get_x_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
-	Y, Y_eq = SIAN.get_y_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
+	X, X_eq = SIANBackend.get_x_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
+	Y, Y_eq = SIANBackend.get_y_eq(x_eqs, y_eqs, n, m, s, u, gens_Rjet)
 	sian_timing[:get_x_y_eq] = time() - _t_get_x_y_eq_start
 
 	# Extract parameters and state variables
@@ -1158,7 +1158,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 
 	# Compute degree bound
 	_t_degree_bound_start = time()
-	d0 = BigInt(maximum(vcat([Nemo.total_degree(SIAN.unpack_fraction(Q * eq[2])[1])
+	d0 = BigInt(maximum(vcat([Nemo.total_degree(SIANBackend.unpack_fraction(Q * eq[2])[1])
 							  for eq in eqs], Nemo.total_degree(Q))))
 
 	# Sample point for Jacobian evaluations
@@ -1170,7 +1170,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	# Convert empty array to proper type for u_variables
 	u_empty = Vector{Nemo.QQMPolyRingElem}()
 	_t_sample_point_start = time()
-	sample = SIAN.sample_point(D1, x_vars, y_vars, u_empty, all_params, X_eq, Y_eq, Q)
+	sample = SIANBackend.sample_point(D1, x_vars, y_vars, u_empty, all_params, X_eq, Y_eq, Q)
 	sian_timing[:sample_point] = time() - _t_sample_point_start
 	all_subs = sample[4]
 	u_hat = sample[2]
@@ -1182,7 +1182,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	beta = [0 for i in 1:m]
 	prolongation_possible = [1 for i in 1:m]
 
-	all_x_theta_vars_subs = SIAN.insert_zeros_to_vals(all_subs[1], all_subs[2])
+	all_x_theta_vars_subs = SIANBackend.insert_zeros_to_vals(all_subs[1], all_subs[2])
 	eqs_i_old = Array{Nemo.QQMPolyRingElem}(undef, 0)
 	evl_old = Array{Nemo.QQMPolyRingElem}(undef, 0)
 
@@ -1196,7 +1196,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 					vcat(u_hat[2], y_hat[2]))
 					   for eq in eqs_i if !(eq in eqs_i_old)]
 				evl_old = vcat(evl_old, evl)
-				JacX = SIAN.jacobi_matrix(evl_old, x_theta_vars, all_x_theta_vars_subs)
+				JacX = SIANBackend.jacobi_matrix(evl_old, x_theta_vars, all_x_theta_vars_subs)
 				eqs_i_old = eqs_i
 
 				if LinearAlgebra.rank(JacX) == length(eqs_i)
@@ -1217,7 +1217,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 																if !(v in x_theta_vars))
 						for v in vars_to_add
 							x_theta_vars = vcat(x_theta_vars, v)
-							ord_var = SIAN.get_order_var2(v, all_indets, n + m + u, s)
+							ord_var = SIANBackend.get_order_var2(v, all_indets, n + m + u, s)
 							var_idx = Nemo.var_index(ord_var[1])
 							poly = X[var_idx][ord_var[2]]
 							Et = vcat(Et, poly)
@@ -1236,7 +1236,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	for i in 1:m
 		for j in (beta[i]+1):length(Y[i])
 			to_add = true
-			for v in SIAN.get_vars(Y[i][j], x_vars, all_indets, n + m + u, s)
+			for v in SIANBackend.get_vars(Y[i][j], x_vars, all_indets, n + m + u, s)
 				if !(v in x_theta_vars)
 					to_add = false
 				end
@@ -1259,7 +1259,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	end
 
 	# Classify coordinates using rank loss, even when Et has dependent rows.
-	params_to_assess_ = [SIAN.add_to_var(param, Rjet, 0) for param in params_to_assess]
+	params_to_assess_ = [SIANBackend.add_to_var(param, Rjet, 0) for param in params_to_assess]
 	_t_evaluate_Et_base_start = time()
 	Et_eval_base = [Nemo.evaluate(e, vcat(u_hat[1], y_hat[1]),
 		vcat(u_hat[2], y_hat[2]))
@@ -1420,7 +1420,7 @@ function get_polynomial_system_from_sian(si_ode, params_to_assess; p = 0.99, inf
 	_t_derivative_mapping_start = time()
 	y_derivative_dict = Dict()
 	for each in Y_eq
-		name, order = SIAN.get_order_var(each[1], non_jet_ring)
+		name, order = SIANBackend.get_order_var(each[1], non_jet_ring)
 		y_derivative_dict[each[1]] = order
 	end
 	sian_timing[:derivative_mapping] = time() - _t_derivative_mapping_start

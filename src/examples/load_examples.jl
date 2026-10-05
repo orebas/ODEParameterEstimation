@@ -11,8 +11,7 @@ include("models/test_models.jl")
 include("models/debug_models.jl")
 include("models/control_systems.jl")  # Control theory examples for IEEE TAC
 
-using KernelFunctions  # Must be before GaussianProcesses to avoid Julia 1.12 world age warning
-using GaussianProcesses
+using KernelFunctions
 using LineSearches
 using Optim
 using Statistics

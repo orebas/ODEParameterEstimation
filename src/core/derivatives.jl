@@ -357,20 +357,11 @@ function aaad_gpr_pivot(xs::AbstractArray{T}, ys::AbstractArray{T})::GPRapprox w
 	initial_variance = 0.0
 	initial_noise = -2.0
 
-	# No data jitter — adding noise to data destroys high-order derivatives.
-	# GaussianProcesses.jl handles kernel matrix regularization internally.
-	kernel = SEIso(initial_lengthscale, initial_variance)
-
-	# 2. Do GPR approximation on normalized data
-	local gp
-	gp = GaussianProcesses.GP(xs, ys_normalized, MeanZero(), kernel, initial_noise)
-	GaussianProcesses.optimize!(gp; method = LBFGS(linesearch = LineSearches.BackTracking()))
-
-	# Create a function that evaluates the GPR prediction and denormalizes the output
-	function denormalized_gpr(x)
-		pred, _ = predict_f(gp, [x])
-		return y_std * (pred[1]) + y_mean
-	end
+	# This private backend preserves the original GP.jl fitting policy. In
+	# particular initial_noise is log standard deviation, not log variance.
+	gp = GPBackend.fit_se(vec(xs), vec(ys_normalized); log_lengthscale=initial_lengthscale,
+		log_signal_std=initial_variance, log_noise_std=initial_noise)
+	denormalized_gpr(x) = y_std * GPBackend.predict_mean(gp, x) + y_mean
 
 	return GPRapprox(denormalized_gpr)
 end

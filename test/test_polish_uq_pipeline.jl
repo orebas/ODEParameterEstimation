@@ -106,7 +106,10 @@ end
 		opt_lb = fill(1e-4, 4),
 		opt_ub = fill(5.0, 4),
 		opt_maxiters = 200,
-		polish_maxtime = 30.0,
+		# The first callback includes cold compilation, which can exhaust a
+		# 30-second budget before even one optimizer step on a busy CI host.
+		# This checks convergence/UQ; test_polish_maxtime.jl covers deadlines.
+		polish_maxtime = Inf,
 		save_system = false,
 		auto_rescale = false,
 	)

@@ -17,6 +17,11 @@ For the ordered work toward registration, see [Registry preparation](docs/regist
 The complete experimental source, historical benchmark scripts, PEtab pilot,
 and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
 
+The GaussianProcesses.jl fitting route and SIAN equation-construction helpers
+are maintained in isolated internal modules with upstream attribution. Neither
+external package is required to install or test ODEPE. See
+[internal backends](docs/2026-10-04_internal_backends.md) for provenance and validation.
+
 ## Installation
 
 If you are working from source, the simplest setup is to develop a local checkout:
@@ -69,8 +74,9 @@ julia --startup-file=no test/registered.jl
 
 This develops the checkout in a temporary environment and requires every other
 dependency to resolve from the registry. It also accepts `unit` or `benchmark`.
-Until the GP and SIAN compatibility patches are released, this can select an
-older dependency stack; it does not validate the current development stack.
+Add a second argument, `modern`, to require the newer supported dependency
+families, for example `julia --startup-file=no test/registered.jl benchmark modern`.
+Both profiles reject GaussianProcesses and SIAN in the resolved dependency graph.
 
 ## Minimal Workflow
 

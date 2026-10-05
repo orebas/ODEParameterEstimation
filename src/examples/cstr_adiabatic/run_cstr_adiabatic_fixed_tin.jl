@@ -6,7 +6,6 @@ This model has 4 parameters (E_R, tau, Delta_T_ad, UA_VrhoCP) with Tin fixed.
 
 using ODEParameterEstimation
 using Logging
-using GaussianProcesses
 using LineSearches
 using Optim
 using Statistics
