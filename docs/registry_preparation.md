@@ -1,16 +1,16 @@
 # ODEParameterEstimation.jl registry preparation
 
-This checklist tracks the first General registration candidate, **1.1.0**,
+This checklist tracks the first General registration candidate, **1.0.0**,
 prepared on 2026-10-05. The installable core is on `main`; ongoing studies and
 their evidence remain on `research`. External SIAN and GaussianProcesses are
 no longer runtime or test dependencies. The repository has been renamed to
 [`orebas/ODEParameterEstimation.jl`](https://github.com/orebas/ODEParameterEstimation.jl).
 
 This work stops at a validated, pushed candidate. **No Registrator request,
-release tag, or GitHub release is submitted.** Version 1.1.0 is the maintainer's
-chosen continuation of the development version history. Current AutoMerge
-accepts only 0.0.1, 0.1.0, or X.0.0 as an initial registered version, so 1.1.0
-needs manual registry review. Other passing checks do not override that rule.
+release tag, or GitHub release is submitted.** The maintainer selected 1.0.0
+after the initial 1.1.0 candidate exposed AutoMerge's initial-version rule.
+The selected 1.0.0 satisfies that rule; no version-related manual exception is
+needed. Registry review and registration remain separate actions.
 The dated [production-readiness record](2026-09-10_production_readiness.md)
 retains earlier dependency and test history.
 
@@ -49,7 +49,7 @@ and [RegistryCI AutoMerge guidelines](https://juliaregistries.github.io/Registry
 | --- | --- | --- |
 | License | Root GPL-3.0 and retained MIT notices; see [attribution](#provenance-and-attribution). | Preserve these notices in the registered tree. |
 | Package identity | `ODEParameterEstimation`, UUID `482fc905-5656-4c69-b8fe-7a66cd0f77b3`. | AutoMerge 1.1.0 name and similarity checks pass; dependency names/UUIDs match General. |
-| Release version | `1.1.0`, selected by the maintainer; no prerelease/build suffix. | Manual review of a nonstandard initial version is required. |
+| Release version | `1.0.0`, selected by the maintainer; no prerelease/build suffix. | Standard initial-version check passes. |
 | Repository URL | Canonical target `https://github.com/orebas/ODEParameterEstimation.jl.git`. | Rename verified: repository ID and branch heads unchanged; former URL returns HTTP 301. |
 | Compatibility | Every non-stdlib dependency has bounded `[compat]`; no unregistered weak dependencies remain. | Resolve both registered profiles with no development overrides. |
 | Installation and loading | Required CI covers Julia 1.12 and 1.13; modern dependencies also receive the recovery benchmark. | Require success at the exact candidate SHA and test a fresh URL install. |
@@ -58,7 +58,7 @@ The October 5 metadata checks used AutoMerge 1.1.0 on Julia 1.13.1 and General
 tree `d0d9933332d876a1617ccc36bf88401c4d459c98`. Exact-name, similarity,
 identifier, ASCII, minimum-length, no-prerelease/build, GPL license detection,
 and registered non-stdlib dependency/compat checks passed. The initial-version
-check alone requires manual review for 1.1.0.
+check also passes after selecting 1.0.0.
 
 The rename retained GitHub repository ID `796574275`, `main` at
 `ef35226c644c101aa3e27b17f120e9bfe1f98e11` before the release edits, and
@@ -367,8 +367,8 @@ Neither automation is manually triggered here.
 
 1. Finish required CI and the clean install at the exact candidate SHA. Keep
    `research` and the former repository URL redirect intact.
-2. Inspect the final diff, version, license, supported API and checklist. Resolve
-   the initial-version manual-review requirement with registry maintainers.
+2. Inspect the final diff, version, license, supported API and checklist.
+   Confirm that the initial-version and other metadata checks still pass.
 3. When the maintainer elects to register, post the request below on the
    validated commit in the renamed repository. Registration is a separate
    action; a prepared comment is not a submitted request.
@@ -381,14 +381,12 @@ Neither automation is manually triggered here.
 @JuliaRegistrator register
 
 Release notes:
-First General registration candidate for ODEParameterEstimation.jl, v1.1.0.
+First General registration candidate for ODEParameterEstimation.jl, v1.0.0.
 The supported package is on main; experimental integrations and research
 remain on the research branch. SIAN and GaussianProcesses functionality used
 by the package is now internal, with retained upstream notices and regression
 fixtures. Julia 1.12+ is supported; UQ remains opt-in with documented limits.
 
-The maintainer selected 1.1.0 to continue the development version history;
-please review the nonstandard initial version manually.
 ```
 
 Do not create a tag ahead of registration. Preserve the final commit URL,

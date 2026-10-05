@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 — registration candidate, 2026-10-05
+## 1.0.0 — registration candidate, 2026-10-05
 
 This is the intended first registered release. Earlier source-install users
 should review the development-snapshot changes below. Registration and tagging
@@ -90,7 +90,7 @@ are separate from preparing this candidate.
 
 ### Versioning note
 
-Oren selected **1.1.0** for the first registered release. The changes above are
+Oren selected **1.0.0** for the first registered release. The changes above are
 relative to earlier unregistered development snapshots; no previous registered
 release is being declared compatible. Subsequent registered releases should
 follow semantic versioning for the documented public API.

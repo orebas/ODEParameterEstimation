@@ -24,7 +24,7 @@ external package is required to install or test ODEPE. See
 
 ## Installation
 
-Version **1.1.0** is being prepared for first registration. Until it is
+Version **1.0.0** is being prepared for first registration. Until it is
 registered, install from GitHub or a local checkout. Julia 1.12 or later is
 required; the release CI covers Julia 1.12 and 1.13.
 

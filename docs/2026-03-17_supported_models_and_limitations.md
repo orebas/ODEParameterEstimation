@@ -1,6 +1,6 @@
 # Supported Models and Limitations
 
-Started 2026-03-17; reviewed for the 1.1.0 registration candidate, 2026-10-05.
+Started 2026-03-17; reviewed for the 1.0.0 registration candidate, 2026-10-05.
 
 It is a short user-facing summary of the current support boundaries. For the fuller internal taxonomy, see [2026-03-17_model_taxonomy.md](2026-03-17_model_taxonomy.md).
 

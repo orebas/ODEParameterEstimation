@@ -1,6 +1,6 @@
 # User Quickstart
 
-Started 2026-03-17; reviewed for the 1.1.0 registration candidate, 2026-10-05.
+Started 2026-03-17; reviewed for the 1.0.0 registration candidate, 2026-10-05.
 
 The normal workflow is:
 
