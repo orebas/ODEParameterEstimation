@@ -1,6 +1,15 @@
 # ODEParameterEstimation
 
-[![Build Status](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml?query=branch%3Amain)
+This is the continuing **research branch**. It preserves the experimental APIs,
+PEtab pilot, RS/RUR extension, benchmark drivers, and reproduction evidence
+removed from the core release tree. Use
+[`main`](https://github.com/orebas/ODEParameterEstimation/tree/main) for the
+installable core and its
+[registry-preparation record](https://github.com/orebas/ODEParameterEstimation/blob/main/docs/registry_preparation.md).
+Bring selected core fixes here by cherry-pick; merging the `main` cleanup commit
+would remove the experiments this branch preserves.
+
+[![Build Status](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml/badge.svg?branch=research)](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml?query=branch%3Aresearch)
 
 `ODEParameterEstimation` estimates parameters and initial conditions for ODE models from observed time-series data. The current default path is the SI-template-based standard flow: structural identifiability comes from `SI.jl` / `StructuralIdentifiability`, numerical identifiability checks are advisory-only, and the analyzed results are returned in a structured tuple.
 
@@ -29,7 +38,7 @@ If you are installing directly from GitHub instead:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.jl")
+Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.git", rev="research")
 ```
 
 ## Testing

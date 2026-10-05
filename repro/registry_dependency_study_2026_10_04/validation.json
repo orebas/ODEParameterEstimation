@@ -1,0 +1,147 @@
+{
+  "initial_full_failure": {
+    "errored": 1,
+    "failed": 3,
+    "fix_commit": "b2a7e2d",
+    "passed": 2054,
+    "reason": "The singular AAA option was overridden by the default pool; canary options now select an explicit AAA pool."
+  },
+  "julia": "1.13.1",
+  "local_benchmark": {
+    "command": "julia --startup-file=no test/current.jl benchmark",
+    "passed": 10,
+    "seconds": 612.2
+  },
+  "local_dependencies": {
+    "AbstractAlgebra": {
+      "git-tree-sha1": "ac016e80b2bd601ed576e97c617e44f7ef079c81",
+      "version": "0.50.3"
+    },
+    "GaussianProcesses": {
+      "version": "0.12.6"
+    },
+    "Groebner": {
+      "git-tree-sha1": "87d9e8789612f2d08419faefb86fb09fbb887fb4",
+      "version": "0.10.10"
+    },
+    "HomotopyContinuation": {
+      "git-tree-sha1": "e33dd1268d173385334072fffd9e3dd43e6106d3",
+      "version": "2.22.4"
+    },
+    "ModelingToolkit": {
+      "git-tree-sha1": "662aab26c3847916b26b24d5f8c7454322ec2802",
+      "version": "11.45.3"
+    },
+    "Nemo": {
+      "git-tree-sha1": "9a1c91731d5127666be24468faf6da924fe71c3d",
+      "version": "0.56.2"
+    },
+    "Optim": {
+      "git-tree-sha1": "81f338ad984b25bc82471db4d235e7b8bf21b8d6",
+      "version": "2.3.2"
+    },
+    "OrderedCollections": {
+      "git-tree-sha1": "05f45c2e0de6259db764adbfd2f1dc6d3f8de13c",
+      "version": "2.0.1"
+    },
+    "OrdinaryDiffEq": {
+      "git-tree-sha1": "bae9b8e5f1d00e51c554648e5094e215164a19f8",
+      "version": "7.8.1"
+    },
+    "SIAN": {
+      "version": "1.8.0"
+    },
+    "SciMLBase": {
+      "git-tree-sha1": "46345faa1fa3f43c24c241653c3b2719672b8d99",
+      "version": "3.57.0"
+    },
+    "StructuralIdentifiability": {
+      "git-tree-sha1": "aee8e66632b58940651eeed68224ba1f9ea15a11",
+      "version": "0.5.34"
+    },
+    "Symbolics": {
+      "git-tree-sha1": "c039acf6cded9bf0cbcada1c1ef60ca7b309b22c",
+      "version": "7.42.0"
+    }
+  },
+  "local_full": {
+    "command": "julia --startup-file=no test/current.jl",
+    "passed": 2058,
+    "seconds": 810.3
+  },
+  "local_gp_commit": "3e896e9dbd0c41341c723ab16dcf0c261fc7b95a",
+  "local_sian_commit": "2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9",
+  "log_sha256": {
+    "local_benchmark.log.gz": "7b12eb6962a59afd971b741635f7eacf83dc72ecca7200fdbeaf31ecbcf5d83f",
+    "local_full.log.gz": "568e8bfed21d4df93665cb8883eeaa5b7b57b4f3f983727a46e9224bbdd9e72f",
+    "local_full_initial.log.gz": "ce170fd468fb1ce343831c7c4e40f7f56ef757d76004079600a6ec502548cce8",
+    "registered_full.log.gz": "a7b1d0ce804286d99d66cae5d9023bdd7149532668720b24a326e6aac184a6d2"
+  },
+  "log_sha256_note": "Hashes refer to the uncompressed log bytes.",
+  "registered_dependencies": {
+    "AbstractAlgebra": {
+      "git-tree-sha1": "253b169a05685b5693bf9a3a1670e0510b1b37e7",
+      "version": "0.48.6"
+    },
+    "GaussianProcesses": {
+      "git-tree-sha1": "d983b4e1ff0257ed7c51686e6a63926551884373",
+      "version": "0.12.6"
+    },
+    "Groebner": {
+      "git-tree-sha1": "87d9e8789612f2d08419faefb86fb09fbb887fb4",
+      "version": "0.10.10"
+    },
+    "HomotopyContinuation": {
+      "git-tree-sha1": "e33dd1268d173385334072fffd9e3dd43e6106d3",
+      "version": "2.22.4"
+    },
+    "ModelingToolkit": {
+      "git-tree-sha1": "fad7b32c5a6431764b4a6afec6fc51bb58529145",
+      "version": "11.26.8"
+    },
+    "Nemo": {
+      "git-tree-sha1": "c8ff9e14fc0e205887e3790fb3c2bc0897a86920",
+      "version": "0.54.2"
+    },
+    "Optim": {
+      "git-tree-sha1": "48968edaf014f67e58fe4c8a4ce72d392aed3294",
+      "version": "1.13.3"
+    },
+    "OrderedCollections": {
+      "git-tree-sha1": "94ba93778373a53bfd5a0caaf7d809c445292ff4",
+      "version": "1.8.2"
+    },
+    "OrdinaryDiffEq": {
+      "git-tree-sha1": "47271adac597af08263b6ea2669e93040b45c4d0",
+      "version": "6.111.0"
+    },
+    "SIAN": {
+      "git-tree-sha1": "bc48ed95824edc25e297cf94ad267bcd8dd70e7e",
+      "version": "1.8.1"
+    },
+    "SciMLBase": {
+      "git-tree-sha1": "d56cb3b924cdf9297c171113e6a6ae9694e370eb",
+      "version": "2.155.2"
+    },
+    "StructuralIdentifiability": {
+      "git-tree-sha1": "caf5a05e6747cf0f9f9f35718c59630a82e9b37a",
+      "version": "0.5.25"
+    },
+    "Symbolics": {
+      "git-tree-sha1": "0eea73fa3bb1b579e25211cf4e1aefeeb78097c1",
+      "version": "7.39.0"
+    }
+  },
+  "registered_full": {
+    "command": "julia --startup-file=no test/registered.jl",
+    "passed": 2058,
+    "seconds": 682.1
+  },
+  "source_commit": "02ff196925da7896a4c2befe22b0c9fc3794c624",
+  "source_tree": "722430e3251858a1981a4aacf145d108c18c38fc",
+  "unit": {
+    "command": "julia --startup-file=no test/current.jl unit",
+    "passed": 419,
+    "seconds": 19.7
+  }
+}

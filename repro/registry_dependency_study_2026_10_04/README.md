@@ -27,3 +27,13 @@ positive-definiteness diagnostics during the clean-data optimization; all
 twelve comparisons returned finite predictions and derivatives in the first
 run. The decision and its limits are documented on `main` in
 `docs/2026-10-04_dependency_decisions.md`.
+
+## Core split validation
+
+`validation.json` records the core code commit, selected dependency versions,
+commands, assertion counts, and hashes of uncompressed test logs. The `.log.gz`
+files preserve those logs with their full dependency listings. The first local
+full run's canary failure is retained alongside the successful rerun; the
+explicit-AAA canary correction was committed separately and cherry-picked into
+this research branch. Validation of the split refers to the core source on
+`main`, not to a new full-suite run of this branch's experimental APIs.
