@@ -25,13 +25,25 @@ and StructuralIdentifiability 0.5.34. All Julia commands use `--startup-file=no`
   exist, then tests LV, VDP, FHN and biohydrogenation with the GP-only and default
   pools. Run it with the baseline and current package in separate environments,
   using the same input file. Every completed case is written immediately.
-- `compare_performance.jl CURRENT_CHECKOUT OUTPUT.toml` warms both backends,
+- `compare_performance.jl CURRENT_CHECKOUT OUTPUT.toml [BASELINE_MODULE]` warms both backends,
   alternates six measurements per arm and fixes BLAS to one thread. It records
   backend time and allocations separately from the end-to-end recovery runs.
+  An optional standalone `GPBackend.jl` adds a `baseline_comparison` to each
+  GP case: its `reference_*` measurements are the older internal implementation,
+  while `internal_*` measurements are the current implementation.
 
 These scripts are reference tools, not substitutes for the package full suite
 and recovery benchmark. Raw reproduction output goes outside the working tree;
 promote compact, reviewed fixtures and provenance explicitly.
+
+`results/performance_buffers.toml` records the October 5 buffer-reuse follow-up
+on Julia 1.13.1 with Optim 2.3.2 and native OpenBLAS_jll 0.3.30. The baseline
+module is `src/internal/gp/GPBackend.jl` from ODEPE revision
+`00387ca95690197c605ee0eb7e4ba0c06f5bee7d`. For example, extract it with
+`git show 00387ca:src/internal/gp/GPBackend.jl > /tmp/GPBackend_before.jl` and pass
+that file as the optional third argument. The top-level case measurements
+still compare the pinned upstream GP to the current implementation; each
+baseline comparison is a separate interleaved measurement series.
 
 ## Julia and BLAS portability
 

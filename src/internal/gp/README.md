@@ -26,6 +26,20 @@ The extraction uses a private typed posterior and Julia's Cholesky directly.
 It omits upstream likelihood/sampler/kernel hierarchies, covariance prediction,
 sparse/elastic storage, plotting, priors, and external-type method extensions.
 
+## Storage ownership
+
+Each `fit_se` call owns an `SEWorkspace`: covariance, Cholesky storage,
+inverse-score matrix, solve vector and gradient. Optimizer trials refill these
+buffers, including after a failed factorization. `evaluate_se!` returns a
+borrowed state valid only until the next evaluation; `evaluate_se` allocates
+independent storage for callers that need to retain the state.
+
+The final covariance, factor and solve vector transfer to the posterior.
+Later fits use separate workspaces, and prediction does not mutate the fit.
+The arithmetic and gradient accumulation order match the original extraction.
+Workspace reset, posterior independence and a warmed allocation budget are
+covered by the internal-backend tests.
+
 ## Replacement boundary
 
 `aaad_gpr_pivot` is the sole production adapter: `fit_se` accepts normalized

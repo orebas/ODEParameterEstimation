@@ -108,7 +108,7 @@ estimator quality. These package-model checks are distinct from the audited
 PEB scientific campaign. The runs shared a machine with other validation jobs,
 so their elapsed times are not evidence of a performance change.
 
-### Backend cost
+### Initial backend cost
 
 The [warmed comparison](../test/reference/results/performance.toml) uses six
 measurements per arm, alternating order with one BLAS thread. Both
@@ -124,12 +124,74 @@ implementations run in the same process and dependency environment.
 | GP transient, 41 points | 1.21 ms | 1.49 ms | 4.88× |
 | GP smooth noisy, 201 points | 30.18 ms | 37.87 ms | 7.10× |
 
-The symbolic extraction has comparable cost. The compact GP implementation
-reconstructs dense arrays per likelihood evaluation, whereas upstream reuses
-more storage. That costs about 9–25% more time on this panel and substantially
-more allocated bytes. This is an explicit maintenance/performance tradeoff;
-large-grid performance has not been established. Future workspace caching
-must preserve the tested arithmetic and derivative behavior.
+The symbolic extraction has comparable cost. The initial compact GP
+implementation reconstructed dense arrays per likelihood evaluation, whereas
+upstream reused more storage. That cost about 9–25% more time on this panel
+and substantially more allocated bytes. The follow-up below addresses the
+repeated allocations; large-grid performance has not been established.
+
+### October 5: GP buffer reuse
+
+`fit_se` now owns a workspace for covariance, factorization, inverse-score,
+solve and gradient storage. Every trial refills its inputs, including after a
+failed Cholesky factorization. The final posterior retains its arrays; other
+fits have independent storage and predictions do not mutate it. The
+non-mutating `evaluate_se` convenience function still returns an independent
+state. Likelihood arithmetic, accumulation order and the optimizer are unchanged.
+
+The [paired follow-up](../test/reference/results/performance_buffers.toml)
+compares the buffered implementation with both upstream and the original
+internal module from `00387ca95690197c605ee0eb7e4ba0c06f5bee7d` in the same
+process. Each pair uses six warmed measurements in alternating order with
+one BLAS thread, Julia 1.13.1, Optim 2.3.2 and native OpenBLAS_jll 0.3.30.
+
+| GP workload | Original internal median | Buffered median | Allocated bytes, original → buffered |
+|---|---:|---:|---:|
+| Smooth clean, 41 points | 2.84 ms | 2.54 ms | 3,805,008 → 70,168 |
+| Smooth noisy, 41 points | 2.24 ms | 1.89 ms | 2,835,328 → 65,368 |
+| Mixed scale, 61 points | 2.90 ms | 2.63 ms | 3,998,880 → 108,696 |
+| Transient, 41 points | 1.48 ms | 1.36 ms | 1,530,912 → 57,320 |
+| Smooth noisy, 201 points | 34.94 ms | 32.03 ms | 50,562,688 → 993,864 |
+
+The 201-point workload allocates 98% fewer bytes and takes about 8% less time
+than the original internal version. In the separate upstream/current series,
+the buffered implementation takes about 9% more time than upstream and
+allocates 86% fewer bytes. These small warmed panels do not establish
+large-grid or end-to-end speedups.
+
+All four frozen optimized GP cases were rerun against upstream on both native
+Julia 1.12.7 and Julia 1.13.1 stacks. Likelihoods, predictions and derivatives
+through order six match exactly within each stack. The complete parsed rerun
+records equal the existing `test/fixtures/internal_backends/fits.toml` and
+`test/reference/results/fits_julia112.toml` records, so no duplicate fixtures
+were added. The new standard contracts check workspace reset after failed
+factorization, posterior independence and a warmed allocation budget that
+detects accidental dense scratch allocation.
+
+The local Julia 1.13.1 full FAST gate passed **2,188/2,188**, including the
+12 new workspace assertions, and the recovery benchmark passed **10/10**.
+Both used `test/current.jl` with `allow_reresolve=false`. A separate warmed
+128-point likelihood-and-gradient evaluation on Julia 1.12.7 allocated
+**zero bytes**, within the new 4 KiB regression budget. Full-fit allocations
+in the table also include workspace construction and optimizer storage.
+
+### Removing the old global packages
+
+The normal package and test dependency graphs no longer require `SIAN` or
+`GaussianProcesses`. Removal was checked in a copy of the user's Julia 1.13
+global environment. Its old manifest still listed them under the ODEPE path
+entry after `Pkg.rm`; resolving refreshed that entry and removed both packages
+from the complete dependency graph:
+
+```julia
+using Pkg
+Pkg.rm(["SIAN", "GaussianProcesses"])
+Pkg.resolve()
+```
+
+The actual global environment was not modified. The optional upstream
+comparison environment and older research checkouts may still need those
+packages; keep their source checkouts if using those workflows.
 
 ### Reproduction
 

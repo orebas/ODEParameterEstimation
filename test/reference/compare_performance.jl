@@ -1,4 +1,4 @@
-# Run in the optional reference environment: CHECKOUT OUTPUT.toml.
+# Run in the optional reference environment: CHECKOUT OUTPUT.toml [BASELINE_MODULE].
 # Warm both implementations, then alternate order with one BLAS thread.
 using GaussianProcesses, SIAN, Nemo, StructuralIdentifiability
 using LinearAlgebra, Statistics, Random, TOML, Optim, LineSearches
@@ -6,6 +6,13 @@ include(joinpath(ARGS[1], "src", "internal", "gp", "GPBackend.jl"))
 include(joinpath(ARGS[1], "src", "internal", "sian", "SIANBackend.jl"))
 include(joinpath(ARGS[1], "test", "support", "backend_fixtures.jl"))
 BLAS.set_num_threads(1)
+baseline = if length(ARGS) == 3
+    scope = Module(:BaselineGP)
+    Base.include(scope,ARGS[3])
+    getproperty(scope,:GPBackend)
+else
+    nothing
+end
 
 function paired_cost(reference, internal)
     reference(); internal()
@@ -39,7 +46,12 @@ for data in cases
         GaussianProcesses.optimize!(gp; method=Optim.LBFGS(linesearch=LineSearches.BackTracking()))
         return gp
     end
-    records[data["case"]] = paired_cost(reference, ()->GPBackend.fit_se(xs, normalized))
+    internal() = GPBackend.fit_se(xs, normalized)
+    record = paired_cost(reference, internal)
+    if !isnothing(baseline)
+        record["baseline_comparison"] = paired_cost(()->baseline.fit_se(xs, normalized), internal)
+    end
+    records[data["case"]] = record
 end
 for rational in (false, true)
     records[rational ? "sian_rational" : "sian_polynomial"] =

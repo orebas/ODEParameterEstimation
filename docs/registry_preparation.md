@@ -249,9 +249,16 @@ both Julia versions. Production numerical code was unchanged by these fixes.
 
 All eight frozen GP-only/default-pool recovery comparisons preserve the measured
 errors and candidate counts exactly, including the unsuccessful biohydrogenation
-parameter-recovery cases. SIAN fixture costs are comparable; the compact GP fit
-allocates more and takes about 25% more time on the measured 201-point workload
-(38 ms versus 30 ms). The record retains the full paired performance panel.
+parameter-recovery cases. SIAN fixture costs are comparable. The initial GP
+extraction allocated more and took about 25% more time on the measured
+201-point workload. The October 5 workspace follow-up reduced its allocations
+from 50.6 MB to 0.99 MB per fit and median time from 34.9 ms to 32.0 ms in a
+new paired run. The separate upstream comparison now measures about 9% more
+time with 86% fewer allocated bytes. Both performance panels and their limits
+are retained in the [implementation record](2026-10-04_internal_backends.md).
+The buffered version passed the local Julia 1.13.1 full suite **2,188/2,188**
+and recovery benchmark **10/10**; paired GP fits still match upstream exactly
+on Julia 1.12 and 1.13.
 These worktree results still require validation of the eventual release commit.
 
 ## Repository and documentation review

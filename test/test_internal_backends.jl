@@ -21,6 +21,55 @@ const REFERENCE = TOML.parsefile(joinpath(@__DIR__,"fixtures","internal_backends
     @test SB.get_order_var(SB.add_to_var(x,jet,3),R) == [x,3]
 end
 
+function se_evaluation_allocations(n)
+    xs = collect(range(0.,1.;length=n))
+    ys = sin.(xs)
+    parameters = [-2.,0.,0.]
+    workspace = GB.SEWorkspace(n)
+    GB.evaluate_se!(workspace,xs,ys,parameters;gradient=true)
+    return @allocated GB.evaluate_se!(workspace,xs,ys,parameters;gradient=true)
+end
+
+@testset "GP workspace reuse and ownership" begin
+    data = REFERENCE["gp"]
+    xs,ys,p = data["xs"],data["ys"],data["log_parameters"]
+    workspace = GB.SEWorkspace(length(xs))
+    first_state = GB.evaluate_se!(workspace,xs,ys,p;gradient=true)
+    expected = (; covariance=copy(first_state.covariance),
+        factor=copy(first_state.factor.factors), alpha=copy(first_state.alpha),
+        gradient=copy(first_state.gradient), nll=first_state.nll)
+
+    # Overwrite every scratch array, then interrupt a later trial during its
+    # factorization. Returning to the original parameters must fully recover.
+    GB.evaluate_se!(workspace,xs,ys,p .+ 0.1;gradient=true)
+    @test_throws PosDefException GB.evaluate_se!(workspace,zeros(length(xs)),ys,
+        [-1000.,0.,0.];gradient=true)
+    recovered = GB.evaluate_se!(workspace,xs,ys,p;gradient=true)
+    @test recovered.covariance == expected.covariance
+    @test recovered.factor.factors == expected.factor
+    @test recovered.alpha == expected.alpha
+    @test recovered.gradient == expected.gradient
+    @test recovered.nll == expected.nll
+    @test recovered.gradient ≈ data["gradient"] rtol=1e-10 atol=1e-10
+    @test_throws DimensionMismatch GB.evaluate_se!(GB.SEWorkspace(length(xs)+1),xs,ys,p)
+
+    # The allocating convenience API must keep its returned state independent
+    # of later evaluations, and separate fits must retain independent posteriors.
+    state = GB.evaluate_se(xs,ys,p;gradient=true)
+    GB.evaluate_se(xs,ys,p .+ 0.1;gradient=true)
+    @test state.alpha == expected.alpha
+    fit = GB.fit_se(xs,ys)
+    prediction = GB.predict_mean(fit,0.4)
+    other = GB.fit_se(xs,ys .+ 1.)
+    @test GB.predict_mean(fit,0.4) == prediction
+    @test abs(GB.predict_mean(other,0.4)-prediction) > 0.5
+
+    # Warm the measurement helper too. A single 128×128 Float64 scratch matrix
+    # costs 128 KiB; this budget catches its accidental per-evaluation return.
+    se_evaluation_allocations(128)
+    @test se_evaluation_allocations(128) < 4096
+end
+
 function fixed_fit(data)
     p = Float64.(data["log_parameters"])
     state = GB.evaluate_se(data["xs"],data["ys"],p;gradient=true)

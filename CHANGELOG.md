@@ -2,6 +2,15 @@
 
 ## Unreleased (1.1.0-DEV line) — 2026-08/10
 
+### GP workspace reuse — 2026-10-05
+
+- Reuse covariance, factorization and gradient scratch buffers within each
+  internal GP fit, preserving fitting arithmetic and independent posteriors.
+- Reduce allocated bytes by 98% on the measured 201-point fit (50.6 MB to
+  0.99 MB); median fitting time fell from 34.9 ms to 32.0 ms in the paired run.
+  Frozen fits still match upstream through derivative order six on Julia
+  1.12 and 1.13. Add workspace recovery, ownership and allocation contracts.
+
 ### Internal dependency backends — 2026-10-04
 
 - Replace the used SIAN-Julia helpers and GaussianProcesses.jl dense SE fit
