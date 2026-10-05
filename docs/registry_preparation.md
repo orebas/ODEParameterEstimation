@@ -282,6 +282,33 @@ and recovery benchmark **10/10**; paired GP fits still match upstream exactly
 on Julia 1.12 and 1.13.
 These worktree results still require validation of the eventual release commit.
 
+### October 5 dependency cleanup
+
+An audit of the 1.0.0 candidate found eight declared packages that the loaded
+source did not use. `Plots`, `Zygote`, `BlackBoxOptim` and
+`MultivariatePolynomials` were never imported. `DynamicPolynomials` and
+`PolynomialRoots` were imported without a call site. `Enzyme` and
+`SciMLSensitivity` served only `opt_ad_backend = :enzyme`, which did not
+work: Enzyme 0.13.210 raised `IllegalTypeAnalysisException` while compiling
+the trajectory loss on the `simple` model, and the batch polisher kept the
+unpolished candidate. The eight dependencies and that option value are
+removed; see the [changelog](../CHANGELOG.md).
+
+Every global referenced by the package's 2,280 methods resolves to the same
+binding before and after the change, and forward-mode polish results on
+`simple` are identical to the last digit. A fresh registered resolve on Julia
+1.13.1 selects 308 packages instead of 434, adds none, and changes one
+indirect version (UnsafeAtomics 0.3.2 to 0.3.3). GPUCompiler, where the
+advisory nightly job fails, is no longer in the graph.
+
+On the cleanup worktree, the local Julia 1.13.1 unit, full and benchmark
+gates passed **421/421**, **2,190/2,190** and **10/10**. The fresh
+registered-dependency full suite, on the 308-package resolve, also passed
+**2,190/2,190**. The two added assertions cover rejection of the removed
+option. These edits change `Project.toml`, so the earlier candidate's CI and
+fresh-install results do not carry over: repeat the required CI jobs and the
+fresh URL install at the new commit before registering.
+
 ## Repository and documentation review
 
 - [x] Review the first-release source tree. Before the split, Git tracked
@@ -348,7 +375,8 @@ julia --startup-file=no --project=docs -e 'using Pkg; Pkg.develop(path=pwd()); P
 
 The three workflows pass actionlint 1.7.12. The first candidate's CI syntax
 failure was corrected by moving `runner.temp` to step scope before actual
-matrix testing.
+matrix testing. CI's checkout step was later updated to `actions/checkout@v6`
+in a separate workflow-only commit; the workflows still pass actionlint.
 A fresh temporary environment must install the final SHA from the renamed
 repository and run the README example. Inspect checks for that SHA, not merely
 the most recent workflow listed for the branch.

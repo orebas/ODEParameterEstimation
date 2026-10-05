@@ -166,7 +166,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
 - `opt_lb::Union{Nothing, Vector{Float64}}`: Lower bounds for optimization (default: nothing)
 - `opt_ub::Union{Nothing, Vector{Float64}}`: Upper bounds for optimization (default: nothing)
-- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:enzyme`, `:finite`
+- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:finite`
 - `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 3600.0)
 - `polish_max_concurrency::Int`: Cap on the number of polish tasks running in parallel (default: `Threads.nthreads()`). With too many candidates spawned at once, each polish's ForwardDiff-Jacobian step contends for cores and slows ~N/T× — the per-polish deadline then fires before convergence. Set to a smaller number to cap concurrency below `nthreads()`.
 - `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
@@ -1112,18 +1112,17 @@ Convert AD backend symbol to an Optimization.jl AD type.
 
 # Supported backends
 - `:forward` → `AutoForwardDiff()` (default, works with most problems)
-- `:enzyme` → `AutoEnzyme()` (compiler-based AD)
 - `:finite` → `AutoFiniteDiff()` (fallback, no AD required)
 
-Note: `:zygote` was removed — Zygote segfaults Julia 1.12's JIT compiler.
-ForwardDiff is the recommended backend (only one that works through adaptive ODE solvers).
+Note: `:zygote` and `:enzyme` were removed. Zygote segfaults Julia 1.12's JIT compiler,
+and Enzyme cannot compile the trajectory loss, which rebuilds the ODE problem through
+symbolic indexing. ForwardDiff is the recommended backend (the only AD backend that
+works through adaptive ODE solvers).
 """
 function get_ad_backend(backend::Symbol)
 	backend === :forward && return Optimization.AutoForwardDiff()
-	# backend === :zygote && return Optimization.AutoZygote()  # Disabled: segfaults Julia 1.12
-	backend === :enzyme && return Optimization.AutoEnzyme()
 	backend === :finite && return Optimization.AutoFiniteDiff()
-	error("Unknown AD backend :$backend. Supported backends: :forward, :enzyme, :finite")
+	error("Unknown AD backend :$backend. Supported backends: :forward, :finite")
 end
 
 """
@@ -1170,8 +1169,8 @@ function validate_options(opts::EstimationOptions)
 	valid = true
 
 	# Check algorithm selections that otherwise fail only after expensive setup.
-	if !(opts.opt_ad_backend in (:forward, :enzyme, :finite))
-		@error "opt_ad_backend must be :forward, :enzyme, or :finite (got $(opts.opt_ad_backend))"
+	if !(opts.opt_ad_backend in (:forward, :finite))
+		@error "opt_ad_backend must be :forward or :finite (got $(opts.opt_ad_backend))"
 		valid = false
 	end
 

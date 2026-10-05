@@ -34,6 +34,10 @@ using OrderedCollections
 	@test !validate_options(EstimationOptions(gp_derivative_lengthscale_factor = Inf))
 	@test !validate_options(EstimationOptions(multipoint_pair_strategy = :unknown))
 
+	# Removed AD backend: rejected up front instead of failing inside each polish.
+	@test !validate_options(EstimationOptions(opt_ad_backend = :enzyme))
+	@test_throws ErrorException get_ad_backend(:enzyme)
+
 	undersmoothed = EstimationOptions(
 		interpolators = InterpolatorMethod[InterpolatorAGPUQ],
 		gp_derivative_lengthscale_factor = 0.75,

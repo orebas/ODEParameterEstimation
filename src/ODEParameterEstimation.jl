@@ -5,7 +5,6 @@ import StructuralIdentifiability: ODE
 using AbstractAlgebra
 using BaryRational
 using Dates
-using DynamicPolynomials
 using ForwardDiff
 using KernelFunctions
 using AbstractGPs
@@ -22,7 +21,6 @@ using LeastSquaresOptim
 using FastLevenbergMarquardt
 using OrderedCollections
 using OrdinaryDiffEq
-using PolynomialRoots
 using PrecompileTools
 using Printf
 using Random
@@ -33,10 +31,6 @@ using TaylorDiff
 
 using NonlinearSolve, Symbolics, ForwardDiff, FiniteDiff, LinearAlgebra
 using NLopt, Optim, NLSolversBase
-using SciMLSensitivity
-# using Zygote  # Disabled: segfaults Julia 1.12 JIT compiler. ForwardDiff is used instead.
-using Enzyme
-#using OptimizationEnzyme
 using SymbolicUtils
 
 include("core/dependency_compat.jl")

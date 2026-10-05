@@ -16,6 +16,23 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Dependency cleanup — 2026-10-05
+
+- Remove eight declared dependencies that the package did not use. `Plots`,
+  `Zygote`, `BlackBoxOptim` and `MultivariatePolynomials` were never imported.
+  `DynamicPolynomials` and `PolynomialRoots` were imported without a call
+  site. `Enzyme` and `SciMLSensitivity` served only the backend removed below.
+- Remove `opt_ad_backend = :enzyme`. Enzyme cannot compile the trajectory
+  loss, which rebuilds the ODE problem through symbolic indexing. In testing,
+  `:enzyme` polishes raised after a long compilation and kept the unpolished
+  candidate. `validate_options` now rejects the value before any estimation
+  work; `:forward` (the default) and `:finite` are unchanged.
+- A fresh registered resolve on Julia 1.13.1 selects 308 packages instead of
+  434, adds none, and changes one indirect version (UnsafeAtomics 0.3.2 to
+  0.3.3). GPUCompiler, where the advisory nightly job fails, is no longer in
+  the graph. Median warm load time fell from 16.3 s to 12.5 s on the
+  development machine.
+
 ### GP workspace reuse — 2026-10-05
 
 - Reuse covariance, factorization and gradient scratch buffers within each

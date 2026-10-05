@@ -5,7 +5,6 @@ Run this before the full parameter estimation to catch any model errors.
 
 using ODEParameterEstimation
 using OrdinaryDiffEq
-using Plots
 
 include("cstr_adiabatic_model.jl")
 

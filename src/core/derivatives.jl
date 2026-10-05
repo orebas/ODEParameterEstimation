@@ -605,7 +605,7 @@ end
 """
 	agp_gpr(xs, ys; kernel_type=:se) -> AGPInterpolator
 
-Creates GP interpolator using AbstractGPs.jl with Zygote-based hyperparameter optimization.
+Creates GP interpolator using AbstractGPs.jl with ForwardDiff-based hyperparameter optimization.
 This is the recommended approach - uses automatic differentiation for efficient gradient
 computation, following the AbstractGPs.jl best practices.
 
