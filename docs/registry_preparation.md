@@ -309,6 +309,46 @@ option. These edits change `Project.toml`, so the earlier candidate's CI and
 fresh-install results do not carry over: repeat the required CI jobs and the
 fresh URL install at the new commit before registering.
 
+That cleanup landed as `0702d50`. CI run 37373805729 passed all four required
+jobs at that commit: **2,190/2,190** on Julia 1.12, on Julia 1.13 and on the
+Julia 1.13 modern profile, and **10/10** on the recovery benchmark. A fresh
+URL install of that commit ran the README example. The advisory nightly job
+no longer fails in GPUCompiler precompilation and now runs the suite. It
+passed 2,182 of 2,190 assertions on Julia 1.14.0-DEV; the eight failures are
+the `substr_test` accuracy checks in `identifiability_regressions.jl`.
+
+### October 5 name-clash fix and seed option
+
+`LevenbergMarquardt` is exported by both NonlinearSolve and LeastSquaresOptim,
+so the unqualified name had been undefined in the package since May. Four
+places used it. `solve_with_robust` with `:algorithm => :levenberg` returned
+no solution, `solve_multipoint_overdetermined` silently skipped its
+refinement, `PolishLevenberg` raised `UndefVarError`, and a legacy keyword
+mapping named it. The two solver calls are now qualified. The overdetermined
+refinement also declares its residual size, without which it failed on every
+genuinely overdetermined system. `PolishLevenberg` and `PolishGaussNewton` are
+removed: NonlinearSolve algorithms cannot run on the scalar
+`Optimization.solve` polish path, and the residual-mode methods already
+provide Levenberg–Marquardt.
+
+`EstimationOptions(seed = ...)` is new and off by default. With an integer,
+sampling and estimation run on their own random streams and restore Julia's
+default RNG, so repeated runs are identical and the caller's stream is
+untouched. Fresh processes with one and four threads returned identical
+candidate pools for `simple` and Lotka–Volterra; without a seed every pool
+differed. See the [changelog](../CHANGELOG.md) and the
+[reproducibility note](2026-03-17_results_and_api.md#reproducibility).
+
+On that worktree the local Julia 1.13.1 unit, full and benchmark gates passed
+**449/449**, **2,250/2,250** and **10/10**, and the fresh registered-dependency
+full suite passed **2,250/2,250**. The 60 added assertions cover the repaired
+solver paths, the polish-method contract, a check that no package method
+references a name two imports both export, and the seed behavior. That fresh
+resolve selected 310 packages, not 308: UnsafeAtomics 0.4.0, released the same
+day, depends on LLVM.jl. GPUCompiler and Enzyme remain absent. Repeat the
+required CI jobs and the fresh URL install at the new commit before
+registering.
+
 ## Repository and documentation review
 
 - [x] Review the first-release source tree. Before the split, Git tracked

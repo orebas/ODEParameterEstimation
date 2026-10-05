@@ -959,6 +959,8 @@ end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)
+	_estimation_seed_pending(opts) &&
+		return _with_estimation_seed(() -> analyze_parameter_estimation_problem(PEP, opts), opts.seed)
 	# Establish a per-run RunContext (auto-M hand-off, timing, sinks) unless an
 	# outer scope (e.g. with_estimation_timing) already bound one.
 	if _run_ctx() === nothing

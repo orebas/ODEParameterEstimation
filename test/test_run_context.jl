@@ -3,6 +3,7 @@
 # timing capture, timing sinks). Pure/fast — no estimation runs.
 
 using ODEParameterEstimation
+using Random
 using Test
 
 const _OPE = ODEParameterEstimation
@@ -118,4 +119,47 @@ const _OPE = ODEParameterEstimation
 		@test _OPE._current_resolve_timing_context() === :bare
 	end
 	@test _OPE._current_resolve_timing_context() === :unspecified
+end
+
+@testset "Scoped seed leaves the caller's RNG untouched" begin
+	rng = Random.default_rng()
+	Random.seed!(rng, 2026)
+	before = copy(rng)
+
+	# Seeded, reproducible, and restored afterwards.
+	@test !_OPE._ESTIMATION_SEED_ACTIVE[]
+	draws = _OPE._with_estimation_seed(7) do
+		@test _OPE._ESTIMATION_SEED_ACTIVE[]
+		rand(3)
+	end
+	@test copy(rng) == before
+	@test !_OPE._ESTIMATION_SEED_ACTIVE[]
+	@test draws == _OPE._with_estimation_seed(() -> rand(3), 7)
+	@test draws != _OPE._with_estimation_seed(() -> rand(3), 8)
+	@test draws == rand(Random.Xoshiro(7), 3)
+
+	# The caller's stream is also restored when the body throws.
+	@test_throws ErrorException _OPE._with_estimation_seed(() -> error("stop"), 7)
+	@test copy(rng) == before
+
+	# Only the outermost entry point seeds: a nested one continues the stream.
+	@test _OPE._estimation_seed_pending((; seed = 7))
+	@test !_OPE._estimation_seed_pending((; seed = nothing))
+	nested = _OPE._with_estimation_seed(7) do
+		@test !_OPE._estimation_seed_pending((; seed = 99))
+		(rand(), rand())
+	end
+	@test nested == _OPE._with_estimation_seed(() -> (rand(), rand()), 7)
+
+	# Tasks forked inside a seeded scope are reproducible too.
+	forked() = _OPE._with_estimation_seed(() -> fetch(Threads.@spawn rand(3)), 7)
+	@test forked() == forked()
+	@test copy(rng) == before
+
+	# Synthetic noise has its own stream, and no seed means the caller's stream.
+	@test _OPE._with_noise_seed(() -> rand(3), 7) == _OPE._with_noise_seed(() -> rand(3), 7)
+	@test _OPE._with_noise_seed(() -> rand(3), 7) != draws
+	@test copy(rng) == before
+	@test _OPE._with_noise_seed(() -> rand(3), nothing) == rand(copy(before), 3)
+	@test copy(rng) != before
 end

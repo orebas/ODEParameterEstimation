@@ -347,3 +347,66 @@ function _with_run_context(
 	value = Base.ScopedValues.with(f, RUN_CONTEXT => ctx)
 	return value, ctx
 end
+
+# ── Scoped randomness (`EstimationOptions.seed`) ──────────────────────────────
+# Every unseeded draw in the pipeline, including those made inside
+# StructuralIdentifiability and HomotopyContinuation, comes from the task-local
+# default RNG or from a task forked from it. Seeding that RNG for the duration
+# of a call and restoring it afterwards therefore makes the call reproducible
+# without changing the caller's random stream.
+
+# True inside a seeded estimation, so nested entry points continue the stream
+# they inherit instead of restarting it. Child tasks inherit the binding.
+const _ESTIMATION_SEED_ACTIVE = ScopedValue(false)
+
+# Synthetic noise and the estimator must not share a stream: with the same
+# seed they would otherwise draw the same numbers.
+const _NOISE_STREAM_TAG = 0x4e4f495345 % Int
+
+"""
+	_with_scoped_rng(f, seed) -> f()
+
+Run `f()` with the task-local default RNG seeded by `seed`, then restore the
+RNG to the state it had on entry, including when `f` throws.
+"""
+function _with_scoped_rng(f::F, seed::Integer) where {F}
+	rng = Random.default_rng()
+	saved = copy(rng)
+	# The two-argument form does not touch the task-local seed record that
+	# `@testset` restores from; `Random.seed!(seed)` would overwrite it.
+	Random.seed!(rng, seed)
+	try
+		return f()
+	finally
+		copy!(rng, saved)
+	end
+end
+
+"""
+	_estimation_seed_pending(opts) -> Bool
+
+True when `opts.seed` is set and no enclosing estimation has applied it yet.
+Only the outermost estimation entry point seeds.
+"""
+_estimation_seed_pending(opts) = !isnothing(opts.seed) && !_ESTIMATION_SEED_ACTIVE[]
+
+"""
+	_with_estimation_seed(f, seed) -> f()
+
+Run `f()` as one seeded estimation: on the stream given by `seed`, with nested
+entry points marked as already seeded, and with the caller's RNG restored.
+"""
+function _with_estimation_seed(f::F, seed::Integer) where {F}
+	return _with_scoped_rng(seed) do
+		Base.ScopedValues.with(f, _ESTIMATION_SEED_ACTIVE => true)
+	end
+end
+
+"""
+	_with_noise_seed(f, seed) -> f()
+
+Run the synthetic-noise draw `f()` on its own stream derived from `seed`, or
+on the caller's default RNG when `seed === nothing`.
+"""
+_with_noise_seed(f::F, seed::Nothing) where {F} = f()
+_with_noise_seed(f::F, seed::Integer) where {F} = _with_scoped_rng(f, seed ⊻ _NOISE_STREAM_TAG)

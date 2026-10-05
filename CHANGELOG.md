@@ -16,6 +16,18 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Reproducible runs — 2026-10-05
+
+- Add `EstimationOptions(seed = ...)`. With an integer, `sample_problem_data`
+  and the estimation entry points each run on their own random stream and then
+  restore Julia's default RNG. Repeated runs give identical results, and the
+  caller's random stream is untouched. The default, `nothing`, keeps the
+  earlier behavior of drawing from the caller's default RNG.
+- Without a seed, the candidate pool for `simple` and Lotka–Volterra differed
+  on every run and the selected `simple` estimate alternated between two
+  candidates. With a seed, fresh processes with one and four threads returned
+  identical pools.
+
 ### Levenberg–Marquardt name clash — 2026-10-05
 
 - `LevenbergMarquardt` is exported by both NonlinearSolve and LeastSquaresOptim,

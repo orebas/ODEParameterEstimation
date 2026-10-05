@@ -187,13 +187,21 @@ Generate sample data for a parameter estimation problem.
 - `uneven_sampling_times`: Custom sampling times (if uneven_sampling is true)
 - `noise_level`: Level of noise to add to the data
 - `noise_model`: `:relative`/`:multiplicative` or `:additive`/`:homoskedastic`
+- `seed`: With an integer, the noise is the same on every call and the caller's
+  default RNG is left untouched. With `nothing` (the default), noise is drawn
+  from the caller's default RNG, so `Random.seed!` controls it.
 
 # Returns
 - New ParameterEstimationProblem with generated data
 """
 function sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before sampling data."))
+	# The whole call is scoped, not only the noise draw: building and solving
+	# the model forks tasks, which advances the caller's RNG fork state.
+	return _with_noise_seed(() -> _sample_problem_data(problem, opts), opts.seed)
+end
 
+function _sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions)
 	# Create new OrderedODESystem with completed system
 	ordered_system = OrderedODESystem(
 		complete(problem.model.system),

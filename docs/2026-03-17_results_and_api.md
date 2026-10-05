@@ -113,6 +113,28 @@ Common fields:
 - `numerical_advisory`
   Best-effort advisory-only numerical diagnostics.
 
+## Reproducibility
+
+Several steps draw random numbers: generic sample points for the SI template,
+solver start points, and probe points. By default these come from Julia's
+default RNG, so two runs on the same data can differ in the last digits and,
+occasionally, in which candidate ranks first.
+
+Set `seed` in `EstimationOptions` for identical results on repeated runs:
+
+```julia
+opts = EstimationOptions(datasize = 41, noise_level = 1e-3, seed = 7)
+sampled = sample_problem_data(pep, opts)   # same noise on every call
+_, analysis, _ = analyze_parameter_estimation_problem(sampled, opts)
+```
+
+The seed is scoped. Sampling and estimation each run on their own stream
+derived from it, and Julia's default RNG is restored afterwards, so your own
+`rand` calls are unaffected. With a fixed seed every `sample_problem_data`
+call returns the same noise; use a different seed per replicate when you want
+independent draws. Leaving `seed = nothing` keeps the earlier behavior, where
+calling `Random.seed!` before each step controls it.
+
 ## Current Contract Notes
 
 As of this doc:

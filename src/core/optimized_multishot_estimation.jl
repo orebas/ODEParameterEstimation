@@ -657,6 +657,8 @@ Optimized parameter estimation using precomputed derivatives.
 """
 function optimized_multishot_parameter_estimation(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)
+	_estimation_seed_pending(opts) &&
+		return _with_estimation_seed(() -> optimized_multishot_parameter_estimation(PEP, opts), opts.seed)
 	# Direct callers receive the same run-scoped identity/artifact isolation as
 	# the top-level analysis entrypoint.
 	if _run_ctx() === nothing

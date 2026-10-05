@@ -188,6 +188,15 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `uneven_sampling::Bool`: Whether to use uneven time sampling (default: false)
 - `uneven_sampling_times::Vector{Float64}`: Custom sampling times (default: Float64[])
 
+## Reproducibility
+- `seed::Union{Nothing, Int}`: Seed for this package's random draws (default: `nothing`).
+  With an integer, `sample_problem_data` and the estimation entry points each run on
+  their own stream derived from it and then restore the default RNG. The same data and
+  options then give identical results on repeated runs, and the caller's random stream
+  is untouched. With `nothing`, they draw from the caller's default RNG, so results vary
+  between runs unless the caller calls `Random.seed!` first. `gamma_seed < 0` draws
+  fresh entropy for the homotopy start and is not reproducible under any `seed`.
+
 ## Debug and Output Flags
 - `nooutput::Bool`: Suppress output messages (default: false)
 - `diagnostics::Bool`: Enable diagnostic output (default: true)
@@ -506,6 +515,9 @@ Base.@kwdef struct EstimationOptions
 	noise_model::Symbol = :additive
 	uneven_sampling::Bool = false
 	uneven_sampling_times::Vector{Float64} = Float64[]
+
+	# Reproducibility
+	seed::Union{Nothing, Int} = nothing  # Integer ⇒ sampling noise and estimation are reproducible and leave the caller's RNG untouched; nothing ⇒ draw from the caller's default RNG
 
 	# Debug and Output Flags
 	nooutput::Bool = false
@@ -1387,6 +1399,10 @@ function validate_options(opts::EstimationOptions)
 		@warn "t0_state_completion=:seed_for_polish requires polish_solutions=true to be useful"
 	end
 
+	if !isnothing(opts.seed) && opts.gamma_seed < 0
+		@warn "seed is set, but gamma_seed < 0 draws fresh entropy for the homotopy start, so results will not be reproducible"
+	end
+
 	if !(opts.system_construction_policy in (:legacy, :noise_frontier))
 		@error "system_construction_policy must be :legacy or :noise_frontier (got $(opts.system_construction_policy))"
 		valid = false
@@ -1458,6 +1474,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Rescue Policy", [:terminal_fallback, :backsolve_recovery, :t0_state_completion]),
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
+		("Reproducibility", [:seed]),
 		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
