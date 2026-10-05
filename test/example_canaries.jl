@@ -78,7 +78,7 @@ include("estimation_helpers.jl")
             flow = FlowStandard,
             use_si_template = true,
             use_parameter_homotopy = false,
-            interpolator = InterpolatorAAAD,
+            interpolators = [InterpolatorAAAD],
             save_system = false,
             polish_solver_solutions = false,
             polish_solutions = false,
