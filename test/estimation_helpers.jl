@@ -38,7 +38,9 @@ const FAST_STANDARD_OPTS = EstimationOptions(
     flow = FlowStandard,
     use_si_template = true,
     use_parameter_homotopy = false,
-    interpolator = InterpolatorAAAD,
+    # An explicit pool is required: the default pool overrides the singular
+    # `interpolator` option and may select a synthesized aggregate candidate.
+    interpolators = [InterpolatorAAAD],
     save_system = false,
     polish_solver_solutions = false,
     polish_solutions = false,
