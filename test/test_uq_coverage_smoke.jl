@@ -6,13 +6,14 @@ using ODEParameterEstimation
 #
 # Bands are BREAKAGE tripwires, not calibration assertions — set from the
 # 2026-08-13 baseline (100% coverage, mean z ≈ 0, sd z ≈ 0.46 on every
-# coordinate; see repro/uq_coverage_harness_2026_08/README.md) minus generous
-# margin. Paper-grade numbers come from N ≥ 100 runs of the repro driver.
+# coordinate; see the research branch's
+# repro/uq_coverage_harness_2026_08/README.md) minus generous margin.
+# Paper-grade numbers come from N ≥ 100 runs of that research driver.
 
 using Test
 using Statistics
 
-include(joinpath(@__DIR__, "..", "repro", "uq_coverage_harness_2026_08", "coverage_driver.jl"))
+include(joinpath(@__DIR__, "support", "uq_coverage_driver.jl"))
 
 @testset "UQ coverage smoke (two_exp, N=20, estimate-conditioned)" begin
 	res = run_coverage(two_exp_pep;

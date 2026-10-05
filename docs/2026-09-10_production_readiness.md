@@ -1,5 +1,9 @@
 # Julia 1.13 and production readiness — 2026-09-10
 
+For the current core/research split and new validation results, see
+[registry preparation](registry_preparation.md). This dated record includes
+research APIs and the PEtab pilot that now live on the `research` branch.
+
 The current stabilization target is the newer Julia 1.13 dependency stack with
 the GP and SIAN compatibility patches. Local validation preserves those versions
 with `Pkg.test(...; allow_reresolve=false)`. An earlier successful run on older

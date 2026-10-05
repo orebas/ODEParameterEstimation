@@ -148,7 +148,7 @@ captured-root replay are recorded with the artifacts below.
 
 Scripts, input capture, per-candidate results, full-run estimates, and timing
 summaries are in
-[`repro/biohydrogenation_compilation_2026_09_13`](../repro/biohydrogenation_compilation_2026_09_13/README.md).
+[`repro/biohydrogenation_compilation_2026_09_13`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/biohydrogenation_compilation_2026_09_13/README.md).
 The new full-suite contracts in [`test_robust_system.jl`](../test/test_robust_system.jl)
 check parameter-dependent Jacobians, data changes, symbol order, cache identity,
 both root branches, rectangular solves, the existing unprepared API, and kernel

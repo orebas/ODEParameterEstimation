@@ -17,7 +17,6 @@ const TEST_FILES = [
     "test_si_multiplicity_fixing.jl",
     "result_processing_helpers.jl",
     "feature_regressions.jl",
-    "test_shade_lm.jl",
     "test_rescaling.jl",
     "test_core_types.jl",     # re-homed 2026-07-21 (was orphaned + red; now green)
     "test_solution_distance.jl",
@@ -38,7 +37,7 @@ const TEST_FILES = [
     "test_options_contracts.jl",      # dead-options cleanup contracts 2026-08-12
     "test_taylor_propagation.jl",     # estimate-conditioned Taylor cores 2026-08-13
     "test_estimate_conditioned_uq.jl", # estimate-conditioned S = default UQ path 2026-08-13
-    "test_uq_coverage_smoke.jl",      # N=20 two_exp coverage tripwires (repro/ harness) 2026-08-13
+    "test_uq_coverage_smoke.jl",      # N=20 two_exp coverage tripwires (test/support helper) 2026-08-13
     "test_exact_index_matching.jl",   # per-point index lists + exact obs-name match 2026-08-13
     "test_stacked_jet_covariance.jl", # cross-time W-stack Σ_d core (MC-validated) 2026-08-13
     "test_ift_solve.jl",              # factorized IFT, loud degradation 2026-08-13
@@ -47,10 +46,7 @@ const TEST_FILES = [
     "test_estimator_aware_uq.jl", # exact rank-one target + typed outcome/lineage contract 2026-08-14
     "test_polish_uq_pipeline.jl", # actual tiny-ODE polish/direct report + perturb/refit influence 2026-08-16
     "test_branch_uq_pipeline.jl", # actual retained parent->jet->sibling covariance composition 2026-08-16
-    "test_audited_campaign_contracts.jl", # hash/seed/fingerprint/strict-resume campaign contract 2026-08-16
     "test_gp_factorization_consistency.jl", # one SE recipe + scale-relative jitter telemetry 2026-08-15
-    "test_campaign_toml.jl", # resumable sidecars preserve optional production timing fields 2026-08-16
-    "test_model_assisted_correction.jl", # opt-in one-step estimator + no-UQ contract 2026-08-16
 ]
 
 test_files = if isempty(ARGS) || ARGS == ["all"]

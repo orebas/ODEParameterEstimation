@@ -332,9 +332,9 @@ and 10/10 benchmark results from the reusable-polisher change.
 
 ## Reproduction and retained evidence
 
-The [dense-study README](../repro/petab/dense_single/README.md) gives commands.
+The [dense-study README](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/README.md) gives commands.
 New evidence is under
-[`si_cost_20260914/`](../repro/petab/dense_single/evidence/si_cost_20260914/),
+[`si_cost_20260914/`](https://github.com/orebas/ODEParameterEstimation/tree/c4358bd/repro/petab/dense_single/evidence/si_cost_20260914),
 including exact worker snapshots, input hashes, SI equations, classifications,
 timings, timeout records, and a file-hash manifest. The earlier dense model
 definitions and data are reused by hash rather than regenerated from fitting

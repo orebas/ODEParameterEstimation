@@ -151,6 +151,6 @@ Gröbner settings and the polynomial solver are unchanged. There is no new
 timeout fallback or monodromy path in this correction.
 
 Artifacts and reproduction commands:
-[`repro/fixed_multiplicity_2026_09_14`](../repro/fixed_multiplicity_2026_09_14/README.md).
-The [standalone Gröbner script](../repro/sneyd_groebner_2026_09_14/README.md)
+[`repro/fixed_multiplicity_2026_09_14`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/fixed_multiplicity_2026_09_14/README.md).
+The [standalone Gröbner script](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_groebner_2026_09_14/README.md)
 embeds the frozen inspection input and needs only Nemo and Groebner.

@@ -152,4 +152,4 @@ used as a stopping target for that solver.
   recovery benchmark were not rerun.
 
 Commands, inputs, raw outcomes, and source hashes are in
-[`repro/separate_m_2026_09_15`](../repro/separate_m_2026_09_15/README.md).
+[`repro/separate_m_2026_09_15`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/separate_m_2026_09_15/README.md).

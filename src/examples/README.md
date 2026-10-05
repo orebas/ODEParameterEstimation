@@ -1,22 +1,24 @@
 # Examples Directory
 
-This directory is a mix of model definitions, runnable workflows, investigation scripts, and a small amount of parked material. It is now treated as a maintained package surface, but not every file here has the same status.
+This directory contains model definitions and maintained runnable workflows.
+The investigation scripts, benchmarks, and PEtab pilot are preserved on the
+[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/src/examples).
 
 If you are looking for the current user-facing package workflow rather than the example inventory, start with:
 
-- [README.md](/home/orebas/.julia/dev/ODEParameterEstimation/README.md)
-- [2026-03-17_user_quickstart.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_user_quickstart.md)
-- [2026-03-17_results_and_api.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_results_and_api.md)
+- [README.md](../../README.md)
+- [2026-03-17_user_quickstart.md](../../docs/2026-03-17_user_quickstart.md)
+- [2026-03-17_results_and_api.md](../../docs/2026-03-17_results_and_api.md)
 
 ## Categories
 
 ### Model Buckets
 
-Model constructors are still grouped in shared source files under [models](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/models), so the primary categorization now lives in [load_examples.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl) rather than in one-file-per-model moves.
+Model constructors are still grouped in shared source files under [models](../../src/examples/models), so the primary categorization now lives in [load_examples.jl](../../src/examples/load_examples.jl) rather than in one-file-per-model moves.
 
 For the current interpretation of the categories and the main known failure classes, see:
 
-- [2026-03-17_model_taxonomy.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_model_taxonomy.md)
+- [2026-03-17_model_taxonomy.md](../../docs/2026-03-17_model_taxonomy.md)
 
 - `GREEN_MODELS`
   Straightforward maintained examples that currently run well.
@@ -33,44 +35,21 @@ For the current interpretation of the categories and the main known failure clas
 
 These are part of the intended package-facing examples surface and should stay current with the supported contract.
 
-- [models](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/models)
-- [load_examples.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/load_examples.jl)
-- [first_example.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/first_example.jl)
-- [control_investigations](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/control_investigations)
-- [biohydrogenation](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/biohydrogenation)
-- [cstr_adiabatic](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/cstr_adiabatic)
-- [petab](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/petab)
+- [models](../../src/examples/models)
+- [load_examples.jl](../../src/examples/load_examples.jl)
+- [first_example.jl](../../src/examples/first_example.jl)
+- [run_examples.jl](../../src/examples/run_examples.jl)
+- [control_investigations](../../src/examples/control_investigations)
+- [biohydrogenation](../../src/examples/biohydrogenation)
+- [cstr_adiabatic](../../src/examples/cstr_adiabatic)
 
-### Experimental
+### Continuing research
 
-Useful workflows or driver scripts that are still actively used, but are not polished public examples.
-
-- [run_examples.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl)
-- [compare_interpolators.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/compare_interpolators.jl)
-- [paper-runner.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/paper-runner.jl)
-- [profiling](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/profiling)
-- [benchmarks](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/benchmarks)
-- [run_cstr_benchmark.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_cstr_benchmark.jl)
-- [run_cstr_benchmark_scaled.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_cstr_benchmark_scaled.jl)
-
-### Parked / Investigation
-
-These are useful for debugging, reproductions, or one-off analysis, but should not be treated as the primary package example surface.
-
-- [failing](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/failing)
-- [hiv_identifiability_test](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/hiv_identifiability_test)
-- [debug_bicycle.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/debug_bicycle.jl)
-- [build_function_eval_minimal.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/build_function_eval_minimal.jl)
-- [build_function_mismatch_demo.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/build_function_mismatch_demo.jl)
-- [build_function_varorder_probe.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/build_function_varorder_probe.jl)
-- [pointpicker.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/pointpicker.jl)
-- [problem_analysis.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/problem_analysis.jl)
-- [study_approx.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/study_approx.jl)
-- [test_parameter_homotopy.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/test_parameter_homotopy.jl)
-- [test_regression.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/test_regression.jl)
-- [test_transcendental.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/test_transcendental.jl)
-- [test_transcendental_extended.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/test_transcendental_extended.jl)
-- [validate_control_systems.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/validate_control_systems.jl)
+The [research examples](https://github.com/orebas/ODEParameterEstimation/tree/research/src/examples)
+retain the interpolator comparison, paper runner, profiling, benchmarks,
+failure investigations, and one-off analysis scripts. Use that branch to
+continue those studies. Cherry-pick selected core fixes into it; merging the
+`main` cleanup commit would remove the preserved experiments.
 
 ## Generated Artifacts
 
@@ -84,8 +63,3 @@ Examples:
 - output CSVs and similar run products
 
 The main `.gitignore` now explicitly ignores the common example-output locations.
-
-## Notes
-
-- [run_examples.jl](/home/orebas/.julia/dev/ODEParameterEstimation/src/examples/run_examples.jl) is still a real working driver and should be treated as experimental infrastructure, not disposable junk.
-- Future cleanup should move the directory toward a clearer split between maintained workflows, experimental drivers, and parked investigations.

@@ -21,14 +21,14 @@ experiments with shared parameters.
 ## Importer state before the pilot
 
 The PEtab work was an unfinished experiment, not a working public benchmark
-importer. Much of [`src/examples/petab/`](../src/examples/petab/README.md)
+importer. Much of [`src/examples/petab/`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/src/examples/petab/README.md)
 exports ODEPE's own example models through TOML to PEtab. Those generated
 datasets are distinct from the published experiments in the public collection.
 
-The extension's original [entry point](../ext/ODEParameterEstimationPEtabExt.jl)
+The extension's original [entry point](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/ext/ODEParameterEstimationPEtabExt.jl)
 included missing paths and exported names that its nested loader/converter did
 not define. The actual
-[converter](../ext/ODEParameterEstimationPEtabExt/src/petab/convert_petab.jl)
+[converter](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/ext/ODEParameterEstimationPEtabExt/src/petab/convert_petab.jl)
 also merges measurement rows without selecting their simulation condition,
 averages replicates, inserts NaNs for missing time/observable pairs, maps
 parameters positionally, defaults missing initial conditions to zero, and
@@ -50,7 +50,7 @@ commit corrects 32 Alkan measurements by a factor of 1000; benchmark comparisons
 should record the exact data revision.
 
 The [machine-readable inventory](2026-09-10_petab_inventory.csv) is generated
-by [repro/petab_inventory.py](../repro/petab_inventory.py):
+by [repro/petab_inventory.py](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab_inventory.py):
 
 ```sh
 python3 repro/petab_inventory.py /path/to/Benchmark-Models-PEtab /tmp/petab_inventory.csv

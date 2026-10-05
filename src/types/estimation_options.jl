@@ -8,7 +8,6 @@
 Enum for selecting the polynomial system solver method.
 """
 @enum SystemSolverMethod begin
-	SolverRS           # solve_with_rs - RealSolutions/RUR based solver (requires extension)
 	SolverHC           # solve_with_hc - HomotopyContinuation solver (default)
 	SolverNLOpt        # solve_with_nlopt - NonlinearSolve optimization
 	SolverFastNLOpt    # solve_with_fast_nlopt - Fast compiled NLOpt
@@ -480,17 +479,6 @@ Base.@kwdef struct EstimationOptions
 	polish_lso_f_tol::Float64 = -1.0
 	polish_lso_g_tol::Float64 = -1.0
 
-	# SHADE+LM baseline (`src/baselines/shade_lm.jl`). Hybrid global/local optimizer
-	# used as a comparison baseline alongside the multishot / direct-opt flows.
-	# `shade_population = 0` triggers auto-sizing `max(50, 10 * (n_states + n_params))`.
-	# `shade_seed = nothing` lets Metaheuristics pick a random seed.
-	shade_total_max_evals::Int = 200_000
-	shade_total_max_time::Float64 = 600.0
-	shade_global_eval_fraction::Float64 = 0.7
-	shade_n_local_starts::Int = 5
-	shade_population::Int = 0
-	shade_seed::Union{Nothing, UInt} = nothing
-
 	terminal_fallback::Symbol = :direct_opt   # :none | :direct_opt
 	backsolve_recovery::Symbol = :algebraic_resolve  # :none | :algebraic_resolve
 	t0_state_completion::Symbol = :strict    # :strict | :seed_for_polish
@@ -608,13 +596,7 @@ const _OPT_STRUCT_DEFAULTS = EstimationOptions()
 Convert SystemSolverMethod enum to actual solver function.
 """
 function get_solver_function(method::SystemSolverMethod)
-	if method == SolverRS
-		# Check if RS extension is loaded
-		if !isdefined(@__MODULE__, :solve_with_rs)
-			error("RS solver requested but RS extension is not loaded. Install RS and RationalUnivariateRepresentation packages to use this solver.")
-		end
-		return solve_with_rs
-	elseif method == SolverHC
+	if method == SolverHC
 		return solve_with_hc
 	elseif method == SolverNLOpt
 		return solve_with_nlopt
@@ -1289,28 +1271,6 @@ function validate_options(opts::EstimationOptions)
 		valid = false
 	end
 
-	# SHADE+LM baseline knobs
-	if opts.shade_total_max_evals <= 0
-		@error "shade_total_max_evals must be positive (got $(opts.shade_total_max_evals))"
-		valid = false
-	end
-	if opts.shade_total_max_time <= 0
-		@error "shade_total_max_time must be positive (got $(opts.shade_total_max_time))"
-		valid = false
-	end
-	if !(0.0 < opts.shade_global_eval_fraction < 1.0)
-		@error "shade_global_eval_fraction must be in (0, 1) (got $(opts.shade_global_eval_fraction))"
-		valid = false
-	end
-	if opts.shade_n_local_starts <= 0
-		@error "shade_n_local_starts must be positive (got $(opts.shade_n_local_starts))"
-		valid = false
-	end
-	if opts.shade_population < 0
-		@error "shade_population must be non-negative (0 = auto) (got $(opts.shade_population))"
-		valid = false
-	end
-
 	# Sensitivity-seed parameters
 	if opts.sensitivity_seed_probe_scale <= 0
 		@error "sensitivity_seed_probe_scale must be positive (got $(opts.sensitivity_seed_probe_scale))"
@@ -1502,8 +1462,6 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),
 		("Optimization", [:polish_solutions, :polish_solver_solutions, :polish_solver_jacobian, :polish_solver_chunk_size, :polish_method, :polish_maxiters, :opt_maxiters,
 			:opt_lb, :opt_ub, :opt_ad_backend, :polish_maxtime, :polish_divergence_factor, :polish_stagnation_window, :polish_ode_maxiters]),
-		("SHADE+LM Baseline", [:shade_total_max_evals, :shade_total_max_time, :shade_global_eval_fraction,
-			:shade_n_local_starts, :shade_population, :shade_seed]),
 		("Rescue Policy", [:terminal_fallback, :backsolve_recovery, :t0_state_completion]),
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),

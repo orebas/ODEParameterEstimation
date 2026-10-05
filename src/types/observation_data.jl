@@ -106,19 +106,3 @@ function _validate_observation_options(data, opts)
     end
     return nothing
 end
-
-"""
-    load_petab_problem(path; kwargs...)
-
-Load a PEtab problem for algebraic candidate generation and faithful likelihood
-scoring. Load the optional PEtab.jl dependency first (`using PEtab`).
-"""
-function load_petab_problem end
-
-"""
-    estimate_petab_problem(problem; options=EstimationOptions(), kwargs...)
-
-Generate algebraic candidates and score them with the original PEtab objective.
-Optional numerical refinement must retain all PEtab-estimated parameters.
-"""
-function estimate_petab_problem end

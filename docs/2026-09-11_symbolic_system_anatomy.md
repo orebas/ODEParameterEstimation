@@ -50,7 +50,7 @@ and expansion, then recursive GCD with Float64 coefficients. Compilation was
 also present. The profile establishes these costs, but does not establish an
 intrinsic lower bound on the difficulty of simplifying Sneyd.
 
-A [follow-up trace](../repro/petab/dense_single/evidence/sneyd_fraction_expansion_trace.json)
+A [follow-up trace](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/sneyd_fraction_expansion_trace.json)
 retains the actual second-derivative expression and state equations. Its
 210-second whole-worker limit includes loading and model construction, unlike
 the earlier 180-second isolated simplification limit. It was interrupted while
@@ -68,8 +68,8 @@ the resulting degrees, denominator-zero artifacts, and solver workload.
 
 ## Fujita's saved template
 
-The [saved-template report](../repro/petab/dense_single/evidence/fujita_template_support.json)
-and [full-pool report](../repro/petab/dense_single/evidence/fujita_full_pool_support.json)
+The [saved-template report](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/fujita_template_support.json)
+and [full-pool report](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/fujita_full_pool_support.json)
 count equations with SymPy, independently of Julia's displayed size diagnostics.
 Observable jets are coefficients, not solve unknowns. A constant
 term counts as one monomial. Repeated occurrences in different equations count
@@ -149,8 +149,8 @@ submitted to mixed volume has 85 equations and 85 unknowns; the exact row choice
 at the interrupted call was not saved, so its individual monomial count is not
 claimed to be exactly 466.
 
-Readable [saved-template equations](../repro/petab/dense_single/evidence/fujita_template_equations.txt)
-and [all 88 pool equations](../repro/petab/dense_single/evidence/fujita_full_pool_equations.txt)
+Readable [saved-template equations](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/fujita_template_equations.txt)
+and [all 88 pool equations](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/fujita_full_pool_equations.txt)
 are retained alongside the JSON reports.
 
 Mixed volume uses the supports as Newton polytopes and performs a combinatorial

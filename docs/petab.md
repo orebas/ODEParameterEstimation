@@ -1,5 +1,10 @@
 # PEtab feasibility pilot
 
+This integration is maintained on the
+[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
+The instructions below apply to that branch. PEtab is outside the installable
+`main` package after the [registry split](registry_preparation.md).
+
 ODEPE can import a restricted PEtab v1 problem, generate candidates from a joint
 algebraic model, and score or refine those candidates with the original PEtab
 likelihood. PEtab is an optional dependency. The tested importer is PEtab.jl
@@ -173,6 +178,6 @@ nominal-value leakage. The older nested code under
 
 ## Reproduce the pilot
 
-See [repro/petab/README.md](../repro/petab/README.md) for environment setup, the
+See [repro/petab/README.md](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/README.md) for environment setup, the
 pinned public models, validation commands and the comparison runner. The core
 full gate and recovery benchmark remain separate from optional PEtab contracts.

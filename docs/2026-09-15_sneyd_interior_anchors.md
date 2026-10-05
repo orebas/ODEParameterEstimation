@@ -5,7 +5,7 @@ It concerns the six-state model with nine independent rates and the linear
 observation z = 0.9 A + 0.1 O obtained by fourth-rooting the same clean data.
 Excluding t = 0 does not fix the current parameter-homotopy failure: every
 tested anchor rejects all seven starting roots before any tracking step. The
-[research harness](../repro/sneyd_interior_2026_09_15/README.md) does not modify
+[research harness](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_interior_2026_09_15/README.md) does not modify
 production source or dependencies.
 
 ## Controlled change
@@ -147,7 +147,7 @@ zeroth, first, and second derivatives. These are research harness checks;
 production estimation code has not changed.
 
 Completed evidence is retained with lossless compression and per-file hashes
-under [`repro/sneyd_interior_2026_09_15/evidence`](../repro/sneyd_interior_2026_09_15/evidence):
+under [`repro/sneyd_interior_2026_09_15/evidence`](https://github.com/orebas/ODEParameterEstimation/tree/c4358bd/repro/sneyd_interior_2026_09_15/evidence):
 `exclude_zero`, `anchor_replay`, `generic_scaling_control`, `derivatives`, and
 `harness_validation`. The first directory includes the full polynomial family,
 all generic roots, every HC path record, actual interpolated target vectors,

@@ -14,7 +14,7 @@ a production default.
 This is the execution record for Stages H0--H3 and U10 of the broader
 [`2026-08-15_estimation_uq_research_program.md`](2026-08-15_estimation_uq_research_program.md).
 The machine-readable protocol is
-[`../repro/uq_coverage_harness_2026_08/audited_campaign_manifest_v1.toml`](../repro/uq_coverage_harness_2026_08/audited_campaign_manifest_v1.toml).
+[`../repro/uq_coverage_harness_2026_08/audited_campaign_manifest_v1.toml`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/audited_campaign_manifest_v1.toml).
 
 ## Question and estimand
 
@@ -202,10 +202,10 @@ Populate this section only from clean-revision supervised records.
 | Stage | Commit | Result directory | Decision |
 |---|---|---|---|
 | H0 | `acfe737` + output-hygiene-only `2a25aec` | n/a | pass: full gate 1,621/1,621; benchmark smoke 10/10; campaign contracts 32/32 after hygiene fix |
-| H1 | `2a25aec` | [`audited_h1_20260816/summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h1_20260816/summary_v2.toml) | DAISY and receptor advance; bio UQ is typed unavailable because unidentifiable `x7` is absent from the retained root |
-| H2 | `2a25aec` | [`audited_h2_primary_20260816/summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h2_primary_20260816/summary_v2.toml) | both primary cases 3/3 usable and accurate; coherent undercoverage detected |
-| H3 | `2a25aec` | [`audited_h3_increment_20260816/combined_n5_summary_v2.toml`](../repro/uq_coverage_harness_2026_08/results/audited_h3_increment_20260816/combined_n5_summary_v2.toml) | both primary cases 5/5 usable and accurate, but both have 0/5 joint coverage; stop before U10 |
-| fixed `0.6` research arm | `2a25aec` | [DAISY N=5](../repro/uq_coverage_harness_2026_08/results/audited_daisy_ls06_holdout_20260816/combined_n5_summary_v2.toml), [receptor N=5](../repro/uq_coverage_harness_2026_08/results/audited_receptor_ls06_holdout_20260816/combined_n5_summary_v2.toml) | strong causal evidence for GP-jet smoother bias; keep opt-in pending an oracle-free rule |
+| H1 | `2a25aec` | [`audited_h1_20260816/summary_v2.toml`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/results/audited_h1_20260816/summary_v2.toml) | DAISY and receptor advance; bio UQ is typed unavailable because unidentifiable `x7` is absent from the retained root |
+| H2 | `2a25aec` | [`audited_h2_primary_20260816/summary_v2.toml`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/results/audited_h2_primary_20260816/summary_v2.toml) | both primary cases 3/3 usable and accurate; coherent undercoverage detected |
+| H3 | `2a25aec` | [`audited_h3_increment_20260816/combined_n5_summary_v2.toml`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/results/audited_h3_increment_20260816/combined_n5_summary_v2.toml) | both primary cases 5/5 usable and accurate, but both have 0/5 joint coverage; stop before U10 |
+| fixed `0.6` research arm | `2a25aec` | [DAISY N=5](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/results/audited_daisy_ls06_holdout_20260816/combined_n5_summary_v2.toml), [receptor N=5](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/uq_coverage_harness_2026_08/results/audited_receptor_ls06_holdout_20260816/combined_n5_summary_v2.toml) | strong causal evidence for GP-jet smoother bias; keep opt-in pending an oracle-free rule |
 
 ### H1 qualification
 

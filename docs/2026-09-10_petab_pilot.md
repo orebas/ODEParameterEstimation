@@ -85,7 +85,7 @@ development paths are unchanged. No global Project or Manifest was edited.
   its fresh temporary environment also passed all 36 locally with MTK 11.42.1,
   Symbolics 7.39.2 and SymbolicUtils 4.46.4. This fresh resolution is separate
   from the pinned pilot environment. Counts, timings and local log hashes are
-  retained in [`validation.json`](../repro/petab/validation.json).
+  retained in [`validation.json`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/validation.json).
 
 ### Dependency findings and development failures
 
@@ -133,8 +133,8 @@ statistical reliability. No performance ranking is justified by this pilot.
 
 ### Completed pilot results
 
-The [complete result table](../repro/petab/pilot_results/summary.md) and
-[per-attempt CSV](../repro/petab/pilot_results/summary.csv) include every planned
+The [complete result table](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/pilot_results/summary.md) and
+[per-attempt CSV](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/pilot_results/summary.csv) include every planned
 cell, its status, and successful or unsuccessful terminations. Finite returned
 objectives are distinguished from optimizer convergence.
 
@@ -177,7 +177,7 @@ stage timing, exact objectives, candidate provenance, failures, and hard timeout
 
 ### Next computational investigation
 
-The [retained termination evidence](../repro/petab/pilot_results/timeout_diagnostics.json)
+The [retained termination evidence](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/pilot_results/timeout_diagnostics.json)
 identifies two preparation paths worth profiling:
 
 - Bruno, Fujita and Zhao were in SIAN's `differentiate_all`/`get_x_eq`, called while

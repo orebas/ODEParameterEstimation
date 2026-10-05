@@ -17,7 +17,6 @@ using LinearAlgebra
 using Logging
 using StructuralIdentifiability
 using Nemo#using GLPK
-import Metaheuristics  # SHADE+LM baseline (`src/baselines/shade_lm.jl`); imported, not used, to avoid clobbering `optimize`/`minimum`/`minimizer` from Optim
 using NonlinearSolve
 using Optim, LineSearches
 using Optimization, OptimizationOptimJL
@@ -103,7 +102,6 @@ include("core/parameter_estimation.jl")
 include("core/polish_residual.jl")
 include("core/branch_completion.jl")
 include("core/optimized_multishot_estimation.jl")  # New optimized workflow
-include("baselines/shade_lm.jl")                   # SHADE+LM hybrid baseline (uses _build_polish_context, _polish_single_from_context)
 include("core/multipoint_template.jl")  # Multi-point polynomial template system
 include("core/noise_frontier_construction.jl")  # Probe-only noise-first system construction
 include("core/derivatives.jl")
@@ -123,24 +121,12 @@ include("core/diagnostics/orchestrators.jl")
 include("core/diagnostics/html_report.jl")
 include("core/diagnostics/uq_and_reports.jl")
 include("core/diagnostics/estimator_aware_uq.jl")
-# Research / benchmark-only consensus + sweep tooling (NOT in the estimation pipeline).
-# Moved to src/research/ on 2026-06-09; reachable via the package namespace and used
-# only by benchmark_sweeps and test/generate_* harnesses. See docs/2026-06-09_code_review.md.
-include("research/research_types.jl")
-include("research/model_assisted_correction.jl")
-include("research/consensus_estimation.jl")
-include("research/consensus_reporting.jl")
-include("research/synthesized_finalizer.jl")
-include("research/branch_consensus_v1.jl")
-include("research/benchmark_sweeps.jl")
-include("research/block_consensus_v2.jl")
 include("examples/load_examples.jl")
 
 # Export types
 export OrderedODESystem, ParameterEstimationProblem, ParameterEstimationResult, ResultProvenance, EstimatorIdentity, NumericalIdentifiabilityAdvisory, DerivativeData, UnsupportedModelClassError, SamplingFailureError, UnsupportedDerivativeOrderError, TAYLORDIFF_MAX_DERIVATIVE_ORDER
 export provenance_metadata_dict, uq_metadata_dict
 export ObservationSeries, ObservationData, observation_times
-export load_petab_problem, estimate_petab_problem
 
 # Export constants
 export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOLD, IMAG_THRESHOLD, MAX_SOLUTIONS
@@ -149,7 +135,6 @@ export package_wide_default_ode_solver, CLUSTERING_THRESHOLD, MAX_ERROR_THRESHOL
 export solve_with_hc
 export optimized_multishot_parameter_estimation, solve_with_robust
 export direct_optimization_parameter_estimation
-export shade_lm_estimate
 
 # Export utility functions
 export unpack_ODE, tag_symbol, create_ordered_ode_system
@@ -192,13 +177,7 @@ export SensitivitySeedReport, generate_sensitivity_seeds, seed_vectors_to_candid
 export ErrorBudgetEntry, ErrorBudgetReport, compute_error_budget, compute_multipoint_error_budget
 export ParameterSpreadEntry, CrossSolutionSpread, compute_cross_solution_spread
 export build_perfect_interpolants, compute_oracle_taylor_coefficients, compute_observable_taylor_coefficients
-export ConsensusOptions, CandidateEvidence, CandidateFamily, ConsensusEstimationReport, research_consensus_estimation
-export ModelAssistedCorrectionReport, research_model_assisted_one_step
-export SynthesizedFinalizerOptions, SynthesizedSeed, SynthesizedFinalizerReport, research_synthesized_finalizer
 export TimingPhaseEntry, TimingBreakdown, with_estimation_timing, timing_breakdown_to_dict
-export BranchConsensusOptions, BranchVariableSupport, BranchBlockSupport, BranchHypothesis, BranchConsensusReport, research_branch_consensus_v1
-export BlockConsensusOptions, BlockCluster, BlockDecomposition, BlockVariableConfidence, AssembledHypothesis, BlockConsensusReport, research_block_consensus_v2
-export TryhardFinalistOptions, TryhardFinalist, TryhardFinalistReport, research_tryhard_finalists
 
 # Export UQ (Uncertainty Quantification) functions
 export AGPInterpolatorUQ, agp_gpr_uq, gp_factorization_diagnostics
@@ -222,7 +201,7 @@ export substr_test, global_unident_test, sum_test, trivial_unident
 # Export the main types and functions
 export EstimationOptions, SystemSolverMethod, PolishMethod, EstimationFlow
 export FlowStandard, FlowDirectOpt
-export SolverRS, SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
+export SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
 export InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52
 export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS,
        PolishLSOBoundedLog, PolishFastLMBoundedLog

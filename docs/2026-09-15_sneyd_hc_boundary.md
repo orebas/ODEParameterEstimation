@@ -170,7 +170,7 @@ raising limits again, changing the default solver to monodromy, or treating
 M = 544 as an HC stopping target is not justified by these results.
 
 Scripts and exact input/output artifacts are in
-[`repro/sneyd_hc_2026_09_15`](../repro/sneyd_hc_2026_09_15/README.md).
+[`repro/sneyd_hc_2026_09_15`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_hc_2026_09_15/README.md).
 Small harness checks solve x² − p = 0 by both routes: two polyhedral endpoints,
 two monodromy roots and two certified distinct roots. Exact coefficient
 roundtrips, template identity, known-start identities and normalization

@@ -1,6 +1,6 @@
 # ODEParameterEstimation
 
-[![Build Status](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml?query=branch%3Amain)
 
 `ODEParameterEstimation` estimates parameters and initial conditions for ODE models from observed time-series data. The current default path is the SI-template-based standard flow: structural identifiability comes from `SI.jl` / `StructuralIdentifiability`, numerical identifiability checks are advisory-only, and the analyzed results are returned in a structured tuple.
 
@@ -13,8 +13,9 @@ This README is the landing page. Start with:
 - [Benchmark Contract Note](docs/2026-03-17_benchmark_contract.md)
 - [Examples Directory Guide](src/examples/README.md)
 
-For the Julia 1.13 dependency baseline, test results, and remaining release work,
-see [Production readiness](docs/2026-09-10_production_readiness.md).
+For the ordered work toward registration, see [Registry preparation](docs/registry_preparation.md).
+The complete experimental source, historical benchmark scripts, PEtab pilot,
+and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
 
 ## Installation
 
@@ -29,7 +30,7 @@ If you are installing directly from GitHub instead:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.jl")
+Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.git")
 ```
 
 ## Testing
@@ -116,9 +117,7 @@ For the current taxonomy and caveats, see [Supported Models and Limitations](doc
 
 - The current public return contract is documented explicitly in [Results and API](docs/2026-03-17_results_and_api.md).
 - Uncertainty quantification exists, but it is not part of the recommended default user path and is not the focus of the current user docs.
-- The optional [PEtab pilot](docs/petab.md) supports a restricted benchmark
-  subset with joint experiments, independent observation grids and exact PEtab
-  likelihood scoring. Its integration tests run separately from the core gates.
-  RS/RUR restoration remains deferred; see the
-  [readiness record](docs/2026-09-10_production_readiness.md#optional-integrations).
-- The dated investigation docs under [docs](docs) remain useful historical references, but they are no longer the main user-facing entry point.
+- The PEtab pilot, RS/RUR extension, consensus research APIs, and SHADE+LM
+  comparison baseline are retained on the research branch. They are outside
+  this branch's package API.
+- The dated investigation docs under [docs](docs) remain historical references.

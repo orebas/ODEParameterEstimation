@@ -1,8 +1,12 @@
 # ODEParameterEstimation review map
 
-Updated 2026-09-16. This is the entry point for reviewing the current source
-layout and test coverage. Dependency versions, measured gate results, and
-release blockers live in [Production readiness](2026-09-10_production_readiness.md).
+Updated 2026-10-04 for the registry split. This is the entry point for reviewing
+the installable `main` source and active tests. The complete pre-split research
+tree, PEtab pilot, and inactive tests are preserved on the
+[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
+Dependency versions, measured gate results, and release blockers live in
+[Registry preparation](registry_preparation.md) and the historical
+[Production readiness](2026-09-10_production_readiness.md).
 The [May coordination map](2026-05-29_review_map.md) is retained as history;
 its line counts, open findings, and test classifications are obsolete.
 
@@ -103,9 +107,9 @@ Paths below are relative to `src/`.
 | Sampling/interpolation | `core/sampling.jl`, `core/derivatives.jl`, `core/pointpicker.jl`, `core/derivative_utils.jl` | Observable identity, noise semantics, derivative accuracy and order limits, point selection. |
 | Rescaling/polish | `core/problem_rescaling.jl`, `core/polish_residual.jl`, `core/branch_completion.jl`, `core/sensitivity_seeds.jl` | Units and inverse mapping, timeouts, branch lineage, bounded optimization. |
 | Diagnostics/UQ | `core/diagnostics/*.jl`, `core/uncertainty_quantification.jl`, `core/sigma_d.jl`, `core/svg_plots.jl` | Exact returned estimator, covariance propagation, reliability axes, report/artifact correctness. Read the current UQ notes linked by `CLAUDE.md` first. |
-| Research | `research/*.jl` | Consensus/sweeps and opt-in correction; these remain loaded/exported but are outside the default estimation pipeline. |
-| Baseline/examples | `baselines/shade_lm.jl`, `examples/load_examples.jl`, `examples/models/*.jl` | Recovery comparisons and public example constructors. Other example scripts include historical investigations. |
-| Optional integrations | `../ext/` | The PEtab pilot lives in `ext/petab/` with separate contracts in `test/petab/`; see `docs/petab.md` and the dated pilot record for its limits. The older nested PEtab scripts are not loaded. RS/RUR remains deferred. |
+| Research | [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/src/research) | Consensus/sweeps, model-assisted correction, SHADE+LM, and their experiments are maintained outside `main`'s package API. |
+| Examples | `examples/load_examples.jl`, `examples/models/*.jl` | Public model constructors and maintained runnable examples. Other scripts in `examples/` are not loaded by the package. |
+| Optional integrations | [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/ext) | The PEtab pilot and deferred RS/RUR extension remain available for continued work, outside `main`'s package manifest. |
 | Tests/CI | `../test/`, `../.github/workflows/CI.yml` | Declared imports, dependency version preservation, isolated namespaces/artifacts, substantive assertions. |
 
 ## Active test coverage
@@ -120,15 +124,16 @@ from running. The unit group is assembled in
 |---|---|
 | Public types/options/utilities | `test_core_types.jl`, `test_model_utils.jl`, `test_math_utils.jl`, `test_derivative_utils.jl`, `test_solution_distance.jl`, `test_options_contracts.jl` |
 | Dependency interoperability | `dependency_compat.jl`, `test_noise_rank_matrix.jl`, `test_gp_kernel_optimization.jl` |
-| Deferred denominator construction | `test_deferred_derivatives.jl`; optional eager/deferred rational basis and pole contracts in `test/petab/runtests.jl` |
+| Deferred denominator construction | `test_deferred_derivatives.jl`; the optional PEtab pilot contracts remain on `research` |
 | Estimation and examples | `fast_core.jl`, `refactor_safety_net.jl`, `feature_regressions.jl`, `example_canaries.jl`, `examples_smoke.jl`, `identifiability_regressions.jl` |
-| Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_robust_system.jl`, `test_polish_maxtime.jl`, `test_shade_lm.jl` |
+| Scaling/HC/polish | `test_rescaling.jl`, `column_scaling.jl`, `test_hc_sanitize.jl`, `test_robust_system.jl`, `test_polish_maxtime.jl` |
 | State and result contracts | `test_run_context.jl`, `test_interrupt_propagation.jl`, `result_processing_helpers.jl`, `test_label_parsers.jl` |
-| Independent grids and preparation | `test_observation_data.jl`; optional joint PEtab mapping and likelihood contracts in `test/petab/runtests.jl` |
-| Multipoint/UQ/campaigns | `test_multipoint_pipeline.jl`, `test_multipoint_sensitivity.jl`, `test_estimator_aware_uq.jl`, `test_polish_uq_pipeline.jl`, `test_branch_uq_pipeline.jl`, covariance/IFT/campaign contract files in the runner |
+| Independent grids and preparation | `test_observation_data.jl` |
+| Multipoint/UQ | `test_multipoint_pipeline.jl`, `test_multipoint_sensitivity.jl`, `test_estimator_aware_uq.jl`, `test_polish_uq_pipeline.jl`, `test_branch_uq_pipeline.jl`, covariance/IFT files in the runner |
 | Recovery benchmark | `benchmark_smoke.jl`, selected with the `benchmark` group; separate from the default full suite |
 
-Files outside the runner are not implicitly passing tests. In particular:
+Historical files outside the runner remain on the research branch and are not
+implicitly passing tests. In particular:
 
 - `test_point_selection.jl` is a strategy comparison script with no assertions.
 - `test_multipoint_estimation.jl` uses stale constructor arguments;

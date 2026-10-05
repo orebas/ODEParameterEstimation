@@ -7,7 +7,7 @@ results remain separate.
 
 Initial core implementation: `7e926a7`. Julia: 1.13.0. Canonical benchmark checkout:
 `ddaa86d13f708926c57ec8918ce75a6b50e2e562`. Reproduction commands and compact
-evidence are in [`repro/petab/dense_single/`](../repro/petab/dense_single/README.md).
+evidence are in [`repro/petab/dense_single/`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/README.md).
 
 The [symbolic-system anatomy follow-up](2026-09-11_symbolic_system_anatomy.md)
 explains the purpose of fraction GCD cancellation and gives verified Fujita
@@ -35,7 +35,7 @@ order-7 observation support from the full pool's additional order-8 rows.
 | UQ | Disabled |
 
 This follows the retained PEB script in
-[`repro/06_lost_recheck/lotka_volterra_2_1em2/script.jl`](../repro/06_lost_recheck/lotka_volterra_2_1em2/script.jl).
+[`repro/06_lost_recheck/lotka_volterra_2_1em2/script.jl`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/06_lost_recheck/lotka_volterra_2_1em2/script.jl).
 The changed data, physical bounds, shorter per-candidate polish limit, terminal
 rescue setting, and profiling are recorded explicitly in each attempt. The
 earlier PEtab block runner's two-interpolator/six-anchor settings are not used.
@@ -87,7 +87,7 @@ evaluation of the physical ODE verified the returned candidate against the
 retained data: maximum relative signal error `1.30e-12`. This independent check
 does not optimize, interpolate, or call Julia.
 
-![Dense Bruno data, returned fit, and residuals](../repro/petab/dense_single/evidence/bruno_201.png)
+![Dense Bruno data, returned fit, and residuals](https://raw.githubusercontent.com/orebas/ODEParameterEstimation/c4358bd/repro/petab/dense_single/evidence/bruno_201.png)
 
 The selected systems were small:
 
@@ -158,7 +158,7 @@ This does not raise a derivative cap or change the selected equations.
 The fix is `5b485e0`. Its focused core contracts passed 448/448, including the
 four new assertions. The full Julia 1.13 gate passed **1,817/1,817** in 16m35.2s.
 
-The [rerun on that fix](../repro/petab/dense_single/evidence/fujita_201_fixed.json)
+The [rerun on that fix](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/fujita_201_fixed.json)
 used byte-identical synthetic data and the same estimator settings. It passed
 the failed instantiation stage, then **timed out during mixed-volume computation
 for a candidate basis**, before any HC root tracking. The interrupt stack is
@@ -226,8 +226,8 @@ The existing repo facilities are substantial and directly useful here:
 - [`si_equation_builder.jl`](../src/core/si_equation_builder.jl):
   SIAN phase timings, variable roles, rank reduction, and multiplicity timings.
 - Existing profiling examples include
-  [`repro/receptor_breakdown_2026_05_27/`](../repro/receptor_breakdown_2026_05_27/)
-  and [`repro/hc_threading_mwe_2026_07_22/`](../repro/hc_threading_mwe_2026_07_22/).
+  [`repro/receptor_breakdown_2026_05_27/`](https://github.com/orebas/ODEParameterEstimation/tree/c4358bd/repro/receptor_breakdown_2026_05_27)
+  and [`repro/hc_threading_mwe_2026_07_22/`](https://github.com/orebas/ODEParameterEstimation/tree/c4358bd/repro/hc_threading_mwe_2026_07_22).
 
 Completed-phase timing alone cannot explain an unfinished phase. Julia sampling
 profiles and immediate signal stacks fill that gap. The harness retains both;
@@ -248,5 +248,5 @@ checks, Bruno recovery and its independent exact-ODE check, Sneyd's derivative
 equivalence probes, Python syntax checks, and parsing the Julia harness scripts.
 The full package gate passed 1,817/1,817; the focused core contracts passed
 448/448. Commands, durations, and log hashes are retained in
-[`validation.json`](../repro/petab/dense_single/evidence/validation.json).
+[`validation.json`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/evidence/validation.json).
 Both active environment manifests retained their pre-study SHA-256 hashes.

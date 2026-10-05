@@ -2,7 +2,7 @@
 
 Research record for the observation-only comparison. The production estimator
 and dependencies are unchanged. Scripts and retained records live in
-[`repro/sneyd_fourth_root_2026_09_15`](../repro/sneyd_fourth_root_2026_09_15/README.md).
+[`repro/sneyd_fourth_root_2026_09_15`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/README.md).
 The production source revision throughout is
 `de79d87527551600c027e924ab48d6ba50c0fcf2`, under Julia 1.13.0.
 
@@ -63,10 +63,10 @@ match, and the 11 observation rows are precisely the derivatives of `w⁴` or
 `w`, respectively, with `w = 0.9 A + 0.1 O`. This checks the actual HC inputs,
 not just the model constructors or term counts.
 The exact
-[free-rate comparison](../repro/sneyd_fourth_root_2026_09_15/evidence/free_equation_comparison.json),
-[rational-model comparison](../repro/sneyd_fourth_root_2026_09_15/evidence/rational_equation_comparison.json)
+[free-rate comparison](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/evidence/free_equation_comparison.json),
+[rational-model comparison](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/evidence/rational_equation_comparison.json)
 and
-[historical free-rate control check](../repro/sneyd_fourth_root_2026_09_15/evidence/historical_free_control.json)
+[historical free-rate control check](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/evidence/historical_free_control.json)
 retain the corresponding input hashes.
 
 Automatic rescaling chooses different state and observation units after
@@ -187,7 +187,7 @@ This is the representative-fixed, saturated M input, distinct from the
 selected HC data-fitting system above.
 
 Final timings, watchdog outcomes, and root counts are reported in the
-[campaign summary](../repro/sneyd_fourth_root_2026_09_15/evidence/summary.json).
+[campaign summary](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/evidence/summary.json).
 None of the four full-estimation workers returns a fitted candidate within
 its budget; all stop before trajectory polishing. Individual timings include
 cold compilation where stated and come from concurrent, single-threaded
@@ -243,7 +243,7 @@ checked full parameter/state fibre contains **7 simple points for w, or 28
 for w⁴**. The exact count and checks take about 1.2 s in SymPy, after input
 construction.
 The equations, basis, and verification flags are saved in the
-[reference-count record](../repro/sneyd_fourth_root_2026_09_15/evidence/free_reference_count.json).
+[reference-count record](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_fourth_root_2026_09_15/evidence/free_reference_count.json).
 
 This is a reference-fibre diagnostic, not a new estimator or a certificate
 about every interpolated dataset. It is not used to stop HC early. It does

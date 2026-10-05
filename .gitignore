@@ -92,6 +92,9 @@ artifacts/iterfix_audit/
 repro/**/stdout.txt
 repro/**/stderr.txt
 repro/**/artifacts/
+# Research sources are maintained on the research branch. Preserve local run
+# output left by branch switches without adding it to the installable main tree.
+/repro/
 # Audited campaigns write an atomic record before estimation. Keep their
 # resumable runtime directories out of worktree-dirty checks; promote final
 # summaries deliberately with `git add -f` when they belong in the record.
