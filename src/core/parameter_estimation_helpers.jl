@@ -671,10 +671,6 @@ function process_estimation_results(
 			polish_method
 		elseif polish_method === NewtonTrustRegion
 			PolishNewtonTrust
-		elseif polish_method === LevenbergMarquardt
-			PolishLevenberg
-		elseif polish_method === GaussNewton
-			PolishGaussNewton
 		elseif polish_method === BFGS
 			PolishBFGS
 		elseif polish_method === LBFGS

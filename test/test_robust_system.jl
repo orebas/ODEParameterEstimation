@@ -85,7 +85,7 @@ end
 	end
 	# Rectangular least-squares checks input/output buffer lengths and JᵀF.
 	rectangular = [x-d,2x-2d,3x-3d]
-	for mode in (:symbolic,:forwarddiff,:finitediff), algorithm in (:trustregion,:bfgs)
+	for mode in (:symbolic,:forwarddiff,:finitediff), algorithm in (:trustregion,:bfgs,:levenberg)
 		system = RobustODEPE.prepare_robust_system(rectangular,[x];data_vars=[d],jacobian=mode)
 		instantiated = substitute.(rectangular,Ref(Dict(d=>2.0)))
 		solutions, _, _, _ = solve_with_robust(instantiated,[x];
@@ -98,3 +98,18 @@ end
 	solutions, _, _, _ = solve_with_robust([x^2-4],[x];start_point=[2.1],polish_only=true)
 	@test first(solutions) ≈ [2.0] atol=1e-5
 end
+
+@testset "Overdetermined multipoint solve applies its least-squares refinement" begin
+	@variables x d
+	metadata = NamedTuple{(:point,:is_data,:order),Tuple{Int,Bool,Int}}[]
+	template = RobustODEPE.MultiPointTemplate(1, nothing, Num[], Num[x-d], Any[x], Any[d],
+		Int[], String[], metadata, 0, Int[], Int[], [Int[]], nothing,
+		RobustODEPE.ModelingToolkit.Equation[], RobustODEPE.DataVarMeta[])
+	evaluation = RobustODEPE.MultiPointEvaluation(template, [1], [0.0], [1.0])
+	# The square core gives x = 1. Against [x - 1, x - 3] the least-squares
+	# point is x = 2, so an unrefined answer is distinguishable from a refined one.
+	refined = solve_multipoint_overdetermined(template, evaluation, [x-d, x-3d], [x])
+	@test length(refined) == 1
+	@test only(refined) ≈ [2.0] atol=1e-8
+end
+

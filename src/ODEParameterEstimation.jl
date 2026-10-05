@@ -182,7 +182,7 @@ export EstimationOptions, SystemSolverMethod, PolishMethod, EstimationFlow
 export FlowStandard, FlowDirectOpt
 export SolverHC, SolverNLOpt, SolverFastNLOpt, SolverRobust
 export InterpolatorS3SE, InterpolatorS3RQ, InterpolatorS3SEpRQ, InterpolatorS3SExRQ, InterpolatorS3Matern52
-export PolishNewtonTrust, PolishLevenberg, PolishGaussNewton, PolishBFGS, PolishLBFGS,
+export PolishNewtonTrust, PolishBFGS, PolishLBFGS,
        PolishLSOBoundedLog, PolishFastLMBoundedLog
 export get_solver_function, get_interpolator_function, get_polish_optimizer, get_ad_backend
 export interpolator_method_to_symbol, resolve_interpolator_list, setup_identifiability, compute_shooting_indices

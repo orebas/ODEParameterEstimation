@@ -56,12 +56,10 @@ end
 	PolishMethod
 
 Enum for selecting the optimization method for solution polishing.
-Note: These correspond to NonlinearSolve.jl and Optim.jl methods.
+Note: The scalar methods are Optim.jl optimizers run through Optimization.jl.
 """
 @enum PolishMethod begin
-	PolishNewtonTrust      # NewtonTrustRegion from NonlinearSolve (legacy default)
-	PolishLevenberg        # LevenbergMarquardt
-	PolishGaussNewton      # GaussNewton
+	PolishNewtonTrust      # NewtonTrustRegion from Optim.jl (legacy default)
 	PolishBFGS             # BFGS from Optim.jl
 	PolishLBFGS            # LBFGS from Optim.jl
 	# Residual-mode polishers operating in per-variable transformed coordinates
@@ -1078,8 +1076,8 @@ end
 Convert PolishMethod enum to actual optimizer object/type.
 
 For scalar `Optimization.solve`-based methods (legacy default `PolishNewtonTrust`,
-plus `PolishLevenberg`/`PolishGaussNewton`/`PolishBFGS`/`PolishLBFGS`) returns a
-zero-arg constructor — the call site does `optimizer_type()` to instantiate.
+plus `PolishBFGS`/`PolishLBFGS`) returns a zero-arg constructor — the call site
+does `optimizer_type()` to instantiate.
 
 For residual-mode methods (`PolishLSOBoundedLog`, `PolishFastLMBoundedLog`) returns
 a tagged tuple `(kind::Symbol, factory)` consumed by `_polish_single_residual`.
@@ -1088,10 +1086,6 @@ The kinds are `:lso_direct` (LeastSquaresOptim) and `:fastlm_direct` (FastLevenb
 function get_polish_optimizer(method::PolishMethod)
 	if method == PolishNewtonTrust
 		return NewtonTrustRegion
-	elseif method == PolishLevenberg
-		return LevenbergMarquardt
-	elseif method == PolishGaussNewton
-		return GaussNewton
 	elseif method == PolishBFGS
 		return BFGS
 	elseif method == PolishLBFGS

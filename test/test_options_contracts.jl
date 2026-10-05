@@ -38,6 +38,20 @@ using OrderedCollections
 	@test !validate_options(EstimationOptions(opt_ad_backend = :enzyme))
 	@test_throws ErrorException get_ad_backend(:enzyme)
 
+	# Every polish method maps to something its solve path can run: a tagged
+	# residual solver, or an Optim.jl optimizer for `Optimization.solve`.
+	for method in instances(PolishMethod)
+		optimizer = get_polish_optimizer(method)
+		if ODEParameterEstimation.is_residual_polish_method(method)
+			@test optimizer isa Tuple{Symbol, Any}
+		else
+			@test optimizer() isa ODEParameterEstimation.Optim.AbstractOptimizer
+		end
+	end
+	# The two methods that never satisfied this are gone, not silently remapped.
+	@test !isdefined(ODEParameterEstimation, :PolishLevenberg)
+	@test !isdefined(ODEParameterEstimation, :PolishGaussNewton)
+
 	undersmoothed = EstimationOptions(
 		interpolators = InterpolatorMethod[InterpolatorAGPUQ],
 		gp_derivative_lengthscale_factor = 0.75,

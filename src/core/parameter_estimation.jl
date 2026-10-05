@@ -1994,8 +1994,7 @@ function _polish_single_from_context(
 		)
 	end
 
-	# Only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
-	# (NewtonTrustRegion, LevenbergMarquardt, GaussNewton) don't.
+	# Only BFGS/LBFGS support Fminbox bounds wrapping; NewtonTrustRegion doesn't.
 	use_bounds = !isnothing(ctx.internal_lb) && !isnothing(ctx.internal_ub) &&
 		optimizer isa Union{Optim.BFGS, Optim.LBFGS}
 	has_external_bounds = !isnothing(ctx.lb) && !isnothing(ctx.ub)

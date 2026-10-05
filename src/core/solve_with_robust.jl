@@ -312,7 +312,7 @@ function solve_with_robust(poly_system, varlist;
 				end
 
 				prob = NonlinearLeastSquaresProblem(nf, x0)
-				sol = NonlinearSolve.solve(prob, LevenbergMarquardt();
+				sol = NonlinearSolve.solve(prob, NonlinearSolve.LevenbergMarquardt();
 					abstol = abstol,
 					reltol = reltol,
 					maxiters = maxiters,

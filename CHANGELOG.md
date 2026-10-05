@@ -16,6 +16,21 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Levenberg–Marquardt name clash — 2026-10-05
+
+- `LevenbergMarquardt` is exported by both NonlinearSolve and LeastSquaresOptim,
+  so the unqualified name had been undefined in the package since
+  LeastSquaresOptim was added on 2026-05-06. Qualify it in `solve_with_robust`,
+  where `:algorithm => :levenberg` returned no solution, and in
+  `solve_multipoint_overdetermined`, whose refinement step was silently skipped.
+- Remove `PolishLevenberg` and `PolishGaussNewton`. NonlinearSolve algorithms
+  are not optimizers for the scalar `Optimization.solve` polish, so the first
+  raised `UndefVarError` and the second failed every polish. Use
+  `PolishLSOBoundedLog` (the default) or `PolishFastLMBoundedLog` for
+  Levenberg–Marquardt polishing.
+- Add contracts: every remaining polish method yields a runnable optimizer,
+  and no package method references a name that two imports both export.
+
 ### Dependency cleanup — 2026-10-05
 
 - Remove eight declared dependencies that the package did not use. `Plots`,

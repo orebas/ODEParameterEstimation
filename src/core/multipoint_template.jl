@@ -1219,9 +1219,9 @@ function solve_multipoint_overdetermined(
             residual! = (du, u, p) -> begin
                 du .= f_od(u)
             end
-            nf = NonlinearFunction(residual!)
+            nf = NonlinearFunction(residual!; resid_prototype = zeros(n_eqs))
             prob = NonlinearLeastSquaresProblem(nf, x0)
-            lm_sol = NonlinearSolve.solve(prob, LevenbergMarquardt();
+            lm_sol = NonlinearSolve.solve(prob, NonlinearSolve.LevenbergMarquardt();
                 abstol = 1e-12, reltol = 1e-12, maxiters = 100)
 
             refined_x = Float64.(lm_sol.u)
