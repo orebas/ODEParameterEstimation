@@ -1,0 +1,68 @@
+# Paired upstream/internal GP comparisons captured during release planning.
+odepe_revision = "ef35226c644c101aa3e27b17f120e9bfe1f98e11"
+gp_revision = "3e896e9dbd0c41341c723ab16dcf0c261fc7b95a"
+optim = "2.3.2"
+linesearches = "7.8.2"
+taylordiff = "0.3.5"
+openblas = "0.3.29+0"
+fixture = "test/fixtures/internal_backends/fits.toml"
+
+[[runs]]
+name = "plain"
+julia = "1.12.7"
+cpu = "znver3"
+openblas_coretype = "automatic"
+blas_threads = 7
+coverage = false
+source_sha256 = "9fddf52c72e1999a11381f7706a068cdb8fb92cec3b519ed39b9995540172c74"
+clean_nll = -449.17114172724314
+clean_relative_error_orders_4_to_6 = [1.3473821499041892e-05, 5.517969214912843e-05, 0.0002994659969268497]
+max_upstream_jet_difference = 0.0
+max_upstream_nll_difference = 0.0
+
+[[runs]]
+name = "coverage"
+julia = "1.12.7"
+cpu = "znver3"
+openblas_coretype = "automatic"
+blas_threads = 7
+coverage = true
+source_sha256 = "9fddf52c72e1999a11381f7706a068cdb8fb92cec3b519ed39b9995540172c74"
+clean_nll = -449.17114172724314
+clean_relative_error_orders_4_to_6 = [1.3473821499041892e-05, 5.517969214912843e-05, 0.0002994659969268497]
+max_upstream_jet_difference = 0.0
+max_upstream_nll_difference = 0.0
+
+[[runs]]
+name = "Haswell"
+julia = "1.12.7"
+cpu = "znver3"
+openblas_coretype = "Haswell"
+blas_threads = 1
+coverage = false
+source_sha256 = "0de964a250bdb39e5bff20473a04b33bd8bfd8242fef26a64dd8f304ead593f1"
+clean_nll = -449.17114172724314
+clean_relative_error_orders_4_to_6 = [1.3473821499041892e-05, 5.517969214912843e-05, 0.0002994659969268497]
+max_upstream_jet_difference = 0.0
+max_upstream_nll_difference = 0.0
+
+[[runs]]
+name = "Sandybridge"
+julia = "1.12.7"
+cpu = "znver3"
+openblas_coretype = "Sandybridge"
+blas_threads = 1
+coverage = false
+source_sha256 = "e2e3c6d05e561ee1c0d7ab526e9b50aad5f9c9ffe0128c6500fe98686bed72ec"
+clean_nll = -405.0469838618026
+clean_relative_error_orders_4_to_6 = [2.7566793412124e-05, 0.00018987043933354027, 0.0010212444306166558]
+max_upstream_jet_difference = 0.0
+max_upstream_nll_difference = 0.0
+
+[ci_failure]
+job_url = "https://github.com/orebas/ODEParameterEstimation.jl/actions/runs/37268519234/job/111635225392"
+upstream_compared = false
+derivative_order = 6
+actual = [-160.5031710269736, -35.46218298545722, 114.99929745251325, 168.8721668687842, 82.18115219584486, -75.1114138577526, -175.50329419644675, -136.6267434325299, 12.178273729639551, 153.165373994308, 174.5107504328815, 60.041116657459945, -98.11646384924373]
+relative_error_against_frozen_fit = 0.0012072118162662609
+relative_error_against_analytic_curve = 0.0006640756518331448

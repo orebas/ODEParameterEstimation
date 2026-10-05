@@ -8,7 +8,7 @@ now accepts caps 0–10; the default remains four. The old `max_deriv_level=10`
 still visible in `solve_parameter_estimation` belongs to an unsupported legacy
 entry point, not a current global setting.
 
-The retained [cap-10 results](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/derivative10_results/summary.md)
+The retained [cap-10 results](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/derivative10_results/summary.md)
 include every new estimation attempt. Original pilot/block results are unchanged.
 
 ## What the recovery check measures
@@ -110,13 +110,13 @@ Those standard deviations range from 0.023108 to 0.43054. They are not additiona
 fitted parameters in this PEtab problem. The GP seed stage currently does not use
 the individual PEtab row noise weights; scoring and refinement do.
 
-![All Bruno data and recorded fits](https://raw.githubusercontent.com/orebas/ODEParameterEstimation/c4358bd/repro/petab/bruno_explained/bruno_fits.png)
+![All Bruno data and recorded fits](https://raw.githubusercontent.com/orebas/ODEParameterEstimation.jl/c4358bd/repro/petab/bruno_explained/bruno_fits.png)
 
 Dashed curves use the prepared algebraic parameter seed; solid curves use the
 refined vector. Error bars show the supplied row standard deviation. The
-[CSV](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/bruno_explained/measurements_and_predictions.csv) contains all
+[CSV](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/bruno_explained/measurements_and_predictions.csv) contains all
 77 measurements, sigmas, predictions, and squared standardized residuals.
-The [PDF](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/bruno_explained/bruno_fits.pdf) is available for export.
+The [PDF](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/bruno_explained/bruno_fits.pdf) is available for export.
 
 ## What the algebraic candidate actually contains
 
@@ -140,7 +140,7 @@ coefficients supplied by the interpolant; they are not extra solve unknowns.
 This explains the cubic terms `szea * kb1 * bcar`. The actual selected system
 contains 11 linear, seven quadratic, and three cubic equations, with 50 monomial
 terms in total. Its equations and all name/scaling mappings are retained in
-[`Bruno_JExpBot2016.system6.json`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/derivative10_results/Bruno_JExpBot2016.system6.json).
+[`Bruno_JExpBot2016.system6.json`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/derivative10_results/Bruno_JExpBot2016.system6.json).
 
 The two GP kernels and six anchor positions produced 12 returned roots across
 12 separate systems; this does not mean one system has 12 algebraic solutions.
@@ -234,7 +234,7 @@ minimizing NLLH is exactly equivalent to minimizing weighted squared error.
 `explain_bruno.py` reconstructs the linear-in-state ODE from the canonical SBML
 and evaluates `exp(A*t)*x0`, independently of Julia/AMICI integration. It reproduces
 the raw and refined scores within 3e-8 and all recorded scores within the stated
-audit tolerances. [Full precision audit](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/bruno_explained/audit.json).
+audit tolerances. [Full precision audit](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/bruno_explained/audit.json).
 The benchmark reference was evaluated only for this explanation, not used to
 initialize or refine an estimate. Matching its objective is encouraging evidence
 on Bruno; two earlier local-optimizer single starts are not a general comparison
@@ -289,7 +289,7 @@ bound is 6.67331408368795401e23; this is not a measured root count or path count
 HC exploits sparse supports, but computing the sparse polyhedral starts itself
 exceeds this run's budget. The degree/count diagnostics reconstruct the same
 deterministic rank selection, without a second candidate search or mixed-volume
-calculation. [Full system](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/derivative10_results/Fujita_SciSignal2010.system2.json).
+calculation. [Full system](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/derivative10_results/Fujita_SciSignal2010.system2.json).
 
 Reconstructing the four-condition system confirms that it stops at order four
 even when permitted to go to ten. It has 52 selected equations out of 60, maximum
@@ -297,7 +297,7 @@ degree nine, and 861 monomial terms (largest equation: 98 terms). Its larger
 variable count and smaller polynomial expressions represent a different tradeoff;
 the earlier run also timed out constructing polyhedral starts. This follow-up
 only measured that system, rather than repeating its unchanged solve.
-[Full four-condition system](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/derivative10_results/Fujita_SciSignal2010.system4.json).
+[Full four-condition system](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/derivative10_results/Fujita_SciSignal2010.system4.json).
 
 | Selected system | Equations / unknowns | Highest observation derivative | Maximum polynomial degree | Total monomial terms |
 |---|---:|---:|---:|---:|

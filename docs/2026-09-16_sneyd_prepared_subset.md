@@ -193,7 +193,7 @@ nor the HC input, and is not a prescription to scale using unknown truth.
 ## Reproduction and scope
 
 Scripts, exact input coefficients, selector output, and solver evidence live
-in [`repro/sneyd_prepared_subset_2026_09_16`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_prepared_subset_2026_09_16/README.md).
+in [`repro/sneyd_prepared_subset_2026_09_16`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/sneyd_prepared_subset_2026_09_16/README.md).
 The pinned Julia environment is activated without dependency resolution.
 The ODEPE baseline is commit `aed76a2`; environment, dependency, worker, and
 core-source hashes are saved alongside the evidence. Every supervised worker

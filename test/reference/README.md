@@ -59,6 +59,24 @@ order six. The Julia 1.13.1 record is `../fixtures/internal_backends/fits.toml`
 between these stacks; the ordinary tests allow that measured variation while
 retaining tight fixed-parameter derivative contracts.
 
+`results/gp_portability.toml` records the follow-up on ODEPE `ef35226`: native
+Julia 1.12.7 with and without coverage, and one-thread Haswell/Sandybridge BLAS
+kernels on the same host. Upstream and internal fits match exactly in every
+paired run. The clean optimized sixth derivative varies with BLAS, including
+on hosted CI; this is optimizer sensitivity on nearly noiseless observations.
+For that clean case, standard tests now compare orders 4–6 to the derivatives
+of the generating curve `sin(1.4x) + 0.2cos(3.1x)`, with relative tolerances
+`1e-3`, `1e-3`, and `2e-3`. Noisy fits, orders 0–3, and all fixed-parameter
+contracts retain their tighter frozen comparisons.
+
+To reproduce, run `compare_fits.jl` in the pinned Julia 1.12 reference
+environment normally and with `--code-coverage=user`. On a host supporting
+the corresponding instructions, also run with
+`OPENBLAS_CORETYPE=Haswell OPENBLAS_NUM_THREADS=1` and
+`OPENBLAS_CORETYPE=Sandybridge OPENBLAS_NUM_THREADS=1`. The record separates
+paired local evidence from the hosted CI observation, which was not paired
+with upstream on that runner.
+
 ## Recorded recovery comparison
 
 `results/recovery_inputs.toml` freezes the exact observations used on both

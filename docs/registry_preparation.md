@@ -1,13 +1,18 @@
 # ODEParameterEstimation.jl registry preparation
 
-This is a living checklist for a possible first registration in Julia's General
-registry. It records what is known from checkout `21072a1` on 2026-10-02 and
-the first preparation milestone agreed on 2026-10-04. It does not certify a
-release. The release version and repository URL still need attention, and the
-release commit needs fresh registered-dependency validation. The dated
-[production-readiness record](2026-09-10_production_readiness.md)
-retains the detailed dependency and test history; this document tracks the work
-needed to turn that history into a release decision.
+This checklist tracks the first General registration candidate, **1.1.0**,
+prepared on 2026-10-05. The installable core is on `main`; ongoing studies and
+their evidence remain on `research`. External SIAN and GaussianProcesses are
+no longer runtime or test dependencies. The repository has been renamed to
+[`orebas/ODEParameterEstimation.jl`](https://github.com/orebas/ODEParameterEstimation.jl).
+
+This work stops at a validated, pushed candidate. **No Registrator request,
+release tag, or GitHub release is submitted.** Version 1.1.0 is the maintainer's
+chosen continuation of the development version history. Current AutoMerge
+accepts only 0.0.1, 0.1.0, or X.0.0 as an initial registered version, so 1.1.0
+needs manual registry review. Other passing checks do not override that rule.
+The dated [production-readiness record](2026-09-10_production_readiness.md)
+retains earlier dependency and test history.
 
 ## Priority order and first milestone
 
@@ -40,19 +45,31 @@ and [RegistryCI AutoMerge guidelines](https://juliaregistries.github.io/Registry
 
 ## Registration checks
 
-| Check | Current evidence | Next action |
+| Check | Candidate evidence | Release gate |
 | --- | --- | --- |
-| License | The root [LICENSE](../LICENSE) contains GPL-3.0, an OSI-approved license. | Review third-party code, model data, and retained fixtures for attribution or separate license obligations. |
-| Package identity | [Project.toml](../Project.toml) has the package name and UUID. No exact name match appeared in the local General snapshot inspected on 2026-10-02; similarity checks have not run. | Check name similarity against General when preparing the registration PR. |
-| Release version | `Project.toml` says `1.1.0-DEV`; AutoMerge rejects prerelease data. | Choose a public version and set it only for the release commit. Decide whether its version number accurately describes the intended API commitment. |
-| Repository URL | The configured remote and [README](../README.md) use `https://github.com/orebas/ODEParameterEstimation.git`. AutoMerge expects a URL ending in `/ODEParameterEstimation.jl.git`. | Rename the GitHub repository, update the local remote and links, and verify redirects, or plan for manual registry review. |
-| Compatibility | The core dependency list has bounded `[compat]` entries. The deferred PEtab and RS/RUR weak dependencies have been removed from `main`. | Recheck all bounds against the chosen registered stack after the SIAN/GP decisions. |
-| Installation and loading | After internalization, fresh registered-only full suites passed on Julia 1.12.7 and 1.13.1 (2,176 assertions each). | Repeat on the final release commit and every supported Julia version. See the [validation record](2026-10-04_internal_backends.md). |
+| License | Root GPL-3.0 and retained MIT notices; see [attribution](#provenance-and-attribution). | Preserve these notices in the registered tree. |
+| Package identity | `ODEParameterEstimation`, UUID `482fc905-5656-4c69-b8fe-7a66cd0f77b3`. | AutoMerge 1.1.0 name and similarity checks pass; dependency names/UUIDs match General. |
+| Release version | `1.1.0`, selected by the maintainer; no prerelease/build suffix. | Manual review of a nonstandard initial version is required. |
+| Repository URL | Canonical target `https://github.com/orebas/ODEParameterEstimation.jl.git`. | Rename verified: repository ID and branch heads unchanged; former URL returns HTTP 301. |
+| Compatibility | Every non-stdlib dependency has bounded `[compat]`; no unregistered weak dependencies remain. | Resolve both registered profiles with no development overrides. |
+| Installation and loading | Required CI covers Julia 1.12 and 1.13; modern dependencies also receive the recovery benchmark. | Require success at the exact candidate SHA and test a fresh URL install. |
+
+The October 5 metadata checks used AutoMerge 1.1.0 on Julia 1.13.1 and General
+tree `d0d9933332d876a1617ccc36bf88401c4d459c98`. Exact-name, similarity,
+identifier, ASCII, minimum-length, no-prerelease/build, GPL license detection,
+and registered non-stdlib dependency/compat checks passed. The initial-version
+check alone requires manual review for 1.1.0.
+
+The rename retained GitHub repository ID `796574275`, `main` at
+`ef35226c644c101aa3e27b17f120e9bfe1f98e11` before the release edits, and
+`research` at `aab64fc5dce9e4304a7bee3e7f52b564414cfcce`. The old web URL
+returns HTTP 301 to the new name, the old API route resolves to the same ID,
+and the local remote uses the new URL. The local checkout path is unchanged.
 
 The local General snapshot did not contain `RS` or
 `RationalUnivariateRepresentation` on 2026-10-02. General
 [does not accept unregistered dependencies](https://github.com/JuliaRegistries/General/blob/master/README.md#can-my-package-in-this-registry-depend-on-unregistered-packages).
-The [RS/RUR extension on `research`](https://github.com/orebas/ODEParameterEstimation/tree/research/ext/ODEParameterEstimationRSExt)
+The [RS/RUR extension on `research`](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/ext/ODEParameterEstimationRSExt)
 also imports a missing core helper and has no active integration gate, according
 to the [readiness record](2026-09-10_production_readiness.md#optional-integrations).
 
@@ -69,7 +86,7 @@ at the release commit.
 
 The first-milestone release-surface decisions are:
 
-- **PEtab:** The [restricted pilot](https://github.com/orebas/ODEParameterEstimation/tree/research/ext/petab)
+- **PEtab:** The [restricted pilot](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/ext/petab)
   stays on `research` and is absent from the first core release surface.
 - **RS/RUR:** The unfinished extension, `SolverRS`, and its unregistered weak
   dependencies stay on `research`.
@@ -91,7 +108,7 @@ tree must describe the same supported release. The active investigations and
 their evidence must remain available for continued work; reducing the published
 tree must not discard them.
 
-The [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research)
+The [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research)
 was created and pushed from commit `01b816f` before the `main` cleanup. Its
 selected previously ignored raw results and provenance manifest are in commit
 `c4358bd`. The frozen GP comparison is in `dd27080`. All 4,498 files removed
@@ -145,7 +162,7 @@ installation and recovery checks.
   compatibility bridge in [the main module](../src/ODEParameterEstimation.jl).
   Compare retaining the registered dependency, upstream repair, a narrow
   internal GP fit, and improvements to the existing AGP path. The old
-  [interpolator comparison script on `research`](https://github.com/orebas/ODEParameterEstimation/blob/research/src/examples/compare_interpolators.jl)
+  [interpolator comparison script on `research`](https://github.com/orebas/ODEParameterEstimation.jl/blob/research/src/examples/compare_interpolators.jl)
   is exploratory. The new paired checkpoint found a small GP.jl win on a
   clean smooth curve; internalization preserves that fitting policy.
 - [x] Validate the internal GP against its original implementation at fixed
@@ -161,12 +178,16 @@ installation and recovery checks.
 
 ## Validation required for a release commit
 
-- [ ] Resolve the checkout with only registered dependency versions and no
+These gates apply anew to each candidate. The final handoff identifies the
+candidate SHA, its required GitHub checks, and the clean-install result; a
+passing run at an earlier revision does not satisfy them.
+
+- Resolve the checkout with only registered dependency versions and no
   development overrides. Run `julia --startup-file=no test/registered.jl` from
   the repository root; record the Julia version, resolved dependency versions,
   commit, and assertion results. This script develops the checkout in a fresh
   temporary environment and then invokes `Pkg.test`.
-- [ ] Run the full suite on each currently released Julia version claimed by
+- Run the full suite on each currently released Julia version claimed by
   the release documentation and CI. Currently `julia = "1.12"` admits Julia
   1.12 and later 1.x releases, while CI has required jobs for 1.12 and 1.13. A
   [September 11 CI follow-up](2026-09-10_production_readiness.md#september-11-follow-up)
@@ -176,15 +197,15 @@ installation and recovery checks.
   the eventual release commit. Julia nightly is advisory in the current
   [CI matrix](../.github/workflows/CI.yml); its recorded GPUCompiler
   precompilation crash is a separate dependency issue.
-- [ ] Run the seeded recovery benchmark with registered dependencies on the
+- Run the seeded recovery benchmark with registered dependencies on the
   selected release stack. The full and benchmark commands are documented in
   [CLAUDE.md](../CLAUDE.md). A passing unit group alone is insufficient for an
   estimation change; recovery accuracy does not certify UQ coverage.
-- [x] If SIAN or GaussianProcesses.jl functionality moves inside ODEPE, run
+- If SIAN or GaussianProcesses.jl functionality moves inside ODEPE, run
   paired behavior and performance comparisons before and after the change on
   frozen inputs. Keep both winning and losing cases in the decision record;
   preserve the existing GP route until a replacement earns its removal.
-- [ ] Verify a clean install, `import ODEParameterEstimation`, the README's
+- Verify a clean install, `import ODEParameterEstimation`, the README's
   minimal example, and the published documentation links from the release
   commit. Test the repository URL that Registrator will use.
 
@@ -221,7 +242,7 @@ distinct from the modern local development stack.
 
 The validated core code is commit `02ff196`. Exact dependency versions,
 commands, compressed logs, and hashes are in the
-[validation record on `research`](https://github.com/orebas/ODEParameterEstimation/tree/aab64fc/repro/registry_dependency_study_2026_10_04).
+[validation record on `research`](https://github.com/orebas/ODEParameterEstimation.jl/tree/aab64fc/repro/registry_dependency_study_2026_10_04).
 These results establish the split's Julia 1.13.1 baseline. Supported-Julia CI,
 the registered-stack recovery benchmark, the final release version, repository
 naming, and attribution review remain release work.
@@ -263,7 +284,7 @@ These worktree results still require validation of the eventual release commit.
 
 ## Repository and documentation review
 
-- [ ] Review the first-release source tree. Before the split, Git tracked
+- [x] Review the first-release source tree. Before the split, Git tracked
   4,735 files totaling about 95 MB; `repro/` accounts for 3,641 files and about
   67 MB. It holds investigation scripts, frozen inputs, logs, and evidence for
   PEtab, Sneyd, UQ, HC threading, multiplicity, scaling, and polishing. It is
@@ -273,26 +294,91 @@ These worktree results still require validation of the eventual release commit.
   evidence while deciding which tracked artifacts need to accompany the
   installable package. Ignored local output is additional disk use, not part of
   those tracked-size figures.
-- [ ] Review the bundled examples, datasets, and third-party material for
+- [x] Review the bundled examples, datasets, and third-party material for
   provenance and license notices. Keep the GPL-3.0 package license visible.
-- [ ] Update the README's repository URL, status wording, support limits, and
+- [x] Update the README's repository URL, status wording, support limits, and
   example if the release choices change. Keep the release guide short and link
   to the detailed technical records rather than copying their results.
-- [ ] Keep the existing [TagBot](../.github/workflows/TagBot.yml) and
+- [x] Keep the existing [TagBot](../.github/workflows/TagBot.yml) and
   [CompatHelper](../.github/workflows/CompatHelper.yml) workflows aligned with
   the final repository URL and supported dependency versions.
 
+## Provenance and attribution
+
+The package remains under the root [GPL-3.0 license](../LICENSE). This review
+covers source and fixtures retained on `main`; preserved experimental trees
+continue to carry their original notices. The following third-party origins
+are recorded explicitly:
+
+| Material | Source and retained attribution |
+| --- | --- |
+| Private GP implementation | Adapted from STOR-i/GaussianProcesses.jl and validated revision `3e896e9dbd0c41341c723ab16dcf0c261fc7b95a`; Jamie Fairbrother and Christopher Nemeth's MIT notice is retained in [the GP directory](../src/internal/gp/LICENSE). Scope and source files are listed in its [README](../src/internal/gp/README.md). |
+| Private SIAN helpers | [SIAN source at `2f78ca8`](https://github.com/orebas/SIAN-Julia/tree/2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9); Ilia Ilmer, Alexey Ovchinnikov and Gleb Pogudin's MIT notice is retained in [the SIAN directory](../src/internal/sian/LICENSE). The [README](../src/internal/sian/README.md) preserves the upstream utility file's unspecified earlier-adaptation note; this review does not invent an earlier source. |
+| Older barycentric/rational interpolation helpers | [ParameterEstimation.jl source at `99f4bd5`](https://github.com/iliailmer/ParameterEstimation.jl/blob/99f4bd59d9c6cedcfeb644672168aaa3f0088984/src/rational_interpolation/bary_derivs.jl), contributed by the ParameterEstimation.jl authors. ODEPE's initial import is `dfe1893`; current code has subsequent adaptations. The upstream GPL-3.0 text matches the package's retained GPL license. |
+| SI preprocessing and historical model examples | The source comments identify adaptations from [ParameterEstimation.jl](https://github.com/iliailmer/ParameterEstimation.jl), whose contributors are credited in its [Project.toml](https://github.com/iliailmer/ParameterEstimation.jl/blob/9e7adc33a4a11954acde0214f482cffea9551170/Project.toml). The historical [Crauste example](https://github.com/iliailmer/ParameterEstimation.jl/blob/9e7adc33a4a11954acde0214f482cffea9551170/examples/all-global/crauste.jl) is GPL-3.0. The example equations were not changed in this attribution pass. |
+| Biohydrogenation CSV | Synthetic fixture introduced by Oren Bassik in ODEPE commit `69e3a29d060fd32bbfaf76bdaaa53781a1685c65`, with the package's GPL license. Its [README](../src/examples/biohydrogenation/README.md) identifies the generating model, parameters and initial time −1; it is not measured experimental data. |
+| Backend and recovery fixtures | Synthetic observations and exact upstream comparisons, with pinned source, environment and regeneration instructions in [test/reference](../test/reference/README.md). Frozen observations are reused across compared implementations. |
+
+The trimmed tree has no bundled figure/PDF asset collection. Historical
+technical notes and logs are evidence records, not promises that their older
+APIs or numerical claims apply to this release. User-facing guides identify
+the supported estimator and the opt-in UQ limits.
+
+## Candidate validation and release automation
+
+The [portability follow-up](2026-10-04_internal_backends.md#october-5-release-candidate-portability-follow-up)
+explains the Julia 1.12 clean-GP test correction. Required CI jobs are:
+
+- Julia 1.12, registered dependencies, full suite.
+- Julia 1.13, registered dependencies, full suite.
+- Julia 1.13, modern registered profile, full suite.
+- Julia 1.13, modern registered profile, seeded recovery benchmark.
+
+Nightly remains advisory. Each job uploads its resolved Project/Manifest and
+validation metadata, and test output records CPU/BLAS/coverage details. Local
+full and benchmark gates use `test/current.jl` without dependency re-resolution.
+Documentation is built separately with Documenter 1.19 and the local package.
+A fresh temporary environment must install the final SHA from the renamed
+repository and run the README example. Inspect checks for that SHA, not merely
+the most recent workflow listed for the branch.
+
+TagBot uses GitHub's automatic token. Workflow edits are committed separately
+from the release version bump: the token cannot tag a commit that modifies
+workflow files. No docs deployment or SSH secret is required by this setup.
+CompatHelper runs Julia 1.13 with startup files disabled and explicit contents
+and pull-request permissions. No deploy key is configured, so CI must be
+dispatched manually on CompatHelper PR branches before merging: its automatic
+token cannot trigger another workflow. This is the behavior documented by
+[CompatHelper](https://juliaregistries.github.io/CompatHelper.jl/stable/#Creating-SSH-Key).
+Neither automation is manually triggered here.
+
 ## Registration sequence
 
-1. Preserve `research` and isolate the core release surface on `main`; complete
-   the SIAN/GP dependency studies and make the resulting source changes.
-2. Complete the registered-dependency, supported-Julia, recovery, and optional
-   extension checks on the exact commit to be registered. Record the evidence
-   here with dates and commit identifiers.
-3. Set a release version in `Project.toml`, verify the repository URL and license,
-   then invoke [Registrator](https://github.com/JuliaRegistries/Registrator.jl#via-the-github-app)
-   on that commit. [General normally holds new-package PRs for three days](https://github.com/JuliaRegistries/General/blob/master/README.md#automatic-merging-of-pull-requests)
-   for community review.
-4. Address any RegistryCI or maintainer feedback on a new commit and retrigger
-   Registrator. After the registry PR merges, verify that TagBot creates the
-   corresponding tag and that users can install and load the registered package.
+1. Finish required CI and the clean install at the exact candidate SHA. Keep
+   `research` and the former repository URL redirect intact.
+2. Inspect the final diff, version, license, supported API and checklist. Resolve
+   the initial-version manual-review requirement with registry maintainers.
+3. When the maintainer elects to register, post the request below on the
+   validated commit in the renamed repository. Registration is a separate
+   action; a prepared comment is not a submitted request.
+4. Inspect the resulting General PR and address actual review findings. TagBot
+   can create the tag/release after registration is merged.
+
+### Prepared Registrator request (not submitted)
+
+```text
+@JuliaRegistrator register
+
+Release notes:
+First General registration candidate for ODEParameterEstimation.jl, v1.1.0.
+The supported package is on main; experimental integrations and research
+remain on the research branch. SIAN and GaussianProcesses functionality used
+by the package is now internal, with retained upstream notices and regression
+fixtures. Julia 1.12+ is supported; UQ remains opt-in with documented limits.
+
+The maintainer selected 1.1.0 to continue the development version history;
+please review the nonstandard initial version manually.
+```
+
+Do not create a tag ahead of registration. Preserve the final commit URL,
+required check results and fresh-install evidence with the release decision.

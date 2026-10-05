@@ -172,9 +172,9 @@ ranges. The fresh patched CI profile also passed the **15-assertion SI
 interoperability regression in 2.0s**, using the assembled GP tree, patched SIAN,
 and merged SI fix. That fresh resolution selected ModelingToolkit 11.42.1 and
 SymbolicUtils 4.46.4; the full-suite result above uses the fixed local baseline.
-Hosted [CI run 34536335730](https://github.com/orebas/ODEParameterEstimation/actions/runs/34536335730)
+Hosted [CI run 34536335730](https://github.com/orebas/ODEParameterEstimation.jl/actions/runs/34536335730)
 checks stabilization commit
-[`ebdbbdc`](https://github.com/orebas/ODEParameterEstimation/commit/ebdbbdc6ad78cdeebdfac0cb507b4b1d3c295d3c),
+[`ebdbbdc`](https://github.com/orebas/ODEParameterEstimation.jl/commit/ebdbbdc6ad78cdeebdfac0cb507b4b1d3c295d3c),
 pushed directly to `main` at the user's request.
 The run completed successfully: all four required Julia 1.12/1.13 jobs passed.
 
@@ -252,7 +252,7 @@ classification when the optional truth dictionaries are empty; the new condition
 group constructor is opt-in. No dependency versions changed.
 
 The previous main commit `d33c50e` completed
-[CI run 34560050420](https://github.com/orebas/ODEParameterEstimation/actions/runs/34560050420)
+[CI run 34560050420](https://github.com/orebas/ODEParameterEstimation.jl/actions/runs/34560050420)
 with all four Julia 1.13 jobs passing (registered/full and patched/full, recovery,
 PEtab). Two other jobs failed before the experiment-block changes:
 

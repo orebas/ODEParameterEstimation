@@ -1,6 +1,6 @@
 # Results and API
 
-Started 2026-03-17; return fields and default ranking checked 2026-09-10.
+Started 2026-03-17; reviewed for the 1.1.0 registration candidate, 2026-10-05.
 
 ## Main User-Facing Workflow
 
@@ -62,7 +62,11 @@ do not describe the parameter error of the selected estimate automatically.
 
 ### `uq`
 
-`uq` is the uncertainty-quantification side output. It exists, but it is not part of the recommended default user path and is not the focus of the current user docs.
+`uq` is the opt-in uncertainty-quantification output, targeting the returned
+rank-one estimator. The audited single-point calibration result does not
+establish coverage for nonlinear multipoint or polished estimators. A
+single-run reliability status is not a calibration certificate. See the
+[UQ contract](2026-08-14_estimator_aware_uq.md) before interpreting intervals.
 
 ## Reading `ParameterEstimationResult`
 

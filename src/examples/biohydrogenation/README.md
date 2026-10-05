@@ -19,8 +19,12 @@ The differential equations describe the conversion rates between chemical specie
 
 ## Running the Example
 
-```julia
-julia biohydrogenation_example.jl
+The standalone script imports `CSV`, an example-only dependency. Install it
+in the environment used for examples (`using Pkg; Pkg.add("CSV")`), alongside
+ODEParameterEstimation. From the repository root, run:
+
+```sh
+julia --startup-file=no src/examples/biohydrogenation/biohydrogenation_example.jl
 ```
 
 ## Expected Output
@@ -41,8 +45,15 @@ For reference, the true parameter values used to generate the synthetic data are
 - k9 = 0.439
 - k10 = 0.617
 
-Initial conditions:
-- x4(0) = 0.45
-- x5(0) = 0.813
-- x6(0) = 0.871
-- x7(0) = 0.407
+Initial conditions at the start of the supplied data interval:
+
+- x4(-1) = 0.45
+- x5(-1) = 0.813
+- x6(-1) = 0.871
+- x7(-1) = 0.407
+
+The synthetic CSV and model entered this repository in commit `69e3a29` by
+Oren Bassik. Its first row contains the time -1 and the initial values of the
+two measured states. It is an example fixture, not experimental measurements.
+The model is a difficult parameter-recovery case: a small trajectory residual
+alone does not establish accurate parameter estimates.

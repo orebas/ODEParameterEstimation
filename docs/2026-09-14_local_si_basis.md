@@ -145,7 +145,7 @@ the intervening changes rather than isolating the effect of local SI.
 The rational and dense-data supervisors accept
 `--si-fix-strategy local_basis` for explicit comparison with frozen settings.
 Artifacts and reproduction commands live in
-[`repro/local_si_basis_2026_09_14`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/local_si_basis_2026_09_14/README.md).
+[`repro/local_si_basis_2026_09_14`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/local_si_basis_2026_09_14/README.md).
 
 ## Sneyd: SI bottleneck removed, multiplicity still blocks completion
 

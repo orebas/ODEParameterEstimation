@@ -107,7 +107,7 @@ Current policy:
 - treat this as a known backend limitation, not as a vague SI or Symbolics bug
 
 See also:
-- [2026-03-17_high_order_si_derivative_limit.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-17_high_order_si_derivative_limit.md)
+- [2026-03-17_high_order_si_derivative_limit.md](2026-03-17_high_order_si_derivative_limit.md)
 
 ### Non-Core Rescue Warnings
 
@@ -168,7 +168,7 @@ Current policy:
 - residual square-repair is not part of the supported default path
 
 The original audit is still useful as a historical artifact:
-- [2026-03-15_iterfix_audit.md](/home/orebas/.julia/dev/ODEParameterEstimation/docs/2026-03-15_iterfix_audit.md)
+- [2026-03-15_iterfix_audit.md](2026-03-15_iterfix_audit.md)
 
 ## Practical Reading Guide
 

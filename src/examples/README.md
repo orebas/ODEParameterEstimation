@@ -2,7 +2,7 @@
 
 This directory contains model definitions and maintained runnable workflows.
 The investigation scripts, benchmarks, and PEtab pilot are preserved on the
-[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/src/examples).
+[research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/src/examples).
 
 If you are looking for the current user-facing package workflow rather than the example inventory, start with:
 
@@ -45,7 +45,7 @@ These are part of the intended package-facing examples surface and should stay c
 
 ### Continuing research
 
-The [research examples](https://github.com/orebas/ODEParameterEstimation/tree/research/src/examples)
+The [research examples](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/src/examples)
 retain the interpolator comparison, paper runner, profiling, benchmarks,
 failure investigations, and one-off analysis scripts. Use that branch to
 continue those studies. Cherry-pick selected core fixes into it; merging the

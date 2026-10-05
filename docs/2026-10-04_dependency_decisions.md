@@ -51,7 +51,7 @@ substantial part into the GPL-3.0 package would require preserving its notice.
 ### Paired interpolation checkpoint
 
 The frozen comparison script and its raw output are retained on the
-[`research` commit `dd27080`](https://github.com/orebas/ODEParameterEstimation/tree/dd27080/repro/registry_dependency_study_2026_10_04).
+[`research` commit `dd27080`](https://github.com/orebas/ODEParameterEstimation.jl/tree/dd27080/repro/registry_dependency_study_2026_10_04).
 It fits the same data for each method, with MersenneTwister seeds
 `20261005`–`20261008`, observations on `[0,4]`, and off-grid midpoint evaluation.
 The metric is RMSE against the known generating function and its first
@@ -73,7 +73,7 @@ all three errors are tiny. The noisy values agree to the precision shown.
 Elapsed fit times in the raw output mix compilation and warm runs and are not
 a fair performance comparison. This experiment does not measure higher-order
 jets, chosen shooting points, parameter recovery, or UQ coverage. The older
-[`compare_interpolators.jl` script](https://github.com/orebas/ODEParameterEstimation/blob/research/src/examples/compare_interpolators.jl)
+[`compare_interpolators.jl` script](https://github.com/orebas/ODEParameterEstimation.jl/blob/research/src/examples/compare_interpolators.jl)
 uses shared sampled data for two full estimator paths, but has no frozen result
 record or current registered-stack gate. It is a starting point, not evidence
 for removing GP.jl.

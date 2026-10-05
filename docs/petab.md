@@ -1,7 +1,7 @@
 # PEtab feasibility pilot
 
 This integration is maintained on the
-[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
+[research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research).
 The instructions below apply to that branch. PEtab is outside the installable
 `main` package after the [registry split](registry_preparation.md).
 
@@ -178,6 +178,6 @@ nominal-value leakage. The older nested code under
 
 ## Reproduce the pilot
 
-See [repro/petab/README.md](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/README.md) for environment setup, the
+See [repro/petab/README.md](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/README.md) for environment setup, the
 pinned public models, validation commands and the comparison runner. The core
 full gate and recovery benchmark remain separate from optional PEtab contracts.

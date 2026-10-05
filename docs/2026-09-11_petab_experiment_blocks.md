@@ -46,8 +46,8 @@ Classification now uses the model's declared parameter and state lists.
 
 ## Protocol and results
 
-See the [retained trial table](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/block_results/summary.md) and
-[full precision CSV](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/block_results/summary.csv). The original
+See the [retained trial table](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/block_results/summary.md) and
+[full precision CSV](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/block_results/summary.csv). The original
 `pilot_results` records are unchanged. Starts are exact copies of that pilot,
 mapped by parameter ID. Canonical benchmark revision remains
 `ddaa86d13f708926c57ec8918ce75a6b50e2e562`; no dependency versions or public model
@@ -73,7 +73,7 @@ substantially reduced the required derivative order and improved the raw seed.
 The lower refined objective than the two earlier baseline runs indicates a
 better attained solution, not a general optimizer ranking or proof of optimality.
 
-[Independent AMICI re-evaluation](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/block_results/bruno_amici_validation.json)
+[Independent AMICI re-evaluation](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/block_results/bruno_amici_validation.json)
 confirms all six raw/refined scores from these three runs on the untouched
 canonical model. Differences at the two better refined solutions are below
 `6e-6` in NLLH. This validation performs no optimization and supplies no new starts.
@@ -102,7 +102,7 @@ the condition count is not established as a remedy.
 The two timed-out records report about 940–943 seconds through termination and
 cleanup, versus the requested 900-second worker budget. Timeout snapshots and
 log digests are retained in
-[`timeout_diagnostics.json`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/block_results/timeout_diagnostics.json).
+[`timeout_diagnostics.json`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/block_results/timeout_diagnostics.json).
 
 These trials support keeping small joint groups as an option. They do not
 support imposing a universal cutoff based only on condition count: six Bruno

@@ -49,7 +49,7 @@ original rational observation equations and ODE poles.
 ## Validation
 
 Reproduction commands, complete rational benchmark inputs, and source hashes
-are in [`repro/deferred_denominators_2026_09_11/`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/deferred_denominators_2026_09_11/README.md).
+are in [`repro/deferred_denominators_2026_09_11/`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/deferred_denominators_2026_09_11/README.md).
 The production patch and its base revision are retained in that directory's
 `evidence/` folder. Tests use Julia 1.13 and the existing dependency stack.
 
@@ -129,7 +129,7 @@ retained. A separate `--optimize=0` diagnostic uses the same estimator settings;
 its SI polynomial template matches the default run exactly except for timestamps,
 as recorded in `evidence/biohydrogenation_template_comparison.json`.
 
-The [September 13 compilation follow-up](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/biohydrogenation_compilation_2026_09_13/README.md)
+The [September 13 compilation follow-up](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/biohydrogenation_compilation_2026_09_13/README.md)
 finds repeated compilation across numeric shooting-point systems. It includes
 a bounded kernel probe, an exact selected-system replay, and the subsequent
 reusable-polisher implementation. With that later change, the same full fixture

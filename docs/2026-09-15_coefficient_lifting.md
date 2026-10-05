@@ -143,7 +143,7 @@ exact arithmetic; the exact lifting equivalence should not be confused with
 a formally certified Gröbner computation.
 
 Scripts, commands, polynomial artifacts, and environment records:
-[`repro/coefficient_lifting_2026_09_14`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/coefficient_lifting_2026_09_14/README.md).
+[`repro/coefficient_lifting_2026_09_14`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/coefficient_lifting_2026_09_14/README.md).
 
 ## Integration boundary
 

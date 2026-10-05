@@ -233,13 +233,13 @@ hook records the selected family, then invokes the original production method;
 if it returns no starts, this diagnostic stops instead of triggering fresh
 solves at each anchor. The complete settings are saved with the result.
 
-The [standalone reproducer](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_free_coefficients_2026_09_15/README.md)
+The [standalone reproducer](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/sneyd_free_coefficients_2026_09_15/README.md)
 contains the exact source extraction checks, native Julia model, bounded
 worker, and independent characteristic-coefficient analysis. All changes in
 this follow-up are research scripts and documentation; production source and
 dependency manifests are unchanged.
 
-The [retained evidence](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_free_coefficients_2026_09_15/evidence/validation.json)
+The [retained evidence](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/sneyd_free_coefficients_2026_09_15/evidence/validation.json)
 verifies the bit-identical samples, source snapshots, selected-system hash,
 unchanged dependency manifests, and exact invariant checks. Two preliminary
 driver attempts failed on data-key container types before entering estimation;

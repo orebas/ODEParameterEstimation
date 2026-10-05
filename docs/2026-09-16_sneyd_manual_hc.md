@@ -235,4 +235,4 @@ was attempted, and exact row reduction of inconsistent noisy equations would
 not provide the same procedure. These remain separate estimation questions.
 
 Scripts, exact inputs, all HC outcomes, and validation are in the
-[research harness](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_manual_hc_2026_09_16/README.md).
+[research harness](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/sneyd_manual_hc_2026_09_16/README.md).

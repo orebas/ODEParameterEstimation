@@ -1,6 +1,16 @@
 using ODEParameterEstimation
 using Random
 using Test
+using LinearAlgebra
+
+# Record only numerical-runtime metadata, never the environment or secrets.
+# BLAS CPU dispatch can affect nearly noiseless GP optimization paths.
+println((; julia=string(VERSION), cpu=Sys.CPU_NAME,
+    julia_threads=Threads.nthreads(), blas=string(BLAS.get_config()),
+    blas_threads=BLAS.get_num_threads(),
+    openblas_coretype=get(ENV, "OPENBLAS_CORETYPE", "automatic"),
+    coverage=Base.JLOptions().code_coverage))
+flush(stdout)
 
 # Keep each file in its own testset so a load error is reported without
 # preventing the remaining files from running.

@@ -3,7 +3,7 @@
 Updated 2026-10-04 for the registry split. This is the entry point for reviewing
 the installable `main` source and active tests. The complete pre-split research
 tree, PEtab pilot, and inactive tests are preserved on the
-[research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
+[research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research).
 Dependency versions, measured gate results, and release blockers live in
 [Registry preparation](registry_preparation.md) and the historical
 [Production readiness](2026-09-10_production_readiness.md).
@@ -109,9 +109,9 @@ Paths below are relative to `src/`.
 | Internal backends | `internal/sian/`, `internal/gp/` | Narrow SIAN helper and GP fit boundaries, upstream licenses/provenance, frozen equivalence fixtures; see [implementation record](2026-10-04_internal_backends.md). |
 | Rescaling/polish | `core/problem_rescaling.jl`, `core/polish_residual.jl`, `core/branch_completion.jl`, `core/sensitivity_seeds.jl` | Units and inverse mapping, timeouts, branch lineage, bounded optimization. |
 | Diagnostics/UQ | `core/diagnostics/*.jl`, `core/uncertainty_quantification.jl`, `core/sigma_d.jl`, `core/svg_plots.jl` | Exact returned estimator, covariance propagation, reliability axes, report/artifact correctness. Read the current UQ notes linked by `CLAUDE.md` first. |
-| Research | [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/src/research) | Consensus/sweeps, model-assisted correction, SHADE+LM, and their experiments are maintained outside `main`'s package API. |
+| Research | [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/src/research) | Consensus/sweeps, model-assisted correction, SHADE+LM, and their experiments are maintained outside `main`'s package API. |
 | Examples | `examples/load_examples.jl`, `examples/models/*.jl` | Public model constructors and maintained runnable examples. Other scripts in `examples/` are not loaded by the package. |
-| Optional integrations | [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research/ext) | The PEtab pilot and deferred RS/RUR extension remain available for continued work, outside `main`'s package manifest. |
+| Optional integrations | [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/ext) | The PEtab pilot and deferred RS/RUR extension remain available for continued work, outside `main`'s package manifest. |
 | Tests/CI | `../test/`, `../.github/workflows/CI.yml` | Declared imports, dependency version preservation, isolated namespaces/artifacts, substantive assertions. |
 
 ## Active test coverage

@@ -12,8 +12,8 @@ polynomial system separately. Neither model has a completed dense-data
 parameter-recovery result yet.
 
 Scripts, commands, and compact evidence are in
-[`repro/petab/dense_single/`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/petab/dense_single/README.md), particularly
-[`evidence/followup_20260914/`](https://github.com/orebas/ODEParameterEstimation/tree/c4358bd/repro/petab/dense_single/evidence/followup_20260914).
+[`repro/petab/dense_single/`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/petab/dense_single/README.md), particularly
+[`evidence/followup_20260914/`](https://github.com/orebas/ODEParameterEstimation.jl/tree/c4358bd/repro/petab/dense_single/evidence/followup_20260914).
 Timing includes compilation and sampling overhead. These are bounded diagnostics,
 not comparative throughput measurements.
 

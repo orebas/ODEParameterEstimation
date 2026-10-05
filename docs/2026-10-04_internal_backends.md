@@ -208,3 +208,26 @@ julia --startup-file=no test/registered.jl benchmark modern
 Run `test/registered.jl all` with Julia 1.12 as well. The reference environment
 and frozen-source setup are documented in [test/reference](../test/reference/README.md).
 Nightly CI is advisory; no nightly result is claimed here.
+
+## October 5 release-candidate portability follow-up
+
+The buffered commit `ef35226` passed all three required Julia 1.13 CI jobs,
+including registered recovery, but Julia 1.12 passed 2,187/2,188 assertions.
+Its sole failure was the optimized clean GP sixth derivative against a frozen
+Julia 1.13 fit. The observed derivative had relative error 0.001207 against
+the frozen fit and 0.000664 against the known generating curve.
+
+Additional upstream/internal pairs on native Julia 1.12.7, with coverage and
+with Haswell/Sandybridge BLAS kernels, agree exactly within each run. Their
+clean sixth-derivative errors against the curve range from 0.000299 to
+0.001021. The compact [portability record](../test/reference/results/gp_portability.toml)
+includes objectives, runtime details, raw-output hashes and the CI observation.
+This isolates sensitivity in the optimized, nearly noiseless fit; it provides
+no evidence of changed internal-backend arithmetic.
+
+The candidate checks clean optimized derivatives 4–6 against the analytic
+curve with relative bounds 1e-3, 1e-3 and 2e-3. Fixed-parameter contracts,
+noisy cases, and lower optimized derivatives retain their strict comparisons.
+The test runner prints Julia, CPU, BLAS, thread and coverage metadata. CI also
+preserves the resolved Project/Manifest and validation metadata as artifacts,
+including on test failure. Production fitting code is unchanged.

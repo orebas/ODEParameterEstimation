@@ -1,6 +1,6 @@
 # User Quickstart
 
-Started 2026-03-17; interpolator and result-selection guidance updated 2026-09-10.
+Started 2026-03-17; reviewed for the 1.1.0 registration candidate, 2026-10-05.
 
 The normal workflow is:
 

@@ -1,6 +1,6 @@
-# ODEParameterEstimation
+# ODEParameterEstimation.jl
 
-[![Build Status](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 `ODEParameterEstimation` estimates parameters and initial conditions for ODE models from observed time-series data. The current default path is the SI-template-based standard flow: structural identifiability comes from `SI.jl` / `StructuralIdentifiability`, numerical identifiability checks are advisory-only, and the analyzed results are returned in a structured tuple.
 
@@ -15,7 +15,7 @@ This README is the landing page. Start with:
 
 For the ordered work toward registration, see [Registry preparation](docs/registry_preparation.md).
 The complete experimental source, historical benchmark scripts, PEtab pilot,
-and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation/tree/research).
+and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research).
 
 The GaussianProcesses.jl fitting route and SIAN equation-construction helpers
 are maintained in isolated internal modules with upstream attribution. Neither
@@ -23,6 +23,10 @@ external package is required to install or test ODEPE. See
 [internal backends](docs/2026-10-04_internal_backends.md) for provenance and validation.
 
 ## Installation
+
+Version **1.1.0** is being prepared for first registration. Until it is
+registered, install from GitHub or a local checkout. Julia 1.12 or later is
+required; the release CI covers Julia 1.12 and 1.13.
 
 If you are working from source, the simplest setup is to develop a local checkout:
 
@@ -35,7 +39,7 @@ If you are installing directly from GitHub instead:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.git")
+Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.jl.git")
 ```
 
 ## Testing
@@ -122,8 +126,16 @@ For the current taxonomy and caveats, see [Supported Models and Limitations](doc
 ## Notes
 
 - The current public return contract is documented explicitly in [Results and API](docs/2026-03-17_results_and_api.md).
-- Uncertainty quantification exists, but it is not part of the recommended default user path and is not the focus of the current user docs.
+- Uncertainty quantification is opt-in. Audited single-point calibration does
+  not establish coverage for nonlinear multipoint or polished estimators;
+  see the [UQ contract](docs/2026-08-14_estimator_aware_uq.md).
 - The PEtab pilot, RS/RUR extension, consensus research APIs, and SHADE+LM
   comparison baseline are retained on the research branch. They are outside
   this branch's package API.
 - The dated investigation docs under [docs](docs) remain historical references.
+
+## License and attribution
+
+The package uses [GPL-3.0](LICENSE). The adapted GP and SIAN modules retain
+their upstream MIT notices. Source and fixture provenance is summarized in
+the [release attribution review](docs/registry_preparation.md#provenance-and-attribution).

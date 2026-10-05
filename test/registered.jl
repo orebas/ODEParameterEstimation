@@ -39,6 +39,21 @@ mktempdir() do environment_dir
     isempty(removed) || error("Internalized backends still appear in the dependency graph: $(getproperty.(removed,:name))")
     Pkg.status(;mode=Pkg.PKGMODE_MANIFEST)
 
+    # Preserve the exact resolver output before the temporary environment is
+    # removed, including when tests fail. CI publishes this as a run artifact.
+    evidence_dir = get(ENV, "ODEPE_VALIDATION_DIR", "")
+    if !isempty(evidence_dir)
+        mkpath(evidence_dir)
+        for filename in ("Project.toml", "Manifest.toml")
+            cp(joinpath(environment_dir, filename), joinpath(evidence_dir, filename); force=true)
+        end
+        open(joinpath(evidence_dir, "validation.toml"), "w") do io
+            TOML.print(io, Dict("julia"=>string(VERSION), "profile"=>profile,
+                "group"=>group, "revision"=>get(ENV, "GITHUB_SHA", "local-worktree"),
+                "coverage"=>get(ENV, "ODEPE_TEST_COVERAGE", "false") == "true"))
+        end
+    end
+
     Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=[group],
              coverage=get(ENV, "ODEPE_TEST_COVERAGE", "false") == "true")
 end

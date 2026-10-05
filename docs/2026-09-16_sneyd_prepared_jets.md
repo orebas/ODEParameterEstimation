@@ -250,4 +250,4 @@ experiment can use the known preparation and joint rooted derivatives through
 order 3, first with exact ODE derivatives and only then with interpolated data.
 
 Reproduction instructions and machine-readable evidence:
-[research harness](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/sneyd_prepared_jets_2026_09_16/README.md).
+[research harness](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/sneyd_prepared_jets_2026_09_16/README.md).

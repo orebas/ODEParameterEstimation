@@ -73,4 +73,4 @@ change; rational-model coverage here includes the representative/multiplicity
 fixtures and the full suite's existing rational derivative and feature tests.
 
 Full-suite outcomes and raw evidence are retained in
-[`repro/polynomial_zero_2026_09_15`](https://github.com/orebas/ODEParameterEstimation/blob/c4358bd/repro/polynomial_zero_2026_09_15/README.md).
+[`repro/polynomial_zero_2026_09_15`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/polynomial_zero_2026_09_15/README.md).

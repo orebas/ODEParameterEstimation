@@ -1,6 +1,19 @@
 # Changelog
 
-## Unreleased (1.1.0-DEV line) — 2026-08/10
+## 1.1.0 — registration candidate, 2026-10-05
+
+This is the intended first registered release. Earlier source-install users
+should review the development-snapshot changes below. Registration and tagging
+are separate from preparing this candidate.
+
+### Release preparation
+
+- Check high derivatives of the optimized noiseless GP against its analytic
+  generating curve, with measured BLAS portability budgets. Retain strict
+  fixed-parameter upstream contracts and noisy-fit comparisons.
+- Record numerical-runtime metadata and preserve resolved CI manifests.
+- Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
+  and release workflows for Julia 1.12 and 1.13.
 
 ### GP workspace reuse — 2026-10-05
 
@@ -47,7 +60,7 @@
   gate results, and remaining release work are recorded in
   [production readiness](docs/2026-09-10_production_readiness.md).
 
-### BREAKING (intentional pre-release breaks; package is 1.1.0-DEV)
+### Changes from earlier development snapshots
 
 - **`EstimationOptions`: 13 fields removed** (2026-08-12/13 dead-options
   cleanup): `rtol`, `output_precision`, `imag_threshold`, `branch_resid_factor`,
@@ -76,7 +89,7 @@
 
 ### Versioning note
 
-These breaks ride the 1.1.0-DEV pre-release line deliberately. If a registered
-release is cut from this line, decide then between shipping as a breaking minor
-(pre-1.0-style practice does not apply — this package is >1.0) or bumping to
-2.0.0. Tracked decision, owner: Oren.
+Oren selected **1.1.0** for the first registered release. The changes above are
+relative to earlier unregistered development snapshots; no previous registered
+release is being declared compatible. Subsequent registered releases should
+follow semantic versioning for the documented public API.
