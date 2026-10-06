@@ -957,6 +957,30 @@ end
 
 
 
+"""
+	analyze_parameter_estimation_problem(problem, options = EstimationOptions())
+
+Estimate the parameters and initial conditions of `problem` and return everything
+the run produced, as `(raw_results, analysis, uq)`.
+
+[`estimate`](@ref) is the short form: it returns `analysis.returned_results`.
+
+# Returns
+- `raw_results`: every candidate solution the solver found, before ranking, with
+  the identifiability findings. Mostly useful for debugging.
+- `analysis`: a named tuple.
+  - `returned_results` holds the solutions, best fit first, as
+    [`ParameterEstimationResult`](@ref)s.
+  - `best_approximation_error` is the fit error of the best one.
+  - `best_max_error`, `best_mean_error`, `best_median_error`, `best_min_error`
+    and `best_rms_error` are relative errors against the problem's true values,
+    each taken as the best over all candidates. They are `Inf` when the true
+    values are not known.
+  - `algebraic_multiplicity` is the number of solutions the equations admit,
+    when it was determined.
+- `uq`: the uncertainty report when `compute_uncertainty = true`, otherwise
+  `nothing`.
+"""
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)
 	# Validated here, before the quiet scope, so configuration warnings are shown.
@@ -973,6 +997,9 @@ function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, o
 end
 
 function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)
+	# Checked on the model as it was written, before it is transformed and
+	# rescaled, so that an error quotes the caller's own terms.
+	opts.flow == FlowStandard && validate_supported_model_class(PEP)
 	_run_ctx_begin_uq!(opts.compute_uncertainty)
 	# Carry the per-analysis HC solver config to _hc_solve via the bound context.
 	_run_ctx_set_hc_opts!(opts.hc_threading, opts.hc_compile_mode)

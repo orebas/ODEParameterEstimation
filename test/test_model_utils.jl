@@ -69,6 +69,7 @@ using OrderedCollections
         
         # Verify the results
         @test typeof(ordered_system) == ODEParameterEstimation.OrderedODESystem
+        @test nameof(ordered_system.system) == :TestSystem
         @test isequal(ordered_system.original_parameters, params)
         @test isequal(ordered_system.original_states, states)
         @test isequal(mq, measured_quantities)

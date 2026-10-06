@@ -1,16 +1,17 @@
 """
-    ObservationSeries(observable_id, experiment_id, expression, times, values; noise_std=nothing)
+    ObservationSeries(name, experiment, quantity, times, values; noise_std = nothing)
 
-Measurements of one signal in one experiment. Times may repeat; each row remains
-an observation. Values are in the units of `expression`, before any likelihood
-transformation. `noise_std`, when supplied, is in those same units.
+One measured series with its own time points.
 
 # Arguments
-- `expression`: symbolic observable in the experiment's state variables.
-- `times`, `values`: equally sized, finite vectors; copied and sorted by time.
-
-# Returns
-An owned series with optional known per-row standard deviations.
+- `name`: a label for the series.
+- `experiment`: a label for the experiment it belongs to.
+- `quantity`: what was measured, as an expression in the model's states, such
+  as `x1` or `x1 + x2`.
+- `times`, `values`: the measurements. They are copied and sorted by time. A
+  time may appear more than once.
+- `noise_std`: the standard deviation of the noise in each value, if you know
+  it. It is kept with the series. Estimation does not use it.
 """
 struct ObservationSeries
     observable_id::String
@@ -38,21 +39,20 @@ struct ObservationSeries
 end
 
 """
-    ObservationData(series; initial_time=0.0)
+    ObservationData(series; initial_time = 0.0)
 
-Independent observation grids with an explicit physical initial epoch. The
-dictionary interface preserves the legacy observable lookup, but `data["t"]`
-is only the algebraic anchor grid in the common observed interval. Use
-`observation_times(data, expression)` for actual measurement times. No missing
-values are filled and no repeated measurements are averaged.
+Measurements in which each series has its own time points. Pass one as `data`
+to [`ParameterEstimationProblem`](@ref) in place of a table.
 
 # Arguments
-- `series`: observation series whose expressions use experiment-local states.
-- `initial_time`: epoch at which estimated state initial values are reported.
+- `series`: a vector of [`ObservationSeries`](@ref).
+- `initial_time`: the time at which initial conditions are reported. It cannot
+  be later than the first measurement.
 
-# Returns
-Data for `ParameterEstimationProblem`. Identical expressions are pooled only for
-interpolation; the original series and row identities remain available.
+The series have to overlap in time, because the equations are solved inside the
+interval that all of them cover. Gaps are not filled in and repeated
+measurements are not averaged. Uncertainty (`compute_uncertainty`) is not
+available for data of this kind.
 """
 struct ObservationData <: AbstractDict{Union{String, Num}, Vector{Float64}}
     series::Vector{ObservationSeries}
@@ -92,7 +92,11 @@ Base.haskey(data::ObservationData, key) = haskey(data.columns, key)
 Base.keys(data::ObservationData) = keys(data.columns)
 Base.copy(data::ObservationData) = deepcopy(data)
 
-"""Actual observation times for a signal (including repeated times)."""
+"""
+    observation_times(data, quantity)
+
+The times at which `quantity` was measured.
+"""
 observation_times(data::AbstractDict, key) = data["t"]
 observation_times(data::ObservationData, key) = data.times[Num(key)]
 _initial_time(data::AbstractDict) = first(data["t"])

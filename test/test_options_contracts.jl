@@ -14,6 +14,10 @@ using OrderedCollections
 
 	# Wired fields exist with their behavior-neutral defaults.
 	o = EstimationOptions()
+	# A mistyped option name sends people to `?EstimationOptions`, so it names every field.
+	documentation = string(@doc EstimationOptions)
+	@test all(name -> occursin("`$name`", documentation), fieldnames(EstimationOptions))
+
 	# Output is opt-in: a default run prints nothing and writes no files.
 	@test o.nooutput
 	@test !o.diagnostics

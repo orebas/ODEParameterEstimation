@@ -34,6 +34,16 @@ const UNSUPPORTED_MODEL_CATEGORY_PRIORITY = (
 	:unsupported_nonlinear_function,
 )
 
+"""
+	UnsupportedModelClassError
+
+Thrown when a model is not rational: it applies a function such as `sin`, `exp`
+or `sqrt` to a state or to an unknown parameter. `expressions` lists the terms
+found, and `category` says which kind they are.
+
+`sin(c * t)`, `cos(c * t)` and `exp(c * t)` with a number `c` depend on time
+alone and are accepted.
+"""
 struct UnsupportedModelClassError <: Exception
 	category::Symbol
 	expressions::Vector{String}
@@ -41,10 +51,10 @@ struct UnsupportedModelClassError <: Exception
 end
 
 function Base.showerror(io::IO, err::UnsupportedModelClassError)
-	print(io, "Unsupported model class $(err.category) in the standard SI estimation flow.")
-	!isempty(err.expressions) && print(io, " Example expression(s): $(join(err.expressions, ", ")).")
-	print(io, " Raw state trigonometric terms and raw sqrt/non-polynomial state dependence are not supported here.")
-	print(io, " Constant-frequency sin(omega*t)/cos(omega*t) time inputs are a separate supported transformed case.")
+	print(io, "This model is not rational")
+	isempty(err.expressions) || print(io, ": it contains ", join(err.expressions, ", "))
+	print(io, ". A model must be built from polynomials and ratios of polynomials in its states and parameters. ")
+	print(io, "sin(c*t), cos(c*t) and exp(c*t) with a number c are accepted.")
 end
 
 function _record_unsupported_expr!(

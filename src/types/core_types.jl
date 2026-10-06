@@ -19,12 +19,16 @@ abstract type AbstractInterpolator end
 """
     OrderedODESystem
 
-Struct representing an ODESystem with ordered parameters and states.
+A ModelingToolkit system together with its parameters and states in a fixed
+order. Results list their values in this order.
+
+The keyword constructor of [`ParameterEstimationProblem`](@ref) builds one from
+a `System`, so you rarely need to.
 
 # Fields
-- `system::ModelingToolkit.AbstractSystem`: ModelingToolkit ODESystem
-- `original_parameters::Vector{Num}`: Vector of original parameters in specific order
-- `original_states::Vector{Num}`: Vector of original state variables in specific order
+- `system`: the ModelingToolkit system.
+- `original_parameters`: the parameters, in order.
+- `original_states`: the states, in order.
 """
 struct OrderedODESystem
     system::ModelingToolkit.AbstractSystem
@@ -46,18 +50,29 @@ end
 """
     ParameterEstimationProblem
 
-Struct representing a parameter estimation problem.
+A model, the quantities measured on it, and the measurements.
+
+Build one from a ModelingToolkit `System` with
+`ParameterEstimationProblem(system, measured_quantities; data)`. The built-in
+example models, such as `lotka_volterra()`, return ready-made problems without
+data.
 
 # Fields
-- `name::String`: Name of the estimation problem
-- `model::OrderedODESystem`: Model system with equations
-- `measured_quantities::Vector{Equation}`: Equations defining measured quantities
-- `data_sample::Union{Nothing, OrderedDict{Union{String, Num}, Vector{Float64}}}`: Measured data or nothing
-- `recommended_time_interval::Union{Nothing, Vector{Float64}}`: [start_time, end_time] or nothing for default
-- `solver::OrdinaryDiffEq.AbstractODEAlgorithm`: ODE solver to use
-- `p_true::OrderedDict{Num, Float64}`: True parameter values if known
-- `ic::OrderedDict{Num, Float64}`: Initial conditions for states
-- `unident_count::Int`: Number of unidentifiable parameters
+- `name`: a label for the problem.
+- `model`: the system, as an [`OrderedODESystem`](@ref).
+- `measured_quantities`: equations such as `y1 ~ x1`, one per measured series.
+- `data_sample`: the measurements, or `nothing` before any are attached. Either
+  a dictionary with the time points under `"t"` and each series under the
+  right-hand side of its measured quantity, or an [`ObservationData`](@ref).
+- `solver`: the ODE solver used to simulate the model while estimating.
+- `p_true`, `ic`: the true parameter values and initial conditions, `NaN` where
+  they are not known.
+- `recommended_time_interval`, `unident_count`: notes carried by the built-in
+  example models. Estimation does not read them.
+
+The struct can also be built by passing all nine fields in the order `name`,
+`model`, `measured_quantities`, `data_sample`, `recommended_time_interval`,
+`solver`, `p_true`, `ic`, `unident_count`.
 """
 struct ParameterEstimationProblem
     name::String
@@ -415,21 +430,35 @@ end
 """
     ParameterEstimationResult
 
-Struct to store the results of parameter estimation.
+One solution: parameter values and initial conditions with which the model
+reproduces the data.
+
+Printing a result shows its values. `result[a]`, `result[:a]` and `result["a"]`
+look one up.
 
 # Fields
-- `parameters::OrderedDict{Num, Float64}`: Estimated parameters
-- `states::OrderedDict{Num, Float64}`: Estimated states
-- `at_time::Float64`: Time at which estimation is done
-- `err::Union{Nothing, Float64}`: Error of estimation
-- `return_code::Union{Nothing, Symbol}`: Return code of the estimation process
-- `datasize::Int64`: Size of the data used
-- `report_time::Union{Nothing, Float64}`: Time at which the result is reported
-- `unident_dict::Union{Nothing, OrderedDict{Num, Float64}}`: Dictionary of unidentifiable parameters and their values
-- `all_unidentifiable::Set{Num}`: Set of all parameters detected as unidentifiable during analysis
-- `solution::Union{Nothing, SciMLBase.AbstractODESolution}`: The ODE solution (optional)
-- `interpolator_source::Union{Nothing, Symbol}`: Which interpolator produced this result
-- `provenance::ResultProvenance`: Structured lineage/provenance metadata
+- `parameters`: the estimated parameter values, keyed by symbol.
+- `states`: the estimated states at `report_time`, keyed by symbol.
+- `report_time`: the time those states belong to: the first time point of the
+  data, or the `initial_time` of an [`ObservationData`](@ref).
+- `err`: the fit error, the sum of squared differences between the data and the
+  simulated model over all series and time points. Results are ranked by it.
+- `all_unidentifiable`: the parameters and initial conditions that the measured
+  quantities cannot determine. Their reported values are arbitrary.
+- `unident_dict`: the values those were fixed at while solving.
+- `solution`: the simulated trajectory.
+- `datasize`: the number of time points.
+- `at_time`: the time point at which the equations were solved.
+- `interpolator_source`: the interpolator whose derivative estimates led here.
+- `provenance`: a [`ResultProvenance`](@ref) record of how the solution was
+  produced.
+- `return_code`: an older summary of the same: `:algebraic`, `:direct_opt`, or
+  the name of a recovery path.
+- `branch_size`: how many candidate solutions were merged into this one.
+
+When the package rescales a badly scaled problem internally (`auto_rescale`),
+`err`, `solution` and `unident_dict` stay in the rescaled units. `parameters`
+and `states` are always in yours.
 """
 mutable struct ParameterEstimationResult
     parameters::OrderedDict{Num, Float64}

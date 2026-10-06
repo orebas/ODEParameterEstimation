@@ -146,10 +146,13 @@ using Random
 
         @test_throws ErrorException ODEParameterEstimation.merge_options(base; definitely_not_an_option = true)
 
+        # Names that were once exported with nothing defined behind them.
         public_names = names(ODEParameterEstimation; all = false, imported = false)
-        @test :estimate ∉ public_names
         @test :solve_with_monodromy ∉ public_names
         @test :aaad_in_testing ∉ public_names
+        # `estimate` was a third, until it became the short entry point (2026-10-06).
+        @test :estimate in public_names
+        @test ODEParameterEstimation.estimate isa Function
 
         categories = ODEParameterEstimation.available_model_categories()
         @test haskey(categories, :m1_benchmark)

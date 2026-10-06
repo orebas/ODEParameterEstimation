@@ -48,8 +48,7 @@ Create an OrderedODESystem with completed equations and ordered variables.
 - Tuple of (OrderedODESystem, measured_quantities)
 """
 function create_ordered_ode_system(name, states, parameters, equations, measured_quantities)
-	@named model = ModelingToolkit.System(equations, t, states, parameters)
-	model = complete(model)
+	model = complete(ModelingToolkit.System(equations, t, states, parameters; name = Symbol(name)))
 	ordered_system = OrderedODESystem(model, parameters, states)
 	return ordered_system, measured_quantities
 end

@@ -125,146 +125,244 @@ normalize_si_placeholder_fail_categories(categories) =
 	unique(Symbol[canonicalize_si_placeholder_category(cat) for cat in categories])
 
 """
-	EstimationOptions
+	EstimationOptions(; options...)
 
-A comprehensive options struct that centralizes all configuration parameters for the 
-ODEParameterEstimation package. This struct consolidates tolerances, solver selections,
-algorithm parameters, and debugging flags into a single, type-stable structure.
+Everything that can be adjusted about an estimation. Every option has a
+default, and the defaults are meant to be used: `estimate(problem)` is the
+normal call.
 
-# Fields
-
-## Solver and Algorithm Selection
-- `system_solver::SystemSolverMethod`: Main polynomial system solver (default: `SolverHC`)
-- `ode_solver`: ODE solver for simulation (default: `AutoVern9(Rodas5P())`)
-- `interpolator::InterpolatorMethod`: Data interpolation method (default: `InterpolatorAAADGPR`)
-- `custom_interpolator::Union{Nothing, Function}`: Custom interpolation function when `interpolator=InterpolatorCustom`
-
-## Numerical Tolerances
-- `abstol::Float64`: Absolute tolerance for ODE solving and optimization (default: 1e-14)
-- `reltol::Float64`: Relative tolerance for ODE solving and optimization (default: 1e-14)
-
-## Solution Filtering and Validation
-- `clustering_threshold::Float64`: Threshold for solution clustering (default: 1e-5)
-
-## Multi-shot Parameters
-- `shooting_points::Int`: Number of shooting points for multi-shot estimation (default: 12)
-- `shooting_warp::Bool`: Use exponential warp to cluster points near t=0 (default: true)
-- `shooting_warp_beta::Float64`: Warp strength; 0≈uniform, 3=default (default: 3.0)
-- `point_hint::Float64`: Hint for time point selection, in [0,1] range (default: 0.5). Consumed by the UQ sidecar's `setup_parameter_estimation` and legacy/diagnostics paths; the main flow's shooting-point selection is governed by `shooting_points`/`shooting_warp` instead
-
-## Derivative and Reconstruction Parameters
-
-## Optimization Parameters
-- `polish_solutions::Bool`: Whether to polish solutions using optimization (default: false)
-- `polish_solver_solutions::Bool`: Polish raw solver solutions with fast NLLS (default: true)
-- `polish_solver_jacobian::Symbol`: Raw algebraic-polish Jacobian: `:forwarddiff` (default), `:symbolic`, or `:finitediff`. Kernels are reused across roots and shooting points.
-- `polish_solver_chunk_size::Int`: ForwardDiff directions per chunk (default: 1; zero selects automatically).
-- `polish_method::PolishMethod`: Optimization method for polishing (default: `PolishLSOBoundedLog` — bounded LSO LevenbergMarquardt in per-variable log-space, recommended after the 2026-05 polish bake-off; pass `PolishNewtonTrust` to restore the legacy scalar polish)
-- `polish_maxiters::Int`: Maximum iterations for solution polishing (default: 100)
-- `opt_maxiters::Int`: Maximum iterations for general optimization (default: 10000)
-- `opt_lb::Union{Nothing, Vector{Float64}}`: Lower bounds for optimization (default: nothing)
-- `opt_ub::Union{Nothing, Vector{Float64}}`: Upper bounds for optimization (default: nothing)
-- `opt_ad_backend::Symbol`: AD backend for optimization: `:forward` (default), `:finite`
-- `polish_maxtime::Float64`: Per-solution wall-clock timeout in seconds (default: 3600.0)
-- `polish_max_concurrency::Int`: Cap on the number of polish tasks running in parallel (default: `Threads.nthreads()`). With too many candidates spawned at once, each polish's ForwardDiff-Jacobian step contends for cores and slows ~N/T× — the per-polish deadline then fires before convergence. Set to a smaller number to cap concurrency below `nthreads()`.
-- `polish_divergence_factor::Float64`: Stop polish if loss exceeds initial_loss * this factor (default: 10.0)
-- `polish_stagnation_window::Int`: Stop polish if no improvement in this many iterations (default: 50)
-- `polish_ode_maxiters::Int`: ODE solver maxiters inside polish loss function (default: 5000). DiffEq default is 100000 but successful stiff solves typically use 500-2000 steps. Capping at 5000 fails fast on hopeless parameter regions.
-- `polish_coordinate_policy::Symbol`: per-variable transform policy for the polish step: `:auto` (default), `:linear`, `:log_only`, `:shifted_log_only`.
-- `polish_regularization_lambda::Float64`: optional L2 regularization on internal coordinates for residual-mode polish (default: 0.0). Nonzero values can help on ill-conditioned cases but hurt well-posed ones.
-- `polish_softwall_lambda::Float64`: soft-wall penalty strength for residual-mode polish (default: 1e-2). When > 0, augments the residual with a penalty that activates when a parameter is within `polish_softwall_epsilon` of either bound (measured in transformed internal coords). Targets bound-saturation pathologies (e.g. biohydrogenation k10) without biasing interior solutions. **Verified safe on 2026-05-15 fresh-look investigation**: zero penalty for typical benchmark truth values (which sit well inside the bound interval). Set to 0.0 to disable entirely.
-- `polish_softwall_epsilon::Float64`: width of the soft-wall band in transformed internal coords, as a fraction of the half-range (default: 0.10). Parameters with `|p_internal - midpoint| > (1 - epsilon) * halfrange` incur the penalty. With benchmark bounds `[1e-5, 10]`, ε=0.10 means values outside roughly `[3e-5, 5]` start incurring penalty — outside the typical truth range.
-- `polish_lso_delta::Float64`: LSO trust-region radius (default: 10.0).
-- `polish_lso_x_tol::Float64`/`polish_lso_f_tol::Float64`/`polish_lso_g_tol::Float64`: LSO/FastLM tolerances (default: -1.0 = inherit from `reltol`/`abstol`).
-- `terminal_fallback::Symbol`: Terminal rescue if algebraic search yields no candidates: `:none` or `:direct_opt` (default: `:direct_opt`)
-- `backsolve_recovery::Symbol`: Recovery policy for blown backsolves: `:none` or `:algebraic_resolve` (default: `:algebraic_resolve`)
-- `t0_state_completion::Symbol`: State completion policy during `t=0` rescue: `:strict` or `:seed_for_polish` (default: `:strict`)
-
-## Data Sampling Parameters
-- `datasize::Int`: Number of data points to generate (default: 21)
-- `time_interval::Vector{Float64}`: Time interval for sampling (default: [-0.5, 0.5])
-- `noise_level::Float64`: Level of noise to add to synthetic data (default: 0.0)
-- `noise_model::Symbol`: Synthetic noise model: `:additive`/`:homoskedastic` or `:relative`/`:multiplicative` (default: `:additive`)
-- `uneven_sampling::Bool`: Whether to use uneven time sampling (default: false)
-- `uneven_sampling_times::Vector{Float64}`: Custom sampling times (default: Float64[])
-
-## Reproducibility
-- `seed::Union{Nothing, Int}`: Seed for this package's random draws (default: `nothing`).
-  With an integer, `sample_problem_data` and the estimation entry points each run on
-  their own stream derived from it and then restore the default RNG. The same data and
-  options then give identical results on repeated runs, and the caller's random stream
-  is untouched. With `nothing`, they draw from the caller's default RNG, so results vary
-  between runs unless the caller calls `Random.seed!` first. `gamma_seed < 0` draws
-  fresh entropy for the homotopy start and is not reproducible under any `seed`.
-
-## Debug and Output Flags
-- `nooutput::Bool`: Print nothing and pass only errors to the logger (default: true). Set to `false` to see progress and a summary of the results.
-- `diagnostics::Bool`: Print detailed diagnostic output and write the candidate-synthesis log under `artifacts/diagnostics/` (default: false)
-- `progress::Bool`: Print one timestamped line as each phase starts and finishes, and nothing else (default: false)
-- `debug_solver::Bool`: Enable solver debugging (default: false)
-- `debug_cas_diagnostics::Bool`: Enable CAS system diagnostics (default: false)
-- `debug_dimensional_analysis::Bool`: Enable dimensional analysis debugging (default: false)
-- `profile_phases::Bool`: Print per-phase timing/allocation breakdown (default: false)
-
-## Feature Flags
-- `flow::EstimationFlow`: Which workflow to run (default: `FlowStandard`)
-- `use_si_template::Bool`: Use StructuralIdentifiability.jl templates (default: true)
-- `system_construction_policy::Symbol`: Polynomial construction policy. `:noise_frontier` selects low-derivative full-rank systems, then minimizes mixed volume within that frontier; pass `:legacy` to restore the pre-frontier construction.
-- `construction_candidate_limit::Int`: Maximum number of same-derivative-cap frontier bases to evaluate in noise-frontier probes.
-- `construction_beam_width::Int`: Basis-exchange beam width for noise-frontier probes.
-- `construction_compute_mixed_volume::Bool`: Whether noise-frontier probes compute actual HC mixed volume for candidate bases.
-- `save_system::Bool`: Save the polynomial systems to files under `saved_systems/` (default: false)
-- `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
-- `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
-- `uq_noise_source::Symbol`: Raw-observation covariance producer: `:learned_gp_homoscedastic` or `:smoother_residual_edf` (default: `:learned_gp_homoscedastic`)
-- `gp_derivative_lengthscale_factor::Float64`: Optional multiplier applied to the AGPUQ marginal-likelihood lengthscale after fitting (default: `1.0`). Values below one are an opt-in derivative-undersmoothing research arm.
-- `si_placeholder_fail_categories::Vector{Symbol}`: Temporary strictness gate for SI mapping categories. Accepts canonical semantic names and recent compatibility aliases. Empty preserves current behavior.
-- `auto_handle_transcendentals::Bool`: Automatically detect and handle sin/cos/exp(c*t) in equations (default: true)
-- `auto_rescale::Bool`: Power-of-2 rescaling of states/params/observables/data to O(1) before estimation, with results un-rescaled after (default: true; near-identity on already-O(1) models, rescues ill-scaled ones). Set false to disable. See core/problem_rescaling.jl.
-- `auto_filter_interpolators::Bool`: When true, filters AAA-family interpolators (S2AAAMLE, AAAD, AAADOld) out of the user's `interpolators` list when the data's estimated relative noise σ̂ exceeds method-specific thresholds (1e-4 for S2, 1e-5 for AAAD/AAADOld). These methods produce catastrophic derivative errors at noise > threshold (verified empirically); GP-family methods are kept regardless. If filtering empties the list, falls back to `InterpolatorAAADGPR`. Default: `true`. Set to `false` to bypass and run all user-specified methods unconditionally.
-- `synthesize_aggregate_candidates::Bool`: When true, injects extra synthetic candidates derived by per-component aggregating (median / mean / 25%-trimmed mean) of the existing SP and MP candidates' parameters and ICs. Each synthetic candidate is tagged with `provenance.source_type = :synthesized_aggregate` and `provenance.aggregation_strategy`; full lineage written to `artifacts/diagnostics/<model>/synthesis_log.csv`. Default: `true`. Set to `false` to skip synthesis entirely.
-
-## HomotopyContinuation Specific
-- `use_parameter_homotopy::Bool`: Use parameter homotopy for multi-shot estimation (default: true). When enabled, tracks solutions between shooting points instead of solving from scratch at each point. Can provide 2-20x speedup for shooting_points >= 3.
-- `hc_real_tol::Float64`: Tolerance for real solutions in HC (default: 1e-9)
-- `hc_show_progress::Bool`: Show HC solving progress (default: false)
-
-## StructuralIdentifiability Parameters
-- `si_probability::Float64`: Probability threshold for identifiability analysis (default: 0.99)
-- `si_fix_strategy::Symbol`: `:local_basis` (default) uses local SI classification and its coordinate transcendence basis for representative fixing. `:identifiable_functions` retains global SI classification and the identifiable-function Jacobian method for comparison. Neither choice certifies a unique or positive representative.
-
-## File I/O
-- `save_filepath::String`: Path for saving polynomial systems (default: "")
-
-# Constructors
+Options are given by keyword, either directly or through this struct:
 
 ```julia
-# Create with all defaults
-opts = EstimationOptions()
+estimate(problem; seed = 1, progress = true)
 
-# Create with custom tolerances
-opts = EstimationOptions(abstol=1e-12, reltol=1e-12)
-
-# Create with custom solver and interpolator
-opts = EstimationOptions(
-	system_solver=SolverHC,
-	interpolators=[InterpolatorAAAD]
-)
-
-# Create with debugging enabled
-opts = EstimationOptions(
-	diagnostics=true,
-	debug_solver=true,
-	debug_cas_diagnostics=true
-)
+options = EstimationOptions(seed = 1, progress = true)
+estimate(problem, options)
 ```
 
-# Notes
+The options most people reach for come first. The rest adjust one stage of the
+method each, and are grouped by stage.
 
-- This struct is designed to be immutable for thread safety and performance
-- Default values are chosen based on extensive testing and should work well for most problems
-- For challenging problems, use an explicit `interpolators = [...]` list rather than relying on hidden retries
-- When debugging, enable relevant debug flags and set `nooutput=false`
+# Everyday options
+
+- `interpolators`: the curve fits used to estimate derivatives of the data, as
+  a vector such as `[InterpolatorAAAD]`. Each is run and their candidate
+  solutions are pooled. The default is nine methods: Gaussian processes,
+  rational approximations and Chebyshev series. A shorter list is faster.
+- `polish_solutions` (default `false`): refine each solution by least squares
+  against the data. Worth turning on for noisy data.
+- `opt_lb`, `opt_ub` (default `nothing`): lower and upper bounds, as vectors
+  with the states first and then the parameters. Refinement stays inside them.
+- `seed` (default `nothing`): with an integer, repeated runs give identical
+  results and Julia's default random number generator is left as it was. With
+  `nothing`, random draws come from the default generator, so results vary a
+  little from run to run unless you call `Random.seed!` first.
+- `progress` (default `false`): print one timestamped line as each stage starts
+  and finishes.
+- `shooting_points` (default `12`): how many time points the equations are
+  solved at. Fewer is faster.
+- `compute_uncertainty` (default `false`): also estimate standard errors for
+  the best solution. Needs `InterpolatorAGPUQ` in `interpolators`.
+- `abstol`, `reltol` (default `1e-14`): tolerances for simulating the model.
+
+# Simulated data
+
+These are read only by [`sample_problem_data`](@ref).
+
+- `datasize` (default `21`): the number of time points.
+- `time_interval` (default `[-0.5, 0.5]`): the first and last time.
+- `noise_level` (default `0.0`): the size of the Gaussian noise added.
+- `noise_model` (default `:additive`): with `:additive`, the noise has standard
+  deviation `noise_level` times the mean absolute value of the series. With
+  `:relative`, each value is multiplied by `1 + noise_level * randn()`.
+- `uneven_sampling` (default `false`), `uneven_sampling_times`: sample at these
+  times, of which there must be `datasize`, instead of on an even grid.
+- `ode_solver` (default `AutoVern9(Rodas5P())`): the ODE solver for the
+  simulation.
+
+# Output
+
+- `nooutput` (default `true`): print nothing and pass only errors to the
+  logger. `false` prints the stages and a summary of the results.
+- `diagnostics` (default `false`): print detailed diagnostics and write the
+  candidate-synthesis log under `artifacts/diagnostics/`.
+- `save_system` (default `false`), `save_filepath` (default `""`): save the
+  polynomial systems to files, under `save_filepath` or else `saved_systems/`.
+- `heartbeat` (default `true`): with `nooutput = false`, include the stage
+  lines that `progress` prints.
+- `profile_phases` (default `false`): print the time and memory each stage
+  took.
+- `debug_solver`, `debug_cas_diagnostics`, `debug_dimensional_analysis`
+  (default `false`): extra output from the solver and the equation builder.
+- `hc_show_progress` (default `false`): show HomotopyContinuation's progress
+  bar.
+- `dump_raw_candidates_path`, `dump_polished_path` (default `nothing`): write
+  the candidate solutions to these CSV files, before and after refinement.
+
+# Estimating derivatives
+
+- `custom_interpolators` (default `Function[]`): your own functions
+  `(times, values) -> curve`, one for each `InterpolatorCustom` entry in
+  `interpolators`, in order.
+- `interpolator` (default `InterpolatorAAADGPR`), `custom_interpolator`
+  (default `nothing`): the single interpolator used when `interpolators` is
+  empty. They have no effect otherwise.
+- `auto_filter_interpolators` (default `true`): leave out the rational
+  interpolators when the data look noisy, because they amplify noise.
+- `s3_adapt_k` (default `10.0`): noise multiplier for the tolerance of the
+  `InterpolatorS3Adapt` methods. Higher keeps fewer support points.
+- `gp_derivative_lengthscale_factor` (default `1.0`): multiplies the fitted
+  length scale of `InterpolatorAGPUQ`. Values below one smooth less.
+- `gp_s3_refinement` (default `false`): deprecated. List the
+  `InterpolatorS3Adapt` methods in `interpolators` instead.
+
+# Building and solving the equations
+
+- `flow` (default `FlowStandard`): `FlowStandard` is the algebraic method.
+  `FlowDirectOpt` fits by local optimization alone.
+- `system_solver` (default `SolverHC`): how the polynomial systems are solved.
+  `SolverHC` is homotopy continuation, which finds every solution. `SolverNLOpt`,
+  `SolverFastNLOpt` and `SolverRobust` are local solvers.
+- `use_si_template` (default `true`): build the equations with
+  StructuralIdentifiability.jl.
+- `si_probability` (default `0.99`): the probability with which the
+  identifiability analysis is correct.
+- `si_fix_strategy` (default `:local_basis`): how values are chosen for
+  quantities that cannot be determined: `:local_basis` or
+  `:identifiable_functions`.
+- `si_placeholder_fail_categories` (default `Symbol[]`): for development. Kinds
+  of unresolved variable in the equations that should raise an error.
+- `system_construction_policy` (default `:noise_frontier`): which equations
+  are used. `:noise_frontier` prefers systems that need lower derivatives of
+  the data and have fewer solutions. `:legacy` is the earlier choice.
+- `construction_candidate_limit` (default `64`), `construction_beam_width`
+  (default `16`), `construction_compute_mixed_volume` (default `true`): limits
+  on the search that `:noise_frontier` does.
+- `shooting_warp` (default `true`), `shooting_warp_beta` (default `3.0`):
+  place more of the `shooting_points` near the start of the data, and how
+  strongly.
+- `point_hint` (default `0.5`): where in the time range, from 0 to 1, to work
+  when a single time point is needed, as for uncertainty.
+- `use_multipoint` (default `true`), `multipoint_n_points` (default `2`),
+  `multipoint_max_pairs` (default `20`), `multipoint_pair_strategy` (default
+  `:spread`): also solve systems that combine equations from several time
+  points. The strategy is `:spread` or `:boundary_order`.
+- `auto_handle_transcendentals` (default `true`): rewrite `sin(c*t)`,
+  `cos(c*t)` and `exp(c*t)` in polynomial form.
+- `auto_rescale` (default `true`): rescale states, parameters and data by
+  powers of two to bring them near one, and convert the estimates back.
+- `use_parameter_homotopy` (default `true`): solve at one time point and track
+  the solutions to the others, which is faster than solving each afresh.
+- `homotopy_tracking_mode` (default `:generic_start`): how that tracking is
+  done: `:generic_start`, `:gamma_straight`, `:gamma_straight_fallback` or
+  `:parameter`.
+- `gamma_max_seeds` (default `5`), `gamma_seed` (default `0`): the number of
+  random restarts for the tracking, and their seed. `0` uses a fixed seed for
+  each problem, a positive value is used as given, and a negative value draws a
+  new one every run, which `seed` cannot make repeatable.
+- `use_column_scaling` (default `true`): scale the unknowns of each polynomial
+  system by the size of the data derivatives.
+- `hc_real_tol` (default `1e-9`): how small the imaginary part of a solution
+  must be for it to count as real.
+- `hc_threading` (default `true`), `hc_compile_mode` (default `:all`): passed
+  to HomotopyContinuation: whether to use threads, and whether to compile the
+  systems (`:all`, `:none` or `:mixed`).
+
+# Choosing the solutions to return
+
+- `algebraic_multiplicity` (default `nothing`), `compute_algebraic_multiplicity`
+  (default `true`): the number of solutions the equations have. It is worked
+  out automatically unless you set it. At most this many results are returned.
+- `branch_top_k` (default `20`): the most results returned when that number is
+  not known. `0` returns all of them.
+- `rank_strategy` (default `:err_only`): the order of the results. `:err_only`
+  is by fit error. `:sat_neg1_err`, `:sat_err`, `:lognorm_err` and
+  `:lognorm_neg1_err` are experimental alternatives.
+- `branch_detection` (default `true`): rank without using the true values.
+  `false` ranks by distance to them, which is only meaningful in a benchmark.
+- `clustering_threshold` (default `1e-5`): the relative distance below which
+  two candidates are the same solution.
+- `cluster_method` (default `:identifiable_subspace`), `rough_cluster_eps`
+  (default `1.0`), `subspace_cluster_eps` (default `0.05`): how near-duplicates
+  are merged. `:identifiable_subspace` first separates candidates that are far
+  apart, then merges close ones within each group, at these two distances.
+  `:bit_identical` merges only at `clustering_threshold`.
+- `branch_cluster_eps` (default `0.001`), `branch_err_factor` (default
+  `100.0`): before refinement, drop candidates whose fit error is more than
+  `branch_err_factor` times the best, and merge the rest at this distance.
+- `branch_diversity_selection` (default `true`), `branch_diversity_eps`
+  (default `0.01`): when several results are returned, prefer ones that differ
+  by at least this relative distance.
+- `branch_completion` (default `true`), `branch_completion_max_anchors`
+  (default `1`), `branch_completion_residual_tol` (default `1e-6`): when the
+  equations have several solutions, take the best one found and solve for the
+  others from it.
+- `synthesize_aggregate_candidates` (default `true`): add candidates made by
+  combining the others: the median, mean and trimmed mean of each value.
+
+# Refining solutions
+
+- `polish_solver_solutions` (default `true`): refine each solution of the
+  polynomial equations against those equations.
+- `polish_solver_jacobian` (default `:forwarddiff`), `polish_solver_chunk_size`
+  (default `1`): how the Jacobian for that is computed, `:forwarddiff`,
+  `:symbolic` or `:finitediff`, and ForwardDiff's chunk size, where `0` chooses
+  automatically.
+- `polish_method` (default `PolishLSOBoundedLog`): the optimizer for
+  `polish_solutions`. `PolishLSOBoundedLog` and `PolishFastLMBoundedLog` are
+  Levenberg–Marquardt methods. `PolishNewtonTrust`, `PolishBFGS` and
+  `PolishLBFGS` minimize the sum of squares directly.
+- `polish_maxiters` (default `100`), `polish_maxtime` (default `3600.0`
+  seconds), `polish_max_concurrency` (default `Threads.nthreads()`): limits on
+  the iterations and time spent on each solution, and on how many are refined
+  at once.
+- `polish_divergence_factor` (default `10.0`), `polish_stagnation_window`
+  (default `50`): stop when the loss has grown by this factor, or has not
+  improved for this many iterations.
+- `polish_ode_maxiters` (default `5000`): the step limit for the ODE solver
+  during refinement.
+- `polish_coordinate_policy` (default `:auto`): the coordinates refinement
+  works in. `:auto` takes logarithms of quantities whose bounds are positive.
+  The others are `:linear`, `:log_only` and `:shifted_log_only`.
+- `polish_regularization_lambda` (default `0.0`): the strength of an L2 penalty
+  in those coordinates.
+- `polish_softwall_lambda` (default `1e-2`), `polish_softwall_epsilon` (default
+  `0.10`): a penalty that keeps values off their bounds: its strength, and the
+  width of the band beside each bound where it acts, as a fraction of the
+  range.
+- `polish_lso_delta` (default `10.0`), `polish_lso_x_tol`, `polish_lso_f_tol`,
+  `polish_lso_g_tol` (default `-1.0`): the trust-region radius and tolerances
+  of the Levenberg–Marquardt methods. A negative tolerance means `abstol` or
+  `reltol`.
+- `opt_maxiters` (default `10000`): the iteration limit for the local
+  optimization of `FlowDirectOpt` and `terminal_fallback`.
+- `opt_ad_backend` (default `:forward`): how the optimizers get derivatives:
+  `:forward` for ForwardDiff or `:finite` for finite differences.
+- `terminal_fallback` (default `:direct_opt`): what to do when the algebraic
+  method finds nothing. `:direct_opt` fits by local optimization. `:none`
+  returns no results.
+- `backsolve_recovery` (default `:algebraic_resolve`): what to do when a
+  solution blows up as it is integrated back to the first time point.
+  `:algebraic_resolve` keeps its parameters and solves for the states at that
+  time again. `:none` does nothing.
+- `t0_state_completion` (default `:strict`): with `:seed_for_polish`, when
+  that recovery finds no states it supplies starting values for
+  `polish_solutions` instead. With `:strict` it does not.
+- `use_sensitivity_seeds` (default `false`), `sensitivity_seed_probe_scale`
+  (default `1.0`), `sensitivity_seed_eigenvalue_threshold` (default `0.01`),
+  `sensitivity_seed_mahalanobis_threshold` (default `-1.0`),
+  `sensitivity_sigma_d_kappa` (default `2.0`): experimental. Add starting
+  points for refinement along the directions in which the data constrain a
+  solution least.
+
+# Uncertainty
+
+- `uq_failure_policy` (default `:return_failed`): when standard errors cannot
+  be computed, `:return_failed` returns a [`UQUnavailable`](@ref) that says
+  why, and `:throw` raises an error.
+- `uq_noise_source` (default `:learned_gp_homoscedastic`): where the noise
+  level comes from: the Gaussian process fit, or with `:smoother_residual_edf`
+  the residuals of that fit.
 """
 Base.@kwdef struct EstimationOptions
 	# Solver and Algorithm Selection
@@ -1161,6 +1259,22 @@ function merge_options(base::EstimationOptions; kwargs...)
 
 	# Create new struct
 	return EstimationOptions(; values...)
+end
+
+"""
+	_options_from_keywords(keywords) -> EstimationOptions
+
+`EstimationOptions(; keywords...)`, with a mistyped name reported by name rather
+than as a `MethodError` that lists every field.
+"""
+function _options_from_keywords(keywords)
+	unknown = setdiff(keys(keywords), fieldnames(EstimationOptions))
+	if !isempty(unknown)
+		names = join(("`$name`" for name in unknown), ", ", " and ")
+		verb = length(unknown) == 1 ? "is not an estimation option" : "are not estimation options"
+		throw(ArgumentError("$names $verb. `?EstimationOptions` lists them."))
+	end
+	return EstimationOptions(; keywords...)
 end
 
 """

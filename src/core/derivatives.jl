@@ -4,6 +4,13 @@
 
 const TAYLORDIFF_MAX_DERIVATIVE_ORDER = 20
 
+"""
+	UnsupportedDerivativeOrderError
+
+Thrown when a model needs a higher derivative of the measured data than the
+package computes (order $TAYLORDIFF_MAX_DERIVATIVE_ORDER). This happens when a few measured quantities have to
+account for many states and parameters.
+"""
 struct UnsupportedDerivativeOrderError <: Exception
 	requested_order::Int
 	supported_order::Int
@@ -12,10 +19,9 @@ struct UnsupportedDerivativeOrderError <: Exception
 end
 
 function Base.showerror(io::IO, err::UnsupportedDerivativeOrderError)
-	print(io, "Requested derivative order $(err.requested_order) exceeds the supported order $(err.supported_order) ")
-	print(io, "for the $(err.backend) derivative backend.")
-	!isnothing(err.context) && print(io, " Context: $(err.context).")
-	print(io, " High-order SI templates can ask for derivatives beyond what the current interpolation-based numeric derivative path supports.")
+	print(io, "This model needs derivative $(err.requested_order) of the measured data, and orders up to $(err.supported_order) are supported. ")
+	print(io, "This happens when a few measured quantities have to account for many states and parameters.")
+	!isnothing(err.context) && print(io, " It came up $(err.context).")
 end
 
 """

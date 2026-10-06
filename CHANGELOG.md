@@ -16,6 +16,35 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### A short path from a model and data to estimates — 2026-10-06
+
+- Add `ParameterEstimationProblem(system, measured_quantities; data, true_values, name, solver)`.
+  It takes a ModelingToolkit `System` as it is, completed or compiled or
+  neither, and data under the names of the measured quantities: a
+  `NamedTuple`, a dictionary, or a table with named columns. True values are
+  optional. Numbers the system carries, as in `@parameters a = 0.4`, are used
+  when present. The nine-argument constructor is unchanged.
+- Add `estimate(problem; options...)`, which returns the solutions found, best
+  fit first. A mistyped option name is reported by name.
+- Results print as a short table that marks parameters the data cannot
+  determine. `result[a]`, `result[:a]` and `result["a"]` look up one value.
+- `sample_problem_data(problem; datasize = 51, noise_level = 0.01)` takes its
+  options by keyword, as `estimate` does. It reports which true values are
+  missing instead of simulating with `NaN`.
+- For a model with a `sin(c*t)`, `cos(c*t)` or `exp(c*t)` input, `estimate`
+  returns the model's own states only, without the helper states the input is
+  rewritten with.
+- A model that is not rational is refused before any work is done, in a
+  message that quotes the term as it was written. The messages of
+  `UnsupportedModelClassError`, `UnsupportedDerivativeOrderError` and
+  `SamplingFailureError` are rewritten for users, and the three are documented.
+- `create_ordered_ode_system` names the system after its `name` argument. It
+  was always named `model`.
+- Rewrite the docstrings a user meets first: `EstimationOptions`, which now
+  describes every option, `ParameterEstimationProblem`,
+  `ParameterEstimationResult`, `ObservationData` and `ObservationSeries`.
+  Document `analyze_parameter_estimation_problem` and the package itself.
+
 ### Quiet by default — 2026-10-06
 
 - A run with default options now prints nothing, passes only errors to the

@@ -1,3 +1,14 @@
+"""
+    ODEParameterEstimation
+
+Estimate the parameters and initial conditions of an ODE model from time-series
+data, without starting guesses.
+
+Build a [`ParameterEstimationProblem`](@ref) from a ModelingToolkit system and
+your data, call [`estimate`](@ref), and read the
+[`ParameterEstimationResult`](@ref)s it returns. The manual is at
+<https://orebas.github.io/ODEParameterEstimation.jl/dev/>.
+"""
 module ODEParameterEstimation
 
 using ModelingToolkit
@@ -100,6 +111,7 @@ include("core/diagnostics/orchestrators.jl")
 include("core/diagnostics/html_report.jl")
 include("core/diagnostics/uq_and_reports.jl")
 include("core/diagnostics/estimator_aware_uq.jl")
+include("core/estimate.jl")  # keyword problem constructor, `estimate`, result display
 include("examples/load_examples.jl")
 
 # Export types
@@ -119,7 +131,7 @@ export direct_optimization_parameter_estimation
 export unpack_ODE, tag_symbol, create_ordered_ode_system
 export add_relative_noise, add_additive_noise, add_synthetic_noise, sample_problem_data, calculate_error_stats
 export analyze_estimation_result, print_stats_table, cluster_solutions
-export clear_denoms, hmcs, analyze_parameter_estimation_problem
+export clear_denoms, hmcs, analyze_parameter_estimation_problem, estimate
 export aaad, aaad_old_reliable, AAADapprox, GPRapprox, FHDapprox, nth_deriv, nth_deriv_at, aaad_gpr_pivot, fhdn
 export ChebyshevApprox, chebyshev_aicc, chebyshev_bic, FourierApprox, fourier_adaptive
 export InterpolatorMethod, InterpolatorAAAD, InterpolatorAAADGPR, InterpolatorAAADOld, InterpolatorFHD

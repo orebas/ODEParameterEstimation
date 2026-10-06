@@ -66,6 +66,12 @@ function add_synthetic_noise(data::OrderedDict, noise_level::Float64, noise_mode
 	throw(ArgumentError("Unknown synthetic noise model: $noise_model"))
 end
 
+"""
+	SamplingFailureError
+
+Thrown by [`sample_problem_data`](@ref) when the model cannot be simulated over
+the whole time interval, for example because the solution blows up.
+"""
 struct SamplingFailureError <: Exception
 	model_name::String
 	retcode
@@ -74,10 +80,9 @@ struct SamplingFailureError <: Exception
 end
 
 function Base.showerror(io::IO, err::SamplingFailureError)
-	print(io, "Sampling failed for model $(err.model_name).")
-	print(io, " ODE solve retcode=$(err.retcode).")
-	print(io, " Requested $(err.requested_points) sample points, but observed series lengths were $(Dict(err.returned_points)).")
-	print(io, " The trajectory did not reach the requested save grid; fix the model/ICs/time horizon or use a more appropriate ODE solver/setup.")
+	print(io, "Could not simulate data for $(err.model_name): the ODE solver stopped with $(err.retcode) before the end of the time interval.")
+	print(io, " $(err.requested_points) time points were asked for; the series have $(Dict(err.returned_points)).")
+	print(io, " Check the true values and the time interval, or try another `ode_solver`.")
 end
 
 function validate_sampled_trajectory!(
@@ -168,33 +173,32 @@ end
 
 
 """
-	sample_problem_data(problem::ParameterEstimationProblem;
-					   datasize = 21,
-					   time_interval = [-0.5, 0.5],
-					   solver = package_wide_default_ode_solver,
-					   uneven_sampling = false,
-					   uneven_sampling_times = Vector{Float64}(),
-					   noise_level = 0.0)
+	sample_problem_data(problem; options...) -> ParameterEstimationProblem
+	sample_problem_data(problem, options::EstimationOptions)
 
-Generate sample data for a parameter estimation problem.
+Simulate measurements for `problem` from its true parameter values and initial
+conditions, and return a copy of the problem that carries them.
 
-# Arguments
-- `problem`: The parameter estimation problem
-- `datasize`: Number of data points to generate
-- `time_interval`: Time interval for sampling
-- `solver`: ODE solver to use
-- `uneven_sampling`: Whether to use uneven time sampling
-- `uneven_sampling_times`: Custom sampling times (if uneven_sampling is true)
-- `noise_level`: Level of noise to add to the data
-- `noise_model`: `:relative`/`:multiplicative` or `:additive`/`:homoskedastic`
-- `seed`: With an integer, the noise is the same on every call and the caller's
+```julia
+problem = sample_problem_data(problem; datasize = 51, time_interval = [0.0, 10.0], noise_level = 0.01)
+```
+
+The options that matter here are:
+- `datasize`: the number of time points.
+- `time_interval`: `[start, stop]`; the points are evenly spaced over it.
+- `uneven_sampling` and `uneven_sampling_times`: use these time points instead.
+- `noise_level` and `noise_model`: add Gaussian noise. `:additive` uses a
+  standard deviation of `noise_level` times the mean absolute value of each
+  series; `:relative` scales each value by `1 + noise_level * randn()`.
+- `ode_solver`: the ODE solver for the simulation.
+- `seed`: with an integer, the noise is the same on every call and the caller's
   default RNG is left untouched. With `nothing` (the default), noise is drawn
   from the caller's default RNG, so `Random.seed!` controls it.
-
-# Returns
-- New ParameterEstimationProblem with generated data
 """
-function sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
+sample_problem_data(problem::ParameterEstimationProblem; options...) =
+	sample_problem_data(problem, _options_from_keywords(options))
+
+function sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions)
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before sampling data."))
 	# The whole call is scoped, not only the noise draw: building and solving
 	# the model forks tasks, which advances the caller's RNG fork state.
@@ -204,6 +208,10 @@ function sample_problem_data(problem::ParameterEstimationProblem, opts::Estimati
 end
 
 function _sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions)
+	unknown = [string(variable) for (variable, value) in merge(problem.p_true, problem.ic) if isnan(value)]
+	isempty(unknown) || throw(ArgumentError(
+		"Simulating data needs a true value for every parameter and initial condition. Missing: $(join(unknown, ", ")). " *
+		"Pass them as `true_values` when constructing the problem."))
 	# Create new OrderedODESystem with completed system
 	ordered_system = OrderedODESystem(
 		complete(problem.model.system),
