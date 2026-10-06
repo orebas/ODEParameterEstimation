@@ -60,9 +60,10 @@ attempts, and with fewer attempts there is less to choose from.
 
 ## Refining estimates from noisy data
 
-`polish_solutions = true` refines each answer by least squares against the
-data, starting from the algebraic estimate. [Noisy data](@ref) shows what it
-buys.
+Each answer is refined by least squares against the data, starting from the
+algebraic estimate. [Noisy data](@ref) shows what that buys.
+`polish_solutions = false` turns it off and returns the algebraic estimates as
+they are.
 
 If you know the range the values must lie in, `opt_lb` and `opt_ub` keep the
 refinement inside it. Each is a vector with the states first and the parameters

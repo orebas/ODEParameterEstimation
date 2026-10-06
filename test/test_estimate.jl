@@ -52,6 +52,25 @@ const _ESTIMATE_QUICK_OPTS = (;
 	@test issorted(analysis.returned_results; by = result -> result.err)
 end
 
+@testset "Estimates are refined against the data by default" begin
+	@parameters a b
+	@variables x1(t) x2(t) y1(t) y2(t)
+	@named oscillator = System([D(x1) ~ -a * x2, D(x2) ~ b * x1], t)
+	problem = ParameterEstimationProblem(oscillator, [y1 ~ x1, y2 ~ x2];
+		true_values = [a => 0.4, b => 0.8, x1 => 1.0, x2 => 0.5])
+	problem = sample_problem_data(problem; datasize = 51, time_interval = [0.0, 5.0], noise_level = 0.02, seed = 11)
+
+	shared = (; seed = 11, interpolators = [InterpolatorAGPRobust])
+	refined = first(estimate(problem; shared...))
+	rough = first(estimate(problem; shared..., polish_solutions = false))
+	@test refined.provenance.polish_applied
+	@test !rough.provenance.polish_applied
+	# The refinement minimizes the fit error, so it cannot end above where it started.
+	@test refined.err <= rough.err
+	@test refined[a] ≈ 0.4 rtol = 0.05
+	@test refined[b] ≈ 0.8 rtol = 0.05
+end
+
 @testset "A known input adds no states to the result" begin
 	@parameters a b
 	@variables x(t) y(t)

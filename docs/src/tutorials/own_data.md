@@ -93,14 +93,9 @@ little.
 
 ## If the measurements are noisy
 
-The example above used exact numbers. Real measurements are not exact, and for
-those you should pass `polish_solutions = true`:
-
-```julia
-results = estimate(problem; polish_solutions = true)
-```
-
-[Noisy data](@ref) shows the difference it makes, and what else helps.
+The example above used exact numbers. Real measurements are not exact, and
+`estimate` allows for that: it fits its answers to the data before returning
+them. [Noisy data](@ref) shows how much that matters, and what else helps.
 
 ## Checking the result
 

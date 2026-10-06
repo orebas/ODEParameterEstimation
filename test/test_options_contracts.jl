@@ -22,6 +22,10 @@ using OrderedCollections
 	documentation = string(@doc EstimationOptions)
 	@test all(name -> occursin("`$name`", documentation), fieldnames(EstimationOptions))
 
+	# Solutions are refined against the data unless that is turned off (default
+	# since 2026-10-06).
+	@test o.polish_solutions
+
 	# Output is opt-in: a default run prints nothing and writes no files.
 	@test o.nooutput
 	@test !o.diagnostics

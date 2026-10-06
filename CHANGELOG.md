@@ -16,6 +16,17 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Estimates are refined by default — 2026-10-06
+
+- `polish_solutions` now defaults to `true`: each solution of the equations is
+  fitted to the data by least squares before it is returned. On Lotka–Volterra
+  with 101 points and 2% noise, the worst parameter error fell from 30% to 2%.
+  On exact data the estimates of six models, `hiv` among them, stayed exact.
+  `polish_solutions = false` returns the solutions of the equations as they
+  are.
+- With `compute_uncertainty = true`, the standard errors now describe the
+  refined estimate, since that is the one returned.
+
 ### One way to choose interpolators — 2026-10-06
 
 - Remove the `interpolator` and `custom_interpolator` options. Beside the

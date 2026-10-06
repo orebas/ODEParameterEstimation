@@ -1,8 +1,10 @@
 # Noisy data
 
-Measured data are noisy, and noise is hard on this method, because it works
-from derivatives of the data and differentiating amplifies noise. The short
-version of this page: **with noisy data, pass `polish_solutions = true`.**
+Measured data are noisy, and noise is hard on the equation-solving part of this
+method, because it works from derivatives of the data and differentiating
+amplifies noise. So `estimate` does not stop there. It takes each solution of
+the equations and fits it to the data by least squares. This page shows what
+each step contributes.
 
 ## An example
 
@@ -28,11 +30,12 @@ problem = sample_problem_data(problem;
 nothing # hide
 ```
 
-First with the defaults, then with refinement turned on:
+Here is the estimate, and beside it what the equations gave before the fit,
+which `polish_solutions = false` returns:
 
 ```@example noisy
-rough = estimate(problem; seed = 1)[1]
-refined = estimate(problem; seed = 1, polish_solutions = true)[1]
+refined = estimate(problem; seed = 1)[1]
+rough = estimate(problem; seed = 1, polish_solutions = false)[1]
 
 println("              true     rough   refined")
 for (quantity, value) in truth
@@ -40,10 +43,9 @@ for (quantity, value) in truth
 end
 ```
 
-The rough estimates are what the equations give from derivatives of noisy
-data. They are in the right region, and some are well off. The refined ones
-started from them and were then fitted to the data by least squares, and they
-are within a few percent of the truth.
+The rough values come from derivatives of noisy data. They are in the right
+region, and some are well off. The refined ones started there and were then
+fitted to the data, and they are within a few percent of the truth.
 
 ```@example noisy
 using OrdinaryDiffEq, Plots
@@ -58,28 +60,28 @@ plot!(fit; idxs = [prey, predators], label = ["prey, fitted" "predators, fitted"
 ## Why two steps
 
 Fitting by least squares is the standard way to estimate parameters, and its
-weakness is that it needs a starting point near the answer. The algebraic
-estimate is that starting point. It needs no guess of its own, and it finds
-every answer, so the refinement begins in the right place each time.
+weakness is that it has to start near the answer. Solving the equations
+supplies that start, and because it finds every solution, the fit begins in the
+right place each time.
 
-Refinement is off unless you ask for it. On exact data the algebraic estimate
-is already exact and there is nothing for it to do.
+On exact data the solutions of the equations are already exact, and the fit
+leaves them as they are.
 
 ## What else helps
 
-- **More points.** The refinement averages the noise over all of them, so more
-  points mean a better answer.
+- **More points.** The fit averages the noise over all of them, so more points
+  mean a better answer.
 - **Bounds.** If you know the values are positive, or lie in some range, pass
   `opt_lb` and `opt_ub`. See [Options](@ref).
 - **Measuring more.** A model whose unknowns all show up in the first or second
-  derivative of the data is far less sensitive to noise than one that needs the
+  derivative of the data gives a far better start than one that needs the
   fifth. Measuring one more state can make that difference.
 
 A run on noisy data can be made faster by using a single Gaussian-process
 interpolator, which here gives the same answer:
 
 ```julia
-estimate(problem; polish_solutions = true, interpolators = [InterpolatorAGPRobust])
+estimate(problem; interpolators = [InterpolatorAGPRobust])
 ```
 
 ## How good is the answer

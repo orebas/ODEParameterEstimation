@@ -42,10 +42,9 @@ each estimate is within a standard error or two of its true value.
 ## What the numbers mean
 
 The Gaussian process learns how noisy the data are. That noise is then carried
-through the derivative estimates and the solution of the equations to the
-parameters, using a linear approximation around the estimate. The standard
-errors say how far the estimate would move if the same experiment were
-measured again with fresh noise.
+through the least-squares fit to the parameters, using a linear approximation
+around the estimate. The standard errors say how far the estimate would move if
+the same experiment were measured again with fresh noise.
 
 Keep three things in mind:
 
@@ -70,5 +69,5 @@ else
 end
 ```
 
-A report also carries its own checks: `uncertainty.status` is `:ok` when they
-passed, and `uncertainty.warnings` lists anything they found.
+A report also carries its own checks. `uncertainty.status` is `:ok` when they
+passed, and `uncertainty.warnings` lists the assumptions behind the numbers.

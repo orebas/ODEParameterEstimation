@@ -17,10 +17,9 @@ can take a long time in any case. See [Size](@ref).
 Simulate the model with the estimates and plot it against the data, as in
 [Seeing the fit](@ref). Then:
 
-- **The curve misses the data.** If the data are noisy, turn on
-  `polish_solutions = true` and, if you can, use more points.
-  [Noisy data](@ref) shows how much that changes. If the data are clean and the
-  curve still misses, the model probably does not describe them.
+- **The curve misses the data.** With noisy data, more points help. See
+  [Noisy data](@ref). If the data are clean and the curve still misses, the
+  model probably does not describe them.
 - **The curve fits, but the values are not what you expected.** The data may
   allow more than one answer. Look at the other results, and at whether any
   values are marked *not identifiable*. See [More than one answer](@ref).

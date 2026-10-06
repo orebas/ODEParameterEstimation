@@ -149,8 +149,8 @@ method each, and are grouped by stage.
   a vector such as `[InterpolatorAAAD]`. Each is run and their candidate
   solutions are pooled. The default is nine methods: Gaussian processes,
   rational approximations and Chebyshev series. A shorter list is faster.
-- `polish_solutions` (default `false`): refine each solution by least squares
-  against the data. Worth turning on for noisy data.
+- `polish_solutions` (default `true`): refine each solution by least squares
+  against the data. `false` returns the algebraic estimates as they are.
 - `opt_lb`, `opt_ub` (default `nothing`): lower and upper bounds, as vectors
   with the states first and then the parameters. Refinement stays inside them.
 - `seed` (default `nothing`): with an integer, repeated runs give identical
@@ -521,7 +521,7 @@ Base.@kwdef struct EstimationOptions
 	# Derivative and Reconstruction Parameters
 
 	# Optimization Parameters
-	polish_solutions::Bool = false
+	polish_solutions::Bool = true
 	polish_solver_solutions::Bool = true
 	polish_solver_jacobian::Symbol = :forwarddiff
 	polish_solver_chunk_size::Int = 1

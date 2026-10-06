@@ -44,12 +44,12 @@ are as many equations as unknowns.
 4. **Test every candidate against the data.** Each real solution gives parameter
    values and initial conditions. The model is simulated with them and compared
    with the measurements.
-5. **Report the distinct answers.** Candidates that agree are merged, and the
+5. **Refine.** The candidates that come close are then fitted to the data by
+   least squares, each starting from its own values. On exact data this
+   changes nothing. On noisy data it is what makes the answer accurate.
+6. **Report the distinct answers.** Candidates that agree are merged, and the
    rest are ranked by how well they fit. The package works out how many
    solutions the equations have and returns at most that many.
-
-With `polish_solutions = true`, each answer is then refined by least squares
-against the data.
 
 ## What follows from this
 
@@ -60,9 +60,8 @@ against the data.
 - **Rational models only.** The equations must be polynomial, so the model has
   to be built from polynomials and their ratios. See [Which models work](@ref).
 - **Derivatives are the hard part.** Noise grows with every derivative taken,
-  so the accuracy of the answer depends on how well the data pin down the
-  derivatives the model needs. More points and less noise both help. See
-  [Noisy data](@ref).
+  so on noisy data the solutions of the equations are rough, and the
+  refinement step does the rest. See [Noisy data](@ref).
 
 ## Papers
 

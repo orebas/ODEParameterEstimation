@@ -14,8 +14,9 @@ model to time-series data.
 
 It works by solving equations rather than by searching. Derivatives of the data
 are estimated, the model turns them into polynomial equations for the unknowns,
-and those equations are solved for all their solutions. Because of that, the
-model has to be built from polynomials and ratios of polynomials.
+and those equations are solved for all their solutions, which are then refined
+against the data. Because the equations must be polynomial, the model has to be
+built from polynomials and ratios of polynomials.
 
 ## Installation
 
@@ -63,7 +64,7 @@ ParameterEstimationResult
   Initial conditions (t = 0)
     prey(t) = 1
     predators(t) = 0.5
-  Fit error: 4.28e-23
+  Fit error: 7.41e-26
 ```
 
 With your own measurements, pass them instead of simulating:
@@ -72,11 +73,6 @@ With your own measurements, pass them instead of simulating:
 problem = ParameterEstimationProblem(lotka_volterra, [y1 ~ prey, y2 ~ predators];
     data = (t = times, y1 = prey_counts, y2 = predator_counts))
 ```
-
-Measured data are noisy. For those, add `polish_solutions = true`:
-`estimate(problem; polish_solutions = true)`. The manual's page on
-[noisy data](https://orebas.github.io/ODEParameterEstimation.jl/dev/tutorials/noisy_data/)
-shows why.
 
 The first call to `estimate` in a session takes a couple of minutes while Julia
 compiles. After that, a model of this size takes seconds.
