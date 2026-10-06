@@ -180,7 +180,7 @@ const OPE = ODEParameterEstimation
 		# silently at three separate sites (untransformed bounds into a scaled
 		# solve; fallback to the ±1e6 box; skipped backsolve clamp) — CSTR
 		# final_v2 shipped out-of-box polished results this way
-		# (docs/2026-06-19_transform_bounds_mismatch.md).
+		# (docs/internal/2026-06-19_transform_bounds_mismatch.md).
 		pep = OPE.hiv()
 		opts0 = EstimationOptions(datasize = 21, noise_level = 0.0, nooutput = true)
 		Random.seed!(7)

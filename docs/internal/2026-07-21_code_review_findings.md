@@ -24,7 +24,7 @@ with no `@warn`/`@error`/`throw` anywhere:
 - `rescale_option_bounds` — `problem_rescaling.jl:472` (`length(v) != length(scales)` → returns `v` untransformed; reached via `analysis_utils.jl:933` whenever `auto_rescale=true`) → a physical bound is shipped **untransformed** into a scaled-coordinate solve.
 - `_build_polish_context` — `parameter_estimation.jl:1662-1672` (`length(opts.opt_lb) != p_size` → silently `compute_default_bounds`, the ±1e6 box) → user bounds ignored.
 - `_clamp_params_for_backsolve` — `parameter_estimation_helpers.jl:544` (no-op on mismatch) → backsolve clamp skipped → spurious HC candidates with params ~0 diverge (the cstr case this exists to fix).
-The transcendental `_trfn_` case (`docs/2026-06-19_transform_bounds_mismatch.md`) is
+The transcendental `_trfn_` case (`docs/internal/2026-06-19_transform_bounds_mismatch.md`) is
 just the most common trigger of the same class.
 **Fix once:** a shared length-validating helper (ideally a `BoundSpec` keyed by
 variable identity, resolved after all transforms) that ERRORS on mismatch.

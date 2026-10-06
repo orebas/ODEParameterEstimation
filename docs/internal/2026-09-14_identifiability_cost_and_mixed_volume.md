@@ -28,8 +28,8 @@ the preceding changes separately.
 ## What ODEPE currently requests
 
 The relevant path is
-[`prepare_si_template_with_structural_fix`](../src/core/parameter_estimation.jl)
-→ [`get_si_equation_system`](../src/core/si_equation_builder.jl):
+[`prepare_si_template_with_structural_fix`](../../src/core/parameter_estimation.jl)
+→ [`get_si_equation_system`](../../src/core/si_equation_builder.jl):
 
 ```text
 Original model + observations
@@ -269,7 +269,7 @@ cached and reused across anchors and interpolators for the same structure.
 Single-point and multipoint systems have distinct structures and caches.
 
 There is an additional cost before that reuse:
-[`_noise_select_pool`](../src/core/noise_frontier_construction.jl) constructs
+[`_noise_select_pool`](../../src/core/noise_frontier_construction.jl) constructs
 candidate row bases at the first feasible derivative cap, deduplicates row sets,
 and keeps up to `construction_candidate_limit = 64`. Each square full-rank
 candidate can call `_noise_mixed_volume`; `construction_compute_mixed_volume`

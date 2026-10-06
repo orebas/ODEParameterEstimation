@@ -5,7 +5,7 @@ It changes no production algorithms or dependencies.
 
 ## What the GCD is for
 
-[`clear_denoms`](../src/core/math_utils.jl) calls `simplify_fractions` on both
+[`clear_denoms`](../../src/core/math_utils.jl) calls `simplify_fractions` on both
 sides, obtains numerator/denominator pairs, and cross-multiplies them. The
 simplifier combines rational sums and cancels common polynomial factors. This
 use of `simplify_fractions` is present as far back as commit `d9f062c` on

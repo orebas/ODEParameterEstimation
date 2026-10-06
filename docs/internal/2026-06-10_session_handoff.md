@@ -1,7 +1,7 @@
 # Session handoff — 2026-06-10 (maintainability campaign A–H + open findings)
 
 Pick-up doc for the next session. Authoritative trackers:
-- **`docs/2026-06-10_postcampaign_review.md`** — the live prioritized work list (P0–P4).
+- **`docs/internal/2026-06-10_postcampaign_review.md`** — the live prioritized work list (P0–P4).
 - Off-repo ledger (richer history): `~/.claude/plans/ok-let-s-make-sure-cryptic-fiddle.md`
   and memory `project_2026_06_10_maintainability_campaign.md`.
 

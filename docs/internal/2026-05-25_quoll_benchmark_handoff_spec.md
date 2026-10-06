@@ -147,7 +147,7 @@ The new ODEPE branch-stress models were added in:
 src/examples/models/branch_stress_systems.jl
 src/examples/load_examples.jl
 test/branch_stress_multiplicity.jl
-docs/2026-05-24_branch_hunt_results.md
+docs/internal/2026-05-24_branch_hunt_results.md
 ```
 
 Before running Quoll on the cluster, ensure the cluster copy of ODEPE includes

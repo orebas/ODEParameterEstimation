@@ -72,7 +72,7 @@ fails recovery and has extreme local conditioning despite exact rank 12.
 
 ## Start here
 
-Read the canonical instructions in [`CLAUDE.md`](../CLAUDE.md). Use Julia with
+Read the canonical instructions in [`CLAUDE.md`](../../CLAUDE.md). Use Julia with
 `--startup-file=no` from the global environment. Develop this checkout there,
 then run:
 
@@ -116,11 +116,11 @@ Paths below are relative to `src/`.
 
 ## Active test coverage
 
-The authoritative full-suite list is [`test/runtests.jl`](../test/runtests.jl).
+The authoritative full-suite list is [`test/runtests.jl`](../../test/runtests.jl).
 Each file receives a fixed RNG seed, a separate module, and a temporary working
 directory. A file error is recorded without preventing the remaining files
 from running. The unit group is assembled in
-[`test/fast_unit.jl`](../test/fast_unit.jl).
+[`test/fast_unit.jl`](../../test/fast_unit.jl).
 
 | Coverage | Representative active files |
 |---|---|

@@ -24,7 +24,7 @@ Adapted from ParameterEstimation.jl (GPL-3.0), revision
 `99f4bd59d9c6cedcfeb644672168aaa3f0088984`,
 `src/rational_interpolation/bary_derivs.jl`. That file also supplied the
 original barycentric and rational interpolation helpers below. See the
-repository's `docs/registry_preparation.md` attribution inventory.
+repository's `docs/internal/registry_preparation.md` attribution inventory.
 Perform a rational interpolation of the data `y` at the points `x` with numerator degree `n`.
 This function only returns the coefficients of the numerator and denominator polynomials.
 

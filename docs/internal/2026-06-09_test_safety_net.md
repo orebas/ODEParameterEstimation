@@ -1,6 +1,6 @@
 # Test Safety Net — companion to the 2026-06-09 code review
 
-**Goal:** before touching anything from `docs/2026-06-09_code_review.md`, make sure
+**Goal:** before touching anything from `docs/internal/2026-06-09_code_review.md`, make sure
 we can tell whether a change broke something. Two distinct needs:
 
 - **Refactors** (dead-code removal, dedup, type annotations, file splits — the bulk

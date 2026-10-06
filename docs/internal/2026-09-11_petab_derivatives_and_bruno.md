@@ -13,7 +13,7 @@ include every new estimation attempt. Original pilot/block results are unchanged
 
 ## What the recovery check measures
 
-[`test/benchmark_smoke.jl`](../test/benchmark_smoke.jl) generates synthetic
+[`test/benchmark_smoke.jl`](../../test/benchmark_smoke.jl) generates synthetic
 observations from known parameters and runs the estimator. It checks whether at
 least one returned parameter branch recovers the generating values. Its metric is
 

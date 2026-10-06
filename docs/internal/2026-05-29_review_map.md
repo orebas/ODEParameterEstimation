@@ -7,7 +7,7 @@ remains historical and is not an up-to-date list of open defects.
 > **⚠️ STALE (flagged 2026-07-21, still true 2026-08-13).** This map's snapshot
 > predates: the src/research/ + deprecated/ reorg, the SI-template/noise-frontier
 > default flow, RunContext, the 2026-07/08 fix-class arcs, and the current gate
-> tiers. Until rewritten, use instead: `docs/2026-07-21_code_review_findings.md`
+> tiers. Until rewritten, use instead: `docs/internal/2026-07-21_code_review_findings.md`
 > (verified review findings), `repro/hc_threading_mwe_2026_07_22/ADJUDICATION_*`
 > (audit method), and the gates — `test/fast_unit.jl` (contract tier, seconds),
 > `test/fast_core.jl` (~6 min), full `test/runtests.jl` (~15 min, the merge bar).

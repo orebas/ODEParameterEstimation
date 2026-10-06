@@ -3,7 +3,7 @@
 **Purpose.** A durable, in-repo narrative of the 2026-06 maintainability campaign and,
 especially, the **roadmap of next stages** so the work can be resumed cold. This is the
 *narrative*; the *live work tracker* (open P0–P4 items, checkboxes) is
-[`docs/2026-06-10_postcampaign_review.md`](2026-06-10_postcampaign_review.md). When the
+[`docs/internal/2026-06-10_postcampaign_review.md`](2026-06-10_postcampaign_review.md). When the
 two disagree on status, the tracker wins.
 
 - **As of:** 2026-06-11. Branch `main` HEAD before this doc: `d709196`. Fast suite:
@@ -43,7 +43,7 @@ archived to the build-excluded `deprecated/`; suite **673 → 755**.
   best-of-branch recovery guard (deliberately NOT in the fast gate; run before a cluster
   handoff).
 - **H — post-campaign re-review.** 4 read-only lanes → the live tracker
-  `docs/2026-06-10_postcampaign_review.md`.
+  `docs/internal/2026-06-10_postcampaign_review.md`.
 
 Memory/topic files: `project_2026_06_10_maintainability_campaign.md`,
 `feedback_maintainability_goal.md`.
@@ -73,7 +73,7 @@ Memory/topic files: `project_2026_06_10_maintainability_campaign.md`,
 
 A long thread (2026-06-11) that started as "hiv recovery regression" and ended as a
 **reproduction artifact + a set of real latent fragilities**. Full record:
-`docs/2026-06-10_postcampaign_review.md` P0 #0; memory `project_2026_06_11_hiv_regression.md`.
+`docs/internal/2026-06-10_postcampaign_review.md` P0 #0; memory `project_2026_06_11_hiv_regression.md`.
 
 - **Not a regression.** The canary used the repo `hiv()` — raw physical scales
   (`beta=2e-5 … k=50`, `x(0)=1000`, ~8 orders) — with **no optimization bounds**. The
@@ -108,7 +108,7 @@ A long thread (2026-06-11) that started as "hiv recovery regression" and ended a
      then **auto-M=1 truncates** to that single wrong rep.
 - **This motivates the rescaling work** (§4): make the problem O(1) up front so the solve
   and polish are well-conditioned irrespective of bounds. See
-  `docs/2026-05-01_variable_scaling_investigation.md`.
+  `docs/internal/2026-05-01_variable_scaling_investigation.md`.
 
 ## 4. The rescaling work (designed; this is R1 below)
 
@@ -118,7 +118,7 @@ pattern. It rescales states / parameters / observables / data to O(1) (powers of
 time scaling deferred), runs the unchanged estimation, and un-rescales the results.
 Default OFF (`auto_rescale::Bool=false`) → byte-identical until enabled. Fix mechanism =
 **conditioning** (O(1) variables → well-conditioned solve + polish). Full design and
-correctness traps: the campaign plan + `docs/2026-06-10_postcampaign_review.md`.
+correctness traps: the campaign plan + `docs/internal/2026-06-10_postcampaign_review.md`.
 
 ---
 
@@ -197,7 +197,7 @@ timing/legacy/main(+seams); `parameter_estimation` → ~7 clusters incl. a `core
 pairing with `polish_residual.jl`. Execute after R1–R3 settle.
 
 **R5 — Phase I export/API tiering** (tracker P3, task #9): 261 exported names → tiered
-public/internal (PEB usage audit captured in `docs/2026-06-10_phaseI_api_usage_audit.md`
+public/internal (PEB usage audit captured in `docs/internal/2026-06-10_phaseI_api_usage_audit.md`
 — PEB uses *qualified* access, so unexporting is safer than the count implies); docstring
 P0s (`analyze_parameter_estimation_problem` has none); the option `# Fields` catalog is
 behind. Needs Oren's tier sign-off.

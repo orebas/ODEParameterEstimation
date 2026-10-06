@@ -5,7 +5,7 @@ using OrderedCollections
 
 # Historical Crauste example adapted from ParameterEstimation.jl (GPL-3.0),
 # examples/all-global/crauste.jl; a preserved source is revision
-# 9e7adc33a4a11954acde0214f482cffea9551170. See docs/registry_preparation.md.
+# 9e7adc33a4a11954acde0214f482cffea9551170. See docs/internal/registry_preparation.md.
 function crauste()
 	parameters = @parameters mu_N mu_EE mu_LE mu_LL mu_M mu_P mu_PE mu_PL delta_NE delta_EL delta_LM rho_E rho_P
 	parameters = @parameters muN muEE muLE muLL muM muP muPE muPL deltaNE deltaEL deltaLM rhoE rhoP

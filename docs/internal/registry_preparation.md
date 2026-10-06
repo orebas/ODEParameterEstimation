@@ -148,7 +148,7 @@ The release gates apply to these replacements, including fresh registered-only
 installation and recovery checks.
 
 - [x] **SIAN scope and first decision:** Map the calls in
-  [SI equation construction](../src/core/si_equation_builder.jl), including
+  [SI equation construction](../../src/core/si_equation_builder.jl), including
   jet equations, generic sampling, variable ordering, rank selection, and
   polynomial template construction. Keep this distinct from
   `StructuralIdentifiability.jl`'s identifiability classification. Compare a
@@ -158,8 +158,8 @@ installation and recovery checks.
   representative models' equations, variable roles, structural fixes,
   multiplicity, and candidate recovery, with acceptable construction time.
 - [x] **GaussianProcesses.jl scope and first decision:** Map the
-  [GP-pivoted interpolator](../src/core/derivatives.jl) and the related PDMats
-  compatibility bridge in [the main module](../src/ODEParameterEstimation.jl).
+  [GP-pivoted interpolator](../../src/core/derivatives.jl) and the related PDMats
+  compatibility bridge in [the main module](../../src/ODEParameterEstimation.jl).
   Compare retaining the registered dependency, upstream repair, a narrow
   internal GP fit, and improvements to the existing AGP path. The old
   [interpolator comparison script on `research`](https://github.com/orebas/ODEParameterEstimation.jl/blob/research/src/examples/compare_interpolators.jl)
@@ -195,11 +195,11 @@ passing run at an earlier revision does not satisfy them.
   internalization worktree passes the full Julia 1.12.7 suite after the test
   portability and compilation-budget corrections documented below. Recheck
   the eventual release commit. Julia nightly is advisory in the current
-  [CI matrix](../.github/workflows/CI.yml); its recorded GPUCompiler
+  [CI matrix](../../.github/workflows/CI.yml); its recorded GPUCompiler
   precompilation crash is a separate dependency issue.
 - Run the seeded recovery benchmark with registered dependencies on the
   selected release stack. The full and benchmark commands are documented in
-  [CLAUDE.md](../CLAUDE.md). A passing unit group alone is insufficient for an
+  [CLAUDE.md](../../CLAUDE.md). A passing unit group alone is insufficient for an
   estimation change; recovery accuracy does not certify UQ coverage.
 - If SIAN or GaussianProcesses.jl functionality moves inside ODEPE, run
   paired behavior and performance comparisons before and after the change on
@@ -292,7 +292,7 @@ source did not use. `Plots`, `Zygote`, `BlackBoxOptim` and
 work: Enzyme 0.13.210 raised `IllegalTypeAnalysisException` while compiling
 the trajectory loss on the `simple` model, and the batch polisher kept the
 unpolished candidate. The eight dependencies and that option value are
-removed; see the [changelog](../CHANGELOG.md).
+removed; see the [changelog](../../CHANGELOG.md).
 
 Every global referenced by the package's 2,280 methods resolves to the same
 binding before and after the change, and forward-mode polish results on
@@ -336,7 +336,7 @@ sampling and estimation run on their own random streams and restore Julia's
 default RNG, so repeated runs are identical and the caller's stream is
 untouched. Fresh processes with one and four threads returned identical
 candidate pools for `simple` and Lotka–Volterra; without a seed every pool
-differed. See the [changelog](../CHANGELOG.md) and the
+differed. See the [changelog](../../CHANGELOG.md) and the
 [reproducibility note](2026-03-17_results_and_api.md#reproducibility).
 
 On that worktree the local Julia 1.13.1 unit, full and benchmark gates passed
@@ -366,25 +366,25 @@ registering.
 - [x] Update the README's repository URL, status wording, support limits, and
   example if the release choices change. Keep the release guide short and link
   to the detailed technical records rather than copying their results.
-- [x] Keep the existing [TagBot](../.github/workflows/TagBot.yml) and
-  [CompatHelper](../.github/workflows/CompatHelper.yml) workflows aligned with
+- [x] Keep the existing [TagBot](../../.github/workflows/TagBot.yml) and
+  [CompatHelper](../../.github/workflows/CompatHelper.yml) workflows aligned with
   the final repository URL and supported dependency versions.
 
 ## Provenance and attribution
 
-The package remains under the root [GPL-3.0 license](../LICENSE). This review
+The package remains under the root [GPL-3.0 license](../../LICENSE). This review
 covers source and fixtures retained on `main`; preserved experimental trees
 continue to carry their original notices. The following third-party origins
 are recorded explicitly:
 
 | Material | Source and retained attribution |
 | --- | --- |
-| Private GP implementation | Adapted from STOR-i/GaussianProcesses.jl and validated revision `3e896e9dbd0c41341c723ab16dcf0c261fc7b95a`; Jamie Fairbrother and Christopher Nemeth's MIT notice is retained in [the GP directory](../src/internal/gp/LICENSE). Scope and source files are listed in its [README](../src/internal/gp/README.md). |
-| Private SIAN helpers | [SIAN source at `2f78ca8`](https://github.com/orebas/SIAN-Julia/tree/2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9); Ilia Ilmer, Alexey Ovchinnikov and Gleb Pogudin's MIT notice is retained in [the SIAN directory](../src/internal/sian/LICENSE). The [README](../src/internal/sian/README.md) preserves the upstream utility file's unspecified earlier-adaptation note; this review does not invent an earlier source. |
+| Private GP implementation | Adapted from STOR-i/GaussianProcesses.jl and validated revision `3e896e9dbd0c41341c723ab16dcf0c261fc7b95a`; Jamie Fairbrother and Christopher Nemeth's MIT notice is retained in [the GP directory](../../src/internal/gp/LICENSE). Scope and source files are listed in its [README](../../src/internal/gp/README.md). |
+| Private SIAN helpers | [SIAN source at `2f78ca8`](https://github.com/orebas/SIAN-Julia/tree/2f78ca8a0cc93f99eb2f800f08c1dbd20f8b28d9); Ilia Ilmer, Alexey Ovchinnikov and Gleb Pogudin's MIT notice is retained in [the SIAN directory](../../src/internal/sian/LICENSE). The [README](../../src/internal/sian/README.md) preserves the upstream utility file's unspecified earlier-adaptation note; this review does not invent an earlier source. |
 | Older barycentric/rational interpolation helpers | [ParameterEstimation.jl source at `99f4bd5`](https://github.com/iliailmer/ParameterEstimation.jl/blob/99f4bd59d9c6cedcfeb644672168aaa3f0088984/src/rational_interpolation/bary_derivs.jl), contributed by the ParameterEstimation.jl authors. ODEPE's initial import is `dfe1893`; current code has subsequent adaptations. The upstream GPL-3.0 text matches the package's retained GPL license. |
 | SI preprocessing and historical model examples | The source comments identify adaptations from [ParameterEstimation.jl](https://github.com/iliailmer/ParameterEstimation.jl), whose contributors are credited in its [Project.toml](https://github.com/iliailmer/ParameterEstimation.jl/blob/9e7adc33a4a11954acde0214f482cffea9551170/Project.toml). The historical [Crauste example](https://github.com/iliailmer/ParameterEstimation.jl/blob/9e7adc33a4a11954acde0214f482cffea9551170/examples/all-global/crauste.jl) is GPL-3.0. The example equations were not changed in this attribution pass. |
-| Biohydrogenation CSV | Synthetic fixture introduced by Oren Bassik in ODEPE commit `69e3a29d060fd32bbfaf76bdaaa53781a1685c65`, with the package's GPL license. Its [README](../src/examples/biohydrogenation/README.md) identifies the generating model, parameters and initial time −1; it is not measured experimental data. |
-| Backend and recovery fixtures | Synthetic observations and exact upstream comparisons, with pinned source, environment and regeneration instructions in [test/reference](../test/reference/README.md). Frozen observations are reused across compared implementations. |
+| Biohydrogenation CSV | Synthetic fixture introduced by Oren Bassik in ODEPE commit `69e3a29d060fd32bbfaf76bdaaa53781a1685c65`, with the package's GPL license. Its [README](../../src/examples/biohydrogenation/README.md) identifies the generating model, parameters and initial time −1; it is not measured experimental data. |
+| Backend and recovery fixtures | Synthetic observations and exact upstream comparisons, with pinned source, environment and regeneration instructions in [test/reference](../../test/reference/README.md). Frozen observations are reused across compared implementations. |
 
 The trimmed tree has no bundled figure/PDF asset collection. Historical
 technical notes and logs are evidence records, not promises that their older

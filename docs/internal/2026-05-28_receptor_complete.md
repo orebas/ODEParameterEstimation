@@ -252,7 +252,7 @@ endgame resolves the near-singular solutions). So:
 Model: `src/examples/models/branch_stress_systems.jl:80`. All diagnostics
 (`julia --startup-file=no <script>`):
 - `repro/receptor_solution_count_2026_05_26/REPORT.md` — solution count + blind spot (Exp A–K) + PAL consult #1.
-- `docs/2026-05-27_column_scaling_and_backsolve_resolve.md` — column scaling + the corrected cost diagnosis.
+- `docs/internal/2026-05-27_column_scaling_and_backsolve_resolve.md` — column scaling + the corrected cost diagnosis.
 - `repro/receptor_breakdown_2026_05_27/` (this session):
   - `receptor_profiled.jl` — `profile_phases` (the 99.5% phase).
   - `homotopy_solve_count.jl` — the homotopy collapse (16→4, 17→2) + 5 solves/interpolator.

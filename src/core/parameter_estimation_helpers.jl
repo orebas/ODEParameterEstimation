@@ -601,7 +601,7 @@ expected layout, and the likely cause. Wrong-length bounds are always caller
 error or upstream transform drift — the old behavior (each consumer silently
 degrading differently: untransformed bounds into a scaled solve, fallback to
 the ±1e6 box, skipped backsolve clamp) shipped out-of-box polished results
-(docs/2026-06-19_transform_bounds_mismatch.md, CSTR final_v2 evidence).
+(docs/internal/2026-06-19_transform_bounds_mismatch.md, CSTR final_v2 evidence).
 No-op when bounds are unset or lengths match.
 """
 function _assert_bounds_length(opts, expected_len::Int, site::AbstractString, layout::AbstractString)
@@ -612,7 +612,7 @@ function _assert_bounds_length(opts, expected_len::Int, site::AbstractString, la
 			"$(site): user-supplied `$(name)` has length $(length(v)) but the current " *
 			"unknown vector needs $(expected_len) ($(layout)). A problem transform " *
 			"(transcendental handling, rescaling) likely changed the variable set after " *
-			"these bounds were written — see docs/2026-06-19_transform_bounds_mismatch.md. " *
+			"these bounds were written — see docs/internal/2026-06-19_transform_bounds_mismatch.md. " *
 			"Supply bounds for the TRANSFORMED system, disable the transform " *
 			"(e.g. auto_handle_transcendentals=false), or unset opt_lb/opt_ub."))
 	end

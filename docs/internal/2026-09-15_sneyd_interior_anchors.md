@@ -88,7 +88,7 @@ starts u₀ = D⁻¹x₀ and JᵤG = JₓF · D. Here the diagonal scales range 
 range from about 0.00327 to 344.68; some scaled components are as small as
 2.89 × 10⁻²³. Exact rank is preserved, while numerical initialization changes
 dramatically. This is the current numerical problem at the
-[generic-root handoff](../src/core/homotopy_continuation.jl).
+[generic-root handoff](../../src/core/homotopy_continuation.jl).
 
 Real-data solving with a different scaling policy remains untested. The
 appropriate next investigation is this handoff using the retained cache;

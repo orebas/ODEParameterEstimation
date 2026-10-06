@@ -11,7 +11,7 @@ sampled = sample_problem_data(pep, opts)
 raw_results, analysis, uq = analyze_parameter_estimation_problem(sampled, opts)
 ```
 
-The main public types and entry points are exported from [ODEParameterEstimation.jl](../src/ODEParameterEstimation.jl):
+The main public types and entry points are exported from [ODEParameterEstimation.jl](../../src/ODEParameterEstimation.jl):
 
 - `ParameterEstimationProblem`
 - `EstimationOptions`
@@ -83,7 +83,7 @@ The most important fields on `ParameterEstimationResult` are:
 - `provenance`
   Structured lineage metadata about how the result was produced.
 
-The struct is defined in [core_types.jl](../src/types/core_types.jl).
+The struct is defined in [core_types.jl](../../src/types/core_types.jl).
 
 ## Reading Provenance
 

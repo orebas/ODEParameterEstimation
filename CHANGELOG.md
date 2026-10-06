@@ -84,7 +84,7 @@ are separate from preparing this candidate.
   retain its iteration limit and numerical assertions. Production timeouts and
   their dedicated tests are unchanged.
 - Record equivalence results, performance costs and remaining release work in
-  [the internalization record](docs/2026-10-04_internal_backends.md).
+  [the internalization record](docs/internal/2026-10-04_internal_backends.md).
 
 ### Julia 1.13 stabilization
 
@@ -103,7 +103,7 @@ are separate from preparing this candidate.
   the October internalization supersedes that patched setup.
 - Update the quickstart, result contract, and review map. Verified environments,
   gate results, and remaining release work are recorded in
-  [production readiness](docs/2026-09-10_production_readiness.md).
+  [production readiness](docs/internal/2026-09-10_production_readiness.md).
 
 ### Changes from earlier development snapshots
 

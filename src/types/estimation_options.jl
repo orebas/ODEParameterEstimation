@@ -552,7 +552,7 @@ Base.@kwdef struct EstimationOptions
 	use_parameter_homotopy::Bool = true  # Use parameter homotopy for multi-shot (track solutions between points)
 	use_column_scaling::Bool = true  # Data-driven per-order column (variable) rescaling for the parameterized HC
 	# solve. ON by default (validated: regression 446/446 unchanged, no recovery regression on the 9-system
-	# benchmark; see docs/2026-05-27_column_scaling_and_backsolve_resolve.md). Rescales each unknown x = s.*x̂ using per-derivative-order observable-derivative
+	# benchmark; see docs/internal/2026-05-27_column_scaling_and_backsolve_resolve.md). Rescales each unknown x = s.*x̂ using per-derivative-order observable-derivative
 	# magnitudes (order-0 vars left at 1.0), solves the rescaled system (Newton polytopes / mixed volume unchanged),
 	# and unscales solutions by s. Benign (~identity) when observable-derivative magnitudes are ~O(1). Tames the
 	# ~1e7 jet-coordinate dynamic range that defeats unscaled polyhedral tracking on stiff/transient systems.

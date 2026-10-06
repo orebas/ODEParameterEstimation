@@ -3,7 +3,7 @@
 A system-agnostic reference for *how* ODEPE turns an ODE + observations into a polynomial system, *how*
 that system is trimmed and solved, and *where* the solve is fragile. The mechanics are general; receptor
 (`receptor_subtype_binding_branch`) is the worked example because it stresses every one of them. For the
-receptor-specific narrative see `docs/2026-05-28_receptor_complete.md`.
+receptor-specific narrative see `docs/internal/2026-05-28_receptor_complete.md`.
 
 Three things to understand, in order: (§2) the equation ordering + rank-trim decide *which* square
 system you solve; (§3) that choice sets the mixed volume (= how many paths you track); (§4) the
@@ -208,4 +208,4 @@ lost. This is a **geometric** obstruction (a fold/collision on the variety), not
 - `src/core/homotopy_continuation.jl` — `solve_with_hc_parameterized` (the per-point fresh + track +
   fresh-fallback loop), `compute_column_scales` / `scale_hc_system` (the scaling that leaves mixed
   volume invariant).
-- Worked-example diagnostics: `repro/receptor_breakdown_2026_05_27/` (see `docs/2026-05-28_receptor_complete.md` §9).
+- Worked-example diagnostics: `repro/receptor_breakdown_2026_05_27/` (see `docs/internal/2026-05-28_receptor_complete.md` §9).

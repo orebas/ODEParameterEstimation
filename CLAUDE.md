@@ -2,10 +2,10 @@
 
 ## Active integration notes
 
-- [`docs/review_map.md`](docs/review_map.md) — canonical multi-agent review
+- [`docs/internal/review_map.md`](docs/internal/review_map.md) — canonical multi-agent review
   coordination map. Read this before starting broad code review, refactors, or
   review-lane assignment.
-- [`MULTIPLICITY_INTEGRATION.md`](MULTIPLICITY_INTEGRATION.md) — algebraic
+- [`MULTIPLICITY_INTEGRATION.md`](docs/internal/MULTIPLICITY_INTEGRATION.md) — algebraic
   multiplicity (M) auto-detection: production behavior, the registered Groebner
   baseline and historical PR #218 fix, and PEB integration context. Read
   before working on result.csv truncation or multiplicity.
@@ -14,23 +14,23 @@
 
 - **UQ regime + production contract.** Start with the audited PEB LV/VDP/FHN
   canaries
-  [`docs/2026-08-14_peb_audited_uq_canaries.md`](docs/2026-08-14_peb_audited_uq_canaries.md),
+  [`docs/internal/2026-08-14_peb_audited_uq_canaries.md`](docs/internal/2026-08-14_peb_audited_uq_canaries.md),
   then read the current routing/API contract
-  [`docs/2026-08-14_estimator_aware_uq.md`](docs/2026-08-14_estimator_aware_uq.md)
+  [`docs/internal/2026-08-14_estimator_aware_uq.md`](docs/internal/2026-08-14_estimator_aware_uq.md)
   and empirical recap
-  [`docs/2026-08-14_uq_session_recap.md`](docs/2026-08-14_uq_session_recap.md)
+  [`docs/internal/2026-08-14_uq_session_recap.md`](docs/internal/2026-08-14_uq_session_recap.md)
   and the GP-jet bias decision note
-  [`docs/2026-08-14_gp_jet_bias_decision_note.md`](docs/2026-08-14_gp_jet_bias_decision_note.md)
+  [`docs/internal/2026-08-14_gp_jet_bias_decision_note.md`](docs/internal/2026-08-14_gp_jet_bias_decision_note.md)
   and the staged research protocol
-  [`docs/2026-08-15_estimation_uq_research_program.md`](docs/2026-08-15_estimation_uq_research_program.md)
+  [`docs/internal/2026-08-15_estimation_uq_research_program.md`](docs/internal/2026-08-15_estimation_uq_research_program.md)
   and its completed LV Stage 1--3 decision record
-  [`docs/2026-08-16_lv_multipoint_bias_results.md`](docs/2026-08-16_lv_multipoint_bias_results.md)
+  [`docs/internal/2026-08-16_lv_multipoint_bias_results.md`](docs/internal/2026-08-16_lv_multipoint_bias_results.md)
   and the model-assisted correction prototype/discovery record
-  [`docs/2026-08-16_model_assisted_correction_discovery.md`](docs/2026-08-16_model_assisted_correction_discovery.md)
+  [`docs/internal/2026-08-16_model_assisted_correction_discovery.md`](docs/internal/2026-08-16_model_assisted_correction_discovery.md)
   and its repeated-noise/polish decision record
-  [`docs/2026-08-16_model_assisted_repeated_noise.md`](docs/2026-08-16_model_assisted_repeated_noise.md)
+  [`docs/internal/2026-08-16_model_assisted_repeated_noise.md`](docs/internal/2026-08-16_model_assisted_repeated_noise.md)
   and the clean-revision audited hard-model campaign
-  [`docs/2026-08-16_audited_repeated_uq_campaign.md`](docs/2026-08-16_audited_repeated_uq_campaign.md)
+  [`docs/internal/2026-08-16_audited_repeated_uq_campaign.md`](docs/internal/2026-08-16_audited_repeated_uq_campaign.md)
   before touching uncertainty quantification. Production UQ targets exactly the
   returned rank-one estimator and supports retained SP/MP algebraic roots,
   trajectory polish/direct score equations, and branch propagation. The N=60
@@ -49,7 +49,7 @@
   and their tests in `test/test_rescaling.jl` and `test/column_scaling.jl`.
   HC.jl also performs Skeel row scaling automatically. The diagnostic numbers
   and proposed implementation levels in
-  [`docs/2026-05-01_variable_scaling_investigation.md`](docs/2026-05-01_variable_scaling_investigation.md)
+  [`docs/internal/2026-05-01_variable_scaling_investigation.md`](docs/internal/2026-05-01_variable_scaling_investigation.md)
   predate these implementations; use them as historical evidence when
   investigating remaining conditioning problems.
 
@@ -64,7 +64,7 @@
   `julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=["benchmark"])'`
 - `test/current.jl` wraps these commands, records the active environment, and verifies that it points at this checkout. `allow_reresolve=false` preserves dependency versions and local development paths; a test dependency conflict must fail visibly.
 - The full gate includes feature regressions and example smoke tests. Direct `include("test/...")` commands require their imports to be direct dependencies of the active environment; they are not a substitute for checking `Pkg.test`.
-- For dependency/registration checks, run `julia --startup-file=no test/registered.jl` to resolve and test a fresh temporary environment using registered dependencies. Do not infer reproducibility from a global environment containing local development overrides. The current baseline and remaining release work are in [`docs/2026-09-10_production_readiness.md`](docs/2026-09-10_production_readiness.md).
+- For dependency/registration checks, run `julia --startup-file=no test/registered.jl` to resolve and test a fresh temporary environment using registered dependencies. Do not infer reproducibility from a global environment containing local development overrides. The current baseline and remaining release work are in [`docs/internal/2026-09-10_production_readiness.md`](docs/internal/2026-09-10_production_readiness.md).
 
 ## Code Style Guidelines
 - Imports: Group related packages, with ModelingToolkit, OrdinaryDiffEq first

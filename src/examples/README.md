@@ -7,18 +7,18 @@ The investigation scripts, benchmarks, and PEtab pilot are preserved on the
 If you are looking for the current user-facing package workflow rather than the example inventory, start with:
 
 - [README.md](../../README.md)
-- [2026-03-17_user_quickstart.md](../../docs/2026-03-17_user_quickstart.md)
-- [2026-03-17_results_and_api.md](../../docs/2026-03-17_results_and_api.md)
+- [2026-03-17_user_quickstart.md](../../docs/internal/2026-03-17_user_quickstart.md)
+- [2026-03-17_results_and_api.md](../../docs/internal/2026-03-17_results_and_api.md)
 
 ## Categories
 
 ### Model Buckets
 
-Model constructors are still grouped in shared source files under [models](../../src/examples/models), so the primary categorization now lives in [load_examples.jl](../../src/examples/load_examples.jl) rather than in one-file-per-model moves.
+Model constructors are still grouped in shared source files under [models](models), so the primary categorization now lives in [load_examples.jl](load_examples.jl) rather than in one-file-per-model moves.
 
 For the current interpretation of the categories and the main known failure classes, see:
 
-- [2026-03-17_model_taxonomy.md](../../docs/2026-03-17_model_taxonomy.md)
+- [2026-03-17_model_taxonomy.md](../../docs/internal/2026-03-17_model_taxonomy.md)
 
 - `GREEN_MODELS`
   Straightforward maintained examples that currently run well.
@@ -35,13 +35,13 @@ For the current interpretation of the categories and the main known failure clas
 
 These are part of the intended package-facing examples surface and should stay current with the supported contract.
 
-- [models](../../src/examples/models)
-- [load_examples.jl](../../src/examples/load_examples.jl)
-- [first_example.jl](../../src/examples/first_example.jl)
-- [run_examples.jl](../../src/examples/run_examples.jl)
-- [control_investigations](../../src/examples/control_investigations)
-- [biohydrogenation](../../src/examples/biohydrogenation)
-- [cstr_adiabatic](../../src/examples/cstr_adiabatic)
+- [models](models)
+- [load_examples.jl](load_examples.jl)
+- [first_example.jl](first_example.jl)
+- [run_examples.jl](run_examples.jl)
+- [control_investigations](control_investigations)
+- [biohydrogenation](biohydrogenation)
+- [cstr_adiabatic](cstr_adiabatic)
 
 ### Continuing research
 

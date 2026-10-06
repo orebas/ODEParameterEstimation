@@ -6,7 +6,7 @@ checked 2026-09-10; the source-change inventory below remains historical.
 
 ## What's in production now (committed to `main`)
 
-The [September 14 representative-fixing correction](docs/2026-09-14_fixed_multiplicity.md)
+The [September 14 representative-fixing correction](2026-09-14_fixed_multiplicity.md)
 documents how the multiplicity input now uses the chosen representative
 assignments and a matching exact synthetic jet. It also corrects the
 coordinate-rank criterion for systems with dependent rows.
@@ -40,7 +40,7 @@ replaces `align_up`'s bitmask with `cld(x,n) * n`. The registered 0.10.8 source
 used by the September Julia 1.13 validation contains this implementation, and
 its installed source tree matches the registry's tree hash. A local Groebner
 development override is therefore unnecessary for this fix. See the current
-[dependency and test baseline](docs/2026-09-10_production_readiness.md).
+[dependency and test baseline](2026-09-10_production_readiness.md).
 
 The separate 30-model multiplicity campaign below was not rerun in that pass.
 
@@ -76,7 +76,7 @@ the catalog as a fallback or sanity reference is fine, but the
 
 The explicit-value path still works: any user who sets
 `opts.algebraic_multiplicity` explicitly overrides the auto value.
-Since the [September 15 correction](docs/2026-09-15_external_multiplicity.md),
+Since the [September 15 correction](2026-09-15_external_multiplicity.md),
 it also skips the automatic computation, including state-rescue re-runs.
 `compute_algebraic_multiplicity=false` leaves M unknown for an exploratory
 run and retains ordinary `branch_top_k` output filtering. The default is

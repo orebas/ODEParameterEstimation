@@ -35,7 +35,7 @@ binds its own copy of d, while the generated function stays the same. Symbolics
 supports these separate runtime argument groups directly in
 [`build_function`](https://docs.sciml.ai/Symbolics/stable/manual/build_function/).
 
-[`PreparedRobustSystem`](../src/core/robust_system.jl) stores the residual and,
+[`PreparedRobustSystem`](../../src/core/robust_system.jl) stores the residual and,
 when selected, a compiled symbolic Jacobian J = ∂F/∂z. ForwardDiff and FiniteDiff
 receive workspaces owned by each solve. The run-local cache key includes the
 equations, unknown order, data-symbol order, Jacobian method, and AD chunk size;
@@ -149,7 +149,7 @@ captured-root replay are recorded with the artifacts below.
 Scripts, input capture, per-candidate results, full-run estimates, and timing
 summaries are in
 [`repro/biohydrogenation_compilation_2026_09_13`](https://github.com/orebas/ODEParameterEstimation.jl/blob/c4358bd/repro/biohydrogenation_compilation_2026_09_13/README.md).
-The new full-suite contracts in [`test_robust_system.jl`](../test/test_robust_system.jl)
+The new full-suite contracts in [`test_robust_system.jl`](../../test/test_robust_system.jl)
 check parameter-dependent Jacobians, data changes, symbol order, cache identity,
 both root branches, rectangular solves, the existing unprepared API, and kernel
 reuse through both single-point estimator routes. Option validation adds four

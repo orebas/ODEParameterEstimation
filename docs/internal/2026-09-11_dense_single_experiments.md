@@ -214,16 +214,16 @@ still need checking before changing production denominator handling.
 
 The existing repo facilities are substantial and directly useful here:
 
-- [`optimized_multishot_estimation.jl`](../src/core/optimized_multishot_estimation.jl):
+- [`optimized_multishot_estimation.jl`](../../src/core/optimized_multishot_estimation.jl):
   timing capture/serialization, phase allocation/GC/RSS reporting, interpolation,
   single-point and multipoint construction/solve timing, and generic-start reuse.
-- [`run_context.jl`](../src/core/run_context.jl) and
-  [`si_template_integration.jl`](../src/core/si_template_integration.jl):
+- [`run_context.jl`](../../src/core/run_context.jl) and
+  [`si_template_integration.jl`](../../src/core/si_template_integration.jl):
   per-run detailed sinks and nested operation timings.
-- [`logging_utils.jl`](../src/core/logging_utils.jl): timestamped phase heartbeats.
-- [`noise_frontier_construction.jl`](../src/core/noise_frontier_construction.jl):
+- [`logging_utils.jl`](../../src/core/logging_utils.jl): timestamped phase heartbeats.
+- [`noise_frontier_construction.jl`](../../src/core/noise_frontier_construction.jl):
   Jacobian compilation, differentiation, rank, and basis-selection diagnostics.
-- [`si_equation_builder.jl`](../src/core/si_equation_builder.jl):
+- [`si_equation_builder.jl`](../../src/core/si_equation_builder.jl):
   SIAN phase timings, variable roles, rank reduction, and multiplicity timings.
 - Existing profiling examples include
   [`repro/receptor_breakdown_2026_05_27/`](https://github.com/orebas/ODEParameterEstimation.jl/tree/c4358bd/repro/receptor_breakdown_2026_05_27)

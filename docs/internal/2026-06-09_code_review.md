@@ -9,7 +9,7 @@
 > dead interpolators archived (F1); P4 diagnostics.jl split (F2). Authoritative
 > ledger: `~/.claude/plans/ok-let-s-make-sure-cryptic-fiddle.md` + memory
 > `project_2026_06_10_maintainability_campaign.md`. This document will be
-> SUPERSEDED by `docs/2026-06-10_postcampaign_review.md` when the Phase-H
+> SUPERSEDED by `docs/internal/2026-06-10_postcampaign_review.md` when the Phase-H
 > re-review runs; treat unchecked items below as historical until then.
 
 **Date:** 2026-06-09

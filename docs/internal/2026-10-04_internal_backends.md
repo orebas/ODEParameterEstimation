@@ -6,18 +6,18 @@ estimator options, GP candidate and interpolation wrapper remain available.
 
 ## Architecture and provenance
 
-- [GPBackend](../src/internal/gp/README.md) owns the dense zero-mean SE fitting
+- [GPBackend](../../src/internal/gp/README.md) owns the dense zero-mean SE fitting
   path, adapted from validated GP revision `3e896e9`. It retains analytic
   gradients, log standard deviations, LBFGS/backtracking and the original
   Cholesky/noise policy. It has no PDMats dependency or external-type methods.
-- [SIANBackend](../src/internal/sian/README.md) owns the exact jet construction
+- [SIANBackend](../../src/internal/sian/README.md) owns the exact jet construction
   helpers from SIAN revision `2f78ca8`. Equation selection, structural fixing
   and multiplicity remain in ODEPE; structural classification remains in
   StructuralIdentifiability.jl.
 - Each module has its upstream MIT notice and an explicit replacement boundary.
   Neither module imports the parent package. AGP/AGPUQ policies remain separate.
 - Standard tests use frozen upstream fixtures. The optional upstream oracle
-  environment in [test/reference](../test/reference/README.md) is excluded from
+  environment in [test/reference](../../test/reference/README.md) is excluded from
   normal installation, test dependency resolution and CI.
 
 ## Numerical findings
@@ -78,7 +78,7 @@ to choose the fixture's output order. The fixture now passes explicit state
 and output vectors; upstream, internal and frozen symbolic results agree
 exactly on both runtimes. Three came from comparing the nearly noiseless GP's
 fourth through sixth derivatives across native BLAS versions (0.3.29 versus
-0.3.30). The [Julia 1.12 upstream comparison](../test/reference/results/fits_julia112.toml)
+0.3.30). The [Julia 1.12 upstream comparison](../../test/reference/results/fits_julia112.toml)
 matches the internal backend exactly, while the largest cross-stack relative
 jet difference is `5.75e-4`. Only this clean fit's orders 4–6 now use `1e-3`
 relative tolerance; noisy fits, lower orders and fixed-parameter derivative
@@ -89,7 +89,7 @@ after each file so assertion failures appear before the next long test starts.
 
 ### Frozen ODE recovery
 
-The [recorded inputs and paired outputs](../test/reference/results/) retain all
+The [recorded inputs and paired outputs](../../test/reference/results/) retain all
 eight runs. The protocol uses the package model constructors, 81 observations,
 noise `1e-6`, adaptive shooting and trajectory polish. Every pair matches
 exactly in rank-one parameter error, best-branch parameter error, trajectory
@@ -110,7 +110,7 @@ so their elapsed times are not evidence of a performance change.
 
 ### Initial backend cost
 
-The [warmed comparison](../test/reference/results/performance.toml) uses six
+The [warmed comparison](../../test/reference/results/performance.toml) uses six
 measurements per arm, alternating order with one BLAS thread. Both
 implementations run in the same process and dependency environment.
 
@@ -139,7 +139,7 @@ fits have independent storage and predictions do not mutate it. The
 non-mutating `evaluate_se` convenience function still returns an independent
 state. Likelihood arithmetic, accumulation order and the optimizer are unchanged.
 
-The [paired follow-up](../test/reference/results/performance_buffers.toml)
+The [paired follow-up](../../test/reference/results/performance_buffers.toml)
 compares the buffered implementation with both upstream and the original
 internal module from `00387ca95690197c605ee0eb7e4ba0c06f5bee7d` in the same
 process. Each pair uses six warmed measurements in alternating order with
@@ -206,7 +206,7 @@ julia --startup-file=no test/registered.jl benchmark modern
 ```
 
 Run `test/registered.jl all` with Julia 1.12 as well. The reference environment
-and frozen-source setup are documented in [test/reference](../test/reference/README.md).
+and frozen-source setup are documented in [test/reference](../../test/reference/README.md).
 Nightly CI is advisory; no nightly result is claimed here.
 
 ## October 5 release-candidate portability follow-up
@@ -220,7 +220,7 @@ the frozen fit and 0.000664 against the known generating curve.
 Additional upstream/internal pairs on native Julia 1.12.7, with coverage and
 with Haswell/Sandybridge BLAS kernels, agree exactly within each run. Their
 clean sixth-derivative errors against the curve range from 0.000299 to
-0.001021. The compact [portability record](../test/reference/results/gp_portability.toml)
+0.001021. The compact [portability record](../../test/reference/results/gp_portability.toml)
 includes objectives, runtime details, raw-output hashes and the CI observation.
 This isolates sensitivity in the optimized, nearly noiseless fit; it provides
 no evidence of changed internal-backend arithmetic.

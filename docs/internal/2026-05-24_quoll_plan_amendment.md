@@ -5,7 +5,7 @@ Date: 2026-05-24
 Authors: cluster-Claude, Codex, Oren
 
 Status: Live Quoll execution plan. This document supersedes conflicting parts
-of `docs/2026-05-25_quoll_benchmark_handoff_spec.md`.
+of `docs/internal/2026-05-25_quoll_benchmark_handoff_spec.md`.
 
 ## Settled Decisions
 

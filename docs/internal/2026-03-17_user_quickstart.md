@@ -107,10 +107,10 @@ For a first run, these options matter most:
 - `diagnostics`
   Turn this on when you want detailed logs.
 
-The full options surface is defined in [estimation_options.jl](../src/types/estimation_options.jl), but most users should start with a small subset.
+The full options surface is defined in [estimation_options.jl](../../src/types/estimation_options.jl), but most users should start with a small subset.
 
 ## Where to Look Next
 
 - [2026-03-17_results_and_api.md](2026-03-17_results_and_api.md) for the current return contract and result interpretation
 - [2026-03-17_supported_models_and_limitations.md](2026-03-17_supported_models_and_limitations.md) for what the package currently supports
-- [src/examples/README.md](../src/examples/README.md) for the maintained example surface
+- [src/examples/README.md](../../src/examples/README.md) for the maintained example surface

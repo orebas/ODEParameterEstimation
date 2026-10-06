@@ -6,21 +6,21 @@
 
 This README is the landing page. Start with:
 
-- [Reviewer Map](docs/review_map.md) for multi-agent code review coordination
-- [User Quickstart](docs/2026-03-17_user_quickstart.md)
-- [Results and API](docs/2026-03-17_results_and_api.md)
-- [Supported Models and Limitations](docs/2026-03-17_supported_models_and_limitations.md)
-- [Benchmark Contract Note](docs/2026-03-17_benchmark_contract.md)
+- [Reviewer Map](docs/internal/review_map.md) for multi-agent code review coordination
+- [User Quickstart](docs/internal/2026-03-17_user_quickstart.md)
+- [Results and API](docs/internal/2026-03-17_results_and_api.md)
+- [Supported Models and Limitations](docs/internal/2026-03-17_supported_models_and_limitations.md)
+- [Benchmark Contract Note](docs/internal/2026-03-17_benchmark_contract.md)
 - [Examples Directory Guide](src/examples/README.md)
 
-For the ordered work toward registration, see [Registry preparation](docs/registry_preparation.md).
+For the ordered work toward registration, see [Registry preparation](docs/internal/registry_preparation.md).
 The complete experimental source, historical benchmark scripts, PEtab pilot,
 and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research).
 
 The GaussianProcesses.jl fitting route and SIAN equation-construction helpers
 are maintained in isolated internal modules with upstream attribution. Neither
 external package is required to install or test ODEPE. See
-[internal backends](docs/2026-10-04_internal_backends.md) for provenance and validation.
+[internal backends](docs/internal/2026-10-04_internal_backends.md) for provenance and validation.
 
 ## Installation
 
@@ -121,14 +121,14 @@ The package is currently best understood as:
 - an early-failing workflow for unsupported raw classes like state trig, raw `sqrt(...)`, and raw unsupported transcendental state dependence
 - a package with some intentionally hard examples that run but are slower, weaker, or more weakly identified than the simple examples
 
-For the current taxonomy and caveats, see [Supported Models and Limitations](docs/2026-03-17_supported_models_and_limitations.md).
+For the current taxonomy and caveats, see [Supported Models and Limitations](docs/internal/2026-03-17_supported_models_and_limitations.md).
 
 ## Notes
 
-- The current public return contract is documented explicitly in [Results and API](docs/2026-03-17_results_and_api.md).
+- The current public return contract is documented explicitly in [Results and API](docs/internal/2026-03-17_results_and_api.md).
 - Uncertainty quantification is opt-in. Audited single-point calibration does
   not establish coverage for nonlinear multipoint or polished estimators;
-  see the [UQ contract](docs/2026-08-14_estimator_aware_uq.md).
+  see the [UQ contract](docs/internal/2026-08-14_estimator_aware_uq.md).
 - The PEtab pilot, RS/RUR extension, consensus research APIs, and SHADE+LM
   comparison baseline are retained on the research branch. They are outside
   this branch's package API.
@@ -138,4 +138,4 @@ For the current taxonomy and caveats, see [Supported Models and Limitations](doc
 
 The package uses [GPL-3.0](LICENSE). The adapted GP and SIAN modules retain
 their upstream MIT notices. Source and fixture provenance is summarized in
-the [release attribution review](docs/registry_preparation.md#provenance-and-attribution).
+the [release attribution review](docs/internal/registry_preparation.md#provenance-and-attribution).

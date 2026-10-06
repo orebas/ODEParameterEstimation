@@ -21,14 +21,14 @@ fork commits; the package must resolve and run with registered versions alone.
 
 ## GaussianProcesses.jl
 
-ODEPE's use is narrow. [`aaad_gpr_pivot`](../src/core/derivatives.jl) standardizes
+ODEPE's use is narrow. [`aaad_gpr_pivot`](../../src/core/derivatives.jl) standardizes
 the observed values, creates a zero-mean squared-exponential GP with log
 lengthscale `log(std(xs)/8)`, log signal standard deviation `0`, and log noise
 standard deviation `-2`, calls
 `GaussianProcesses.optimize!` with LBFGS, and uses `predict_f` for the fitted
 mean. This is available as `InterpolatorAAADGPR`, the singular option default,
 and is still in the default *multi-interpolator pool*. The separate
-[`PDMats` `ldiv!` bridge](../src/ODEParameterEstimation.jl) resolves a method
+[`PDMats` `ldiv!` bridge](../../src/ODEParameterEstimation.jl) resolves a method
 ambiguity on some registered dependency combinations. Removing GP.jl would
 change a public selection route and the candidate pool, even though ODEPE also
 has `agp_gpr`, `agp_gpr_robust`, and `agp_gpr_uq` implementations.
@@ -89,7 +89,7 @@ own audited estimator contract and must be assessed separately.
 
 ## SIAN-Julia
 
-[`get_polynomial_system_from_sian`](../src/core/si_equation_builder.jl) already
+[`get_polynomial_system_from_sian`](../../src/core/si_equation_builder.jl) already
 contains ODEPE's own rank-selected template assembly. It calls SIAN for jet
 equations and recurrences (`get_equations`, `get_x_eq`, `get_y_eq`), exact
 generic samples (`sample_point`, `insert_zeros_to_vals`), Jacobians and jet

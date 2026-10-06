@@ -172,14 +172,14 @@ It should not be reported as seven supported cases.
 
 ## Where the contracts differ
 
-ODEPE's [`ParameterEstimationProblem`](../src/types/core_types.jl) holds one
+ODEPE's [`ParameterEstimationProblem`](../../src/types/core_types.jl) holds one
 trajectory and a shared time vector. Its
-[interpolation interface](../src/core/parameter_estimation.jl) uses that vector
+[interpolation interface](../../src/core/parameter_estimation.jl) uses that vector
 for every observable. Ordinary nonuniform sampling times are not the same
 issue as different time grids per observable, missing measurements, or
 replicates. The current converter does not handle these distinctions safely.
 
-The [residual polish](../src/core/polish_residual.jl) optimizes raw observation
+The [residual polish](../../src/core/polish_residual.jl) optimizes raw observation
 residuals and state initial conditions as well as model parameters. Supplying
 `pep.ic` does not encode the full PEtab contract for fixed or parameter-derived
 initial states. Internal structural parameter fixing is also not an importer
@@ -195,7 +195,7 @@ the raw observable, but ODEPE's raw least-squares score is not the published
 likelihood. See the
 [PEtab v1 specification](https://petab.readthedocs.io/en/latest/v1/documentation_data_format.html).
 
-ODEPE's [transcendental input handling](../src/core/transcendental_utils.jl)
+ODEPE's [transcendental input handling](../../src/core/transcendental_utils.jl)
 covers particular known functions of time. It does not generally support
 exponentials of unknown parameters or states. Reformulation may be possible
 for individual models, but any auxiliary initial conditions and constraints

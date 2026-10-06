@@ -27,7 +27,7 @@ box, fully-logged, "do they hang?". "Done" = (a) bioh either reaches its backsol
 whether the FLINT `fmpq_mpoly_gcd` swell reproduces (and ideally capture the operands), or we
 characterize where it dies; (b) receptor/latent either complete (giving timing+result) or we
 characterize their hang; (c) the env/FLINT question is settled (it is — see §6/§9).
-Broader: feed all this into the **v2 benchmark fleet run** (docs/2026-06-04_benchmark_fleet_v2_plan.md).
+Broader: feed all this into the **v2 benchmark fleet run** (docs/internal/2026-06-04_benchmark_fleet_v2_plan.md).
 
 ## 2. Commands running / recently run (+ cwd)
 
@@ -58,7 +58,7 @@ Broader: feed all this into the **v2 benchmark fleet run** (docs/2026-06-04_benc
 - Quoll results: `~/ParameterEstimationBenchmark-local/benchmark_quoll_broad_2026-05-29/filetree/`
   (local) + `cloud/hetzner/results/broad/.../filetree/` (cloud). A cell is "done" iff it has a
   `result.csv` in either.
-- **Trust:** `docs/2026-06-05_heisenbug_investigation.md` (the §6/§9 findings here are its summary);
+- **Trust:** `docs/internal/2026-06-05_heisenbug_investigation.md` (the §6/§9 findings here are its summary);
   completed cells' `wall_time.txt`/`result.csv`. The quoll-vs-wallaby analysis in
   `results/quoll_analysis/` (memory project_2026_06_04_quoll_vs_wallaby_artifact).
 - **Do NOT trust:** the boxes' `rc.txt` (§TL;DR); my earlier verbal claims that got retracted (§9).
@@ -71,7 +71,7 @@ Broader: feed all this into the **v2 benchmark fleet run** (docs/2026-06-04_benc
 - `src/core/si_template_integration.jl` — `BIOH_MWE_CAPTURE` instrumentation + `[RESOLVE-ENTER]/[RESOLVE-EXIT]` logging in `resolve_states_with_fixed_params`. (+22 in-container flushes on bioh box.)
 - `src/core/branch_completion.jl`, `src/diagnostics/analytical_branch_oracle.jl` — routed their HC.solve through `_hc_solve`.
 - `parameter_estimation.jl` — the negative-err fix (Fminbox barrier in `:direct_opt` fallback) — **commit was pending Oren** (verify it's present; memory project_2026_06_03_csv_err_bug).
-- New (untracked): `docs/2026-06-05_heisenbug_investigation.md`, `docs/2026-06-05_codex_handoff.md` (this), `docs/2026-06-04_benchmark_fleet_v2_plan.md`, `repro/bioh_swell_2026_06_04/` (MWE + sweep + gcd wrapper).
+- New (untracked): `docs/internal/2026-06-05_heisenbug_investigation.md`, `docs/internal/2026-06-05_codex_handoff.md` (this), `docs/internal/2026-06-04_benchmark_fleet_v2_plan.md`, `repro/bioh_swell_2026_06_04/` (MWE + sweep + gcd wrapper).
 - None of the above is committed. The bioh box's `/opt/odepe` = this local ODEPE + the in-container flushes.
 
 ## 6. Known bugs (P0/P1/P2)

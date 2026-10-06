@@ -124,7 +124,7 @@ with first-class types:
 - `NumericalIdentifiabilityAdvisory`
 - `DerivativeData`
 
-**Documented in repo.** `docs/2026-03-17_results_and_api.md` records the
+**Documented in repo.** `docs/internal/2026-03-17_results_and_api.md` records the
 current return contract, including `raw_results`, `analysis`, and the optional
 UQ side output.
 
@@ -186,7 +186,7 @@ where every interpolator run owns its own one-off polynomial system.
 `ResultProvenance` and reports unidentifiable variables on
 `ParameterEstimationResult`.
 
-**Documented in repo.** `docs/2026-03-17_supported_models_and_limitations.md`
+**Documented in repo.** `docs/internal/2026-03-17_supported_models_and_limitations.md`
 states that structurally unidentifiable models are supported, with structural
 representative fixes recorded in provenance. Examples include
 `trivial_unident`, `global_unident_test`, `substr_test`, and
@@ -298,7 +298,7 @@ The default `interpolators` vector currently includes robust GP variants,
 S3 adaptive variants, Chebyshev variants, AAADGPR, AAAD, and S2AAAMLE.
 
 **Supported by benchmark artifacts.** The dated interpolation notes record
-why this portfolio is not simply "more is better." `docs/2026-05-06_interpolator_gating_spec.md`
+why this portfolio is not simply "more is better." `docs/internal/2026-05-06_interpolator_gating_spec.md`
 documents observed cases where pure AAA/S2 and boundary spectral/FHD methods
 can become catastrophic under noise or near interval boundaries.
 
@@ -430,11 +430,11 @@ framework.
 
 See:
 
-- `docs/2026-03-17_supported_models_and_limitations.md`
-- `docs/2026-03-17_model_taxonomy.md`
-- `docs/2026-03-17_high_order_si_derivative_limit.md`
+- `docs/internal/2026-03-17_supported_models_and_limitations.md`
+- `docs/internal/2026-03-17_model_taxonomy.md`
+- `docs/internal/2026-03-17_high_order_si_derivative_limit.md`
 - `TRANSCENDENTAL_FUNCTIONS_DESIGN.md`
-- `docs/2026-05-01_variable_scaling_investigation.md`
+- `docs/internal/2026-05-01_variable_scaling_investigation.md`
 
 **Upgrade over PE.** The original package is easier to summarize but harder to
 debug when things go wrong. ODEPE has a more explicit support boundary: some
@@ -507,7 +507,7 @@ MTK-exposable ODE dynamics.
 
 **Documented in repo.** ODEPE has a benchmark-facing contract:
 
-- `docs/2026-03-17_benchmark_contract.md`
+- `docs/internal/2026-03-17_benchmark_contract.md`
 - `raw_results, analysis, uq = analyze_parameter_estimation_problem(...)`
 - flat `result.csv` compatibility
 - optional metadata sidecars
@@ -569,7 +569,7 @@ spread and uncertainty reports are the right direction.
 
 ### Conditioning and Column Scaling
 
-**Documented in repo.** `docs/2026-05-01_variable_scaling_investigation.md`
+**Documented in repo.** `docs/internal/2026-05-01_variable_scaling_investigation.md`
 records a serious investigation into variable/column scaling of polynomial
 systems. It found large condition numbers on hard cases and identifies column
 scaling as a plausible future lever, but later prototype notes complicate the
@@ -587,7 +587,7 @@ fine polish precision on wallaby-like candidate distributions.
 
 **Open / future work.** A principled likelihood/noise-aware ranking objective
 would be cleaner than fixed residual or provenance thresholds. See
-`docs/2026-05-24_likelihood_guarded_output_ranking.md` for a proposed
+`docs/internal/2026-05-24_likelihood_guarded_output_ranking.md` for a proposed
 direction.
 
 ### Unsupported Model Classes

@@ -1,6 +1,6 @@
 using Symbolics
 # Refactor safety net — added 2026-06-09, BEFORE the code-review cleanup
-# (see docs/2026-06-09_code_review.md and docs/2026-06-09_test_safety_net.md).
+# (see docs/internal/2026-06-09_code_review.md and docs/internal/2026-06-09_test_safety_net.md).
 #
 # Purpose: give the upcoming refactors (dead-code removal, dedup, type annotations,
 # file splits) a behavior lock, and give the P0 bug fixes a concrete target.

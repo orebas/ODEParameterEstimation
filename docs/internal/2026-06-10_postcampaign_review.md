@@ -1,4 +1,4 @@
-# Post-campaign review — 2026-06-10 (supersedes docs/2026-06-09_code_review.md)
+# Post-campaign review — 2026-06-10 (supersedes docs/internal/2026-06-09_code_review.md)
 
 Four read-only review lanes over the post-campaign state (suite 755/755 at
 `2a4c8e6`): core pipeline, organization/boundaries, interface+PEB usage audit,

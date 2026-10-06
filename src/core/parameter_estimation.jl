@@ -1750,7 +1750,7 @@ function _build_polish_context(
 
 	# Bounds: use user-specified if set (length MISMATCH throws — fail-fast; the
 	# old silent fallback to the ±1e6 box let polished results escape the user's
-	# intended bounds, docs/2026-06-19_transform_bounds_mismatch.md). Otherwise
+	# intended bounds, docs/internal/2026-06-19_transform_bounds_mismatch.md). Otherwise
 	# auto-compute from data scale.
 	# Note: only BFGS/LBFGS support Fminbox bounds wrapping; Newton-family optimizers
 	# silently ignore bounds in _polish_single_from_context.
