@@ -289,7 +289,7 @@ end
 # Run all models:
 #run_parameter_estimation_examples(opts = EstimationOptions(datasize = 1501, noise_level = 0.0))
 #run_parameter_estimation_examples(models = :hard, opts = EstimationOptions(datasize = 1501, noise_level = 0.0))
-#run_parameter_estimation_examples(opts = EstimationOptions(datasize = 201, noise_level = 0.01, interpolator = InterpolatorCustom, custom_interpolator = test_gpr_function))
+#run_parameter_estimation_examples(opts = EstimationOptions(datasize = 201, noise_level = 0.01, interpolators = [InterpolatorCustom], custom_interpolators = [test_gpr_function]))
 
 # Run specific models:
 # run_parameter_estimation_examples(models=[:simple, :hiv])

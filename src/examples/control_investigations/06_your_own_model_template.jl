@@ -297,7 +297,6 @@ function run_my_model()
     opts = EstimationOptions(
         datasize = 101,              # <<ADJUST: more points for complex dynamics>>
         noise_level = 0.0,           # <<ADJUST: 0.01 = 1% noise>>
-        interpolator = InterpolatorAAAD,
         system_solver = SolverHC,    # Homotopy continuation solver
         flow = FlowStandard,         # Standard polynomial system solving
     )

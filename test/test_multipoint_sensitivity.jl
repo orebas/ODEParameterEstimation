@@ -51,8 +51,7 @@ end
 @testset "multipoint estimate-conditioned sensitivity (v1 step 3)" begin
 	opts_mps = EstimationOptions(
 		datasize = 61, time_interval = [-0.5, 0.5], noise_level = 0.0,
-		nooutput = true, diagnostics = false, interpolator = InterpolatorAAAD,
-		interpolators = InterpolatorMethod[])
+		nooutput = true, diagnostics = false, interpolators = [InterpolatorAAAD])
 	pep_mps = ODEParameterEstimation.sample_problem_data(ODEParameterEstimation.simple(), opts_mps)
 
 	mpt, setup_mps = _mps_quiet() do
@@ -62,8 +61,7 @@ end
 			ident.good_DD, false;
 			states = ident.states, params = ident.params, infolevel = 0,
 			placeholder_fail_categories = opts_mps.si_placeholder_fail_categories)
-		interp_func = ODEParameterEstimation.get_interpolator_function(
-			opts_mps.interpolator, opts_mps.custom_interpolator)
+		interp_func = ODEParameterEstimation.get_interpolator_function(only(opts_mps.interpolators))
 		interpolants = ODEParameterEstimation.create_interpolants(
 			pep_mps.measured_quantities, pep_mps.data_sample, ident.t_vector, interp_func)
 		setup = (good_deriv_level = ident.good_deriv_level, good_udict = ident.good_udict,

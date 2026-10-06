@@ -435,7 +435,6 @@ function diagnose_model(
                 time_interval = opts.time_interval,
                 noise_level = opts.noise_level,
                 ode_solver = opts.ode_solver,
-                interpolator = InterpolatorAGPUQ,
                 polish_solutions = false,
                 polish_solver_solutions = false,
             )

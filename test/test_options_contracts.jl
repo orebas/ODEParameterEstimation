@@ -11,6 +11,10 @@ using OrderedCollections
 	@test_throws MethodError EstimationOptions(rtol = 1e-8)
 	@test_throws MethodError EstimationOptions(max_deriv_level = 12)
 	@test_throws MethodError EstimationOptions(use_monodromy = true)
+	# The single-interpolator options, which had no effect beside the default
+	# `interpolators` list (removed 2026-10-06).
+	@test_throws MethodError EstimationOptions(interpolator = InterpolatorAAAD)
+	@test_throws MethodError EstimationOptions(custom_interpolator = identity)
 
 	# Wired fields exist with their behavior-neutral defaults.
 	o = EstimationOptions()

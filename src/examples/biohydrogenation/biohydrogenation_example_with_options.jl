@@ -14,7 +14,6 @@ function biohydrogenation_options_profile(; smoke = false)
 		time_interval = [-1.0, 1.0],
 		system_solver = SolverHC,
 		ode_solver = AutoVern9(Rodas4P()),
-		interpolator = InterpolatorAAADGPR,
 		flow = FlowStandard,
 		use_si_template = true,
 		shooting_points = smoke ? 2 : 8,

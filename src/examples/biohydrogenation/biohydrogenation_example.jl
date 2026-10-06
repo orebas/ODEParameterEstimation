@@ -60,7 +60,6 @@ function biohydrogenation_options(; smoke = false)
 		noise_level = 0.0,
 		time_interval = [-1.0, 1.0],
 		system_solver = SolverHC,
-		interpolator = InterpolatorAAAD,
 		flow = FlowStandard,
 		use_si_template = true,
 		save_system = false,

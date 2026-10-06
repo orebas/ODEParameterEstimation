@@ -261,7 +261,6 @@ function polynomialization_standard_options(problem; smoke = false)
     opts = EstimationOptions(
         datasize = smoke ? 41 : 151,
         noise_level = 0.0,
-        interpolator = InterpolatorAAAD,
         system_solver = SolverHC,
         flow = FlowStandard,
         use_si_template = true,

@@ -16,6 +16,20 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### One way to choose interpolators — 2026-10-06
+
+- Remove the `interpolator` and `custom_interpolator` options. Beside the
+  default `interpolators` list they had no effect: a run that set
+  `interpolator = InterpolatorAAAD` used all nine default interpolators. Name
+  the interpolators to use in `interpolators`, and give the functions for its
+  `InterpolatorCustom` entries in `custom_interpolators`.
+- Setting a removed option is an error, and `estimate` points to the list form.
+  An empty `interpolators` list is refused, since there is no longer a single
+  interpolator to fall back on.
+- Tests and examples that set only the removed option ran the default list, and
+  still do. The few that emptied the list to reach the single interpolator now
+  name it in the list.
+
 ### A short path from a model and data to estimates — 2026-10-06
 
 - Add `ParameterEstimationProblem(system, measured_quantities; data, true_values, name, solver)`.

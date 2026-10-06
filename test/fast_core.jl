@@ -40,7 +40,6 @@ using Random
     @testset "Option helpers" begin
         base = EstimationOptions(
             flow = FlowStandard,
-            interpolator = InterpolatorAAAD,
             shooting_points = 3,
             save_system = false,
         )
@@ -63,9 +62,8 @@ using Random
 
         custom_interp = (xs, ys) -> ODEParameterEstimation.aaad(xs, ys)
         custom_opts = EstimationOptions(
-            interpolators = InterpolatorMethod[],
-            interpolator = InterpolatorCustom,
-            custom_interpolator = custom_interp,
+            interpolators = [InterpolatorCustom],
+            custom_interpolators = Function[custom_interp],
         )
         resolved_custom = ODEParameterEstimation.resolve_interpolator_list(custom_opts)
         @test length(resolved_custom) == 1
@@ -77,10 +75,9 @@ using Random
             custom_interpolators = Function[custom_interp, custom_interp],
         )
         @test ODEParameterEstimation.validate_options(plural_custom_opts)
-        @test !ODEParameterEstimation.validate_options(EstimationOptions(
-            interpolators = InterpolatorMethod[],
-            interpolator = InterpolatorCustom,
-        ))
+        # An empty list is refused: there is no single-interpolator option to fall back on.
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(interpolators = InterpolatorMethod[]))
+        @test !ODEParameterEstimation.validate_options(EstimationOptions(interpolators = [InterpolatorCustom]))
         @test !ODEParameterEstimation.validate_options(EstimationOptions(
             interpolators = [InterpolatorCustom, InterpolatorCustom],
             custom_interpolators = Function[custom_interp],
@@ -314,8 +311,7 @@ using Random
             nooutput = true,
             diagnostics = false,
             save_system = false,
-            interpolator = InterpolatorAAAD,
-            interpolators = InterpolatorMethod[],
+            interpolators = [InterpolatorAAAD],
             polish_solver_solutions = false,
             polish_solutions = false,
         )
@@ -333,7 +329,7 @@ using Random
             infolevel = 0,
             placeholder_fail_categories = opts.si_placeholder_fail_categories,
         )
-        interp_func = ODEParameterEstimation.get_interpolator_function(opts.interpolator, opts.custom_interpolator)
+        interp_func = ODEParameterEstimation.get_interpolator_function(only(opts.interpolators))
         interpolants = ODEParameterEstimation.create_interpolants(
             pep.measured_quantities,
             pep.data_sample,

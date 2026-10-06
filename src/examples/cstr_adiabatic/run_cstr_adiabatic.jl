@@ -40,7 +40,6 @@ standard_opts = EstimationOptions(
     polish_maxiters = 50,
     polish_method = PolishLBFGS,
     opt_ad_backend = :forward,
-    interpolator = InterpolatorAAADGPR,
     diagnostics = true
 )
 

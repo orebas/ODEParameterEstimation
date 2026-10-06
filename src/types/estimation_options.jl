@@ -204,9 +204,6 @@ These are read only by [`sample_problem_data`](@ref).
 - `custom_interpolators` (default `Function[]`): your own functions
   `(times, values) -> curve`, one for each `InterpolatorCustom` entry in
   `interpolators`, in order.
-- `interpolator` (default `InterpolatorAAADGPR`), `custom_interpolator`
-  (default `nothing`): the single interpolator used when `interpolators` is
-  empty. They have no effect otherwise.
 - `auto_filter_interpolators` (default `true`): leave out the rational
   interpolators when the data look noisy, because they amplify noise.
 - `s3_adapt_k` (default `10.0`): noise multiplier for the tolerance of the
@@ -368,10 +365,8 @@ Base.@kwdef struct EstimationOptions
 	# Solver and Algorithm Selection
 	system_solver::SystemSolverMethod = SolverHC
 	ode_solver::Any = AutoVern9(Rodas5P())  # Any type due to ODE solver type complexity
-	interpolator::InterpolatorMethod = InterpolatorAAADGPR
-	custom_interpolator::Union{Nothing, Function} = nothing
 
-	# Multi-interpolator support: when non-empty, overrides `interpolator` field
+	# The curve fits to run. Each is run and their candidates are pooled.
 	interpolators::Vector{InterpolatorMethod} = InterpolatorMethod[
 		InterpolatorAGPRobust,        # SE kernel — robust GP baseline
 		InterpolatorAGPRobustRQ,      # RQ kernel — Rational Quadratic (heavier-tail length-scale mixture)
@@ -729,7 +724,7 @@ function get_interpolator_function(method::InterpolatorMethod, custom::Union{Not
                                    s3_adapt_k::Float64 = 10.0)
 	if method == InterpolatorCustom
 		if isnothing(custom)
-			error("InterpolatorCustom selected but no custom_interpolator provided")
+			error("InterpolatorCustom is listed without a function for it in custom_interpolators")
 		end
 		return custom
 	end
@@ -892,25 +887,20 @@ end
 """
 	resolve_interpolator_list(opts::EstimationOptions) -> Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}
 
-Resolve the list of interpolators to run. If `opts.interpolators` is empty, falls back to
-the single `opts.interpolator` field for backward compatibility.
-
-Returns a vector of `(method, custom_func_or_nothing)` tuples.
+The interpolators to run, as `(method, custom_func_or_nothing)` tuples, in the
+order of `opts.interpolators`. Each `InterpolatorCustom` entry takes the next
+function in `opts.custom_interpolators`.
 """
 function resolve_interpolator_list(opts::EstimationOptions)
-	if isempty(opts.interpolators)
-		result = Tuple{InterpolatorMethod, Union{Nothing, Function}}[(opts.interpolator, opts.custom_interpolator)]
-	else
-		result = Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}()
-		custom_idx = 0
-		for method in opts.interpolators
-			if method == InterpolatorCustom
-				custom_idx += 1
-				func = custom_idx <= length(opts.custom_interpolators) ? opts.custom_interpolators[custom_idx] : nothing
-				push!(result, (method, func))
-			else
-				push!(result, (method, nothing))
-			end
+	result = Vector{Tuple{InterpolatorMethod, Union{Nothing, Function}}}()
+	custom_idx = 0
+	for method in opts.interpolators
+		if method == InterpolatorCustom
+			custom_idx += 1
+			func = custom_idx <= length(opts.custom_interpolators) ? opts.custom_interpolators[custom_idx] : nothing
+			push!(result, (method, func))
+		else
+			push!(result, (method, nothing))
 		end
 	end
 
@@ -1272,7 +1262,10 @@ function _options_from_keywords(keywords)
 	if !isempty(unknown)
 		names = join(("`$name`" for name in unknown), ", ", " and ")
 		verb = length(unknown) == 1 ? "is not an estimation option" : "are not estimation options"
-		throw(ArgumentError("$names $verb. `?EstimationOptions` lists them."))
+		# The single-interpolator options were removed on 2026-10-06.
+		hint = any(in(unknown), (:interpolator, :custom_interpolator)) ?
+			" Interpolators are given as a list, as in `interpolators = [InterpolatorAAAD]`." : ""
+		throw(ArgumentError("$names $verb.$hint `?EstimationOptions` lists the options."))
 	end
 	return EstimationOptions(; keywords...)
 end
@@ -1302,10 +1295,8 @@ function validate_options(opts::EstimationOptions)
 	end
 
 	if isempty(opts.interpolators)
-		if opts.interpolator == InterpolatorCustom && isnothing(opts.custom_interpolator)
-			@error "InterpolatorCustom requires custom_interpolator when interpolators is empty"
-			valid = false
-		end
+		@error "interpolators is empty. List at least one, such as [InterpolatorAAAD]."
+		valid = false
 	else
 		required_custom = count(==(InterpolatorCustom), opts.interpolators)
 		if length(opts.custom_interpolators) < required_custom
@@ -1581,7 +1572,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 	println(io, "EstimationOptions:")
 
 	categories = [
-		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolator, :interpolators]),
+		("Solver and Algorithm", [:system_solver, :ode_solver, :interpolators]),
 		("Tolerances", [:abstol, :reltol]),
 		("Solution Validation", [:clustering_threshold]),
 		("Multi-shot", [:shooting_points, :shooting_warp, :shooting_warp_beta, :point_hint]),

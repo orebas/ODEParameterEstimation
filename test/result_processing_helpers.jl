@@ -24,7 +24,6 @@ const HELPER_STANDARD_OPTS = EstimationOptions(
     flow = FlowStandard,
     use_si_template = true,
     use_parameter_homotopy = false,
-    interpolator = InterpolatorAAAD,
     save_system = false,
     polish_solver_solutions = false,
     polish_solutions = false,

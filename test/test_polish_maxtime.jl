@@ -17,7 +17,6 @@ function build_context_for_simple(; polish_method, maxiters, datasize)
         system_solver = SolverHC,
         flow = FlowStandard,
         use_si_template = true,
-        interpolator = InterpolatorAAAD,
         shooting_points = 0,
         nooutput = true,
         diagnostics = false,
