@@ -45,6 +45,18 @@ are separate from preparing this candidate.
   `ParameterEstimationResult`, `ObservationData` and `ObservationSeries`.
   Document `analyze_parameter_estimation_problem` and the package itself.
 
+### Two fixes found while writing the manual — 2026-10-06
+
+- A `sin(c*t)` or `cos(c*t)` input gave a wrong coefficient when the data
+  covered a stretch on which the input stayed small. Rescaling halved the
+  helper state for the input and doubled its coefficient, while the state's
+  values were filled in unscaled. On `forced_decay` over `[-0.5, 0.5]` the
+  input's coefficient came back as 4 instead of 2. Helper states are no longer
+  rescaled.
+- State names that are not ASCII, such as `θ(t)`, raised `StringIndexError` in
+  models with a quantity that cannot be determined, because names were cut by
+  byte offset.
+
 ### Quiet by default — 2026-10-06
 
 - A run with default options now prints nothing, passes only errors to the

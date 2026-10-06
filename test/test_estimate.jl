@@ -52,6 +52,26 @@ const _ESTIMATE_QUICK_OPTS = (;
 	@test issorted(analysis.returned_results; by = result -> result.err)
 end
 
+@testset "A known input adds no states to the result" begin
+	@parameters a b
+	@variables x(t) y(t)
+	@named forced = System([D(x) ~ -a * x + b * sin(0.5 * t)], t)
+	problem = ParameterEstimationProblem(forced, [y ~ x]; true_values = [a => 0.5, b => 2.0, x => 1.0])
+	# A short interval, on which the input is small: this used to return `b`
+	# doubled, because the helper state was rescaled and its values were not.
+	options = EstimationOptions(; _ESTIMATE_QUICK_OPTS..., datasize = 51, time_interval = [0.0, 1.0])
+	problem = sample_problem_data(problem, options)
+
+	best = first(estimate(problem, options))
+	@test isequal(collect(keys(best.states)), [x])
+	@test best[a] ≈ 0.5 rtol = 1e-6
+	@test best[b] ≈ 2.0 rtol = 1e-6
+	@test best[x] ≈ 1.0 rtol = 1e-6
+	# The full analysis still reports the states the input was rewritten with.
+	_, analysis, _ = analyze_parameter_estimation_problem(problem, options)
+	@test length(first(analysis.returned_results).states) == 3
+end
+
 @testset "Simulating data from the values a system carries" begin
 	@parameters a = 0.4 b = 0.8
 	@variables x1(t) = 1.0 x2(t) = 0.5 y1(t) y2(t)

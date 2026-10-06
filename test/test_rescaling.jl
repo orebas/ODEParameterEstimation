@@ -6,6 +6,7 @@ using ODEParameterEstimation
 # Run: julia --startup-file=no -e 'using ODEParameterEstimation; include("test/test_rescaling.jl")'
 
 using Test
+using Logging
 using Random
 using OrderedCollections
 import Symbolics
@@ -209,6 +210,25 @@ const OPE = ODEParameterEstimation
 			opt_lb = fill(2.0, nS + length(params)), opt_ub = fill(3.0, nS + length(params)))
 		clamped = OPE._clamp_params_for_backsolve(p_map, tight, params, nS)
 		@test all(v -> 2.0 <= v <= 3.0, values(clamped))
+	end
+
+	@testset "known inputs keep their scale (sin(c*t) on a short interval)" begin
+		# On [-0.5, 0.5] sin(0.5t) stays below 1/4, so the scale chooser used to
+		# halve the state that stands for it and double its coefficient. That
+		# state is later given its exact, unscaled values, so the estimated
+		# coefficient came back doubled (2026-10-06).
+		t = ModelingToolkit.t_nounits
+		sampled = sample_problem_data(forced_decay(), EstimationOptions(datasize = 101, time_interval = [-0.5, 0.5]))
+		lifted, _ = Logging.with_logger(Logging.NullLogger()) do
+			transform_pep_for_estimation(sampled, t)
+		end
+		info = OPE.choose_scales(lifted)
+		inputs = [s for s in keys(info.state_scales) if OPE._is_trfn_observable(s)]
+		@test length(inputs) == 2
+		@test all(s -> info.state_scales[s] == 1.0, inputs)
+		@test all(info.observable_scales[s] == 1.0 for s in inputs)
+		# The states and parameters of the model itself are still free to scale.
+		@test Set(keys(info.state_scales)) == Set(Symbolics.Num.(ModelingToolkit.unknowns(lifted.model.system)))
 	end
 
 end

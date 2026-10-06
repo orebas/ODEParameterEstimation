@@ -27,12 +27,8 @@ Extract the base variable name from a symbol that may have time-dependent notati
 E.g., Symbol("x1(t)") -> "x1", :x1 -> "x1"
 """
 function extract_base_name(sym)
-	s = string(sym)
-	# Remove "(t)" suffix if present
-	if endswith(s, "(t)")
-		return s[1:end-3]
-	end
-	return s
+	# chopsuffix, not a byte range: names such as θ(t) are not ASCII.
+	return String(chopsuffix(string(sym), "(t)"))
 end
 
 """

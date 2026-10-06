@@ -238,11 +238,8 @@ function _state_base_name_set(states)
 	state_base_names = Set{String}()
 	if !isnothing(states)
 		for s in states
-			name_str = string(s)
-			if endswith(name_str, "(t)")
-				name_str = name_str[1:(end-3)]
-			end
-			push!(state_base_names, name_str)
+			# chopsuffix, not a byte range: names such as θ(t) are not ASCII.
+			push!(state_base_names, chopsuffix(string(s), "(t)"))
 		end
 	end
 	return state_base_names
@@ -258,8 +255,7 @@ function _model_symbol_from_name(name::AbstractString, states = nothing, params 
 	end
 	if !isnothing(states)
 		for s in states
-			s_name = endswith(string(s), "(t)") ? string(s)[1:(end-3)] : string(s)
-			if s_name == name
+			if chopsuffix(string(s), "(t)") == name
 				return s
 			end
 		end
@@ -1298,14 +1294,10 @@ function lookup_value(var, var_search, soln_index::Int,
 			end
 
 			# Remove trailing _t token introduced by tagging x(t) -> x_t
-			if endswith(name_str, "_t")
-				name_str = name_str[1:(end-2)]
-			end
+			name_str = chopsuffix(name_str, "_t")
 
 			# Strip (t)
-			if endswith(name_str, "(t)")
-				name_str = name_str[1:(end-3)]
-			end
+			name_str = chopsuffix(name_str, "(t)")
 			# Count occurrences of the derivative marker "ˍt"
 			deriv_count = 0
 			while occursin("ˍt", name_str)

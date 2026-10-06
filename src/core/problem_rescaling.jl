@@ -202,7 +202,9 @@ function choose_scales(pep::ParameterEstimationProblem; objective::Symbol = :ls,
 	obs_exp = OrderedDict{Any, Int}()
 	for mq in pep.measured_quantities
 		key = _rescale_obs_key(mq, data)
-		o = if data !== nothing && haskey(data, key)
+		o = if _is_trfn_observable(Num(mq.rhs))
+			0   # a known input: see the pinning below
+		elseif data !== nothing && haskey(data, key)
 			clamp(round(Int, log2(_rescale_data_magnitude(data[key], max_abs_exp))), -max_abs_exp, max_abs_exp)
 		else
 			0
@@ -252,6 +254,18 @@ function choose_scales(pep::ParameterEstimationProblem; objective::Symbol = :ls,
 				push!(rows, (Dict(col[v] => w_data), w_data * get(obs_exp, key, 0)))
 			end
 		end
+	end
+
+	# Known inputs keep their scale. The states that stand for sin(c*t), cos(c*t)
+	# and exp(c*t) are given their exact, unscaled values when the equations are
+	# solved, so a scaled copy of them would disagree with those values (a
+	# sinusoid of amplitude 1/4 used to come back with its coefficient doubled).
+	pinned = [i for (i, s) in enumerate(states) if _is_trfn_observable(s)]
+	if !isempty(pinned)
+		for (r, _) in rows
+			foreach(k -> delete!(r, k), pinned)
+		end
+		filter!(row -> !isempty(first(row)), rows)
 	end
 
 	# assemble dense system and solve
