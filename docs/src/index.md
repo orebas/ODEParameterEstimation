@@ -5,20 +5,17 @@ CurrentModule = ODEParameterEstimation
 # ODEParameterEstimation.jl
 
 ODEParameterEstimation.jl fits the parameters and initial conditions of an ODE
-model to time-series data.
-
-- **No starting guesses and no bounds.** You give the model and the data.
-- **Every answer, not just one.** If two parameter sets explain the data
-  equally well, you get both.
-- **It tells you what the data cannot determine.** Parameters that no amount of
-  this data could pin down are flagged.
+model to time-series data. You give it the model and the measurements. It
+returns every parameter set that fits them, and tells you which parameters the
+data cannot determine.
 
 It works by solving equations rather than by searching. Derivatives of the data
 are estimated, the model turns them into polynomial equations for the unknowns,
-and those equations are solved for all their solutions. Because of that, the
-model has to be built from polynomials and ratios of polynomials, which covers
-mass-action kinetics, population and epidemic models, compartment models and
-most linear systems.
+and those equations are solved for all their solutions, which are then refined
+against the data. Because the equations must be polynomial, the model has to be
+built from polynomials and ratios of polynomials. That covers mass-action
+kinetics, population and epidemic models, compartment models and most linear
+systems.
 
 ```julia
 using ODEParameterEstimation, ModelingToolkit

@@ -18,7 +18,7 @@ x'(t) = -a\,x(t), \qquad y(t) = x(t).
 
 Differentiating the measurement gives ``y' = x' = -a\,y``. So if the data tell
 us ``y`` and ``y'`` at some time, then ``a = -y'/y``. That is an equation for
-``a``, with no search and no starting guess.
+``a``, and solving it takes no search.
 
 The same thing works in general. Differentiate the measured quantities a few
 times, use the model to rewrite each derivative of a state, and you get
@@ -53,8 +53,6 @@ are as many equations as unknowns.
 
 ## What follows from this
 
-- **No starting guess and no bounds.** The equations are solved for all their
-  solutions at once.
 - **Every answer, not one.** If two parameter sets explain the data equally
   well, you get both. See [More than one answer](@ref).
 - **Rational models only.** The equations must be polynomial, so the model has

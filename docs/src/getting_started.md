@@ -37,8 +37,7 @@ results = estimate(problem)
 results[1]
 ```
 
-The estimates are the values the data were simulated from. No starting guess
-was given for any of them, and no bounds.
+The estimates are the values the data were simulated from.
 
 ## What each part does
 

@@ -70,6 +70,8 @@ drift, prefer `CLAUDE.md`.
   sentences, code first and explanation after. No dates, benchmark names or
   internal terms. Say what the package does without hedging, and do not quote
   digits that change from run to run.
+- Say a thing once. A selling point belongs in the README and gets explained
+  on one page of the manual; do not restate it on the others.
 - A change a user can see needs its page and docstring changed with it.
   `?EstimationOptions` must name every option, and a test checks that it does.
 

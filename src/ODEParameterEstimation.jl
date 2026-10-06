@@ -2,7 +2,7 @@
     ODEParameterEstimation
 
 Estimate the parameters and initial conditions of an ODE model from time-series
-data, without starting guesses.
+data.
 
 Build a [`ParameterEstimationProblem`](@ref) from a ModelingToolkit system and
 your data, call [`estimate`](@ref), and read the
