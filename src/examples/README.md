@@ -4,11 +4,9 @@ This directory contains model definitions and maintained runnable workflows.
 The investigation scripts, benchmarks, and PEtab pilot are preserved on the
 [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research/src/examples).
 
-If you are looking for the current user-facing package workflow rather than the example inventory, start with:
-
-- [README.md](../../README.md)
-- [2026-03-17_user_quickstart.md](../../docs/internal/2026-03-17_user_quickstart.md)
-- [2026-03-17_results_and_api.md](../../docs/internal/2026-03-17_results_and_api.md)
+To learn how to use the package, read the
+[manual](https://orebas.github.io/ODEParameterEstimation.jl/dev/).
+[first_example.jl](first_example.jl) is its first example as a script.
 
 ## Categories
 

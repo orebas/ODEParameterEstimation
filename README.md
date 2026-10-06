@@ -1,141 +1,118 @@
 # ODEParameterEstimation.jl
 
+[![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://orebas.github.io/ODEParameterEstimation.jl/dev/)
 [![Build Status](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/orebas/ODEParameterEstimation.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
-`ODEParameterEstimation` estimates parameters and initial conditions for ODE models from observed time-series data. The current default path is the SI-template-based standard flow: structural identifiability comes from `SI.jl` / `StructuralIdentifiability`, numerical identifiability checks are advisory-only, and the analyzed results are returned in a structured tuple.
+ODEParameterEstimation.jl fits the parameters and initial conditions of an ODE
+model to time-series data.
 
-This README is the landing page. Start with:
+- **No starting guesses and no bounds.** You give the model and the data.
+- **Every answer, not just one.** If two parameter sets explain the data
+  equally well, you get both.
+- **It tells you what the data cannot determine.** Parameters that no amount of
+  this data could pin down are flagged.
 
-- [Reviewer Map](docs/internal/review_map.md) for multi-agent code review coordination
-- [User Quickstart](docs/internal/2026-03-17_user_quickstart.md)
-- [Results and API](docs/internal/2026-03-17_results_and_api.md)
-- [Supported Models and Limitations](docs/internal/2026-03-17_supported_models_and_limitations.md)
-- [Benchmark Contract Note](docs/internal/2026-03-17_benchmark_contract.md)
-- [Examples Directory Guide](src/examples/README.md)
-
-For the ordered work toward registration, see [Registry preparation](docs/internal/registry_preparation.md).
-The complete experimental source, historical benchmark scripts, PEtab pilot,
-and evidence remain on the [research branch](https://github.com/orebas/ODEParameterEstimation.jl/tree/research).
-
-The GaussianProcesses.jl fitting route and SIAN equation-construction helpers
-are maintained in isolated internal modules with upstream attribution. Neither
-external package is required to install or test ODEPE. See
-[internal backends](docs/internal/2026-10-04_internal_backends.md) for provenance and validation.
+It works by solving equations rather than by searching. Derivatives of the data
+are estimated, the model turns them into polynomial equations for the unknowns,
+and those equations are solved for all their solutions. Because of that, the
+model has to be built from polynomials and ratios of polynomials.
 
 ## Installation
 
-Version **1.0.0** is being prepared for first registration. Until it is
-registered, install from GitHub or a local checkout. Julia 1.12 or later is
-required; the release CI covers Julia 1.12 and 1.13.
-
-If you are working from source, the simplest setup is to develop a local checkout:
+Julia 1.12 or later is required. The package is not in the General registry
+yet, so install it from GitHub:
 
 ```julia
 using Pkg
-Pkg.develop(path="/path/to/ODEParameterEstimation")
+Pkg.add(url = "https://github.com/orebas/ODEParameterEstimation.jl")
+Pkg.add("ModelingToolkit")
 ```
 
-If you are installing directly from GitHub instead:
+## A first example
+
+Models are written with [ModelingToolkit](https://docs.sciml.ai/ModelingToolkit/stable/).
+This is a predator-prey model with four unknown rates.
 
 ```julia
-using Pkg
-Pkg.add(url="https://github.com/orebas/ODEParameterEstimation.jl.git")
+using ODEParameterEstimation, ModelingToolkit
+using ModelingToolkit: t_nounits as t, D_nounits as D
+
+@parameters α β γ δ
+@variables prey(t) predators(t) y1(t) y2(t)
+@named lotka_volterra = System([
+    D(prey) ~ α * prey - β * prey * predators,
+    D(predators) ~ δ * prey * predators - γ * predators,
+], t)
+
+# Both populations were counted. Here the counts are simulated from known values.
+problem = ParameterEstimationProblem(lotka_volterra, [y1 ~ prey, y2 ~ predators];
+    true_values = [α => 1.1, β => 0.4, γ => 0.4, δ => 0.1, prey => 1.0, predators => 0.5])
+problem = sample_problem_data(problem; datasize = 101, time_interval = [0.0, 10.0])
+
+results = estimate(problem)
+results[1]
 ```
 
-## Testing
-
-Run package tests from the global Julia environment after developing the checkout:
-
-```bash
-julia --startup-file=no test/current.jl
+```
+ParameterEstimationResult
+  Parameters
+    α = 1.1
+    β = 0.4
+    γ = 0.4
+    δ = 0.1
+  Initial conditions (t = 0)
+    prey(t) = 1
+    predators(t) = 0.5
+  Fit error: 4.28e-23
 ```
 
-`Pkg.test` creates an isolated test environment using `test/Project.toml`.
-The wrapper uses `allow_reresolve=false`, preserving your active dependency
-versions and development checkouts. A conflict with test dependencies fails
-visibly. You do not need test imports installed directly in the global
-environment. Always disable the startup file for Julia commands.
-
-The full suite is required for changes affecting estimation. For a quick
-contract check or the separate seeded, noisy recovery benchmark:
-
-```bash
-julia --startup-file=no test/current.jl unit
-julia --startup-file=no test/current.jl benchmark
-```
-
-The unit group does not replace the full suite. Run the benchmark before a
-cluster handoff. Each full-suite file receives a fixed random seed and its own
-testset and module, so a failure in one file is reported while the remaining
-files run, without leaking helper definitions. Tests run in temporary working
-directories to contain diagnostic sidecars.
-
-To check installation and tests without inheriting local dependency overrides:
-
-```bash
-julia --startup-file=no test/registered.jl
-```
-
-This develops the checkout in a temporary environment and requires every other
-dependency to resolve from the registry. It also accepts `unit` or `benchmark`.
-Add a second argument, `modern`, to require the newer supported dependency
-families, for example `julia --startup-file=no test/registered.jl benchmark modern`.
-Both profiles reject GaussianProcesses and SIAN in the resolved dependency graph.
-
-## Minimal Workflow
+With your own measurements, pass them instead of simulating:
 
 ```julia
-using ODEParameterEstimation
-
-opts = EstimationOptions(
-    datasize = 41,
-    noise_level = 0.0,
-    flow = FlowStandard,
-    use_si_template = true,
-    interpolators = [InterpolatorAAAD],
-    use_parameter_homotopy = false,
-    save_system = false,
-    polish_solver_solutions = false,
-    polish_solutions = false,
-)
-
-pep = simple()
-sampled = sample_problem_data(pep, opts)
-raw_results, analysis, _ = analyze_parameter_estimation_problem(sampled, opts)
-
-best = first(analysis.returned_results)
-best.parameters
-best.states
-best.all_unidentifiable
-analysis.best_max_error   # validation metric when ground truth is available
+problem = ParameterEstimationProblem(lotka_volterra, [y1 ~ prey, y2 ~ predators];
+    data = (t = times, y1 = prey_counts, y2 = predator_counts))
 ```
 
-`analysis.returned_results` contains the analyzed and clustered results, ranked by the configured strategy (trajectory fit error by default). Its first entry is the selected estimate. Ground truth is used for validation metrics, not for the default ranking.
+Measured data are noisy. For those, add `polish_solutions = true`:
+`estimate(problem; polish_solutions = true)`. The manual's page on
+[noisy data](https://orebas.github.io/ODEParameterEstimation.jl/dev/tutorials/noisy_data/)
+shows why.
 
-## Support Model
+The first call to `estimate` in a session takes a couple of minutes while Julia
+compiles. After that, a model of this size takes seconds.
 
-The package is currently best understood as:
+## Documentation
 
-- a standard SI-template workflow for supported polynomial/rational-style models
-- an explicit structural-unidentifiability workflow, with representative structural fixes recorded in provenance
-- an early-failing workflow for unsupported raw classes like state trig, raw `sqrt(...)`, and raw unsupported transcendental state dependence
-- a package with some intentionally hard examples that run but are slower, weaker, or more weakly identified than the simple examples
+The [manual](https://orebas.github.io/ODEParameterEstimation.jl/dev/) starts
+with a [walk through this example](https://orebas.github.io/ODEParameterEstimation.jl/dev/getting_started/)
+and continues with:
 
-For the current taxonomy and caveats, see [Supported Models and Limitations](docs/internal/2026-03-17_supported_models_and_limitations.md).
+- [using your own data](https://orebas.github.io/ODEParameterEstimation.jl/dev/tutorials/own_data/)
+- [noisy data](https://orebas.github.io/ODEParameterEstimation.jl/dev/tutorials/noisy_data/)
+- [models with more than one answer](https://orebas.github.io/ODEParameterEstimation.jl/dev/tutorials/identifiability/)
+- [which models work](https://orebas.github.io/ODEParameterEstimation.jl/dev/guides/models/)
+- [how the method works](https://orebas.github.io/ODEParameterEstimation.jl/dev/guides/how_it_works/)
 
-## Notes
+## Citing
 
-- The current public return contract is documented explicitly in [Results and API](docs/internal/2026-03-17_results_and_api.md).
-- Uncertainty quantification is opt-in. Audited single-point calibration does
-  not establish coverage for nonlinear multipoint or polished estimators;
-  see the [UQ contract](docs/internal/2026-08-14_estimator_aware_uq.md).
-- The PEtab pilot, RS/RUR extension, consensus research APIs, and SHADE+LM
-  comparison baseline are retained on the research branch. They are outside
-  this branch's package API.
-- The dated investigation docs under [docs](docs) remain historical references.
+If you use this package in your work, please cite the papers it is based on:
 
-## License and attribution
+> O. Bassik, A. Demin, A. Ovchinnikov. *Practical algebraic parameter estimation
+> for noisy data via Gaussian process regression.*
+> [arXiv:2609.30451](https://arxiv.org/abs/2609.30451) (2026).
 
-The package uses [GPL-3.0](LICENSE). The adapted GP and SIAN modules retain
-their upstream MIT notices. Source and fixture provenance is summarized in
-the [release attribution review](docs/internal/registry_preparation.md#provenance-and-attribution).
+> O. Bassik, Y. Berman, S. Go, H. Hong, I. Ilmer, A. Ovchinnikov, C. Rackauckas,
+> P. Soto, C. Yap. *Robust parameter estimation for rational ordinary
+> differential equations.* Applied Mathematics and Computation 509 (2026).
+> [doi:10.1016/j.amc.2025.129638](https://doi.org/10.1016/j.amc.2025.129638)
+
+## Contributing
+
+Bug reports and pull requests are welcome. The manual's
+[contributing page](https://orebas.github.io/ODEParameterEstimation.jl/dev/contributing/)
+says how to run the tests and build the documentation.
+
+## License
+
+[GPL-3.0](LICENSE). The package includes code adapted from GaussianProcesses.jl
+and SIAN-Julia, which keep their MIT notices beside the source.

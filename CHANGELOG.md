@@ -57,6 +57,19 @@ are separate from preparing this candidate.
   models with a quantity that cannot be determined, because names were cut by
   byte offset.
 
+### A manual — 2026-10-06
+
+- Replace the README and the Documenter site with documentation written for
+  someone meeting the package for the first time: a getting-started page,
+  tutorials on your own data, noisy data, models with more than one answer and
+  uncertainty, guides to supported models, options, results, the method and
+  troubleshooting, and a reference split into the main API and everything
+  else. Every example runs when the site is built.
+- Publish the site from a new `Documentation` workflow.
+- Remove `examples/estimation_options_example.jl`, which no longer ran, rewrite
+  `src/examples/first_example.jl` for the short path, and move the
+  biohydrogenation benchmark script out of the repository root.
+
 ### Quiet by default — 2026-10-06
 
 - A run with default options now prints nothing, passes only errors to the

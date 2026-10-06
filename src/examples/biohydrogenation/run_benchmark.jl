@@ -2,7 +2,7 @@
 # Single biohydrogenation run with SLURM benchmark-equivalent settings
 # (polish_solutions=true, BFGS 200k iters, matching SciML polisher)
 
-include("src/examples/load_examples.jl")
+include(joinpath(@__DIR__, "..", "load_examples.jl"))
 
 using SciMLBase
 using Optimization

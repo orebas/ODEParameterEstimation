@@ -57,6 +57,22 @@ drift, prefer `CLAUDE.md`.
   predate these implementations; use them as historical evidence when
   investigating remaining conditioning problems.
 
+## User documentation
+
+- The manual is `docs/src`, built with Documenter and published at
+  <https://orebas.github.io/ODEParameterEstimation.jl/dev/>. The README is its
+  front page. Engineering notes go in `docs/internal`, never in `docs/src`.
+- Build it with `julia --startup-file=no --project=docs docs/make.jl`. Code in
+  `@example` blocks runs during the build, so every estimation costs build
+  time. Keep to one or two per page, and never put `progress = true` in an
+  executed block.
+- Write for someone who has never seen the package: plain words, short
+  sentences, code first and explanation after. No dates, benchmark names or
+  internal terms. Say what the package does without hedging, and do not quote
+  digits that change from run to run.
+- A change a user can see needs its page and docstring changed with it.
+  `?EstimationOptions` must name every option, and a test checks that it does.
+
 ## Build/Test Commands
 - **Always use `--startup-file=no`** when invoking Julia (Revise.jl caused exit segfaults on Julia 1.12).
 - Start local tests from the global Julia environment (plain `julia`, not `julia --project`). `Pkg.test` creates the isolated test environment and installs the dependencies declared in `test/Project.toml`.
