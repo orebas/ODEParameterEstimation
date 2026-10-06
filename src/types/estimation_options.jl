@@ -161,8 +161,6 @@ method each, and are grouped by stage.
   and finishes.
 - `shooting_points` (default `12`): how many time points the equations are
   solved at. Fewer is faster.
-- `compute_uncertainty` (default `false`): also estimate standard errors for
-  the best solution. Needs `InterpolatorAGPUQ` in `interpolators`.
 - `abstol`, `reltol` (default `1e-14`): tolerances for simulating the model.
 
 # Simulated data
@@ -354,6 +352,10 @@ These are read only by [`sample_problem_data`](@ref).
 
 # Uncertainty
 
+Uncertainty estimation is experimental.
+
+- `compute_uncertainty` (default `false`): also estimate standard errors for
+  the best solution. Needs `InterpolatorAGPUQ` in `interpolators`.
 - `uq_failure_policy` (default `:return_failed`): when standard errors cannot
   be computed, `:return_failed` returns a [`UQUnavailable`](@ref) that says
   why, and `:throw` raises an error.

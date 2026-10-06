@@ -26,7 +26,7 @@ makedocs(;
             "Your own data" => "tutorials/own_data.md",
             "Noisy data" => "tutorials/noisy_data.md",
             "More than one answer" => "tutorials/identifiability.md",
-            "Uncertainty" => "tutorials/uncertainty.md",
+            "Uncertainty (experimental)" => "tutorials/uncertainty.md",
         ],
         "Guides" => [
             "Which models work" => "guides/models.md",

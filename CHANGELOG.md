@@ -16,6 +16,13 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Uncertainty is marked experimental — 2026-10-06
+
+- The manual, the option documentation and the docstrings of `estimate` and
+  `analyze_parameter_estimation_problem` now say that uncertainty estimation
+  is experimental, and the tutorial asks for reports of how it did. Its
+  behavior is unchanged.
+
 ### Estimates are refined by default — 2026-10-06
 
 - `polish_solutions` now defaults to `true`: each solution of the equations is

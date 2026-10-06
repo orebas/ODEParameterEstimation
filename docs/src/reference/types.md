@@ -10,6 +10,9 @@ study how it behaves. This page and [the next](@ref "Other functions") list
 them as they are documented in the source. The names meant for everyday use
 are on [the previous page](@ref "Main functions and types").
 
+The types to do with uncertainty, `UncertaintyReport` and those around it,
+belong to an experimental part of the package. See [Uncertainty](@ref).
+
 ```@autodocs
 Modules = [ODEParameterEstimation]
 Order = [:type]

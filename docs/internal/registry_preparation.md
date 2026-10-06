@@ -398,7 +398,9 @@ The unit, full and benchmark gates passed **549/549**, **2,420/2,420** and
 **10/10**, and the fresh registered-dependency full suite passed
 **2,420/2,420**. CI at `58e9038`, before this follow-up, passed its four
 required jobs; the advisory nightly job failed the same eight `substr_test`
-assertions it failed at `0702d50`.
+assertions it failed at `0702d50`. CI at `82ba667`, with the follow-up, passed
+all five jobs. The manual and the option documentation then marked uncertainty
+estimation as experimental and asked for feedback, which changes no behavior.
 
 ## Repository and documentation review
 

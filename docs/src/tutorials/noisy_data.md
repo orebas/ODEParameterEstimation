@@ -86,5 +86,5 @@ estimate(problem; interpolators = [InterpolatorAGPRobust])
 
 ## How good is the answer
 
-Plot it, as above. For a number, [Uncertainty](@ref) estimates a standard error
-for each parameter.
+Plot it, as above. For a number, there is an experimental way to estimate a
+standard error for each parameter. See [Uncertainty](@ref).

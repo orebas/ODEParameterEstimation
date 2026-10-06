@@ -201,7 +201,7 @@ Keyword arguments are the fields of [`EstimationOptions`](@ref), for example
 These are the `returned_results` of
 [`analyze_parameter_estimation_problem`](@ref). Call that function instead when
 you also want the error statistics against known true values or the
-uncertainty report.
+uncertainty report, which is experimental.
 
 # Example
 ```julia

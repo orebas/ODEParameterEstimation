@@ -41,7 +41,7 @@ results = estimate(problem)
 - **Tutorials** each work through one situation:
   [your own data](@ref "Your own data"), [noisy data](@ref "Noisy data"),
   [models with more than one answer](@ref "More than one answer") and
-  [uncertainty](@ref "Uncertainty").
+  [uncertainty](@ref "Uncertainty"), which is experimental.
 - **Guides** cover one topic each: [which models work](@ref "Which models work"),
   the [options](@ref "Options") worth knowing, how to read
   [results](@ref "Results"), [how the method works](@ref "How it works"), and

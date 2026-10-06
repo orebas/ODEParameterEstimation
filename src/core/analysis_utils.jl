@@ -979,7 +979,7 @@ the run produced, as `(raw_results, analysis, uq)`.
   - `algebraic_multiplicity` is the number of solutions the equations admit,
     when it was determined.
 - `uq`: the uncertainty report when `compute_uncertainty = true`, otherwise
-  `nothing`.
+  `nothing`. Uncertainty estimation is experimental.
 """
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)

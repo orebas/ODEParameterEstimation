@@ -1,5 +1,11 @@
 # Uncertainty
 
+!!! warning "Experimental"
+    Uncertainty estimates are experimental. They have been tested on only a
+    few models, and it is not yet known how well they hold up in general. If
+    you try them, please [open an issue](https://github.com/orebas/ODEParameterEstimation.jl/issues)
+    and say how they did. Good or bad, that is useful to hear.
+
 With noisy data an estimate is only good to within some margin. The package
 can estimate that margin, as a standard error for each parameter and initial
 condition.

@@ -86,8 +86,8 @@ calls are unaffected.
 
 ## Standard errors
 
-`compute_uncertainty = true` adds standard errors for the best answer. See
-[Uncertainty](@ref).
+`compute_uncertainty = true` adds standard errors for the best answer. This
+part of the package is experimental. See [Uncertainty](@ref).
 
 ## The ODE solver
 
