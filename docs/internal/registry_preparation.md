@@ -349,6 +349,46 @@ day, depends on LLVM.jl. GPUCompiler and Enzyme remain absent. Repeat the
 required CI jobs and the fresh URL install at the new commit before
 registering.
 
+### October 6 short path, quiet defaults and manual
+
+The package gained a short way in for users, and its documentation was
+rewritten around it. See the [changelog](../../CHANGELOG.md) for the details.
+
+- `ParameterEstimationProblem(system, measured_quantities; data, true_values)`
+  takes a ModelingToolkit `System` and named data, and
+  `estimate(problem; options...)` returns the solutions best fit first. The
+  nine-argument constructor and `analyze_parameter_estimation_problem` are
+  unchanged.
+- A run with default options prints nothing, logs only errors and writes no
+  files. The defaults are now `nooutput = true`, `diagnostics = false` and
+  `save_system = false`. With a seed, every combination of the three gave the
+  same candidate pool on `simple` and Lotka–Volterra.
+- The `interpolator` and `custom_interpolator` options are removed. Beside
+  the default `interpolators` list they had no effect, and about 25 tests and
+  examples set them anyway.
+- Two defects found while running the manual's examples are fixed. A
+  `sin(c*t)` input returned its coefficient doubled when rescaling halved the
+  helper state for the input (`forced_decay` over `[-0.5, 0.5]`), and state
+  names such as `θ(t)` raised `StringIndexError` in models with a quantity
+  that cannot be determined.
+- The README and the Documenter site are new. The site's examples run at build
+  time, which takes about 10 minutes locally with a warm cache. The
+  `Documentation` workflow publishes it to the `gh-pages` branch. GitHub Pages
+  has to be pointed at that branch once, after the first deployment. TagBot
+  uses `GITHUB_TOKEN`, whose tag pushes do not start workflows, so versioned
+  pages for a release need a deploy key or a manual run of the workflow.
+- The README says the package is not yet in the General registry. Change that
+  sentence, and the install command, when it is.
+
+On that worktree the local Julia 1.13.1 unit, full and benchmark gates passed
+**548/548**, **2,414/2,414** and **10/10**, and the fresh registered-dependency
+full suite passed **2,414/2,414** with 310 packages resolved. The 164 added
+assertions cover the quiet defaults, the constructor's handling of data and
+true values, `estimate`, the result display, the option documentation, the
+removed options, and the two fixes. The documentation build ran every example.
+Repeat the required CI jobs and the fresh URL install at the new commit before
+registering.
+
 ## Repository and documentation review
 
 - [x] Review the first-release source tree. Before the split, Git tracked
