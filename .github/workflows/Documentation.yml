@@ -1,0 +1,33 @@
+name: Documentation
+on:
+  push:
+    branches:
+      - main
+    tags: ['*']
+  pull_request:
+  workflow_dispatch:
+concurrency:
+  # One build per ref; a newer push to a pull request replaces the older build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+jobs:
+  docs:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: write # lets julia-actions/cache delete the caches it created
+      contents: write # Documenter pushes the built site to the gh-pages branch
+      statuses: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.13'
+      - uses: julia-actions/cache@v2
+      - name: Install documentation dependencies
+        run: julia --startup-file=no --project=docs -e 'using Pkg; Pkg.instantiate()'
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: julia --startup-file=no --project=docs docs/make.jl
