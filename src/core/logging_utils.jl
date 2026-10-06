@@ -106,18 +106,22 @@ otherwise do nothing. Use as the first statement of broad `catch` blocks.
 """
     _heartbeat(opts, phase; kind=:start, extra="")
 
-Emit a flushed, timestamped `[HB HH:MM:SS] ▶/✓ phase` marker. No-op unless
-`opts.heartbeat` is true and `opts.nooutput` is false. `kind` is `:start`,
+Emit a flushed, timestamped `[HH:MM:SS] ▶/✓ phase` marker. Printed when
+`opts.progress` is true, or when `opts.heartbeat` is true and `opts.nooutput`
+is false. In the second case the line starts with `[HB HH:MM:SS]`, so that it
+can be found among the rest of the development output. `kind` is `:start`,
 `:done`, or `:note`; `extra` is appended verbatim.
 """
 function _heartbeat(opts, phase::AbstractString; kind::Symbol = :start, extra::AbstractString = "")
-    (opts.heartbeat && !opts.nooutput) || return nothing
+    among_other_output = opts.heartbeat && !opts.nooutput
+    (opts.progress || among_other_output) || return nothing
     mark = kind === :start ? "▶" : kind === :done ? "✓" : "•"
     stamp = Dates.format(Dates.now(), "HH:MM:SS")
+    opening = among_other_output ? "[HB " : "["
     if isempty(extra)
-        println("[HB ", stamp, "] ", mark, " ", phase)
+        println(opening, stamp, "] ", mark, " ", phase)
     else
-        println("[HB ", stamp, "] ", mark, " ", phase, " ", extra)
+        println(opening, stamp, "] ", mark, " ", phase, " ", extra)
     end
     flush(stdout)
     flush(stderr)

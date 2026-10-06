@@ -42,6 +42,7 @@ const TEST_FILES = [
     "test_interrupt_propagation.jl",  # Ctrl-C class fix 2026-07-24 (_rethrow_if_interrupt)
     "test_run_context.jl",            # scoped RunContext contracts 2026-07-24
     "test_seed_reproducibility.jl",   # EstimationOptions.seed: repeatable runs, caller RNG untouched 2026-10-05
+    "test_quiet_defaults.jl",         # default runs print, log and write nothing; output is opt-in 2026-10-06
     "test_gp_kernel_optimization.jl", # recovered 2026-08-12 (gitignore-trap survivor, Feb 2026)
     "test_cross_observable_covariance.jl",  # recovered 2026-08-12 (joint-GP covariance, Mar 2026)
     "test_polish_maxtime.jl",         # recovered 2026-08-12 (polish_maxtime enforcement, May 2026)

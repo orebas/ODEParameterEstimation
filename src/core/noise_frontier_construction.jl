@@ -1014,15 +1014,29 @@ function _noise_prepare_validation_cache(
 	return _noise_store_validation_cache!(key, cache)
 end
 
+"""
+	_mixed_volume_without_progress(hc_system)
+
+The mixed volume of a square system, as `HomotopyContinuation.mixed_volume`
+computes it. That function always draws a progress meter on stderr, which a
+quiet run must not, so this goes to MixedSubdivisions with the meter off.
+"""
+function _mixed_volume_without_progress(hc_system)
+	# The homogeneous case needs HomotopyContinuation's own preparation.
+	HomotopyContinuation.is_homogeneous(hc_system) && return HomotopyContinuation.mixed_volume(hc_system)
+	support, _ = HomotopyContinuation.support_coefficients(hc_system)
+	return HomotopyContinuation.MixedSubdivisions.mixed_volume(support; show_progress = false)
+end
+
 function _noise_mixed_volume(equations, solve_vars, data_vars)
 	length(equations) == length(solve_vars) || return nothing
 	try
 		if isempty(data_vars)
 			hc_system, _ = convert_to_hc_format(equations, solve_vars)
-			return Int(HomotopyContinuation.mixed_volume(hc_system))
+			return Int(_mixed_volume_without_progress(hc_system))
 		end
 		hc_system, _, _ = convert_to_hc_format_with_params(equations, solve_vars, data_vars)
-		return Int(HomotopyContinuation.mixed_volume(hc_system))
+		return Int(_mixed_volume_without_progress(hc_system))
 	catch e
 		_rethrow_if_interrupt(e)
 		@warn "[NOISE-FRONTIER] mixed_volume failed" exception = e

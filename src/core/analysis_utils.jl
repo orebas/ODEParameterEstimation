@@ -959,19 +959,20 @@ end
 
 function analyze_parameter_estimation_problem(PEP::ParameterEstimationProblem, opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)
-	_estimation_seed_pending(opts) &&
-		return _with_estimation_seed(() -> analyze_parameter_estimation_problem(PEP, opts), opts.seed)
-	# Establish a per-run RunContext (auto-M hand-off, timing, sinks) unless an
-	# outer scope (e.g. with_estimation_timing) already bound one.
-	if _run_ctx() === nothing
-		value, _ = _with_run_context(() -> _analyze_parameter_estimation_problem_impl(PEP, opts))
-		return value
+	# Validated here, before the quiet scope, so configuration warnings are shown.
+	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
+	return _with_run_scopes(opts) do
+		# Establish a per-run RunContext (auto-M hand-off, timing, sinks) unless an
+		# outer scope (e.g. with_estimation_timing) already bound one.
+		if _run_ctx() === nothing
+			value, _ = _with_run_context(() -> _analyze_parameter_estimation_problem_impl(PEP, opts))
+			return value
+		end
+		return _analyze_parameter_estimation_problem_impl(PEP, opts)
 	end
-	return _analyze_parameter_estimation_problem_impl(PEP, opts)
 end
 
 function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProblem, opts::EstimationOptions)
-	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before running estimation."))
 	_run_ctx_begin_uq!(opts.compute_uncertainty)
 	# Carry the per-analysis HC solver config to _hc_solve via the bound context.
 	_run_ctx_set_hc_opts!(opts.hc_threading, opts.hc_compile_mode)

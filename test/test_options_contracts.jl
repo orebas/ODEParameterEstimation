@@ -14,6 +14,11 @@ using OrderedCollections
 
 	# Wired fields exist with their behavior-neutral defaults.
 	o = EstimationOptions()
+	# Output is opt-in: a default run prints nothing and writes no files.
+	@test o.nooutput
+	@test !o.diagnostics
+	@test !o.save_system
+	@test !o.progress
 	@test o.clustering_threshold == 1.0e-5   # == the old CLUSTERING_THRESHOLD constant
 	@test o.si_probability == 0.99           # == SIAN's old hardcoded p
 	@test o.si_fix_strategy == :local_basis

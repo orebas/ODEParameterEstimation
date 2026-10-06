@@ -402,6 +402,56 @@ function _with_estimation_seed(f::F, seed::Integer) where {F}
 	end
 end
 
+# ── Quiet runs (`EstimationOptions.nooutput`) ─────────────────────────────────
+# The package logs its progress, fallbacks and timings for development. A quiet
+# run, the default, passes only errors on to the caller's logger.
+
+struct _ErrorsOnlyLogger{L <: Logging.AbstractLogger} <: Logging.AbstractLogger
+	parent::L
+end
+Logging.min_enabled_level(logger::_ErrorsOnlyLogger) =
+	max(Logging.Error, Logging.min_enabled_level(logger.parent))
+Logging.shouldlog(logger::_ErrorsOnlyLogger, level, args...) =
+	level >= Logging.Error && Logging.shouldlog(logger.parent, level, args...)
+Logging.handle_message(logger::_ErrorsOnlyLogger, args...; kwargs...) =
+	Logging.handle_message(logger.parent, args...; kwargs...)
+Logging.catch_exceptions(logger::_ErrorsOnlyLogger) = Logging.catch_exceptions(logger.parent)
+
+# Asking for diagnostics is asking for the log messages too.
+_quiet_logging_pending(opts) =
+	opts.nooutput && !opts.diagnostics && !(Logging.current_logger() isa _ErrorsOnlyLogger)
+
+"""
+	_with_quiet_logging(f, opts) -> f()
+
+Run `f()` with log messages below error level dropped, when `opts.nooutput` is
+true and `opts.diagnostics` is false. Tasks started inside inherit the setting.
+"""
+function _with_quiet_logging(f::F, opts) where {F}
+	_quiet_logging_pending(opts) || return f()
+	return Logging.with_logger(f, _ErrorsOnlyLogger(Logging.current_logger()))
+end
+
+"""
+	_run_scopes_pending(opts) -> Bool
+
+True when an estimation entry point still has to apply `opts.nooutput` or
+`opts.seed`. False inside a run that has already applied them.
+"""
+_run_scopes_pending(opts) = _quiet_logging_pending(opts) || _estimation_seed_pending(opts)
+
+"""
+	_with_run_scopes(f, opts) -> f()
+
+Run `f()` as one estimation: quietly when `opts.nooutput` is true, and on the
+stream given by `opts.seed` when no enclosing run has seeded already.
+"""
+function _with_run_scopes(f::F, opts) where {F}
+	return _with_quiet_logging(opts) do
+		_estimation_seed_pending(opts) ? _with_estimation_seed(f, opts.seed) : f()
+	end
+end
+
 """
 	_with_noise_seed(f, seed) -> f()
 

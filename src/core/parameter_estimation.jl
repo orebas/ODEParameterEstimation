@@ -2598,8 +2598,8 @@ Uses the shared PolishContext infrastructure for consistency with the polish pat
 function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;
 	opts::EstimationOptions = EstimationOptions())
 	_validate_observation_options(PEP.data_sample, opts)
-	_estimation_seed_pending(opts) &&
-		return _with_estimation_seed(() -> direct_optimization_parameter_estimation(PEP; opts = opts), opts.seed)
+	_run_scopes_pending(opts) &&
+		return _with_run_scopes(() -> direct_optimization_parameter_estimation(PEP; opts = opts), opts)
 	if _run_ctx() === nothing
 		value, _ = _with_run_context(() -> direct_optimization_parameter_estimation(PEP; opts = opts))
 		return value

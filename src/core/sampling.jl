@@ -198,7 +198,9 @@ function sample_problem_data(problem::ParameterEstimationProblem, opts::Estimati
 	validate_options(opts) || throw(ArgumentError("Invalid EstimationOptions; fix the reported configuration errors before sampling data."))
 	# The whole call is scoped, not only the noise draw: building and solving
 	# the model forks tasks, which advances the caller's RNG fork state.
-	return _with_noise_seed(() -> _sample_problem_data(problem, opts), opts.seed)
+	return _with_quiet_logging(opts) do
+		_with_noise_seed(() -> _sample_problem_data(problem, opts), opts.seed)
+	end
 end
 
 function _sample_problem_data(problem::ParameterEstimationProblem, opts::EstimationOptions)

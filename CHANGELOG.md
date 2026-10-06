@@ -16,6 +16,24 @@ are separate from preparing this candidate.
 - Prepare the `ODEParameterEstimation.jl` repository URL, user documentation,
   and release workflows for Julia 1.12 and 1.13.
 
+### Quiet by default — 2026-10-06
+
+- A run with default options now prints nothing, passes only errors to the
+  logger, and writes no files. The defaults changed to `nooutput = true`,
+  `diagnostics = false` and `save_system = false`. Estimates are unaffected:
+  with a seed, all combinations of these flags gave identical candidate pools
+  on `simple` and Lotka–Volterra. Set `nooutput = false` or
+  `diagnostics = true` for the earlier output.
+- Add `progress = true`, which prints one timestamped line as each phase starts
+  and finishes, and nothing else.
+- The candidate-synthesis log (`synthesis_log.csv`) is written only with
+  `diagnostics = true`. It had been written on every run.
+- Options are checked before output is silenced, so configuration warnings and
+  errors are still shown.
+- Counting the solutions of a candidate system no longer draws
+  HomotopyContinuation's progress meter, which has no switch and showed on
+  stderr for models slow enough to trigger it.
+
 ### Reproducible runs — 2026-10-05
 
 - Add `EstimationOptions(seed = ...)`. With an integer, `sample_problem_data`

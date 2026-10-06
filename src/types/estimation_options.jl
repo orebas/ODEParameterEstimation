@@ -198,8 +198,9 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
   fresh entropy for the homotopy start and is not reproducible under any `seed`.
 
 ## Debug and Output Flags
-- `nooutput::Bool`: Suppress output messages (default: false)
-- `diagnostics::Bool`: Enable diagnostic output (default: true)
+- `nooutput::Bool`: Print nothing and pass only errors to the logger (default: true). Set to `false` to see progress and a summary of the results.
+- `diagnostics::Bool`: Print detailed diagnostic output and write the candidate-synthesis log under `artifacts/diagnostics/` (default: false)
+- `progress::Bool`: Print one timestamped line as each phase starts and finishes, and nothing else (default: false)
 - `debug_solver::Bool`: Enable solver debugging (default: false)
 - `debug_cas_diagnostics::Bool`: Enable CAS system diagnostics (default: false)
 - `debug_dimensional_analysis::Bool`: Enable dimensional analysis debugging (default: false)
@@ -212,7 +213,7 @@ algorithm parameters, and debugging flags into a single, type-stable structure.
 - `construction_candidate_limit::Int`: Maximum number of same-derivative-cap frontier bases to evaluate in noise-frontier probes.
 - `construction_beam_width::Int`: Basis-exchange beam width for noise-frontier probes.
 - `construction_compute_mixed_volume::Bool`: Whether noise-frontier probes compute actual HC mixed volume for candidate bases.
-- `save_system::Bool`: Save polynomial systems to files (default: true)
+- `save_system::Bool`: Save the polynomial systems to files under `saved_systems/` (default: false)
 - `compute_uncertainty::Bool`: Compute parameter uncertainty via GP covariance + IFT (default: false)
 - `uq_failure_policy::Symbol`: Experimental UQ sidecar failure policy: `:return_failed` or `:throw` (default: `:return_failed`)
 - `uq_noise_source::Symbol`: Raw-observation covariance producer: `:learned_gp_homoscedastic` or `:smoother_residual_edf` (default: `:learned_gp_homoscedastic`)
@@ -520,13 +521,14 @@ Base.@kwdef struct EstimationOptions
 	seed::Union{Nothing, Int} = nothing  # Integer ⇒ sampling noise and estimation are reproducible and leave the caller's RNG untouched; nothing ⇒ draw from the caller's default RNG
 
 	# Debug and Output Flags
-	nooutput::Bool = false
-	diagnostics::Bool = true
+	nooutput::Bool = true
+	diagnostics::Bool = false
 	debug_solver::Bool = false
 	debug_cas_diagnostics::Bool = false
 	debug_dimensional_analysis::Bool = false
 	profile_phases::Bool = false  # Print per-phase timing/allocation breakdown
 	heartbeat::Bool = true        # Live flushed [HB] phase markers (suppressed by nooutput)
+	progress::Bool = false        # The same phase markers on their own, for a quiet run
 
 	# Feature Flags
 	flow::EstimationFlow = FlowStandard
@@ -535,7 +537,7 @@ Base.@kwdef struct EstimationOptions
 	construction_candidate_limit::Int = 64
 	construction_beam_width::Int = 16
 	construction_compute_mixed_volume::Bool = true
-	save_system::Bool = true
+	save_system::Bool = false
 	compute_uncertainty::Bool = false  # Experimental GP/IFT sidecar
 	uq_failure_policy::Symbol = :return_failed  # :return_failed | :throw
 	uq_noise_source::Symbol = :learned_gp_homoscedastic
@@ -1371,7 +1373,7 @@ function validate_options(opts::EstimationOptions)
 	end
 
 	if opts.nooutput && opts.diagnostics
-		@info "diagnostics=true but nooutput=true; diagnostic output will be suppressed"
+		@info "diagnostics=true with nooutput=true prints diagnostic lines but not progress or the result summary; set nooutput=false as well for the full output"
 	end
 
 	if opts.terminal_fallback != :none && opts.flow == FlowDirectOpt
@@ -1475,7 +1477,7 @@ function print_options(io::IO, opts::EstimationOptions; compact = false)
 		("Data Sampling", [:datasize, :time_interval, :noise_level, :uneven_sampling,
 			:uneven_sampling_times]),
 		("Reproducibility", [:seed]),
-		("Debug Flags", [:nooutput, :diagnostics, :debug_solver, :debug_cas_diagnostics,
+		("Debug Flags", [:nooutput, :diagnostics, :progress, :debug_solver, :debug_cas_diagnostics,
 			:debug_dimensional_analysis, :profile_phases]),
 		("Feature Flags", [:flow, :use_si_template, :save_system,
 			:compute_uncertainty, :uq_failure_policy, :uq_noise_source,

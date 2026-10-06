@@ -883,8 +883,8 @@ function _maybe_synthesize_aggregate_candidates(
 		end
 	end
 
-	# Sidecar log
-	if !isempty(new_candidates)
+	# Sidecar log (a debugging artifact: written only with `diagnostics = true`)
+	if opts.diagnostics && !isempty(new_candidates)
 		try
 			_write_synthesis_sidecar(PEP, new_candidates, solved_res)
 		catch err
