@@ -389,6 +389,17 @@ removed options, and the two fixes. The documentation build ran every example.
 Repeat the required CI jobs and the fresh URL install at the new commit before
 registering.
 
+A follow-up on the same day made refinement the default
+(`polish_solutions = true`). On Lotka–Volterra with 101 points and 2% noise the
+worst parameter error fell from 30% to 2%, and on exact data the estimates of
+six models, `hiv` among them, stayed exact. Uncertainty then describes the
+refined estimate, whose coverage is not yet established (see the UQ notes).
+The unit, full and benchmark gates passed **549/549**, **2,420/2,420** and
+**10/10**, and the fresh registered-dependency full suite passed
+**2,420/2,420**. CI at `58e9038`, before this follow-up, passed its four
+required jobs; the advisory nightly job failed the same eight `substr_test`
+assertions it failed at `0702d50`.
+
 ## Repository and documentation review
 
 - [x] Review the first-release source tree. Before the split, Git tracked
