@@ -43,15 +43,48 @@ const HC = HomotopyContinuation
 		@test OPE.compute_column_scales(solve_vars, data_vars, Vector{Vector{Float64}}()) == ones(2)
 	end
 
-	@testset "scale_hc_system round-trip" begin
-		HC.@var a b
-		F = HC.System([a^2 - b, a + b], variables = [a, b])
-		# all-ones -> returns same object (fast path)
-		@test OPE.scale_hc_system(F, [a, b], [1.0, 1.0]) === F
-		# scale a by 2, b by 3: G(â,b̂) = F(2â,3b̂); G(1,1) must equal F(2,3)
-		G = OPE.scale_hc_system(F, [a, b], [2.0, 3.0])
-		@test G([1.0, 1.0]) ≈ F([2.0, 3.0])
-		# and a generic point: G(â,b̂) == F(2â,3b̂)
-		@test G([0.7, -1.3]) ≈ F([1.4, -3.9])
+	@testset "only derivative unknowns can be scaled" begin
+		solve_vars = ["k5_0", "x4_0", "x4_1", "x4_2", "x4_3_pt2"]
+		@test OPE.column_scalable(solve_vars) == [false, false, true, true, true]
+		# The scales agree: whatever the data, an unknown that cannot be scaled has a scale of one.
+		data_vars = ["y1(t)", "Differential(t, 1)(y1(t))", "Differential(t, 2)(y1(t))", "Differential(t, 3)(y1(t))"]
+		scales = OPE.compute_column_scales(solve_vars, data_vars, [[1e6, 50.0, 5000.0, 0.5]])
+		@test scales == [1.0, 1.0, 50.0, 5000.0, 1.0]
+		@test all(scales[.!OPE.column_scalable(solve_vars)] .== 1.0)
+	end
+
+	@testset "scale_hc_system takes the scales as parameters" begin
+		HC.@var a b p
+		F = HC.System([a^2 - p * b, a + b], variables = [a, b], parameters = [p])
+		G = OPE.scale_hc_system(F, [a, b])
+		@test HC.variables(G) == [a, b]
+		@test length(HC.parameters(G)) == 3
+		@test HC.parameters(G)[1] == p
+		# The scales follow the system's own parameters: G(â, b̂; p, s) == F(s .* (â, b̂); p).
+		@test G([1.0, 1.0], [0.5, 2.0, 3.0]) ≈ F([2.0, 3.0], [0.5])
+		@test G([0.7, -1.3], [0.5, 2.0, 3.0]) ≈ F([1.4, -3.9], [0.5])
+		# Scales of one give back the system itself.
+		@test G([0.7, -1.3], [0.5, 1.0, 1.0]) ≈ F([0.7, -1.3], [0.5])
+
+		# Only the variables named are scaled, and with none the system is returned as it is.
+		H = OPE.scale_hc_system(F, [b])
+		@test length(HC.parameters(H)) == 2
+		@test H([0.7, -1.3], [0.5, 3.0]) ≈ F([0.7, -3.9], [0.5])
+		@test OPE.scale_hc_system(F, typeof(a)[]) === F
+
+		# The scaled system does not depend on the scale values, so HomotopyContinuation
+		# compiles it once and reuses it for every data set.
+		again = OPE.scale_hc_system(F, [a, b])
+		@test again == G
+		@test typeof(HC.fixed(again; compile = :all)) == typeof(HC.fixed(G; compile = :all))
+	end
+
+	@testset "scale parameters get names of their own" begin
+		# The system already uses the first name a scale would get, and the next one tried.
+		HC.@var colscale_1 colscale_1_ b
+		F = HC.System([colscale_1^2 - colscale_1_ * b, colscale_1 + b], variables = [colscale_1, b], parameters = [colscale_1_])
+		G = OPE.scale_hc_system(F, [colscale_1, b])
+		@test allunique(string.(vcat(HC.variables(G), HC.parameters(G))))
+		@test G([1.0, 1.0], [0.5, 2.0, 3.0]) ≈ F([2.0, 3.0], [0.5])
 	end
 end

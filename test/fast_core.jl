@@ -303,6 +303,31 @@ using Random
         end
     end
 
+    @testset "Column scales reach HomotopyContinuation as parameters" begin
+        # Unknowns are named by derivative order (`_0`, `_1`) and the data are derivatives of `y`,
+        # so `x_1` is scaled by the size of the first derivative of the data.
+        @independent_variables t
+        @variables y(t) a_0 x_0 x_1
+        dy = Differential(t)(y)
+        equations = [x_0 - y, x_1 - dy, a_0 * x_0 - x_1]
+        solutions_at(points) = ODEParameterEstimation.solve_with_hc_parameterized(
+            equations, Any[a_0, x_0, x_1], Any[y, dy], points)
+
+        @test only(only(solutions_at([[2.0, 6.0]]))) ≈ [3.0, 2.0, 6.0]
+
+        # A second data set, with a different scale, is solved by the system already compiled.
+        # With the scale written into the coefficients it was a system HomotopyContinuation had
+        # not seen, and was compiled again. The table is HomotopyContinuation's own record.
+        ModelKit = HomotopyContinuation.ModelKit
+        counted = isdefined(ModelKit, :TSYSTEM_TABLE)
+        compiled_systems() = counted ? sum(length, values(ModelKit.TSYSTEM_TABLE)) : 0
+        before = compiled_systems()
+        @test only(only(solutions_at([[2.0, 600.0]]))) ≈ [300.0, 2.0, 600.0]
+        @test only(only(solutions_at([[-5.0, 0.25]]))) ≈ [-0.05, -5.0, 0.25]
+        counted || @info "HomotopyContinuation's table of compiled systems was not found; the count is not checked"
+        @test compiled_systems() == before
+    end
+
     @testset "Noise-frontier construction probes" begin
         opts = EstimationOptions(
             datasize = 11,

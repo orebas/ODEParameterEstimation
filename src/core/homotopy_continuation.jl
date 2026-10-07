@@ -790,17 +790,42 @@ function compute_column_scales(solve_vars, data_vars, param_values_list)
 end
 
 """
-	scale_hc_system(hc_system, hc_variables, scales)
+	column_scalable(solve_vars)
 
-Return a System with each variable v_i replaced by scales[i]*v_i (pure coordinate rescale; Newton
-polytopes / mixed volume unchanged). Returns the input unchanged when all scales == 1.0.
+Which unknowns column scaling can scale: the derivatives of order one and above. Parameters and order-0
+states keep a scale of one whatever the data (the rule in `compute_column_scales`), so this depends on
+the unknowns alone.
 """
-function scale_hc_system(hc_system, hc_variables, scales)
-	@assert length(hc_variables) == length(scales) "scale length mismatch"
-	all(==(1.0), scales) && return hc_system
-	scaled_vars = [scales[i] * hc_variables[i] for i in eachindex(hc_variables)]
-	scaled_exprs = HomotopyContinuation.ModelKit.subs(hc_system.expressions, hc_variables => scaled_vars)
-	return HomotopyContinuation.System(scaled_exprs, variables = hc_system.variables, parameters = hc_system.parameters)
+column_scalable(solve_vars) = Bool[_multipoint_deriv_order(string(sv)) != 0 for sv in solve_vars]
+
+"""
+	scale_hc_system(hc_system, scaled_variables)
+
+Return a System in which each of `scaled_variables` is replaced by s_i*v_i (a pure coordinate rescale;
+Newton polytopes / mixed volume unchanged), where the scales s_i are new parameters listed after the
+system's own. A solve passes the scale values after the data, `target_parameters = vcat(data, scales)`.
+
+The scales are parameters, not numbers substituted into the expressions, so that the result is the same
+system for every data set and every interpolator. HomotopyContinuation compiles each distinct system it
+is given, and with data-derived numbers in the coefficients every call handed it a system it had not
+seen before.
+"""
+function scale_hc_system(hc_system, scaled_variables)
+	isempty(scaled_variables) && return hc_system
+	taken = Set{String}(string.(vcat(hc_system.variables, hc_system.parameters)))
+	scale_vars = HomotopyContinuation.ModelKit.Variable[]
+	for i in eachindex(scaled_variables)
+		name = "colscale_$(i)"
+		while name in taken
+			name *= "_"
+		end
+		push!(taken, name)
+		push!(scale_vars, HomotopyContinuation.ModelKit.Variable(Symbol(name)))
+	end
+	rescaled = [scale_vars[i] * scaled_variables[i] for i in eachindex(scaled_variables)]
+	scaled_exprs = HomotopyContinuation.ModelKit.subs(hc_system.expressions, scaled_variables => rescaled)
+	return HomotopyContinuation.System(scaled_exprs, variables = hc_system.variables,
+		parameters = vcat(hc_system.parameters, scale_vars))
 end
 
 """
@@ -930,22 +955,32 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 		gamma_rng = MersenneTwister(base_seed ⊻ 0x9e3779b97f4a7c15)
 	end
 
-	# Data-driven column scaling (off by default). Compute ONE scale vector for ALL points
-	# (aggregated over param_values_list) so the parameter homotopy stays in a single coordinate
-	# system; scale the system once here and unscale each solution at the extraction step below.
-	# When off, col_scales == ones ⇒ the unscale step is 1.0*x ⇒ byte-identical to prior behavior.
-	col_scales = ones(Float64, length(hc_variables))
+	# Data-driven column scaling. Compute ONE scale vector for ALL points (aggregated over
+	# param_values_list) so the parameter homotopy stays in a single coordinate system; scale the
+	# system once here and unscale each solution at the extraction step below.
+	# When off, col_scales == ones ⇒ the unscaled system is solved and the unscale step is 1.0*x.
+	# A system without data parameters has no data to take scales from, so its scales stay at one.
+	col_scales = use_column_scaling && !isempty(hc_params) ?
+		compute_column_scales(solve_vars, data_vars, param_values_list) : ones(Float64, length(hc_variables))
 	# Keep the UNSCALED system: data-derived column scales are tuned for the REAL shooting points and are
 	# meaningless at the generic complex p0, where they only hurt conditioning (they made the anchor solve
 	# under-count, 14 vs the true 18). So the :generic_start anchor solve below runs on hc_system_unscaled,
 	# then maps its physical roots into scaled coords for the (well-conditioned) scaled fan-out.
 	hc_system_unscaled = hc_system
-	if use_column_scaling
-		col_scales = compute_column_scales(solve_vars, data_vars, param_values_list)
-		hc_system = scale_hc_system(hc_system, hc_variables, col_scales)
-		if debug
-			println("[HC-PARAM] Column scaling ON: scale range $(extrema(col_scales)), nontrivial $(count(!=(1.0), col_scales))/$(length(col_scales))")
-		end
+	# The scaled system takes its scales as parameters, after the data (see `scale_hc_system`). Only
+	# derivative unknowns are ever scaled, so only they get a scale parameter.
+	# `with_scales` turns the data at a point into the parameters of whichever system is being solved.
+	scalable = column_scalable(solve_vars)
+	all(col_scales[i] == 1.0 || scalable[i] for i in eachindex(col_scales)) || throw(ArgumentError(
+		"solve_with_hc_parameterized: column scaling gave a scale other than one to an unknown that is not a derivative"))
+	scaled = any(!=(1.0), col_scales)
+	scale_params = col_scales[scalable]
+	if scaled
+		hc_system = scale_hc_system(hc_system, hc_variables[scalable])
+	end
+	with_scales(p) = scaled ? vcat(p, scale_params) : p
+	if debug && use_column_scaling
+		println("[HC-PARAM] Column scaling ON: scale range $(extrema(col_scales)), nontrivial $(count(!=(1.0), col_scales))/$(length(col_scales))")
 	end
 
 	if isempty(param_values_list)
@@ -1017,7 +1052,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				initial_solution_count = length(generic_start_solutions)  # the true generic count N
 			end
 			debug && println("[HC-PARAM] Point $i: generic-start fan-out — tracking N=$(length(generic_start_solutions)) generic solutions to this real point")
-			result = _track_gamma_straight(hc_system, generic_start_solutions, generic_start_params, current_params;
+			result = _track_gamma_straight(hc_system, generic_start_solutions, with_scales(generic_start_params), with_scales(current_params);
 				show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 				target_count = length(generic_start_solutions))
 			# Keep singular + complex FINITE solutions as candidates (matches the main solve path at ~687).
@@ -1033,7 +1068,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 						"no finite endpoints ($n_accounted accounted; finite-kept=0)"
 					println("[HC-PARAM] Point $i: fan-out $reason → fresh solve")
 				end
-				result = _hc_solve(hc_system; target_parameters = current_params, show_progress = show_progress)
+				result = _hc_solve(hc_system; target_parameters = with_scales(current_params), show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 				# Completeness target must stay a SOLUTION count (≈ the generic count N), NOT the fresh
 				# solve's only_finite=false endpoint count. The fan-out only ever tracks N generic
@@ -1059,7 +1094,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 			end
 
 			result = _hc_solve(hc_system;
-				target_parameters = current_params,
+				target_parameters = with_scales(current_params),
 				show_progress = show_progress)
 
 			all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)  # ALL, not just real
@@ -1075,7 +1110,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				if debug
 					println("[HC-PARAM] Point $i: γ-straight tracking $(length(prev_all_solutions)) solutions")
 				end
-				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
+				result = _track_gamma_straight(hc_system, prev_all_solutions, with_scales(prev_params), with_scales(current_params);
 					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 					target_count = initial_solution_count)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
@@ -1085,8 +1120,8 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 					println("[HC-PARAM] Point $i: Parameter homotopy tracking $(length(prev_all_solutions)) solutions")
 				end
 				result = _hc_solve(hc_system, prev_all_solutions;
-					start_parameters = prev_params,
-					target_parameters = current_params,
+					start_parameters = with_scales(prev_params),
+					target_parameters = with_scales(current_params),
 					show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 			end
@@ -1096,7 +1131,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 				if debug
 					println("[HC-PARAM] Point $i: parameter path lost paths ($(length(all_solutions)) < $initial_solution_count) → γ-straight")
 				end
-				result = _track_gamma_straight(hc_system, prev_all_solutions, prev_params, current_params;
+				result = _track_gamma_straight(hc_system, prev_all_solutions, with_scales(prev_params), with_scales(current_params);
 					show_progress = show_progress, rng = gamma_rng, max_seeds = gamma_max_seeds,
 					target_count = initial_solution_count)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
@@ -1108,7 +1143,7 @@ function solve_with_hc_parameterized(poly_system, solve_vars, data_vars, param_v
 					println("[HC-PARAM] Point $i: still short ($(length(all_solutions)) < $initial_solution_count). Fresh solve.")
 				end
 				result = _hc_solve(hc_system;
-					target_parameters = current_params,
+					target_parameters = with_scales(current_params),
 					show_progress = show_progress)
 				all_solutions = HomotopyContinuation.solutions(result; only_nonsingular = false)
 				initial_solution_count = max(initial_solution_count, length(all_solutions))

@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### One polynomial system for a model, whatever the data — 2026-10-06
+
+- Column scales now reach HomotopyContinuation as parameters of the polynomial
+  system. They were numbers written into its coefficients, so every
+  interpolator and every data set produced a system HomotopyContinuation had
+  not seen, and it compiled each one: 21 systems in a default run of a
+  two-state model, and most of them again for each new data set. It now
+  compiles 7, once for the model.
+- A second data set for a model takes as long as a repeat run. On the README
+  example it took about 33 s and now takes about 9 s. The first call of a
+  session is about 20 s shorter, and repeat runs are as fast as before.
+- The scale values and the equations are unchanged, and only unknowns that can
+  be scaled get a scale parameter. A seeded run of the README example or of
+  `simple()` returns exactly the values it returned before. On the built-in
+  `lotka_volterra()` the values differ in the 14th digit.
+
 ### Citation files — 2026-10-06
 
 - Add `CITATION.cff`, which GitHub reads for its "Cite this repository"
