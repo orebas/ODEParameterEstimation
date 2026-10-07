@@ -45,6 +45,7 @@ const TEST_FILES = [
     "test_quiet_defaults.jl",         # default runs print, log and write nothing; output is opt-in 2026-10-06
     "test_problem_constructor.jl",    # problem from an MTK system + named data; result display 2026-10-06
     "test_estimate.jl",               # estimate(): measured data in, ranked results out 2026-10-06
+    "test_precompile_workload.jl",    # the precompile workload is a quiet default run and leaves no state 2026-10-06
     "test_gp_kernel_optimization.jl", # recovered 2026-08-12 (gitignore-trap survivor, Feb 2026)
     "test_cross_observable_covariance.jl",  # recovered 2026-08-12 (joint-GP covariance, Mar 2026)
     "test_polish_maxtime.jl",         # recovered 2026-08-12 (polish_maxtime enforcement, May 2026)

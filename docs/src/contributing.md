@@ -24,6 +24,23 @@ registry only, with none of your local development versions:
 julia --startup-file=no test/registered.jl
 ```
 
+## Precompiling
+
+While the package is precompiled it estimates a small model, so that most of
+what `estimate` needs is compiled before anyone calls it. With that step,
+precompiling takes about six minutes every time `src` changes. Without it, it
+takes half a minute. To skip it while you work, put this in a
+`LocalPreferences.toml` beside the `Project.toml` of the environment you
+develop in:
+
+```toml
+[ODEParameterEstimation]
+precompile_workload = false
+```
+
+Take it out again before you time anything or run the tests for the last
+time. While it is there, they run on a package precompiled without that step.
+
 ## Building this manual
 
 ```bash

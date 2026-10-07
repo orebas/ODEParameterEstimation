@@ -57,6 +57,15 @@ drift, prefer `CLAUDE.md`.
   predate these implementations; use them as historical evidence when
   investigating remaining conditioning problems.
 
+- **Compile time on the first call and on new data.** HomotopyContinuation
+  compiles every distinct system it is given, so writing data-derived numbers
+  into the polynomial system costs a compilation for every data set. Column
+  scales are passed to it as parameters for that reason. The package also
+  runs a default estimation while it is precompiled
+  ([`src/precompile_workload.jl`](src/precompile_workload.jl)). Read
+  [`docs/internal/2026-10-06_first_call_latency.md`](docs/internal/2026-10-06_first_call_latency.md)
+  before changing column scaling, `hc_compile_mode` or that workload.
+
 ## User documentation
 
 - The manual is `docs/src`, built with Documenter and published at
@@ -86,6 +95,7 @@ drift, prefer `CLAUDE.md`.
   `julia --startup-file=no -e 'using Pkg; Pkg.test("ODEParameterEstimation"; allow_reresolve=false, test_args=["benchmark"])'`
 - `test/current.jl` wraps these commands, records the active environment, and verifies that it points at this checkout. `allow_reresolve=false` preserves dependency versions and local development paths; a test dependency conflict must fail visibly.
 - The full gate includes feature regressions and example smoke tests. Direct `include("test/...")` commands require their imports to be direct dependencies of the active environment; they are not a substitute for checking `Pkg.test`.
+- Precompiling the package takes about six minutes after any change to `src`, because it runs a default estimation. `docs/src/contributing.md` says how to switch that off while iterating. Switch it back on before timing anything or running the final gates.
 - For dependency/registration checks, run `julia --startup-file=no test/registered.jl` to resolve and test a fresh temporary environment using registered dependencies. Do not infer reproducibility from a global environment containing local development overrides. The current baseline and remaining release work are in [`docs/internal/2026-09-10_production_readiness.md`](docs/internal/2026-09-10_production_readiness.md).
 
 ## Code Style Guidelines

@@ -1,9 +1,9 @@
 # Troubleshooting
 
-## The first call takes minutes
+## The first call is slow
 
-That is Julia compiling, and it happens once per session. The second call to
-`estimate` on a similar model shows the real speed.
+That is Julia compiling code for your model. It happens once for each model in
+a session, and the second call to `estimate` shows the real speed.
 
 ## It is still running
 

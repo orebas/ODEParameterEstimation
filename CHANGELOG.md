@@ -18,6 +18,22 @@
   `simple()` returns exactly the values it returned before. On the built-in
   `lotka_volterra()` the values differ in the 14th digit.
 
+### A default estimation runs while the package is precompiled — 2026-10-06
+
+- Precompiling the package now estimates a small model with default options,
+  so that most of what `estimate` needs is compiled before the first call.
+  With the change above, the first `estimate` on the README example takes
+  about 32 s where it took about 105 s, and about 45 s where it took about
+  150 s on Julia's default single thread. A model of another size gains less:
+  the built-in `lotka_volterra()` goes from about 112 s to about 50 s.
+- Precompiling the package takes about a minute and a half longer, and its
+  cache file grows from 229 MB to 312 MB.
+- If that estimation fails, precompilation warns and carries on, and
+  `ODEParameterEstimation._WORKLOAD_STATUS[]` is `:failed`.
+- The earlier precompile step left the model it had estimated in the loaded
+  package. Nothing is carried over now, and a test checks a freshly loaded
+  package.
+
 ### Citation files — 2026-10-06
 
 - Add `CITATION.cff`, which GitHub reads for its "Cite this repository"

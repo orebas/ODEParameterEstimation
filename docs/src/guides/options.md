@@ -33,9 +33,8 @@ starts and finishes:
 
 ## Going faster
 
-The first call to `estimate` in a Julia session spends a couple of minutes
-compiling. Nothing here changes that, and the second call shows the real
-speed.
+The first time a model is estimated in a Julia session, Julia compiles code for
+it. Nothing here changes that, and the second call shows the real speed.
 
 After that, most of the time goes into solving the polynomial equations once
 for every curve fit and every time point. Two options reduce the count.

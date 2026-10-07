@@ -74,8 +74,9 @@ problem = ParameterEstimationProblem(lotka_volterra, [y1 ~ prey, y2 ~ predators]
     data = (t = times, y1 = prey_counts, y2 = predator_counts))
 ```
 
-The first call to `estimate` in a session takes a couple of minutes while Julia
-compiles. After that, a model of this size takes seconds.
+The first time a model is estimated in a session, Julia compiles code for it.
+For this example that takes under a minute, and after that a model of this
+size takes seconds.
 
 ## Documentation
 

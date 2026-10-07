@@ -1,7 +1,7 @@
 # Getting started
 
-This page fits a model to data from start to finish. Allow five minutes, most
-of them Julia compiling.
+This page fits a model to data from start to finish. Most of the time it takes
+is Julia installing and compiling packages.
 
 ## Installing
 
@@ -63,8 +63,9 @@ problem = ParameterEstimationProblem(lotka_volterra, [y1 ~ prey, y2 ~ predators]
 **[`estimate`](@ref)** returns a vector of results, best fit first. There is
 usually one. [More than one answer](@ref) explains when there are several.
 
-The first call in a Julia session takes a couple of minutes, because Julia
-compiles the package for your model. Calling it again takes seconds.
+The first time a model is estimated in a Julia session, Julia compiles code for
+that model. For this one that takes under a minute. Calling it again takes
+seconds, with the same data or with new data.
 
 ## Reading the result
 

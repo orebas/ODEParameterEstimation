@@ -202,65 +202,6 @@ export is_gp_interpolator, is_matern_interpolator, s3_symbol, s3_refine_gp, s3_r
 export merge_options, validate_options, print_options
 export compatibility_return_code, sync_result_contract!, lineage_summary
 
-
-# Precompilation workload - runs during package precompilation to reduce first-run latency
-@compile_workload begin
-	# Use local t/D to avoid polluting namespace
-	local _t = ModelingToolkit.t_nounits
-	local _D = ModelingToolkit.D_nounits
-
-	# Simple 1-state model to precompile core code paths
-	local _k1 = only(@parameters k1)
-	local _x = only(@variables x(_t))
-	local _y1 = only(@variables y1(_t))
-
-	local _states = [_x]
-	local _parameters = [_k1]
-	local _state_equations = [_D(_x) ~ _k1 * _x]
-	local _measured_quantities = [_y1 ~ _x]
-
-	local _model, _mq = create_ordered_ode_system(
-		"precompile_simple", _states, _parameters, _state_equations, _measured_quantities
-	)
-	local _pep = ParameterEstimationProblem(
-		"precompile_simple", _model, _mq, nothing, [-0.5, 0.5], nothing,
-		OrderedDict(_parameters .=> [0.5]), OrderedDict(_states .=> [0.5]), 0
-	)
-
-	# Run with HC solver (most common) and minimal settings
-	local _opts = EstimationOptions(
-		datasize = 11,
-		noise_level = 0.0,
-		system_solver = SolverHC,
-		interpolators = [InterpolatorAAAD],
-		shooting_points = 0,
-		nooutput = true,
-		diagnostics = false,
-		save_system = false,
-		use_parameter_homotopy = false,
-		polish_solver_solutions = false,
-		polish_solutions = false,
-	)
-
-	local _est_problem = sample_problem_data(_pep, _opts)
-	try
-		# Estimation can emit diagnostic sidecars even with nooutput=true.
-		# Precompilation must not create artifacts in the caller's directory.
-		mktempdir() do workload_dir
-			cd(workload_dir) do
-				redirect_stdout(devnull) do
-					redirect_stderr(devnull) do
-						with_logger(NullLogger()) do
-							analyze_parameter_estimation_problem(_est_problem, _opts)
-						end
-					end
-				end
-			end
-		end
-	catch err
-		_rethrow_if_interrupt(err)
-		# Ignore errors during precompilation - we just want to trigger compilation
-	end
-end
+include("precompile_workload.jl")  # the estimation that runs while the package is precompiled
 
 end # module
