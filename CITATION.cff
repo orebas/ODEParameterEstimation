@@ -1,0 +1,81 @@
+cff-version: 1.2.0
+message: >-
+  If you use this package in your work, please cite the paper below.
+  CITATION.bib has BibTeX entries for it and for the paper that introduced the
+  method.
+type: software
+title: ODEParameterEstimation.jl
+abstract: >-
+  ODEParameterEstimation.jl fits the parameters and initial conditions of an
+  ordinary differential equation model to time-series data. It solves
+  polynomial equations built from the model and from derivatives of the data,
+  so it needs no starting guesses, returns every parameter set that fits when
+  there is more than one, and reports which parameters the data cannot
+  determine.
+authors:
+  - family-names: Bassik
+    given-names: Oren
+    orcid: "https://orcid.org/0009-0003-4354-127X"
+  - family-names: Demin
+    given-names: Alexander
+  - family-names: Ovchinnikov
+    given-names: Alexey
+    orcid: "https://orcid.org/0000-0001-8192-910X"
+version: 1.0.0
+license: GPL-3.0-only
+repository-code: "https://github.com/orebas/ODEParameterEstimation.jl"
+url: "https://orebas.github.io/ODEParameterEstimation.jl/"
+keywords:
+  - parameter estimation
+  - ordinary differential equations
+  - structural identifiability
+  - polynomial systems
+  - Gaussian process regression
+  - Julia
+preferred-citation:
+  type: article
+  title: >-
+    Practical Algebraic Parameter Estimation for Noisy Data via Gaussian
+    Process Regression
+  authors:
+    - family-names: Bassik
+      given-names: Oren
+      orcid: "https://orcid.org/0009-0003-4354-127X"
+    - family-names: Demin
+      given-names: Alexander
+    - family-names: Ovchinnikov
+      given-names: Alexey
+      orcid: "https://orcid.org/0000-0001-8192-910X"
+  journal: "arXiv preprint arXiv:2609.30451"
+  year: 2026
+  month: 9
+  doi: 10.48550/arXiv.2609.30451
+  url: "https://arxiv.org/abs/2609.30451"
+references:
+  - type: article
+    title: Robust parameter estimation for rational ordinary differential equations
+    authors:
+      - family-names: Bassik
+        given-names: Oren
+      - family-names: Berman
+        given-names: Yosef
+      - family-names: Go
+        given-names: Soo
+      - family-names: Hong
+        given-names: Hoon
+      - family-names: Ilmer
+        given-names: Ilia
+      - family-names: Ovchinnikov
+        given-names: Alexey
+      - family-names: Rackauckas
+        given-names: Chris
+      - family-names: Soto
+        given-names: Pedro
+      - family-names: Yap
+        given-names: Chee
+    journal: Applied Mathematics and Computation
+    volume: 509
+    start: 129638
+    year: 2026
+    month: 1
+    doi: 10.1016/j.amc.2025.129638

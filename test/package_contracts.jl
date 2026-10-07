@@ -52,3 +52,12 @@ end
     ambiguous === nothing && @info "Ambiguous-import check skipped: method bodies are not inspectable on this Julia version"
     @test ambiguous === nothing || isempty(ambiguous)
 end
+
+# The citation files name the version by hand. A release that changes
+# `Project.toml` has to change them too.
+@testset "Citation files name the current version" begin
+    root = pkgdir(ODEParameterEstimation)
+    version = string(pkgversion(ODEParameterEstimation))
+    @test occursin("\nversion: $version\n", read(joinpath(root, "CITATION.cff"), String))
+    @test occursin("version $version}", read(joinpath(root, "CITATION.bib"), String))
+end

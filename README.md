@@ -102,6 +102,8 @@ If you use this package in your work, please cite the papers it is based on:
 > differential equations.* Applied Mathematics and Computation 509 (2026).
 > [doi:10.1016/j.amc.2025.129638](https://doi.org/10.1016/j.amc.2025.129638)
 
+BibTeX entries are in [`CITATION.bib`](CITATION.bib).
+
 ## Contributing
 
 Bug reports and pull requests are welcome. The manual's

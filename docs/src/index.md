@@ -60,3 +60,5 @@ If you use this package in your work, please cite the papers it is based on:
 > P. Soto, C. Yap. *Robust parameter estimation for rational ordinary
 > differential equations.* Applied Mathematics and Computation 509 (2026).
 > [doi:10.1016/j.amc.2025.129638](https://doi.org/10.1016/j.amc.2025.129638)
+
+BibTeX entries are in [`CITATION.bib`](https://github.com/orebas/ODEParameterEstimation.jl/blob/main/CITATION.bib).

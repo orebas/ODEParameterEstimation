@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Citation files — 2026-10-06
+
+- Add `CITATION.cff`, which GitHub reads for its "Cite this repository"
+  button, and `CITATION.bib`, with BibTeX entries for the two papers and for
+  the software. The paper to cite is the 2026 arXiv paper.
+- Add `.zenodo.json`, which describes the software to Zenodo when a release is
+  archived there.
+
 ## 1.0.0 — registration candidate, 2026-10-05
 
 This is the intended first registered release. Earlier source-install users
