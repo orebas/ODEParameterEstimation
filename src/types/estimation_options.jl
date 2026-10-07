@@ -86,7 +86,7 @@ end
 Enum selecting the high-level workflow used during estimation.
 
 - `FlowStandard`: New optimized multishot workflow (default)
-- `FlowDirectOpt`: Direct local optimization workflow (BFGS from random start)
+- `FlowDirectOpt`: Direct local optimization workflow (LBFGS from random start)
 """
 @enum EstimationFlow begin
 	FlowStandard     # optimized_multishot_parameter_estimation
@@ -330,12 +330,12 @@ These are read only by [`sample_problem_data`](@ref).
   of the Levenberg–Marquardt methods. A negative tolerance means `abstol` or
   `reltol`.
 - `opt_maxiters` (default `10000`): the iteration limit for the local
-  optimization of `FlowDirectOpt` and `terminal_fallback`.
+  optimization of `FlowDirectOpt`.
 - `opt_ad_backend` (default `:forward`): how the optimizers get derivatives:
   `:forward` for ForwardDiff or `:finite` for finite differences.
 - `terminal_fallback` (default `:direct_opt`): what to do when the algebraic
-  method finds nothing. `:direct_opt` fits by local optimization. `:none`
-  returns no results.
+  method finds nothing. `:direct_opt` fits by local optimization, within
+  `polish_maxiters` and `polish_maxtime`. `:none` returns no results.
 - `backsolve_recovery` (default `:algebraic_resolve`): what to do when a
   solution blows up as it is integrated back to the first time point.
   `:algebraic_resolve` keeps its parameters and solves for the states at that

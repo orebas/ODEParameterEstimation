@@ -34,6 +34,13 @@
   package. Nothing is carried over now, and a test checks a freshly loaded
   package.
 
+### Small corrections — 2026-10-06
+
+- `?EstimationOptions` said that `opt_maxiters` limits the terminal fallback.
+  It limits `FlowDirectOpt` only. The fallback is limited by `polish_maxiters`
+  and `polish_maxtime`.
+- The direct optimizer is LBFGS. Two docstrings and a message said BFGS.
+
 ### Citation files — 2026-10-06
 
 - Add `CITATION.cff`, which GitHub reads for its "Cite this repository"

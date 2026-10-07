@@ -2584,7 +2584,7 @@ end
 """
 	direct_optimization_parameter_estimation(PEP; opts) -> Vector{ParameterEstimationResult}
 
-Perform parameter estimation via direct BFGS optimization from a random initial guess.
+Perform parameter estimation via direct LBFGS optimization from a random initial guess.
 Uses the shared PolishContext infrastructure for consistency with the polish path.
 """
 function direct_optimization_parameter_estimation(PEP::ParameterEstimationProblem;

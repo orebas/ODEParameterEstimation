@@ -1049,7 +1049,7 @@ function _analyze_parameter_estimation_problem_impl(PEP::ParameterEstimationProb
 		results_tuple = optimized_multishot_parameter_estimation(PEP, opts)
 	elseif opts.flow == FlowDirectOpt
 		if !opts.nooutput
-			println("Using direct optimization workflow (BFGS)")
+			println("Using direct optimization workflow (LBFGS)")
 		end
 		# Align return signature with other workflows: (solutions, unident_dict, trivial_dict, all_unidentifiable)
 		local direct_results = direct_optimization_parameter_estimation(PEP; opts = opts)
